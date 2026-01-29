@@ -8,10 +8,9 @@ import { api } from "@/lib/api";
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY);
 
-function CheckoutForm({ booking, clientSecret }) {
+function CheckoutForm({ booking }) {
     const stripe = useStripe();
     const elements = useElements();
-    const router = useRouter();
     const [error, setError] = useState(null);
     const [processing, setProcessing] = useState(false);
 
@@ -110,32 +109,20 @@ export default function PaymentPage() {
 
     const fetchBookingAndCreateIntent = async () => {
         try {
-            // Fetch booking
+            // Fetch booking details
             const bookingRes = await api.get(`/bookings/${params.id}`);
             const bookingData = bookingRes.data.data;
             setBooking(bookingData);
 
-            // Check if payment already exists
             if (bookingData.payment) {
-                // If already escrowed, redirect back
-                if (bookingData.payment.status === "escrowed") {
-                    router.push(`/customer/bookings/${params.id}`);
-                    return;
-                }
-
-                // If payment intent exists (even if not yet escrowed), use existing client secret
-                if (bookingData.payment.stripePaymentIntendId) {
-                    // Retrieve the client secret from backend
-                    const paymentRes = await api.post("/payments/create-intent", {
-                        bookingId: params.id
-                    });
-                    setClientSecret(paymentRes.data.data.clientSecret);
-                    setLoading(false);
+                if (bookingData.payment.status === "escrowed" || bookingData.payment.status === "released") {
+                    router.push(`/customers/bookings/${params.id}`);
                     return;
                 }
             }
 
-            // Only create new payment intent if no payment exists
+            // Create or retrieve payment intent
+            // Backend already handled checking for existing payment intent
             const paymentRes = await api.post("/payments/create-intent", {
                 bookingId: params.id
             });
@@ -206,7 +193,7 @@ export default function PaymentPage() {
                 <h1 className="text-2xl font-bold mb-6">Complete Payment</h1>
 
                 <Elements stripe={stripePromise} options={options}>
-                    <CheckoutForm booking={booking} clientSecret={clientSecret} />
+                    <CheckoutForm booking={booking} />
                 </Elements>
             </div>
         </div>

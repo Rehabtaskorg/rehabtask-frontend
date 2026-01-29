@@ -11,6 +11,7 @@ export default function CustomerBookingDetailPage() {
     const [booking, setBooking] = useState(null);
     const [loading, setLoading] = useState(true);
     const [confirming, setConfirming] = useState(false);
+    const [cancelling, setCancelling] = useState(false);
 
     useEffect(() => {
         fetchBooking();
@@ -21,7 +22,7 @@ export default function CustomerBookingDetailPage() {
         }
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [params.id]);
+    }, [params.id, searchParams]);
 
     const fetchBooking = async () => {
         try {
@@ -47,7 +48,7 @@ export default function CustomerBookingDetailPage() {
         try {
             await api.post(`/sessions/${booking.session.id}/confirm`);
             alert("Session confirmed! Payment has been released to the therapist.");
-            fetchBooking();
+            await fetchBooking();
         } catch (error) {
             alert("Error: " + (error.response?.data?.message || "Failed to confirm"));
         } finally {
@@ -57,15 +58,23 @@ export default function CustomerBookingDetailPage() {
 
     const handleRequestRefund = async () => {
         const reason = prompt("Please provide a reason for the refund request:");
-        if (!reason) return;
+        if (!reason || reason.trim() === "") {
+            alert("Refund reason is required");
+            return;
+        }
 
+        if (!confirm(`Request fund for: "${reason}"?\n\nThis will cancel the booking and refund your payment.`)) {
+            return;
+        }
+
+        setCancelling(true);
         try {
             await api.post("/payments/refund", {
                 bookingId: params.id,
                 reason,
             });
-            alert("Refund processed successfully");
-            fetchBooking();
+            alert("Refund processed successfully. Your payment will be returned to your card within 5-10 business days.");
+            await fetchBooking();
         } catch (error) {
             alert("Error: " + (error.response?.data?.message || "Failed to process refund"))
         }
@@ -93,6 +102,48 @@ export default function CustomerBookingDetailPage() {
         )
     }
 
+    const getPaymentStatusInfo = () => {
+        if (!booking.payment) return null;
+
+        const status = booking.payment.status;
+        const statusMap = {
+            intent_created: {
+                color: 'bg-yellow-100 text-yellow-800 border-yellow-200',
+                icon: '⏳',
+                title: 'Payment Processing',
+                message: 'Payment intent created. Waiting for payment confirmation...',
+            },
+            escrowed: {
+                color: 'bg-blue-100 text-blue-800 border-blue-200',
+                icon: '🔒',
+                title: 'Payment Held Securely',
+                message: 'Your payment is held in escrow and will be released to the therapist after session completion.',
+            },
+            released: {
+                color: 'bg-green-100 text-green-800 border-green-200',
+                icon: '✅',
+                title: 'Payment Released',
+                message: `$${booking.payment.therapistPayout} has been transferred to the therapist.`,
+            },
+            refunded: {
+                color: 'bg-gray-100 text-gray-800 border-gray-200',
+                icon: '↩️',
+                title: 'Payment Refunded',
+                message: 'Your payment has been refunded to your original payment method.',
+            },
+            failed: {
+                color: 'bg-red-100 text-red-800 border-red-200',
+                icon: '❌',
+                title: 'Payment Failed',
+                message: 'Payment could not be processed. Please try again.',
+            },
+        };
+
+        return statusMap[status] || null;
+    };
+
+    const paymentInfo = getPaymentStatusInfo();
+
     return (
         <div className="py-8 px-4 max-w-4xl mx-auto">
             <button
@@ -102,62 +153,133 @@ export default function CustomerBookingDetailPage() {
                 ← Back
             </button>
 
-            <div className="bg-white rounded-lg shadow p-6">
+            <div className="bg-white rounded-lg shadow p-6 mb-6">
                 <div className="flex justify-between items-start mb-6">
                     <div>
                         <h1 className="text-2xl font-bold mb-2">Booking Details</h1>
-                        <p className="text-gray-600">Booking ID: {booking.id}</p>
+                        <p className="text-sm text-gray-600">Booking ID: {booking.id.slice(0, 8)}...</p>
                     </div>
                     <span
                         className={`px-3 py-1 rounded-full text-sm font-semibold ${booking.status === 'completed'
                             ? 'bg-green-100 text-green-800'
                             : booking.status === 'confirmed'
                                 ? 'bg-blue-100 text-blue-800'
-                                : booking.status === 'pending'
-                                    ? 'bg-yellow-100 text-yellow-800'
-                                    : 'bg-gray-100 text-gray-800'
+                                : booking.status === 'in_progress'
+                                    ? 'bg-purple-100 text-purple-800'
+                                    : booking.status === 'pending'
+                                        ? 'bg-yellow-100 text-yellow-800'
+                                        : 'bg-gray-100 text-gray-800'
                             }`}
                     >
                         {booking.status.replace('_', ' ').toUpperCase()}
                     </span>
                 </div>
 
+                {/* Therapist Info */}
                 <div className="grid grid-cols-2 gap-6 mb-6">
                     <div>
                         <h3 className="font-semibold mb-2">Therapist</h3>
                         <p className="text-lg">{booking.therapist.fullName}</p>
                         <p className="text-sm text-gray-600">{booking.therapist.specialization}</p>
+                        <p className="text-sm text-gray-600">{booking.therapist.phone}</p>
                     </div>
                     <div>
                         <h3 className="font-semibold mb-2">Session Details</h3>
-                        <p>{booking.offer.request.serviceType}</p>
+                        <p className="font-medium">{booking.offer.request.serviceType}</p>
                         <p className="text-sm text-gray-600">
-                            {new Date(booking.scheduledDate).toLocaleString()}
+                            📅 {new Date(booking.scheduledDate).toLocaleDateString()}
+                        </p>
+                        <p className="text-sm text-gray-600">
+                            🕐 {new Date(booking.scheduledDate).toLocaleTimeString()}
+                        </p>
+                        <p className="text-sm text-gray-600 mt-1">
+                            📍 {booking.offer.request.location}
                         </p>
                     </div>
                 </div>
 
+                {/* Payment Info */}
                 <div className="border-t pt-4 mb-6">
-                    <h3 className="font-semibold mb-2">Payment</h3>
-                    <div className="flex justify-between items-center">
-                        <span className="text-2xl font-bold">${booking.rate}</span>
-                        {booking.payment && (
-                            <span
-                                className={`px-3 py-1 rounded-full text-xs font-semibold ${booking.payment.status === 'escrowed'
-                                    ? 'bg-blue-100 text-blue-800'
-                                    : booking.payment.status === 'released'
-                                        ? 'bg-green-100 text-green-800'
-                                        : 'bg-gray-100 text-gray-800'
-                                    }`}
-                            >
-                                {booking.payment.status.replace('_', ' ').toUpperCase()}
-                            </span>
+                    <h3 className="font-semibold mb-3">Payment Information</h3>
+                    <div className="flex justify-between items-center mb-3">
+                        <span className="text-lg">Session Rate</span>
+                        <span className="text-2xl font-bold text-blue-600">${booking.rate}</span>
+                    </div>
+                    {booking.payment && (
+                        <div className="text-sm text-gray-600">
+                            <p>Payment ID: {booking.payment.id.slice(0, 8)}...</p>
+                            {booking.payment.stripePaymentIntentId && (
+                                <p>Stripe: {booking.payment.stripePaymentIntentId.slice(0, 20)}...</p>
+                            )}
+                        </div>
+                    )}
+                </div>
+
+                {/* Payment Status Banner */}
+                {paymentInfo && (
+                    <div className={`border rounded-lg p-4 mb-6 ${paymentInfo.color}`}>
+                        <p className="font-semibold mb-1">
+                            {paymentInfo.icon} {paymentInfo.title}
+                        </p>
+                        <p className="text-sm">{paymentInfo.message}</p>
+                        {booking.payment?.escrowedAt && (
+                            <p className="text-xs mt-2">
+                                Escrowed: {new Date(booking.payment.escrowedAt).toLocaleString()}
+                            </p>
+                        )}
+                        {booking.payment?.releasedAt && (
+                            <p className="text-xs mt-2">
+                                Released: {new Date(booking.payment.releasedAt).toLocaleString()}
+                            </p>
                         )}
                     </div>
-                </div>
+                )}
+
+                {/* Session Status */}
+                {booking.session && (
+                    <div className="border-t pt-4 mb-6">
+                        <h3 className="font-semibold mb-3">Session Status</h3>
+                        <div className="space-y-2">
+                            {/* Session Created */}
+                            <div className="flex items-center">
+                                <span className="text-green-500 mr-2">✓</span>
+                                <span className="text-sm">Session scheduled</span>
+                            </div>
+
+                            {/* Therapist Completed */}
+                            {booking.session.status !== 'scheduled' && (
+                                <div className="flex items-center">
+                                    <span className="text-green-500 mr-2">✓</span>
+                                    <span className="text-sm">
+                                        Therapist marked complete ({new Date(booking.session.completedAt).toLocaleString()})
+                                    </span>
+                                </div>
+                            )}
+
+                            {/* Customer Confirmed */}
+                            {booking.session.status === 'confirmed_by_customer' && (
+                                <div className="flex items-center">
+                                    <span className="text-green-500 mr-2">✓</span>
+                                    <span className="text-sm">
+                                        You confirmed completion ({new Date(booking.session.confirmedByCustomerAt).toLocaleString()})
+                                    </span>
+                                </div>
+                            )}
+
+                            {/* Waiting for Confirmation */}
+                            {booking.session.status === 'completed_by_therapist' && (
+                                <div className="flex items-center">
+                                    <span className="text-yellow-500 mr-2">⏳</span>
+                                    <span className="text-sm">Waiting for your confirmation</span>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                )}
 
                 {/* Action Buttons */}
                 <div className="space-y-3">
+                    {/* CASE 1: Payment Not Made Yet */}
                     {booking.status === 'pending' && !booking.payment && (
                         <button
                             onClick={handleProceedToPayment}
@@ -167,51 +289,171 @@ export default function CustomerBookingDetailPage() {
                         </button>
                     )}
 
-                    {booking.session &&
-                        booking.session.status === 'completed_by_therapist' && (
-                            <div className="space-y-3">
-                                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                                    <p className="text-yellow-900 font-semibold mb-2">
-                                        ⚠️ Therapist has marked this session as complete
-                                    </p>
-                                    <p className="text-sm text-yellow-800">
-                                        Please confirm completion to release payment to the therapist.
+                    {/* CASE 2: Payment Processing (intent_created) */}
+                    {booking.payment && booking.payment.status === 'intent_created' && (
+                        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                            <p className="text-yellow-900 font-semibold mb-2">⏳ Payment Processing</p>
+                            <p className="text-sm text-yellow-800">
+                                Your payment is being processed. This usually takes a few seconds.
+                            </p>
+                            <button
+                                onClick={fetchBooking}
+                                className="mt-3 text-sm text-yellow-700 underline hover:text-yellow-900"
+                            >
+                                Refresh Status
+                            </button>
+                        </div>
+                    )}
+
+                    {/* CASE 3: Payment Escrowed - Waiting for Session */}
+                    {booking.payment && booking.payment.status === 'escrowed' &&
+                        booking.session && booking.session.status === 'scheduled' && (
+                            <>
+                                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                    <p className="text-blue-900 font-semibold mb-2">📅 Session Scheduled</p>
+                                    <p className="text-sm text-blue-800">
+                                        Your payment is secure. Please attend your session on the scheduled date.
+                                        After the session, the therapist will mark it as complete.
                                     </p>
                                 </div>
                                 <button
-                                    onClick={handleConfirmCompletion}
-                                    disabled={confirming}
-                                    className="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 disabled:bg-gray-400"
+                                    onClick={handleRequestRefund}
+                                    disabled={cancelling}
+                                    className="w-full border border-red-600 text-red-600 py-2 rounded-lg hover:bg-red-50 disabled:bg-gray-100 disabled:text-gray-400 disabled:border-gray-300"
                                 >
-                                    {confirming ? 'Confirming...' : 'Confirm Session Completion'}
+                                    {cancelling ? 'Processing...' : 'Cancel & Request Refund'}
                                 </button>
+                            </>
+                        )}
+
+                    {/* CASE 4: Therapist Marked Complete - Confirm Now */}
+                    {booking.session && booking.session.status === 'completed_by_therapist' && (
+                        <div className="space-y-3">
+                            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                                <p className="text-yellow-900 font-semibold mb-2">
+                                    ✋ Therapist Has Marked Session Complete
+                                </p>
+                                <p className="text-sm text-yellow-800 mb-3">
+                                    Your therapist has indicated that the session is complete. Please confirm below to release the payment.
+                                </p>
+                                <p className="text-xs text-yellow-700">
+                                    💡 If you don&apos;t confirm within 72 hours, the payment will be automatically released.
+                                </p>
                             </div>
-                        )}
-
-                    {booking.status === 'confirmed' &&
-                        booking.payment?.status === 'escrowed' &&
-                        (!booking.session || booking.session.status === 'scheduled') && (
                             <button
-                                onClick={handleRequestRefund}
-                                className="w-full border border-red-600 text-red-600 py-2 rounded-lg hover:bg-red-50"
+                                onClick={handleConfirmCompletion}
+                                disabled={confirming}
+                                className="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 disabled:bg-gray-400"
                             >
-                                Request Cancellation & Refund
+                                {confirming ? 'Confirming...' : '✅ Confirm Session Completion'}
                             </button>
-                        )}
+                        </div>
+                    )}
 
-                    {booking.session?.status === 'confirmed_by_customer' && (
+                    {/* CASE 5: Session Confirmed - Payment Released */}
+                    {booking.session && booking.session.status === 'confirmed_by_customer' && (
                         <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                            <p className="text-green-900 font-semibold mb-2">
-                                ✅ Session Completed
+                            <p className="text-green-900 font-semibold mb-2">✅ Session Completed!</p>
+                            <p className="text-sm text-green-800 mb-2">
+                                Thank you for confirming. Payment of ${booking.payment.therapistPayout} has been released to {booking.therapist.fullName}.
                             </p>
-                            <p className="text-sm text-green-800">
-                                Payment of ${booking.payment.therapistPayout} has been released to the therapist.
+                            {booking.payment?.releasedAt && (
+                                <p className="text-xs text-green-700">
+                                    Released on: {new Date(booking.payment.releasedAt).toLocaleString()}
+                                </p>
+                            )}
+                            {booking.payment?.stripeTransferId && (
+                                <p className="text-xs text-green-700 mt-1">
+                                    Transfer ID: {booking.payment.stripeTransferId}
+                                </p>
+                            )}
+                        </div>
+                    )}
+
+                    {/* CASE 6: Cancelled/Refunded */}
+                    {booking.status === 'cancelled' && (
+                        <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                            <p className="text-gray-900 font-semibold mb-2">Booking Cancelled</p>
+                            <p className="text-sm text-gray-800">
+                                This booking has been cancelled.
                             </p>
+                            {booking.session?.cancellationReason && (
+                                <p className="text-xs text-gray-600 mt-2">
+                                    Reason: {booking.session.cancellationReason}
+                                </p>
+                            )}
+                        </div>
+                    )}
+                </div>
+            </div>
+
+            {/* Timeline */}
+            <div className="bg-white rounded-lg shadow p-6">
+                <h3 className="font-semibold mb-4">Booking Timeline</h3>
+                <div className="space-y-3">
+                    <div className="flex">
+                        <div className="shrink-0 w-2 h-2 mt-2 bg-blue-500 rounded-full"></div>
+                        <div className="ml-4">
+                            <p className="text-sm font-medium">Booking Created</p>
+                            <p className="text-xs text-gray-500">{new Date(booking.createdAt).toLocaleString()}</p>
+                        </div>
+                    </div>
+
+                    {booking.payment && (
+                        <div className="flex">
+                            <div className={`shrink-0 w-2 h-2 mt-2 rounded-full ${booking.payment.status === 'escrowed' || booking.payment.status === 'released'
+                                ? 'bg-blue-500'
+                                : 'bg-gray-300'
+                                }`}></div>
+                            <div className="ml-4">
+                                <p className="text-sm font-medium">Payment Escrowed</p>
+                                <p className="text-xs text-gray-500">
+                                    {booking.payment.escrowedAt
+                                        ? new Date(booking.payment.escrowedAt).toLocaleString()
+                                        : 'Pending...'}
+                                </p>
+                            </div>
+                        </div>
+                    )}
+
+                    {booking.session && booking.session.completedAt && (
+                        <div className="flex">
+                            <div className="shrink-0 w-2 h-2 mt-2 bg-blue-500 rounded-full"></div>
+                            <div className="ml-4">
+                                <p className="text-sm font-medium">Therapist Marked Complete</p>
+                                <p className="text-xs text-gray-500">
+                                    {new Date(booking.session.completedAt).toLocaleString()}
+                                </p>
+                            </div>
+                        </div>
+                    )}
+
+                    {booking.session && booking.session.confirmedByCustomerAt && (
+                        <div className="flex">
+                            <div className="shrink-0 w-2 h-2 mt-2 bg-green-500 rounded-full"></div>
+                            <div className="ml-4">
+                                <p className="text-sm font-medium">Customer Confirmed</p>
+                                <p className="text-xs text-gray-500">
+                                    {new Date(booking.session.confirmedByCustomerAt).toLocaleString()}
+                                </p>
+                            </div>
+                        </div>
+                    )}
+
+                    {booking.payment && booking.payment.releasedAt && (
+                        <div className="flex">
+                            <div className="shrink-0 w-2 h-2 mt-2 bg-green-500 rounded-full"></div>
+                            <div className="ml-4">
+                                <p className="text-sm font-medium">Payment Released</p>
+                                <p className="text-xs text-gray-500">
+                                    {new Date(booking.payment.releasedAt).toLocaleString()}
+                                </p>
+                            </div>
                         </div>
                     )}
                 </div>
             </div>
         </div>
-    )
+    );
 
 }
