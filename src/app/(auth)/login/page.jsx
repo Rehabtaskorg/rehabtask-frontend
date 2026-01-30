@@ -17,19 +17,38 @@ export default function LoginPage() {
 
         try {
             const res = await api.post("/auth/login", formData);
+
+            if (!res.data.success) {
+                setError(res.data.message || "Login failed");
+                setLoading(false);
+                return;
+            }
+
             const { user } = res.data.data;
+
+            // add a small delay to ensure cookie is set
+            await new Promise(resolve => setTimeout(resolve, 100));
 
             if (user.role === "customer") {
                 router.push("/customer/dashboard");
             }
             else if (user.role === "therapist") {
                 router.push("/therapist/dashboard")
+            } else {
+                setError("Invalid user role");
+                setLoading(false);
             }
 
         } catch (err) {
-            setError(err.response?.data?.message || "Login failed");
-        }
-        finally {
+            console.error("Login error:", err);
+
+            if (err.response) {
+                setError(err.response.data?.message || "Login failed. Please check your credentials.");
+            } else if (err.request) {
+                setError("Unable to connect to server. Please try again.")
+            } else {
+                setError("An unexpected error occured. Please try again.")
+            }
             setLoading(false);
         }
     };
@@ -57,9 +76,11 @@ export default function LoginPage() {
                             id="email"
                             type="email"
                             required
+                            autoComplete="email"
                             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                             value={formData.email}
                             onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                            disabled={loading}
                         />
                     </div>
                     <div>
@@ -70,9 +91,11 @@ export default function LoginPage() {
                             id="password"
                             type="password"
                             required
+                            autoComplete="current-password"
                             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                             value={formData.password}
                             onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                            disabled={loading}
                         />
                     </div>
                 </div>
@@ -80,7 +103,7 @@ export default function LoginPage() {
                 <button
                     type="submit"
                     disabled={loading}
-                    className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-gray-400"
+                    className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-gray-400 disabled:cursor-not-allowed"
                 >
                     {loading ? "Signing in..." : "Sign in"}
                 </button>
