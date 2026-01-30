@@ -26,7 +26,7 @@ export default function LoginPage() {
 
             const { user } = res.data.data;
 
-            // add a small delay to ensure cookie is set
+            // add a small delay to ensure cookie is set.
             await new Promise(resolve => setTimeout(resolve, 100));
 
             if (user.role === "customer") {
