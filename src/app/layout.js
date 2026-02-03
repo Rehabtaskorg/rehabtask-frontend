@@ -5,7 +5,7 @@ const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
 });
-// Test out staging environment
+// Test out staging environment frontend
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
