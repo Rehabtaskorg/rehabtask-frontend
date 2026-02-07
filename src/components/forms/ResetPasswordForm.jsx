@@ -36,6 +36,8 @@ function ResetPasswordForm() {
     // Check if we have a valid session from the reset link (hash fragment)
     useEffect(() => {
         const checkResetToken = async () => {
+            if (!supabase) return;
+
             try {
                 const { data: { session }, error: sessionError } = await supabase.auth.getSession();
 
