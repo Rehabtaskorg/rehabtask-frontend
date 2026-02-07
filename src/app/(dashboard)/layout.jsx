@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { api } from '@/lib/api';
+import { authAPi } from '@/lib/auth.api';
 
 export default function DashboardLayout({ children }) {
     const router = useRouter();
@@ -17,18 +17,20 @@ export default function DashboardLayout({ children }) {
 
         const fetchUser = async () => {
             try {
-                const res = await api.get("/auth/me");
+                const res = await authAPi.getCurrentUser()
 
                 if (!isMounted) return;
 
-                const userData = res.data.data;
+                const userData = res.data.data.user;
 
                 // check if user is on the correct dashboard
                 const isOnCustomerDashboard = pathname.startsWith("/customer");
                 const isOnTherapistDashboard = pathname.startsWith("/therapist");
 
-                const shouldRedirectToTherapist = isOnCustomerDashboard && userData.role === "therapist";
-                const shouldRedirectToCustomer = isOnTherapistDashboard && userData.role === "customer";
+                const shouldRedirectToTherapist =
+                    isOnCustomerDashboard && userData.role === "therapist";
+                const shouldRedirectToCustomer =
+                    isOnTherapistDashboard && userData.role === "customer";
 
                 if (shouldRedirectToTherapist) {
                     router.replace("/therapist/dashboard");
@@ -66,8 +68,7 @@ export default function DashboardLayout({ children }) {
 
     const handleLogout = async () => {
         try {
-            await api.post("/auth/logout");
-
+            await authAPi.logout();
             router.push("/login");
         } catch (error) {
             console.error("Logout error:", error);
@@ -104,7 +105,7 @@ export default function DashboardLayout({ children }) {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between h-16">
                         <div className="flex items-center">
-                            <h1 className="text-xl font-bold text-blue-600">RehabTask</h1>
+                            <h1 className="text-xl font-bold text-blue-600">RehabMarket</h1>
 
                             <div className="ml-10 flex items-baseline space-x-4">
                                 {user.role === 'customer' && (
