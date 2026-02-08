@@ -1,13 +1,16 @@
 "use client";
 
+import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { MdError } from "react-icons/md";
 import Button from "@/components/ui/Button";
 
-const OAuthError = () => {
+function OAuthErrorContent() {
     const searchParams = useSearchParams();
-    const errorMessage = searchParams.get("message") || "Authentication failed. Please try again.";
+    const errorMessage =
+        searchParams.get("message") ||
+        "Authentication failed. Please try again.";
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-background-dark p-4">
@@ -36,7 +39,10 @@ const OAuthError = () => {
 
                         <p className="text-sm text-text-muted dark:text-[#a1b0c0]">
                             Need help?{" "}
-                            <Link href="/support" className="text-primary font-semibold hover:underline">
+                            <Link
+                                href="/support"
+                                className="text-primary font-semibold hover:underline"
+                            >
                                 Contact Support
                             </Link>
                         </p>
@@ -45,6 +51,12 @@ const OAuthError = () => {
             </div>
         </div>
     );
-};
+}
 
-export default OAuthError;
+export default function OAuthErrorPage() {
+    return (
+        <Suspense fallback={null}>
+            <OAuthErrorContent />
+        </Suspense>
+    );
+}
