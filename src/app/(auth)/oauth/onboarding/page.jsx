@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -14,7 +14,7 @@ import Alert from "@/components/ui/Alert";
 import { oauthOnboardingSchema } from "@/lib/validationSchema";
 import { useOAuthOnboarding } from "@/hooks/useOAuthOnboarding";
 
-const OAuthOnboarding = () => {
+function OAuthOnboardingContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const provider = searchParams.get("provider") || "Google";
@@ -54,40 +54,22 @@ const OAuthOnboarding = () => {
     return (
         <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-background-dark p-4 transition-colors duration-300">
             <div className="w-full max-w-2xl bg-white dark:bg-[#1a2632] shadow-xl rounded-xl overflow-hidden border border-border-subtle dark:border-[#2d3a4a]">
-                {/* Smart Progress Indicator */}
+
+                {/* Progress Indicator */}
                 <div className="px-8 pt-8">
                     <div className="flex items-center justify-center space-x-4 mb-8">
                         <div className="flex items-center gap-2">
-                            <div
-                                className={`h-8 w-8 rounded-full flex items-center justify-center text-sm font-bold ${selectedRole ? "bg-green-500 text-white" : "bg-primary text-white"
-                                    }`}
-                            >
+                            <div className={`h-8 w-8 rounded-full flex items-center justify-center text-sm font-bold ${selectedRole ? "bg-green-500 text-white" : "bg-primary text-white"}`}>
                                 {selectedRole ? <MdCheckCircle size={20} /> : "1"}
                             </div>
-                            <span
-                                className={`text-sm font-medium ${selectedRole ? "text-text-muted" : "text-text-main dark:text-white"
-                                    }`}
-                            >
-                                Role
-                            </span>
+                            <span className={`text-sm font-medium ${selectedRole ? "text-text-muted" : "text-text-main dark:text-white"}`}>Role</span>
                         </div>
-                        <div
-                            className={`h-0.5 w-12 ${selectedRole ? "bg-green-500" : "bg-gray-200 dark:bg-gray-700"
-                                }`}
-                        />
+                        <div className={`h-0.5 w-12 ${selectedRole ? "bg-green-500" : "bg-gray-200 dark:bg-gray-700"}`} />
                         <div className="flex items-center gap-2">
-                            <div
-                                className={`h-8 w-8 rounded-full flex items-center justify-center text-sm font-bold ${selectedRole ? "bg-primary text-white" : "bg-gray-200 dark:bg-gray-700 text-gray-500"
-                                    }`}
-                            >
+                            <div className={`h-8 w-8 rounded-full flex items-center justify-center text-sm font-bold ${selectedRole ? "bg-primary text-white" : "bg-gray-200 dark:bg-gray-700 text-gray-500"}`}>
                                 2
                             </div>
-                            <span
-                                className={`text-sm font-medium ${selectedRole ? "text-text-main dark:text-white" : "text-text-muted"
-                                    }`}
-                            >
-                                Profile
-                            </span>
+                            <span className={`text-sm font-medium ${selectedRole ? "text-text-main dark:text-white" : "text-text-muted"}`}>Profile</span>
                         </div>
                     </div>
 
@@ -112,10 +94,7 @@ const OAuthOnboarding = () => {
                             }`}
                     >
                         <div className="flex flex-col items-center text-center space-y-4">
-                            <div
-                                className={`p-4 rounded-full transition-colors ${selectedRole === "customer" ? "bg-primary text-white" : "bg-primary/10 text-primary"
-                                    }`}
-                            >
+                            <div className={`p-4 rounded-full transition-colors ${selectedRole === "customer" ? "bg-primary text-white" : "bg-primary/10 text-primary"}`}>
                                 <MdPerson className="text-4xl" />
                             </div>
                             <div>
@@ -134,10 +113,7 @@ const OAuthOnboarding = () => {
                             }`}
                     >
                         <div className="flex flex-col items-center text-center space-y-4">
-                            <div
-                                className={`p-4 rounded-full transition-colors ${selectedRole === "therapist" ? "bg-primary text-white" : "bg-primary/10 text-primary"
-                                    }`}
-                            >
+                            <div className={`p-4 rounded-full transition-colors ${selectedRole === "therapist" ? "bg-primary text-white" : "bg-primary/10 text-primary"}`}>
                                 <FaUserMd className="text-4xl" />
                             </div>
                             <div>
@@ -153,10 +129,10 @@ const OAuthOnboarding = () => {
                     {selectedRole && (
                         <motion.div
                             key={selectedRole}
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -10 }}
-                            transition={{ duration: 0.3, ease: "easeOut" }}
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: "auto" }}
+                            exit={{ opacity: 0, height: 0 }}
+                            transition={{ duration: 0.4, ease: "easeOut" }}
                         >
                             <form
                                 onSubmit={handleSubmit(onSubmit)}
@@ -189,33 +165,21 @@ const OAuthOnboarding = () => {
                                             </label>
                                             <div className="grid grid-cols-2 gap-3">
                                                 <label className="relative cursor-pointer">
-                                                    <input
-                                                        type="radio"
-                                                        value="individual"
-                                                        {...register("customerType")}
-                                                        className="peer sr-only"
-                                                    />
+                                                    <input type="radio" value="individual" {...register("customerType")} className="peer sr-only" />
                                                     <div className="flex items-center gap-2 p-4 border-2 border-border-subtle dark:border-[#2d3a4a] rounded-lg peer-checked:border-primary peer-checked:bg-primary/5 transition-all">
                                                         <MdPerson className="text-xl text-text-muted peer-checked:text-primary" />
                                                         <span className="font-semibold text-text-main dark:text-white">Individual</span>
                                                     </div>
                                                 </label>
                                                 <label className="relative cursor-pointer">
-                                                    <input
-                                                        type="radio"
-                                                        value="agency"
-                                                        {...register("customerType")}
-                                                        className="peer sr-only"
-                                                    />
+                                                    <input type="radio" value="agency" {...register("customerType")} className="peer sr-only" />
                                                     <div className="flex items-center gap-2 p-4 border-2 border-border-subtle dark:border-[#2d3a4a] rounded-lg peer-checked:border-primary peer-checked:bg-primary/5 transition-all">
                                                         <MdBusiness className="text-xl text-text-muted peer-checked:text-primary" />
                                                         <span className="font-semibold text-text-main dark:text-white">Agency</span>
                                                     </div>
                                                 </label>
                                             </div>
-                                            {errors.customerType && (
-                                                <p className="mt-1 text-sm text-red-500">{errors.customerType.message}</p>
-                                            )}
+                                            {errors.customerType && <p className="mt-1 text-sm text-red-500">{errors.customerType.message}</p>}
                                         </div>
                                         {customerType === "agency" && (
                                             <Input
@@ -249,9 +213,7 @@ const OAuthOnboarding = () => {
                                                 rows={3}
                                                 className="w-full px-4 py-3 border border-border-subtle dark:border-[#2d3a4a] rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-white dark:bg-[#1a2632] text-text-main dark:text-white placeholder-text-muted"
                                             />
-                                            {errors.specialization && (
-                                                <p className="mt-1 text-sm text-red-500">{errors.specialization.message}</p>
-                                            )}
+                                            {errors.specialization && <p className="mt-1 text-sm text-red-500">{errors.specialization.message}</p>}
                                         </div>
                                         <Input
                                             label="License Number"
@@ -301,6 +263,12 @@ const OAuthOnboarding = () => {
             </div>
         </div>
     );
-};
+}
 
-export default OAuthOnboarding;
+export default function OAuthOnboardingPage() {
+    return (
+        <Suspense fallback={null}>
+            <OAuthOnboardingContent />
+        </Suspense>
+    );
+}
