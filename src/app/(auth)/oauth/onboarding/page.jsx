@@ -107,8 +107,8 @@ const OAuthOnboarding = () => {
                         type="button"
                         onClick={() => handleRoleSelection("customer")}
                         className={`group relative p-6 border-2 rounded-xl transition-all text-left ${selectedRole === "customer"
-                                ? "border-primary bg-primary/5 ring-2 ring-primary/20"
-                                : "border-border-subtle dark:border-[#2d3a4a] hover:border-primary/50"
+                            ? "border-primary bg-primary/5 ring-2 ring-primary/20"
+                            : "border-border-subtle dark:border-[#2d3a4a] hover:border-primary/50"
                             }`}
                     >
                         <div className="flex flex-col items-center text-center space-y-4">
@@ -129,8 +129,8 @@ const OAuthOnboarding = () => {
                         type="button"
                         onClick={() => handleRoleSelection("therapist")}
                         className={`group relative p-6 border-2 rounded-xl transition-all text-left ${selectedRole === "therapist"
-                                ? "border-primary bg-primary/5 ring-2 ring-primary/20"
-                                : "border-border-subtle dark:border-[#2d3a4a] hover:border-primary/50"
+                            ? "border-primary bg-primary/5 ring-2 ring-primary/20"
+                            : "border-border-subtle dark:border-[#2d3a4a] hover:border-primary/50"
                             }`}
                     >
                         <div className="flex flex-col items-center text-center space-y-4">
