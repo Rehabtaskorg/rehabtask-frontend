@@ -121,13 +121,20 @@ export const authAPi = {
     },
 
     /**
+     * Process OAuth tokens (send to backend after getting from Supabase)
+     */
+    processOAuth: async (accessToken, refreshToken) => {
+        return api.post("/auth/oauth/process", {
+            accessToken,
+            refreshToken
+        });
+    },
+
+    /**
      * Complete OAuth onboarding
      */
-    completeOAuthOnboarding: async (role, profileData) => {
-        return api.post("/api/oauth/onboarding", {
-            role,
-            ...profileData,
-        });
+    completeOAuthOnboarding: async (profileData) => {
+        return api.post("/auth/oauth/onboarding", profileData);
     },
 
     /**

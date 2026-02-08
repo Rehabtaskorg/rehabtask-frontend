@@ -12,6 +12,7 @@ import Alert from "@/components/ui/Alert";
 import Link from "next/link";
 import { loginSchema } from "@/lib/validationSchema";
 import { useLogin } from "@/hooks/useLogin";
+import { useGoogleAuth } from "@/hooks/useGoogleAuth";
 
 const LoginForm = () => {
     const { register, handleSubmit, formState: { errors } } = useForm({
@@ -29,7 +30,10 @@ const LoginForm = () => {
         clearError
     } = useLogin();
 
+    const { initiateGoogleLogin } = useGoogleAuth();
+
     const [resendingEmail, setResendingEmail] = useState(false);
+    const [googleLoading, setGoogleLoading] = useState(false);
 
     const onSubmit = async (data) => {
         await login(data);
@@ -40,6 +44,19 @@ const LoginForm = () => {
         await resendVerification();
         setResendingEmail(false);
     }
+
+    const handleGoogleLogin = async () => {
+        setGoogleLoading(true);
+        clearError();
+
+        const result = await initiateGoogleLogin();
+
+        if (!result.success) {
+            setGoogleLoading(false);
+            // You might want to show an error here
+        }
+        // If successful, user will be redirected, no need to set loading to false
+    };
 
     return (
         <div className="w-full max-w-120 bg-white dark:bg-[#1a2632] shadow-xl rounded-xl overflow-hidden border border-border-subtle dark:border-[#2d3a4a]">
@@ -151,12 +168,44 @@ const LoginForm = () => {
                 {/* Social Login - Google Only */}
                 <button
                     type="button"
-                    className="w-full flex items-center justify-center gap-2 px-4 py-3 border border-border-subtle dark:border-[#2d3a4a] rounded-lg hover:bg-gray-50 dark:hover:bg-background-dark transition-colors"
+                    onClick={handleGoogleLogin}
+                    disabled={isSubmitting || googleLoading}
+                    className="w-full flex items-center justify-center gap-2 px-4 py-3 border border-border-subtle dark:border-[#2d3a4a] rounded-lg hover:bg-gray-50 dark:hover:bg-background-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                    <FaGoogle className="w-5 h-5 text-[#4285F4]" />
-                    <span className="text-sm font-semibold text-text-main dark:text-white">
-                        Continue with Google
-                    </span>
+                    {googleLoading ? (
+                        <>
+                            <svg
+                                className="animate-spin h-5 w-5 text-[#4285F4]"
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                            >
+                                <circle
+                                    className="opacity-25"
+                                    cx="12"
+                                    cy="12"
+                                    r="10"
+                                    stroke="currentColor"
+                                    strokeWidth="4"
+                                ></circle>
+                                <path
+                                    className="opacity-75"
+                                    fill="currentColor"
+                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                ></path>
+                            </svg>
+                            <span className="text-sm font-semibold text-text-main dark:text-white">
+                                Connecting...
+                            </span>
+                        </>
+                    ) : (
+                        <>
+                            <FaGoogle className="w-5 h-5 text-[#4285F4]" />
+                            <span className="text-sm font-semibold text-text-main dark:text-white">
+                                Continue with Google
+                            </span>
+                        </>
+                    )}
                 </button>
             </form>
 
