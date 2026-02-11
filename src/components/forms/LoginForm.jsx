@@ -21,14 +21,7 @@ const LoginForm = () => {
         reValidateMode: "onChange",
     });
 
-    const {
-        login,
-        isSubmitting,
-        error,
-        needsEmailVerification,
-        resendVerification,
-        clearError
-    } = useLogin();
+    const { login, isSubmitting, error, needsEmailVerification, resendVerification, clearError } = useLogin();
 
     const { initiateGoogleLogin } = useGoogleAuth();
 

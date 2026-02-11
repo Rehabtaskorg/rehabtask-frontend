@@ -2,18 +2,20 @@
 
 import { useState } from "react";
 import { MdArrowForward, MdInfo } from "react-icons/md";
-import { FaGoogle, FaApple } from "react-icons/fa";
+import { FaGoogle } from "react-icons/fa";
 import Input from "../ui/Input";
 import PasswordInput from "../ui/PasswordInput";
 import Button from "../ui/Button";
 import Alert from "../ui/Alert";
 import { useCustomerRegistration } from "@/hooks/useCustomerRegistration";
+import { useGoogleAuth } from "@/hooks/useGoogleAuth";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { customerRegistrationSchema } from "@/lib/validationSchema";
 
 const CustomerRegistrationForm = () => {
     const [accountType, setAccountType] = useState("individual");
+    const [googleLoading, setGoogleLoading] = useState(false);
 
     const { register, handleSubmit, formState: { errors }, setValue, clearErrors } = useForm({
         resolver: zodResolver(customerRegistrationSchema),
@@ -31,6 +33,8 @@ const CustomerRegistrationForm = () => {
 
     const { registerCustomer, isSubmitting, error, success, clearMessages } = useCustomerRegistration();
 
+    const { initiateGoogleLogin } = useGoogleAuth();
+
     const handleAccountTypeChange = (type) => {
         setAccountType(type);
         setValue("customerType", type);
@@ -45,6 +49,18 @@ const CustomerRegistrationForm = () => {
         });
     };
 
+    const handleGoogleSignup = async () => {
+        setGoogleLoading(true);
+        clearMessages();
+
+        const result = await initiateGoogleLogin();
+
+        if (!result?.success) {
+            setGoogleLoading(false);
+        }
+        // On success -> redirect handled by backend/OAuth
+
+    }
 
     return (
         <div className="max-w-md mx-auto w-full">
@@ -192,24 +208,45 @@ const CustomerRegistrationForm = () => {
                     <div className="grow border-t border-border-subtle dark:border-zinc-700" />
                 </div>
 
-                {/* Social Login Buttons */}
-                <div className="flex gap-4">
-                    <button
-                        type="button"
-                        className="flex-1 flex items-center justify-center gap-2 py-3 border border-border-subtle dark:border-zinc-700 rounded-xl hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
-                    >
-                        <FaGoogle className="w-5 h-5 text-zinc-700 dark:text-zinc-300" />
-                        <span className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">Google</span>
-                    </button>
+                {/* Google Signup */}
+                <button
+                    type="button"
+                    onClick={handleGoogleSignup}
+                    disabled={googleLoading || isSubmitting}
+                    className="w-full flex items-center justify-center gap-2 py-3 border border-border-subtle dark:border-zinc-700 rounded-xl hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors disabled:opacity-50"
+                >
+                    {googleLoading ? (
+                        <>
+                            <svg
+                                className="animate-spin h-5 w-5 text-[#4285F4]"
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                            >
+                                <circle
+                                    className="opacity-25"
+                                    cx="12"
+                                    cy="12"
+                                    r="10"
+                                    stroke="currentColor"
+                                    strokeWidth="4"
+                                />
+                                <path
+                                    className="opacity-75"
+                                    fill="currentColor"
+                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                                />
+                            </svg>
+                            <span className="text-sm font-semibold">Connecting...</span>
+                        </>
+                    ) : (
+                        <>
+                            <FaGoogle className="w-5 h-5 text-[#4285F4]" />
+                            <span className="text-sm font-semibold">Google</span>
+                        </>
+                    )}
+                </button>
 
-                    <button
-                        type="button"
-                        className="flex-1 flex items-center justify-center gap-2 py-3 border border-border-subtle dark:border-zinc-700 rounded-xl hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
-                    >
-                        <FaApple className="w-5 h-5 text-zinc-700 dark:text-zinc-300" />
-                        <span className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">Apple</span>
-                    </button>
-                </div>
             </form>
 
         </div>
