@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
+import PhoneInput from "../ui/PhoneInput";
 import Input from "../ui/Input";
 import PasswordInput from "../ui/PasswordInput";
 import Button from "../ui/Button";
@@ -17,7 +18,7 @@ import { FaGoogle } from "react-icons/fa";
 const TherapistRegistrationForm = () => {
     const [googleLoading, setGoogleLoading] = useState(false);
 
-    const { register, handleSubmit, formState: { errors } } = useForm({
+    const { register, handleSubmit, formState: { errors }, control } = useForm({
         resolver: zodResolver(therapistRegistrationSchema),
         mode: "onChange",
         reValidateMode: "onChange",
@@ -101,12 +102,11 @@ const TherapistRegistrationForm = () => {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <Input
+                    <PhoneInput
                         label="Phone Number"
-                        type="tel"
-                        placeholder="+1 (555) 000-0000"
+                        name="phone"
+                        control={control}
                         error={errors.phone?.message}
-                        {...register("phone")}
                         required
                     />
 

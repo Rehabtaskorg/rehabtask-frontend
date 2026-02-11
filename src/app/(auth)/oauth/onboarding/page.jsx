@@ -9,6 +9,7 @@ import { FaUserMd } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
 
 import Input from "@/components/ui/Input";
+import PhoneInput from "@/components/ui/PhoneInput";
 import Button from "@/components/ui/Button";
 import Alert from "@/components/ui/Alert";
 import { oauthOnboardingSchema } from "@/lib/validationSchema";
@@ -21,20 +22,24 @@ function OAuthOnboardingContent() {
 
     const [selectedRole, setSelectedRole] = useState(null);
 
-    const {
-        register,
-        handleSubmit,
-        watch,
-        reset,
-        formState: { errors },
-        setValue,
-    } = useForm({
+    const { register, handleSubmit, watch, reset, formState: { errors }, setValue, control } = useForm({
         resolver: zodResolver(oauthOnboardingSchema),
-        mode: "onBlur",
+        mode: "onChange",
+        reValidateMode: "onChange",
+        defaultValues: {
+            role: "",
+            fullName: "",
+            phone: "",
+            customerType: "",
+            agencyName: "",
+            location: "",
+            specialization: "",
+            licenseNumber: "",
+            workArea: ""
+        }
     });
 
-    const { completeOnboarding, isSubmitting, error, clearError } =
-        useOAuthOnboarding();
+    const { completeOnboarding, isSubmitting, error, clearError } = useOAuthOnboarding();
 
     // eslint-disable-next-line react-hooks/incompatible-library
     const customerType = watch("customerType");
@@ -149,12 +154,12 @@ function OAuthOnboardingContent() {
                                     required
                                 />
 
-                                <Input
+                                <PhoneInput
                                     label="Phone Number"
-                                    type="tel"
-                                    placeholder="e.g. (555) 123-4567"
+                                    control={control}
+                                    name="phone"
                                     error={errors.phone?.message}
-                                    {...register("phone")}
+                                    required
                                 />
 
                                 {selectedRole === "customer" && (

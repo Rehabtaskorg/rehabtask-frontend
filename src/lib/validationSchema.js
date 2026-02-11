@@ -15,10 +15,8 @@ export const therapistRegistrationSchema = z
         phone: z
             .string()
             .min(1, "Phone number is required")
-            .refine((val) => {
-                const phone = val.replace(/\D/g, "");
-                return phone.length === 10 || phone.length === 11;
-            }, "Please enter a valid US phone number"),
+            .regex(/^\+1\d{10}$/, "Please enter a valid US phone number"
+            ),
 
         password: z
             .string()
@@ -49,10 +47,10 @@ export const customerRegistrationSchema = z.object({
     phone: z
         .string()
         .min(1, "Phone number is required")
-        .refine((val) => {
-            const phone = val.replace(/\D/g, "");
-            return phone.length === 10 || phone.length === 11;
-        }, "Please enter a valid US phone number"),
+        .refine(
+            (val) => !val || /^\+1\d{10}$/.test(val),
+            "Please enter a valid US phone number"
+        ),
 
     password: z
         .string()
@@ -103,17 +101,15 @@ export const oauthOnboardingSchema = z.object({
 
     phone: z
         .string()
-        .optional()
-        .refine((val) => {
-            if (!val || val.trim() === "") return true;
-            const phone = val.replace(/\D/g, "");
-            return phone.length === 10 || phone.length === 11;
-        }, "Please enter a valid US phone number"),
+        .min(1, "Phone number is required")
+        .refine(
+            (val) => !val || /^\+1\d{10}$/.test(val),
+            "Please enter a valid US phone number"
+        ),
 
     customerType: z.enum(["individual", "agency"]).optional(),
     agencyName: z.string().optional(),
     location: z.string().max(500, "Location must not exceed 500 characters").optional(),
-
     specialization: z.string().max(1000, "Specialization must not exceed 1000 characters").optional(),
     licenseNumber: z.string().max(100, "License number must not exceed 100 characters").optional(),
     workArea: z.string().max(500, "Work area must not exceed 500 characters").optional(),
