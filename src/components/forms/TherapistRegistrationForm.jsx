@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
@@ -9,9 +10,13 @@ import Button from "../ui/Button";
 import Alert from "../ui/Alert";
 import { therapistRegistrationSchema } from "@/lib/validationSchema";
 import { useTherapistRegistration } from "@/hooks/useTherapistRegistration";
+import { useGoogleAuth } from "@/hooks/useGoogleAuth";
 import { MdInfo } from "react-icons/md";
+import { FaGoogle } from "react-icons/fa";
 
 const TherapistRegistrationForm = () => {
+    const [googleLoading, setGoogleLoading] = useState(false);
+
     const { register, handleSubmit, formState: { errors } } = useForm({
         resolver: zodResolver(therapistRegistrationSchema),
         mode: "onChange",
@@ -20,8 +25,22 @@ const TherapistRegistrationForm = () => {
 
     const { registerTherapist, isSubmitting, error, success, clearMessages } = useTherapistRegistration();
 
+    const { initiateGoogleLogin } = useGoogleAuth();
+
     const onSubmit = async (data) => {
         await registerTherapist(data);
+    };
+
+    const handleGoogleSignup = async () => {
+        setGoogleLoading(true);
+        clearMessages();
+
+        const result = await initiateGoogleLogin();
+
+        if (!result?.success) {
+            setGoogleLoading(false);
+        }
+        // Success → redirect handled externally
     };
 
     return (
@@ -133,6 +152,54 @@ const TherapistRegistrationForm = () => {
                         .
                     </p>
                 </div>
+
+                {/* Divider */}
+                <div className="relative flex py-5 items-center">
+                    <div className="grow border-t border-border-subtle dark:border-[#2a3038]" />
+                    <span className="mx-4 text-xs uppercase font-bold text-text-muted">
+                        Or continue with
+                    </span>
+                    <div className="grow border-t border-border-subtle dark:border-[#2a3038]" />
+                </div>
+
+                {/* Google Signup */}
+                <button
+                    type="button"
+                    onClick={handleGoogleSignup}
+                    disabled={googleLoading || isSubmitting}
+                    className="w-full flex items-center justify-center gap-2 py-3 border border-border-subtle dark:border-[#2a3038] rounded-xl hover:bg-gray-50 dark:hover:bg-background-dark transition-colors disabled:opacity-50"
+                >
+                    {googleLoading ? (
+                        <>
+                            <svg
+                                className="animate-spin h-5 w-5 text-[#4285F4]"
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                            >
+                                <circle
+                                    className="opacity-25"
+                                    cx="12"
+                                    cy="12"
+                                    r="10"
+                                    stroke="currentColor"
+                                    strokeWidth="4"
+                                />
+                                <path
+                                    className="opacity-75"
+                                    fill="currentColor"
+                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                                />
+                            </svg>
+                            <span className="text-sm font-semibold">Connecting...</span>
+                        </>
+                    ) : (
+                        <>
+                            <FaGoogle className="w-5 h-5 text-[#4285F4]" />
+                            <span className="text-sm font-semibold">Google</span>
+                        </>
+                    )}
+                </button>
             </form>
         </div>
     );
