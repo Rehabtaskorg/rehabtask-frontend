@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { authAPi } from '@/lib/auth.api';
+import OnboardingBanner from '@/components/therapist/OnboardingBanner';
 
 export default function DashboardLayout({ children }) {
     const router = useRouter();
@@ -80,10 +81,10 @@ export default function DashboardLayout({ children }) {
 
     if (loading) {
         return (
-            <div className="min-h-screen flex items-center justify-center">
+            <div className="min-h-screen flex items-center justify-center bg-[#0d1109]">
                 <div className="text-center">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-                    <p className="mt-4 text-gray-600">Loading...</p>
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+                    <p className="mt-4 text-gray-400">Loading...</p>
                 </div>
             </div>
         );
@@ -91,13 +92,16 @@ export default function DashboardLayout({ children }) {
 
     if (authError || !user) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-gray-50">
+            <div className="min-h-screen flex items-center justify-center bg-[#0d1109]">
                 <div className="text-center">
-                    <p className="text-gray-600">Redirecting to login...</p>
+                    <p className="text-gray-400">Redirecting to login...</p>
                 </div>
             </div>
         );
     }
+
+    // Check if on onboarding route
+    const isOnOnboardingRoute = pathname.startsWith("/therapist/onboarding");
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -105,7 +109,7 @@ export default function DashboardLayout({ children }) {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between h-16">
                         <div className="flex items-center">
-                            <h1 className="text-xl font-bold text-blue-600">RehabMarket</h1>
+                            <h1 className="text-xl font-bold text-primary">RehabMarket</h1>
 
                             <div className="ml-10 flex items-baseline space-x-4">
                                 {user.role === 'customer' && (
@@ -149,7 +153,7 @@ export default function DashboardLayout({ children }) {
                                     </>
                                 )}
 
-                                {user.role === 'therapist' && (
+                                {user.role === 'therapist' && !isOnOnboardingRoute && (
                                     <>
                                         <Link
                                             href="/therapist/dashboard"
@@ -223,6 +227,9 @@ export default function DashboardLayout({ children }) {
                     </div>
                 </div>
             </nav>
+
+            {/* Show onboarding banner only for therapists not on onboarding routes */}
+            {user.role === 'therapist' && !isOnOnboardingRoute && <OnboardingBanner />}
 
             <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
                 {children}

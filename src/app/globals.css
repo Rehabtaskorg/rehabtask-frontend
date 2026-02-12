@@ -1,10 +1,7 @@
 @import "tailwindcss";
 
 @theme {
-    /* this defines the "primary" color for v4 */
     --color-primary: #137fec;
-
-    /* The light gray used for borders and backgrounds */
     --color-border-subtle: #f0f2f4;
     --color-text-muted: #617589;
     --color-text-main: #111418;
@@ -12,7 +9,6 @@
     /* Background colors */
     --color-background-light: #f6f7f8;
     --color-background-dark: #101922;
-
     --color-success: #10b981;
 }
 
