@@ -5,11 +5,27 @@
     --color-border-subtle: #f0f2f4;
     --color-text-muted: #617589;
     --color-text-main: #111418;
+    --color-success: #10b981;
 
     /* Background colors */
     --color-background-light: #f6f7f8;
     --color-background-dark: #101922;
-    --color-success: #10b981;
+
+    /* Card backgrounds */
+    --color-card-light: #ffffff;
+    --color-card-dark: #1a2633;
+
+    /* Input backgrounds */
+    --color-input-light: #ffffff;
+    --color-input-dark: #0d1109;
+
+    /* Border colors */
+    --color-border-light: #e5e7eb;
+    --color-border-dark: #2d3748;
+
+    /* Muted backgrounds */
+    --color-muted-light: #f9fafb;
+    --color-muted-dark: #131811;
 }
 
 @layer base {

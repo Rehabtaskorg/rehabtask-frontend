@@ -72,7 +72,7 @@ export default function CredentialsPage() {
             const totalCount = uploadedDocs.length + acceptedFiles.length;
 
             if (totalCount > 5) {
-                setUploadError(`You can only upload a maximum of 5 documents. You currently have ${currentDocs.length} document(s).`);
+                setUploadError(`You can only upload a maximum of 5 documents. You currently have ${uploadedDocs.length} document(s).`);
                 return;
             }
 
@@ -124,49 +124,49 @@ export default function CredentialsPage() {
     }, [uploadedDocs]);
 
     return (
-        <div className="min-h-screen bg-[#0d1109] py-10 px-4">
+        <div className="min-h-screen bg-background-light dark:bg-background-dark py-10 px-4">
             <div className="max-w-4xl mx-auto">
                 <OnboardingProgressBar />
 
-                <header className="mb-8">
-                    <h1 className="text-3xl font-bold text-white mb-2">
-                        Professional Credentials
+                <header className="mb-8 px-4">
+                    <h1 className="text-text-main dark:text-white text-[28px] font-bold leading-tight tracking-light mb-2">
+                        Verify Your Professional Status
                     </h1>
-                    <p className="text-gray-400">
-                        Verify your professional status for patient safety
+                    <p className="text-text-muted dark:text-gray-400 text-base font-normal leading-normal">
+                        To ensure patient safety, we verify all licenses with state boards. This process usually takes 24-48 hours.
                     </p>
                 </header>
 
                 <form onSubmit={handleSubmit(onSubmit)}>
-                    <div className="bg-[#1e271c] border border-[#2c3928] rounded-2xl p-8 space-y-6">
+                    <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl p-8 space-y-6 shadow-sm">
 
                         {/* License Fields */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
                             <div className="flex flex-col gap-2">
-                                <label className="text-white text-sm font-semibold">
+                                <label className="text-text-main dark:text-white text-sm font-semibold">
                                     License Number
                                 </label>
                                 <input
                                     type="text"
                                     {...register("licenseNumber")}
-                                    className="w-full px-4 py-3 rounded-lg border border-[#2c3928] bg-[#131811] text-white focus:ring-2 focus:ring-primary outline-none"
+                                    className="w-full px-4 py-3 h-12 rounded-lg border border-border-light dark:border-border-dark bg-input-light dark:bg-input-dark text-text-main dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
                                     placeholder="e.g. 123456789"
                                 />
                                 {errors.licenseNumber && (
-                                    <p className="text-red-400 text-sm">
+                                    <p className="text-red-500 text-sm">
                                         {errors.licenseNumber.message}
                                     </p>
                                 )}
                             </div>
 
                             <div className="flex flex-col gap-2">
-                                <label className="text-white text-sm font-semibold">
+                                <label className="text-text-main dark:text-white text-sm font-semibold">
                                     State of Licensure
                                 </label>
                                 <select
                                     {...register("licenseState")}
-                                    className="w-full px-4 py-3 rounded-lg border border-[#2c3928] bg-[#131811] text-white focus:ring-2 focus:ring-primary outline-none"
+                                    className="w-full px-4 py-3 h-12 rounded-lg border border-border-light dark:border-border-dark bg-input-light dark:bg-input-dark text-text-main dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
                                 >
                                     <option value="">Select State</option>
                                     {US_STATES.map((state) => (
@@ -176,7 +176,7 @@ export default function CredentialsPage() {
                                     ))}
                                 </select>
                                 {errors.licenseState && (
-                                    <p className="text-red-400 text-sm">
+                                    <p className="text-red-500 text-sm">
                                         {errors.licenseState.message}
                                     </p>
                                 )}
@@ -185,7 +185,7 @@ export default function CredentialsPage() {
 
                         {/* File Upload */}
                         <div className="flex flex-col gap-2 mt-4">
-                            <label className="text-white text-sm font-semibold">
+                            <label className="text-text-main dark:text-white text-sm font-semibold">
                                 Professional License Certificate
                                 <span className="text-gray-400 font-normal ml-2">
                                     ({uploadedDocs.length}/5)
@@ -194,14 +194,20 @@ export default function CredentialsPage() {
 
                             <div
                                 {...getRootProps()}
-                                className={`border-2 border-dashed rounded-xl p-10 flex flex-col items-center justify-center bg-[#131811] transition-colors ${uploadedDocs.length >= 5
+                                className={`border-2 border-dashed border-border-light dark:border-border-dark rounded-xl p-10 flex flex-col items-center justify-center bg-muted-light dark:bg-muted-dark transition-colors ${uploadedDocs.length >= 5
                                     ? "opacity-50 cursor-not-allowed"
-                                    : "hover:bg-[#1a2318] hover:border-primary cursor-pointer group"
+                                    : "hover:bg-primary/5 hover:border-primary cursor-pointer group"
                                     }`}
                             >
                                 <input {...getInputProps()} />
 
-                                <p className="text-white text-base font-medium text-center">
+                                <div className="size-12 rounded-full bg-primary/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                                    <svg className="w-8 h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                    </svg>
+                                </div>
+
+                                <p className="text-text-main dark:text-white text-base font-medium text-center">
                                     {uploadedDocs.length >= 5
                                         ? "Maximum 5 documents uploaded"
                                         : isDragActive
@@ -209,17 +215,17 @@ export default function CredentialsPage() {
                                             : "Click to upload or drag and drop"}
                                 </p>
 
-                                <p className="text-gray-400 text-sm mt-1 text-center">
+                                <p className="text-text-muted dark:text-gray-400 text-sm mt-1 text-center">
                                     PDF, JPG or PNG (max. 10MB each)
                                 </p>
                             </div>
 
                             {uploadError && (
-                                <p className="text-red-400 text-sm">{uploadError}</p>
+                                <p className="text-red-500 text-sm">{uploadError}</p>
                             )}
 
                             {validationError && (
-                                <p className="text-red-400 text-sm">{validationError}</p>
+                                <p className="text-red-500 text-sm">{validationError}</p>
                             )}
 
                             {uploadedDocs.length > 0 && (
@@ -227,16 +233,16 @@ export default function CredentialsPage() {
                                     {uploadedDocs.map((doc, index) => (
                                         <div
                                             key={index}
-                                            className="flex items-center justify-between bg-[#131811] p-3 rounded-lg border border-[#2c3928]"
+                                            className="flex items-center justify-between bg-muted-light dark:bg-muted-dark p-3 rounded-lg border border-border-light dark:border-border-dark"
                                         >
-                                            <span className="text-white text-sm">
+                                            <span className="text-text-main dark:text-white text-sm">
                                                 {doc.fileName}
                                             </span>
 
                                             <button
                                                 type="button"
                                                 onClick={() => handleRemoveDocument(index)}
-                                                className="text-red-400 hover:text-red-300"
+                                                className="text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300 font-semibold text-sm"
                                             >
                                                 Remove
                                             </button>
@@ -247,21 +253,24 @@ export default function CredentialsPage() {
                         </div>
 
                         {/* Footer */}
-                        <div className="flex items-center justify-between mt-10 pt-6 border-t border-[#2c3928]">
+                        <div className="flex items-center justify-between mt-10 pt-6 border-t border-border-light dark:border-border-dark">
                             <button
                                 type="button"
                                 onClick={() =>
                                     router.push("/therapist/onboarding/profile")
                                 }
-                                className="px-6 py-3 text-gray-400 font-semibold hover:text-white transition-colors"
+                                className="flex items-center gap-2 px-6 py-3 rounded-lg border border-border-light dark:border-border-dark text-text-main dark:text-white font-semibold hover:bg-muted-light dark:hover:bg-muted-dark transition-colors"
                             >
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                                </svg>
                                 Back
                             </button>
 
                             <button
                                 type="submit"
                                 disabled={loading}
-                                className="bg-primary text-white px-8 py-3 rounded-lg font-bold hover:bg-blue-600 transition-all disabled:bg-gray-600"
+                                className="bg-primary text-white px-8 py-3 rounded-lg font-bold hover:brightness-95 transition-all shadow-md shadow-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 {loading ? "Saving..." : "Continue to Availability"}
                             </button>
