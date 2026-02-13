@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { parsePhoneNumberFromString } from "libphonenumber-js";
 import { authAPi } from "@/lib/auth.api";
 
 export const useCustomerRegistration = () => {
@@ -15,17 +14,11 @@ export const useCustomerRegistration = () => {
         setIsSubmitting(true);
 
         try {
-            const phoneNumber = parsePhoneNumberFromString(formData.phone, "US");
-
-            if (!phoneNumber || !phoneNumber.isValid()) {
-                throw new Error("Please enter a valid US phone number");
-            }
-
             const payload = {
                 email: formData.email,
                 password: formData.password,
                 fullName: formData.fullName,
-                phone: phoneNumber.format("E.164"),
+                phone: formData.phone,
                 customerType: formData.customerType,
                 agencyName: formData.customerType === "agency"
                     ? formData.agencyName
@@ -33,7 +26,6 @@ export const useCustomerRegistration = () => {
             };
 
             const response = await authAPi.registerCustomer(payload);
-
             setSuccess(response.data.message);
 
             // redirect to email verification page

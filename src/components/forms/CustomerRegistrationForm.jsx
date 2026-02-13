@@ -4,6 +4,7 @@ import { useState } from "react";
 import { MdArrowForward, MdInfo } from "react-icons/md";
 import { FaGoogle } from "react-icons/fa";
 import Input from "../ui/Input";
+import PhoneInput from "../ui/PhoneInput";
 import PasswordInput from "../ui/PasswordInput";
 import Button from "../ui/Button";
 import Alert from "../ui/Alert";
@@ -17,7 +18,7 @@ const CustomerRegistrationForm = () => {
     const [accountType, setAccountType] = useState("individual");
     const [googleLoading, setGoogleLoading] = useState(false);
 
-    const { register, handleSubmit, formState: { errors }, setValue, clearErrors } = useForm({
+    const { register, handleSubmit, formState: { errors }, setValue, clearErrors, control } = useForm({
         resolver: zodResolver(customerRegistrationSchema),
         mode: "onChange",
         reValidateMode: "onChange",
@@ -32,7 +33,6 @@ const CustomerRegistrationForm = () => {
     });
 
     const { registerCustomer, isSubmitting, error, success, clearMessages } = useCustomerRegistration();
-
     const { initiateGoogleLogin } = useGoogleAuth();
 
     const handleAccountTypeChange = (type) => {
@@ -52,9 +52,7 @@ const CustomerRegistrationForm = () => {
     const handleGoogleSignup = async () => {
         setGoogleLoading(true);
         clearMessages();
-
         const result = await initiateGoogleLogin();
-
         if (!result?.success) {
             setGoogleLoading(false);
         }
@@ -159,12 +157,11 @@ const CustomerRegistrationForm = () => {
                 />
 
                 {/* Phone Number */}
-                <Input
+                <PhoneInput
                     label="Phone Number"
-                    type="tel"
-                    placeholder="e.g., +1 (555) 000-0000"
+                    control={control}
+                    name="phone"
                     error={errors.phone?.message}
-                    {...register("phone")}
                     required
                 />
 

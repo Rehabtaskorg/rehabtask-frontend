@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import parsePhoneNumberFromString from "libphonenumber-js";
 import { authAPi } from "@/lib/auth.api";
 
 export const useOAuthOnboarding = () => {
@@ -13,24 +12,11 @@ export const useOAuthOnboarding = () => {
         setIsSubmitting(true);
 
         try {
-            // Validate and format phone number if provided
-            let formattedPhone = formData.phone;
-
-            if (formData.phone && formData.phone.trim()) {
-                const phoneNumber = parsePhoneNumberFromString(formData.phone, "US");
-
-                if (!phoneNumber || !phoneNumber.isValid()) {
-                    throw new Error("Please enter a valid US phone number");
-                }
-
-                formattedPhone = phoneNumber.format("E.164");
-            }
-
             // Build payload based on role
             const payload = {
                 role: formData.role,
                 fullName: formData.fullName,
-                phone: formattedPhone || ""
+                phone: formData.phone
             };
 
             // Add role-specific fields

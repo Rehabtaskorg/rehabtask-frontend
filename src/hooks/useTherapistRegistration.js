@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { parsePhoneNumberFromString } from "libphonenumber-js";
 import { authAPi } from "@/lib/auth.api";
 
 export const useTherapistRegistration = () => {
@@ -15,17 +14,11 @@ export const useTherapistRegistration = () => {
         setIsSubmitting(true);
 
         try {
-            const phoneNumber = parsePhoneNumberFromString(formData.phone, "US");
-
-            if (!phoneNumber || !phoneNumber.isValid()) {
-                throw new Error("Invalid US phone number");
-            }
-
             const payload = {
                 email: formData.email,
                 password: formData.password,
                 fullName: formData.fullName,
-                phone: phoneNumber.format("E.164"),
+                phone: formData.phone,
             }
 
             const response = await authAPi.registerTherapist(payload);
