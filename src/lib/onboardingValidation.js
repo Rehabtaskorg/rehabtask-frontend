@@ -109,7 +109,7 @@ export const availabilitySchema = z.object({
         .optional(),
 
     serviceRadiusMiles: z
-        .number()
+        .coerce.number()
         .min(0, "Service radius must be 0 or greater")
         .max(100, "Service radius must not exceed 100 miles")
         .optional(),
