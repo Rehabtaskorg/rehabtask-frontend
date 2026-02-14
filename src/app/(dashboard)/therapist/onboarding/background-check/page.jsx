@@ -14,6 +14,8 @@ export default function BackgroundCheckPage() {
     const router = useRouter();
     const { backgroundCheck, updateBackgroundCheck, markStepComplete, setCurrentStep } = useOnboardingStore();
 
+    const [loading, setLoading] = useState(false);
+
     const { handleSubmit, control, formState: { errors }, setValue, watch } = useForm({
         resolver: zodResolver(backgroundCheckSchema),
         defaultValues: {
