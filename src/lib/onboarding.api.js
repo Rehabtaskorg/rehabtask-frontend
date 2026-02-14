@@ -1,5 +1,5 @@
 import { api } from "./api";
-import { uploadFileToSupabase } from "./fileUpload";
+import { uploadFileToSupabase } from "./fileUpload.js";
 
 /**
  * Therapist Onboarding API
