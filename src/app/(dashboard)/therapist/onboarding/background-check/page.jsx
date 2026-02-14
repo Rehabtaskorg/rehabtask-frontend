@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -12,11 +12,22 @@ import { backgroundCheckSchema } from "@/lib/onboardingValidation";
 
 export default function BackgroundCheckPage() {
     const router = useRouter();
-    const { backgroundCheck, updateBackgroundCheck, markStepComplete, setCurrentStep } = useOnboardingStore();
+    const {
+        backgroundCheck,
+        updateBackgroundCheck,
+        markStepComplete,
+        setCurrentStep
+    } = useOnboardingStore();
 
     const [loading, setLoading] = useState(false);
 
-    const { handleSubmit, control, formState: { errors }, setValue, watch } = useForm({
+    const {
+        handleSubmit,
+        control,
+        formState: { errors },
+        setValue,
+        watch,
+    } = useForm({
         resolver: zodResolver(backgroundCheckSchema),
         defaultValues: {
             consent: backgroundCheck.consent,
@@ -34,6 +45,8 @@ export default function BackgroundCheckPage() {
     }, [backgroundCheck, setValue]);
 
     const onSubmit = async (data) => {
+        setLoading(true);
+
         try {
             // Call backend API to submit background check
             await onboardingAPI.submitBackgroundCheck({
@@ -46,11 +59,13 @@ export default function BackgroundCheckPage() {
                 consent: data.consent,
                 signature: data.signature,
                 submittedAt: new Date().toISOString(),
-            })
+            });
 
+            // Mark step as complete and move to next step
             markStepComplete(4);
             setCurrentStep(5);
 
+            // Navigate to Stripe onboarding
             router.push("/therapist/onboarding/stripe");
         } catch (error) {
             console.error("Failed to submit background check:", error);
@@ -58,7 +73,7 @@ export default function BackgroundCheckPage() {
         } finally {
             setLoading(false);
         }
-    }
+    };
 
     return (
         <div className="min-h-screen bg-background-light dark:bg-background-dark py-10 px-4">
@@ -299,5 +314,4 @@ export default function BackgroundCheckPage() {
             </div>
         </div>
     );
-
 }
