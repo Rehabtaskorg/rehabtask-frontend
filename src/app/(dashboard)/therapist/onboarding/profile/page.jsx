@@ -4,36 +4,104 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+
 import useOnboardingStore from "@/store/onboardingStore";
+import { useAuth } from "@/hooks/useAuth";
 import OnboardingProgressBar from "@/components/therapist/OnboardingProgressBar";
 import { professionalProfileSchema } from "@/lib/onboardingValidation";
 import { SPECIALIZATIONS } from "@/lib/constants/specializations";
-
-const LICENSE_TYPES = [
-    { value: "PT", label: "Physical Therapist (PT)" },
-    { value: "OT", label: "Occupational Therapist (OT)" },
-    { value: "SLP", label: "Speech-Language Pathologist (SLP)" },
-    { value: "PTA", label: "PT Assistant (PTA)" },
-    { value: "OTA", label: "OT Assistant (OTA)" },
-];
+import { LICENSE_TYPES } from "@/lib/constants/credentials";
+import { onboardingAPI } from "@/lib/onboarding.api";
 
 export default function ProfessionalProfilePage() {
     const router = useRouter();
+    const { user } = useAuth();
     const { professionalProfile, updateProfessionalProfile, markStepComplete, setCurrentStep } = useOnboardingStore();
 
-    const [profilePhoto, setProfilePhoto] = useState(professionalProfile.profilePhotoUrl);
+    const [profilePhoto, setProfilePhoto] = useState(professionalProfile.profilePhotoUrl || null);
     const [loading, setLoading] = useState(false);
+    const [uploadingPhoto, setUploadingPhoto] = useState(false);
 
     const { register, handleSubmit, formState: { errors }, setValue, watch } = useForm({
         resolver: zodResolver(professionalProfileSchema),
-        defaultValues: professionalProfile,
+        defaultValues: {
+            yearsOfExperience: professionalProfile.yearsOfExperience?.toString() || "",
+            primaryLicenseType: professionalProfile.primaryLicenseType || "",
+            specialization: professionalProfile.specialization || "",
+            professionalSummary: professionalProfile.professionalSummary || "",
+            profilePhotoUrl: professionalProfile.profilePhotoUrl || null,
+        },
         mode: "onSubmit"
     });
+
+    const handlePhotoUpload = async (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        // Validate file size (5MB max)
+        if (file.size > 5 * 1024 * 1024) {
+            alert("File too large. Maximum size is 5MB");
+            return;
+        }
+
+        // Validate file type
+        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+        if (!allowedTypes.includes(file.type)) {
+            alert("Invalid file type. Please upload a JPEG or PNG image.");
+            return;
+        }
+
+        setUploadingPhoto(previewUrl);
+
+        // Create preview URL
+        const previewUrl = URL.createObjectURL(file);
+        setProfilePhoto(previewUrl);
+
+        try {
+            const userId = user?.id;
+            if (!userId) {
+                throw new Error("User not authenticated");
+            }
+
+            const { url } = await onboardingAPI.uploadProfilePhoto(file, userId || "temp");
+
+            setProfilePhoto(url);
+            setValue("profilePhotoUrl", url);
+
+            // Clean up preview url
+            URL.revokeObjectURL(previewUrl);
+        } catch (error) {
+            console.error("Upload failed:", error);
+            alert(error.message || "Failed to upload photo. Please try again.");
+
+            // revert to previous photo on error
+            setProfilePhoto(professionalProfile.profilePhotoUrl || null);
+            setValue("profilePhotoUrl", professionalProfile.profilePhotoUrl || null);
+        }
+
+    }
 
     const onSubmit = async (data) => {
         setLoading(true);
         try {
-            updateProfessionalProfile(data);
+            // Call backend API to save profile
+            await onboardingAPI.saveProfessionalProfile({
+                yearsOfExperience: Number(data.yearsOfExperience),
+                primaryLicenseType: data.primaryLicenseType,
+                specialization: data.specialization,
+                professionalSummary: data.professionalSummary,
+                profilePhotoUrl: data.profilePhotoUrl,
+            });
+
+            // Update local store
+            updateProfessionalProfile({
+                yearsOfExperience: Number(data.yearsOfExperience),
+                primaryLicenseType: data.primaryLicenseType,
+                specialization: data.specialization,
+                professionalSummary: data.professionalSummary,
+                profilePhotoUrl: data.profilePhotoUrl,
+            })
+
             markStepComplete(1);
             setCurrentStep(2);
             router.push("/therapist/onboarding/credentials");
@@ -71,7 +139,16 @@ export default function ProfessionalProfilePage() {
                                         style={{
                                             backgroundImage: profilePhoto ? `url(${profilePhoto})` : "none",
                                         }}
-                                    />
+                                    >
+                                        {uploadingPhoto && (
+                                            <div className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full">
+                                                <svg className="animate-spin h-8 w-8 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                </svg>
+                                            </div>
+                                        )}
+                                    </div>
                                     <label className="absolute bottom-0 right-0 bg-primary text-white p-2 rounded-full shadow-lg hover:brightness-95 transition-all cursor-pointer">
                                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
@@ -79,16 +156,10 @@ export default function ProfessionalProfilePage() {
                                         </svg>
                                         <input
                                             type="file"
-                                            accept="image/*"
+                                            accept="image/jpeg,image/jpg,image/png"
                                             className="hidden"
-                                            onChange={(e) => {
-                                                const file = e.target.files?.[0];
-                                                if (file) {
-                                                    const url = URL.createObjectURL(file);
-                                                    setProfilePhoto(url);
-                                                    setValue("profilePhotoUrl", url);
-                                                }
-                                            }}
+                                            onChange={handlePhotoUpload}
+                                            disabled={uploadingPhoto}
                                         />
                                     </label>
                                 </div>
@@ -209,7 +280,7 @@ export default function ProfessionalProfilePage() {
 
                             <button
                                 type="submit"
-                                disabled={loading}
+                                disabled={loading || uploadingPhoto}
                                 className="w-full sm:w-auto px-10 h-12 bg-primary text-white font-bold rounded-lg shadow-lg shadow-primary/20 hover:brightness-95 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 {loading ? "Saving..." : "Continue"}

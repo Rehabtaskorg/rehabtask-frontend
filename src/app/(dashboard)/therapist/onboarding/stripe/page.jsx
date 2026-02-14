@@ -1,16 +1,53 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { onboardingAPI } from "@/lib/onboarding.api";
 import useOnboardingStore from "@/store/onboardingStore";
 import OnboardingProgressBar from "@/components/therapist/OnboardingProgressBar";
 
 export default function StripeOnboardingPage() {
     const router = useRouter();
-    const { markStepComplete } = useOnboardingStore();
+    const searchParams = useSearchParams();
+    const { markStepComplete, markStripeConnected } = useOnboardingStore();
+
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const [checkingStatus, setCheckingStatus] = useState(false);
+
+    // Check if user returned from Stripe with success
+    useEffect(() => {
+        const stripeSuccess = searchParams.get("stripe_success");
+        const stripeRefresh = searchParams.get("stripe_refresh");
+
+        if (stripeSuccess === "true") {
+            const verifyStripe = async () => {
+                try {
+                    setCheckingStatus(true);
+
+                    const res = await onboardingAPI.checkStripeStatus();
+                    const { connected, detailsSubmitted, accountId } = res.data.data;
+
+                    if (connected && detailsSubmitted) {
+                        markStepComplete(5);
+                        markStripeConnected(accountId);
+                        router.push("/therapist/onboarding/complete");
+                    } else {
+                        setError("Stripe account setup is incomplete. Please complete all required steps.");
+                    }
+                } catch (err) {
+                    console.error("Error checking Stripe status:", err);
+                    setError("Failed to verify Stripe account. Please try again.");
+                } finally {
+                    setCheckingStatus(false);
+                }
+            };
+
+            verifyStripe();
+        } else if (stripeRefresh === "true") {
+            setError("Please complete all required steps in Stripe to continue.");
+        }
+    }, [searchParams, markStepComplete, markStripeConnected, router]);
 
     const handleConnectStripe = async () => {
         setLoading(true);
@@ -20,21 +57,36 @@ export default function StripeOnboardingPage() {
             const res = await onboardingAPI.getStripeOnboardingLink();
             const { url } = res.data.data;
 
-            // Mark Step 5 as complete (this will trigger 100% progress)
-            markStepComplete(5);
             window.location.href = url;
         } catch (err) {
             console.error("Stripe onboarding error:", err);
-            setError(err.response?.data?.message || "Failed to connect Stripe. Please try again.");
+            setError(
+                err.response?.data?.message || "Failed to connect Stripe. Please try again."
+            );
             setLoading(false);
         }
     }
 
     const handleSkipForNow = () => {
+        // Mark Step 5 as complete (allows skipping)
         markStepComplete(5);
-        // Allow them to skip and go to pending status
+
+        // Navigating to completion page (they can connect Stripe later)
         router.push("/therapist/onboarding/pending");
     };
+
+    if (checkingStatus) {
+        return (
+            <div className="min-h-screen bg-background-light dark:bg-background-dark flex items-center justify-center">
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary mx-auto mb-4"></div>
+                    <p className="text-text-main dark:text-white text-lg font-semibold">
+                        Verifying your Stripe account...
+                    </p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-background-light dark:bg-background-dark py-10 px-4">
@@ -54,8 +106,18 @@ export default function StripeOnboardingPage() {
                     <div className="flex flex-col items-center text-center gap-6">
                         {/* Stripe Logo Placeholder */}
                         <div className="w-24 h-24 bg-primary/10 rounded-full flex items-center justify-center">
-                            <svg className="w-12 h-12 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                            <svg
+                                className="w-12 h-12 text-primary"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
+                                />
                             </svg>
                         </div>
 
@@ -64,13 +126,16 @@ export default function StripeOnboardingPage() {
                                 Secure Payment Processing with Stripe
                             </h2>
                             <p className="text-text-muted dark:text-gray-400 max-w-md">
-                                Stripe is a secure payment platform used by millions of businesses worldwide. You&apos;ll be redirected to complete a quick setup process.
+                                Stripe is a secure payment platform used by millions of businesses
+                                worldwide. You&apos;ll be redirected to complete a quick setup process.
                             </p>
                         </div>
 
                         {/* Benefits */}
                         <div className="w-full bg-muted-light dark:bg-muted-dark rounded-lg p-6 text-left space-y-3 border border-border-light dark:border-border-dark">
-                            <p className="text-text-main dark:text-white font-semibold mb-3">What you&apos;ll need:</p>
+                            <p className="text-text-main dark:text-white font-semibold mb-3">
+                                What you&apos;ll need:
+                            </p>
                             {[
                                 "Bank account information for direct deposits",
                                 "Government-issued ID for verification",
@@ -78,10 +143,22 @@ export default function StripeOnboardingPage() {
                                 "About 5-10 minutes to complete",
                             ].map((item, idx) => (
                                 <div key={idx} className="flex items-start gap-3">
-                                    <svg className="w-5 h-5 text-primary shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                    <svg
+                                        className="w-5 h-5 text-primary shrink-0 mt-0.5"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth={2}
+                                            d="M5 13l4 4L19 7"
+                                        />
                                     </svg>
-                                    <span className="text-text-muted dark:text-gray-300 text-sm">{item}</span>
+                                    <span className="text-text-muted dark:text-gray-300 text-sm">
+                                        {item}
+                                    </span>
                                 </div>
                             ))}
                         </div>
@@ -106,8 +183,18 @@ export default function StripeOnboardingPage() {
                                     </>
                                 ) : (
                                     <>
-                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                        <svg
+                                            className="w-5 h-5"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            viewBox="0 0 24 24"
+                                        >
+                                            <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                strokeWidth={2}
+                                                d="M13 10V3L4 14h7v7l9-11h-7z"
+                                            />
                                         </svg>
                                         Connect Stripe Account
                                     </>
@@ -126,9 +213,16 @@ export default function StripeOnboardingPage() {
                         {/* Security Note */}
                         <div className="flex items-center gap-2 text-text-muted dark:text-gray-500 text-xs">
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                                />
                             </svg>
-                            <span>All payment information is securely encrypted and processed by Stripe</span>
+                            <span>
+                                All payment information is securely encrypted and processed by Stripe
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -141,7 +235,12 @@ export default function StripeOnboardingPage() {
                         className="flex items-center gap-2 text-text-muted dark:text-gray-400 hover:text-text-main dark:hover:text-white transition-colors disabled:opacity-50"
                     >
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M10 19l-7-7m0 0l7-7m-7 7h18"
+                            />
                         </svg>
                         Back
                     </button>

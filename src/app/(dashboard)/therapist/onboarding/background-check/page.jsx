@@ -6,6 +6,7 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import useOnboardingStore from "@/store/onboardingStore";
+import { onboardingAPI } from "@/lib/onboarding.api";
 import OnboardingProgressBar from "@/components/therapist/OnboardingProgressBar";
 import { backgroundCheckSchema } from "@/lib/onboardingValidation";
 
@@ -13,7 +14,7 @@ export default function BackgroundCheckPage() {
     const router = useRouter();
     const { backgroundCheck, updateBackgroundCheck, markStepComplete, setCurrentStep } = useOnboardingStore();
 
-    const { handleSubmit, control, formState: { errors, isSubmitting }, setValue, watch } = useForm({
+    const { handleSubmit, control, formState: { errors }, setValue, watch } = useForm({
         resolver: zodResolver(backgroundCheckSchema),
         defaultValues: {
             consent: backgroundCheck.consent,
@@ -21,7 +22,6 @@ export default function BackgroundCheckPage() {
         },
     });
 
-    // eslint-disable-next-line react-hooks/incompatible-library
     const consent = watch("consent");
     const signature = watch("signature");
 
@@ -32,14 +32,30 @@ export default function BackgroundCheckPage() {
     }, [backgroundCheck, setValue]);
 
     const onSubmit = async (data) => {
-        updateBackgroundCheck({
-            ...data,
-            submittedAt: new Date().toISOString(),
-        });
+        try {
+            // Call backend API to submit background check
+            await onboardingAPI.submitBackgroundCheck({
+                consent: data.consent,
+                signature: data.signature,
+            });
 
-        markStepComplete(4);
-        setCurrentStep(5);
-        router.push("/therapist/onboarding/stripe");
+            // Update local store
+            updateBackgroundCheck({
+                consent: data.consent,
+                signature: data.signature,
+                submittedAt: new Date().toISOString(),
+            })
+
+            markStepComplete(4);
+            setCurrentStep(5);
+
+            router.push("/therapist/onboarding/stripe");
+        } catch (error) {
+            console.error("Failed to submit background check:", error);
+            alert(error.message || "Failed to submit background check. Please try again.");
+        } finally {
+            setLoading(false);
+        }
     }
 
     return (

@@ -1,24 +1,27 @@
 "use client";
 
-import { useCallback, useState, useEffect } from "react";
+import { useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useDropzone } from "react-dropzone";
 
 import useOnboardingStore from "@/store/onboardingStore";
+import { useAuth } from "@/hooks/useAuth";
 import { credentialsSchema } from "@/lib/onboardingValidation";
+import { onboardingAPI } from "@/lib/onboarding.api";
 import OnboardingProgressBar from "@/components/therapist/OnboardingProgressBar";
 import { US_STATES } from "@/lib/constants/credentials";
 
 
 export default function CredentialsPage() {
     const router = useRouter();
+    const { user } = useAuth();
     const { credentials, updateCredentials, addLicenseDocument, removeLicenseDocument, markStepComplete, setCurrentStep } = useOnboardingStore();
 
     const [loading, setLoading] = useState(false);
     const [uploadError, setUploadError] = useState("");
-    const [validationError, setValidationError] = useState("");
+    const [uploading, setUploading] = useState(false);
 
     const uploadedDocs = credentials.licenseDocuments;
 
@@ -30,44 +33,50 @@ export default function CredentialsPage() {
         },
     });
 
-    const onSubmit = (data) => {
+    const onSubmit = async (data) => {
         setLoading(true);
-        setValidationError("");
+        setUploadError("");
 
         try {
-            const fullData = {
-                ...data,
-                licenseDocuments: credentials.licenseDocuments
-            };
-
-            // Validate the complete data
-            const parsed = credentialsSchema.safeParse(fullData);
-
-            if (!parsed.success) {
-                const docError = parsed.error?.issues?.find((issue) =>
-                    issue.path.includes("licenseDocuments")
-                );
-
-                if (docError) {
-                    setValidationError(docError.message);
-                }
-
+            if (credentials.licenseDocuments.length === 0) {
+                setUploadError("Please upload at least one license document");
                 return;
             }
 
-            updateCredentials(fullData);
+            // Call backend API to save credentials
+            await onboardingAPI.saveCredentials({
+                licenseNumber: data.licenseNumber,
+                licenseState: data.licenseState,
+                licenseDocuments: credentials.licenseDocuments.map(doc => ({
+                    path: doc.path,
+                    fileName: doc.fileName,
+                    fileSize: doc.fileSize,
+                    documentType: doc.documentType,
+                    mimeType: doc.mimeType,
+                })),
+            });
+
+            // Update local store
+            updateCredentials({
+                licenseNumber: data.licenseNumber,
+                licenseState: data.licenseState,
+            });
+
             markStepComplete(2);
             setCurrentStep(3);
+
             router.push("/therapist/onboarding/availability");
+        } catch (error) {
+            console.error("Failed to save credentials:", error);
+            setUploadError(error.message || "Failed to save credentials. Please try again.");
         } finally {
             setLoading(false);
         }
     }
 
     const onDrop = useCallback(
-        (acceptedFiles) => {
+        async (acceptedFiles) => {
             setUploadError("");
-            setValidationError("");
 
             const totalCount = uploadedDocs.length + acceptedFiles.length;
 
@@ -76,16 +85,51 @@ export default function CredentialsPage() {
                 return;
             }
 
-            const newDocs = acceptedFiles.map(file => ({
-                url: URL.createObjectURL(file),
-                fileName: file.name,
-                fileSize: file.size,
-                documentType: "license"
-            }));
+            const userId = user?.id;
+            if (!userId) {
+                setUploadError("User not authenticated");
+                return;
+            }
 
-            newDocs.forEach(addLicenseDocument);
+            setUploading(true);
+
+            try {
+                for (const file of acceptedFiles) {
+                    if (file.size > 10 * 1024 * 1024) {
+                        setUploadError(`${file.name} is too large. Maximum size is 10MB.`);
+                        continue;
+                    }
+
+                    const allowedTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
+
+                    if (!allowedTypes.includes(file.type)) {
+                        setUploadError(`${file.name} has invalid type. Only PDF, JPEG, and PNG are allowed.`);
+                        continue;
+                    }
+
+                    try {
+                        const result = await onboardingAPI.uploadLicenseDocument(
+                            file, userId || "temp"
+                        );
+
+                        // Add to store
+                        addLicenseDocument({
+                            path: result.path,
+                            fileName: result.fileName,
+                            fileSize: result.fileSize,
+                            documentType: result.documentType,
+                            mimeType: result.mimeType,
+                        });
+                    } catch (error) {
+                        console.error(`Failed to upload ${file.name}:`, error);
+                        setUploadError(`Failed to upload ${file.name}. ${error.message}`);
+                    }
+                }
+            } finally {
+                setUploading(false);
+            }
         },
-        [uploadedDocs, addLicenseDocument]
+        [uploadedDocs, addLicenseDocument, user]
     );
 
     const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -96,32 +140,14 @@ export default function CredentialsPage() {
         },
         multiple: true,
         maxFiles: 5,
-        disabled: uploadedDocs.length >= 5,
+        disabled: uploadedDocs.length >= 5 || uploading,
     });
 
 
     const handleRemoveDocument = (index) => {
         setUploadError("");
-        setValidationError("");
-
-        const doc = uploadedDocs[index];
-        if (doc?.url) {
-            URL.revokeObjectURL(doc.url);
-        }
-
         removeLicenseDocument(index);
     };
-
-    // Cleanup object URLs on unmount
-    useEffect(() => {
-        return () => {
-            uploadedDocs.forEach((doc) => {
-                if (doc?.url) {
-                    URL.revokeObjectURL(doc.url);
-                }
-            });
-        };
-    }, [uploadedDocs]);
 
     return (
         <div className="min-h-screen bg-background-light dark:bg-background-dark py-10 px-4">
@@ -133,16 +159,15 @@ export default function CredentialsPage() {
                         Verify Your Professional Status
                     </h1>
                     <p className="text-text-muted dark:text-gray-400 text-base font-normal leading-normal">
-                        To ensure patient safety, we verify all licenses with state boards. This process usually takes 24-48 hours.
+                        To ensure patient safety, we verify all licenses with state boards. This
+                        process usually takes 24-48 hours.
                     </p>
                 </header>
 
                 <form onSubmit={handleSubmit(onSubmit)}>
                     <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl p-8 space-y-6 shadow-sm">
-
                         {/* License Fields */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-
                             <div className="flex flex-col gap-2">
                                 <label className="text-text-main dark:text-white text-sm font-semibold">
                                     License Number
@@ -194,38 +219,55 @@ export default function CredentialsPage() {
 
                             <div
                                 {...getRootProps()}
-                                className={`border-2 border-dashed border-border-light dark:border-border-dark rounded-xl p-10 flex flex-col items-center justify-center bg-muted-light dark:bg-muted-dark transition-colors ${uploadedDocs.length >= 5
+                                className={`border-2 border-dashed border-border-light dark:border-border-dark rounded-xl p-10 flex flex-col items-center justify-center bg-muted-light dark:bg-muted-dark transition-colors ${uploadedDocs.length >= 5 || uploading
                                     ? "opacity-50 cursor-not-allowed"
                                     : "hover:bg-primary/5 hover:border-primary cursor-pointer group"
                                     }`}
                             >
                                 <input {...getInputProps()} />
 
-                                <div className="size-12 rounded-full bg-primary/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                                    <svg className="w-8 h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                                    </svg>
-                                </div>
+                                {uploading ? (
+                                    <div className="flex flex-col items-center gap-4">
+                                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+                                        <p className="text-text-main dark:text-white text-base font-medium">
+                                            Uploading documents...
+                                        </p>
+                                    </div>
+                                ) : (
+                                    <>
+                                        <div className="size-12 rounded-full bg-primary/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                                            <svg
+                                                className="w-8 h-8 text-primary"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                viewBox="0 0 24 24"
+                                            >
+                                                <path
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    strokeWidth={2}
+                                                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                                                />
+                                            </svg>
+                                        </div>
 
-                                <p className="text-text-main dark:text-white text-base font-medium text-center">
-                                    {uploadedDocs.length >= 5
-                                        ? "Maximum 5 documents uploaded"
-                                        : isDragActive
-                                            ? "Drop files here..."
-                                            : "Click to upload or drag and drop"}
-                                </p>
+                                        <p className="text-text-main dark:text-white text-base font-medium text-center">
+                                            {uploadedDocs.length >= 5
+                                                ? "Maximum 5 documents uploaded"
+                                                : isDragActive
+                                                    ? "Drop files here..."
+                                                    : "Click to upload or drag and drop"}
+                                        </p>
 
-                                <p className="text-text-muted dark:text-gray-400 text-sm mt-1 text-center">
-                                    PDF, JPG or PNG (max. 10MB each)
-                                </p>
+                                        <p className="text-text-muted dark:text-gray-400 text-sm mt-1 text-center">
+                                            PDF, JPG or PNG (max. 10MB each)
+                                        </p>
+                                    </>
+                                )}
                             </div>
 
                             {uploadError && (
                                 <p className="text-red-500 text-sm">{uploadError}</p>
-                            )}
-
-                            {validationError && (
-                                <p className="text-red-500 text-sm">{validationError}</p>
                             )}
 
                             {uploadedDocs.length > 0 && (
@@ -235,9 +277,24 @@ export default function CredentialsPage() {
                                             key={index}
                                             className="flex items-center justify-between bg-muted-light dark:bg-muted-dark p-3 rounded-lg border border-border-light dark:border-border-dark"
                                         >
-                                            <span className="text-text-main dark:text-white text-sm">
-                                                {doc.fileName}
-                                            </span>
+                                            <div className="flex items-center gap-3">
+                                                <svg
+                                                    className="w-5 h-5 text-primary"
+                                                    fill="none"
+                                                    stroke="currentColor"
+                                                    viewBox="0 0 24 24"
+                                                >
+                                                    <path
+                                                        strokeLinecap="round"
+                                                        strokeLinejoin="round"
+                                                        strokeWidth={2}
+                                                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                                                    />
+                                                </svg>
+                                                <span className="text-text-main dark:text-white text-sm">
+                                                    {doc.fileName}
+                                                </span>
+                                            </div>
 
                                             <button
                                                 type="button"
@@ -256,20 +313,28 @@ export default function CredentialsPage() {
                         <div className="flex items-center justify-between mt-10 pt-6 border-t border-border-light dark:border-border-dark">
                             <button
                                 type="button"
-                                onClick={() =>
-                                    router.push("/therapist/onboarding/profile")
-                                }
+                                onClick={() => router.push("/therapist/onboarding/profile")}
                                 className="flex items-center gap-2 px-6 py-3 rounded-lg border border-border-light dark:border-border-dark text-text-main dark:text-white font-semibold hover:bg-muted-light dark:hover:bg-muted-dark transition-colors"
                             >
-                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                                <svg
+                                    className="w-5 h-5"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M10 19l-7-7m0 0l7-7m-7 7h18"
+                                    />
                                 </svg>
                                 Back
                             </button>
 
                             <button
                                 type="submit"
-                                disabled={loading}
+                                disabled={loading || uploading}
                                 className="bg-primary text-white px-8 py-3 rounded-lg font-bold hover:brightness-95 transition-all shadow-md shadow-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 {loading ? "Saving..." : "Continue to Availability"}
