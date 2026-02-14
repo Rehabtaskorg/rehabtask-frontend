@@ -7,16 +7,15 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useDropzone } from "react-dropzone";
 
 import useOnboardingStore from "@/store/onboardingStore";
-import { useAuth } from "@/hooks/useAuth";
 import { credentialsSchema } from "@/lib/onboardingValidation";
 import { onboardingAPI } from "@/lib/onboarding.api";
 import OnboardingProgressBar from "@/components/therapist/OnboardingProgressBar";
 import { US_STATES } from "@/lib/constants/credentials";
+import { supabase } from "@/lib/supabase";
 
 
 export default function CredentialsPage() {
     const router = useRouter();
-    const { user } = useAuth();
     const { credentials, updateCredentials, addLicenseDocument, removeLicenseDocument, markStepComplete, setCurrentStep } = useOnboardingStore();
 
     const [loading, setLoading] = useState(false);
@@ -85,9 +84,16 @@ export default function CredentialsPage() {
                 return;
             }
 
-            const userId = user?.id;
+            // Fetch session directly instead of relying on the hook
+            const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+
+            console.log('Session check:', { session, sessionError }); // Debug log
+
+            const userId = session?.user?.id;
+
             if (!userId) {
-                setUploadError("User not authenticated");
+                setUploadError("User not authenticated. Please log in again.");
+                console.error('No user ID found. Session:', session);
                 return;
             }
 
@@ -109,7 +115,7 @@ export default function CredentialsPage() {
 
                     try {
                         const result = await onboardingAPI.uploadLicenseDocument(
-                            file, userId || "temp"
+                            file, userId
                         );
 
                         // Add to store
@@ -129,7 +135,7 @@ export default function CredentialsPage() {
                 setUploading(false);
             }
         },
-        [uploadedDocs, addLicenseDocument, user]
+        [uploadedDocs, addLicenseDocument]
     );
 
     const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -140,7 +146,7 @@ export default function CredentialsPage() {
         },
         multiple: true,
         maxFiles: 5,
-        disabled: uploadedDocs.length >= 5 || uploading || loading || !user,
+        disabled: uploadedDocs.length >= 5 || uploading,
     });
 
 
