@@ -140,7 +140,7 @@ export default function CredentialsPage() {
         },
         multiple: true,
         maxFiles: 5,
-        disabled: uploadedDocs.length >= 5 || uploading,
+        disabled: uploadedDocs.length >= 5 || uploading || loading || !user,
     });
 
 
