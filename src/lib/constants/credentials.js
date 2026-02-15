@@ -50,3 +50,11 @@ export const US_STATES = [
     { code: "WI", name: "Wisconsin" },
     { code: "WY", name: "Wyoming" }
 ];
+
+export const LICENSE_TYPES = [
+    { value: "PT", label: "Physical Therapist (PT)" },
+    { value: "OT", label: "Occupational Therapist (OT)" },
+    { value: "SLP", label: "Speech-Language Pathologist (SLP)" },
+    { value: "PTA", label: "PT Assistant (PTA)" },
+    { value: "OTA", label: "OT Assistant (OTA)" },
+];

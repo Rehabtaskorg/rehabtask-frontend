@@ -8,6 +8,7 @@ import { LuCalendar, LuPlus, LuX, LuMapPin } from "react-icons/lu";
 
 import useOnboardingStore from "@/store/onboardingStore";
 import { availabilitySchema } from "@/lib/onboardingValidation";
+import { onboardingAPI } from "@/lib/onboarding.api";
 import OnboardingProgressBar from "@/components/therapist/OnboardingProgressBar";
 
 import DatePicker from "react-datepicker";
@@ -41,6 +42,7 @@ export default function AvailabilityPage() {
     } = useOnboardingStore();
 
     const [validationError, setValidationError] = useState("");
+    const [loading, setLoading] = useState(false);
 
     const defaultValues = useMemo(() => availability, [availability]);
 
@@ -56,34 +58,33 @@ export default function AvailabilityPage() {
         });
     }, [availability, setValue]);
 
-    // eslint-disable-next-line react-hooks/incompatible-library
+
     const formData = watch();
 
     const onSubmit = async (data) => {
         setValidationError("");
+        setLoading(true);
 
         try {
-            const parsed = availabilitySchema.safeParse(data);
-
-            if (!parsed.success) {
-                const scheduleError = parsed.error?.issues?.find((issue) =>
-                    issue.path.includes("schedule")
-                );
-
-                if (scheduleError) {
-                    setValidationError(scheduleError.message);
-                }
-
-                return;
-            }
+            // Call backend API to save availability
+            await onboardingAPI.saveAvailability({
+                schedule: data.schedule,
+                acceptingNewPatients: data.acceptingNewPatients,
+                baseZipCode: data.baseZipCode,
+                serviceRadiusMiles: data.serviceRadiusMiles
+            });
 
             updateAvailability(data);
+
             markStepComplete(3);
             setCurrentStep(4);
+
             router.push("/therapist/onboarding/background-check");
-        } catch (err) {
-            console.error(err);
-            setValidationError("Please ensure all fields are valid.");
+        } catch (error) {
+            console.error("Failed to save availability:", error);
+            setValidationError(error.message || "Failed to save availability. Please try again.");
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -110,13 +111,18 @@ export default function AvailabilityPage() {
                                 Set Your Availability & Reach
                             </h1>
                             <p className="text-text-muted dark:text-gray-400 text-lg font-normal leading-normal max-w-2xl">
-                                Define when you&apos;re available and how far you&apos;re willing to travel to treat patients.
+                                Define when you&apos;re available and how far you&apos;re willing to
+                                travel to treat patients.
                             </p>
                         </div>
                         <div className="flex items-center gap-4 bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark p-4 rounded-xl shadow-sm">
                             <div className="flex flex-col">
-                                <span className="text-sm font-bold text-text-main dark:text-white">Accepting New Patients</span>
-                                <span className="text-xs text-green-600 dark:text-green-400 font-medium">Profile will be live instantly</span>
+                                <span className="text-sm font-bold text-text-main dark:text-white">
+                                    Accepting New Patients
+                                </span>
+                                <span className="text-xs text-green-600 dark:text-green-400 font-medium">
+                                    Profile will be live instantly
+                                </span>
                             </div>
                             <Controller
                                 name="acceptingNewPatients"
@@ -129,7 +135,7 @@ export default function AvailabilityPage() {
                                             onChange={(e) => {
                                                 const newValue = e.target.checked;
                                                 field.onChange(newValue);
-                                                updateAvailability({ acceptingNewPatients: newValue })
+                                                updateAvailability({ acceptingNewPatients: newValue });
                                             }}
                                             className="sr-only peer"
                                         />
@@ -158,7 +164,9 @@ export default function AvailabilityPage() {
                                     {/* Show validation error for schedule */}
                                     {(errors.schedule || validationError) && (
                                         <p className="text-red-500 text-sm">
-                                            {errors.schedule?.message || validationError || "Please enable at least one day of availability"}
+                                            {errors.schedule?.message ||
+                                                validationError ||
+                                                "Please enable at least one day of availability"}
                                         </p>
                                     )}
 
@@ -170,12 +178,17 @@ export default function AvailabilityPage() {
                                             <div
                                                 key={day}
                                                 className={`flex flex-col gap-4 p-4 rounded-xl border transition-all ${isEnabled
-                                                    ? "bg-primary/5 border-primary/20"
-                                                    : "bg-muted-light dark:bg-muted-dark border-border-light dark:border-border-dark"
+                                                        ? "bg-primary/5 border-primary/20"
+                                                        : "bg-muted-light dark:bg-muted-dark border-border-light dark:border-border-dark"
                                                     }`}
                                             >
                                                 <div className="flex items-center justify-between">
-                                                    <span className={`font-semibold text-base ${isEnabled ? "text-primary" : "text-text-muted dark:text-gray-400"}`}>
+                                                    <span
+                                                        className={`font-semibold text-base ${isEnabled
+                                                                ? "text-primary"
+                                                                : "text-text-muted dark:text-gray-400"
+                                                            }`}
+                                                    >
                                                         {DAY_LABELS[day]}
                                                     </span>
                                                     <label className="relative inline-flex items-center cursor-pointer">
@@ -192,16 +205,24 @@ export default function AvailabilityPage() {
                                                 {isEnabled && (
                                                     <div className="flex flex-col gap-3">
                                                         {dayData.timeBlocks.map((block, index) => (
-                                                            <div key={index} className="flex items-center gap-3">
+                                                            <div
+                                                                key={index}
+                                                                className="flex items-center gap-3"
+                                                            >
                                                                 {/* Start Time */}
                                                                 <Controller
                                                                     name={`schedule.${day}.timeBlocks.${index}.startTime`}
                                                                     control={control}
                                                                     render={({ field }) => (
                                                                         <DatePicker
-                                                                            selected={parseTimeString(field.value)}
+                                                                            selected={parseTimeString(
+                                                                                field.value
+                                                                            )}
                                                                             onChange={(date) => {
-                                                                                const timeString = format(date, "HH:mm");
+                                                                                const timeString = format(
+                                                                                    date,
+                                                                                    "HH:mm"
+                                                                                );
                                                                                 field.onChange(timeString);
                                                                                 updateTimeBlock(day, index, {
                                                                                     ...dayData.timeBlocks[index],
@@ -218,7 +239,9 @@ export default function AvailabilityPage() {
                                                                     )}
                                                                 />
 
-                                                                <span className="text-text-muted dark:text-gray-500 text-sm">to</span>
+                                                                <span className="text-text-muted dark:text-gray-500 text-sm">
+                                                                    to
+                                                                </span>
 
                                                                 {/* End Time */}
                                                                 <Controller
@@ -226,9 +249,14 @@ export default function AvailabilityPage() {
                                                                     control={control}
                                                                     render={({ field }) => (
                                                                         <DatePicker
-                                                                            selected={parseTimeString(field.value)}
+                                                                            selected={parseTimeString(
+                                                                                field.value
+                                                                            )}
                                                                             onChange={(date) => {
-                                                                                const timeString = format(date, "HH:mm");
+                                                                                const timeString = format(
+                                                                                    date,
+                                                                                    "HH:mm"
+                                                                                );
                                                                                 field.onChange(timeString);
                                                                                 updateTimeBlock(day, index, {
                                                                                     ...dayData.timeBlocks[index],
@@ -308,7 +336,9 @@ export default function AvailabilityPage() {
 
                                 <div className="flex flex-col gap-6">
                                     <div className="flex flex-col gap-2">
-                                        <label className="text-sm font-bold text-text-main dark:text-gray-300">Base ZIP Code</label>
+                                        <label className="text-sm font-bold text-text-main dark:text-gray-300">
+                                            Base ZIP Code
+                                        </label>
                                         <div className="relative">
                                             <Controller
                                                 name="baseZipCode"
@@ -323,8 +353,18 @@ export default function AvailabilityPage() {
                                                     />
                                                 )}
                                             />
-                                            <svg className="w-5 h-5 text-gray-400 absolute left-3 top-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                                            <svg
+                                                className="w-5 h-5 text-gray-400 absolute left-3 top-3.5"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                viewBox="0 0 24 24"
+                                            >
+                                                <path
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    strokeWidth={2}
+                                                    d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+                                                />
                                             </svg>
                                         </div>
                                         {errors.baseZipCode && (
@@ -336,7 +376,9 @@ export default function AvailabilityPage() {
 
                                     <div className="flex flex-col gap-4">
                                         <div className="flex justify-between items-center">
-                                            <label className="text-sm font-bold text-text-main dark:text-gray-300">Service Radius</label>
+                                            <label className="text-sm font-bold text-text-main dark:text-gray-300">
+                                                Service Radius
+                                            </label>
                                             <span className="bg-primary/10 text-primary px-2 py-1 rounded text-xs font-bold">
                                                 {formData.serviceRadiusMiles} miles
                                             </span>
@@ -372,14 +414,30 @@ export default function AvailabilityPage() {
                             {/* Preview Card */}
                             <div className="bg-primary/5 dark:bg-primary/10 border border-primary/10 dark:border-primary/20 p-6 rounded-xl">
                                 <h3 className="text-sm font-bold text-primary mb-2 flex items-center gap-2">
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                    <svg
+                                        className="w-4 h-4"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth={2}
+                                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                                        />
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth={2}
+                                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                                        />
                                     </svg>
                                     Marketplace Preview
                                 </h3>
                                 <p className="text-xs text-primary/80 dark:text-primary/70 leading-relaxed">
-                                    Patients will see your availability and <b>{formData.serviceRadiusMiles}-mile</b> service radius.
+                                    Patients will see your availability and{" "}
+                                    <b>{formData.serviceRadiusMiles}-mile</b> service radius.
                                 </p>
                             </div>
                         </div>
@@ -393,18 +451,28 @@ export default function AvailabilityPage() {
                             className="w-full sm:w-auto flex items-center gap-2 px-8 h-12 text-text-muted dark:text-gray-400 font-bold hover:text-text-main dark:hover:text-white transition-colors"
                         >
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M10 19l-7-7m0 0l7-7m-7 7h18"
+                                />
                             </svg>
-                            Back to Professional Info
+                            Back to Credentials
                         </button>
                         <button
                             type="submit"
-                            disabled={isSubmitting}
+                            disabled={loading}
                             className="w-full sm:w-auto px-10 h-12 bg-primary text-white font-bold rounded-lg shadow-lg shadow-primary/20 hover:brightness-95 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                            {isSubmitting ? "Saving..." : "Next: Background Check"}
+                            {loading ? "Saving..." : "Next: Background Check"}
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M14 5l7 7m0 0l-7 7m7-7H3"
+                                />
                             </svg>
                         </button>
                     </div>

@@ -90,7 +90,10 @@ const useOnboardingStore = create(
                     },
                 })),
 
-            updateAvailability: (data) => set({ availability: { ...get().availability, ...data } }),
+            updateAvailability: (data) =>
+                set((state) => ({
+                    availability: { ...state.availability, ...data }
+                })),
 
             toggleDayAvailability: (day) => {
                 const current = get().availability.schedule[day];
@@ -98,7 +101,9 @@ const useOnboardingStore = create(
                 schedule[day] = {
                     ...current,
                     enabled: !current.enabled,
-                    timeBlocks: !current.enabled && current.timeBlocks.length === 0 ? [DEFAULT_TIME_BLOCK] : current.timeBlocks,
+                    timeBlocks: !current.enabled && current.timeBlocks.length === 0
+                        ? [DEFAULT_TIME_BLOCK]
+                        : current.timeBlocks,
                 };
                 set({ availability: { ...get().availability, schedule } });
             },
@@ -133,7 +138,8 @@ const useOnboardingStore = create(
 
             applyScheduleToWeekdays: () => {
                 const schedule = { ...get().availability.schedule };
-                const ref = Object.values(schedule).find(d => d.enabled && d.timeBlocks.length) || { timeBlocks: [DEFAULT_TIME_BLOCK] };
+                const ref = Object.values(schedule).find(d => d.enabled && d.timeBlocks.length)
+                    || { timeBlocks: [DEFAULT_TIME_BLOCK] };
 
                 ["monday", "tuesday", "wednesday", "thursday", "friday"].forEach(day => {
                     schedule[day] = { enabled: true, timeBlocks: [...ref.timeBlocks] };
@@ -145,7 +151,8 @@ const useOnboardingStore = create(
 
             applyScheduleToAllDays: () => {
                 const schedule = { ...get().availability.schedule };
-                const ref = Object.values(schedule).find(d => d.enabled && d.timeBlocks.length) || { timeBlocks: [DEFAULT_TIME_BLOCK] };
+                const ref = Object.values(schedule).find(d => d.enabled && d.timeBlocks.length)
+                    || { timeBlocks: [DEFAULT_TIME_BLOCK] };
 
                 Object.keys(schedule).forEach(day => {
                     schedule[day] = { enabled: true, timeBlocks: [...ref.timeBlocks] };
@@ -174,7 +181,6 @@ const useOnboardingStore = create(
                     },
                 }),
 
-            // Get all onboarding data
             getAllData: () => {
                 const state = get();
                 return {
@@ -188,7 +194,6 @@ const useOnboardingStore = create(
                 };
             },
 
-            // Calculate onboarding progress (0-100%)
             getProgress: () => {
                 const state = get();
                 const totalSteps = 5;
@@ -201,15 +206,14 @@ const useOnboardingStore = create(
                 return state.completedSteps.includes(step);
             },
 
-            // Reset store
             reset: () =>
                 set({
                     currentStep: 1,
                     completedSteps: [],
                     professionalProfile: {
                         yearsOfExperience: null,
-                        specialization: "",
                         primaryLicenseType: "",
+                        specialization: "",
                         professionalSummary: "",
                         profilePhotoUrl: null,
                     },
@@ -219,15 +223,7 @@ const useOnboardingStore = create(
                         licenseDocuments: [],
                     },
                     availability: {
-                        schedule: {
-                            monday: { enabled: false, timeBlocks: [] },
-                            tuesday: { enabled: false, timeBlocks: [] },
-                            wednesday: { enabled: false, timeBlocks: [] },
-                            thursday: { enabled: false, timeBlocks: [] },
-                            friday: { enabled: false, timeBlocks: [] },
-                            saturday: { enabled: false, timeBlocks: [] },
-                            sunday: { enabled: false, timeBlocks: [] },
-                        },
+                        schedule: initialSchedule,
                         acceptingNewPatients: true,
                         baseZipCode: "",
                         serviceRadiusMiles: 15,
@@ -255,10 +251,11 @@ const useOnboardingStore = create(
                     licenseState: state.credentials.licenseState,
                     // Only persist metadata, not object URLs
                     licenseDocuments: state.credentials.licenseDocuments.map(doc => ({
+                        path: doc.path,
                         fileName: doc.fileName,
                         fileSize: doc.fileSize,
                         documentType: doc.documentType,
-                        // url is ommitted  - will be regenerated or uploaded to server
+                        mimeType: doc.mimeType,
                     }))
                 },
                 availability: state.availability,

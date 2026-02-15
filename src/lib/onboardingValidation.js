@@ -8,7 +8,7 @@ const timeBlockSchema = z.object({
     startTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, "Invalid start time"),
     endTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, "Invalid end time"),
 }).refine(block => block.endTime > block.startTime, {
-    message: "End time must be after start time",
+    error: "End time must be after start time",
     path: ["endTime"],
 });
 
@@ -31,15 +31,19 @@ export const professionalProfileSchema = z.object({
         .trim()
         .min(1, "Years of experience is required")
         .refine((val) => /^\d+$/.test(val), {
-            message: "Years of experience must be a valid number",
+            error: "Years of experience must be a valid number",
         })
         .refine((val) => Number(val) >= 0, {
-            message: "Years of experience must be 0 or greater",
+            error: "Years of experience must be 0 or greater",
         })
         .refine((val) => Number(val) <= 50, {
-            message: "Years of experience seems invalid",
+            error: "Years of experience seems invalid",
         })
         .transform((val) => Number(val)),
+
+    primaryLicenseType: z
+        .string()
+        .min(1, "Please select your license type"),
 
     specialization: z
         .string()
@@ -47,10 +51,6 @@ export const professionalProfileSchema = z.object({
         .refine((val) => SPECIALIZATIONS.includes(val), {
             error: "Selected specialization is invalid",
         }),
-
-    primaryLicenseType: z
-        .string()
-        .min(1, "Please select your license type"),
 
     professionalSummary: z
         .string()
@@ -73,15 +73,17 @@ export const credentialsSchema = z.object({
         .string()
         .min(1, "License state is required")
         .refine((val) => US_STATES.map((s) => s.code).includes(val), {
-            message: "Please select a valid US state",
+            error: "Please select a valid US state",
         }),
 
     licenseDocuments: z
         .array(z.object({
-            url: z.url(),
+            url: z.string().optional(),
+            path: z.string(),
             fileName: z.string(),
             fileSize: z.number(),
             documentType: z.string(),
+            mimeType: z.string().optional(),
         }))
         .min(1, "Please upload at least one license document")
         .max(5, "You can upload a maximum of 5 license documents")
@@ -97,7 +99,7 @@ export const availabilitySchema = z.object({
         saturday: daySchema,
         sunday: daySchema,
     }).refine(schedule => Object.values(schedule).some(day => day.enabled), {
-        message: "Please enable at least one day of availability",
+        error: "Please enable at least one day of availability",
         path: ["schedule"],
     }),
 

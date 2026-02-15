@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import { useOnboardingSync } from "@/hooks/useOnboardingSync";
 import useOnboardingStore from "@/store/onboardingStore";
 
 const STEPS = [
@@ -11,15 +13,27 @@ const STEPS = [
 ];
 
 export default function OnboardingProgressBar() {
-    const { currentStep, completedSteps } = useOnboardingStore();
+    const { currentStep } = useOnboardingStore();
+    const { syncStatus } = useOnboardingSync();
 
-    // Calculate progress: if current step is in completed steps, count it
-    // This handles the case where you're ON step 5 and it's also marked complete
-    const effectiveCompletedCount = completedSteps.includes(currentStep)
-        ? completedSteps.length
-        : Math.max(completedSteps.length, currentStep - 1);
+    const [progress, setProgress] = useState(0);
+    const [completedCount, setCompletedCount] = useState(0);
 
-    const progress = Math.min(100, (effectiveCompletedCount / STEPS.length) * 100);
+    useEffect(() => {
+        const loadProgress = async () => {
+            const status = await syncStatus();
+            if (status) {
+                setProgress(status.progress);
+
+                // Count completed steps from backend
+                const { steps } = status;
+                const completed = Object.values(steps).filter(Boolean).length;
+                setCompletedCount(completed);
+            }
+        };
+
+        loadProgress();
+    }, [syncStatus, currentStep]) // re-sync when current step changes
 
     return (
         <div className="bg-card-light dark:bg-card-dark rounded-xl p-6 shadow-sm border border-border-light dark:border-border-dark mb-6">
@@ -28,7 +42,7 @@ export default function OnboardingProgressBar() {
                     Onboarding Progress
                 </p>
                 <p className="text-text-main dark:text-white text-sm font-medium leading-normal">
-                    Step {currentStep} of {STEPS.length}
+                    {completedCount} of {STEPS.length} completed
                 </p>
             </div>
 
@@ -40,8 +54,12 @@ export default function OnboardingProgressBar() {
             </div>
 
             <p className="text-text-muted dark:text-gray-400 text-sm mt-3 font-normal leading-normal">
-                {STEPS.find((s) => s.number === currentStep)?.label || "Complete your profile to start accepting patients"}
+                {progress === 100
+                    ? "✓ Profile complete - awaiting review"
+                    : STEPS.find((s) => s.number === currentStep)?.label || "Complete your profile to start accepting patients"
+                }
             </p>
         </div>
+
     );
 }

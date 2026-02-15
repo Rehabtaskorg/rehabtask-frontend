@@ -1,19 +1,33 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import useOnboardingStore from "@/store/onboardingStore";
+import { onboardingAPI } from "@/lib/onboarding.api";
 import OnboardingProgressBar from "@/components/therapist/OnboardingProgressBar";
 import { backgroundCheckSchema } from "@/lib/onboardingValidation";
 
 export default function BackgroundCheckPage() {
     const router = useRouter();
-    const { backgroundCheck, updateBackgroundCheck, markStepComplete, setCurrentStep } = useOnboardingStore();
+    const {
+        backgroundCheck,
+        updateBackgroundCheck,
+        markStepComplete,
+        setCurrentStep
+    } = useOnboardingStore();
 
-    const { handleSubmit, control, formState: { errors, isSubmitting }, setValue, watch } = useForm({
+    const [loading, setLoading] = useState(false);
+
+    const {
+        handleSubmit,
+        control,
+        formState: { errors },
+        setValue,
+        watch,
+    } = useForm({
         resolver: zodResolver(backgroundCheckSchema),
         defaultValues: {
             consent: backgroundCheck.consent,
@@ -21,7 +35,6 @@ export default function BackgroundCheckPage() {
         },
     });
 
-    // eslint-disable-next-line react-hooks/incompatible-library
     const consent = watch("consent");
     const signature = watch("signature");
 
@@ -32,15 +45,35 @@ export default function BackgroundCheckPage() {
     }, [backgroundCheck, setValue]);
 
     const onSubmit = async (data) => {
-        updateBackgroundCheck({
-            ...data,
-            submittedAt: new Date().toISOString(),
-        });
+        setLoading(true);
 
-        markStepComplete(4);
-        setCurrentStep(5);
-        router.push("/therapist/onboarding/stripe");
-    }
+        try {
+            // Call backend API to submit background check
+            await onboardingAPI.submitBackgroundCheck({
+                consent: data.consent,
+                signature: data.signature,
+            });
+
+            // Update local store
+            updateBackgroundCheck({
+                consent: data.consent,
+                signature: data.signature,
+                submittedAt: new Date().toISOString(),
+            });
+
+            // Mark step as complete and move to next step
+            markStepComplete(4);
+            setCurrentStep(5);
+
+            // Navigate to Stripe onboarding
+            router.push("/therapist/onboarding/stripe");
+        } catch (error) {
+            console.error("Failed to submit background check:", error);
+            alert(error.message || "Failed to submit background check. Please try again.");
+        } finally {
+            setLoading(false);
+        }
+    };
 
     return (
         <div className="min-h-screen bg-background-light dark:bg-background-dark py-10 px-4">
@@ -68,8 +101,8 @@ export default function BackgroundCheckPage() {
                             </svg>
                         </div>
                         <p className="text-text-muted dark:text-gray-400 text-lg mt-2">
-                            To maintain our community standards and ensure patient safety, we
-                            require a professional background screening for all therapists joining the marketplace.
+                            To maintain our community standards and ensure patient safety, we require a
+                            professional background screening for all therapists joining the marketplace.
                         </p>
                     </header>
 
@@ -135,7 +168,9 @@ export default function BackgroundCheckPage() {
                                             <p className="text-text-main dark:text-white text-base font-medium">
                                                 {item.title}
                                             </p>
-                                            <p className="text-xs text-text-muted dark:text-gray-400">{item.desc}</p>
+                                            <p className="text-xs text-text-muted dark:text-gray-400">
+                                                {item.desc}
+                                            </p>
                                         </div>
                                     </div>
                                 ))}
@@ -147,13 +182,12 @@ export default function BackgroundCheckPage() {
                                     Disclosure & Fair Credit Reporting Act (FCRA)
                                 </h4>
                                 <p className="text-xs leading-relaxed text-text-muted dark:text-gray-400">
-                                    This background check will be conducted by a third-party
-                                    screening provider. By proceeding, you acknowledge that you
-                                    have read and understood your rights under the Fair Credit
-                                    Reporting Act and authorize RehabMarketplace to obtain a
-                                    consumer report for professional vetting purposes. All
-                                    personal information is encrypted and handled in strict
-                                    accordance with HIPAA and privacy guidelines.
+                                    This background check will be conducted by a third-party screening
+                                    provider. By proceeding, you acknowledge that you have read and
+                                    understood your rights under the Fair Credit Reporting Act and
+                                    authorize RehabMarketplace to obtain a consumer report for
+                                    professional vetting purposes. All personal information is encrypted
+                                    and handled in strict accordance with HIPAA and privacy guidelines.
                                 </p>
                             </div>
 
@@ -185,9 +219,7 @@ export default function BackgroundCheckPage() {
                                     )}
                                 />
                                 {errors.consent && (
-                                    <p className="text-red-500 text-sm">
-                                        {errors.consent.message}
-                                    </p>
+                                    <p className="text-red-500 text-sm">{errors.consent.message}</p>
                                 )}
 
                                 <div className="flex flex-col gap-2">
@@ -215,14 +247,12 @@ export default function BackgroundCheckPage() {
                                     />
 
                                     <p className="text-xs text-text-muted dark:text-gray-400">
-                                        By typing your name above, you are providing a legally
-                                        binding electronic signature.
+                                        By typing your name above, you are providing a legally binding
+                                        electronic signature.
                                     </p>
 
                                     {errors.signature && (
-                                        <p className="text-red-500 text-sm">
-                                            {errors.signature.message}
-                                        </p>
+                                        <p className="text-red-500 text-sm">{errors.signature.message}</p>
                                     )}
                                 </div>
                             </div>
@@ -252,9 +282,7 @@ export default function BackgroundCheckPage() {
                             <div className="flex gap-4 w-full sm:w-auto">
                                 <button
                                     type="button"
-                                    onClick={() =>
-                                        router.push("/therapist/onboarding/availability")
-                                    }
+                                    onClick={() => router.push("/therapist/onboarding/availability")}
                                     className="flex-1 sm:flex-none px-6 py-3 rounded-lg font-bold text-text-muted dark:text-gray-400 hover:text-text-main dark:hover:text-white hover:bg-muted-light dark:hover:bg-card-dark transition-colors"
                                 >
                                     Back
@@ -262,10 +290,10 @@ export default function BackgroundCheckPage() {
 
                                 <button
                                     type="submit"
-                                    disabled={isSubmitting || !consent || !signature}
+                                    disabled={loading || !consent || !signature}
                                     className="flex-1 sm:flex-none bg-primary hover:brightness-95 text-white px-8 py-3 rounded-lg font-bold shadow-lg shadow-primary/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
-                                    {isSubmitting ? "Processing..." : "Submit & Continue"}
+                                    {loading ? "Processing..." : "Submit & Continue"}
                                 </button>
                             </div>
                         </div>
@@ -273,20 +301,17 @@ export default function BackgroundCheckPage() {
 
                     {/* Trust Badges */}
                     <div className="mt-8 flex justify-center gap-12 opacity-50 grayscale hover:grayscale-0 transition-all duration-500">
-                        {["Verified Provider", "HIPAA Compliant", "SOC2 Certified"].map(
-                            (badge) => (
-                                <div key={badge} className="flex flex-col items-center">
-                                    <div className="w-24 h-8 bg-gray-300 dark:bg-gray-700 rounded mb-1"></div>
-                                    <span className="text-[10px] uppercase tracking-widest font-bold text-gray-500 dark:text-gray-400">
-                                        {badge}
-                                    </span>
-                                </div>
-                            )
-                        )}
+                        {["Verified Provider", "HIPAA Compliant", "SOC2 Certified"].map((badge) => (
+                            <div key={badge} className="flex flex-col items-center">
+                                <div className="w-24 h-8 bg-gray-300 dark:bg-gray-700 rounded mb-1"></div>
+                                <span className="text-[10px] uppercase tracking-widest font-bold text-gray-500 dark:text-gray-400">
+                                    {badge}
+                                </span>
+                            </div>
+                        ))}
                     </div>
                 </form>
             </div>
         </div>
     );
-
 }

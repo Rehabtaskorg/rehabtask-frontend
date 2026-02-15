@@ -3,51 +3,79 @@
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { authAPi } from "@/lib/auth.api";
-import useOnboardingStore from "@/store/onboardingStore";
+import { useOnboardingSync } from "@/hooks/useOnboardingSync";
 
 export default function OnboardingBanner() {
     const router = useRouter();
+    const { syncStatus } = useOnboardingSync();
+
     const [showBanner, setShowBanner] = useState(false);
-    const [bannerType, setBannerType] = useState("incomplete"); // incomplete, review, approved
+    const [bannerType, setBannerType] = useState("incomplete");
     const [progress, setProgress] = useState(0);
-    const { getProgress } = useOnboardingStore();
+    const [isLoading, setIsLoading] = useState(true);
 
     const checkOnboardingStatus = useCallback(async () => {
+        setIsLoading(true);
+
         try {
             const res = await authAPi.getCurrentUser();
             const userData = res.data.data.user;
 
-            if (userData.role === "therapist") {
-                const profile = userData.therapistProfile;
-                const isComplete = profile?.onboardingComplete || false;
-                const approvalStatus = profile?.approvalStatus || "pending";
+            // Only show banner for therapists
+            if (userData.role !== "therapist") {
+                setShowBanner(false);
+                setIsLoading(false);
+                return;
+            }
 
-                if (!isComplete) {
-                    setBannerType("incomplete");
-                    setProgress(getProgress());
+            // Sync with backend and get real status
+            const status = await syncStatus();
+
+            if (!status) {
+                setShowBanner(false);
+                setIsLoading(false);
+                return;
+            }
+
+            const { onboardingComplete, approvalStatus, progress: backendProgress } = status;
+
+            // Determine banner type based on backend data
+            if (!onboardingComplete) {
+                // Still in onboarding
+                setBannerType("incomplete");
+                setProgress(backendProgress);
+                setShowBanner(true);
+            } else if (approvalStatus === "review" || approvalStatus === "pending") {
+                // Onboarding complete, under review
+                setBannerType("review");
+                setShowBanner(true);
+            } else if (approvalStatus === "approved") {
+                // Approved - show once then hide
+                const hasSeenApproval = localStorage.getItem("hasSeenApprovalBanner");
+                if (!hasSeenApproval) {
+                    setBannerType("approved");
                     setShowBanner(true);
-                } else if (approvalStatus === "review" || approvalStatus === "pending") {
-                    setBannerType("review");
-                    setShowBanner(true);
-                } else if (approvalStatus === "approved") {
-                    // Only show approved banner once, then hide it
-                    const hasSeenApproval = localStorage.getItem("hasSeenApprovalBanner");
-                    if (!hasSeenApproval) {
-                        setBannerType("approved");
-                        setShowBanner(true);
-                    }
+                } else {
+                    setShowBanner(false);
                 }
+            } else if (approvalStatus === "rejected") {
+                // Rejected - show rejection banner
+                setBannerType("rejected");
+                setShowBanner(true);
+            } else {
+                // Unknown state, hide banner
+                setShowBanner(false);
             }
         } catch (error) {
             console.error("Error checking onboarding status:", error);
+            setShowBanner(false);
+        } finally {
+            setIsLoading(false);
         }
-    }, [getProgress]);
+    }, [syncStatus]);
 
     useEffect(() => {
-        const initialize = async () => {
-            await checkOnboardingStatus()
-        }
-        initialize();
+        checkOnboardingStatus();
     }, [checkOnboardingStatus]);
 
     const handleDismissApproved = () => {
@@ -56,23 +84,15 @@ export default function OnboardingBanner() {
     }
 
     const handleResumeSetup = () => {
-        const currentStep = useOnboardingStore.getState().currentStep;
-        const stepRoutes = {
-            1: "/therapist/onboarding/profile",
-            2: "/therapist/onboarding/credentials",
-            3: "/therapist/onboarding/availability",
-            4: "/therapist/onboarding/background-check",
-            5: "/therapist/onboarding/stripe",
-        };
-
-        router.push(stepRoutes[currentStep] || "/therapist/onboarding/profile");
+        // Redirect based on progress - backend determines this
+        router.push("/therapist/onboarding/profile");
     }
 
     const handleViewPending = () => router.push("/therapist/onboarding/pending")
-
     const handleViewSuccess = () => router.push("/therapist/approved");
 
-    if (!showBanner) return null;
+    // Don't show anything while loading or if not therapist
+    if (isLoading || !showBanner) return null;
 
     if (bannerType === "incomplete") {
         return (
@@ -99,7 +119,7 @@ export default function OnboardingBanner() {
                         onClick={handleResumeSetup}
                         className="px-4 py-2 rounded-lg text-sm font-semibold bg-primary text-white hover:brightness-95 transition-all"
                     >
-                        Resume Setup
+                        {progress === 0 ? "Start Setup" : "Continue Setup"}
                     </button>
                 </div>
             </div>
@@ -108,14 +128,19 @@ export default function OnboardingBanner() {
 
     if (bannerType === "review") {
         return (
-            <div className="sticky top-0 z-40 border-b-2 border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark px-4 sm:px-6 lg:px-8 py-3 transition-colors duration-200">
+            <div className="sticky top-0 z-40 border-b-2 border-yellow-500 bg-yellow-50 dark:bg-yellow-900/20 px-4 sm:px-6 lg:px-8 py-3 transition-colors duration-200">
                 <div className="max-w-7xl mx-auto flex items-center justify-between">
-                    <p className="text-sm font-semibold text-text-main dark:text-white">
-                        Your credentials are under review
-                    </p>
+                    <div className="flex items-center gap-3">
+                        <svg className="w-5 h-5 text-yellow-600 dark:text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <p className="text-sm font-semibold text-yellow-800 dark:text-yellow-200">
+                            Your credentials are under review - we&apos;ll notify you within 24-48 hours
+                        </p>
+                    </div>
                     <button
                         onClick={handleViewPending}
-                        className="px-4 py-2 rounded-lg text-sm font-semibold bg-primary text-white hover:brightness-95 transition-all"
+                        className="px-4 py-2 rounded-lg text-sm font-semibold bg-yellow-600 text-white hover:brightness-95 transition-all"
                     >
                         View Status
                     </button>
@@ -126,21 +151,27 @@ export default function OnboardingBanner() {
 
     if (bannerType === "approved") {
         return (
-            <div className="sticky top-0 z-40 border-b-2 border-success bg-card-light dark:bg-card-dark px-4 sm:px-6 lg:px-8 py-3 transition-colors duration-200">
+            <div className="sticky top-0 z-40 border-b-2 border-green-500 bg-green-50 dark:bg-green-900/20 px-4 sm:px-6 lg:px-8 py-3 transition-colors duration-200">
                 <div className="max-w-7xl mx-auto flex items-center justify-between">
-                    <p className="text-sm font-bold text-success">
-                        🎉 Your account has been approved!
-                    </p>
+                    <div className="flex items-center gap-3">
+                        <svg className="w-5 h-5 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <p className="text-sm font-bold text-green-800 dark:text-green-200">
+                            🎉 Your account has been approved! You can now start accepting clients.
+                        </p>
+                    </div>
                     <div className="flex items-center gap-2">
                         <button
                             onClick={handleViewSuccess}
-                            className="px-4 py-2 rounded-lg text-sm font-semibold bg-success text-white hover:brightness-95 transition-all"
+                            className="px-4 py-2 rounded-lg text-sm font-semibold bg-green-600 text-white hover:brightness-95 transition-all"
                         >
                             Get Started
                         </button>
                         <button
                             onClick={handleDismissApproved}
-                            className="p-2 text-success hover:text-text-main dark:hover:text-white transition-colors"
+                            className="p-2 text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-200 transition-colors"
+                            aria-label="Dismiss"
                         >
                             <svg
                                 className="w-5 h-5"
@@ -157,6 +188,29 @@ export default function OnboardingBanner() {
                             </svg>
                         </button>
                     </div>
+                </div>
+            </div>
+        );
+    }
+
+    if (bannerType === "rejected") {
+        return (
+            <div className="sticky top-0 z-40 border-b-2 border-red-500 bg-red-50 dark:bg-red-900/20 px-4 sm:px-6 lg:px-8 py-3 transition-colors duration-200">
+                <div className="max-w-7xl mx-auto flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                        <svg className="w-5 h-5 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <p className="text-sm font-semibold text-red-800 dark:text-red-200">
+                            Your application needs attention - please review and resubmit
+                        </p>
+                    </div>
+                    <button
+                        onClick={() => router.push("/therapist/onboarding/review")}
+                        className="px-4 py-2 rounded-lg text-sm font-semibold bg-red-600 text-white hover:brightness-95 transition-all"
+                    >
+                        Review Feedback
+                    </button>
                 </div>
             </div>
         );
