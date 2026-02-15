@@ -6,7 +6,6 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import useOnboardingStore from "@/store/onboardingStore";
-import { useAuth } from "@/hooks/useAuth";
 import OnboardingProgressBar from "@/components/therapist/OnboardingProgressBar";
 import { professionalProfileSchema } from "@/lib/onboardingValidation";
 import { SPECIALIZATIONS } from "@/lib/constants/specializations";
@@ -15,7 +14,6 @@ import { onboardingAPI } from "@/lib/onboarding.api";
 
 export default function ProfessionalProfilePage() {
     const router = useRouter();
-    const { user } = useAuth();
     const { professionalProfile, updateProfessionalProfile, markStepComplete, setCurrentStep } = useOnboardingStore();
 
     const [profilePhoto, setProfilePhoto] = useState(professionalProfile.profilePhotoUrl || null);
@@ -51,22 +49,16 @@ export default function ProfessionalProfilePage() {
             return;
         }
 
-        setUploadingPhoto(previewUrl);
-
         // Create preview URL
         const previewUrl = URL.createObjectURL(file);
         setProfilePhoto(previewUrl);
+        setUploadingPhoto(true);
 
         try {
-            const userId = user?.id;
-            if (!userId) {
-                throw new Error("User not authenticated");
-            }
+            const result = await onboardingAPI.uploadProfilePhoto(file);
 
-            const { url } = await onboardingAPI.uploadProfilePhoto(file, userId || "temp");
-
-            setProfilePhoto(url);
-            setValue("profilePhotoUrl", url);
+            setProfilePhoto(result.url);
+            setValue("profilePhotoUrl", result.url);
 
             // Clean up preview url
             URL.revokeObjectURL(previewUrl);
@@ -77,8 +69,9 @@ export default function ProfessionalProfilePage() {
             // revert to previous photo on error
             setProfilePhoto(professionalProfile.profilePhotoUrl || null);
             setValue("profilePhotoUrl", professionalProfile.profilePhotoUrl || null);
+        } finally {
+            setUploadingPhoto(false);
         }
-
     }
 
     const onSubmit = async (data) => {
@@ -105,6 +98,9 @@ export default function ProfessionalProfilePage() {
             markStepComplete(1);
             setCurrentStep(2);
             router.push("/therapist/onboarding/credentials");
+        } catch (error) {
+            console.error("Failed to save profile:", error);
+            alert(error.message || "Failed to save profile. Please try again.");
         } finally {
             setLoading(false);
         }

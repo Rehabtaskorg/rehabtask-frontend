@@ -11,11 +11,11 @@ import { credentialsSchema } from "@/lib/onboardingValidation";
 import { onboardingAPI } from "@/lib/onboarding.api";
 import OnboardingProgressBar from "@/components/therapist/OnboardingProgressBar";
 import { US_STATES } from "@/lib/constants/credentials";
-import { supabase } from "@/lib/supabase";
-
+import { useAuth } from "@/hooks/useAuth";
 
 export default function CredentialsPage() {
     const router = useRouter();
+    const { user, loading: authLoading } = useAuth()
     const { credentials, updateCredentials, addLicenseDocument, removeLicenseDocument, markStepComplete, setCurrentStep } = useOnboardingStore();
 
     const [loading, setLoading] = useState(false);
@@ -84,16 +84,8 @@ export default function CredentialsPage() {
                 return;
             }
 
-            // Fetch session directly instead of relying on the hook
-            const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-
-            console.log('Session check:', { session, sessionError }); // Debug log
-
-            const userId = session?.user?.id;
-
-            if (!userId) {
+            if (!user) {
                 setUploadError("User not authenticated. Please log in again.");
-                console.error('No user ID found. Session:', session);
                 return;
             }
 
@@ -107,19 +99,17 @@ export default function CredentialsPage() {
                     }
 
                     const allowedTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
-
                     if (!allowedTypes.includes(file.type)) {
                         setUploadError(`${file.name} has invalid type. Only PDF, JPEG, and PNG are allowed.`);
                         continue;
                     }
 
                     try {
-                        const result = await onboardingAPI.uploadLicenseDocument(
-                            file, userId
-                        );
+                        const result = await onboardingAPI.uploadLicenseDocument(file, "license");
 
                         // Add to store
                         addLicenseDocument({
+                            id: result.id,
                             path: result.path,
                             fileName: result.fileName,
                             fileSize: result.fileSize,
@@ -135,7 +125,7 @@ export default function CredentialsPage() {
                 setUploading(false);
             }
         },
-        [uploadedDocs, addLicenseDocument]
+        [uploadedDocs.length, user, addLicenseDocument]
     );
 
     const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -146,7 +136,7 @@ export default function CredentialsPage() {
         },
         multiple: true,
         maxFiles: 5,
-        disabled: uploadedDocs.length >= 5 || uploading,
+        disabled: uploadedDocs.length >= 5 || uploading || authLoading,
     });
 
 
@@ -226,8 +216,8 @@ export default function CredentialsPage() {
                             <div
                                 {...getRootProps()}
                                 className={`border-2 border-dashed border-border-light dark:border-border-dark rounded-xl p-10 flex flex-col items-center justify-center bg-muted-light dark:bg-muted-dark transition-colors ${uploadedDocs.length >= 5 || uploading
-                                    ? "opacity-50 cursor-not-allowed"
-                                    : "hover:bg-primary/5 hover:border-primary cursor-pointer group"
+                                        ? "opacity-50 cursor-not-allowed"
+                                        : "hover:bg-primary/5 hover:border-primary cursor-pointer group"
                                     }`}
                             >
                                 <input {...getInputProps()} />

@@ -1,28 +1,32 @@
 import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
+import { authAPi } from "@/lib/auth.api";
 
-/**
- * Hook to get the currently authenticated user
- * Returns the user object with id, email, etc
- */
 export function useAuth() {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // Get initial session
-        supabase.auth.getSession().then(({ data: { session } }) => {
-            setUser(session?.user ?? null);
-            setLoading(false);
-        });
+        let mounted = true;
 
-        // Listen for auth changes
-        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-            setUser(session?.user ?? null);
-            setLoading(false);
-        });
+        const fetchUser = async () => {
+            try {
+                const response = await authAPi.getCurrentUser();
+                if (!mounted) return;
 
-        return () => subscription.unsubscribe();
+                setUser(response.data.data.user);
+            } catch (error) {
+                if (!mounted) return;
+                setUser(null);
+            } finally {
+                if (mounted) setLoading(false);
+            }
+        };
+
+        fetchUser();
+
+        return () => {
+            mounted = false;
+        };
     }, []);
 
     return { user, loading };
