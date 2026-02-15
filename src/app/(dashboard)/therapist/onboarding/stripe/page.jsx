@@ -31,7 +31,9 @@ export default function StripeOnboardingPage() {
                     if (connected && detailsSubmitted) {
                         markStepComplete(5);
                         markStripeConnected(accountId);
-                        router.push("/therapist/onboarding/complete");
+
+                        await onboardingAPI.completeOnboarding();
+                        router.push("/therapist/onboarding/pending");
                     } else {
                         setError("Stripe account setup is incomplete. Please complete all required steps.");
                     }
@@ -67,12 +69,20 @@ export default function StripeOnboardingPage() {
         }
     }
 
-    const handleSkipForNow = () => {
-        // Mark Step 5 as complete (allows skipping)
-        markStepComplete(5);
+    const handleSkipForNow = async () => {
+        setLoading(true);
+        try {
+            markStepComplete(5);
 
-        // Navigating to completion page (they can connect Stripe later)
-        router.push("/therapist/onboarding/pending");
+            await onboardingAPI.completeOnboarding();
+
+            // Navigating to completion page (they can connect Stripe later)
+            router.push("/therapist/onboarding/pending");
+        } catch (error) {
+            setError(err.message);
+        } finally {
+            setLoading(false);
+        }
     };
 
     if (checkingStatus) {
