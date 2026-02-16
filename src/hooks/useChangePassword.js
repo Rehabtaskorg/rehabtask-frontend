@@ -15,6 +15,7 @@ export const useChangePassword = () => {
             const response = await authAPi.changePassword(currentPassword, newPassword, confirmNewPassword);
 
             setSuccess(response.data.message || "Password changed successfully");
+            setIsSubmitting(false);
 
             return { success: true, data: response.data };
         } catch (err) {
@@ -33,6 +34,7 @@ export const useChangePassword = () => {
             }
 
             setError(errorMessage);
+            setIsSubmitting(false);
             return { success: false, error: errorMessage };
         }
 
