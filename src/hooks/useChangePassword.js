@@ -6,13 +6,13 @@ export const useChangePassword = () => {
     const [error, setError] = useState(null);
     const [success, setSuccess] = useState(null);
 
-    const changePassword = async (currentPassword, newPassword) => {
+    const changePassword = async (currentPassword, newPassword, confirmNewPassword) => {
         setError(null);
         setSuccess(null);
         setIsSubmitting(true);
 
         try {
-            const response = await authAPi.changePassword(currentPassword, newPassword);
+            const response = await authAPi.changePassword(currentPassword, newPassword, confirmNewPassword);
 
             setSuccess(response.data.message || "Password changed successfully");
 
