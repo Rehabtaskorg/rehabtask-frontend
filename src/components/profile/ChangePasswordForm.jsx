@@ -3,9 +3,9 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { MdLock } from "react-icons/md";
-import PasswordInput from "../ui/PasswordInput";
-import Button from "../ui/Button";
-import Alert from "../ui/Alert";
+import PasswordInput from "@/components/ui/PasswordInput";
+import Button from "@/components/ui/Button";
+import Alert from "@/components/ui/Alert";
 import { changePasswordSchema } from "@/lib/validationSchema";
 import { useChangePassword } from "@/hooks/useChangePassword";
 
@@ -22,7 +22,8 @@ const ChangePasswordForm = () => {
     const { changePassword, isSubmitting, error, success, clearMessages } = useChangePassword();
 
     const onSubmit = async (data) => {
-        const result = await changePassword(data.currentPassword, data.newPassword);
+        console.log("Form data before submit:", data);
+        const result = await changePassword(data.currentPassword, data.newPassword, data.confirmNewPassword);
 
         if (result.success) {
             // Reset form on success
@@ -33,7 +34,7 @@ const ChangePasswordForm = () => {
                 clearMessages();
             }, 5000);
         }
-    }
+    };
 
     return (
         <div className="bg-white dark:bg-card-dark rounded-xl shadow-sm border border-border-light dark:border-border-dark overflow-hidden">
@@ -128,8 +129,7 @@ const ChangePasswordForm = () => {
                 </div>
             </form>
         </div>
-    )
-
-}
+    );
+};
 
 export default ChangePasswordForm;

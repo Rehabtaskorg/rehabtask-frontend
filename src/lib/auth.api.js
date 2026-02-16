@@ -95,11 +95,14 @@ export const authAPi = {
     /**
      * Change password for authenticated user
      */
-    changePassword: async (currentPassword, newPassword) => {
-        return api.post("/auth/password/change", {
+    changePassword: async (currentPassword, newPassword, confirmNewPassword) => {
+        const payload = {
             currentPassword,
-            newPassword
-        });
+            newPassword,
+            confirmNewPassword
+        }
+
+        return api.post("/auth/password/change", payload);
     },
 
     /**
