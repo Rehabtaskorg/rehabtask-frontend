@@ -210,3 +210,28 @@ export const resetPasswordSchema = z.object({
     error: "Passwords must match",
     path: ["confirmPassword"],
 });
+
+/**
+ * Change password schema (for authenticated users)
+ */
+export const changePasswordSchema = z.object({
+    currentPassword: z
+        .string()
+        .min(1, "Current password is required"),
+
+    newPassword: z
+        .string()
+        .min(8, "Password must be at least 8 characters")
+        .regex(
+            /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])/,
+            "Password must contain uppercase, lowercase, number, and symbol"
+        ),
+
+    confirmNewPassword: z.string(),
+}).refine((data) => data.newPassword === data.confirmNewPassword, {
+    error: "Passwords must match",
+    path: ["confirmNewPassword"],
+}).refine((data) => data.currentPassword !== data.newPassword, {
+    error: "New password must be different from current password",
+    path: ["newPassword"]
+})

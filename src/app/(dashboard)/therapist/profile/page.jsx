@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { api } from "@/lib/api";
+import ChangePasswordForm from "@/components/profile/ChangePasswordForm";
 
 export default function TherapistProfilePage() {
     const searchParams = useSearchParams();
@@ -67,19 +68,20 @@ export default function TherapistProfilePage() {
     }
 
     return (
-        <div className="py-8 px-4 max-w-4xl mx-auto">
-            <h1 className="text-2xl font-bold mb-6">Profile Settings</h1>
+        <div className="py-8 px-4 max-w-4xl mx-auto space-y-6">
+            <h1 className="text-2xl font-bold text-text-main dark:text-white mb-6">Profile Settings</h1>
 
-            <div className="bg-white rounded-lg shadow p-6 mb-6">
-                <h2 className="text-xl font-semibold mb-4">Payment Setup</h2>
+            {/* Payment Setup Section */}
+            <div className="bg-white dark:bg-card-dark rounded-xl shadow-sm border border-border-light dark:border-border-dark p-6">
+                <h2 className="text-xl font-semibold text-text-main dark:text-white mb-4">Payment Setup</h2>
 
                 {!accountStatus?.connected ? (
                     <div className="space-y-4">
-                        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                            <h3 className="font-semibold text-yellow-900 mb-2">
+                        <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
+                            <h3 className="font-semibold text-yellow-900 dark:text-yellow-200 mb-2">
                                 ⚠️ Connect your Stripe account to receive payments
                             </h3>
-                            <p className="text-sm text-yellow-800 mb-4">
+                            <p className="text-sm text-yellow-800 dark:text-yellow-300 mb-4">
                                 You need to connect a Stripe account to receive payouts for completed sessions.
                             </p>
                         </div>
@@ -87,12 +89,12 @@ export default function TherapistProfilePage() {
                         <button
                             onClick={handleConnectStripe}
                             disabled={connecting}
-                            className="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                            className="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
                         >
                             {connecting ? 'Redirecting...' : 'Connect Stripe Account'}
                         </button>
 
-                        <div className="text-xs text-gray-600 space-y-1">
+                        <div className="text-xs text-text-muted dark:text-gray-400 space-y-1">
                             <p>• Stripe is a secure payment platform used by millions</p>
                             <p>• You&apos;ll be redirected to Stripe to complete setup</p>
                             <p>• Takes about 5 minutes to complete</p>
@@ -101,27 +103,27 @@ export default function TherapistProfilePage() {
                 ) : (
                     <div className="space-y-4">
                         {accountStatus.detailsSubmitted ? (
-                            <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                                <h3 className="font-semibold text-green-900 mb-2">
+                            <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
+                                <h3 className="font-semibold text-green-900 dark:text-green-200 mb-2">
                                     ✅ Stripe account connected
                                 </h3>
-                                <div className="text-sm text-green-800 space-y-1">
+                                <div className="text-sm text-green-800 dark:text-green-300 space-y-1">
                                     <p>• Charges enabled: {accountStatus.chargesEnabled ? 'Yes' : 'No'}</p>
                                     <p>• Payouts enabled: {accountStatus.payoutsEnabled ? 'Yes' : 'No'}</p>
                                 </div>
                             </div>
                         ) : (
-                            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                                <h3 className="font-semibold text-yellow-900 mb-2">
+                            <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
+                                <h3 className="font-semibold text-yellow-900 dark:text-yellow-200 mb-2">
                                     ⚠️ Complete your Stripe account setup
                                 </h3>
-                                <p className="text-sm text-yellow-800 mb-4">
+                                <p className="text-sm text-yellow-800 dark:text-yellow-300 mb-4">
                                     Your account is connected but setup is not complete.
                                 </p>
                                 <button
                                     onClick={handleConnectStripe}
                                     disabled={connecting}
-                                    className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 text-sm"
+                                    className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 text-sm transition-colors"
                                 >
                                     {connecting ? 'Redirecting...' : 'Complete Setup'}
                                 </button>
@@ -130,17 +132,17 @@ export default function TherapistProfilePage() {
 
                         {accountStatus.payoutsEnabled && (
                             <>
-                                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                                    <p className="text-sm text-blue-800">
+                                <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+                                    <p className="text-sm text-blue-800 dark:text-blue-200">
                                         💡 You&apos;ll receive payouts automatically after customers confirm session completion. Payouts typically arrive in 2-7 business days.
                                     </p>
                                 </div>
 
-                                <div className="pt-4 border-t border-gray-200">
+                                <div className="pt-4 border-t border-border-light dark:border-border-dark">
                                     <button
                                         onClick={handleAccessDashboard}
                                         disabled={accessingDashboard}
-                                        className="bg-indigo-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-indigo-700 disabled:bg-gray-400 disabled:cursor-not-allowed inline-flex items-center gap-2"
+                                        className="bg-indigo-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-indigo-700 disabled:bg-gray-400 disabled:cursor-not-allowed inline-flex items-center gap-2 transition-colors"
                                     >
                                         <svg
                                             className="w-5 h-5"
@@ -157,7 +159,7 @@ export default function TherapistProfilePage() {
                                         </svg>
                                         {accessingDashboard ? 'Opening Dashboard...' : 'Access Stripe Dashboard'}
                                     </button>
-                                    <p className="text-xs text-gray-600 mt-2">
+                                    <p className="text-xs text-text-muted dark:text-gray-400 mt-2">
                                         View your balance, payouts, and transaction history
                                     </p>
                                 </div>
@@ -166,6 +168,8 @@ export default function TherapistProfilePage() {
                     </div>
                 )}
             </div>
+
+            <ChangePasswordForm />
         </div>
     )
 }

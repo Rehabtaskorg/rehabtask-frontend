@@ -150,6 +150,15 @@ export default function DashboardLayout({ children }) {
                                         >
                                             Payments
                                         </Link>
+                                        <Link
+                                            href="/customer/profile"
+                                            className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${pathname.startsWith('/customer/profile')
+                                                    ? 'bg-primary/10 text-primary'
+                                                    : 'text-text-muted dark:text-gray-300 hover:bg-muted-light dark:hover:bg-muted-dark'
+                                                }`}
+                                        >
+                                            Profile
+                                        </Link>
                                     </>
                                 )}
 
