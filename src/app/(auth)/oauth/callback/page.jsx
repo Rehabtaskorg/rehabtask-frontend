@@ -58,7 +58,6 @@ const OAuthCallback = () => {
 
             } catch (error) {
                 console.error("OAuth process failed:", error);
-                // UX: Give a clear path back if something breaks
                 router.replace(`/login?error=${encodeURIComponent("Authentication failed. Please try again.")}`);
             }
         };
@@ -69,7 +68,6 @@ const OAuthCallback = () => {
     return (
         <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 dark:bg-background-dark p-4">
             <div className="flex flex-col items-center max-w-sm w-full text-center">
-                {/* Modern loading indicator */}
                 <div className="relative mb-6">
                     <div className="h-16 w-16 rounded-full border-4 border-primary/20 animate-pulse"></div>
                     <div className="absolute top-0 left-0 h-16 w-16 rounded-full border-t-4 border-primary animate-spin"></div>
