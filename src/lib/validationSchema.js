@@ -1,22 +1,34 @@
 import z from "zod";
 
+const phoneSchema = z
+    .string()
+    .regex(
+        /^\+1\d{10}$/,
+        "Invalid US phone number format. Use +1XXXXXXXXXX"
+    );
+
+const fullNameSchema = z
+    .string()
+    .min(2, "Name must be at least 2 characters")
+    .max(255, "Name must not exceed 255 characters")
+    .regex(/^[a-zA-Z\s'.-]+$/, 'Name can only contain letters, spaces, hyphens, and apostrophes')
+    .trim();
+
+const licenseNumberSchema = z
+    .string()
+    .min(3, 'License number must be at least 3 characters')
+    .max(100, 'License number must not exceed 100 characters')
+    .trim();
+
 export const therapistRegistrationSchema = z
     .object({
-        fullName: z
-            .string()
-            .min(2, "Full name must be atleast 2 characters")
-            .max(100, "Full name must not exceed 100 characters")
-            .regex(/^[a-zA-Z\s.'-]+$/, "Please enter a valid name"),
+        fullName: fullNameSchema,
 
         email: z
             .email("Please enter a valid email address")
             .transform((val) => val.trim().toLowerCase()),
 
-        phone: z
-            .string()
-            .min(1, "Phone number is required")
-            .regex(/^\+1\d{10}$/, "Please enter a valid US phone number"
-            ),
+        phone: phoneSchema,
 
         password: z
             .string()
@@ -34,23 +46,13 @@ export const therapistRegistrationSchema = z
     });
 
 export const customerRegistrationSchema = z.object({
-    fullName: z
-        .string()
-        .min(2, "Name must be at least 2 characters")
-        .max(100, "Name must not exceed 100 characters")
-        .regex(/^[a-zA-Z\s.'-]+$/, "Please enter a valid name"),
+    fullName: fullNameSchema,
 
     email: z
         .email("Please enter a valid email address")
         .transform((val) => val.trim().toLowerCase()),
 
-    phone: z
-        .string()
-        .min(1, "Phone number is required")
-        .refine(
-            (val) => !val || /^\+1\d{10}$/.test(val),
-            "Please enter a valid US phone number"
-        ),
+    phone: phoneSchema,
 
     password: z
         .string()
@@ -88,32 +90,70 @@ export const loginSchema = z.object({
         .min(1, "Password is required"),
 });
 
+/**
+ * Handles empty strings from form defaults by transforming to undefined
+ */
 export const oauthOnboardingSchema = z.object({
     role: z.enum(["customer", "therapist"], {
-        required_error: "Please select your account type"
+        required_error: "Role is required",
+        invalid_type_error: "Role must be either 'customer' or 'therapist'"
     }),
 
-    fullName: z
-        .string()
-        .min(2, "Full name must be at least 2 characters")
-        .max(100, "Full name must not exceed 100 characters")
-        .regex(/^[a-zA-Z\s.'-]+$/, "Please enter a valid name"),
+    fullName: fullNameSchema,
 
-    phone: z
+    phone: phoneSchema,
+
+    // Customer fields - transform empty strings to undefined
+    customerType: z
         .string()
-        .min(1, "Phone number is required")
-        .refine(
-            (val) => !val || /^\+1\d{10}$/.test(val),
-            "Please enter a valid US phone number"
+        .transform((val) => val === "" ? undefined : val)
+        .pipe(z.enum(["individual", "agency"]).optional()),
+
+    agencyName: z
+        .string()
+        .transform((val) => val === "" ? undefined : val)
+        .pipe(
+            z.string()
+                .min(2, "Agency name must be at least 2 characters")
+                .max(255, "Agency name must not exceed 255 characters")
+                .optional()
         ),
 
-    customerType: z.enum(["individual", "agency"]).optional(),
-    agencyName: z.string().optional(),
-    location: z.string().max(500, "Location must not exceed 500 characters").optional(),
-    specialization: z.string().max(1000, "Specialization must not exceed 1000 characters").optional(),
-    licenseNumber: z.string().max(100, "License number must not exceed 100 characters").optional(),
-    workArea: z.string().max(500, "Work area must not exceed 500 characters").optional(),
+    location: z
+        .string()
+        .transform((val) => val === "" ? undefined : val)
+        .pipe(
+            z.string()
+                .max(500, "Location must not exceed 500 characters")
+                .optional()
+        ),
+
+    // Therapist fields - transform empty strings to undefined
+    specialization: z
+        .string()
+        .transform((val) => val === "" ? undefined : val)
+        .pipe(
+            z.string()
+                .max(1000, "Specialization must not exceed 1000 characters")
+                .optional()
+        ),
+
+    licenseNumber: z
+        .string()
+        .transform((val) => val === "" ? undefined : val)
+        .pipe(licenseNumberSchema.optional()),
+
+
+    workArea: z
+        .string()
+        .transform((val) => val === "" ? undefined : val)
+        .pipe(
+            z.string()
+                .max(500, "Work area must not exceed 500 characters")
+                .optional()
+        ),
 }).refine(
+    // Customer type is required for customers
     (data) => {
         if (data.role === "customer") {
             return !!data.customerType;
@@ -121,29 +161,31 @@ export const oauthOnboardingSchema = z.object({
         return true;
     },
     {
-        message: "Please select account type",
+        error: "Customer type is required for customers",
         path: ["customerType"]
     }
 ).refine(
+    // Agency name is required for agency customers
     (data) => {
         if (data.role === "customer" && data.customerType === "agency") {
-            return !!data.agencyName && data.agencyName.trim().length >= 2;
+            return !!data.agencyName?.trim();
         }
         return true;
     },
     {
-        message: "Agency name is required and must be at least 2 characters",
+        error: "Agency name is required and must be at least 2 characters",
         path: ["agencyName"]
     }
 ).refine(
+    // License number is required for therapists
     (data) => {
         if (data.role === "therapist") {
-            return !!data.licenseNumber && data.licenseNumber.trim().length > 0;
+            return !!data.licenseNumber?.trim();
         }
         return true;
     },
     {
-        message: "License number is required for therapists",
+        error: "License number is required for therapists",
         path: ["licenseNumber"]
     }
 );
