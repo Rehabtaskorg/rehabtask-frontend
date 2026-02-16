@@ -12,6 +12,11 @@ import { useChangePassword } from "@/hooks/useChangePassword";
 const ChangePasswordForm = () => {
     const { register, handleSubmit, formState: { errors }, reset } = useForm({
         resolver: zodResolver(changePasswordSchema),
+        defaultValues: {
+            currentPassword: "",
+            newPassword: "",
+            confirmNewPassword: ""
+        }
     });
 
     const { changePassword, isSubmitting, error, success, clearMessages } = useChangePassword();
