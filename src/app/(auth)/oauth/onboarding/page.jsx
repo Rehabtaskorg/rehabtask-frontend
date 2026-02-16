@@ -32,7 +32,6 @@ function OAuthOnboardingContent() {
             phone: "",
             customerType: "",
             agencyName: "",
-            location: "",
             specialization: "",
             licenseNumber: "",
             workArea: ""
@@ -140,7 +139,7 @@ function OAuthOnboardingContent() {
                             transition={{ duration: 0.4, ease: "easeOut" }}
                         >
                             <form
-                                onSubmit={handleSubmit(onSubmit)}
+                                onSubmit={handleSubmit(onSubmit, (errors) => console.log("Form Errors:", errors))}
                                 className="px-8 py-8 space-y-4 bg-gray-50/50 dark:bg-[#151f28]"
                             >
                                 {error && <Alert type="error" message={error} onClose={clearError} />}

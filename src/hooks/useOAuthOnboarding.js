@@ -44,7 +44,7 @@ export const useOAuthOnboarding = () => {
             }
 
             return { success: true, data: response.data };
-        } catch (error) {
+        } catch (err) {
             const apiError = err.response?.data;
 
             let errorMessage;
