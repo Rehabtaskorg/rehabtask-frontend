@@ -5,6 +5,55 @@ import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { authAPi } from '@/lib/auth.api';
 import OnboardingBanner from '@/components/therapist/OnboardingBanner';
+import { useUnreadCount } from '@/hooks/useMessages';
+
+// Separated component so useUnreadCount only runs when user is authenticated
+function MessagesNavLink({ pathname }) {
+    const unreadCount = useUnreadCount();
+    const isActive = pathname.startsWith('/therapist/messages');
+
+    return (
+        <Link
+            href="/therapist/messages"
+            className={`relative px-3 py-2 rounded-md text-sm font-medium transition-colors ${isActive
+                ? 'bg-primary/10 text-primary'
+                : 'text-text-muted dark:text-gray-300 hover:bg-muted-light dark:hover:bg-muted-dark'
+                }`}
+        >
+            Messages
+            {unreadCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 min-w-4 h-4 px-1 rounded-full bg-primary text-white text-[9px] font-bold flex items-center justify-center leading-none">
+                    {unreadCount > 99 ? '99+' : unreadCount}
+                </span>
+            )}
+        </Link>
+    )
+
+}
+
+// Separated component for customer messages badge
+function CustomerMessagesNavLink({ pathname }) {
+    const unreadCount = useUnreadCount();
+    const isActive = pathname.startsWith('/customer/messages');
+
+    return (
+        <Link
+            href="/customer/messages"
+            className={`relative px-3 py-2 rounded-md text-sm font-medium transition-colors ${isActive
+                ? 'bg-primary/10 text-primary'
+                : 'text-text-muted dark:text-gray-300 hover:bg-muted-light dark:hover:bg-muted-dark'
+                }`}
+        >
+            Messages
+            {unreadCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 min-w-4 h-4 px-1 rounded-full bg-primary text-white text-[9px] font-bold flex items-center justify-center leading-none">
+                    {unreadCount > 99 ? '99+' : unreadCount}
+                </span>
+            )}
+        </Link>
+    )
+
+}
 
 export default function DashboardLayout({ children }) {
     const router = useRouter();
@@ -24,7 +73,6 @@ export default function DashboardLayout({ children }) {
 
                 const userData = res.data.data.user;
 
-                // check if user is on the correct dashboard
                 const isOnCustomerDashboard = pathname.startsWith("/customer");
                 const isOnTherapistDashboard = pathname.startsWith("/therapist");
 
@@ -100,7 +148,6 @@ export default function DashboardLayout({ children }) {
         );
     }
 
-    // Check if on onboarding route
     const isOnOnboardingRoute = pathname.startsWith("/therapist/onboarding");
 
     return (
@@ -150,11 +197,13 @@ export default function DashboardLayout({ children }) {
                                         >
                                             Payments
                                         </Link>
+                                        {/*  Messages with unread badge - Customer */}
+                                        <CustomerMessagesNavLink pathname={pathname} />
                                         <Link
                                             href="/customer/profile"
                                             className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${pathname.startsWith('/customer/profile')
-                                                    ? 'bg-primary/10 text-primary'
-                                                    : 'text-text-muted dark:text-gray-300 hover:bg-muted-light dark:hover:bg-muted-dark'
+                                                ? 'bg-primary/10 text-primary'
+                                                : 'text-text-muted dark:text-gray-300 hover:bg-muted-light dark:hover:bg-muted-dark'
                                                 }`}
                                         >
                                             Profile
@@ -200,6 +249,8 @@ export default function DashboardLayout({ children }) {
                                         >
                                             Earnings
                                         </Link>
+                                        {/* Messages with unread badge - Therapist */}
+                                        <MessagesNavLink pathname={pathname} />
                                         <Link
                                             href="/therapist/profile"
                                             className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${pathname.startsWith('/therapist/profile')
