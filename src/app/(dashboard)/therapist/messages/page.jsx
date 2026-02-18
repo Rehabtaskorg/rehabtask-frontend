@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useConversations } from "@/hooks/useMessages";
 
@@ -51,12 +52,13 @@ const getContextBadge = (currentContext) => {
 
 function ConversationSkeleton() {
     return (
-        <div className="flex items-center gap-3 px-4 py-3 animate-pulse">
+        <div className="flex items-center gap-3 px-4 py-3.5 animate-pulse">
             <div className="h-12 w-12 rounded-full bg-gray-200 dark:bg-gray-700 shrink-0" />
             <div className="flex-1 space-y-2">
                 <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-3/4" />
                 <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/2" />
             </div>
+            <div className="h-3 w-10 bg-gray-200 dark:bg-gray-700 rounded shrink-0" />
         </div>
     )
 }
@@ -64,6 +66,15 @@ function ConversationSkeleton() {
 export default function MessagesPage() {
     const router = useRouter();
     const { conversations, loading, error } = useConversations();
+    const [search, setSearch] = useState('');
+
+    const filtered = search.trim()
+        ? conversations.filter((c) =>
+            getDisplayName(c.otherUser)
+                .toLowerCase()
+                .includes(search.toLowerCase())
+        )
+        : conversations;
 
     const handleSelectConversation = (conversation) => {
         const { type, id } = conversation.currentContext;
@@ -73,7 +84,6 @@ export default function MessagesPage() {
     return (
         <div className="py-6 px-4">
             <div className="max-w-5xl mx-auto">
-                {/* Page Header */}
                 <div className="mb-6">
                     <h1 className="text-2xl font-bold text-text-main dark:text-white">Messages</h1>
                     <p className="text-sm text-text-muted dark:text-gray-400 mt-1">
@@ -81,8 +91,30 @@ export default function MessagesPage() {
                     </p>
                 </div>
 
-                {/* Conversation List */}
                 <div className="bg-card-light dark:bg-card-dark rounded-xl border border-border-light dark:border-border-dark shadow-sm overflow-hidden">
+                    {/* Search */}
+                    {!loading && !error && conversations.length > 0 && (
+                        <div className="px-4 pt-4 pb-2">
+                            <div className="relative">
+                                <svg
+                                    className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted dark:text-gray-500 pointer-events-none"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke="currentColor"
+                                >
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                </svg>
+                                <input
+                                    type="text"
+                                    placeholder="Search conversations..."
+                                    value={search}
+                                    onChange={(e) => setSearch(e.target.value)}
+                                    className="w-full pl-9 pr-3 py-2 text-sm rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-main dark:text-white placeholder:text-text-muted dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                                />
+                            </div>
+                        </div>
+                    )}
+
                     {loading ? (
                         <div className="divide-y divide-border-light dark:divide-border-dark">
                             {[1, 2, 3, 4].map((i) => (
@@ -98,6 +130,12 @@ export default function MessagesPage() {
                             </div>
                             <p className="text-text-muted dark:text-gray-400 text-sm">{error}</p>
                         </div>
+                    ) : filtered.length === 0 && search.trim() ? (
+                        <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
+                            <p className="text-text-muted dark:text-gray-400 text-sm">
+                                No conversations matching &ldquo;{search}&rdquo;
+                            </p>
+                        </div>
                     ) : conversations.length === 0 ? (
                         <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
                             <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-4">
@@ -105,14 +143,16 @@ export default function MessagesPage() {
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                                 </svg>
                             </div>
-                            <h3 className="font-semibold text-text-main dark:text-white mb-1">No conversations yet</h3>
+                            <h3 className="font-semibold text-text-main dark:text-white mb-1">
+                                No conversations yet
+                            </h3>
                             <p className="text-text-muted dark:text-gray-400 text-sm max-w-xs">
                                 Your conversations will appear here once you start messaging customers.
                             </p>
                         </div>
                     ) : (
                         <ul className="divide-y divide-border-light dark:divide-border-dark">
-                            {conversations.map((conversation, idx) => {
+                            {filtered.map((conversation, idx) => {
                                 const name = getDisplayName(conversation.otherUser);
                                 const badge = getContextBadge(conversation.currentContext);
                                 const hasUnread = conversation.unreadCount > 0;
@@ -121,9 +161,8 @@ export default function MessagesPage() {
                                     <li
                                         key={`${conversation.currentContext?.type}-${conversation.currentContext?.id}-${idx}`}
                                         onClick={() => handleSelectConversation(conversation)}
-                                        className="flex items-center gap-3 px-4 py-3 hover:bg-muted-light dark:hover:bg-muted-dark cursor-pointer transition-colors group"
+                                        className="flex items-center gap-3 px-4 py-3.5 border-l-4 border-transparent hover:border-primary hover:bg-muted-light dark:hover:bg-muted-dark cursor-pointer transition-colors"
                                     >
-                                        {/* Avatar */}
                                         <div className="relative shrink-0">
                                             <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold text-sm">
                                                 {getInitials(name)}
@@ -133,7 +172,6 @@ export default function MessagesPage() {
                                             )}
                                         </div>
 
-                                        {/* Content */}
                                         <div className="flex-1 min-w-0">
                                             <div className="flex items-center justify-between gap-2 mb-0.5">
                                                 <div className="flex items-center gap-2 min-w-0">
@@ -149,7 +187,6 @@ export default function MessagesPage() {
                                                 </span>
                                             </div>
 
-                                            {/* Patient label if present */}
                                             {conversation.patient && (
                                                 <p className="text-[11px] text-primary font-medium mb-0.5 truncate">
                                                     Patient: {conversation.patient.fullName}
@@ -161,7 +198,7 @@ export default function MessagesPage() {
                                                     {conversation.lastMessage?.content || 'No messages yet'}
                                                 </p>
                                                 {hasUnread && (
-                                                    <span className="shrink-0 min-w-4.5 h-4.5 px-1 rounded-full bg-primary text-white text-[10px] font-bold flex items-center justify-center">
+                                                    <span className="shrink-0 min-w-5 h-5 px-1.5 rounded-full bg-primary text-white text-[10px] font-bold flex items-center justify-center">
                                                         {conversation.unreadCount > 99 ? '99+' : conversation.unreadCount}
                                                     </span>
                                                 )}
