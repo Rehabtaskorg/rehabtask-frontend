@@ -19,7 +19,7 @@ export function useConversations(pollInterval = 10000) {
             setConversations(res.data.data.conversations);
             setError(null);
         } catch (error) {
-            console.error('Failed to fetch conversations:', err);
+            console.error('Failed to fetch conversations:', error);
             setError('Failed to load conversations');
         }
         finally {
@@ -74,7 +74,7 @@ export function useMessages(contextType, contextId, pollInterval = 5000) {
 
             setError(null);
         } catch (error) {
-            console.error('Failed to fetch messages:', err);
+            console.error('Failed to fetch messages:', error);
             setError('Failed to load messages');
         } finally {
             setLoading(false);
@@ -87,7 +87,7 @@ export function useMessages(contextType, contextId, pollInterval = 5000) {
         try {
             await messagesApi.markAsRead(contextType, contextId);
         } catch (error) {
-            console.error('Failed to mark as read:', err);
+            console.error('Failed to mark as read:', error);
         }
     }, [contextType, contextId]);
 
@@ -124,7 +124,7 @@ export function useMessages(contextType, contextId, pollInterval = 5000) {
             lastMessageIdRef.current = res.data.data.message.id;
             return true;
         } catch (error) {
-            console.error('Failed to send message:', err);
+            console.error('Failed to send message:', error);
             setError('Failed to send message');
             return false;
         } finally {
