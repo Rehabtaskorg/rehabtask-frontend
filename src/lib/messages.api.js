@@ -14,7 +14,7 @@ export const messagesApi = {
 
     /**
      * Get messages for a specific conversation context
-     * @param {string} contextType - "request" | "booking"
+     * @param {string} contextType - "offer" | "booking"
      * @param {string} contextId - UUID of the context
      * @param {object} options - { limit, cursor, order }
      */
@@ -38,7 +38,7 @@ export const messagesApi = {
 
     /**
      * Mark all messages as read in a conversation
-     * @param {string} contextType - "request" | "booking"
+     * @param {string} contextType - "offer" | "booking"
      * @param {string} contextId - UUID of the context
      */
     markAsRead: async (contextType, contextId) => {

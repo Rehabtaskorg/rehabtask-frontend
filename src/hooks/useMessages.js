@@ -43,7 +43,7 @@ export function useConversations(pollInterval = 10000) {
 
 /**
  * Hook to manage messages in an active conversation thread
- * @param {string} contextType - "request" | "booking"
+ * @param {string} contextType - "offer" | "booking"
  * @param {string} contextId - UUID
  */
 export function useMessages(contextType, contextId, pollInterval = 5000) {

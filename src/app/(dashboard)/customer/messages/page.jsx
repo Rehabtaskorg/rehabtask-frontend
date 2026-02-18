@@ -43,8 +43,8 @@ const formatTime = (dateString) => {
 // Helper: context label and color
 const getContextBadge = (currentContext) => {
     const map = {
-        request: {
-            label: 'Request',
+        offer: {
+            label: 'Offer',
             className: 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300',
         },
         booking: {
@@ -52,7 +52,7 @@ const getContextBadge = (currentContext) => {
             className: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300',
         },
     };
-    return map[currentContext?.type] || map.request;
+    return map[currentContext?.type] || map.offer;
 };
 
 function ConversationSkeleton() {

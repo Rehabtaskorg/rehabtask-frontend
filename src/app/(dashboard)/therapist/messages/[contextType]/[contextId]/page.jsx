@@ -124,7 +124,7 @@ export default function ConversationThreadPage({ params }) {
     }
 
     // Validate contextType
-    if (!["request", "booking"].includes(contextType)) {
+    if (!["offer", "booking"].includes(contextType)) {
         return (
             <div className="py-6 px-4">
                 <div className="max-w-3xl mx-auto text-center py-16">
@@ -171,13 +171,15 @@ export default function ConversationThreadPage({ params }) {
                         </div>
                     </div>
 
-                    {/* Link back to the source context */}
-                    <Link
-                        href={`/therapist/${contextType === 'booking' ? 'bookings' : 'requests'}/${contextId}`}
-                        className="shrink-0 text-xs font-medium text-primary hover:underline"
-                    >
-                        View {contextType === 'booking' ? 'Booking' : 'Request'}
-                    </Link>
+                    {/* View back-link — only for booking conversations */}
+                    {contextType === 'booking' && (
+                        <Link
+                            href={`/therapist/bookings/${contextId}`}
+                            className="shrink-0 text-xs font-medium text-primary hover:underline"
+                        >
+                            View Booking
+                        </Link>
+                    )}
                 </div>
 
                 {/* Chat Window */}

@@ -50,8 +50,8 @@ export default function CustomerRequestDetailPage() {
     // Navigate to messaging in the context of this request
     // Only shown per pending offer — customer messages the therapist who sent it
 
-    const handleMessageTherapist = () => {
-        router.push(`/customer/messages/request/${params.id}`);
+    const handleMessageTherapist = (offerId) => {
+        router.push(`/customer/messages/offer/${offerId}`);
     }
 
     if (loading) {
@@ -184,7 +184,7 @@ export default function CustomerRequestDetailPage() {
                                         <div className="flex items-center gap-2">
                                             {/* Message Therapist — appears per offer once received */}
                                             <button
-                                                onClick={handleMessageTherapist}
+                                                onClick={() => handleMessageTherapist(offer.id)}
                                                 className="flex items-center gap-1.5 px-3 py-2 border border-primary text-primary rounded-lg text-sm font-medium hover:bg-primary/5 transition-colors"
                                             >
                                                 <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
