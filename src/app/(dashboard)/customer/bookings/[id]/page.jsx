@@ -81,6 +81,11 @@ export default function CustomerBookingDetailPage() {
 
     }
 
+    // Navigate to messaging in the context of this booking
+    const handleMessageTherapist = () => {
+        router.push(`/customer/messages/booking/${params.id}`);
+    };
+
     if (loading) {
         return (
             <div className="py-8 px-4">

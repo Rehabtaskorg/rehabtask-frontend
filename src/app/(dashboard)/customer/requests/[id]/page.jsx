@@ -47,6 +47,13 @@ export default function CustomerRequestDetailPage() {
         }
     }
 
+    // Navigate to messaging in the context of this request
+    // Only shown per pending offer — customer messages the therapist who sent it
+
+    const handleMessageTherapist = () => {
+        router.push(`/customer/messages/request/${params.id}`);
+    }
+
     if (loading) {
         return (
             <div className="py-8 px-4">
@@ -85,10 +92,10 @@ export default function CustomerRequestDetailPage() {
                     </div>
                     <span
                         className={`px-3 py-1 rounded-full text-sm font-semibold ${request.status === 'offers_accepted'
-                                ? 'bg-green-100 text-green-800'
-                                : request.status === 'offers_received'
-                                    ? 'bg-yellow-100 text-yellow-800'
-                                    : 'bg-blue-100 text-blue-800'
+                            ? 'bg-green-100 text-green-800'
+                            : request.status === 'offers_received'
+                                ? 'bg-yellow-100 text-yellow-800'
+                                : 'bg-blue-100 text-blue-800'
                             }`}
                     >
                         {request.status.replace('_', ' ').toUpperCase()}
@@ -161,25 +168,39 @@ export default function CustomerRequestDetailPage() {
                                 <div className="flex justify-between items-center">
                                     <span
                                         className={`px-3 py-1 rounded-full text-xs font-semibold ${offer.status === 'accepted'
-                                                ? 'bg-green-100 text-green-800'
-                                                : offer.status === 'rejected'
-                                                    ? 'bg-red-100 text-red-800'
-                                                    : offer.status === 'expired'
-                                                        ? 'bg-gray-100 text-gray-800'
-                                                        : 'bg-yellow-100 text-yellow-800'
+                                            ? 'bg-green-100 text-green-800'
+                                            : offer.status === 'rejected'
+                                                ? 'bg-red-100 text-red-800'
+                                                : offer.status === 'expired'
+                                                    ? 'bg-gray-100 text-gray-800'
+                                                    : 'bg-yellow-100 text-yellow-800'
                                             }`}
                                     >
                                         {offer.status.toUpperCase()}
                                     </span>
 
+                                    {/* Action buttons — only on pending offers (Option B) */}
                                     {offer.status === 'pending' && (
-                                        <button
-                                            onClick={() => handleAcceptOffer(offer.id)}
-                                            disabled={accepting === offer.id}
-                                            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:bg-gray-400"
-                                        >
-                                            {accepting === offer.id ? 'Accepting...' : 'Accept Offer'}
-                                        </button>
+                                        <div className="flex items-center gap-2">
+                                            {/* Message Therapist — appears per offer once received */}
+                                            <button
+                                                onClick={handleMessageTherapist}
+                                                className="flex items-center gap-1.5 px-3 py-2 border border-primary text-primary rounded-lg text-sm font-medium hover:bg-primary/5 transition-colors"
+                                            >
+                                                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                                                </svg>
+                                                Message
+                                            </button>
+
+                                            <button
+                                                onClick={() => handleAcceptOffer(offer.id)}
+                                                disabled={accepting === offer.id}
+                                                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:bg-gray-400"
+                                            >
+                                                {accepting === offer.id ? 'Accepting...' : 'Accept Offer'}
+                                            </button>
+                                        </div>
                                     )}
                                 </div>
 
