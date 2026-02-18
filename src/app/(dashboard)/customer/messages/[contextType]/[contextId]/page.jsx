@@ -157,6 +157,7 @@ export default function CustomerConversationThreadPage({ params }) {
         messages.find((m) => m.sender?.id !== user?.id)?.sender ||
         messages[0]?.sender;
     const otherUserName = getDisplayName(otherUser);
+    const badge = getContextBadge(contextType);
 
     return (
         <div className="py-6 px-4">
