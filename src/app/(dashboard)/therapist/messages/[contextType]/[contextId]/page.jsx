@@ -67,7 +67,9 @@ function MessageSkeleton() {
 }
 
 export default function ConversationThreadPage({ params }) {
-    const { contextType, contextId } = params;
+    const [contextType, setContextType] = useState(null);
+    const [contextId, setContextId] = useState(null);
+
     const router = useRouter();
     const { user } = useAuth();
     const [inputValue, setInputValue] = useState('');
@@ -75,7 +77,17 @@ export default function ConversationThreadPage({ params }) {
     const inputRef = useRef(null);
     const isFirstLoad = useRef(true);
 
+    // Unwrap async params
+    useEffect(() => {
+        Promise.resolve(params).then((resolved) => {
+            setContextType(resolved.contextType);
+            setContextId(resolved.contextId);
+        });
+    }, [params])
+
     const { messages, loading, sending, error, sendMessage } = useMessages(contextType, contextId);
+
+
 
     useEffect(() => {
         if (messages.length === 0) return;
@@ -224,8 +236,8 @@ export default function ConversationThreadPage({ params }) {
                                                 <div className={`flex flex-col gap-0.5 max-w-[70%] ${isSender ? 'items-end' : 'items-start'}`}>
                                                     <div
                                                         className={`px-3.5 py-2.5 rounded-2xl text-sm leading-relaxed ${isSender
-                                                                ? 'bg-primary text-white rounded-br-sm'
-                                                                : 'bg-card-light dark:bg-card-dark text-text-main dark:text-white border border-border-light dark:border-border-dark rounded-bl-sm'
+                                                            ? 'bg-primary text-white rounded-br-sm'
+                                                            : 'bg-card-light dark:bg-card-dark text-text-main dark:text-white border border-border-light dark:border-border-dark rounded-bl-sm'
                                                             }`}
                                                     >
                                                         {msg.content}
