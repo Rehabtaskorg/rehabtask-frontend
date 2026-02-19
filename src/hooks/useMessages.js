@@ -104,7 +104,7 @@ export function useMessages(contextType, contextId, pollInterval = 5000) {
  * @param {string} contextId - UUID
  */
 export function useConversationContext(contextType, contextId) {
-    const { } = useQuery({
+    const { data, isLoading, error } = useQuery({
         queryKey: ["conversationContext", contextType, contextId],
         queryFn: async () => {
             const res = await messagesApi.getConversationContext(contextType, contextId);
