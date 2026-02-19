@@ -98,6 +98,31 @@ export function useMessages(contextType, contextId, pollInterval = 5000) {
 }
 
 /**
+ * Hook to get the other party's info for a conversation
+ * Fetches directly from offer/booking record — works even when no messages exist yet
+ * @param {string} contextType - "offer" | "booking"
+ * @param {string} contextId - UUID
+ */
+export function useConversationContext(contextType, contextId) {
+    const { } = useQuery({
+        queryKey: ["conversationContext", contextType, contextId],
+        queryFn: async () => {
+            const res = await messagesApi.getConversationContext(contextType, contextId);
+            return res.data.data;
+        },
+        enabled: !!contextType && !!contextId,
+        staleTime: 5 * 60 * 1000,
+    });
+
+    return {
+        otherUser: data?.otherUser ?? null,
+        patient: data?.patient ?? null,
+        loading: isLoading,
+        error: !!error,
+    }
+}
+
+/**
  * Hook to get and poll unread message count
  * Used in te nav badge
  */

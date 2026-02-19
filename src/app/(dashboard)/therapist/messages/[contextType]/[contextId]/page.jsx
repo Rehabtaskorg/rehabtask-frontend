@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { useMessages } from '@/hooks/useMessages';
+import { useMessages, useConversationContext } from '@/hooks/useMessages';
 import { useAuth } from '@/hooks/useAuth';
 
 const getDisplayName = (user) => {
@@ -93,6 +93,11 @@ export default function ConversationThreadPage({ params }) {
         contextId
     );
 
+    const { otherUser: contextUser, loading: contextLoading } = useConversationContext(
+        contextType,
+        contextId
+    );
+
     useEffect(() => {
         if (messages.length === 0) return;
 
@@ -144,10 +149,20 @@ export default function ConversationThreadPage({ params }) {
         );
     }
 
-    const otherUser =
+    const messageDerivedUser =
         messages.find((m) => m.sender?.id !== user?.id)?.sender ||
         messages[0]?.sender;
-    const otherUserName = getDisplayName(otherUser);
+    const otherUser = contextUser ?? messageDerivedUser;
+
+    let otherUserName;
+    if (contextLoading && !messageDerivedUser) {
+        otherUserName = 'Loading...';
+    } else if (!otherUser) {
+        otherUserName = 'Customer';
+    } else {
+        otherUserName = getDisplayName(otherUser) === 'Unknown User' ? 'Customer' : getDisplayName(otherUser);
+    }
+
     const badge = getContextBadge(contextType);
 
     return (
@@ -172,7 +187,7 @@ export default function ConversationThreadPage({ params }) {
                         <div className="min-w-0">
                             <div className="flex items-center gap-2">
                                 <h2 className="text-base font-bold text-text-main dark:text-white truncate">
-                                    {loading && !otherUser ? 'Loading...' : otherUserName}
+                                    {otherUserName}
                                 </h2>
                                 <span className={`shrink-0 px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide ${badge.className}`}>
                                     {badge.label}
@@ -293,7 +308,6 @@ export default function ConversationThreadPage({ params }) {
                     {/* Input area */}
                     <div className="p-3 border-t border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark">
                         <div className="flex items-end gap-2">
-                            {/* Decorative attachment button */}
                             <button
                                 type="button"
                                 className="flex items-center justify-center h-10 w-10 rounded-lg text-text-muted dark:text-gray-500 hover:bg-muted-light dark:hover:bg-muted-dark transition-colors shrink-0"
@@ -322,7 +336,6 @@ export default function ConversationThreadPage({ params }) {
                                     }}
                                     disabled={sending}
                                 />
-                                {/* Decorative emoji button */}
                                 <button
                                     type="button"
                                     className="flex items-center justify-center h-10 w-10 text-text-muted dark:text-gray-500 hover:text-text-main dark:hover:text-gray-300 transition-colors shrink-0"

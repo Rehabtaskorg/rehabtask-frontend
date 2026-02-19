@@ -51,4 +51,14 @@ export const messagesApi = {
     getUnreadCount: async () => {
         return api.get("/messages/unread-count");
     },
+
+    /**
+     * Get the other party's info for a conversation
+     * Used when no messages exist yet to resolve the other user's name
+     * @param {string} contextType - "offer" | "booking"
+     * @param {string} contextId - UUID of the context
+     */
+    getConversationContext: async (contextType, contextId) => {
+        return api.get(`/messages/${contextType}/${contextId}/context`);
+    }
 };
