@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { useConversations, useMessages } from '@/hooks/useMessages';
 import { useAuth } from '@/hooks/useAuth';
 
-// ─── Helpers ────────────────────────────────────────────────────────────────
 
 const getDisplayName = (user) =>
     user?.therapistProfile?.fullName ||
@@ -108,7 +107,7 @@ export default function CustomerMessagesPage() {
     const inputRef = useRef(null);
     const isFirstLoad = useRef(true);
 
-    const { messages, loading: msgLoading, sending, error: msgError, sendMessage } = useMessages(
+    const { messages, loading: msgLoading, error: msgError, sendMessage, retryMessage } = useMessages(
         selected?.type,
         selected?.id
     );
@@ -134,13 +133,12 @@ export default function CustomerMessagesPage() {
         }
     }, [messages]);
 
-    const handleSend = async (e) => {
+    const handleSend = (e) => {
         e?.preventDefault();
-        if (!inputValue.trim() || sending) return;
+        if (!inputValue.trim()) return;
         const content = inputValue;
         setInputValue('');
-        const success = await sendMessage(content);
-        if (!success) setInputValue(content);
+        sendMessage(content);
         inputRef.current?.focus();
     };
 
@@ -414,18 +412,22 @@ export default function CustomerMessagesPage() {
                                 <>
                                     {messages.map((msg, idx) => {
                                         if (msg.type === "system") {
-                                            <div key={msg.id} className="flex items-center justify-center my-4">
-                                                <div className="h-px bg-border-light dark:bg-border-dark flex-1" />
-                                                <span className="mx-3 text-[10px] font-semibold text-text-muted dark:text-gray-500 uppercase tracking-widest bg-primary/10 px-2 py-1 rounded-full">
-                                                    {msg.content}
-                                                </span>
-                                                <div className="h-px bg-border-light dark:bg-border-dark flex-1" />
-                                            </div>
+                                            return (
+                                                <div key={msg.id} className="flex items-center justify-center my-4">
+                                                    <div className="h-px bg-border-light dark:bg-border-dark flex-1" />
+                                                    <span className="mx-3 text-[10px] font-semibold text-text-muted dark:text-gray-500 uppercase tracking-widest bg-primary/10 px-2 py-1 rounded-full">
+                                                        {msg.content}
+                                                    </span>
+                                                    <div className="h-px bg-border-light dark:bg-border-dark flex-1" />
+                                                </div>
+                                            );
                                         }
 
                                         const isSender = msg.sender?.id === user?.id || msg.senderId === user?.id;
                                         const showDateSep = shouldShowDateSeparator(messages, idx);
                                         const senderName = getDisplayName(msg.sender);
+                                        const isSending = msg.status === 'sending';
+                                        const isFailed = msg.status === 'failed';
 
                                         return (
                                             <div key={msg.id}>
@@ -448,21 +450,48 @@ export default function CustomerMessagesPage() {
 
                                                     <div className={`flex flex-col gap-0.5 max-w-[70%] ${isSender ? 'items-end' : 'items-start'}`}>
                                                         <div
-                                                            className={`px-3.5 py-2.5 rounded-2xl text-sm leading-relaxed shadow-sm ${isSender
-                                                                ? 'bg-primary text-white rounded-br-sm'
+                                                            className={`px-3.5 py-2.5 rounded-2xl text-sm leading-relaxed shadow-sm transition-opacity ${isSender
+                                                                ? isFailed
+                                                                    ? 'bg-primary text-white rounded-br-sm border-2 border-red-400'
+                                                                    : 'bg-primary text-white rounded-br-sm'
                                                                 : 'bg-card-light dark:bg-card-dark text-text-main dark:text-white border border-border-light dark:border-border-dark rounded-bl-sm'
-                                                                }`}
+                                                                } ${isSending ? 'opacity-60' : ''}`}
                                                         >
                                                             {msg.content}
                                                         </div>
                                                         <div className="flex items-center gap-1.5 px-1">
-                                                            <span className="text-[10px] text-text-muted dark:text-gray-500">
-                                                                {formatMessageTime(msg.createdAt)}
-                                                            </span>
-                                                            {isSender && msg.readAt && (
-                                                                <svg className="w-3 h-3 text-primary" fill="currentColor" viewBox="0 0 20 20">
-                                                                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                                                                </svg>
+                                                            {isFailed ? (
+                                                                /* Failed state: red warning + retry */
+                                                                <>
+                                                                    <svg className="w-3 h-3 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                                    </svg>
+                                                                    <span className="text-[10px] text-red-500 font-medium">Not delivered</span>
+                                                                    <span className="text-[10px] text-text-muted dark:text-gray-500">&middot;</span>
+                                                                    <button
+                                                                        onClick={() => retryMessage(msg.id)}
+                                                                        className="text-[10px] text-primary font-semibold hover:underline"
+                                                                    >
+                                                                        Try again
+                                                                    </button>
+                                                                </>
+                                                            ) : isSending ? (
+                                                                /* Sending state */
+                                                                <span className="text-[10px] text-text-muted dark:text-gray-500 italic">
+                                                                    Sending…
+                                                                </span>
+                                                            ) : (
+                                                                /* Default: timestamp + read receipt */
+                                                                <>
+                                                                    <span className="text-[10px] text-text-muted dark:text-gray-500">
+                                                                        {formatMessageTime(msg.createdAt)}
+                                                                    </span>
+                                                                    {isSender && msg.readAt && (
+                                                                        <svg className="w-3 h-3 text-primary" fill="currentColor" viewBox="0 0 20 20">
+                                                                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                                                        </svg>
+                                                                    )}
+                                                                </>
                                                             )}
                                                         </div>
                                                     </div>
@@ -517,7 +546,6 @@ export default function CustomerMessagesPage() {
                                             e.target.style.height = 'auto';
                                             e.target.style.height = `${Math.min(e.target.scrollHeight, 120)}px`;
                                         }}
-                                        disabled={sending}
                                     />
                                     {/* Decorative emoji button */}
                                     <button
@@ -535,20 +563,13 @@ export default function CustomerMessagesPage() {
                                 <button
                                     type="button"
                                     onClick={handleSend}
-                                    disabled={!inputValue.trim() || sending}
+                                    disabled={!inputValue.trim()}
                                     className="flex items-center justify-center h-10 w-10 rounded-full bg-primary text-white hover:bg-primary/90 disabled:opacity-40 disabled:cursor-not-allowed transition-all shrink-0 shadow-sm"
                                     aria-label="Send message"
                                 >
-                                    {sending ? (
-                                        <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                                        </svg>
-                                    ) : (
-                                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                                        </svg>
-                                    )}
+                                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                                    </svg>
                                 </button>
                             </div>
 
