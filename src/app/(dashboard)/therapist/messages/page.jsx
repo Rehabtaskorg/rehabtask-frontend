@@ -112,6 +112,7 @@ export default function TherapistMessagesPage() {
     useEffect(() => {
         if (selected?.id) {
             isFirstLoad.current = true;
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setInputValue('');
         }
     }, [selected?.id]);
@@ -203,21 +204,19 @@ export default function TherapistMessagesPage() {
                     <div className="flex gap-2">
                         <button
                             onClick={() => setFilter('all')}
-                            className={`px-3 py-1.5 rounded-full text-xs font-bold transition-colors ${
-                                filter === 'all'
-                                    ? 'bg-primary text-white'
-                                    : 'bg-muted-light dark:bg-muted-dark text-text-main dark:text-white hover:bg-primary/10 dark:hover:bg-primary/20'
-                            }`}
+                            className={`px-3 py-1.5 rounded-full text-xs font-bold transition-colors ${filter === 'all'
+                                ? 'bg-primary text-white'
+                                : 'bg-muted-light dark:bg-muted-dark text-text-main dark:text-white hover:bg-primary/10 dark:hover:bg-primary/20'
+                                }`}
                         >
                             All
                         </button>
                         <button
                             onClick={() => setFilter('unread')}
-                            className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
-                                filter === 'unread'
-                                    ? 'bg-primary text-white'
-                                    : 'bg-muted-light dark:bg-muted-dark text-text-main dark:text-white hover:bg-primary/10 dark:hover:bg-primary/20'
-                            }`}
+                            className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${filter === 'unread'
+                                ? 'bg-primary text-white'
+                                : 'bg-muted-light dark:bg-muted-dark text-text-main dark:text-white hover:bg-primary/10 dark:hover:bg-primary/20'
+                                }`}
                         >
                             Unread
                         </button>
@@ -269,11 +268,10 @@ export default function TherapistMessagesPage() {
                                     <li
                                         key={`${conversation.currentContext?.type}-${conversation.currentContext?.id}-${idx}`}
                                         onClick={() => handleSelectConversation(conversation)}
-                                        className={`flex items-center gap-3 px-4 py-3 cursor-pointer transition-colors border-l-4 ${
-                                            isSelected
-                                                ? 'border-primary bg-primary/10 dark:bg-primary/20'
-                                                : 'border-transparent hover:bg-muted-light dark:hover:bg-muted-dark'
-                                        }`}
+                                        className={`flex items-center gap-3 px-4 py-3 cursor-pointer transition-colors border-l-4 ${isSelected
+                                            ? 'border-primary bg-primary/10 dark:bg-primary/20'
+                                            : 'border-transparent hover:bg-muted-light dark:hover:bg-muted-dark'
+                                            }`}
                                     >
                                         <div className="relative shrink-0">
                                             <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold text-sm">
@@ -326,9 +324,8 @@ export default function TherapistMessagesPage() {
 
             {/* ─── Right Panel: Chat Thread ─────────────────────────────────── */}
             <section
-                className={`flex-1 flex flex-col min-w-0 bg-card-light dark:bg-card-dark ${
-                    mobileView === 'list' ? 'hidden md:flex' : 'flex'
-                }`}
+                className={`flex-1 flex flex-col min-w-0 bg-card-light dark:bg-card-dark ${mobileView === 'list' ? 'hidden md:flex' : 'flex'
+                    }`}
             >
                 {!selected ? (
                     /* Empty state — no conversation selected */
@@ -410,6 +407,16 @@ export default function TherapistMessagesPage() {
                             ) : (
                                 <>
                                     {messages.map((msg, idx) => {
+                                        if (msg.type === "system") {
+                                            <div key={msg.id} className="flex items-center justify-center my-4">
+                                                <div className="h-px bg-border-light dark:bg-border-dark flex-1" />
+                                                <span className="mx-3 text-[10px] font-semibold text-text-muted dark:text-gray-500 uppercase tracking-widest bg-primary/10 px-2 py-1 rounded-full">
+                                                    {msg.content}
+                                                </span>
+                                                <div className="h-px bg-border-light dark:bg-border-dark flex-1" />
+                                            </div>
+                                        }
+
                                         const isSender = msg.sender?.id === user?.id || msg.senderId === user?.id;
                                         const showDateSep = shouldShowDateSeparator(messages, idx);
                                         const senderName = getDisplayName(msg.sender);
@@ -435,11 +442,10 @@ export default function TherapistMessagesPage() {
 
                                                     <div className={`flex flex-col gap-0.5 max-w-[70%] ${isSender ? 'items-end' : 'items-start'}`}>
                                                         <div
-                                                            className={`px-3.5 py-2.5 rounded-2xl text-sm leading-relaxed shadow-sm ${
-                                                                isSender
-                                                                    ? 'bg-primary text-white rounded-br-sm'
-                                                                    : 'bg-card-light dark:bg-card-dark text-text-main dark:text-white border border-border-light dark:border-border-dark rounded-bl-sm'
-                                                            }`}
+                                                            className={`px-3.5 py-2.5 rounded-2xl text-sm leading-relaxed shadow-sm ${isSender
+                                                                ? 'bg-primary text-white rounded-br-sm'
+                                                                : 'bg-card-light dark:bg-card-dark text-text-main dark:text-white border border-border-light dark:border-border-dark rounded-bl-sm'
+                                                                }`}
                                                         >
                                                             {msg.content}
                                                         </div>
