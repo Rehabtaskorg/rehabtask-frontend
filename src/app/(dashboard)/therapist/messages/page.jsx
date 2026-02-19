@@ -32,12 +32,17 @@ const formatMessageTime = (dateString) =>
 
 const formatDateSeparator = (dateString) => {
     const date = new Date(dateString);
-    const diffDays = Math.floor((new Date() - date) / (1000 * 60 * 60 * 24));
+    const now = new Date();
+
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const msgDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    const diffDays = Math.round((today - msgDate) / (1000 * 60 * 60 * 24));
+
     if (diffDays === 0) return 'Today';
     if (diffDays === 1) return 'Yesterday';
-    return date.toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric' });
-};
 
+    return date.toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric' });
+}
 const shouldShowDateSeparator = (messages, index) => {
     if (index === 0) return true;
     return (
