@@ -54,7 +54,7 @@ export default function TherapistBookingDetailPage() {
     };
     // Navigate to messaging in the context of this booking
     const handleMessageCustomer = () => {
-        router.push(`/therapist/messages/booking/${params.id}`);
+        router.push(`/therapist/messages?c=booking:${params.id}`);
     }
 
 

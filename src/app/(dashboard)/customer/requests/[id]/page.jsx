@@ -51,7 +51,7 @@ export default function CustomerRequestDetailPage() {
     // Only shown per pending offer — customer messages the therapist who sent it
 
     const handleMessageTherapist = (offerId) => {
-        router.push(`/customer/messages/offer/${offerId}`);
+        router.push(`/customer/messages?c=offer:${offerId}`);
     }
 
     if (loading) {

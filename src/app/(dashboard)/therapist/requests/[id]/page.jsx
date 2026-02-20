@@ -75,7 +75,7 @@ export default function TherapistRequestDetailPage() {
     // Navigate to messaging in the context of this offer
     // Only shown after therapist has sent an offer
     const handleMessageCustomer = () => {
-        router.push(`/therapist/messages/offer/${request.offers[0]?.id}`);
+        router.push(`/therapist/messages?c=offer:${request.offers[0]?.id}`);
     }
 
     if (loading) {
