@@ -19,10 +19,13 @@ export function useConversations(pollInterval = 10000) {
         refetchInterval: pollInterval,
     });
 
+    const isSessionExpired = error?.response?.status === 401;
+
     return {
         conversations: data ?? [],
         loading: isLoading,
         error: error ? "Failed to load conversations" : null,
+        sessionExpired: isSessionExpired,
         refetch
     };
 }
@@ -53,6 +56,8 @@ export function useMessages(contextType, contextId, pollInterval = 5000) {
         enabled: !!contextType && !!contextId,
         refetchInterval: pollInterval,
     });
+
+    const isSessionExpired = error?.response?.status === 401;
 
     // Mark as read when conversation opens
     useEffect(() => {
@@ -160,6 +165,7 @@ export function useMessages(contextType, contextId, pollInterval = 5000) {
         messages: data ?? [],
         loading: isLoading,
         error: error ? "Failed to load messages" : null,
+        sessionExpired: isSessionExpired,
         sendMessage,
         retryMessage,
         refetch

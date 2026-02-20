@@ -320,7 +320,7 @@ function RightSidebar({ selectedConversation }) {
 export default function TherapistMessagesPage() {
     const router = useRouter();
     const searchParams = useSearchParams();
-    const { conversations, loading: convLoading, error: convError } = useConversations();
+    const { conversations, loading: convLoading, error: convError, sessionExpired: convSessionExpired } = useConversations();
     const { user } = useAuth();
 
     const [selectedConversation, setSelectedConversation] = useState(null);
@@ -496,7 +496,19 @@ export default function TherapistMessagesPage() {
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
                             </div>
-                            <p className="text-text-muted dark:text-gray-400 text-sm">{convError}</p>
+                            <p className="text-text-muted dark:text-gray-400 text-sm">
+                                {convSessionExpired
+                                    ? "Unable to load conversations. Your session may have expired."
+                                    : convError}
+                            </p>
+                            {convSessionExpired && (
+                                <a
+                                    href="/login"
+                                    className="mt-3 inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-primary text-white text-xs font-bold hover:bg-primary/90 transition-colors"
+                                >
+                                    Log in again
+                                </a>
+                            )}
                         </div>
                     ) : conversations.length === 0 ? (
                         <div className="flex flex-col items-center justify-center py-12 px-4 text-center">

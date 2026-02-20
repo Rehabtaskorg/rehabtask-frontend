@@ -22,5 +22,17 @@ api.interceptors.request.use(
 // Handle unauthorized responses
 api.interceptors.response.use(
     (response) => response,
-    (error) => Promise.reject(error)
+    (error) => {
+        if (error?.response?.status === 401 && typeof window !== "undefined") {
+            const url = error.config?.url || "";
+            // Don't redirect for auth endpoints to valid loops
+            const isAuthEndpoint =
+                url.includes("/auth/login") || url.includes("/auth/me");
+
+            if (!isAuthEndpoint) {
+                window.location.href = "/login?reason=session_expired";
+            }
+        }
+        return Promise.reject(error);
+    }
 )
