@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useConversations, useMessages, useConversationContext } from '@/hooks/useMessages';
 import { useOfferDetails } from '@/hooks/useOffers';
 import { useAuth } from '@/hooks/useAuth';
+import UserAvatar from '@/components/ui/UserAvatar';
 
 
 const getDisplayName = (user) =>
@@ -17,6 +18,13 @@ const getInitials = (name) => {
     if (!name) return '?';
     return name.split(' ').slice(0, 2).map((n) => n[0]).join('').toUpperCase();
 };
+
+/** Extract profile photo URL from a user object (works for various shapes) */
+const getPhotoUrl = (user) =>
+    user?.therapistProfile?.profilePhotoUrl ||
+    user?.profilePhotoUrl ||
+    user?.profile?.profilePhotoUrl ||
+    null;
 
 const formatTime = (dateString) => {
     if (!dateString) return '';
@@ -248,9 +256,12 @@ function RightSidebar({ selectedConversation }) {
         <div className="flex flex-col h-full">
             {/* Profile section */}
             <div className="flex flex-col items-center text-center gap-3">
-                <div className="h-24 w-24 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-2xl border-4 border-card-light dark:border-card-dark shadow-md">
-                    {getInitials(name)}
-                </div>
+                <UserAvatar
+                    name={name}
+                    photoUrl={getPhotoUrl(otherUser)}
+                    size="xl"
+                    className="border-4 border-card-light dark:border-card-dark shadow-md rounded-full"
+                />
                 <div>
                     <h4 className="text-text-main dark:text-white text-base font-bold">{name}</h4>
                     <span className={`inline-block mt-1 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${badge.className}`}>
@@ -313,8 +324,6 @@ function RightSidebar({ selectedConversation }) {
             </div>
         </div>
     )
-
-
 }
 
 export default function TherapistMessagesPage() {
@@ -420,7 +429,6 @@ export default function TherapistMessagesPage() {
 
     const handleBackToList = () => {
         setMobileView("list");
-        // Don't clear selection on desktop - only switches mobile panel
     }
 
     const filtered = conversations.filter((c) => {
@@ -541,9 +549,11 @@ export default function TherapistMessagesPage() {
                                         className={`flex items-center gap-3 px-4 py-3 cursor-pointer transition-colors border-l-4 ${isSelected ? 'border-primary bg-primary/10 dark:bg-primary/20' : 'border-transparent hover:bg-muted-light dark:hover:bg-muted-dark'}`}
                                     >
                                         <div className="relative shrink-0">
-                                            <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold text-sm">
-                                                {getInitials(name)}
-                                            </div>
+                                            <UserAvatar
+                                                name={name}
+                                                photoUrl={getPhotoUrl(conversation.otherUser)}
+                                                size="lg"
+                                            />
                                             {hasUnread && (
                                                 <span className="absolute -top-0.5 -right-0.5 h-3 w-3 rounded-full bg-primary border-2 border-white dark:border-card-dark" />
                                             )}
@@ -600,9 +610,11 @@ export default function TherapistMessagesPage() {
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                                     </svg>
                                 </button>
-                                <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold text-sm shrink-0">
-                                    {getInitials(selected.name)}
-                                </div>
+                                <UserAvatar
+                                    name={selected.name}
+                                    photoUrl={getPhotoUrl(selectedConversation?.otherUser)}
+                                    size="md"
+                                />
                                 <div className="min-w-0">
                                     <div className="flex items-center gap-2">
                                         <h3 className="text-base font-bold text-text-main dark:text-white truncate">{selected.name}</h3>
@@ -686,9 +698,12 @@ export default function TherapistMessagesPage() {
                                                 )}
                                                 <div className={`flex items-end gap-2 mb-2 ${isSender ? 'flex-row-reverse' : ''}`}>
                                                     {!isSender && (
-                                                        <div className="h-7 w-7 rounded-full bg-primary/10 flex items-center justify-center text-primary text-[10px] font-bold shrink-0 mb-0.5">
-                                                            {getInitials(senderName)}
-                                                        </div>
+                                                        <UserAvatar
+                                                            name={senderName}
+                                                            photoUrl={getPhotoUrl(msg.sender)}
+                                                            size="xs"
+                                                            className="mb-0.5"
+                                                        />
                                                     )}
                                                     <div className={`flex flex-col gap-0.5 max-w-[70%] ${isSender ? 'items-end' : 'items-start'}`}>
                                                         <div className={`px-3.5 py-2.5 rounded-2xl text-sm leading-relaxed shadow-sm transition-opacity ${isSender ? (isFailed ? 'bg-primary text-white rounded-br-sm border-2 border-red-400' : 'bg-primary text-white rounded-br-sm') : 'bg-card-light dark:bg-card-dark text-text-main dark:text-white border border-border-light dark:border-border-dark rounded-bl-sm'} ${isSending ? 'opacity-60' : ''}`}>
@@ -714,7 +729,14 @@ export default function TherapistMessagesPage() {
                                                             )}
                                                         </div>
                                                     </div>
-                                                    {isSender && <div className="w-7 shrink-0" />}
+                                                    {isSender && (
+                                                        <UserAvatar
+                                                            name={user?.profile?.fullName || 'You'}
+                                                            photoUrl={getPhotoUrl(user)}
+                                                            size="xs"
+                                                            className="mb-0.5"
+                                                        />
+                                                    )}
                                                 </div>
                                             </div>
                                         );

@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useConversations, useMessages, useConversationContext } from '@/hooks/useMessages';
 import { useAuth } from '@/hooks/useAuth';
+import UserAvatar from '@/components/ui/UserAvatar';
 
 const getDisplayName = (user) =>
     user?.therapistProfile?.fullName ||
@@ -15,6 +16,13 @@ const getInitials = (name) => {
     if (!name) return '?';
     return name.split(' ').slice(0, 2).map((n) => n[0]).join('').toUpperCase();
 };
+
+/**Extract profile photo url from a user object */
+const getPhotoUrl = (user) =>
+    user?.therapistProfile?.profilePhotoUrl ||
+    user?.profilePhotoUrl ||
+    user?.profile?.profilePhotoUrl ||
+    null;
 
 const formatTime = (dateString) => {
     if (!dateString) return '';
@@ -124,9 +132,12 @@ function RightSidebar({ selectedConversation }) {
     return (
         <div className="flex flex-col h-full">
             <div className="flex flex-col items-center text-center gap-3">
-                <div className="h-24 w-24 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-2xl border-4 border-card-light dark:border-card-dark shadow-md">
-                    {getInitials(name)}
-                </div>
+                <UserAvatar
+                    name={name}
+                    photoUrl={getPhotoUrl(otherUser)}
+                    size="xl"
+                    className="border-4 border-card-light dark:border-card-dark shadow-md rounded-full"
+                />
                 <div>
                     <h4 className="text-text-main dark:text-white text-base font-bold">{name}</h4>
                     <span className={`inline-block mt-1 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${badge.className}`}>
@@ -327,9 +338,7 @@ export default function CustomerMessagesPage() {
                     ) : convError ? (
                         <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
                             <div className="w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center mb-3">
-                                <svg className="w-5 h-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
+                                <svg className="w-5 h-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                             </div>
                             <p className="text-text-muted dark:text-gray-400 text-sm">
                                 {convSessionExpired
@@ -368,7 +377,11 @@ export default function CustomerMessagesPage() {
                                 return (
                                     <li key={`${conversation.currentContext?.type}-${conversation.currentContext?.id}-${idx}`} onClick={() => handleSelectConversation(conversation)} className={`flex items-center gap-3 px-4 py-3 cursor-pointer transition-colors border-l-4 ${isSelected ? 'border-primary bg-primary/10 dark:bg-primary/20' : 'border-transparent hover:bg-muted-light dark:hover:bg-muted-dark'}`}>
                                         <div className="relative shrink-0">
-                                            <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold text-sm">{getInitials(name)}</div>
+                                            <UserAvatar
+                                                name={name}
+                                                photoUrl={getPhotoUrl(conversation.otherUser)}
+                                                size="lg"
+                                            />
                                             {hasUnread && <span className="absolute -top-0.5 -right-0.5 h-3 w-3 rounded-full bg-primary border-2 border-white dark:border-card-dark" />}
                                         </div>
                                         <div className="flex-1 min-w-0">
@@ -411,7 +424,11 @@ export default function CustomerMessagesPage() {
                                 <button onClick={handleBackToList} className="md:hidden flex items-center justify-center h-8 w-8 rounded-lg hover:bg-muted-light dark:hover:bg-muted-dark transition-colors text-text-muted dark:text-gray-400 shrink-0" aria-label="Back to conversations">
                                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
                                 </button>
-                                <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold text-sm shrink-0">{getInitials(selected.name)}</div>
+                                <UserAvatar
+                                    name={selected.name}
+                                    photoUrl={getPhotoUrl(selectedConversation?.otherUser)}
+                                    size="md"
+                                />
                                 <div className="min-w-0">
                                     <div className="flex items-center gap-2">
                                         <h3 className="text-base font-bold text-text-main dark:text-white truncate">{selected.name}</h3>
@@ -472,7 +489,12 @@ export default function CustomerMessagesPage() {
                                                 )}
                                                 <div className={`flex items-end gap-2 mb-2 ${isSender ? 'flex-row-reverse' : ''}`}>
                                                     {!isSender && (
-                                                        <div className="h-7 w-7 rounded-full bg-primary/10 flex items-center justify-center text-primary text-[10px] font-bold shrink-0 mb-0.5">{getInitials(senderName)}</div>
+                                                        <UserAvatar
+                                                            name={senderName}
+                                                            photoUrl={getPhotoUrl(msg.sender)}
+                                                            size="xs"
+                                                            className="mb-0.5"
+                                                        />
                                                     )}
                                                     <div className={`flex flex-col gap-0.5 max-w-[70%] ${isSender ? 'items-end' : 'items-start'}`}>
                                                         <div className={`px-3.5 py-2.5 rounded-2xl text-sm leading-relaxed shadow-sm transition-opacity ${isSender ? (isFailed ? 'bg-primary text-white rounded-br-sm border-2 border-red-400' : 'bg-primary text-white rounded-br-sm') : 'bg-card-light dark:bg-card-dark text-text-main dark:text-white border border-border-light dark:border-border-dark rounded-bl-sm'} ${isSending ? 'opacity-60' : ''}`}>
@@ -496,7 +518,14 @@ export default function CustomerMessagesPage() {
                                                             )}
                                                         </div>
                                                     </div>
-                                                    {isSender && <div className="w-7 shrink-0" />}
+                                                    {isSender && (
+                                                        <UserAvatar
+                                                            name={user?.profile?.fullName || 'You'}
+                                                            photoUrl={getPhotoUrl(user)}
+                                                            size="xs"
+                                                            className="mb-0.5"
+                                                        />
+                                                    )}
                                                 </div>
                                             </div>
                                         );
