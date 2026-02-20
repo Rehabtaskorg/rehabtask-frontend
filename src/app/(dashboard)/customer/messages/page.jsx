@@ -2,9 +2,10 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { useConversations, useMessages } from '@/hooks/useMessages';
+import { useConversations, useMessages, useConversationContext } from '@/hooks/useMessages';
 import { useAuth } from '@/hooks/useAuth';
 
+// ─── Helpers ────────────────────────────────────────────────────────────────
 
 const getDisplayName = (user) =>
     user?.therapistProfile?.fullName ||
@@ -32,16 +33,13 @@ const formatMessageTime = (dateString) =>
 const formatDateSeparator = (dateString) => {
     const date = new Date(dateString);
     const now = new Date();
-
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const msgDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
     const diffDays = Math.round((today - msgDate) / (1000 * 60 * 60 * 24));
-
     if (diffDays === 0) return 'Today';
     if (diffDays === 1) return 'Yesterday';
-
     return date.toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric' });
-}
+};
 
 const shouldShowDateSeparator = (messages, index) => {
     if (index === 0) return true;
@@ -58,7 +56,7 @@ const getContextBadge = (type) => {
     return { label: 'Offer', className: 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300' };
 };
 
-// ─── Sub-components ──────────────────────────────────────────────────────────
+// ─── Skeletons ──────────────────────────────────────────────────────────────
 
 function ConversationSkeleton() {
     return (
@@ -89,15 +87,154 @@ function MessageSkeleton() {
     );
 }
 
-// ─── Page ────────────────────────────────────────────────────────────────────
+function RightSidebarSkeleton() {
+    return (
+        <div className="flex flex-col items-center gap-4 animate-pulse">
+            <div className="h-24 w-24 rounded-full bg-gray-200 dark:bg-gray-700" />
+            <div className="h-4 w-32 bg-gray-200 dark:bg-gray-700 rounded" />
+            <div className="h-3 w-20 bg-gray-200 dark:bg-gray-700 rounded" />
+            <div className="w-full h-px bg-gray-200 dark:bg-gray-700 my-2" />
+            <div className="w-full space-y-3">
+                <div className="h-3 w-24 bg-gray-200 dark:bg-gray-700 rounded" />
+                <div className="h-16 w-full bg-gray-200 dark:bg-gray-700 rounded-lg" />
+            </div>
+        </div>
+    );
+}
+
+// ─── Right Sidebar ──────────────────────────────────────────────────────────
+
+function RightSidebar({ selectedConversation }) {
+    const contextType = selectedConversation?.currentContext?.type;
+    const contextId = selectedConversation?.currentContext?.id;
+
+    const { otherUser: contextOtherUser, patient: contextPatient, loading: contextLoading } =
+        useConversationContext(contextType, contextId);
+
+    const otherUser = selectedConversation?.otherUser || contextOtherUser;
+    const patient = selectedConversation?.patient || contextPatient;
+    const name = otherUser ? getDisplayName(otherUser) : 'Unknown';
+    const badge = getContextBadge(contextType);
+
+    // Therapist-specific fields (otherUser is a TherapistProfile for customer view)
+    const specialization = otherUser?.specialization || null;
+    const yearsExp = otherUser?.yearsOfExperience || null;
+
+    if (contextLoading && !otherUser) {
+        return <RightSidebarSkeleton />;
+    }
+
+    return (
+        <div className="flex flex-col h-full">
+            {/* Profile section */}
+            <div className="flex flex-col items-center text-center gap-3">
+                <div className="h-24 w-24 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-2xl border-4 border-card-light dark:border-card-dark shadow-md">
+                    {getInitials(name)}
+                </div>
+                <div>
+                    <h4 className="text-text-main dark:text-white text-base font-bold">{name}</h4>
+                    <span className={`inline-block mt-1 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${badge.className}`}>
+                        {badge.label}
+                    </span>
+                </div>
+            </div>
+
+            {/* Therapist details */}
+            {(specialization || yearsExp) && (
+                <div className="mt-6 space-y-2">
+                    <p className="text-text-muted dark:text-gray-400 text-[10px] font-bold uppercase tracking-widest">Therapist Info</p>
+                    {specialization && (
+                        <div className="flex items-center gap-2">
+                            <svg className="w-3.5 h-3.5 text-primary shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                            </svg>
+                            <p className="text-text-main dark:text-white text-sm">{specialization}</p>
+                        </div>
+                    )}
+                    {yearsExp && (
+                        <div className="flex items-center gap-2">
+                            <svg className="w-3.5 h-3.5 text-primary shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <p className="text-text-main dark:text-white text-sm">{yearsExp} years experience</p>
+                        </div>
+                    )}
+                </div>
+            )}
+
+            {/* Patient info (agency customers only) */}
+            {patient && (
+                <div className="mt-4 space-y-1">
+                    <p className="text-text-muted dark:text-gray-400 text-[10px] font-bold uppercase tracking-widest">Patient</p>
+                    <p className="text-text-main dark:text-white text-sm font-medium">{patient.fullName}</p>
+                </div>
+            )}
+
+            {/* Context details */}
+            <div className="mt-4 space-y-1">
+                <p className="text-text-muted dark:text-gray-400 text-[10px] font-bold uppercase tracking-widest">Context</p>
+                {contextType === 'booking' ? (
+                    <Link
+                        href={`/customer/bookings/${contextId}`}
+                        className="text-primary text-sm font-medium hover:underline inline-flex items-center gap-1"
+                    >
+                        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                        </svg>
+                        View Booking
+                    </Link>
+                ) : (
+                    <p className="text-text-main dark:text-white text-sm">Request Conversation</p>
+                )}
+            </div>
+
+            {/* Upcoming session (for bookings) */}
+            {contextType === 'booking' && (
+                <div className="mt-4 space-y-2">
+                    <p className="text-text-muted dark:text-gray-400 text-[10px] font-bold uppercase tracking-widest">Upcoming Session</p>
+                    <div className="p-3 rounded-lg bg-primary/5 dark:bg-primary/10 border border-primary/20">
+                        <p className="text-[10px] text-primary font-bold">NEXT SESSION</p>
+                        <p className="text-xs text-text-main dark:text-white font-bold mt-1">View booking for details</p>
+                        <Link
+                            href={`/customer/bookings/${contextId}`}
+                            className="text-[10px] text-primary font-medium hover:underline mt-1 inline-block"
+                        >
+                            Go to booking →
+                        </Link>
+                    </div>
+                </div>
+            )}
+
+            {/* Archive button (visual only) */}
+            <div className="mt-auto pt-6">
+                <button
+                    type="button"
+                    className="w-full py-2.5 px-4 text-center text-xs font-bold text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-lg transition-colors border border-transparent hover:border-red-100"
+                >
+                    Archive Conversation
+                </button>
+            </div>
+        </div>
+    );
+}
+
+// ─── Main Page ──────────────────────────────────────────────────────────────
 
 export default function CustomerMessagesPage() {
     const { conversations, loading: convLoading, error: convError } = useConversations();
     const { user } = useAuth();
 
-    // Selected conversation: { type, id, name }
-    const [selected, setSelected] = useState(null);
-    // Mobile: which panel is visible ('list' | 'chat')
+    // Store full conversation object
+    const [selectedConversation, setSelectedConversation] = useState(null);
+    // Derive backward-compat selected for hooks
+    const selected = selectedConversation
+        ? {
+            type: selectedConversation.currentContext?.type,
+            id: selectedConversation.currentContext?.id,
+            name: getDisplayName(selectedConversation.otherUser),
+        }
+        : null;
+
     const [mobileView, setMobileView] = useState('list');
     const [search, setSearch] = useState('');
     const [filter, setFilter] = useState('all'); // 'all' | 'unread'
@@ -113,7 +250,6 @@ export default function CustomerMessagesPage() {
     );
 
     // Reset scroll flag and input when switching conversations
-    // Must be declared before the scroll effect so it runs first
     useEffect(() => {
         if (selected?.id) {
             isFirstLoad.current = true;
@@ -150,8 +286,7 @@ export default function CustomerMessagesPage() {
     };
 
     const handleSelectConversation = (conversation) => {
-        const { type, id } = conversation.currentContext;
-        setSelected({ type, id, name: getDisplayName(conversation.otherUser) });
+        setSelectedConversation(conversation);
         setMobileView('chat');
     };
 
@@ -168,7 +303,7 @@ export default function CustomerMessagesPage() {
     return (
         <div className="flex h-[calc(100vh-112px)] min-h-125 rounded-xl border border-border-light dark:border-border-dark overflow-hidden shadow-sm">
 
-            {/* ─── Left Panel: Conversation List ───────────────────────────── */}
+            {/* ─── Left Panel: Conversation List ─────────────────────────── */}
             <aside
                 className={`
                     w-full md:w-80 shrink-0 flex flex-col
@@ -326,13 +461,12 @@ export default function CustomerMessagesPage() {
                 </div>
             </aside>
 
-            {/* ─── Right Panel: Chat Thread ─────────────────────────────────── */}
+            {/* ─── Center Panel: Chat Thread ──────────────────────────────── */}
             <section
                 className={`flex-1 flex flex-col min-w-0 bg-card-light dark:bg-card-dark ${mobileView === 'list' ? 'hidden md:flex' : 'flex'
                     }`}
             >
                 {!selected ? (
-                    /* Empty state — no conversation selected */
                     <div className="flex flex-col items-center justify-center h-full text-center px-6">
                         <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-4">
                             <svg className="w-8 h-8 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -346,10 +480,9 @@ export default function CustomerMessagesPage() {
                     </div>
                 ) : (
                     <>
-                        {/* Chat header */}
-                        <div className="flex items-center justify-between px-4 py-3 border-b border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark shrink-0">
+                        {/* ── Chat Header ─────────────────────────────────── */}
+                        <div className="flex items-center justify-between px-4 md:px-6 py-3 border-b border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark shrink-0">
                             <div className="flex items-center gap-3 min-w-0">
-                                {/* Back button — mobile only */}
                                 <button
                                     onClick={() => setMobileView('list')}
                                     className="md:hidden flex items-center justify-center h-8 w-8 rounded-lg hover:bg-muted-light dark:hover:bg-muted-dark transition-colors text-text-muted dark:text-gray-400 shrink-0"
@@ -383,15 +516,18 @@ export default function CustomerMessagesPage() {
                             {selected.type === 'booking' && (
                                 <Link
                                     href={`/customer/bookings/${selected.id}`}
-                                    className="shrink-0 text-xs font-medium text-primary hover:underline ml-3"
+                                    className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-white text-xs font-bold hover:bg-primary/90 transition-colors ml-3"
                                 >
+                                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                    </svg>
                                     View Booking
                                 </Link>
                             )}
                         </div>
 
-                        {/* Messages area */}
-                        <div className="flex-1 overflow-y-auto p-4 space-y-1 bg-background-light dark:bg-background-dark">
+                        {/* ── Messages area ────────────────────────────────── */}
+                        <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-1 bg-background-light dark:bg-background-dark">
                             {msgLoading ? (
                                 <MessageSkeleton />
                             ) : msgError ? (
@@ -411,7 +547,7 @@ export default function CustomerMessagesPage() {
                             ) : (
                                 <>
                                     {messages.map((msg, idx) => {
-                                        if (msg.type === "system") {
+                                        if (msg.type === 'system') {
                                             return (
                                                 <div key={msg.id} className="flex items-center justify-center my-4">
                                                     <div className="h-px bg-border-light dark:bg-border-dark flex-1" />
@@ -461,7 +597,6 @@ export default function CustomerMessagesPage() {
                                                         </div>
                                                         <div className="flex items-center gap-1.5 px-1">
                                                             {isFailed ? (
-                                                                /* Failed state: red warning + retry */
                                                                 <>
                                                                     <svg className="w-3 h-3 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -476,12 +611,10 @@ export default function CustomerMessagesPage() {
                                                                     </button>
                                                                 </>
                                                             ) : isSending ? (
-                                                                /* Sending state */
                                                                 <span className="text-[10px] text-text-muted dark:text-gray-500 italic">
                                                                     Sending…
                                                                 </span>
                                                             ) : (
-                                                                /* Default: timestamp + read receipt */
                                                                 <>
                                                                     <span className="text-[10px] text-text-muted dark:text-gray-500">
                                                                         {formatMessageTime(msg.createdAt)}
@@ -506,7 +639,7 @@ export default function CustomerMessagesPage() {
                             )}
                         </div>
 
-                        {/* HIPAA notice */}
+                        {/* ── HIPAA notice ─────────────────────────────────── */}
                         <div className="flex items-center justify-center gap-1.5 py-1.5 bg-muted-light dark:bg-muted-dark border-t border-border-light dark:border-border-dark shrink-0">
                             <svg className="w-3 h-3 text-text-muted dark:text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
@@ -516,10 +649,9 @@ export default function CustomerMessagesPage() {
                             </span>
                         </div>
 
-                        {/* Input area */}
+                        {/* ── Input area ───────────────────────────────────── */}
                         <div className="p-3 border-t border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark shrink-0">
                             <div className="flex items-end gap-2">
-                                {/* Decorative attachment button */}
                                 <button
                                     type="button"
                                     className="flex items-center justify-center h-10 w-10 rounded-lg text-text-muted dark:text-gray-500 hover:bg-muted-light dark:hover:bg-muted-dark transition-colors shrink-0"
@@ -547,7 +679,6 @@ export default function CustomerMessagesPage() {
                                             e.target.style.height = `${Math.min(e.target.scrollHeight, 120)}px`;
                                         }}
                                     />
-                                    {/* Decorative emoji button */}
                                     <button
                                         type="button"
                                         className="flex items-center justify-center h-10 w-10 text-text-muted dark:text-gray-500 hover:text-text-main dark:hover:text-gray-300 transition-colors shrink-0"
@@ -585,6 +716,16 @@ export default function CustomerMessagesPage() {
                     </>
                 )}
             </section>
+
+            {/* ─── Right Panel: Context Sidebar ───────────────────────────── */}
+            <aside
+                className={`hidden lg:flex w-72 shrink-0 flex-col border-l border-border-light dark:border-border-dark bg-background-light/30 dark:bg-background-dark/50 p-6 ${selectedConversation ? '' : 'lg:hidden'
+                    }`}
+            >
+                {selectedConversation && (
+                    <RightSidebar selectedConversation={selectedConversation} />
+                )}
+            </aside>
         </div>
     );
 }
