@@ -697,14 +697,12 @@ export default function TherapistMessagesPage() {
                                                     </div>
                                                 )}
                                                 <div className={`flex items-end gap-2 mb-2 ${isSender ? 'flex-row-reverse' : ''}`}>
-                                                    {!isSender && (
-                                                        <UserAvatar
-                                                            name={senderName}
-                                                            photoUrl={getPhotoUrl(msg.sender)}
-                                                            size="xs"
-                                                            className="mb-0.5"
-                                                        />
-                                                    )}
+                                                    <UserAvatar
+                                                        name={isSender ? (user?.profile?.fullName || 'You') : senderName}
+                                                        photoUrl={isSender ? getPhotoUrl(user) : getPhotoUrl(msg.sender)}
+                                                        size="xs"
+                                                        className="mb-0.5"
+                                                    />
                                                     <div className={`flex flex-col gap-0.5 max-w-[70%] ${isSender ? 'items-end' : 'items-start'}`}>
                                                         <div className={`px-3.5 py-2.5 rounded-2xl text-sm leading-relaxed shadow-sm transition-opacity ${isSender ? (isFailed ? 'bg-primary text-white rounded-br-sm border-2 border-red-400' : 'bg-primary text-white rounded-br-sm') : 'bg-card-light dark:bg-card-dark text-text-main dark:text-white border border-border-light dark:border-border-dark rounded-bl-sm'} ${isSending ? 'opacity-60' : ''}`}>
                                                             {msg.content}
@@ -729,14 +727,6 @@ export default function TherapistMessagesPage() {
                                                             )}
                                                         </div>
                                                     </div>
-                                                    {isSender && (
-                                                        <UserAvatar
-                                                            name={user?.profile?.fullName || 'You'}
-                                                            photoUrl={getPhotoUrl(user)}
-                                                            size="xs"
-                                                            className="mb-0.5"
-                                                        />
-                                                    )}
                                                 </div>
                                             </div>
                                         );
