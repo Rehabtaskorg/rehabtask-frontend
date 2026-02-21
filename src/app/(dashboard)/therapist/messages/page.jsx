@@ -93,7 +93,6 @@ export default function TherapistMessagesPage() {
                             setInputValue={setInputValue}
                             onSend={handleSendMessage}
                             placeholder="Type a message or create a new offer..."
-                            actions={<TherapistInputActions />}
                         />
                     </>
                 )}
