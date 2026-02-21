@@ -106,7 +106,7 @@ export default function CustomerMessagesPage() {
         handleSelectConversation, handleBackToList, handleSendMessage, retryMessage,
     } = useMessagesPage("/customer/messages");
 
-    const headerActions = selected.type === "booking" ? (
+    const headerActions = selected?.type === "booking" ? (
         <Link href={`/customer/bookings/${selected.id}`} className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-white text-xs font-bold hover:bg-primary/90 transition-colors">
             <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
             View Booking
