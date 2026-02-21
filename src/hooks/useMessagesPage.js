@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useConversations, useMessages } from "./useMessages";
+import { useConversations, useMessages, useConversationContext } from "./useMessages";
 import { useAuth } from "./useAuth";
 import { getDisplayName, parseContextParam } from "@/utils/messages";
 
@@ -28,6 +28,13 @@ export function useMessagesPage(basePath) {
     const [mobileView, setMobileView] = useState('list');
     const [inputValue, setInputValue] = useState('');
 
+    // Parse URL context param for fallback lookup
+    const urlContextParam = parseContextParam(searchParams.get('c'));
+    const { otherUser: urlOtherUser, patient: urlPatient, loading: urlContextLoading } = useConversationContext(
+        urlContextParam?.type ?? null,
+        urlContextParam?.id ?? null
+    );
+
     const { messages, loading: msgLoading, error: msgError, sendMessage, retryMessage } = useMessages(
         selected?.type,
         selected?.id
@@ -46,7 +53,7 @@ export function useMessagesPage(basePath) {
 
     // Auto-select from URL param when conversations load
     useEffect(() => {
-        if (convLoading || conversations.length === 0) return;
+        if (convLoading) return;
 
         const contextParam = parseContextParam(searchParams.get('c'));
         if (!contextParam) return;
@@ -59,8 +66,26 @@ export function useMessagesPage(basePath) {
             // eslint-disable-next-line react-hooks/set-state-in-effect
             setSelectedConversation(match);
             setMobileView('chat');
+            return;
         }
-    }, [convLoading, conversations, searchParams]); // eslint-disable-line react-hooks/exhaustive-deps
+
+        // Fallback: URL has a valid context but it's not in the conversations list
+        // (e.g. new user with no messages yet). Build a synthetic conversation from the context API.
+        if (!match && !urlContextLoading && urlOtherUser && contextParam) {
+            const syntheticConversation = {
+                otherUser: urlOtherUser,
+                patient: urlPatient ?? null,
+                lastMessage: null,
+                currentContext: { type: contextParam.type, id: contextParam.id, data: null },
+                unreadCount: 0,
+                updatedAt: new Date().toISOString(),
+            };
+            if (!selectedConversation || selectedConversation.currentContext?.id !== contextParam.id) {
+                setSelectedConversation(syntheticConversation);
+                setMobileView('chat');
+            }
+        }
+    }, [convLoading, conversations, searchParams, urlContextLoading, urlOtherUser, urlPatient]); // eslint-disable-line react-hooks/exhaustive-deps
 
     // Reset input when switching conversations
     useEffect(() => {
