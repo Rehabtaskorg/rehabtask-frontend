@@ -61,10 +61,22 @@ export function useMessages(contextType, contextId, pollInterval = 5000) {
 
     // Mark as read when conversation opens
     useEffect(() => {
-        if (contextType && contextId) {
-            messagesApi.markAsRead(contextType, contextId).catch(() => { });
-        }
-    }, [contextType, contextId]);
+        if (!contextType || !contextId) return;
+
+        messagesApi.markAsRead(contextType, contextId)
+            .then(() => {
+                queryClient.setQueryData(["conversations"], (old) =>
+                    old?.map((conv) =>
+                        conv.currentContext?.type === contextType &&
+                            conv.currentContext?.id === contextId
+                            ? { ...conv, unreadCount: 0 }
+                            : conv
+                    ) ?? []
+                );
+                queryClient.invalidateQueries({ queryKey: ["unreadCount"] });
+            })
+            .catch(() => { });
+    }, [contextType, contextId, queryClient]);
 
     const { mutateAsync: sendMessageMutation } = useMutation({
         mutationFn: (content) =>
