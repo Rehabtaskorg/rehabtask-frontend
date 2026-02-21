@@ -81,16 +81,6 @@ export default function TherapistRightSidebar({ selectedConversation }) {
                     </div>
                 </div>
             )}
-
-            {/* Archive button (visual only) */}
-            <div className="mt-auto pt-6">
-                <button
-                    type="button"
-                    className="w-full py-2.5 px-4 text-center text-xs font-bold text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-lg transition-colors border border-transparent hover:border-red-100"
-                >
-                    Archive Conversation
-                </button>
-            </div>
         </div>
     )
 }
