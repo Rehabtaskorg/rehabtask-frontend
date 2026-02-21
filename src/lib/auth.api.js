@@ -19,6 +19,8 @@ const getRecaptchaToken = async (action) => {
     }
 
     try {
+        // Wait for RECAPTCHA to be fully initialized before executing
+        await new Promise((resolve) => window.grecaptcha.ready(resolve));
         const token = await window.grecaptcha.execute(siteKey, { action });
         return token;
     } catch (error) {
