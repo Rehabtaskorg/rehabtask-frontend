@@ -94,7 +94,7 @@ export default function CredentialsPage() {
             try {
                 for (const file of acceptedFiles) {
                     if (file.size > 10 * 1024 * 1024) {
-                        setUploadError(`${file.name} is too large. Maximum size is 10MB.`);
+                        setUploadError(`${file.name} is too large. Maximum size is 25MB.`);
                         continue;
                     }
 
@@ -130,6 +130,16 @@ export default function CredentialsPage() {
 
     const { getRootProps, getInputProps, isDragActive } = useDropzone({
         onDrop,
+        onDropRejected: (rejections) => {
+            const rejection = rejections[0];
+            if (rejection?.errors[0]?.code === "file-invalid-type") {
+                setUploadError("Invalid file type. Only PDF, JPEG, and PNG files are allowed.");
+            } else if (rejection?.errors[0]?.code === "too-many-files") {
+                setUploadError("Too many files. Maximum 5 documents allowed.");
+            } else {
+                setUploadError("File rejected. Please check the file type and try again.");
+            }
+        },
         accept: {
             "application/pdf": [".pdf"],
             "image/*": [".jpeg", ".jpg", ".png"],
@@ -216,8 +226,8 @@ export default function CredentialsPage() {
                             <div
                                 {...getRootProps()}
                                 className={`border-2 border-dashed border-border-light dark:border-border-dark rounded-xl p-10 flex flex-col items-center justify-center bg-muted-light dark:bg-muted-dark transition-colors ${uploadedDocs.length >= 5 || uploading
-                                        ? "opacity-50 cursor-not-allowed"
-                                        : "hover:bg-primary/5 hover:border-primary cursor-pointer group"
+                                    ? "opacity-50 cursor-not-allowed"
+                                    : "hover:bg-primary/5 hover:border-primary cursor-pointer group"
                                     }`}
                             >
                                 <input {...getInputProps()} />
@@ -256,7 +266,7 @@ export default function CredentialsPage() {
                                         </p>
 
                                         <p className="text-text-muted dark:text-gray-400 text-sm mt-1 text-center">
-                                            PDF, JPG or PNG (max. 10MB each)
+                                            PDF, JPG or PNG (max. 25MB each)
                                         </p>
                                     </>
                                 )}
