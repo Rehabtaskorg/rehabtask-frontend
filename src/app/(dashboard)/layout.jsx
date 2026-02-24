@@ -10,7 +10,8 @@ import {
     MdDashboard, MdSearch, MdSend, MdCalendarMonth,
     MdChatBubble, MdPayments, MdPerson, MdMap,
     MdSchedule, MdSettings, MdLogout, MdDescription,
-    MdPersonSearch, MdCalendarToday, MdStars
+    MdPersonSearch, MdCalendarToday, MdStars,
+    MdMenu, MdClose
 } from "react-icons/md";
 
 function TherapistMessagesLink({ pathname }) {
@@ -72,6 +73,12 @@ export default function DashboardLayout({ children }) {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
     const [authError, setAuthError] = useState(false);
+    const [sidebarOpen, setSidebarOpen] = useState(false);
+
+    // Close sidebar whenever the route changes
+    useEffect(() => {
+        setSidebarOpen(false);
+    }, [pathname]);
 
     useEffect(() => {
         let isMounted = true;
@@ -158,89 +165,143 @@ export default function DashboardLayout({ children }) {
     return (
         <div className="flex min-h-screen bg-background-light dark:bg-background-dark">
 
+            {/* Mobile top bar — hidden on lg+ */}
+            <div className="fixed top-0 left-0 right-0 h-14 bg-white dark:bg-card-dark border-b border-slate-200 dark:border-border-dark flex items-center px-4 z-50 lg:hidden">
+                <button
+                    onClick={() => setSidebarOpen(true)}
+                    className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300"
+                    aria-label="Open navigation"
+                >
+                    <MdMenu className="text-xl" />
+                </button>
+                <span className="ml-3 text-primary font-bold text-lg leading-none">RehabTask</span>
+            </div>
+
             {/* ── THERAPIST SIDEBAR ── */}
             {user.role === 'therapist' && !isOnOnboardingRoute && (
-                <aside className="w-64 border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-card-dark flex flex-col fixed h-full z-50">
-                    <div className="p-6">
-                        <div className="flex flex-col mb-8">
-                            <h1 className="text-primary text-xl font-bold leading-none">RehabTask</h1>
-                            <p className="text-slate-500 dark:text-slate-400 text-xs mt-1 font-medium">Therapist Portal</p>
-                        </div>
-                        <nav className="space-y-1">
-                            <NavLink href="/therapist/dashboard" icon={MdDashboard} label="Dashboard" pathname={pathname} matchStart={false} />
-                            <NavLink href="/therapist/requests" icon={MdSearch} label="Browse Requests" pathname={pathname} />
-                            <NavLink href="/therapist/offers" icon={MdSend} label="My Offers" pathname={pathname} />
-                            <NavLink href="/therapist/bookings" icon={MdCalendarMonth} label="My Bookings" pathname={pathname} />
-                            <TherapistMessagesLink pathname={pathname} />
-                            <NavLink href="/therapist/earnings" icon={MdPayments} label="Earnings" pathname={pathname} />
-                        </nav>
-                    </div>
-
-                    <div className="mt-auto p-6 space-y-1 border-t border-slate-100 dark:border-slate-800">
-                        <NavLink href="/therapist/profile" icon={MdPerson} label="My Profile" pathname={pathname} />
-                        {/* <NavLink href="/therapist/work-areas" icon={MdMap} label="Work Areas" pathname={pathname} /> */}
-                        {/* <NavLink href="/therapist/onboarding/availability" icon={MdSchedule} label="Availability" pathname={pathname} /> */}
-                        {/* <NavLink href="/therapist/account-settings" icon={MdSettings} label="Account Settings" pathname={pathname} /> */}
+                <>
+                    <aside className={`w-64 border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-card-dark flex flex-col fixed h-full z-50 transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
                         <button
-                            onClick={handleLogout}
-                            className="sidebar-nav-link w-full text-left text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20"
+                            onClick={() => setSidebarOpen(false)}
+                            className="lg:hidden absolute top-3 right-3 p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400"
+                            aria-label="Close navigation"
                         >
-                            <MdLogout className="sidebar-icon" />
-                            <span>Logout</span>
+                            <MdClose className="text-xl" />
                         </button>
-                    </div>
-                </aside>
+                        <div className="p-6">
+                            <div className="flex flex-col mb-8">
+                                <h1 className="text-primary text-xl font-bold leading-none">RehabTask</h1>
+                                <p className="text-slate-500 dark:text-slate-400 text-xs mt-1 font-medium">Therapist Portal</p>
+                            </div>
+                            <nav className="space-y-1">
+                                <NavLink href="/therapist/dashboard" icon={MdDashboard} label="Dashboard" pathname={pathname} matchStart={false} />
+                                <NavLink href="/therapist/requests" icon={MdSearch} label="Browse Requests" pathname={pathname} />
+                                <NavLink href="/therapist/offers" icon={MdSend} label="My Offers" pathname={pathname} />
+                                <NavLink href="/therapist/bookings" icon={MdCalendarMonth} label="My Bookings" pathname={pathname} />
+                                <TherapistMessagesLink pathname={pathname} />
+                                <NavLink href="/therapist/earnings" icon={MdPayments} label="Earnings" pathname={pathname} />
+                            </nav>
+                        </div>
+
+                        <div className="mt-auto p-6 space-y-1 border-t border-slate-100 dark:border-slate-800">
+                            <NavLink href="/therapist/profile" icon={MdPerson} label="My Profile" pathname={pathname} />
+                            <button
+                                onClick={handleLogout}
+                                className="sidebar-nav-link w-full text-left text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20"
+                            >
+                                <MdLogout className="sidebar-icon" />
+                                <span>Logout</span>
+                            </button>
+                        </div>
+                    </aside>
+                    {sidebarOpen && (
+                        <div
+                            className="fixed inset-0 z-40 bg-black/50 lg:hidden"
+                            onClick={() => setSidebarOpen(false)}
+                        />
+                    )}
+                </>
             )}
 
             {/* ── CUSTOMER SIDEBAR ── */}
             {user.role === 'customer' && (
-                <aside className="w-64 border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-card-dark flex flex-col fixed h-full z-50">
-                    <div className="p-6">
-                        <h1 className="text-primary text-xl font-bold leading-none">RehabTask</h1>
-                    </div>
-                    <nav className="flex-1 px-4 space-y-1 overflow-y-auto">
-                        <NavLink href="/customer/dashboard" icon={MdDashboard} label="Dashboard" pathname={pathname} matchStart={false} />
-                        <NavLink href="/customer/requests" icon={MdDescription} label="My Requests" pathname={pathname} />
-                        <NavLink href="/customer/find-therapists" icon={MdPersonSearch} label="Find Therapists" pathname={pathname} />
-                        <NavLink href="/customer/bookings" icon={MdCalendarToday} label="My Bookings" pathname={pathname} />
-                        <CustomerMessagesLink pathname={pathname} />
-                        <NavLink href="/customer/payments" icon={MdPayments} label="Payment History" pathname={pathname} />
-                        <NavLink href="/customer/subscription" icon={MdStars} label="Subscription" pathname={pathname} />
-                        <NavLink href="/customer/profile" icon={MdSettings} label="Account Settings" pathname={pathname} />
+                <>
+                    <aside className={`w-64 border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-card-dark flex flex-col fixed h-full z-50 transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
                         <button
-                            onClick={handleLogout}
-                            className="sidebar-nav-link w-full text-left text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20"
+                            onClick={() => setSidebarOpen(false)}
+                            className="lg:hidden absolute top-3 right-3 p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400"
+                            aria-label="Close navigation"
                         >
-                            <MdLogout className="sidebar-icon" />
-                            <span>Logout</span>
+                            <MdClose className="text-xl" />
                         </button>
-                    </nav>
-                    <div className="p-4 mt-auto border-t border-slate-200 dark:border-slate-800">
-                        <div className="flex items-center gap-3 p-2 rounded-lg bg-primary/5">
-                            <div className="h-10 w-10 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-sm font-bold text-slate-600 dark:text-slate-300 shrink-0">
-                                {initials}
-                            </div>
-                            <div className="flex-1 min-w-0">
-                                <p className="text-sm font-semibold truncate text-slate-900 dark:text-white">{customerName}</p>
-                                <p className="text-xs text-slate-500 truncate">Individual Account</p>
+                        <div className="p-6">
+                            <h1 className="text-primary text-xl font-bold leading-none">RehabTask</h1>
+                        </div>
+                        <nav className="flex-1 px-4 space-y-1 overflow-y-auto">
+                            <NavLink href="/customer/dashboard" icon={MdDashboard} label="Dashboard" pathname={pathname} matchStart={false} />
+                            <NavLink href="/customer/requests" icon={MdDescription} label="My Requests" pathname={pathname} />
+                            <NavLink href="/customer/find-therapists" icon={MdPersonSearch} label="Find Therapists" pathname={pathname} />
+                            <NavLink href="/customer/bookings" icon={MdCalendarToday} label="My Bookings" pathname={pathname} />
+                            <CustomerMessagesLink pathname={pathname} />
+                            <NavLink href="/customer/payments" icon={MdPayments} label="Payment History" pathname={pathname} />
+                            <NavLink href="/customer/subscription" icon={MdStars} label="Subscription" pathname={pathname} />
+                            <NavLink href="/customer/profile" icon={MdSettings} label="Account Settings" pathname={pathname} />
+                            <button
+                                onClick={handleLogout}
+                                className="sidebar-nav-link w-full text-left text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20"
+                            >
+                                <MdLogout className="sidebar-icon" />
+                                <span>Logout</span>
+                            </button>
+                        </nav>
+                        <div className="p-4 mt-auto border-t border-slate-200 dark:border-slate-800">
+                            <div className="flex items-center gap-3 p-2 rounded-lg bg-primary/5">
+                                <div className="h-10 w-10 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-sm font-bold text-slate-600 dark:text-slate-300 shrink-0">
+                                    {initials}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                    <p className="text-sm font-semibold truncate text-slate-900 dark:text-white">{customerName}</p>
+                                    <p className="text-xs text-slate-500 truncate">Individual Account</p>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </aside>
+                    </aside>
+                    {sidebarOpen && (
+                        <div
+                            className="fixed inset-0 z-40 bg-black/50 lg:hidden"
+                            onClick={() => setSidebarOpen(false)}
+                        />
+                    )}
+                </>
             )}
 
             {/* ── ONBOARDING (minimal sidebar) ── */}
             {user.role === 'therapist' && isOnOnboardingRoute && (
-                <aside className="w-64 border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-card-dark flex flex-col fixed h-full z-50">
-                    <div className="p-6">
-                        <h1 className="text-primary text-xl font-bold leading-none">RehabTask</h1>
-                        <p className="text-slate-500 text-xs mt-1">Setup your profile</p>
-                    </div>
-                </aside>
+                <>
+                    <aside className={`w-64 border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-card-dark flex flex-col fixed h-full z-50 transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
+                        <button
+                            onClick={() => setSidebarOpen(false)}
+                            className="lg:hidden absolute top-3 right-3 p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400"
+                            aria-label="Close navigation"
+                        >
+                            <MdClose className="text-xl" />
+                        </button>
+                        <div className="p-6">
+                            <h1 className="text-primary text-xl font-bold leading-none">RehabTask</h1>
+                            <p className="text-slate-500 text-xs mt-1">Setup your profile</p>
+                        </div>
+                    </aside>
+                    {sidebarOpen && (
+                        <div
+                            className="fixed inset-0 z-40 bg-black/50 lg:hidden"
+                            onClick={() => setSidebarOpen(false)}
+                        />
+                    )}
+                </>
             )}
 
             {/* ── MAIN CONTENT ── */}
-            <main className="ml-64 flex-1 min-h-screen">
+            <main className="ml-0 lg:ml-64 flex-1 min-h-screen pt-14 lg:pt-0">
                 {user.role === 'therapist' && !isOnOnboardingRoute && <OnboardingBanner />}
                 {children}
             </main>

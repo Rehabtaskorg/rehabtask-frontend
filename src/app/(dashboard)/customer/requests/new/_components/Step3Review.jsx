@@ -1,0 +1,123 @@
+"use client";
+
+import { MdEdit, MdVisibility, MdLocationOn, MdCalendarToday } from "react-icons/md";
+import { Map, AdvancedMarker } from "@vis.gl/react-google-maps";
+import useRequestStore from "@/store/requestStore";
+
+const formatReviewDate = (dateStr, timeStr) => {
+    if (!dateStr) return "—";
+    const d = new Date(timeStr ? `${dateStr}T${timeStr}` : `${dateStr}T09:00`);
+    const datePart = d.toLocaleDateString([], {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+    });
+    const timePart = d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+    return `${datePart} at ${timePart}`;
+};
+
+export default function Step3Review({ onEditStep }) {
+    const { step1, step2 } = useRequestStore();
+
+    const hasLocation = step2.latitude !== null && step2.longitude !== null;
+    const mapCenter = hasLocation
+        ? { lat: step2.latitude, lng: step2.longitude }
+        : { lat: 40.7128, lng: -74.006 };
+
+    return (
+        <div className="space-y-6">
+            {/* Service Details Section */}
+            <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl shadow-sm p-6 sm:p-8">
+                <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-bold text-text-main dark:text-white">
+                        Service Details
+                    </h3>
+                    <button
+                        onClick={() => onEditStep(1)}
+                        className="text-primary text-sm font-semibold flex items-center gap-1 hover:underline"
+                    >
+                        <MdEdit className="text-base" /> Edit
+                    </button>
+                </div>
+
+                <div className="bg-muted-light dark:bg-muted-dark p-6 rounded-lg space-y-4">
+                    <div>
+                        <p className="text-[10px] font-bold uppercase tracking-wider text-text-muted dark:text-gray-400 mb-1">
+                            Therapy Type
+                        </p>
+                        <p className="text-sm font-medium text-text-main dark:text-white">
+                            {step1.serviceType || "—"}
+                        </p>
+                    </div>
+
+                    <div>
+                        <p className="text-[10px] font-bold uppercase tracking-wider text-text-muted dark:text-gray-400 mb-1">
+                            Description
+                        </p>
+                        <p className="text-sm text-text-main dark:text-gray-300 leading-relaxed">
+                            {step1.description || "—"}
+                        </p>
+                    </div>
+
+                    <div>
+                        <p className="text-[10px] font-bold uppercase tracking-wider text-text-muted dark:text-gray-400 mb-1">
+                            Preferred Date & Time
+                        </p>
+                        <p className="text-sm font-medium text-text-main dark:text-white flex items-center gap-1.5">
+                            <MdCalendarToday className="text-text-muted dark:text-gray-400" />
+                            {formatReviewDate(step1.preferredDate, step1.preferredTime)}
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            {/* Location Section */}
+            <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl shadow-sm p-6 sm:p-8">
+                <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-bold text-text-main dark:text-white">Location</h3>
+                    <button
+                        onClick={() => onEditStep(2)}
+                        className="text-primary text-sm font-semibold flex items-center gap-1 hover:underline"
+                    >
+                        <MdEdit className="text-base" /> Edit
+                    </button>
+                </div>
+
+                <div className="bg-muted-light dark:bg-muted-dark p-6 rounded-lg space-y-4">
+                    <div>
+                        <p className="text-[10px] font-bold uppercase tracking-wider text-text-muted dark:text-gray-400 mb-1">
+                            Address
+                        </p>
+                        <p className="text-sm font-medium text-text-main dark:text-white flex items-center gap-1.5">
+                            <MdLocationOn className="text-text-muted dark:text-gray-400" />
+                            {step2.address || "—"}
+                        </p>
+                    </div>
+
+                    {/* Mini map */}
+                    {hasLocation && (
+                        <div className="h-16 w-full rounded-lg overflow-hidden border border-border-light dark:border-border-dark">
+                            <Map
+                                defaultCenter={mapCenter}
+                                center={mapCenter}
+                                defaultZoom={15}
+                                zoom={15}
+                                mapId="request-review-map"
+                                disableDefaultUI
+                                className="w-full h-full"
+                            >
+                                <AdvancedMarker position={mapCenter} />
+                            </Map>
+                        </div>
+                    )}
+                </div>
+            </div>
+
+            {/* Visibility note */}
+            <p className="text-xs text-text-muted dark:text-gray-500 flex items-center justify-center gap-1 mt-2">
+                <MdVisibility className="text-sm" /> Your request will be visible to therapists
+                in your area.
+            </p>
+        </div>
+    )
+}

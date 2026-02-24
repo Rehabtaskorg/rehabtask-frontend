@@ -8,7 +8,8 @@ import {
     MdNotifications, MdWarning,
     MdArrowForward, MdNearMe,
     MdPendingActions, MdError,
-    MdCheckCircle
+    MdCheckCircle, MdLocationOn,
+    MdCalendarToday
 
 } from "react-icons/md";
 
@@ -42,8 +43,6 @@ export default function TherapistDashboard() {
             setUpcomingBookings(bookings.filter(b => b.status === "confirmed").slice(0, 3));
             setStripeStatus(stripeRes.data.data);
 
-            console.log("Stripe Status:", stripeStatus);
-
             setStats({
                 availableRequests: requests.filter(r => ["created", "offers_received"].includes(r.status)).length,
                 upcomingBookings: bookings.filter(b => b.status === "confirmed").length,
@@ -59,15 +58,14 @@ export default function TherapistDashboard() {
 
     useEffect(() => {
         fetchDashboardData();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     if (loading) {
         return (
-            <div className="p-8">
+            <div className="p-4 sm:p-8">
                 <div className="animate-pulse space-y-6 max-w-6xl mx-auto">
                     <div className="h-8 bg-slate-200 dark:bg-slate-700 rounded w-1/4"></div>
-                    <div className="grid grid-cols-4 gap-4">
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                         {[1, 2, 3, 4].map(i => <div key={i} className="h-28 bg-slate-200 dark:bg-slate-700 rounded-xl"></div>)}
                     </div>
                     <div className="h-48 bg-slate-200 dark:bg-slate-700 rounded-xl"></div>
@@ -77,13 +75,13 @@ export default function TherapistDashboard() {
     }
 
     return (
-        <div className="p-8">
-            <div className="max-w-6xl mx-auto space-y-8">
+        <div className="p-4 sm:p-8">
+            <div className="max-w-6xl mx-auto space-y-6 sm:space-y-8">
 
                 {/* Header */}
                 <header className="flex justify-between items-center">
-                    <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Dashboard</h2>
-                    <div className="flex items-center gap-4">
+                    <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Dashboard</h2>
+                    <div className="flex items-center gap-3 sm:gap-4">
                         <button className="p-2 text-slate-500 hover:text-primary dark:hover:text-white transition-colors rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
                             <MdNotifications className="text-xl" />
                         </button>
@@ -98,17 +96,17 @@ export default function TherapistDashboard() {
 
                 {/* Stripe Connect Banner */}
                 {!stripeStatus?.connected && (
-                    <div className="rounded-xl border border-amber-200 bg-amber-50 dark:bg-amber-900/20 dark:border-amber-900/50 p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                    <div className="rounded-xl border border-amber-200 bg-amber-50 dark:bg-amber-900/20 dark:border-amber-900/50 p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                         <div className="flex gap-3">
                             <MdWarning className="text-amber-600 dark:text-amber-500 text-xl shrink-0" />
                             <div>
-                                <p className="text-slate-900 dark:text-amber-50 font-bold text-base leading-tight">Connect your Stripe account to receive payouts.</p>
-                                <p className="text-amber-800 dark:text-amber-200/70 text-sm mt-1">Action required to enable automated earnings transfers to your bank.</p>
+                                <p className="text-slate-900 dark:text-amber-50 font-bold text-sm sm:text-base leading-tight">Connect your Stripe account to receive payouts.</p>
+                                <p className="text-amber-800 dark:text-amber-200/70 text-xs sm:text-sm mt-1">Action required to enable automated earnings transfers to your bank.</p>
                             </div>
                         </div>
                         <button
                             onClick={() => router.push('/therapist/profile')}
-                            className="bg-primary hover:bg-primary/90 text-white px-5 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 transition-all shrink-0"
+                            className="bg-primary hover:bg-primary/90 text-white px-5 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 transition-all shrink-0 w-full sm:w-auto justify-center"
                         >
                             Connect Stripe <MdArrowForward className="text-lg" />
                         </button>
@@ -116,46 +114,49 @@ export default function TherapistDashboard() {
                 )}
 
                 {/* Stats Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <div className="bg-white dark:bg-card-dark border border-slate-200 dark:border-border-dark p-6 rounded-xl shadow-sm">
-                        <div className="mb-4">
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+                    <div className="bg-white dark:bg-card-dark border border-slate-200 dark:border-border-dark p-4 sm:p-6 rounded-xl shadow-sm">
+                        <div className="mb-3 sm:mb-4">
                             <MdNearMe className="p-2 bg-blue-50 dark:bg-blue-900/30 rounded-lg text-blue-600 dark:text-blue-400 text-3xl" />
                         </div>
-                        <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">Open Requests Nearby</p>
-                        <h3 className="text-3xl font-bold mt-1 text-slate-900 dark:text-white">{stats.availableRequests}</h3>
+                        <p className="text-slate-500 dark:text-slate-400 text-xs sm:text-sm font-medium">Open Requests</p>
+                        <h3 className="text-2xl sm:text-3xl font-bold mt-1 text-slate-900 dark:text-white">{stats.availableRequests}</h3>
                     </div>
-                    <div className="bg-white dark:bg-card-dark border border-slate-200 dark:border-border-dark p-6 rounded-xl shadow-sm">
-                        <div className="mb-4">
+                    <div className="bg-white dark:bg-card-dark border border-slate-200 dark:border-border-dark p-4 sm:p-6 rounded-xl shadow-sm">
+                        <div className="mb-3 sm:mb-4">
                             <MdPendingActions className="p-2 bg-amber-50 dark:bg-amber-900/30 rounded-lg text-amber-600 dark:text-amber-400 text-3xl" />
                         </div>
-                        <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">My Pending Offers</p>
-                        <h3 className="text-3xl font-bold mt-1 text-slate-900 dark:text-white">0</h3>
+                        <p className="text-slate-500 dark:text-slate-400 text-xs sm:text-sm font-medium">Pending Offers</p>
+                        <h3 className="text-2xl sm:text-3xl font-bold mt-1 text-slate-900 dark:text-white">0</h3>
                     </div>
-                    <div className="bg-white dark:bg-card-dark border border-slate-200 dark:border-border-dark p-6 rounded-xl shadow-sm">
-                        <div className="mb-4">
+                    <div className="bg-white dark:bg-card-dark border border-slate-200 dark:border-border-dark p-4 sm:p-6 rounded-xl shadow-sm">
+                        <div className="mb-3 sm:mb-4">
                             <MdError className="p-2 bg-red-50 dark:bg-red-900/30 rounded-lg text-red-600 dark:text-red-400 text-3xl" />
                         </div>
-                        <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">Offers Needing Update</p>
-                        <h3 className="text-3xl font-bold mt-1 text-slate-900 dark:text-white">0</h3>
+                        <p className="text-slate-500 dark:text-slate-400 text-xs sm:text-sm font-medium">Needs Update</p>
+                        <h3 className="text-2xl sm:text-3xl font-bold mt-1 text-slate-900 dark:text-white">0</h3>
                     </div>
-                    <div className="bg-white dark:bg-card-dark border border-slate-200 dark:border-border-dark p-6 rounded-xl shadow-sm">
-                        <div className="mb-4">
+                    <div className="bg-white dark:bg-card-dark border border-slate-200 dark:border-border-dark p-4 sm:p-6 rounded-xl shadow-sm">
+                        <div className="mb-3 sm:mb-4">
                             <MdCheckCircle className="p-2 bg-emerald-50 dark:bg-emerald-900/30 rounded-lg text-emerald-600 dark:text-emerald-400 text-3xl" />
                         </div>
-                        <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">Accepted Offers</p>
-                        <h3 className="text-3xl font-bold mt-1 text-slate-900 dark:text-white">{stats.upcomingBookings}</h3>
+                        <p className="text-slate-500 dark:text-slate-400 text-xs sm:text-sm font-medium">Accepted Offers</p>
+                        <h3 className="text-2xl sm:text-3xl font-bold mt-1 text-slate-900 dark:text-white">{stats.upcomingBookings}</h3>
                     </div>
                 </div>
 
-                {/* Tables Section */}
-                <div className="space-y-8">
-                    {/* Nearby Requests Table */}
+                {/* Sections */}
+                <div className="space-y-6 sm:space-y-8">
+
+                    {/* Nearby Requests */}
                     <section className="space-y-4">
                         <div className="flex justify-between items-end">
                             <h3 className="text-lg font-bold text-slate-900 dark:text-white">Nearby Requests</h3>
                             <Link href="/therapist/requests" className="text-sm text-primary font-semibold hover:underline">View all</Link>
                         </div>
-                        <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-border-dark bg-white dark:bg-card-dark shadow-sm">
+
+                        {/* Desktop table */}
+                        <div className="hidden sm:block overflow-x-auto rounded-xl border border-slate-200 dark:border-border-dark bg-white dark:bg-card-dark shadow-sm">
                             <table className="w-full text-left border-collapse">
                                 <thead>
                                     <tr className="border-b border-slate-100 dark:border-border-dark">
@@ -205,15 +206,49 @@ export default function TherapistDashboard() {
                                 </tbody>
                             </table>
                         </div>
+
+                        {/* Mobile cards */}
+                        <div className="sm:hidden space-y-3">
+                            {recentRequests.length === 0 ? (
+                                <div className="bg-white dark:bg-card-dark border border-slate-200 dark:border-border-dark rounded-xl p-6 text-center">
+                                    <p className="text-slate-500 dark:text-slate-400 text-sm">No requests available nearby</p>
+                                </div>
+                            ) : recentRequests.map(req => (
+                                <div
+                                    key={req.id}
+                                    onClick={() => router.push(`/therapist/requests/${req.id}`)}
+                                    className="bg-white dark:bg-card-dark border border-slate-200 dark:border-border-dark rounded-xl p-4 active:bg-slate-50 dark:active:bg-slate-800 cursor-pointer"
+                                >
+                                    <div className="flex items-start justify-between gap-2 mb-2">
+                                        <h4 className="font-semibold text-sm text-slate-900 dark:text-white">{req.serviceType}</h4>
+                                        <span className="bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded text-[10px] font-bold text-slate-600 dark:text-slate-300 shrink-0">
+                                            {req.offers?.length || 0} offer{(req.offers?.length || 0) !== 1 ? 's' : ''}
+                                        </span>
+                                    </div>
+                                    <div className="flex items-center gap-3 text-xs text-slate-500 dark:text-slate-400">
+                                        <span className="flex items-center gap-1">
+                                            <MdLocationOn className="text-sm" />
+                                            {req.location || 'Nearby'}
+                                        </span>
+                                        <span className="flex items-center gap-1">
+                                            <MdCalendarToday className="text-sm" />
+                                            {req.preferredDate ? new Date(req.preferredDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : 'Flexible'}
+                                        </span>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
                     </section>
 
-                    {/* My Recent Bookings Table */}
+                    {/* Upcoming Bookings */}
                     <section className="space-y-4">
                         <div className="flex justify-between items-end">
                             <h3 className="text-lg font-bold text-slate-900 dark:text-white">My Upcoming Bookings</h3>
                             <Link href="/therapist/bookings" className="text-sm text-primary font-semibold hover:underline">View history</Link>
                         </div>
-                        <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-border-dark bg-white dark:bg-card-dark shadow-sm">
+
+                        {/* Desktop table */}
+                        <div className="hidden sm:block overflow-x-auto rounded-xl border border-slate-200 dark:border-border-dark bg-white dark:bg-card-dark shadow-sm">
                             <table className="w-full text-left border-collapse">
                                 <thead>
                                     <tr className="border-b border-slate-100 dark:border-border-dark">
@@ -255,6 +290,37 @@ export default function TherapistDashboard() {
                                     ))}
                                 </tbody>
                             </table>
+                        </div>
+
+                        {/* Mobile cards */}
+                        <div className="sm:hidden space-y-3">
+                            {upcomingBookings.length === 0 ? (
+                                <div className="bg-white dark:bg-card-dark border border-slate-200 dark:border-border-dark rounded-xl p-6 text-center">
+                                    <p className="text-slate-500 dark:text-slate-400 text-sm">No upcoming bookings</p>
+                                </div>
+                            ) : upcomingBookings.map(booking => (
+                                <div
+                                    key={booking.id}
+                                    onClick={() => router.push(`/therapist/bookings/${booking.id}`)}
+                                    className="bg-white dark:bg-card-dark border border-slate-200 dark:border-border-dark rounded-xl p-4 active:bg-slate-50 dark:active:bg-slate-800 cursor-pointer"
+                                >
+                                    <div className="flex items-start justify-between gap-2 mb-1">
+                                        <h4 className="font-semibold text-sm text-slate-900 dark:text-white">{booking.customer?.fullName || '—'}</h4>
+                                        <span className="font-mono text-sm font-bold text-primary shrink-0">
+                                            ${booking.payment?.therapistPayout || (booking.rate * 0.9).toFixed(2)}
+                                        </span>
+                                    </div>
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1">
+                                            <MdCalendarToday className="text-sm" />
+                                            {booking.scheduledDate ? new Date(booking.scheduledDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '—'}
+                                        </span>
+                                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">
+                                            Confirmed
+                                        </span>
+                                    </div>
+                                </div>
+                            ))}
                         </div>
                     </section>
                 </div>
