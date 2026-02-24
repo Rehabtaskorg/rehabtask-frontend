@@ -1,14 +1,19 @@
 import { api } from "./api";
 
-/**
- * Offer related API calls
- */
 export const offersApi = {
-    /**
-     * Get a single offer by ID (therapist read-only view)
-     * @param {string} offerId - UUID of the offer
-     */
     getOffer: async (offerId) => {
         return api.get(`/offers/${offerId}`);
-    }
-}
+    },
+
+    getMyOffers: async () => {
+        return api.get("/offers/my-offers");
+    },
+
+    withdrawOffer: async (offerId) => {
+        return api.post(`/offers/${offerId}/withdraw`);
+    },
+
+    reviseOffer: async (offerId, data) => {
+        return api.put(`/offers/${offerId}/revise`, data);
+    },
+};

@@ -3,11 +3,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { offersApi } from "@/lib/offers";
 
-/**
- * Hook to fetch offer details for the session offer widget
- * Only called when contextType === "offer"
- * @param {string|null} offerId - UUID of the offer
- */
 export function useOfferDetails(offerId) {
     const { data, isLoading, error } = useQuery({
         queryKey: ["offer", offerId],
@@ -19,9 +14,18 @@ export function useOfferDetails(offerId) {
         staleTime: 60 * 1000,
     });
 
-    return {
-        offer: data ?? null,
-        loading: isLoading,
-        error: !!error,
-    };
+    return { offer: data ?? null, loading: isLoading, error: !!error };
+}
+
+export function useMyOffers() {
+    const { data, isLoading, error, refetch } = useQuery({
+        queryKey: ["my-offers"],
+        queryFn: async () => {
+            const res = await offersApi.getMyOffers();
+            return Array.isArray(res.data.data) ? res.data.data : [];
+        },
+        staleTime: 30 * 1000,
+    });
+
+    return { offers: data ?? [], loading: isLoading, error: !!error, refetch };
 }
