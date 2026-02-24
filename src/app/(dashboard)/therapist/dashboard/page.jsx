@@ -4,6 +4,13 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { api } from "@/lib/api";
+import {
+    MdNotifications, MdWarning,
+    MdArrowForward, MdNearMe,
+    MdPendingActions, MdError,
+    MdCheckCircle
+
+} from "react-icons/md";
 
 export default function TherapistDashboard() {
     const router = useRouter();
@@ -52,144 +59,205 @@ export default function TherapistDashboard() {
 
     useEffect(() => {
         fetchDashboardData();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     if (loading) {
         return (
-            <div className="py-8 px-4">
-                <div className="animate-pulse space-y-4">
-                    <div className="h-8 bg-gray-200 rounded w-1/4"></div>
+            <div className="p-8">
+                <div className="animate-pulse space-y-6 max-w-6xl mx-auto">
+                    <div className="h-8 bg-slate-200 dark:bg-slate-700 rounded w-1/4"></div>
                     <div className="grid grid-cols-4 gap-4">
-                        {[1, 2, 3, 4].map(i => <div key={i} className="h-24 bg-gray-200 rounded"></div>)}
+                        {[1, 2, 3, 4].map(i => <div key={i} className="h-28 bg-slate-200 dark:bg-slate-700 rounded-xl"></div>)}
                     </div>
+                    <div className="h-48 bg-slate-200 dark:bg-slate-700 rounded-xl"></div>
                 </div>
             </div>
         )
     }
 
     return (
-        <div className="py-8 px-4">
-            <h1 className="text-2xl font-bold mb-6">Dashboard</h1>
+        <div className="p-8">
+            <div className="max-w-6xl mx-auto space-y-8">
 
-            {/* Stripe Warning */}
-            {!stripeStatus?.connected && (
-                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
-                    <p className="text-yellow-900 font-semibold mb-2">⚠️ Connect your Stripe account</p>
-                    <p className="text-sm text-yellow-800 mb-3">
-                        You need to connect Stripe to receive payments for your sessions.
-                    </p>
-                    <button
-                        onClick={() => router.push('/therapist/profile')}
-                        className="bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-700 text-sm"
-                    >
-                        Connect Stripe Now
-                    </button>
-                </div>
-            )}
+                {/* Header */}
+                <header className="flex justify-between items-center">
+                    <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Dashboard</h2>
+                    <div className="flex items-center gap-4">
+                        <button className="p-2 text-slate-500 hover:text-primary dark:hover:text-white transition-colors rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
+                            <MdNotifications className="text-xl" />
+                        </button>
+                        <Link
+                            href="/therapist/profile"
+                            className="h-10 w-10 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center hover:bg-primary/20 transition-colors"
+                        >
+                            <span className="text-primary font-bold text-sm">PT</span>
+                        </Link>
+                    </div>
+                </header>
 
-            {/* Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-                <div className="bg-white rounded-lg shadow p-6">
-                    <p className="text-sm text-gray-600">Available Requests</p>
-                    <p className="text-3xl font-bold text-blue-600">{stats.availableRequests}</p>
-                </div>
-                <div className="bg-white rounded-lg shadow p-6">
-                    <p className="text-sm text-gray-600">Upcoming Bookings</p>
-                    <p className="text-3xl font-bold text-green-600">{stats.upcomingBookings}</p>
-                </div>
-                <div className="bg-white rounded-lg shadow p-6">
-                    <p className="text-sm text-gray-600">Completed Sessions</p>
-                    <p className="text-3xl font-bold text-purple-600">{stats.completedSessions}</p>
-                </div>
-                <div className="bg-white rounded-lg shadow p-6">
-                    <p className="text-sm text-gray-600">Total Earnings</p>
-                    <p className="text-3xl font-bold text-gray-900">${stats.totalEarnings.toFixed(2)}</p>
-                </div>
-            </div>
-
-            {/* Quick Actions */}
-            <div className="bg-white rounded-lg shadow p-6 mb-8">
-                <h2 className="text-lg font-semibold mb-4">Quick Actions</h2>
-                <div className="flex gap-4">
-                    <button
-                        onClick={() => router.push('/therapist/requests')}
-                        className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700"
-                    >
-                        Browse Requests
-                    </button>
-                    <button
-                        onClick={() => router.push('/therapist/earnings')}
-                        className="border border-gray-300 px-6 py-3 rounded-lg hover:bg-gray-50"
-                    >
-                        View Earnings
-                    </button>
-                </div>
-            </div>
-
-            {/* Available Requests */}
-            <div className="bg-white rounded-lg shadow p-6 mb-8">
-                <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-lg font-semibold">Available Requests</h2>
-                    <Link href="/therapist/requests" className="text-blue-600 text-sm hover:text-blue-700">
-                        View All →
-                    </Link>
-                </div>
-                {recentRequests.length === 0 ? (
-                    <p className="text-gray-600">No available requests at the moment</p>
-                ) : (
-                    <div className="space-y-3">
-                        {recentRequests.map(req => (
-                            <div
-                                key={req.id}
-                                className="border rounded p-3 hover:bg-gray-50 cursor-pointer"
-                                onClick={() => router.push(`/therapist/requests/${req.id}`)}
-                            >
-                                <div className="flex justify-between">
-                                    <div>
-                                        <p className="font-medium">{req.serviceType}</p>
-                                        <p className="text-sm text-gray-600">{req.location}</p>
-                                    </div>
-                                    <span className="text-xs text-blue-600">~10 miles</span>
-                                </div>
+                {/* Stripe Connect Banner */}
+                {!stripeStatus?.connected && (
+                    <div className="rounded-xl border border-amber-200 bg-amber-50 dark:bg-amber-900/20 dark:border-amber-900/50 p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                        <div className="flex gap-3">
+                            <MdWarning className="text-amber-600 dark:text-amber-500 text-xl shrink-0" />
+                            <div>
+                                <p className="text-slate-900 dark:text-amber-50 font-bold text-base leading-tight">Connect your Stripe account to receive payouts.</p>
+                                <p className="text-amber-800 dark:text-amber-200/70 text-sm mt-1">Action required to enable automated earnings transfers to your bank.</p>
                             </div>
-                        ))}
+                        </div>
+                        <button
+                            onClick={() => router.push('/therapist/profile')}
+                            className="bg-primary hover:bg-primary/90 text-white px-5 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 transition-all shrink-0"
+                        >
+                            Connect Stripe <MdArrowForward className="text-lg" />
+                        </button>
                     </div>
                 )}
-            </div>
 
-            {/* Upcoming Bookings */}
-            <div className="bg-white rounded-lg shadow p-6">
-                <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-lg font-semibold">Upcoming Bookings</h2>
-                    <Link href="/therapist/bookings" className="text-blue-600 text-sm hover:text-blue-700">
-                        View All →
-                    </Link>
-                </div>
-                {upcomingBookings.length === 0 ? (
-                    <p className="text-gray-600">No upcoming bookings</p>
-                ) : (
-                    <div className="space-y-3">
-                        {upcomingBookings.map(booking => (
-                            <div
-                                key={booking.id}
-                                className="border rounded p-3 hover:bg-gray-50 cursor-pointer"
-                                onClick={() => router.push(`/therapist/bookings/${booking.id}`)}
-                            >
-                                <div className="flex justify-between">
-                                    <div>
-                                        <p className="font-medium">{booking.customer.fullName}</p>
-                                        <p className="text-sm text-gray-600">
-                                            {new Date(booking.scheduledDate).toLocaleDateString()}
-                                        </p>
-                                    </div>
-                                    <span className="text-sm font-semibold text-green-600">
-                                        ${booking.payment?.therapistPayout || (booking.rate * 0.9).toFixed(2)}
-                                    </span>
-                                </div>
-                            </div>
-                        ))}
+                {/* Stats Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div className="bg-white dark:bg-card-dark border border-slate-200 dark:border-border-dark p-6 rounded-xl shadow-sm">
+                        <div className="mb-4">
+                            <MdNearMe className="p-2 bg-blue-50 dark:bg-blue-900/30 rounded-lg text-blue-600 dark:text-blue-400 text-3xl" />
+                        </div>
+                        <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">Open Requests Nearby</p>
+                        <h3 className="text-3xl font-bold mt-1 text-slate-900 dark:text-white">{stats.availableRequests}</h3>
                     </div>
-                )}
+                    <div className="bg-white dark:bg-card-dark border border-slate-200 dark:border-border-dark p-6 rounded-xl shadow-sm">
+                        <div className="mb-4">
+                            <MdPendingActions className="p-2 bg-amber-50 dark:bg-amber-900/30 rounded-lg text-amber-600 dark:text-amber-400 text-3xl" />
+                        </div>
+                        <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">My Pending Offers</p>
+                        <h3 className="text-3xl font-bold mt-1 text-slate-900 dark:text-white">0</h3>
+                    </div>
+                    <div className="bg-white dark:bg-card-dark border border-slate-200 dark:border-border-dark p-6 rounded-xl shadow-sm">
+                        <div className="mb-4">
+                            <MdError className="p-2 bg-red-50 dark:bg-red-900/30 rounded-lg text-red-600 dark:text-red-400 text-3xl" />
+                        </div>
+                        <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">Offers Needing Update</p>
+                        <h3 className="text-3xl font-bold mt-1 text-slate-900 dark:text-white">0</h3>
+                    </div>
+                    <div className="bg-white dark:bg-card-dark border border-slate-200 dark:border-border-dark p-6 rounded-xl shadow-sm">
+                        <div className="mb-4">
+                            <MdCheckCircle className="p-2 bg-emerald-50 dark:bg-emerald-900/30 rounded-lg text-emerald-600 dark:text-emerald-400 text-3xl" />
+                        </div>
+                        <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">Accepted Offers</p>
+                        <h3 className="text-3xl font-bold mt-1 text-slate-900 dark:text-white">{stats.upcomingBookings}</h3>
+                    </div>
+                </div>
+
+                {/* Tables Section */}
+                <div className="space-y-8">
+                    {/* Nearby Requests Table */}
+                    <section className="space-y-4">
+                        <div className="flex justify-between items-end">
+                            <h3 className="text-lg font-bold text-slate-900 dark:text-white">Nearby Requests</h3>
+                            <Link href="/therapist/requests" className="text-sm text-primary font-semibold hover:underline">View all</Link>
+                        </div>
+                        <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-border-dark bg-white dark:bg-card-dark shadow-sm">
+                            <table className="w-full text-left border-collapse">
+                                <thead>
+                                    <tr className="border-b border-slate-100 dark:border-border-dark">
+                                        <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500">Service Type</th>
+                                        <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500">Location</th>
+                                        <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500">Preferred Date</th>
+                                        <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500">Posted</th>
+                                        <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500 text-center"># Offers</th>
+                                        <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500 text-right">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-slate-100 dark:divide-border-dark">
+                                    {recentRequests.length === 0 ? (
+                                        <tr>
+                                            <td colSpan={6} className="px-6 py-8 text-center text-slate-500 dark:text-slate-400">No requests available nearby</td>
+                                        </tr>
+                                    ) : recentRequests.map(req => (
+                                        <tr key={req.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                                            <td className="px-6 py-4 font-semibold text-slate-900 dark:text-slate-100">{req.serviceType}</td>
+                                            <td className="px-6 py-4 text-sm">
+                                                <div className="flex flex-col">
+                                                    <span className="text-slate-900 dark:text-slate-100">{req.location}</span>
+                                                    <span className="text-xs text-slate-500">Nearby</span>
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-4 text-sm text-slate-700 dark:text-slate-300">
+                                                {req.preferredDate ? new Date(req.preferredDate).toLocaleDateString() : '—'}
+                                            </td>
+                                            <td className="px-6 py-4 text-sm text-slate-500">
+                                                {req.createdAt ? new Date(req.createdAt).toLocaleDateString() : '—'}
+                                            </td>
+                                            <td className="px-6 py-4 text-center">
+                                                <span className="bg-slate-100 dark:bg-slate-800 px-2.5 py-1 rounded text-xs font-bold text-slate-700 dark:text-slate-300">
+                                                    {req.offers?.length || 0}
+                                                </span>
+                                            </td>
+                                            <td className="px-6 py-4 text-right">
+                                                <button
+                                                    onClick={() => router.push(`/therapist/requests/${req.id}`)}
+                                                    className="bg-primary text-white px-4 py-1.5 rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors"
+                                                >
+                                                    View &amp; Offer
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
+
+                    {/* My Recent Bookings Table */}
+                    <section className="space-y-4">
+                        <div className="flex justify-between items-end">
+                            <h3 className="text-lg font-bold text-slate-900 dark:text-white">My Upcoming Bookings</h3>
+                            <Link href="/therapist/bookings" className="text-sm text-primary font-semibold hover:underline">View history</Link>
+                        </div>
+                        <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-border-dark bg-white dark:bg-card-dark shadow-sm">
+                            <table className="w-full text-left border-collapse">
+                                <thead>
+                                    <tr className="border-b border-slate-100 dark:border-border-dark">
+                                        <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500">Patient</th>
+                                        <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500">Rate</th>
+                                        <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500">Scheduled Date</th>
+                                        <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500">Status</th>
+                                        <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500 text-right">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-slate-100 dark:divide-border-dark">
+                                    {upcomingBookings.length === 0 ? (
+                                        <tr>
+                                            <td colSpan={5} className="px-6 py-8 text-center text-slate-500 dark:text-slate-400">No upcoming bookings</td>
+                                        </tr>
+                                    ) : upcomingBookings.map(booking => (
+                                        <tr key={booking.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                                            <td className="px-6 py-4 font-semibold text-slate-900 dark:text-slate-100">{booking.customer?.fullName || '—'}</td>
+                                            <td className="px-6 py-4 font-mono text-primary font-medium">
+                                                ${booking.payment?.therapistPayout || (booking.rate * 0.9).toFixed(2)}
+                                            </td>
+                                            <td className="px-6 py-4 text-sm text-slate-700 dark:text-slate-300">
+                                                {booking.scheduledDate ? new Date(booking.scheduledDate).toLocaleDateString() : '—'}
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400 border border-blue-200/50">
+                                                    Confirmed
+                                                </span>
+                                            </td>
+                                            <td className="px-6 py-4 text-right">
+                                                <button
+                                                    onClick={() => router.push(`/therapist/bookings/${booking.id}`)}
+                                                    className="text-primary dark:text-blue-400 hover:underline transition-colors text-sm font-bold"
+                                                >
+                                                    View Details
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
+                </div>
             </div>
         </div>
     )

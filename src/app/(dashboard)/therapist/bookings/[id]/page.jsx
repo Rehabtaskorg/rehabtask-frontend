@@ -52,6 +52,10 @@ export default function TherapistBookingDetailPage() {
             setCompleting(false);
         }
     };
+    // Navigate to messaging in the context of this booking
+    const handleMessageCustomer = () => {
+        router.push(`/therapist/messages?c=booking:${params.id}`);
+    }
 
 
     const getPaymentStatusInfo = () => {
@@ -121,23 +125,38 @@ export default function TherapistBookingDetailPage() {
             </button>
 
             <div className="bg-white rounded-lg shadow p-6 mb-6">
+                {/* Header — Message Customer button sits next to the status badge */}
                 <div className="flex justify-between items-start mb-6">
                     <div>
                         <h1 className="text-2xl font-bold mb-2">Booking Details</h1>
                         <p className="text-sm text-gray-600">Booking ID: {booking.id.slice(0, 8)}...</p>
                     </div>
-                    <span
-                        className={`px-3 py-1 rounded-full text-sm font-semibold ${booking.status === 'completed'
-                            ? 'bg-green-100 text-green-800'
-                            : booking.status === 'confirmed'
-                                ? 'bg-blue-100 text-blue-800'
-                                : booking.status === 'in_progress'
-                                    ? 'bg-purple-100 text-purple-800'
-                                    : 'bg-gray-100 text-gray-800'
-                            }`}
-                    >
-                        {booking.status.replace('_', ' ').toUpperCase()}
-                    </span>
+                    <div className="flex items-center gap-3">
+                        {/* Message Customer — visible on all active bookings */}
+                        {['confirmed', 'in_progress', 'completed'].includes(booking.status) && (
+                            <button
+                                onClick={handleMessageCustomer}
+                                className="flex items-center gap-2 px-4 py-2 border border-primary text-primary rounded-lg text-sm font-semibold hover:bg-primary/5 transition-colors"
+                            >
+                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                                </svg>
+                                Message Customer
+                            </button>
+                        )}
+                        <span
+                            className={`px-3 py-1 rounded-full text-sm font-semibold ${booking.status === 'completed'
+                                ? 'bg-green-100 text-green-800'
+                                : booking.status === 'confirmed'
+                                    ? 'bg-blue-100 text-blue-800'
+                                    : booking.status === 'in_progress'
+                                        ? 'bg-purple-100 text-purple-800'
+                                        : 'bg-gray-100 text-gray-800'
+                                }`}
+                        >
+                            {booking.status.replace('_', ' ').toUpperCase()}
+                        </span>
+                    </div>
                 </div>
 
                 {/* Customer Info */}

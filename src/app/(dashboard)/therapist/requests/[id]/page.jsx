@@ -72,6 +72,12 @@ export default function TherapistRequestDetailPage() {
         return request?.offers && request.offers.length > 0;
     }
 
+    // Navigate to messaging in the context of this offer
+    // Only shown after therapist has sent an offer
+    const handleMessageCustomer = () => {
+        router.push(`/therapist/messages?c=offer:${request.offers[0]?.id}`);
+    }
+
     if (loading) {
         return (
             <div className="py-8 px-4">
@@ -158,11 +164,23 @@ export default function TherapistRequestDetailPage() {
                     </button>
                 )}
 
+                {/* Offer sent — show confirmation + Message Customer button (Option B) */}
                 {hasMyOffer() && (
-                    <div className="mt-6 bg-green-50 border border-green-200 rounded-lg p-4">
-                        <p className="text-green-800 font-semibold">
-                            ✓ You have already sent an offer for this request
-                        </p>
+                    <div className="mt-6 space-y-3">
+                        <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                            <p className="text-green-800 font-semibold">
+                                ✓ You have already sent an offer for this request
+                            </p>
+                        </div>
+                        <button
+                            onClick={handleMessageCustomer}
+                            className="w-full flex items-center justify-center gap-2 border border-primary text-primary py-3 rounded-lg font-semibold hover:bg-primary/5 transition-colors"
+                        >
+                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                            </svg>
+                            Message Customer
+                        </button>
                     </div>
                 )}
 
