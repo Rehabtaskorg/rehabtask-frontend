@@ -1,186 +1,114 @@
 "use client";
 
-import { useState } from "react";
+import { APIProvider } from "@vis.gl/react-google-maps";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { api } from "@/lib/api";
+import useRequestStore from "@/store/requestStore";
+import RequestStepper from "./_components/RequestStepper";
+import RequestFormFooter from "./_components/RequestFormFooter";
+import Step1ServiceDetails from "./_components/Step1ServiceDetails";
+import Step2Location from "./_components/Step2Location";
+import Step3Review from "./_components/Step3Review";
+import { MdArrowBack } from "react-icons/md";
 
 export default function NewRequestPage() {
     const router = useRouter();
-    const [formData, setFormData] = useState({
-        serviceType: "",
-        description: "",
-        preferredDate: "",
-        location: "",
-        latitude: "",
-        longitude: "",
-    });
-    const [loading, setLoading] = useState(false);
+    const { currentStep, nextStep, prevStep, reset, getPreferredDateISO, step1, step2 } = useRequestStore();
+    const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState("");
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setError("");
-        setLoading(true);
-
-        try {
-            // Convert date string to ISO format
-            const preferredDateISO = new Date(formData.preferredDate).toISOString();
-
-            await api.post("/requests", {
-                ...formData,
-                preferredDate: preferredDateISO,
-                latitude: parseFloat(formData.latitude),
-                longitude: parseFloat(formData.longitude),
-            });
-
-            alert("Request created successfully!");
+    const handleNext = () => nextStep();
+    const handleBack = () => {
+        if (currentStep === 1) {
             router.push("/customer/requests");
-        } catch (err) {
-            setError(err.response?.data?.message || "Failed to create request");
-        } finally {
-            setLoading(false);
+        } else {
+            prevStep();
         }
+    };
 
+    const handleSubmit = async () => {
+        setError("");
+        setSubmitting(true);
+        try {
+            await api.post("/requests", {
+                serviceType: step1.serviceType,
+                description: step1.description,
+                preferredDate: getPreferredDateISO(),
+                location: step2.address,
+                latitude: step2.latitude,
+                longitude: step2.longitude,
+            })
+            reset();
+            router.push("/customer/requests");
+        } catch (error) {
+            setError(error.response?.data?.message || "Failed to create request. Please try again.");
+            setSubmitting(false);
+        }
     }
 
+    const isStep1Valid =
+        step1.serviceType && step1.description.trim().length >= 10 && step1.preferredDate;
+    const isStep2Valid =
+        step2.address && step2.latitude !== null && step2.longitude !== null;
+
     return (
-        <div className="py-8 px-4 max-w-2xl mx-auto">
-            <button
-                onClick={() => router.back()}
-                className="text-blue-600 hover:text-blue-700 mb-4"
-            >
-                ← Back
-            </button>
-
-            <div className="bg-white rounded-lg shadow p-6">
-                <h1 className="text-2xl font-bold mb-6">Create New Request</h1>
-
-                {error && (
-                    <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded mb-4">
-                        {error}
-                    </div>
-                )}
-
-                <form onSubmit={handleSubmit} className="space-y-4">
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Service Type *
-                        </label>
-                        <select
-                            required
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                            value={formData.serviceType}
-                            onChange={(e) =>
-                                setFormData({ ...formData, serviceType: e.target.value })
-                            }
+        <APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}>
+            <div className="flex flex-col min-h-full bg-background-light dark:bg-background-dark">
+                {/* Sticky Header */}
+                <header className="bg-card-light dark:bg-card-dark border-b border-border-light dark:border-border-dark sticky top-0 z-10 px-4 sm:px-8 py-4">
+                    <div className="max-w-170 mx-auto">
+                        <button
+                            onClick={() => router.push("/customer/requests")}
+                            className="flex items-center gap-1 text-sm text-text-muted dark:text-gray-400 hover:text-primary mb-1 transition-colors"
                         >
-                            <option value="">Select service type...</option>
-                            <option value="Physical Therapy">Physical Therapy (PT)</option>
-                            <option value="Occupational Therapy">Occupational Therapy (OT)</option>
-                            <option value="Speech Language Pathology">
-                                Speech Language Pathology (SLP)
-                            </option>
-                        </select>
+                            <MdArrowBack className="text-base" />
+                            My Requests
+                        </button>
+                        <h2 className="text-xl sm:text-2xl font-bold text-text-main dark:text-white">
+                            Create New Request
+                        </h2>
                     </div>
+                </header>
 
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Description *
-                        </label>
-                        <textarea
-                            required
-                            rows={4}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                            placeholder="Describe what you need help with..."
-                            value={formData.description}
-                            onChange={(e) =>
-                                setFormData({ ...formData, description: e.target.value })
-                            }
-                        />
-                    </div>
+                {/* Scrollable content */}
+                <div className="flex-1 overflow-y-auto px-4 sm:px-8 py-6 pb-28">
+                    <div className="max-w-170 mx-auto space-y-8">
+                        <RequestStepper currentStep={currentStep} />
 
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Preferred Date *
-                        </label>
-                        <input
-                            type="datetime-local"
-                            required
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                            value={formData.preferredDate}
-                            onChange={(e) =>
-                                setFormData({ ...formData, preferredDate: e.target.value })
-                            }
-                        />
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Location *
-                        </label>
-                        <input
-                            type="text"
-                            required
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                            placeholder="e.g., Los Angeles, CA"
-                            value={formData.location}
-                            onChange={(e) =>
-                                setFormData({ ...formData, location: e.target.value })
-                            }
-                        />
-                        <p className="text-xs text-gray-500 mt-1">
-                            Enter city and state for therapist matching
-                        </p>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Latitude *
-                            </label>
-                            <input
-                                type="number"
-                                step="any"
-                                required
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                                placeholder="34.0522"
-                                value={formData.latitude}
-                                onChange={(e) =>
-                                    setFormData({ ...formData, latitude: e.target.value })
-                                }
+                        {currentStep === 1 && <Step1ServiceDetails />}
+                        {currentStep === 2 && <Step2Location />}
+                        {currentStep === 3 && (
+                            <Step3Review
+                                onEditStep={(s) => useRequestStore.getState().goToStep(s)}
                             />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Longitude *
-                            </label>
-                            <input
-                                type="number"
-                                step="any"
-                                required
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                                placeholder="-118.2437"
-                                value={formData.longitude}
-                                onChange={(e) =>
-                                    setFormData({ ...formData, longitude: e.target.value })
-                                }
-                            />
-                        </div>
-                    </div>
-                    <p className="text-xs text-gray-500">
-                        💡 For testing, use: LA (34.0522, -118.2437), NYC (40.7128, -74.0060)
-                    </p>
+                        )}
 
-                    <button
-                        type="submit"
-                        disabled={loading}
-                        className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 disabled:bg-gray-400"
-                    >
-                        {loading ? 'Creating...' : 'Create Request'}
-                    </button>
-                </form>
+                        {error && (
+                            <div className="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-4 py-3 rounded-lg text-sm">
+                                {error}
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+                {/* Sticky Footer */}
+                <RequestFormFooter
+                    currentStep={currentStep}
+                    onBack={handleBack}
+                    onNext={handleNext}
+                    onSubmit={handleSubmit}
+                    canNext={
+                        currentStep === 1
+                            ? isStep1Valid
+                            : currentStep === 2
+                                ? isStep2Valid
+                                : true
+                    }
+                    submitting={submitting}
+                />
             </div>
-        </div>
-    );
+        </APIProvider>
+    )
 
 }
