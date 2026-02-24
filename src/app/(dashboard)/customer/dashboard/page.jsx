@@ -68,10 +68,10 @@ export default function CustomerDashboard() {
 
     if (loading) {
         return (
-            <div className="p-8">
+            <div className="p-4 sm:p-8">
                 <div className="animate-pulse space-y-6 max-w-6xl mx-auto">
                     <div className="h-16 bg-slate-200 dark:bg-slate-700 rounded-xl"></div>
-                    <div className="grid grid-cols-4 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                         {[1, 2, 3, 4].map(i => <div key={i} className="h-28 bg-slate-200 dark:bg-slate-700 rounded-xl"></div>)}
                     </div>
                     <div className="h-64 bg-slate-200 dark:bg-slate-700 rounded-xl"></div>
@@ -81,7 +81,7 @@ export default function CustomerDashboard() {
     }
 
     return (
-        <div className="p-8 space-y-6">
+        <div className="p-4 sm:p-8 space-y-6">
 
             {/* Alert Banner */}
             {!alertDismissed && pendingConfirmations.length > 0 && (
@@ -278,7 +278,7 @@ export default function CustomerDashboard() {
                     </div>
 
                     {/* Subscription CTA */}
-                    <div className="bg-primary p-6 rounded-xl text-white relative overflow-hidden">
+                    {/* <div className="bg-primary p-6 rounded-xl text-white relative overflow-hidden">
                         <div className="relative z-10 space-y-4">
                             <h5 className="font-bold text-lg">Pro Subscription</h5>
                             <p className="text-white/70 text-sm leading-relaxed">Get priority access to top-rated therapists and lower transaction fees.</p>
@@ -287,7 +287,7 @@ export default function CustomerDashboard() {
                             </button>
                         </div>
                         <div className="absolute -bottom-8 -right-8 size-32 bg-white/10 rounded-full pointer-events-none"></div>
-                    </div>
+                    </div> */}
                 </div>
             </div>
         </div>

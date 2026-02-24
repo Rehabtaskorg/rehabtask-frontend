@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import React, { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import {
     MdAdd,
@@ -17,7 +17,8 @@ import { useMyOffers } from "@/hooks/useOffers";
 import { offersApi } from "@/lib/offers";
 import { formatCurrency } from "@/utils/messages";
 
-// Helpers
+// ─── Helpers ────────────────────────────────────────────────
+
 const timeAgo = (dateStr) => {
     if (!dateStr) return "—";
     const diff = Date.now() - new Date(dateStr).getTime();
@@ -50,7 +51,8 @@ const formatSessionType = (type) => {
     return type.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 };
 
-// CONSTANTS
+// ─── Constants ──────────────────────────────────────────────
+
 const STATUS_TABS = [
     { key: "all", label: "All" },
     { key: "pending", label: "Pending" },
@@ -68,7 +70,7 @@ const BADGE_STYLES = {
     rejected: "bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-400",
     expired: "bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400",
     withdrawn: "bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400",
-}
+};
 
 const BADGE_LABELS = {
     pending: "Pending",
@@ -78,6 +80,8 @@ const BADGE_LABELS = {
     expired: "Expired",
     withdrawn: "Withdrawn",
 };
+
+// ─── Page Component ─────────────────────────────────────────
 
 export default function MyOffersPage() {
     const router = useRouter();
@@ -90,7 +94,7 @@ export default function MyOffersPage() {
     const [revising, setRevising] = useState(false);
     const [reviseError, setReviseError] = useState("");
 
-    // Derived data
+    // ─── Derived data ───────────────────────────────────────
 
     const counts = useMemo(() => {
         const c = { all: offers.length, pending: 0, change_requested: 0, accepted: 0, rejected: 0, expired: 0, withdrawn: 0 };
@@ -107,7 +111,7 @@ export default function MyOffersPage() {
 
     const changeRequestedCount = counts.change_requested;
 
-    // Handlers
+    // ─── Handlers ───────────────────────────────────────────
 
     const handleWithdraw = async (offerId) => {
         if (!window.confirm("Are you sure you want to withdraw this offer?")) return;
@@ -115,7 +119,7 @@ export default function MyOffersPage() {
         try {
             await offersApi.withdrawOffer(offerId);
             await refetch();
-        } catch (error) {
+        } catch (err) {
             alert("Failed to withdraw offer. Please try again.");
         } finally {
             setWithdrawingIds((prev) => {
@@ -135,12 +139,12 @@ export default function MyOffersPage() {
             proposedDate: offer.proposedDate ? new Date(offer.proposedDate).toISOString().slice(0, 16) : "",
             description: offer.description || "",
         });
-    }
+    };
 
     const closeReviseForm = () => {
         setReviseOpenId(null);
         setReviseError("");
-    }
+    };
 
     const handleReviseSubmit = async (offerId) => {
         setRevising(true);
@@ -151,20 +155,22 @@ export default function MyOffersPage() {
                 sessionType: reviseData.sessionType,
                 proposedDate: new Date(reviseData.proposedDate).toISOString(),
                 description: reviseData.description,
-            })
-        } catch (error) {
+            });
+            closeReviseForm();
+            await refetch();
+        } catch (err) {
             setReviseError(err?.response?.data?.message || "Failed to revise offer. Please try again.");
         } finally {
             setRevising(false);
         }
-    }
+    };
 
+    // ─── Loading state ──────────────────────────────────────
 
-    // Loading state
     if (loading) {
         return (
             <>
-                <header className="h-16 border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md sticky top-0 z-10 flex items-center justify-between px-8">
+                <header className="h-16 border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md sticky top-14 lg:top-0 z-10 flex items-center justify-between px-8">
                     <h2 className="text-2xl font-black tracking-tight text-text-main dark:text-white">My Offers</h2>
                 </header>
                 <div className="p-8 max-w-6xl mx-auto">
@@ -181,11 +187,12 @@ export default function MyOffersPage() {
         );
     }
 
-    // Error state
+    // ─── Error state ────────────────────────────────────────
+
     if (error) {
         return (
             <>
-                <header className="h-16 border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md sticky top-0 z-10 flex items-center justify-between px-8">
+                <header className="h-16 border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md sticky top-14 lg:top-0 z-10 flex items-center justify-between px-8">
                     <h2 className="text-2xl font-black tracking-tight text-text-main dark:text-white">My Offers</h2>
                 </header>
                 <div className="p-8 max-w-6xl mx-auto text-center py-16">
@@ -198,10 +205,12 @@ export default function MyOffersPage() {
         );
     }
 
+    // ─── Render ─────────────────────────────────────────────
+
     return (
         <>
             {/* Sticky Header */}
-            <header className="h-16 border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md sticky top-0 z-10 flex items-center justify-between px-8">
+            <header className="h-16 border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md sticky top-14 lg:top-0 z-10 flex items-center justify-between px-8">
                 <h2 className="text-2xl font-black tracking-tight text-text-main dark:text-white">My Offers</h2>
                 <button
                     onClick={() => router.push("/therapist/requests")}
@@ -558,6 +567,5 @@ function OfferCard({
                 </div>
             )}
         </div>
-    )
-
+    );
 }

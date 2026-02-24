@@ -63,6 +63,10 @@ export default function TherapistRequestsPage() {
     const [offerSuccess, setOfferSuccess] = useState(false);
     const [offerError, setOfferError] = useState('');
 
+    // Mobile state
+    const [mobileView, setMobileView] = useState('list');
+    const [showMobileFilters, setShowMobileFilters] = useState(false);
+
     const fetchRequests = async () => {
         try {
             const res = await api.get("/requests/available");
@@ -114,6 +118,7 @@ export default function TherapistRequestsPage() {
     // Select
     const handleSelectRequest = (req) => {
         setSelectedRequest(req);
+        setMobileView('detail');
         setOfferSuccess(false);
         setOfferError('');
         if (req.preferredDate) {
@@ -122,6 +127,11 @@ export default function TherapistRequestsPage() {
                 .toISOString().slice(0, 16);
             setOfferData({ rate: '', sessionType: 'in-person', proposedDate: localDT, description: '' });
         }
+    };
+
+    const handleBackToList = () => {
+        setMobileView('list');
+        setSelectedRequest(null);
     };
 
     // Submit new offer
@@ -144,7 +154,6 @@ export default function TherapistRequestsPage() {
             const fresh = updated.find(r => r.id === selectedRequest.id);
             if (fresh) setSelectedRequest(fresh);
         } catch (error) {
-            // FIX: was `err.response` — `err` was undefined (param is `error`)
             setOfferError(error.response?.data?.message || 'Failed to send offer. Please try again.');
         } finally {
             setSubmitting(false);
@@ -184,8 +193,8 @@ export default function TherapistRequestsPage() {
 
     if (loading) {
         return (
-            <div className="flex h-full overflow-hidden">
-                <div className="w-60 border-r border-slate-200 dark:border-border-dark bg-white dark:bg-card-dark p-5 shrink-0">
+            <div className="flex h-[calc(100vh-3.5rem)] lg:h-full overflow-hidden pt-0">
+                <div className="hidden lg:block w-60 border-r border-slate-200 dark:border-border-dark bg-white dark:bg-card-dark p-5 shrink-0">
                     <div className="animate-pulse space-y-4">
                         {[1, 2, 3, 4, 5].map(i => (
                             <div key={i} className="h-5 bg-slate-200 dark:bg-slate-700 rounded" />
@@ -197,7 +206,7 @@ export default function TherapistRequestsPage() {
                         <div key={i} className="animate-pulse bg-white dark:bg-card-dark rounded-lg p-4 h-28 border border-slate-200 dark:border-border-dark" />
                     ))}
                 </div>
-                <div className="w-96 border-l border-slate-200 dark:border-border-dark bg-white dark:bg-card-dark p-6 shrink-0">
+                <div className="hidden lg:flex w-96 border-l border-slate-200 dark:border-border-dark bg-white dark:bg-card-dark p-6 shrink-0">
                     <div className="animate-pulse space-y-4">
                         <div className="h-8 bg-slate-200 dark:bg-slate-700 rounded w-3/4" />
                         <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-1/2" />
@@ -209,10 +218,23 @@ export default function TherapistRequestsPage() {
     }
 
     return (
-        <div className="flex h-full overflow-hidden">
+        <div className="flex h-[calc(100vh-3.5rem)] lg:h-full overflow-hidden">
 
             {/* ── PANEL 1: Filters ─────────────────────────────────────────── */}
-            <aside className="w-60 border-r border-slate-200 dark:border-border-dark bg-white dark:bg-card-dark p-5 overflow-y-auto shrink-0 panel-scroll">
+            <aside className={`
+                border-r border-slate-200 dark:border-border-dark
+                bg-white dark:bg-card-dark p-5 overflow-y-auto panel-scroll shrink-0
+                w-72 fixed inset-y-0 left-0 z-30 transition-transform duration-300
+                ${showMobileFilters ? 'translate-x-0' : '-translate-x-full'}
+                lg:relative lg:inset-auto lg:z-auto lg:translate-x-0 lg:w-60
+            `}>
+                <button
+                    onClick={() => setShowMobileFilters(false)}
+                    className="lg:hidden flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 mb-4 hover:text-slate-700"
+                >
+                    <MdClose className="text-lg" /> Close Filters
+                </button>
+
                 <div className="flex items-center justify-between mb-6">
                     <div className="flex items-center gap-2">
                         <MdTune className="text-slate-400 text-lg" />
@@ -287,7 +309,7 @@ export default function TherapistRequestsPage() {
                     </div>
 
                     <button
-                        onClick={applyFilters}
+                        onClick={() => { applyFilters(); setShowMobileFilters(false); }}
                         className="w-full bg-primary text-white py-2.5 rounded-lg font-semibold text-sm hover:bg-primary/90 transition-colors shadow-sm"
                     >
                         Apply Filters
@@ -295,8 +317,32 @@ export default function TherapistRequestsPage() {
                 </div>
             </aside>
 
+            {/* Mobile filter overlay */}
+            {showMobileFilters && (
+                <div className="fixed inset-0 z-20 bg-black/40 lg:hidden" onClick={() => setShowMobileFilters(false)} />
+            )}
+
             {/* ── PANEL 2: Request Feed ─────────────────────────────────────── */}
-            <section className="flex-1 flex flex-col bg-slate-50 dark:bg-background-dark overflow-hidden min-w-0">
+            <section className={`
+                flex-1 flex flex-col bg-slate-50 dark:bg-background-dark overflow-hidden min-w-0
+                ${mobileView === 'detail' ? 'hidden lg:flex' : 'flex'}
+            `}>
+                {/* Mobile filter + controls bar — hidden on desktop */}
+                <div className="lg:hidden flex items-center gap-2 px-3 py-2 border-b border-slate-200 dark:border-border-dark bg-white dark:bg-card-dark">
+                    <button
+                        onClick={() => setShowMobileFilters(true)}
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-border-dark text-sm font-medium text-slate-600 dark:text-slate-300"
+                    >
+                        <MdTune className="text-base" />
+                        Filters
+                        {(filters.serviceTypes.length > 0 || filters.show !== 'all') && (
+                            <span className="bg-primary text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
+                                {filters.serviceTypes.length + (filters.show !== 'all' ? 1 : 0)}
+                            </span>
+                        )}
+                    </button>
+                </div>
+
                 {/* Header */}
                 <div className="px-4 py-3 border-b border-slate-200 dark:border-border-dark bg-white/80 dark:bg-card-dark/80 backdrop-blur-sm flex items-center justify-between shrink-0">
                     <span className="text-sm font-medium text-slate-500 dark:text-slate-400">
@@ -387,7 +433,20 @@ export default function TherapistRequestsPage() {
             </section>
 
             {/* ── PANEL 3: Detail / Offer Panel ────────────────────────────── */}
-            <aside className="w-96 border-l border-slate-200 dark:border-border-dark bg-white dark:bg-card-dark flex flex-col overflow-hidden shrink-0">
+            <aside className={`
+                border-l border-slate-200 dark:border-border-dark
+                bg-white dark:bg-card-dark flex flex-col overflow-hidden shrink-0
+                w-full lg:w-96
+                ${mobileView === 'list' ? 'hidden lg:flex' : 'flex'}
+            `}>
+                {/* Mobile back button */}
+                <button
+                    onClick={handleBackToList}
+                    className="lg:hidden flex items-center gap-2 px-4 py-3 border-b border-slate-200 dark:border-border-dark text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 shrink-0"
+                >
+                    ← Back to requests
+                </button>
+
                 {!selectedRequest ? (
                     <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
                         <div className="p-5 bg-primary/5 rounded-full mb-4">
@@ -417,8 +476,8 @@ export default function TherapistRequestsPage() {
                                         </div>
                                     </div>
                                     <button
-                                        onClick={() => setSelectedRequest(null)}
-                                        className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 shrink-0"
+                                        onClick={() => { setSelectedRequest(null); setMobileView('list'); }}
+                                        className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 shrink-0 hidden lg:block"
                                     >
                                         <MdClose className="text-lg" />
                                     </button>
@@ -436,7 +495,7 @@ export default function TherapistRequestsPage() {
                                         {selectedRequest.description}
                                     </p>
                                 </div>
-                                <div className="grid grid-cols-2 gap-3">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                     <div className="p-3 rounded-lg border border-slate-100 dark:border-border-dark">
                                         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Preferred Date</p>
                                         <p className="text-sm font-semibold text-slate-900 dark:text-white mt-1">
@@ -478,7 +537,7 @@ export default function TherapistRequestsPage() {
                                             </div>
                                         )}
                                         <form onSubmit={handleSubmitOffer} className="p-5 rounded-xl border-2 border-primary/20 bg-primary/5 space-y-4">
-                                            <div className="grid grid-cols-2 gap-4">
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                                 <div className="space-y-1.5">
                                                     <label className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase">Rate per Session</label>
                                                     <div className="relative">
@@ -563,7 +622,7 @@ export default function TherapistRequestsPage() {
                                             </div>
                                         </div>
                                         <div className="p-4 rounded-xl border border-slate-100 dark:border-border-dark space-y-3">
-                                            <div className="grid grid-cols-2 gap-3">
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                                 <div>
                                                     <p className="text-[10px] font-bold text-slate-400 uppercase">Your Rate</p>
                                                     <p className="text-base font-bold text-primary mt-0.5">${parseFloat(myOffer.rate).toFixed(2)}</p>
@@ -607,7 +666,6 @@ export default function TherapistRequestsPage() {
                                 );
 
                                 // State 3: Change requested
-                                // FIX: uses handleReviseOffer (PUT /offers/:id/revise) instead of handleSubmitOffer (POST /offers)
                                 if (myOffer.status === 'change_requested') return (
                                     <div className="space-y-4">
                                         <div className="flex items-start gap-3 p-4 bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-900/50 rounded-xl">
@@ -633,19 +691,39 @@ export default function TherapistRequestsPage() {
                                         <div className="pt-4 border-t border-slate-100 dark:border-border-dark">
                                             <p className="text-xs font-bold text-slate-500 uppercase mb-3">Update Your Offer</p>
                                             <form onSubmit={handleReviseOffer} className="space-y-3">
-                                                <div className="space-y-1.5">
-                                                    <label className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase">New Rate</label>
-                                                    <div className="relative">
-                                                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-mono text-sm">$</span>
-                                                        <input
-                                                            type="number"
-                                                            step="0.01"
-                                                            min="1"
-                                                            required
-                                                            value={offerData.rate || parseFloat(myOffer.rate).toFixed(2)}
-                                                            onChange={e => setOfferData(prev => ({ ...prev, rate: e.target.value }))}
-                                                            className="w-full pl-7 rounded-lg border-slate-200 dark:border-border-dark dark:bg-card-dark dark:text-white font-mono text-sm focus:ring-primary focus:border-primary"
-                                                        />
+                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                                    <div className="space-y-1.5">
+                                                        <label className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase">New Rate</label>
+                                                        <div className="relative">
+                                                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-mono text-sm">$</span>
+                                                            <input
+                                                                type="number"
+                                                                step="0.01"
+                                                                min="1"
+                                                                required
+                                                                value={offerData.rate || parseFloat(myOffer.rate).toFixed(2)}
+                                                                onChange={e => setOfferData(prev => ({ ...prev, rate: e.target.value }))}
+                                                                className="w-full pl-7 rounded-lg border-slate-200 dark:border-border-dark dark:bg-card-dark dark:text-white font-mono text-sm focus:ring-primary focus:border-primary"
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                    <div className="space-y-1.5">
+                                                        <label className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase">Session Type</label>
+                                                        <div className="flex bg-white dark:bg-slate-800 rounded-lg p-1 border border-slate-200 dark:border-border-dark gap-1">
+                                                            {['in-person', 'virtual'].map(type => (
+                                                                <button
+                                                                    key={type}
+                                                                    type="button"
+                                                                    onClick={() => setOfferData(prev => ({ ...prev, sessionType: type }))}
+                                                                    className={`flex-1 py-1.5 text-xs font-bold rounded-md transition-colors capitalize ${offerData.sessionType === type
+                                                                        ? 'bg-primary text-white'
+                                                                        : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700'
+                                                                        }`}
+                                                                >
+                                                                    {type === 'in-person' ? 'In-Person' : 'Virtual'}
+                                                                </button>
+                                                            ))}
+                                                        </div>
                                                     </div>
                                                 </div>
                                                 <div className="space-y-1.5">
@@ -685,7 +763,7 @@ export default function TherapistRequestsPage() {
                                             </div>
                                         </div>
                                         <div className="p-4 rounded-xl border border-slate-100 dark:border-border-dark">
-                                            <div className="grid grid-cols-2 gap-3">
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                                 <div>
                                                     <p className="text-[10px] font-bold text-slate-400 uppercase">Rate</p>
                                                     <p className="text-base font-bold text-primary mt-0.5">${parseFloat(myOffer.rate).toFixed(2)}</p>
