@@ -37,17 +37,30 @@ export default function OnboardingBanner() {
                 return;
             }
 
-            const { onboardingComplete, approvalStatus, progress: backendProgress } = status;
+            const { onboardingComplete, approvalStatus, progress: backendProgress, steps } = status;
 
             // Determine banner type based on backend data
             if (!onboardingComplete) {
-                setBannerType("incomplete");
-                setProgress(backendProgress);
-                setShowBanner(true);
+                // Check if only Stripe is missing (all essential steps done)
+                const essentialStepsDone = steps?.profile && steps?.credentials &&
+                    steps?.availability && steps?.backgroundCheck;
+
+                if (essentialStepsDone) {
+                    // All essential steps done, only Stripe is missing — show review banner
+                    setBannerType("review");
+                    setShowBanner(true);
+                } else {
+                    // Still in onboarding
+                    setBannerType("incomplete");
+                    setProgress(backendProgress);
+                    setShowBanner(true);
+                }
             } else if (approvalStatus === "review" || approvalStatus === "pending") {
+                // Onboarding complete, under review
                 setBannerType("review");
                 setShowBanner(true);
             } else if (approvalStatus === "approved") {
+                // Approved - show once then hide
                 const hasSeenApproval = localStorage.getItem("hasSeenApprovalBanner");
                 if (!hasSeenApproval) {
                     setBannerType("approved");
@@ -56,9 +69,11 @@ export default function OnboardingBanner() {
                     setShowBanner(false);
                 }
             } else if (approvalStatus === "rejected") {
+                // Rejected - show rejection banner
                 setBannerType("rejected");
                 setShowBanner(true);
             } else {
+                // Unknown state, hide banner
                 setShowBanner(false);
             }
         } catch (error) {
@@ -83,7 +98,7 @@ export default function OnboardingBanner() {
         router.push("/therapist/onboarding/profile");
     }
 
-    // Navigates to dashboard (which shows the pending view)
+    // Navigate to dashboard (which shows the pending view)
     const handleViewPending = () => router.push("/therapist/dashboard")
     const handleViewSuccess = () => router.push("/therapist/approved");
 

@@ -95,7 +95,7 @@ const ProfileTab = ({ profile, approvalStatus }) => {
         setViewingDoc(docId);
         try {
             const res = await onboardingAPI.getDocumentUrl(docId);
-            const url = res.data?.data?.url || res.data?.url;
+            const url = res.data?.data?.signedUrl || res.data?.signedUrl;
             if (url) {
                 window.open(url, "_blank");
             }

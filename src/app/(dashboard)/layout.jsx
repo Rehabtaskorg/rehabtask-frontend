@@ -10,7 +10,7 @@ import OnboardingBanner from '@/components/therapist/OnboardingBanner';
 import { useUnreadCount } from '@/hooks/useMessages';
 import {
     MdDashboard, MdSearch, MdSend, MdCalendarMonth,
-    MdChatBubble, MdPayments, MdPerson, MdMap,
+    MdChatBubble, MdPayments, MdPerson,
     MdSchedule, MdSettings, MdLogout, MdDescription,
     MdPersonSearch, MdCalendarToday, MdStars,
     MdMenu, MdClose, MdLock
@@ -125,11 +125,12 @@ export default function DashboardLayout({ children }) {
                 }
 
                 // Route guard for therapist approval state
+                // NOTE: Backend returns profile data under "profile" key (not "therapistProfile")
                 if (userData.role === "therapist") {
                     const redirect = getTherapistRedirect(pathname, {
-                        onboardingComplete: userData.therapistProfile?.onboardingComplete ?? false,
-                        approvalStatus: userData.therapistProfile?.approvalStatus ?? "pending",
-                        onboardingStep: userData.therapistProfile?.onboardingStep ?? 1,
+                        onboardingComplete: userData.profile?.onboardingComplete ?? false,
+                        approvalStatus: userData.profile?.approvalStatus ?? "pending",
+                        onboardingStep: userData.profile?.onboardingStep ?? 1,
                     });
 
                     if (redirect && pathname !== redirect) {
@@ -187,23 +188,28 @@ export default function DashboardLayout({ children }) {
     }
 
     const isOnOnboardingRoute = pathname.startsWith("/therapist/onboarding");
-    const therapistName = user.therapistProfile?.fullName || "";
-    const customerName = user.customerProfile?.fullName || "";
-    const initials = (user.role === 'therapist' ? therapistName : customerName)
+
+    // Backend returns both therapist and customer data under "profile" key
+    const profileName = user.profile?.fullName || "";
+    const initials = profileName
         .split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
 
     // Compute therapist access state for context and sidebar
     const therapistAccess = user?.role === "therapist" ? (() => {
-        const tp = user.therapistProfile;
+        const tp = user.profile; // Backend maps therapistProfile → "profile"
         const status = tp?.approvalStatus ?? "pending";
+        const step = tp?.onboardingStep ?? 1;
+        const isComplete = tp?.onboardingComplete ?? false;
+        // Step 5+ means all essential steps are done — treat as functionally complete
+        const functionallyComplete = isComplete || step >= 5;
         return {
             approvalStatus: status,
-            onboardingComplete: tp?.onboardingComplete ?? false,
-            onboardingStep: tp?.onboardingStep ?? 1,
+            onboardingComplete: functionallyComplete,
+            onboardingStep: step,
             canAccessMarketplace: status === "approved",
             canEditPersonalInfo: status !== "incomplete",
             canEditCredentials: status === "approved" || status === "rejected",
-            isFullyApproved: status === "approved" && (tp?.onboardingComplete ?? false),
+            isFullyApproved: status === "approved" && functionallyComplete,
         };
     })() : null;
 
@@ -318,7 +324,7 @@ export default function DashboardLayout({ children }) {
                                     {initials}
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                    <p className="text-sm font-semibold truncate text-slate-900 dark:text-white">{customerName}</p>
+                                    <p className="text-sm font-semibold truncate text-slate-900 dark:text-white">{profileName}</p>
                                     <p className="text-xs text-slate-500 truncate">Individual Account</p>
                                 </div>
                             </div>
