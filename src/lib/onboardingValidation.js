@@ -107,14 +107,12 @@ export const availabilitySchema = z.object({
 
     baseZipCode: z
         .string()
-        .regex(/^\d{5}(-\d{4})?$/, "Please enter a valid ZIP code")
-        .optional(),
+        .regex(/^\d{5}(-\d{4})?$/, "Enter a valid 5-digit ZIP code"),
 
     serviceRadiusMiles: z
         .coerce.number()
-        .min(0, "Service radius must be 0 or greater")
-        .max(100, "Service radius must not exceed 100 miles")
-        .optional(),
+        .min(1, "Radius must be at least 1 mile")
+        .max(100, "Service radius must not exceed 100 miles"),
 });
 
 export const backgroundCheckSchema = z.object({

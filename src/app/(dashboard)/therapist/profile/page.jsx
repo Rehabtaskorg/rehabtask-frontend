@@ -1,175 +1,201 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 "use client";
 
-import { useState, useEffect } from "react";
+import { Suspense, useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
-import { api } from "@/lib/api";
-import ChangePasswordForm from "@/components/profile/ChangePasswordForm";
+import { APIProvider } from "@vis.gl/react-google-maps";
+import { useTherapistProfile } from "@/hooks/useTherapistProfile";
+import { useTherapistAccess } from "@/contexts/TherapistAccessContext";
+import ProfileTab from "@/components/therapist/profile/ProfileTab";
+import WorkAreasTab from "@/components/therapist/profile/WorkAreasTab";
+import AvailabilityTab from "@/components/therapist/profile/AvailabilityTab";
+import Alert from "@/components/ui/Alert";
+import Button from "@/components/ui/Button";
+import { MdPerson, MdMap, MdSchedule, MdRefresh, MdInfo, MdError } from "react-icons/md";
+import Image from "next/image";
 
-export default function TherapistProfilePage() {
+const TABS = [
+    { key: "profile", label: "Profile", icon: MdPerson },
+    { key: "work-areas", label: "Work Areas", icon: MdMap },
+    { key: "availability", label: "Availability", icon: MdSchedule },
+]
+
+function ProfilePageSkeleton() {
+    return (
+        <div className="py-8 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto">
+            <div className="animate-pulse space-y-6">
+                <div className="flex items-center gap-4">
+                    <div className="w-16 h-16 rounded-full bg-gray-200 dark:bg-gray-700" />
+                    <div className="space-y-2">
+                        <div className="h-6 w-48 bg-gray-200 dark:bg-gray-700 rounded" />
+                        <div className="h-4 w-32 bg-gray-200 dark:bg-gray-700 rounded" />
+                    </div>
+                </div>
+                <div className="flex gap-2">
+                    <div className="h-10 w-24 bg-gray-200 dark:bg-gray-700 rounded-lg" />
+                    <div className="h-10 w-28 bg-gray-200 dark:bg-gray-700 rounded-lg" />
+                    <div className="h-10 w-28 bg-gray-200 dark:bg-gray-700 rounded-lg" />
+                </div>
+                <div className="h-64 bg-gray-200 dark:bg-gray-700 rounded-xl" />
+            </div>
+        </div>
+    );
+}
+
+function TherapistProfileContent() {
     const searchParams = useSearchParams();
-    const [accountStatus, setAccountStatus] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [connecting, setConnecting] = useState(false);
-    const [accessingDashboard, setAccessingDashboard] = useState(false);
+    const tabFromUrl = searchParams.get("tab");
+    const [activeTab, setActiveTab] = useState("profile");
+    const { profile, loading, error, refetch } = useTherapistProfile();
+    const { approvalStatus } = useTherapistAccess();
 
+    // Sync tab from URL query param (e.g., ?tab=availability)
     useEffect(() => {
-        fetchAccountStatus();
-
-        // Handle Stripe Connect return
-        if (searchParams.get("stripe_success") === "true") {
-            alert("Stripe account connected successfully!");
-            window.history.replaceState({}, "", "/therapist/profile");
+        if (tabFromUrl && TABS.some((t) => t.key === tabFromUrl)) {
+            setActiveTab(tabFromUrl);
         }
-    }, [searchParams]);
-
-    const fetchAccountStatus = async () => {
-        try {
-            const res = await api.get("/payments/connect/status");
-            setAccountStatus(res.data.data);
-        } catch (error) {
-            console.error("Error fetching account status:", error);
-        } finally {
-            setLoading(false);
-        }
-    }
-
-    const handleConnectStripe = async () => {
-        setConnecting(true);
-        try {
-            const res = await api.post("/payments/connect/create");
-            window.location.href = res.data.data.url;
-        } catch (error) {
-            alert("Error connecting Stripe: " + (error.response?.data?.message || "Unknown error"));
-            setConnecting(false);
-        }
-    }
-
-    const handleAccessDashboard = async () => {
-        setAccessingDashboard(true);
-        try {
-            const res = await api.post("/payments/dashboard/create");
-            window.open(res.data.data.url, "_blank");
-        } catch (error) {
-            alert("Error accessing dashboard: " + (error.response?.data?.message || "Unknown error"));
-        } finally {
-            setAccessingDashboard(false);
-        }
-    }
+    }, [tabFromUrl]);
 
     if (loading) {
-        return (
-            <div className="py-8 px-4">
-                <h1 className="text-2xl font-bold mb-6">Profile Settings</h1>
-                <div className="animate-pulse space-y-4">
-                    <div className="h-32 bg-gray-200 rounded"></div>
-                </div>
-            </div>
-        )
+        return <ProfilePageSkeleton />;
     }
 
+    if (error || !profile) {
+        return (
+            <div className="py-8 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto">
+                <Alert
+                    type="error"
+                    message="Failed to load your profile. Please try again."
+                />
+                <div className="mt-4">
+                    <Button variant="secondary" onClick={refetch}>
+                        <MdRefresh className="text-lg" />
+                        Retry
+                    </Button>
+                </div>
+            </div>
+        );
+    }
+
+    const initials = profile.fullName
+        ? profile.fullName
+            .split(" ")
+            .map((n) => n[0])
+            .join("")
+            .toUpperCase()
+            .slice(0, 2)
+        : "?";
+
+    const approvalColor = {
+        approved: "bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-200",
+        pending: "bg-yellow-100 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-200",
+        review: "bg-yellow-100 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-200",
+        rejected: "bg-red-100 dark:bg-red-900/20 text-red-800 dark:text-red-200",
+    };
+
     return (
-        <div className="py-8 px-4 max-w-4xl mx-auto space-y-6">
-            <h1 className="text-2xl font-bold text-text-main dark:text-white mb-6">Profile Settings</h1>
-
-            {/* Payment Setup Section */}
-            <div className="bg-white dark:bg-card-dark rounded-xl shadow-sm border border-border-light dark:border-border-dark p-6">
-                <h2 className="text-xl font-semibold text-text-main dark:text-white mb-4">Payment Setup</h2>
-
-                {!accountStatus?.connected ? (
-                    <div className="space-y-4">
-                        <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
-                            <h3 className="font-semibold text-yellow-900 dark:text-yellow-200 mb-2">
-                                ⚠️ Connect your Stripe account to receive payments
-                            </h3>
-                            <p className="text-sm text-yellow-800 dark:text-yellow-300 mb-4">
-                                You need to connect a Stripe account to receive payouts for completed sessions.
-                            </p>
-                        </div>
-
-                        <button
-                            onClick={handleConnectStripe}
-                            disabled={connecting}
-                            className="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
-                        >
-                            {connecting ? 'Redirecting...' : 'Connect Stripe Account'}
-                        </button>
-
-                        <div className="text-xs text-text-muted dark:text-gray-400 space-y-1">
-                            <p>• Stripe is a secure payment platform used by millions</p>
-                            <p>• You&apos;ll be redirected to Stripe to complete setup</p>
-                            <p>• Takes about 5 minutes to complete</p>
-                        </div>
-                    </div>
+        <div className="py-8 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto">
+            {/* Page Header */}
+            <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-8">
+                {profile.profilePhotoUrl ? (
+                    <Image
+                        src={profile.profilePhotoUrl}
+                        alt={profile.fullName}
+                        width={64}
+                        height={64}
+                        className="w-16 h-16 rounded-full object-cover border-2 border-border-light dark:border-border-dark shrink-0"
+                    />
                 ) : (
-                    <div className="space-y-4">
-                        {accountStatus.detailsSubmitted ? (
-                            <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
-                                <h3 className="font-semibold text-green-900 dark:text-green-200 mb-2">
-                                    ✅ Stripe account connected
-                                </h3>
-                                <div className="text-sm text-green-800 dark:text-green-300 space-y-1">
-                                    <p>• Charges enabled: {accountStatus.chargesEnabled ? 'Yes' : 'No'}</p>
-                                    <p>• Payouts enabled: {accountStatus.payoutsEnabled ? 'Yes' : 'No'}</p>
-                                </div>
-                            </div>
-                        ) : (
-                            <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
-                                <h3 className="font-semibold text-yellow-900 dark:text-yellow-200 mb-2">
-                                    ⚠️ Complete your Stripe account setup
-                                </h3>
-                                <p className="text-sm text-yellow-800 dark:text-yellow-300 mb-4">
-                                    Your account is connected but setup is not complete.
-                                </p>
-                                <button
-                                    onClick={handleConnectStripe}
-                                    disabled={connecting}
-                                    className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 text-sm transition-colors"
-                                >
-                                    {connecting ? 'Redirecting...' : 'Complete Setup'}
-                                </button>
-                            </div>
-                        )}
-
-                        {accountStatus.payoutsEnabled && (
-                            <>
-                                <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-                                    <p className="text-sm text-blue-800 dark:text-blue-200">
-                                        💡 You&apos;ll receive payouts automatically after customers confirm session completion. Payouts typically arrive in 2-7 business days.
-                                    </p>
-                                </div>
-
-                                <div className="pt-4 border-t border-border-light dark:border-border-dark">
-                                    <button
-                                        onClick={handleAccessDashboard}
-                                        disabled={accessingDashboard}
-                                        className="bg-indigo-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-indigo-700 disabled:bg-gray-400 disabled:cursor-not-allowed inline-flex items-center gap-2 transition-colors"
-                                    >
-                                        <svg
-                                            className="w-5 h-5"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            viewBox="0 0 24 24"
-                                        >
-                                            <path
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                                strokeWidth={2}
-                                                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-                                            />
-                                        </svg>
-                                        {accessingDashboard ? 'Opening Dashboard...' : 'Access Stripe Dashboard'}
-                                    </button>
-                                    <p className="text-xs text-text-muted dark:text-gray-400 mt-2">
-                                        View your balance, payouts, and transaction history
-                                    </p>
-                                </div>
-                            </>
-                        )}
+                    <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center border-2 border-border-light dark:border-border-dark shrink-0">
+                        <span className="text-primary text-xl font-bold">{initials}</span>
                     </div>
                 )}
+                <div>
+                    <h1 className="text-2xl font-bold text-text-main dark:text-white">
+                        {profile.fullName || "My Profile"}
+                    </h1>
+                    <div className="flex items-center gap-3 mt-1 flex-wrap">
+                        {profile.specialization && (
+                            <span className="text-sm text-text-muted">
+                                {profile.specialization}
+                            </span>
+                        )}
+                        {profile.approvalStatus && (
+                            <span
+                                className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold capitalize ${approvalColor[profile.approvalStatus] || approvalColor.pending
+                                    }`}
+                            >
+                                {profile.approvalStatus === "review" ? "Under Review" : profile.approvalStatus}
+                            </span>
+                        )}
+                    </div>
+                </div>
             </div>
 
-            <ChangePasswordForm />
+            {/* Status Banner — shown for non-approved therapists */}
+            {(approvalStatus === "pending" || approvalStatus === "review") && (
+                <div className="flex items-start gap-3 p-4 mb-8 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-xl">
+                    <MdInfo className="text-yellow-600 dark:text-yellow-400 text-xl shrink-0 mt-0.5" />
+                    <div>
+                        <p className="text-sm font-semibold text-yellow-800 dark:text-yellow-200">
+                            Your credentials are under review
+                        </p>
+                        <p className="text-xs text-yellow-700 dark:text-yellow-300 mt-1">
+                            You can update your personal information and availability while we review your credentials. Credential fields are locked during review.
+                        </p>
+                    </div>
+                </div>
+            )}
+
+            {approvalStatus === "rejected" && (
+                <div className="flex items-start gap-3 p-4 mb-8 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl">
+                    <MdError className="text-red-500 text-xl shrink-0 mt-0.5" />
+                    <div>
+                        <h3 className="text-sm font-semibold text-red-800 dark:text-red-200">
+                            Your application needs attention
+                        </h3>
+                        <p className="text-xs text-red-700 dark:text-red-300 mt-1">
+                            {profile.rejectionReason || "Please review your credentials and contact support for details on what needs to be updated."}
+                        </p>
+                    </div>
+                </div>
+            )}
+
+            {/* Tab Bar */}
+            <div className="flex items-center gap-1 bg-muted-light dark:bg-muted-dark p-1 rounded-xl mb-8 overflow-x-auto">
+                {TABS.map((tab) => {
+                    const Icon = tab.icon;
+                    const isActive = activeTab === tab.key;
+                    return (
+                        <button
+                            key={tab.key}
+                            onClick={() => setActiveTab(tab.key)}
+                            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${isActive
+                                ? "bg-primary text-white shadow-sm"
+                                : "text-text-muted hover:text-text-main dark:hover:text-white"
+                                }`}
+                        >
+                            <Icon className="text-lg" />
+                            {tab.label}
+                        </button>
+                    );
+                })}
+            </div>
+
+            {/* Active Tab Content */}
+            {activeTab === "profile" && <ProfileTab profile={profile} approvalStatus={approvalStatus} />}
+            {activeTab === "work-areas" && <WorkAreasTab profile={profile} />}
+            {activeTab === "availability" && <AvailabilityTab profile={profile} />}
         </div>
-    )
+    );
+}
+
+export default function TherapistProfilePage() {
+    return (
+        <APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}>
+            <Suspense fallback={<ProfilePageSkeleton />}>
+                <TherapistProfileContent />
+            </Suspense>
+        </APIProvider>
+    );
 }

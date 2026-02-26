@@ -4,14 +4,16 @@ import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { authAPi } from '@/lib/auth.api';
+import { getTherapistRedirect } from '@/lib/therapistRouteAccess';
+import { TherapistAccessProvider } from '@/contexts/TherapistAccessContext';
 import OnboardingBanner from '@/components/therapist/OnboardingBanner';
 import { useUnreadCount } from '@/hooks/useMessages';
 import {
     MdDashboard, MdSearch, MdSend, MdCalendarMonth,
-    MdChatBubble, MdPayments, MdPerson, MdMap,
+    MdChatBubble, MdPayments, MdPerson,
     MdSchedule, MdSettings, MdLogout, MdDescription,
     MdPersonSearch, MdCalendarToday, MdStars,
-    MdMenu, MdClose
+    MdMenu, MdClose, MdLock
 } from "react-icons/md";
 
 function TherapistMessagesLink({ pathname }) {
@@ -67,6 +69,19 @@ function NavLink({ href, icon: Icon, label, pathname, matchStart = true }) {
     )
 }
 
+function DisabledNavItem({ icon: Icon, label }) {
+    return (
+        <div
+            className="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-400 dark:text-slate-600 cursor-not-allowed text-sm font-medium select-none"
+            title="Available after account approval"
+        >
+            <Icon className="sidebar-icon" />
+            <span className="flex-1">{label}</span>
+            <MdLock className="text-xs opacity-50" />
+        </div>
+    );
+}
+
 export default function DashboardLayout({ children }) {
     const router = useRouter();
     const pathname = usePathname();
@@ -108,6 +123,22 @@ export default function DashboardLayout({ children }) {
                     router.replace("/customer/dashboard");
                     return;
                 }
+
+                // Route guard for therapist approval state
+                // NOTE: Backend returns profile data under "profile" key (not "therapistProfile")
+                if (userData.role === "therapist") {
+                    const redirect = getTherapistRedirect(pathname, {
+                        onboardingComplete: userData.profile?.onboardingComplete ?? false,
+                        approvalStatus: userData.profile?.approvalStatus ?? "pending",
+                        onboardingStep: userData.profile?.onboardingStep ?? 1,
+                    });
+
+                    if (redirect && pathname !== redirect) {
+                        router.replace(redirect);
+                        return; // Don't set user or loading=false; keep spinner until redirect
+                    }
+                }
+
                 setUser(userData);
                 setLoading(false)
             } catch (error) {
@@ -157,10 +188,30 @@ export default function DashboardLayout({ children }) {
     }
 
     const isOnOnboardingRoute = pathname.startsWith("/therapist/onboarding");
-    const therapistName = user.therapistProfile?.fullName || "";
-    const customerName = user.customerProfile?.fullName || "";
-    const initials = (user.role === 'therapist' ? therapistName : customerName)
+
+    // Backend returns both therapist and customer data under "profile" key
+    const profileName = user.profile?.fullName || "";
+    const initials = profileName
         .split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+
+    // Compute therapist access state for context and sidebar
+    const therapistAccess = user?.role === "therapist" ? (() => {
+        const tp = user.profile; // Backend maps therapistProfile → "profile"
+        const status = tp?.approvalStatus ?? "pending";
+        const step = tp?.onboardingStep ?? 1;
+        const isComplete = tp?.onboardingComplete ?? false;
+        // Step 5+ means all essential steps are done — treat as functionally complete
+        const functionallyComplete = isComplete || step >= 5;
+        return {
+            approvalStatus: status,
+            onboardingComplete: functionallyComplete,
+            onboardingStep: step,
+            canAccessMarketplace: status === "approved",
+            canEditPersonalInfo: status !== "incomplete",
+            canEditCredentials: status === "approved" || status === "rejected",
+            isFullyApproved: status === "approved" && functionallyComplete,
+        };
+    })() : null;
 
     return (
         <div className="flex min-h-screen bg-background-light dark:bg-background-dark">
@@ -195,16 +246,29 @@ export default function DashboardLayout({ children }) {
                             </div>
                             <nav className="space-y-1">
                                 <NavLink href="/therapist/dashboard" icon={MdDashboard} label="Dashboard" pathname={pathname} matchStart={false} />
-                                <NavLink href="/therapist/requests" icon={MdSearch} label="Browse Requests" pathname={pathname} />
-                                <NavLink href="/therapist/offers" icon={MdSend} label="My Offers" pathname={pathname} />
-                                <NavLink href="/therapist/bookings" icon={MdCalendarMonth} label="My Bookings" pathname={pathname} />
-                                <TherapistMessagesLink pathname={pathname} />
-                                <NavLink href="/therapist/earnings" icon={MdPayments} label="Earnings" pathname={pathname} />
+                                {therapistAccess?.canAccessMarketplace ? (
+                                    <>
+                                        <NavLink href="/therapist/requests" icon={MdSearch} label="Browse Requests" pathname={pathname} />
+                                        <NavLink href="/therapist/offers" icon={MdSend} label="My Offers" pathname={pathname} />
+                                        <NavLink href="/therapist/bookings" icon={MdCalendarMonth} label="My Bookings" pathname={pathname} />
+                                        <TherapistMessagesLink pathname={pathname} />
+                                        <NavLink href="/therapist/earnings" icon={MdPayments} label="Earnings" pathname={pathname} />
+                                    </>
+                                ) : (
+                                    <>
+                                        <DisabledNavItem icon={MdSearch} label="Browse Requests" />
+                                        <DisabledNavItem icon={MdSend} label="My Offers" />
+                                        <DisabledNavItem icon={MdCalendarMonth} label="My Bookings" />
+                                        <DisabledNavItem icon={MdChatBubble} label="Messages" />
+                                        <DisabledNavItem icon={MdPayments} label="Earnings" />
+                                    </>
+                                )}
                             </nav>
                         </div>
 
                         <div className="mt-auto p-6 space-y-1 border-t border-slate-100 dark:border-slate-800">
                             <NavLink href="/therapist/profile" icon={MdPerson} label="My Profile" pathname={pathname} />
+                            <NavLink href="/therapist/account-settings" icon={MdSettings} label="Account Settings" pathname={pathname} />
                             <button
                                 onClick={handleLogout}
                                 className="sidebar-nav-link w-full text-left text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20"
@@ -260,7 +324,7 @@ export default function DashboardLayout({ children }) {
                                     {initials}
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                    <p className="text-sm font-semibold truncate text-slate-900 dark:text-white">{customerName}</p>
+                                    <p className="text-sm font-semibold truncate text-slate-900 dark:text-white">{profileName}</p>
                                     <p className="text-xs text-slate-500 truncate">Individual Account</p>
                                 </div>
                             </div>
@@ -303,7 +367,13 @@ export default function DashboardLayout({ children }) {
             {/* ── MAIN CONTENT ── */}
             <main className="ml-0 lg:ml-64 flex-1 min-h-screen pt-14 lg:pt-0">
                 {user.role === 'therapist' && !isOnOnboardingRoute && <OnboardingBanner />}
-                {children}
+                {user.role === 'therapist' && therapistAccess ? (
+                    <TherapistAccessProvider value={therapistAccess}>
+                        {children}
+                    </TherapistAccessProvider>
+                ) : (
+                    children
+                )}
             </main>
         </div>
     );

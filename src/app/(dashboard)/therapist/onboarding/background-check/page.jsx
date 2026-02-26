@@ -48,11 +48,19 @@ export default function BackgroundCheckPage() {
         setLoading(true);
 
         try {
-            // Call backend API to submit background check
             await onboardingAPI.submitBackgroundCheck({
                 consent: data.consent,
                 signature: data.signature,
             });
+
+            // Auto-complete onboarding now that all essential steps (1-4) are done
+            // This ensures onboardingComplete:true is set BEFORE reaching the Stripe page
+            try {
+                await onboardingAPI.completeOnboarding();
+            } catch (completeErr) {
+                // Don't block — Stripe skip and route guard handle this gracefully
+                console.warn("Auto-complete onboarding after step 4 failed:", completeErr.message);
+            }
 
             // Update local store
             updateBackgroundCheck({
