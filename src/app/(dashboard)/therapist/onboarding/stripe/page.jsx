@@ -79,7 +79,7 @@ export default function StripeOnboardingPage() {
             // Navigating to completion page (they can connect Stripe later)
             router.push("/therapist/onboarding/pending");
         } catch (error) {
-            setError(err.message);
+            setError(error.message || "Failed to complete onboarding. Please try again.");
         } finally {
             setLoading(false);
         }
@@ -211,13 +211,18 @@ export default function StripeOnboardingPage() {
                                 )}
                             </button>
 
-                            <button
-                                onClick={handleSkipForNow}
-                                disabled={loading}
-                                className="w-full text-text-muted dark:text-gray-400 hover:text-text-main dark:hover:text-white px-8 py-3 rounded-lg font-semibold transition-colors disabled:opacity-50"
-                            >
-                                I&apos;ll do this later
-                            </button>
+                            <div className="text-center">
+                                <button
+                                    onClick={handleSkipForNow}
+                                    disabled={loading}
+                                    className="w-full text-text-muted dark:text-gray-400 hover:text-text-main dark:hover:text-white px-8 py-3 rounded-lg font-semibold transition-colors disabled:opacity-50"
+                                >
+                                    I&apos;ll do this later
+                                </button>
+                                <p className="text-xs text-text-muted dark:text-gray-500 mt-1">
+                                    You can connect Stripe anytime from Account Settings. This won&apos;t delay your review.
+                                </p>
+                            </div>
                         </div>
 
                         {/* Security Note */}

@@ -41,16 +41,13 @@ export default function OnboardingBanner() {
 
             // Determine banner type based on backend data
             if (!onboardingComplete) {
-                // Still in onboarding
                 setBannerType("incomplete");
                 setProgress(backendProgress);
                 setShowBanner(true);
             } else if (approvalStatus === "review" || approvalStatus === "pending") {
-                // Onboarding complete, under review
                 setBannerType("review");
                 setShowBanner(true);
             } else if (approvalStatus === "approved") {
-                // Approved - show once then hide
                 const hasSeenApproval = localStorage.getItem("hasSeenApprovalBanner");
                 if (!hasSeenApproval) {
                     setBannerType("approved");
@@ -59,11 +56,9 @@ export default function OnboardingBanner() {
                     setShowBanner(false);
                 }
             } else if (approvalStatus === "rejected") {
-                // Rejected - show rejection banner
                 setBannerType("rejected");
                 setShowBanner(true);
             } else {
-                // Unknown state, hide banner
                 setShowBanner(false);
             }
         } catch (error) {
@@ -88,7 +83,8 @@ export default function OnboardingBanner() {
         router.push("/therapist/onboarding/profile");
     }
 
-    const handleViewPending = () => router.push("/therapist/onboarding/pending")
+    // Navigates to dashboard (which shows the pending view)
+    const handleViewPending = () => router.push("/therapist/dashboard")
     const handleViewSuccess = () => router.push("/therapist/approved");
 
     // Don't show anything while loading or if not therapist
