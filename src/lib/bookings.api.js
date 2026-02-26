@@ -20,7 +20,7 @@ export const bookingsApi = {
 
     // Session endpoints
     completeSession: async (bookingId) => {
-        return api.post(`/sessions/${sessionId}/complete`);
+        return api.post(`/sessions/${bookingId}/complete`);
     },
     confirmSession: async (sessionId) => {
         return api.post(`/sessions/${sessionId}/confirm`);
