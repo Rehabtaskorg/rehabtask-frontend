@@ -177,7 +177,9 @@ export default function MyRequestsPage() {
             setChangeNote("");
             if (selectedRequest?.id) await refetchDetail(selectedRequest.id);
         } catch (err) {
-            alert(err.response?.data?.message || "Failed to send change request.");
+            const errors = err.response?.data?.errors;
+            const msg = errors?.[0]?.message || err.response?.data?.message || "Failed to send change request.";
+            alert(msg);
         } finally {
             setChangingOffer(false);
         }
@@ -641,6 +643,12 @@ function OfferCard({
                         className="w-full text-sm rounded-lg bg-white dark:bg-slate-800 border border-amber-200 dark:border-amber-700 p-2 focus:ring-primary focus:outline-none resize-none text-text-main dark:text-white"
                         placeholder="Describe what you'd like changed..."
                     />
+                    <p className={`text-xs mt-1 ${changeNote.trim().length > 0 && changeNote.trim().length < 10 ? "text-red-500" : "text-slate-400 dark:text-slate-500"}`}>
+                        {changeNote.trim().length > 0 && changeNote.trim().length < 10
+                            ? `${10 - changeNote.trim().length} more characters needed`
+                            : "Min 10 characters"}
+                    </p>
+
                     <div className="flex gap-2 mt-2 justify-end">
                         <button
                             onClick={onCloseChange}
@@ -650,7 +658,7 @@ function OfferCard({
                         </button>
                         <button
                             onClick={() => onRequestChange(offer.id)}
-                            disabled={!changeNote.trim() || changingOffer}
+                            disabled={changeNote.trim().length < 10 || changingOffer}
                             className="bg-amber-500 hover:bg-amber-600 text-white px-4 py-1.5 rounded-lg text-sm font-bold disabled:opacity-50 transition-colors"
                         >
                             {changingOffer ? "Sending..." : "Send"}
