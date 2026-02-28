@@ -4,8 +4,10 @@ import Header from "@/components/shared/Header";
 import CustomerRegistrationSidebar from "@/components/shared/CustomerRegistrationSidebar";
 import Footer from "@/components/shared/Footer";
 import CustomerRegistrationForm from "@/components/forms/CustomerRegistrationForm";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 export default function CustomerRegisterPage() {
+    usePageTitle("Create Account");
     return (
         <div className="flex min-h-screen flex-col transition-colors duration-200 dark:text-white">
             <Header />

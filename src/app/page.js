@@ -2,8 +2,10 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 export default function HomePage() {
+  usePageTitle("Home");
   const router = useRouter();
 
   useEffect(() => {

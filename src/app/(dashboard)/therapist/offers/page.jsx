@@ -16,6 +16,7 @@ import {
 import { useMyOffers } from "@/hooks/useOffers";
 import { offersApi } from "@/lib/offers";
 import { formatCurrency } from "@/utils/messages";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 // ─── Helpers ────────────────────────────────────────────────
 
@@ -84,6 +85,7 @@ const BADGE_LABELS = {
 // ─── Page Component ─────────────────────────────────────────
 
 export default function MyOffersPage() {
+    usePageTitle("My Offers");
     const router = useRouter();
     const { offers, loading, error, refetch } = useMyOffers();
 
@@ -258,8 +260,8 @@ export default function MyOffersPage() {
                                 key={tab.key}
                                 onClick={() => setActiveTab(tab.key)}
                                 className={`px-4 py-2 rounded-full text-sm font-medium transition-colors flex items-center gap-1.5 ${isActive
-                                        ? "bg-primary text-white"
-                                        : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700"
+                                    ? "bg-primary text-white"
+                                    : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700"
                                     }`}
                             >
                                 {tab.label} ({count})

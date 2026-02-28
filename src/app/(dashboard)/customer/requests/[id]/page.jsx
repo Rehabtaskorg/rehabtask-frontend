@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { api } from "@/lib/api";
 import { MdArrowBack, MdChatBubble, MdCheckCircle } from "react-icons/md";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 const STATUS_STYLES = {
     created: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
@@ -31,6 +32,7 @@ const OFFER_STATUS_STYLES = {
 };
 
 export default function CustomerRequestDetailPage() {
+    usePageTitle("Request Details");
     const params = useParams();
     const router = useRouter();
     const [request, setRequest] = useState(null);

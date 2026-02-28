@@ -10,11 +10,13 @@ import useOnboardingStore from "@/store/onboardingStore";
 import { availabilitySchema } from "@/lib/onboardingValidation";
 import { onboardingAPI } from "@/lib/onboarding.api";
 import OnboardingProgressBar from "@/components/therapist/OnboardingProgressBar";
+import { geocodeZipCode } from "@/lib/geocoding";
 
 import { APIProvider } from "@vis.gl/react-google-maps";
 import DatePicker from "react-datepicker";
 import { parse, format } from "date-fns";
 import "react-datepicker/dist/react-datepicker.css";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 const DAYS = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
 const DAY_LABELS = {
@@ -27,49 +29,8 @@ const DAY_LABELS = {
     sunday: "Sunday",
 };
 
-/**
- * Geocode a US zip code using Google Maps Geocoding REST API
- * Returns { city, state, latitude, longitude } or null on failure
- */
-const geocodeZipCode = async (zipCode) => {
-    const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
-    if (!apiKey) {
-        console.warn("Google Maps API key not configured");
-        return null;
-    }
-
-    const response = await fetch(
-        `https://maps.googleapis.com/maps/api/geocode/json?
-        address=${encodeURIComponent(zipCode)}&components=country:US&key=${apiKey}`
-    );
-
-    const data = await response.json();
-
-    if (data.status === "OK" && data.results[0]) {
-        const result = data.results[0];
-        const location = result.geometry.location;
-        const addressComponents = result.address_components;
-
-        // Extract city and state from geocoding result
-        const cityComponent = addressComponents.find(
-            (c) => c.types.includes("locality") || c.types.includes("sublocality_level_1")
-        );
-        const stateComponent = addressComponents.find(
-            (c) => c.types.includes("administrative_area_level_1")
-        );
-
-        return {
-            city: cityComponent?.long_name || zipCode,
-            state: stateComponent?.short_name || "",
-            latitude: location.lat,
-            longitude: location.lng
-        };
-    }
-
-    return null;
-}
-
 export default function AvailabilityPage() {
+    usePageTitle("Set Availability");
     const router = useRouter();
     const {
         availability,

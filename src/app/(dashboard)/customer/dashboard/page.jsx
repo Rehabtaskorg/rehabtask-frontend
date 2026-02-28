@@ -8,6 +8,7 @@ import {
     MdWarning, MdClose, MdAssignment,
     MdEvent, MdSchedule, MdCheckCircle, MdInfo
 } from "react-icons/md";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 const STATUS_STYLES = {
     created: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
@@ -26,6 +27,7 @@ const STATUS_LABELS = {
 };
 
 export default function CustomerDashboard() {
+    usePageTitle("Dashboard");
     const router = useRouter();
     const [stats, setStats] = useState({
         activeRequests: 0,

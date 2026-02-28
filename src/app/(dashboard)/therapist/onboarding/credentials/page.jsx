@@ -12,8 +12,10 @@ import { onboardingAPI } from "@/lib/onboarding.api";
 import OnboardingProgressBar from "@/components/therapist/OnboardingProgressBar";
 import { US_STATES } from "@/lib/constants/credentials";
 import { useAuth } from "@/hooks/useAuth";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 export default function CredentialsPage() {
+    usePageTitle("Add Credentials");
     const router = useRouter();
     const { user, loading: authLoading } = useAuth()
     const { credentials, updateCredentials, addLicenseDocument, removeLicenseDocument, markStepComplete, setCurrentStep } = useOnboardingStore();

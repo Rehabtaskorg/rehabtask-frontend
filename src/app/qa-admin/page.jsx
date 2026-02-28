@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import axios from "axios";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
@@ -19,6 +20,7 @@ const STATUS_COLORS = {
 };
 
 export default function QAAdminPage() {
+    usePageTitle("QA Admin");
     const [password, setPassword] = useState("");
     const [authenticated, setAuthenticated] = useState(false);
     const [error, setError] = useState("");

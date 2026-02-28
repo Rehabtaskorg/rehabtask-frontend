@@ -2,8 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { api } from "@/lib/api";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 export default function CustomerPaymentsPage() {
+    usePageTitle("Payment History");
     const [payments, setPayments] = useState([]);
     const [loading, setLoading] = useState(true);
 

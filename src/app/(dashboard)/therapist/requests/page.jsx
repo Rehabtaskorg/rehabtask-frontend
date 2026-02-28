@@ -8,6 +8,7 @@ import {
     MdCheckCircle, MdWarning, MdError, MdAccessTime,
     MdFilterList, MdClose, MdTune
 } from "react-icons/md";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 // Helpers
 const getServiceTypeStyle = (serviceType) => {
@@ -42,6 +43,7 @@ const SERVICE_TYPE_OPTIONS = [
 ];
 
 export default function TherapistRequestsPage() {
+    usePageTitle("Browse Requests");
     const router = useRouter();
     const [requests, setRequests] = useState([]);
     const [filtered, setFiltered] = useState([]);

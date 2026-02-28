@@ -1,3 +1,5 @@
+export const metadata = { title: "Admin Dashboard" };
+
 import React from 'react'
 
 const page = () => {

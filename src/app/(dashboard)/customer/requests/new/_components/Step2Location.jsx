@@ -1,131 +1,80 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect } from "react";
 import { MdLocationOn, MdCheck } from "react-icons/md";
-import { useMapsLibrary } from "@vis.gl/react-google-maps";
 import { Map, AdvancedMarker } from "@vis.gl/react-google-maps";
 import useRequestStore from "@/store/requestStore";
+import { geocodeZipCode } from "@/lib/geocoding";
 
-const INPUT_CLASS =
-    "w-full bg-muted-light dark:bg-muted-dark border border-border-light dark:border-border-dark rounded-lg text-sm text-text-main dark:text-white focus:ring-2 focus:ring-primary focus:border-primary focus:outline-none";
+const DEFAULT_CENTER = { lat: 39.8283, lng: -98.5795 };
+const DEFAULT_ZOOM = 4;
+const SELECTED_ZOOM = 13;
 
 export default function Step2Location() {
     const { step2, setStep2 } = useRequestStore();
-    const placesLib = useMapsLibrary("places");
-    const geocodingLib = useMapsLibrary("geocoding");
 
-    const [inputValue, setInputValue] = useState(step2.address || "");
-    const [suggestions, setSuggestions] = useState([]);
-    const [showSuggestions, setShowSuggestions] = useState(false);
-    const [serviceReady, setServiceReady] = useState(false);
+    const [zipCode, setZipCode] = useState("");
+    const [city, setCity] = useState("");
+    const [state, setState] = useState("");
+    const [geocoding, setGeocoding] = useState(false);
+    const [error, setError] = useState(null);
 
-    const autocompleteServiceRef = useRef(null);
-    const geocoderRef = useRef(null);
-    const debounceTimerRef = useRef(null);
-    const wrapperRef = useRef(null);
-
-    // Initialize services when libraries load
+    // Restore resolved location display if store already has data (e.g., user navigated back)
     useEffect(() => {
-        if (placesLib) {
-            autocompleteServiceRef.current = new placesLib.AutocompleteService();
-            // eslint-disable-next-line react-hooks/set-state-in-effect
-            setServiceReady(true);
-        }
-    }, [placesLib]);
-
-    useEffect(() => {
-        if (geocodingLib) {
-            geocoderRef.current = new geocodingLib.Geocoder();
-        }
-    }, [geocodingLib]);
-
-    // Close suggestions when clicking outside
-    useEffect(() => {
-        const handleClickOutside = (e) => {
-            if (wrapperRef.current && !wrapperRef.current.contains(e.target)) {
-                setShowSuggestions(false);
+        if (step2.address && step2.latitude !== null) {
+            // Parse "City, ST" from stored address
+            const parts = step2.address.split(", ");
+            if (parts.length === 2) {
+                setCity(parts[0]);
+                setState(parts[1]);
             }
-        };
-        document.addEventListener("mousedown", handleClickOutside);
-        return () => document.removeEventListener("mousedown", handleClickOutside);
-    }, []);
+        }
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-    // Fetch suggestions with debounce
-    const fetchSuggestions = useCallback(
-        (input) => {
-            if (!autocompleteServiceRef.current || !input.trim()) {
-                setSuggestions([]);
-                setShowSuggestions(false);
-                return;
-            }
+    const handleZipChange = async (e) => {
+        const value = e.target.value.replace(/[^0-9]/g, "").slice(0, 5);
+        setZipCode(value);
+        setError(null);
 
-            if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
-
-            debounceTimerRef.current = setTimeout(() => {
-                autocompleteServiceRef.current.getPlacePredictions(
-                    {
-                        input,
-                        types: ["address"],
-                        componentRestrictions: { country: "us" },
-                    },
-                    (predictions, status) => {
-                        if (
-                            status === google.maps.places.PlacesServiceStatus.OK &&
-                            predictions
-                        ) {
-                            setSuggestions(predictions);
-                            setShowSuggestions(true);
-                        } else {
-                            setSuggestions([]);
-                            setShowSuggestions(false);
-                        }
-                    }
-                );
-            }, 300);
-        },
-        []
-    );
-
-    const handleInput = (e) => {
-        const value = e.target.value;
-        setInputValue(value);
-
-        if (!value) {
+        // Clear previous location when user changes ZIP
+        if (value.length < 5) {
+            setCity("");
+            setState("");
             setStep2({ address: "", latitude: null, longitude: null });
-            setSuggestions([]);
-            setShowSuggestions(false);
             return;
         }
 
-        fetchSuggestions(value);
-    };
-
-    const handleSelect = async (description) => {
-        setInputValue(description);
-        setSuggestions([]);
-        setShowSuggestions(false);
-
-        if (!geocoderRef.current) return;
-
-        try {
-            const response = await geocoderRef.current.geocode({ address: description });
-            if (response.results && response.results[0]) {
-                const { lat, lng } = response.results[0].geometry.location;
-                setStep2({
-                    address: description,
-                    latitude: lat(),
-                    longitude: lng(),
-                });
+        // Auto-geocode when 5 digits entered
+        if (value.length === 5) {
+            setGeocoding(true);
+            try {
+                const result = await geocodeZipCode(value);
+                if (result) {
+                    setCity(result.city);
+                    setState(result.state);
+                    setStep2({
+                        address: `${result.city}, ${result.state}`,
+                        latitude: result.latitude,
+                        longitude: result.longitude,
+                    });
+                } else {
+                    setError("Could not find this ZIP code. Please check and try again.");
+                    setCity("");
+                    setState("");
+                    setStep2({ address: "", latitude: null, longitude: null });
+                }
+            } catch {
+                setError("Geocoding failed. Please try again.");
+            } finally {
+                setGeocoding(false);
             }
-        } catch (error) {
-            console.error("Geocode error:", error);
         }
     };
 
     const hasLocation = step2.latitude !== null && step2.longitude !== null;
     const mapCenter = hasLocation
         ? { lat: step2.latitude, lng: step2.longitude }
-        : { lat: 40.7128, lng: -74.006 };
+        : DEFAULT_CENTER;
 
     return (
         <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl shadow-sm p-6 sm:p-8 space-y-6">
@@ -133,57 +82,55 @@ export default function Step2Location() {
                 Step 2: Location
             </h3>
 
-            {/* Address Input */}
+            {/* ZIP Code Input */}
             <div>
                 <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-                    Service Address <span className="text-red-500">*</span>
+                    Service ZIP Code <span className="text-red-500">*</span>
                 </label>
-                <div className="relative" ref={wrapperRef}>
+                <div className="relative">
                     <MdLocationOn className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xl" />
                     <input
                         type="text"
-                        value={inputValue}
-                        onChange={handleInput}
-                        onFocus={() => {
-                            if (suggestions.length > 0) setShowSuggestions(true);
-                        }}
-                        disabled={!serviceReady}
-                        placeholder={
-                            serviceReady
-                                ? "Start typing your address..."
-                                : "Loading address search..."
-                        }
-                        className={`${INPUT_CLASS} pl-10 pr-4 py-2.5`}
+                        value={zipCode}
+                        onChange={handleZipChange}
+                        placeholder="e.g. 90210"
+                        maxLength={5}
+                        inputMode="numeric"
+                        className="w-full bg-muted-light dark:bg-muted-dark border border-border-light dark:border-border-dark rounded-lg text-sm text-text-main dark:text-white focus:ring-2 focus:ring-primary focus:border-primary focus:outline-none pl-10 pr-4 py-2.5"
                     />
-
-                    {/* Suggestions dropdown */}
-                    {showSuggestions && suggestions.length > 0 && (
-                        <ul className="absolute z-10 mt-1 w-full bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-lg shadow-lg overflow-hidden">
-                            {suggestions.map((suggestion) => (
-                                <li
-                                    key={suggestion.place_id}
-                                    onClick={() => handleSelect(suggestion.description)}
-                                    className="px-4 py-3 text-sm cursor-pointer hover:bg-background-light dark:hover:bg-background-dark text-text-main dark:text-white flex items-center gap-2"
-                                >
-                                    <MdLocationOn className="text-slate-400 shrink-0" />
-                                    {suggestion.description}
-                                </li>
-                            ))}
-                        </ul>
-                    )}
                 </div>
 
-                {!hasLocation && inputValue && !showSuggestions && (
+                {/* Helper / Error text */}
+                {error && (
+                    <p className="text-xs text-red-500 dark:text-red-400 mt-1">{error}</p>
+                )}
+                {geocoding && (
                     <p className="text-xs text-text-muted dark:text-gray-500 mt-1">
-                        Select an address from the suggestions above
+                        Looking up ZIP code...
                     </p>
                 )}
-                {hasLocation && (
-                    <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-1 flex items-center gap-1">
-                        <MdCheck /> Location confirmed
+                {!error && !geocoding && !hasLocation && zipCode.length > 0 && zipCode.length < 5 && (
+                    <p className="text-xs text-text-muted dark:text-gray-500 mt-1">
+                        Enter a 5-digit US ZIP code
                     </p>
                 )}
             </div>
+
+            {/* Resolved location badge */}
+            {hasLocation && city && state && (
+                <div className="flex items-center gap-2 bg-primary/5 border border-primary/20 rounded-lg px-3 py-2">
+                    <MdLocationOn className="text-primary shrink-0" />
+                    <div className="text-sm">
+                        <span className="font-medium text-text-main dark:text-white">
+                            {city}, {state}
+                        </span>
+                        <span className="text-text-muted ml-2">
+                            ({step2.latitude.toFixed(4)}, {step2.longitude.toFixed(4)})
+                        </span>
+                    </div>
+                    <MdCheck className="text-emerald-500 ml-auto shrink-0" />
+                </div>
+            )}
 
             {/* Map Preview */}
             <div>
@@ -194,10 +141,10 @@ export default function Step2Location() {
                 </div>
                 <div className="aspect-video w-full rounded-xl overflow-hidden border border-border-light dark:border-border-dark">
                     <Map
-                        defaultCenter={mapCenter}
+                        defaultCenter={DEFAULT_CENTER}
+                        defaultZoom={DEFAULT_ZOOM}
                         center={hasLocation ? mapCenter : undefined}
-                        defaultZoom={hasLocation ? 15 : 11}
-                        zoom={hasLocation ? 15 : undefined}
+                        zoom={hasLocation ? SELECTED_ZOOM : undefined}
                         mapId="request-location-map"
                         disableDefaultUI
                         className="w-full h-full"
@@ -207,7 +154,7 @@ export default function Step2Location() {
                 </div>
                 {!hasLocation && (
                     <p className="text-xs text-text-muted dark:text-gray-500 mt-1.5 text-center">
-                        Search for an address above to see it on the map
+                        Enter a ZIP code above to see the location on the map
                     </p>
                 )}
             </div>

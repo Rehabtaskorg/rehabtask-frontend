@@ -5,8 +5,10 @@ import { useSearchParams } from "next/navigation";
 import { api } from "@/lib/api";
 import ChangePasswordForm from "@/components/profile/ChangePasswordForm";
 import { MdPayments, MdSettings } from "react-icons/md";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 export default function TherapistAccountSettingsPage() {
+    usePageTitle("Account Settings");
     return (
         <Suspense fallback={
             <div className="py-8 px-4 max-w-4xl mx-auto">

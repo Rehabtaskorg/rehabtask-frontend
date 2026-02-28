@@ -14,6 +14,7 @@ import {
 } from "react-icons/md";
 import { api } from "@/lib/api";
 import Image from "next/image";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 // ─── Helpers ────────────────────────────────────────────────
 
@@ -67,6 +68,7 @@ const OFFER_STATUS_BADGE = {
 };
 
 export default function MyRequestsPage() {
+    usePageTitle("My Requests");
     const router = useRouter();
 
     const [requests, setRequests] = useState([]);

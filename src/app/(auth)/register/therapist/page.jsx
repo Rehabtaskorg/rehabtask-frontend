@@ -4,8 +4,10 @@ import Header from "@/components/shared/Header";
 import RegistrationSidebar from "@/components/shared/RegistrationSidebar";
 import Footer from "@/components/shared/Footer";
 import TherapistRegistrationForm from "@/components/forms/TherapistRegistrationForm";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 export default function TherapistRegisterPage() {
+    usePageTitle("Therapist Registration");
     return (
         <div className="flex min-h-screen flex-col transition-colors duration-200 dark:text-white">
             {/* Top Navigation */}

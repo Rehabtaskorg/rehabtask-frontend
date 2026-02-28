@@ -6,6 +6,7 @@ import { ConversationList, ChatHeader, ChatThread, MessageInput } from "@/compon
 import SessionOfferWidget from "./SessionOfferWidget";
 import TherapistRightSidebar from "./TherapistRightSidebar";
 import TherapistInputActions from "./TherapistInputActions";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 const THERAPIST_FILTERS = [
     { key: 'all', label: 'All' },
@@ -21,6 +22,7 @@ const therapistFilterFn = (conversation, filterKey) => {
 };
 
 export default function TherapistMessagesPage() {
+    usePageTitle("Messages");
     const {
         user, conversations, messages, selected, selectedConversation,
         convLoading, convError, convSessionExpired, msgLoading, msgError,

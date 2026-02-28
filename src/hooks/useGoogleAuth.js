@@ -14,7 +14,7 @@ export const useGoogleAuth = () => {
                     redirectTo: `${window.location.origin}/oauth/callback`,
                     queryParams: {
                         access_type: "offline",
-                        prompt: "consent",
+                        prompt: "select_account",
                     }
                 }
             });

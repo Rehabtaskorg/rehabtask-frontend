@@ -1,9 +1,11 @@
 "use client";
 
 import ChangePasswordForm from "@/components/profile/ChangePasswordForm";
+import { usePageTitle } from "@/hooks/usePageTitle";
 import { MdPerson, MdSecurity } from "react-icons/md";
 
 export default function CustomerProfilePage() {
+    usePageTitle("Account Settings");
     return (
         <div className="py-8 px-4 max-w-4xl mx-auto space-y-6">
             {/* Page Header */}

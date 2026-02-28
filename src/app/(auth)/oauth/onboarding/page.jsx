@@ -14,8 +14,10 @@ import Button from "@/components/ui/Button";
 import Alert from "@/components/ui/Alert";
 import { oauthOnboardingSchema } from "@/lib/validationSchema";
 import { useOAuthOnboarding } from "@/hooks/useOAuthOnboarding";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 function OAuthOnboardingContent() {
+    usePageTitle("Complete Your Profile");
     const router = useRouter();
     const searchParams = useSearchParams();
     const provider = searchParams.get("provider") || "Google";

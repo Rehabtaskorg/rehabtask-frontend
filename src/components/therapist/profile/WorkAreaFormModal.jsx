@@ -1,9 +1,11 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
-import { useMapsLibrary, Map, AdvancedMarker } from "@vis.gl/react-google-maps";
-import { MdClose, MdLocationOn, MdSearch } from "react-icons/md";
+import { useState, useEffect } from "react";
+import { Map, AdvancedMarker } from "@vis.gl/react-google-maps";
+import { MdClose, MdLocationOn } from "react-icons/md";
 import Button from "@/components/ui/Button";
+import Input from "@/components/ui/Input";
+import { geocodeZipCode } from "@/lib/geocoding";
 
 const DEFAULT_CENTER = { lat: 39.8283, lng: -98.5795 };
 const DEFAULT_ZOOM = 4;
@@ -12,172 +14,74 @@ const SELECTED_ZOOM = 10;
 const WorkAreaFormModal = ({ isOpen, onClose, workArea, onSave }) => {
     const isEditing = !!workArea;
 
-    const placesLib = useMapsLibrary("places");
-    const geocodingLib = useMapsLibrary("geocoding");
-    const autocompleteServiceRef = useRef(null);
-    const geocoderRef = useRef(null);
-    const debounceTimerRef = useRef(null);
-    const suggestionsRef = useRef(null);
-
-    const [searchInput, setSearchInput] = useState("");
-    const [suggestions, setSuggestions] = useState([]);
-    const [showSuggestions, setShowSuggestions] = useState(false);
+    const [zipCode, setZipCode] = useState("");
     const [city, setCity] = useState("");
     const [state, setState] = useState("");
     const [latitude, setLatitude] = useState(null);
     const [longitude, setLongitude] = useState(null);
     const [radiusMiles, setRadiusMiles] = useState(25);
     const [error, setError] = useState(null);
+    const [geocoding, setGeocoding] = useState(false);
 
-    useEffect(() => {
-        if (placesLib) {
-            autocompleteServiceRef.current = new placesLib.AutocompleteService();
-        }
-    }, [placesLib]);
-
-    useEffect(() => {
-        if (geocodingLib) {
-            geocoderRef.current = new geocodingLib.Geocoder();
-        }
-    }, [geocodingLib]);
-
-    // ── Pre-fill state when modal opens (reset on add, populate on edit) ──
+    // Reset/populate state when modal opens
     useEffect(() => {
         if (isOpen) {
             if (workArea) {
-                // eslint-disable-next-line react-hooks/set-state-in-effect
-                setSearchInput(`${workArea.city}, ${workArea.state}`);
+                setZipCode("");
                 setCity(workArea.city || "");
                 setState(workArea.state || "");
                 setLatitude(parseFloat(workArea.latitude) || null);
                 setLongitude(parseFloat(workArea.longitude) || null);
                 setRadiusMiles(workArea.radiusMiles || 25);
             } else {
-                setSearchInput("");
+                setZipCode("");
                 setCity("");
                 setState("");
                 setLatitude(null);
                 setLongitude(null);
                 setRadiusMiles(25);
             }
-            setSuggestions([]);
-            setShowSuggestions(false);
             setError(null);
+            setGeocoding(false);
         }
     }, [isOpen, workArea]);
 
-    useEffect(() => {
-        const handleClickOutside = (e) => {
-            if (suggestionsRef.current && !suggestionsRef.current.contains(e.target)) {
-                setShowSuggestions(false);
-            }
-        };
-        document.addEventListener("mousedown", handleClickOutside);
-        return () => document.removeEventListener("mousedown", handleClickOutside);
-    }, []);
+    const handleZipChange = async (e) => {
+        const value = e.target.value.replace(/[^0-9]/g, "").slice(0, 5);
+        setZipCode(value);
+        setError(null);
 
-    const fetchSuggestions = useCallback(
-        (input) => {
-            if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
-
-            if (!input || input.length < 2 || !autocompleteServiceRef.current) {
-                setSuggestions([]);
-                setShowSuggestions(false);
-                return;
-            }
-
-            debounceTimerRef.current = setTimeout(() => {
-                autocompleteServiceRef.current.getPlacePredictions(
-                    {
-                        input,
-                        // types: ["(cities)"] — we want city-level results for work areas
-                        // (vs ["address"] in the customer flow)
-                        types: ["(cities)"],
-                        componentRestrictions: { country: "us" },
-                    },
-                    (predictions, status) => {
-                        if (
-                            status === google.maps.places.PlacesServiceStatus.OK &&
-                            predictions
-                        ) {
-                            setSuggestions(predictions);
-                            setShowSuggestions(true);
-                        } else {
-                            setSuggestions([]);
-                            setShowSuggestions(false);
-                        }
-                    }
-                );
-            }, 300);
-        },
-        []
-    );
-
-    const handleSearchChange = (e) => {
-        const value = e.target.value;
-        setSearchInput(value);
-        fetchSuggestions(value);
-
-        if (latitude !== null) {
+        // Clear previous location when user changes ZIP
+        if (value.length < 5) {
             setCity("");
             setState("");
             setLatitude(null);
             setLongitude(null);
-        }
-    };
-
-    const handleSelectSuggestion = async (suggestion) => {
-        setShowSuggestions(false);
-        setSearchInput(suggestion.description);
-        setError(null);
-
-        if (!geocoderRef.current) {
-            setError("Geocoding service not available. Please try again.");
             return;
         }
 
-        try {
-            const response = await geocoderRef.current.geocode({
-                address: suggestion.description,
-            });
-
-            if (response.results && response.results.length > 0) {
-                const result = response.results[0];
-                // lat() and lng() are functions on google.maps.LatLng, not plain values
-                const lat = result.geometry.location.lat();
-                const lng = result.geometry.location.lng();
-
-                setLatitude(lat);
-                setLongitude(lng);
-
-                // Parse city name and state code from address_components
-                let parsedCity = "";
-                let parsedState = "";
-
-                for (const component of result.address_components) {
-                    if (component.types.includes("locality")) {
-                        parsedCity = component.long_name;
-                    }
-                    // Fallback: some cities don't have "locality"
-                    if (!parsedCity && component.types.includes("sublocality_level_1")) {
-                        parsedCity = component.long_name;
-                    }
-                    if (component.types.includes("administrative_area_level_1")) {
-                        parsedState = component.short_name; // e.g. "TX", "CA"
-                    }
+        // Auto-geocode when 5 digits entered
+        if (value.length === 5) {
+            setGeocoding(true);
+            try {
+                const result = await geocodeZipCode(value);
+                if (result) {
+                    setCity(result.city);
+                    setState(result.state);
+                    setLatitude(result.latitude);
+                    setLongitude(result.longitude);
+                } else {
+                    setError("Could not find this ZIP code. Please check and try again.");
+                    setCity("");
+                    setState("");
+                    setLatitude(null);
+                    setLongitude(null);
                 }
-
-                // Final fallback: use first part of the description as city name
-                if (!parsedCity) {
-                    parsedCity = suggestion.description.split(",")[0].trim();
-                }
-
-                setCity(parsedCity);
-                setState(parsedState);
+            } catch {
+                setError("Geocoding failed. Please try again.");
+            } finally {
+                setGeocoding(false);
             }
-        } catch (err) {
-            console.error("Geocoding error:", err);
-            setError("Could not find location coordinates. Please try a different search.");
         }
     };
 
@@ -185,7 +89,7 @@ const WorkAreaFormModal = ({ isOpen, onClose, workArea, onSave }) => {
         setError(null);
 
         if (!city || !state || latitude === null || longitude === null) {
-            setError("Please search and select a city from the suggestions.");
+            setError("Please enter a valid 5-digit US ZIP code.");
             return;
         }
 
@@ -222,7 +126,7 @@ const WorkAreaFormModal = ({ isOpen, onClose, workArea, onSave }) => {
             onClick={handleOverlayClick}
         >
             <div className="bg-card-light dark:bg-card-dark rounded-xl max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-xl">
-                {/* ── Header ── */}
+                {/* Header */}
                 <div className="flex items-center justify-between p-6 border-b border-border-light dark:border-border-dark">
                     <div className="flex items-center gap-3">
                         <div className="p-2 bg-primary/10 rounded-lg">
@@ -241,7 +145,7 @@ const WorkAreaFormModal = ({ isOpen, onClose, workArea, onSave }) => {
                     </button>
                 </div>
 
-                {/* ── Body ── */}
+                {/* Body */}
                 <div className="p-6 space-y-5">
                     {/* Error alert */}
                     {error && (
@@ -250,50 +154,26 @@ const WorkAreaFormModal = ({ isOpen, onClose, workArea, onSave }) => {
                         </div>
                     )}
 
-                    {/* ── Location Search (Google Places Autocomplete) ── */}
-                    <div className="space-y-2 relative" ref={suggestionsRef}>
-                        <label className="block text-sm font-bold text-text-main dark:text-white uppercase tracking-wide">
-                            Search City <span className="text-red-500 ml-1">*</span>
-                        </label>
-                        <div className="relative">
-                            <input
-                                type="text"
-                                value={searchInput}
-                                onChange={handleSearchChange}
-                                placeholder="Type a city name (e.g. Austin, TX)"
-                                className="w-full px-4 py-3 pl-10 rounded-xl bg-white dark:bg-background-dark border border-border-subtle dark:border-[#2a3038] focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none text-text-main dark:text-white placeholder:text-text-muted/50 transition-all"
-                                autoComplete="off"
-                            />
-                            <MdSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted text-xl" />
-                        </div>
+                    {/* ZIP Code Input */}
+                    <Input
+                        label="ZIP CODE"
+                        placeholder="e.g. 90210"
+                        value={zipCode}
+                        onChange={handleZipChange}
+                        maxLength={5}
+                        inputMode="numeric"
+                        helperText={
+                            isEditing && !zipCode
+                                ? `Current: ${city}, ${state} — enter a new ZIP to change`
+                                : geocoding
+                                    ? "Looking up ZIP code..."
+                                    : undefined
+                        }
+                        required
+                    />
 
-                        {/* Suggestions dropdown */}
-                        {showSuggestions && suggestions.length > 0 && (
-                            <div className="absolute left-0 right-0 top-full z-10 bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl shadow-lg overflow-hidden mt-1">
-                                {suggestions.map((suggestion) => (
-                                    <button
-                                        key={suggestion.place_id}
-                                        type="button"
-                                        onClick={() => handleSelectSuggestion(suggestion)}
-                                        className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-muted-light dark:hover:bg-muted-dark transition-colors border-b border-border-light dark:border-border-dark last:border-b-0"
-                                    >
-                                        <MdLocationOn className="text-primary text-lg shrink-0" />
-                                        <div className="min-w-0">
-                                            <p className="text-sm font-medium text-text-main dark:text-white truncate">
-                                                {suggestion.structured_formatting?.main_text || suggestion.description}
-                                            </p>
-                                            <p className="text-xs text-text-muted truncate">
-                                                {suggestion.structured_formatting?.secondary_text || ""}
-                                            </p>
-                                        </div>
-                                    </button>
-                                ))}
-                            </div>
-                        )}
-                    </div>
-
-                    {/* ── Selected location confirmation badge ── */}
-                    {hasSelectedLocation && (
+                    {/* Resolved location badge */}
+                    {hasSelectedLocation && city && state && (
                         <div className="flex items-center gap-2 bg-primary/5 border border-primary/20 rounded-lg px-3 py-2">
                             <MdLocationOn className="text-primary shrink-0" />
                             <div className="text-sm">
@@ -307,7 +187,7 @@ const WorkAreaFormModal = ({ isOpen, onClose, workArea, onSave }) => {
                         </div>
                     )}
 
-                    {/* ── Map Preview ── */}
+                    {/* Map Preview */}
                     <div className="rounded-xl overflow-hidden border border-border-light dark:border-border-dark h-48">
                         <Map
                             defaultCenter={DEFAULT_CENTER}
@@ -327,7 +207,7 @@ const WorkAreaFormModal = ({ isOpen, onClose, workArea, onSave }) => {
                         </Map>
                     </div>
 
-                    {/* ── Radius Slider ── */}
+                    {/* Radius Slider */}
                     <div className="space-y-2">
                         <div className="flex items-center justify-between">
                             <label className="block text-sm font-bold text-text-main dark:text-white uppercase tracking-wide">
@@ -351,12 +231,12 @@ const WorkAreaFormModal = ({ isOpen, onClose, workArea, onSave }) => {
                         </div>
                     </div>
 
-                    {/* ── Actions ── */}
+                    {/* Actions */}
                     <div className="flex items-center justify-end gap-3 pt-2">
                         <Button variant="secondary" onClick={onClose}>
                             Cancel
                         </Button>
-                        <Button onClick={handleSave}>
+                        <Button onClick={handleSave} disabled={geocoding}>
                             {isEditing ? "Update" : "Add"} Work Area
                         </Button>
                     </div>

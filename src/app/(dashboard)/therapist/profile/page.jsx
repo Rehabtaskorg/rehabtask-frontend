@@ -13,6 +13,7 @@ import Alert from "@/components/ui/Alert";
 import Button from "@/components/ui/Button";
 import { MdPerson, MdMap, MdSchedule, MdRefresh, MdInfo, MdError } from "react-icons/md";
 import Image from "next/image";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 const TABS = [
     { key: "profile", label: "Profile", icon: MdPerson },
@@ -43,6 +44,7 @@ function ProfilePageSkeleton() {
 }
 
 function TherapistProfileContent() {
+    usePageTitle("My Profile");
     const searchParams = useSearchParams();
     const tabFromUrl = searchParams.get("tab");
     const [activeTab, setActiveTab] = useState("profile");
