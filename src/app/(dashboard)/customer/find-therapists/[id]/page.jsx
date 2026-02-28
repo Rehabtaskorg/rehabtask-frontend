@@ -13,10 +13,12 @@ import ServiceAreasCard from "@/components/therapist/ServiceAreasCard";
 import AvailabilityCard from "@/components/therapist/AvailabilityCard";
 import ReviewCard from "@/components/therapist/ReviewCard";
 import ReviewForm from "@/components/therapist/ReviewForm";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 const GOOGLE_MAPS_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 
 export default function TherapistProfilePage() {
+    usePageTitle("Therapist Profile");
     const params = useParams();
     const router = useRouter();
     const therapistId = params.id;

@@ -12,6 +12,7 @@ import BookingStatusBadge from "@/components/bookings/BookingStatusBadge";
 import BookingTimeline from "@/components/bookings/BookingTimeline";
 import PaymentSummaryCard from "@/components/bookings/PaymentSummaryCard";
 import { formatCurrency } from "@/utils/messages";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 const formatDate = (dateStr) => {
     if (!dateStr) return "—";
@@ -24,6 +25,7 @@ const formatTime = (dateStr) => {
 };
 
 export default function TherapistBookingDetailPage() {
+    usePageTitle("Booking Details");
     const params = useParams();
     const router = useRouter();
     const { booking, loading, error, refetch } = useBookingDetail(params.id);

@@ -6,6 +6,7 @@ import { MdCalendarMonth, MdSearch, MdWarning, MdChevronRight, MdCalendarToday, 
 import { useTherapistBookings } from "@/hooks/useBookings";
 import BookingStatusBadge from "@/components/bookings/BookingStatusBadge";
 import { formatCurrency } from "@/utils/messages";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -37,6 +38,7 @@ const formatTime = (dateStr) => {
 };
 
 export default function TherapistBookingsPage() {
+    usePageTitle("My Bookings");
     const router = useRouter();
     const { bookings, loading, error, refetch } = useTherapistBookings();
     const [activeFilter, setActiveFilter] = useState("all");

@@ -7,6 +7,7 @@ import { MdCalendarMonth, MdAdd, MdWarning, MdChevronRight, MdCalendarToday, MdL
 import { useCustomerBookings } from "@/hooks/useBookings";
 import BookingStatusBadge from "@/components/bookings/BookingStatusBadge";
 import { formatCurrency } from "@/utils/messages";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -38,6 +39,7 @@ const formatTime = (dateStr) => {
 };
 
 export default function CustomerBookingsPage() {
+    usePageTitle("My Bookings");
     const router = useRouter();
     const { bookings, loading, error, refetch } = useCustomerBookings();
     const [activeFilter, setActiveFilter] = useState("all");

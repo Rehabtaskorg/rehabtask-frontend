@@ -1,77 +1,56 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
-import { MdLocationOn, MdDescription, MdClose } from "react-icons/md";
-import { useMapsLibrary } from "@vis.gl/react-google-maps";
+import { useState, useEffect } from "react";
+import { MdLocationOn, MdDescription, MdClose, MdMedicalServices } from "react-icons/md";
 import Input from "../ui/Input";
-
-const SERVICE_TYPES = [
-    { value: "Physical Therapy", label: "Physical Therapy (PT)" },
-    { value: "Occupational Therapy", label: "Occupational Therapy (OT)" },
-    { value: "Speech Language Pathology (SLP)", label: "Speech Language Pathology (SLP)" },
-];
+import { LICENSE_TYPES } from "@/lib/constants/credentials";
+import { SPECIALIZATIONS } from "@/lib/constants/specializations";
+import { geocodeZipCode } from "@/lib/geocoding";
 
 export default function TherapistFilters({ filters, onFilterChange, onClear }) {
     const [localZip, setLocalZip] = useState(filters.zipCode || "");
     const [geocodeError, setGeocodeError] = useState("");
-    const geocodingLib = useMapsLibrary("geocoding");
-    const geocoderRef = useRef(null);
-    const debounceRef = useRef(null);
 
-    useEffect(() => {
-        if (geocodingLib) {
-            geocoderRef.current = new geocodingLib.Geocoder();
-        }
-    }, [geocodingLib]);
-
-    // Sync external filter changes
+    // Sync external filter changes (e.g., "Clear All" resets zipCode)
     useEffect(() => {
         setLocalZip(filters.zipCode || "");
     }, [filters.zipCode]);
 
-    const geocodeZip = useCallback(
-        (zip) => {
-            if (!geocoderRef.current || !zip || zip.length < 5) {
-                // Clear location if zip is cleared
-                if (!zip) {
-                    onFilterChange({
-                        ...filters,
-                        zipCode: "",
-                        latitude: undefined,
-                        longitude: undefined,
-                    });
-                }
-                return;
-            }
-
-            setGeocodeError("");
-            geocoderRef.current.geocode({ address: zip }, (results, status) => {
-                if (status === "OK" && results[0]) {
-                    const loc = results[0].geometry.location;
-                    onFilterChange({
-                        ...filters,
-                        zipCode: zip,
-                        latitude: loc.lat(),
-                        longitude: loc.lng(),
-                    });
-                } else {
-                    setGeocodeError("Could not find this location");
-                }
-            });
-        },
-        [filters, onFilterChange]
-    );
-
-    const handleZipChange = (e) => {
+    const handleZipChange = async (e) => {
         const value = e.target.value.replace(/[^0-9]/g, "").slice(0, 5);
         setLocalZip(value);
         setGeocodeError("");
 
-        if (debounceRef.current) clearTimeout(debounceRef.current);
-        debounceRef.current = setTimeout(() => {
-            geocodeZip(value);
-        }, 500);
+        // Clear location when ZIP is cleared or incomplete
+        if (!value) {
+            onFilterChange({
+                ...filters,
+                zipCode: "",
+                latitude: undefined,
+                longitude: undefined,
+            });
+            return;
+        }
+
+        if (value.length < 5) return;
+
+        // Auto-geocode when 5 digits entered
+        try {
+            const result = await geocodeZipCode(value);
+            if (result) {
+                onFilterChange({
+                    ...filters,
+                    zipCode: value,
+                    latitude: result.latitude,
+                    longitude: result.longitude,
+                });
+            } else {
+                setGeocodeError("Could not find this ZIP code. Please check and try again.");
+            }
+        } catch {
+            setGeocodeError("Geocoding failed. Please try again.");
+        }
     };
 
     const handleRadiusChange = (e) => {
@@ -79,6 +58,14 @@ export default function TherapistFilters({ filters, onFilterChange, onClear }) {
             ...filters,
             radiusMiles: parseInt(e.target.value, 10),
         });
+    };
+
+    const handleLicenseTypeToggle = (value) => {
+        const current = filters.licenseTypes || [];
+        const updated = current.includes(value)
+            ? current.filter((v) => v !== value)
+            : [...current, value];
+        onFilterChange({ ...filters, licenseTypes: updated });
     };
 
     const handleSpecializationToggle = (specValue) => {
@@ -94,6 +81,7 @@ export default function TherapistFilters({ filters, onFilterChange, onClear }) {
 
     const hasActiveFilters =
         !!filters.zipCode ||
+        (filters.licenseTypes && filters.licenseTypes.length > 0) ||
         (filters.specializations && filters.specializations.length > 0) ||
         filters.radiusMiles !== 25;
 
@@ -122,8 +110,7 @@ export default function TherapistFilters({ filters, onFilterChange, onClear }) {
                     placeholder="e.g. 90210"
                     value={localZip}
                     onChange={handleZipChange}
-                    helperText={geocodeError || undefined}
-                    error={!!geocodeError}
+                    error={geocodeError || undefined}
                 />
 
                 {/* Distance slider */}
@@ -152,17 +139,17 @@ export default function TherapistFilters({ filters, onFilterChange, onClear }) {
                 </div>
             </div>
 
-            {/* Specialization Section */}
+            {/* Therapy Type Section */}
             <div className="mb-6">
                 <div className="flex items-center gap-2 mb-3">
-                    <MdDescription className="text-primary text-base" />
+                    <MdMedicalServices className="text-primary text-base" />
                     <span className="text-[10px] font-bold text-primary uppercase tracking-wider">
-                        Specialization
+                        Therapy Type
                     </span>
                 </div>
                 <div className="space-y-3">
-                    {SERVICE_TYPES.map((type) => {
-                        const isChecked = (filters.specializations || []).includes(type.value);
+                    {LICENSE_TYPES.map((type) => {
+                        const isChecked = (filters.licenseTypes || []).includes(type.value);
                         return (
                             <label
                                 key={type.value}
@@ -171,11 +158,42 @@ export default function TherapistFilters({ filters, onFilterChange, onClear }) {
                                 <input
                                     type="checkbox"
                                     checked={isChecked}
-                                    onChange={() => handleSpecializationToggle(type.value)}
+                                    onChange={() => handleLicenseTypeToggle(type.value)}
                                     className="h-4 w-4 rounded border-border-light dark:border-border-dark text-primary focus:ring-primary cursor-pointer"
                                 />
                                 <span className="text-sm text-text-main dark:text-white group-hover:text-primary transition-colors">
                                     {type.label}
+                                </span>
+                            </label>
+                        );
+                    })}
+                </div>
+            </div>
+
+            {/* Sub-Specialty Section */}
+            <div className="mb-6">
+                <div className="flex items-center gap-2 mb-3">
+                    <MdDescription className="text-primary text-base" />
+                    <span className="text-[10px] font-bold text-primary uppercase tracking-wider">
+                        Sub-Specialty
+                    </span>
+                </div>
+                <div className="space-y-3">
+                    {SPECIALIZATIONS.map((spec) => {
+                        const isChecked = (filters.specializations || []).includes(spec);
+                        return (
+                            <label
+                                key={spec}
+                                className="flex items-center gap-3 cursor-pointer group"
+                            >
+                                <input
+                                    type="checkbox"
+                                    checked={isChecked}
+                                    onChange={() => handleSpecializationToggle(spec)}
+                                    className="h-4 w-4 rounded border-border-light dark:border-border-dark text-primary focus:ring-primary cursor-pointer"
+                                />
+                                <span className="text-sm text-text-main dark:text-white group-hover:text-primary transition-colors">
+                                    {spec}
                                 </span>
                             </label>
                         );

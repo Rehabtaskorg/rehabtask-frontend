@@ -11,8 +11,10 @@ import { professionalProfileSchema } from "@/lib/onboardingValidation";
 import { SPECIALIZATIONS } from "@/lib/constants/specializations";
 import { LICENSE_TYPES } from "@/lib/constants/credentials";
 import { onboardingAPI } from "@/lib/onboarding.api";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 export default function ProfessionalProfilePage() {
+    usePageTitle("Setup Profile");
     const router = useRouter();
     const { professionalProfile, updateProfessionalProfile, markStepComplete, setCurrentStep } = useOnboardingStore();
 

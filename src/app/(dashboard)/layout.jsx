@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { authAPi } from '@/lib/auth.api';
+import { supabase } from '@/lib/supabase';
 import { getTherapistRedirect } from '@/lib/therapistRouteAccess';
 import { TherapistAccessProvider } from '@/contexts/TherapistAccessContext';
 import OnboardingBanner from '@/components/therapist/OnboardingBanner';
@@ -156,12 +157,14 @@ export default function DashboardLayout({ children }) {
 
     const handleLogout = async () => {
         try {
+            // Clear backend session (invalidate tokens, clears httpOnly cookies)
             await authAPi.logout();
             router.push("/login");
         } catch (error) {
             console.error("Logout error:", error);
-            router.push("/login")
         } finally {
+            // always clear frontend supabase local session (localStorage)
+            await supabase.auth.signOut();
             router.push("/login");
         }
     };

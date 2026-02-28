@@ -7,6 +7,7 @@ import { APIProvider } from "@vis.gl/react-google-maps";
 import { useTherapistSearch } from "@/hooks/useTherapistSearch";
 import TherapistCard from "@/components/therapist/TherapistCard";
 import TherapistFilters from "@/components/therapist/TherapistFilters";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 const GOOGLE_MAPS_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 
@@ -15,10 +16,12 @@ const DEFAULT_FILTERS = {
     latitude: undefined,
     longitude: undefined,
     radiusMiles: 25,
+    licenseTypes: [],
     specializations: [],
 };
 
 export default function FindTherapistsPage() {
+    usePageTitle("Find Therapists");
     const router = useRouter();
     const [filters, setFilters] = useState(DEFAULT_FILTERS);
     const [page, setPage] = useState(1);
@@ -31,6 +34,9 @@ export default function FindTherapistsPage() {
             params.latitude = filters.latitude;
             params.longitude = filters.longitude;
             params.radiusMiles = filters.radiusMiles;
+        }
+        if (filters.licenseTypes && filters.licenseTypes.length > 0) {
+            params.primaryLicenseType = filters.licenseTypes[0];
         }
         if (filters.specializations && filters.specializations.length > 0) {
             params.specialization = filters.specializations[0];

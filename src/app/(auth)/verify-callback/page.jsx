@@ -8,8 +8,10 @@ import Footer from "@/components/shared/Footer";
 import VerificationSuccess from "@/components/verification/VerificationSuccess";
 import { authAPi } from "@/lib/auth.api";
 import { getSessionUserInfo, getFirstName } from "@/utils/userSession";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 function VerifyCallbackContent() {
+    usePageTitle("Verifying Email");
     const router = useRouter();
     const [status, setStatus] = useState("verifying");
     const [message, setMessage] = useState("Verifying your email...");

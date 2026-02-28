@@ -4,8 +4,10 @@ import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { authAPi } from "@/lib/auth.api";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 const OAuthCallback = () => {
+    usePageTitle("Signing In");
     const router = useRouter();
     const [statusMessage, setStatusMessage] = useState("Completing sign in...");
     const hasProcessed = useRef(false);
@@ -34,7 +36,7 @@ const OAuthCallback = () => {
                     return;
                 }
 
-                setStatusMessage("Syncing your profile...");
+                setStatusMessage("Signing you in...");
 
                 const response = await authAPi.processOAuth(
                     session.access_token,

@@ -5,8 +5,10 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { onboardingAPI } from "@/lib/onboarding.api";
 import useOnboardingStore from "@/store/onboardingStore";
 import OnboardingProgressBar from "@/components/therapist/OnboardingProgressBar";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 export default function StripeOnboardingPage() {
+    usePageTitle("Payment Setup");
     const router = useRouter();
     const searchParams = useSearchParams();
     const { markStepComplete, markStripeConnected } = useOnboardingStore();

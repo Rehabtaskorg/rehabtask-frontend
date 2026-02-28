@@ -1,3 +1,5 @@
+export const metadata = { title: "Audit Logs" };
+
 import React from 'react'
 
 const page = () => {

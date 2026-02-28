@@ -14,6 +14,7 @@ import BookingStatusBadge from "@/components/bookings/BookingStatusBadge";
 import BookingTimeline from "@/components/bookings/BookingTimeline";
 import PaymentSummaryCard from "@/components/bookings/PaymentSummaryCard";
 import { formatCurrency } from "@/utils/messages";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 const formatDate = (dateStr) => {
     if (!dateStr) return "—";
@@ -26,6 +27,7 @@ const formatTime = (dateStr) => {
 };
 
 export default function CustomerBookingDetailPage() {
+    usePageTitle("Booking Details");
     const params = useParams();
     const router = useRouter();
     const searchParams = useSearchParams();
@@ -296,8 +298,8 @@ export default function CustomerBookingDetailPage() {
                         {sessionType && (
                             <div className="mt-4 pt-4 border-t border-border-light dark:border-border-dark">
                                 <span className={`inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full ${sessionType === "virtual"
-                                        ? "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
-                                        : "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300"
+                                    ? "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
+                                    : "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300"
                                     }`}>
                                     {sessionType === "virtual" ? <MdVideocam className="text-sm" /> : <MdPerson className="text-sm" />}
                                     {sessionType === "virtual" ? "Virtual" : "In-Person"}

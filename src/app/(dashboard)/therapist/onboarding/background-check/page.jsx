@@ -9,8 +9,10 @@ import useOnboardingStore from "@/store/onboardingStore";
 import { onboardingAPI } from "@/lib/onboarding.api";
 import OnboardingProgressBar from "@/components/therapist/OnboardingProgressBar";
 import { backgroundCheckSchema } from "@/lib/onboardingValidation";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 export default function BackgroundCheckPage() {
+    usePageTitle("Background Check");
     const router = useRouter();
     const {
         backgroundCheck,

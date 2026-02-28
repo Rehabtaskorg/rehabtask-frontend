@@ -1,3 +1,5 @@
+export const metadata = { title: "Forgot Password" };
+
 import ForgotPasswordForm from "@/components/forms/ForgotPasswordForm";
 import Link from "next/link";
 

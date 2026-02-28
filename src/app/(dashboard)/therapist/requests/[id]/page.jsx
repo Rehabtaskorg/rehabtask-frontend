@@ -5,8 +5,10 @@ import { useParams, useRouter } from "next/navigation";
 import { api } from "@/lib/api";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 export default function TherapistRequestDetailPage() {
+    usePageTitle("Request Details");
     const router = useRouter();
     const params = useParams();
     const [request, setRequest] = useState(null);

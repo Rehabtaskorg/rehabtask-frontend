@@ -11,8 +11,10 @@ import Step1ServiceDetails from "./_components/Step1ServiceDetails";
 import Step2Location from "./_components/Step2Location";
 import Step3Review from "./_components/Step3Review";
 import { MdArrowBack } from "react-icons/md";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 export default function NewRequestPage() {
+    usePageTitle("Create New Request");
     const router = useRouter();
     const { currentStep, nextStep, prevStep, reset, getPreferredDateISO, step1, step2 } = useRequestStore();
     const [submitting, setSubmitting] = useState(false);

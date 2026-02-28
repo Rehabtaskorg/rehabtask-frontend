@@ -2,8 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { api } from "@/lib/api";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 export default function TherapistEarningsPage() {
+    usePageTitle("Earnings");
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
 

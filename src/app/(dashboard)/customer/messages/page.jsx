@@ -7,6 +7,7 @@ import { getDisplayName, getPhotoUrl, getContextBadge } from "@/utils/messages";
 import { RightSidebarSkeleton } from "@/components/shared/messages";
 import { ConversationList, ChatHeader, ChatThread, MessageInput } from "@/components/shared/messages";
 import UserAvatar from "@/components/ui/UserAvatar";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 function CustomerRightSidebar({ selectedConversation }) {
     const contextType = selectedConversation?.currentContext?.type;
@@ -93,6 +94,7 @@ function CustomerRightSidebar({ selectedConversation }) {
 }
 
 export default function CustomerMessagesPage() {
+    usePageTitle("Messages");
     const {
         user, conversations, messages, selected, selectedConversation,
         convLoading, convError, convSessionExpired, msgLoading, msgError,
