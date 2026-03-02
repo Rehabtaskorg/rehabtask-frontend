@@ -55,7 +55,13 @@ export default function TherapistBookingDetailPage() {
             setShowCompleteDialog(false);
             await refetch();
         } catch (err) {
-            setActionError(err.response?.data?.message || "Failed to mark session as complete.");
+            const errorCode = err.response?.data?.code;
+            if (errorCode === "STRIPE_NOT_CONNECTED") {
+                setShowCompleteDialog(false);
+                setActionError("STRIPE_NOT_CONNECTED");
+            } else {
+                setActionError(err.response?.data?.message || "Failed to mark session as complete.");
+            }
         } finally {
             setCompleting(false);
         }
@@ -122,7 +128,26 @@ export default function TherapistBookingDetailPage() {
     return (
         <div className="p-4 sm:p-8 max-w-6xl mx-auto">
             {/* Action error banner */}
-            {actionError && (
+            {actionError === "STRIPE_NOT_CONNECTED" ? (
+                <div className="mb-4 flex items-start gap-3 px-4 py-3 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800">
+                    <MdWarning className="text-amber-600 dark:text-amber-400 text-lg shrink-0 mt-0.5" />
+                    <div className="flex-1">
+                        <p className="text-sm font-bold text-amber-800 dark:text-amber-200">Stripe Account Required</p>
+                        <p className="text-sm text-amber-700 dark:text-amber-300 mt-0.5">
+                            You must connect and complete your Stripe account setup before marking a session as complete.
+                        </p>
+                        <button
+                            onClick={() => router.push("/therapist/account-settings")}
+                            className="text-sm font-bold text-primary hover:underline mt-1 inline-block"
+                        >
+                            Set up Stripe account →
+                        </button>
+                    </div>
+                    <button onClick={clearError} className="text-amber-600 dark:text-amber-400 hover:text-amber-800">
+                        <MdClose className="text-base" />
+                    </button>
+                </div>
+            ) : actionError ? (
                 <div className="mb-4 flex items-center gap-3 px-4 py-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
                     <MdWarning className="text-red-600 dark:text-red-400 text-lg shrink-0" />
                     <p className="text-sm text-red-800 dark:text-red-300 flex-1">{actionError}</p>
@@ -130,7 +155,8 @@ export default function TherapistBookingDetailPage() {
                         <MdClose className="text-base" />
                     </button>
                 </div>
-            )}
+            ) : null}
+
 
             {/* Back button */}
             <button
