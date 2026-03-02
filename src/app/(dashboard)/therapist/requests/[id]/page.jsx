@@ -6,6 +6,7 @@ import { api } from "@/lib/api";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import PatientInfoBlock from "@/components/customer/PatientInfoBlock";
 
 export default function TherapistRequestDetailPage() {
     usePageTitle("Request Details");
@@ -137,6 +138,13 @@ export default function TherapistRequestDetailPage() {
                         <p className="text-gray-700">{request.customer.fullName}</p>
                         <p className="text-sm text-gray-600">{request.customer.phone}</p>
                     </div>
+
+                    {request.patient && (
+                        <PatientInfoBlock
+                            patient={request.patient}
+                            note="This session is managed by an agency on the patient's behalf."
+                        />
+                    )}
 
                     <div>
                         <h3 className="font-semibold mb-1">Description</h3>

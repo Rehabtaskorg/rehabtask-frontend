@@ -15,6 +15,7 @@ import {
 import { api } from "@/lib/api";
 import Image from "next/image";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import PatientBadge from "@/components/customer/PatientBadge";
 
 // ─── Helpers ────────────────────────────────────────────────
 
@@ -299,6 +300,7 @@ export default function MyRequestsPage() {
                                                     {formatDate(req.preferredDate)}
                                                 </span>
                                             </div>
+                                            <PatientBadge patient={req.patient} />
                                         </button>
                                     );
                                 })}

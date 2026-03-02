@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { api } from "@/lib/api";
 import { MdArrowBack, MdChatBubble, MdCheckCircle } from "react-icons/md";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import PatientInfoBlock from "@/components/customer/PatientInfoBlock";
 
 const STATUS_STYLES = {
     created: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
@@ -124,6 +125,14 @@ export default function CustomerRequestDetailPage() {
                         {STATUS_LABELS[request.status] || request.status}
                     </span>
                 </div>
+
+                {/* Patient Info Block — shown when request has patient (agency bookings) */}
+                {request.patient && (
+                    <div className="mb-4">
+                        <PatientInfoBlock patient={request.patient} />
+                    </div>
+                )}
+
                 <div className="space-y-3 border-t border-border-light dark:border-border-dark pt-4">
                     <div>
                         <p className="text-xs font-semibold uppercase tracking-wider text-text-muted dark:text-gray-400 mb-1">Description</p>
@@ -230,5 +239,4 @@ export default function CustomerRequestDetailPage() {
             </div>
         </div>
     );
-
 }

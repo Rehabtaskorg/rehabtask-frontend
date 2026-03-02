@@ -9,6 +9,7 @@ import {
     MdFilterList, MdClose, MdTune
 } from "react-icons/md";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import PatientBadge from "@/components/customer/PatientBadge";
 
 // Helpers
 const getServiceTypeStyle = (serviceType) => {
@@ -400,6 +401,7 @@ export default function TherapistRequestsPage() {
                                 <p className="text-sm text-slate-500 dark:text-slate-400 line-clamp-2 mb-3 leading-relaxed">
                                     {req.description}
                                 </p>
+                                <PatientBadge patient={req.patient} />
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-3">
                                         <div className="flex items-center gap-1 text-slate-400">
