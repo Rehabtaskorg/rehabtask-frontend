@@ -4,7 +4,7 @@ const phoneSchema = z
     .string()
     .regex(
         /^\+1\d{10}$/,
-        "Invalid US phone number format. Use +1XXXXXXXXXX"
+        "Invalid phone number format. Use +1XXXXXXXXXX"
     );
 
 const fullNameSchema = z

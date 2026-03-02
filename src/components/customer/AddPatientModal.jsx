@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { MdClose, MdPerson, MdEmail, MdPhone } from "react-icons/md";
+import { MdClose, MdPerson, MdEmail } from "react-icons/md";
 import { useCreatePatient } from "@/hooks/usePatients";
 
 export default function AddPatientModal({ isOpen, onClose, onSuccess }) {
@@ -18,6 +18,9 @@ export default function AddPatientModal({ isOpen, onClose, onSuccess }) {
         if (!fullName.trim()) newErrors.fullName = "Full name is required";
         if (!email.trim()) newErrors.email = "Email is required";
         else if (!/\S+@\S+\.\S+/.test(email)) newErrors.email = "Please enter a valid email";
+        if (phone.trim() && !/^\+1\d{10}$/.test(phone.trim())) {
+            newErrors.phone = "Phone must be in format +1XXXXXXXXXX";
+        }
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     }
@@ -123,19 +126,29 @@ export default function AddPatientModal({ isOpen, onClose, onSuccess }) {
                         <label className="block text-sm font-medium text-text-main dark:text-white mb-1.5">
                             Phone Number <span className="text-text-muted dark:text-gray-400 font-normal">(Optional)</span>
                         </label>
-                        <div className="relative">
-                            <MdPhone className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted dark:text-gray-400 text-lg" />
+                        <div className={`flex items-center rounded-lg border overflow-hidden ${errors.phone ? "border-red-400 dark:border-red-600" : "border-border-light dark:border-border-dark"} bg-background-light dark:bg-background-dark`}>
+                            <span className="px-3 py-2.5 text-sm text-text-muted dark:text-gray-400 border-r border-border-light dark:border-border-dark select-none bg-slate-50 dark:bg-slate-800 shrink-0">
+                                +1
+                            </span>
                             <input
                                 type="tel"
-                                value={phone}
-                                onChange={(e) => setPhone(e.target.value)}
-                                placeholder="(555) 000-0000"
-                                className={inputClass(false)}
+                                value={phone.startsWith("+1") ? phone.slice(2) : phone}
+                                onChange={(e) => {
+                                    const digits = e.target.value.replace(/\D/g, "").slice(0, 10);
+                                    setPhone(digits ? `+1${digits}` : "");
+                                }}
+                                maxLength={10}
+                                placeholder="2025550123"
+                                className="flex-1 px-3 py-2.5 bg-transparent text-text-main dark:text-white text-sm focus:outline-none placeholder:text-text-muted/50"
                             />
                         </div>
-                        <p className="mt-1.5 text-xs text-text-muted dark:text-gray-400">
-                            Optional — used for therapist contact
-                        </p>
+                        {errors.phone ? (
+                            <p className="mt-1 text-xs text-red-500">{errors.phone}</p>
+                        ) : (
+                            <p className="mt-1.5 text-xs text-text-muted dark:text-gray-400">
+                                Optional — enter the 10-digit US number
+                            </p>
+                        )}
                     </div>
 
                     {/* Footer */}
