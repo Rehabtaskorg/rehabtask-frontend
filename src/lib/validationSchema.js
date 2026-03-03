@@ -128,23 +128,6 @@ export const oauthOnboardingSchema = z.object({
                 .optional()
         ),
 
-    // Therapist fields - transform empty strings to undefined
-    specialization: z
-        .string()
-        .transform((val) => val === "" ? undefined : val)
-        .pipe(
-            z.string()
-                .max(1000, "Specialization must not exceed 1000 characters")
-                .optional()
-        ),
-    workArea: z
-        .string()
-        .transform((val) => val === "" ? undefined : val)
-        .pipe(
-            z.string()
-                .max(500, "Work area must not exceed 500 characters")
-                .optional()
-        ),
 }).refine(
     // Customer type is required for customers
     (data) => {
