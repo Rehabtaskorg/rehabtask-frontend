@@ -8,6 +8,22 @@ import {
     MdAdd, MdEmail, MdPhone, MdPerson, MdEdit,
     MdClose, MdCheck, MdArrowBack, MdSchedule,
 } from "react-icons/md";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import PhoneInput from "@/components/ui/PhoneInput";
+
+const editPatientSchema = z.object({
+    fullName: z.string().trim().min(1, "Name is required"),
+    email: z.string().trim().min(1, "Email is required"),
+    phone: z
+        .string()
+        .trim()
+        .optional()
+        .refine((val) => !val || /^\+1\d{10}$/.test(val), {
+            message: "Phone must be in format +1XXXXXXXXXX",
+        }),
+});
 
 export default function PatientsPage() {
     usePageTitle("My Patients");
@@ -20,7 +36,10 @@ export default function PatientsPage() {
 
     // Edit mode
     const [editing, setEditing] = useState(false);
-    const [editForm, setEditForm] = useState({ fullName: "", email: "", phone: "" });
+    const { control, register, handleSubmit, reset, formState: { errors } } = useForm({
+        resolver: zodResolver(editPatientSchema),
+        mode: "onChange"
+    })
     const [editError, setEditError] = useState("");
 
     const selectedPatient = patients?.find((p) => p.id === selectedPatientId) || null;
@@ -33,11 +52,13 @@ export default function PatientsPage() {
 
     const handleStartEdit = () => {
         if (!selectedPatient) return;
-        setEditForm({
+
+        reset({
             fullName: selectedPatient.fullName,
             email: selectedPatient.email,
             phone: selectedPatient.phone || "",
         });
+
         setEditError("");
         setEditing(true);
     };
@@ -47,19 +68,15 @@ export default function PatientsPage() {
         setEditError("");
     };
 
-    const handleSaveEdit = async () => {
-        if (!editForm.fullName.trim() || !editForm.email.trim()) {
-            setEditError("Name and email are required.");
-            return;
-        }
+    const handleSaveEdit = async (data) => {
         setEditError("");
         try {
             await updatePatient.mutateAsync({
                 id: selectedPatientId,
                 data: {
-                    fullName: editForm.fullName.trim(),
-                    email: editForm.email.trim(),
-                    phone: editForm.phone.trim() || undefined,
+                    fullName: data.fullName.trim(),
+                    email: data.email.trim(),
+                    phone: data.phone || undefined,
                 },
             });
             setEditing(false);
@@ -145,7 +162,19 @@ export default function PatientsPage() {
                 {/* RIGHT PANEL (desktop) */}
                 <section className="hidden lg:flex lg:w-[45%] flex-col overflow-hidden">
                     {selectedPatient ? (
-                        <PatientDetailPanel patient={selectedPatient} editing={editing} editForm={editForm} editError={editError} saving={updatePatient.isPending} onStartEdit={handleStartEdit} onCancelEdit={handleCancelEdit} onSaveEdit={handleSaveEdit} onEditFormChange={setEditForm} />
+                        <PatientDetailPanel
+                            patient={selectedPatient}
+                            editing={editing}
+                            editError={editError}
+                            saving={updatePatient.isPending}
+                            onStartEdit={handleStartEdit}
+                            onCancelEdit={handleCancelEdit}
+                            onSaveEdit={handleSaveEdit}
+                            register={register}
+                            control={control}
+                            errors={errors}
+                            handleSubmit={handleSubmit}
+                        />
                     ) : (
                         <div className="flex-1 flex items-center justify-center">
                             <div className="text-center space-y-2">
@@ -164,7 +193,19 @@ export default function PatientsPage() {
                                 <MdArrowBack className="text-base" /> Back to list
                             </button>
                         </div>
-                        <PatientDetailPanel patient={selectedPatient} editing={editing} editForm={editForm} editError={editError} saving={updatePatient.isPending} onStartEdit={handleStartEdit} onCancelEdit={handleCancelEdit} onSaveEdit={handleSaveEdit} onEditFormChange={setEditForm} />
+                        <PatientDetailPanel
+                            patient={selectedPatient}
+                            editing={editing}
+                            editError={editError}
+                            saving={updatePatient.isPending}
+                            onStartEdit={handleStartEdit}
+                            onCancelEdit={handleCancelEdit}
+                            onSaveEdit={handleSaveEdit}
+                            register={register}
+                            control={control}
+                            errors={errors}
+                            handleSubmit={handleSubmit}
+                        />
                     </section>
                 )}
             </div>
@@ -175,7 +216,19 @@ export default function PatientsPage() {
 
 }
 
-function PatientDetailPanel({ patient, editing, editForm, editError, saving, onStartEdit, onCancelEdit, onSaveEdit, onEditFormChange }) {
+function PatientDetailPanel({
+    patient,
+    editing,
+    editError,
+    saving,
+    onStartEdit,
+    onCancelEdit,
+    onSaveEdit,
+    register,
+    control,
+    errors,
+    handleSubmit,
+}) {
     const getInitials = (name) => name?.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2) || "?";
     const inputClass = "w-full px-3 py-2 rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-main dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary";
 
@@ -184,35 +237,73 @@ function PatientDetailPanel({ patient, editing, editForm, editError, saving, onS
             <div className="p-6 sm:p-8 border-b border-border-light dark:border-border-dark">
                 <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center gap-4">
-                        <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center text-primary font-bold text-2xl shrink-0">{getInitials(patient.fullName)}</div>
-                        <h3 className="text-lg font-bold text-text-main dark:text-white">{patient.fullName}</h3>
+                        <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center text-primary font-bold text-2xl shrink-0">
+                            {getInitials(patient.fullName)}
+                        </div>
+                        <h3 className="text-lg font-bold text-text-main dark:text-white">
+                            {patient.fullName}
+                        </h3>
                     </div>
                     {!editing && (
-                        <button onClick={onStartEdit} className="p-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl transition-colors text-text-muted dark:text-gray-400">
+                        <button
+                            onClick={onStartEdit}
+                            className="p-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl transition-colors text-text-muted dark:text-gray-400"
+                        >
                             <MdEdit className="text-lg" />
                         </button>
                     )}
                 </div>
-                {editError && <div className="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-4 py-3 rounded-lg text-sm mb-4">{editError}</div>}
+
+                {editError && (
+                    <div className="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-4 py-3 rounded-lg text-sm mb-4">
+                        {editError}
+                    </div>
+                )}
+
                 {editing ? (
                     <div className="space-y-3">
                         <div>
-                            <label className="block text-xs font-semibold text-text-muted dark:text-gray-400 uppercase tracking-wider mb-1">Full Name</label>
-                            <input type="text" value={editForm.fullName} onChange={(e) => onEditFormChange({ ...editForm, fullName: e.target.value })} className={inputClass} />
+                            <label className="block text-xs font-semibold text-text-muted dark:text-gray-400 uppercase tracking-wider mb-1">
+                                Full Name
+                            </label>
+                            <input
+                                type="text"
+                                {...register("fullName")}
+                                className={inputClass}
+                            />
                         </div>
+
                         <div>
-                            <label className="block text-xs font-semibold text-text-muted dark:text-gray-400 uppercase tracking-wider mb-1">Email</label>
-                            <input type="email" value={editForm.email} onChange={(e) => onEditFormChange({ ...editForm, email: e.target.value })} className={inputClass} />
+                            <label className="block text-xs font-semibold text-text-muted dark:text-gray-400 uppercase tracking-wider mb-1">
+                                Email
+                            </label>
+                            <input
+                                type="email"
+                                {...register("email")}
+                                className={inputClass}
+                            />
                         </div>
-                        <div>
-                            <label className="block text-xs font-semibold text-text-muted dark:text-gray-400 uppercase tracking-wider mb-1">Phone</label>
-                            <input type="tel" value={editForm.phone} onChange={(e) => onEditFormChange({ ...editForm, phone: e.target.value })} className={inputClass} />
-                        </div>
+
+                        <PhoneInput
+                            label="Phone"
+                            name="phone"
+                            control={control}
+                            error={errors.phone?.message}
+                        />
+
                         <div className="flex items-center gap-2 pt-2">
-                            <button onClick={onSaveEdit} disabled={saving} className="flex items-center gap-1.5 px-4 py-2 bg-primary hover:bg-primary/90 text-white text-sm font-bold rounded-lg transition-colors disabled:opacity-50">
-                                <MdCheck className="text-base" /> {saving ? "Saving..." : "Save"}
+                            <button
+                                onClick={handleSubmit(onSaveEdit)}
+                                disabled={saving}
+                                className="flex items-center gap-1.5 px-4 py-2 bg-primary hover:bg-primary/90 text-white text-sm font-bold rounded-lg transition-colors disabled:opacity-50"
+                            >
+                                <MdCheck className="text-base" />{" "}
+                                {saving ? "Saving..." : "Save"}
                             </button>
-                            <button onClick={onCancelEdit} className="flex items-center gap-1.5 px-4 py-2 text-text-muted dark:text-gray-400 hover:text-text-main dark:hover:text-white text-sm font-bold transition-colors">
+                            <button
+                                onClick={onCancelEdit}
+                                className="flex items-center gap-1.5 px-4 py-2 text-text-muted dark:text-gray-400 hover:text-text-main dark:hover:text-white text-sm font-bold transition-colors"
+                            >
                                 <MdClose className="text-base" /> Cancel
                             </button>
                         </div>
@@ -220,21 +311,36 @@ function PatientDetailPanel({ patient, editing, editForm, editError, saving, onS
                 ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="p-3 bg-muted-light dark:bg-muted-dark rounded-xl border border-border-light dark:border-border-dark">
-                            <p className="text-[10px] font-bold text-text-muted dark:text-gray-400 uppercase mb-1">Email</p>
-                            <p className="text-xs font-semibold text-text-main dark:text-white truncate flex items-center gap-1.5"><MdEmail className="text-sm text-text-muted dark:text-gray-400 shrink-0" />{patient.email}</p>
+                            <p className="text-[10px] font-bold text-text-muted dark:text-gray-400 uppercase mb-1">
+                                Email
+                            </p>
+                            <p className="text-xs font-semibold text-text-main dark:text-white truncate flex items-center gap-1.5">
+                                <MdEmail className="text-sm text-text-muted dark:text-gray-400 shrink-0" />
+                                {patient.email}
+                            </p>
                         </div>
                         <div className="p-3 bg-muted-light dark:bg-muted-dark rounded-xl border border-border-light dark:border-border-dark">
-                            <p className="text-[10px] font-bold text-text-muted dark:text-gray-400 uppercase mb-1">Phone</p>
-                            <p className="text-xs font-semibold text-text-main dark:text-white flex items-center gap-1.5"><MdPhone className="text-sm text-text-muted dark:text-gray-400 shrink-0" />{patient.phone || "—"}</p>
+                            <p className="text-[10px] font-bold text-text-muted dark:text-gray-400 uppercase mb-1">
+                                Phone
+                            </p>
+                            <p className="text-xs font-semibold text-text-main dark:text-white flex items-center gap-1.5">
+                                <MdPhone className="text-sm text-text-muted dark:text-gray-400 shrink-0" />
+                                {patient.phone || "—"}
+                            </p>
                         </div>
                     </div>
                 )}
             </div>
+
             <div className="p-6 sm:p-8">
-                <h4 className="text-xs font-bold text-text-muted dark:text-gray-400 uppercase tracking-wider mb-4">Recent Activity</h4>
+                <h4 className="text-xs font-bold text-text-muted dark:text-gray-400 uppercase tracking-wider mb-4">
+                    Recent Activity
+                </h4>
                 <div className="text-center py-8">
                     <MdSchedule className="text-4xl text-slate-200 dark:text-slate-700 mx-auto mb-2" />
-                    <p className="text-text-muted dark:text-gray-400 text-sm">Viewing patient history coming soon</p>
+                    <p className="text-text-muted dark:text-gray-400 text-sm">
+                        Viewing patient history coming soon
+                    </p>
                 </div>
             </div>
         </div>
