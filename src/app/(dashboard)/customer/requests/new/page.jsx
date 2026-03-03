@@ -2,23 +2,45 @@
 
 import { APIProvider } from "@vis.gl/react-google-maps";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import Link from "next/link";
 import { api } from "@/lib/api";
+import { authAPi } from "@/lib/auth.api";
 import useRequestStore from "@/store/requestStore";
+import { usePatients } from "@/hooks/usePatients";
+import PatientBadge from "@/components/customer/PatientBadge";
 import RequestStepper from "./_components/RequestStepper";
 import RequestFormFooter from "./_components/RequestFormFooter";
 import Step1ServiceDetails from "./_components/Step1ServiceDetails";
 import Step2Location from "./_components/Step2Location";
 import Step3Review from "./_components/Step3Review";
-import { MdArrowBack } from "react-icons/md";
+import { MdArrowBack, MdPerson, MdAdd } from "react-icons/md";
 import { usePageTitle } from "@/hooks/usePageTitle";
 
 export default function NewRequestPage() {
     usePageTitle("Create New Request");
     const router = useRouter();
-    const { currentStep, nextStep, prevStep, reset, getPreferredDateISO, step1, step2 } = useRequestStore();
+    const { currentStep, nextStep, prevStep, reset, getPreferredDateISO, step1, step2, patientId, setPatientId } = useRequestStore();
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState("");
+    const [user, setUser] = useState(null);
+
+    // Fetch user to check customerType
+    useEffect(() => {
+        const fetchUser = async () => {
+            try {
+                const res = await authAPi.getCurrentUser();
+                setUser(res.data.data.user);
+            } catch (err) {
+                // User context is handled by layout; this is supplementary
+            }
+        };
+        fetchUser();
+    }, []);
+
+    const isAgency = user?.profile?.customerType === "agency";
+    const { data: patients } = usePatients();
+    const selectedPatient = patients?.find((p) => p.id === patientId) || null;
 
     const handleNext = () => nextStep();
     const handleBack = () => {
@@ -40,19 +62,23 @@ export default function NewRequestPage() {
                 location: step2.address,
                 latitude: step2.latitude,
                 longitude: step2.longitude,
-            })
+                patientId: isAgency ? patientId : undefined,
+            });
             reset();
             router.push("/customer/requests");
         } catch (error) {
             setError(error.response?.data?.message || "Failed to create request. Please try again.");
             setSubmitting(false);
         }
-    }
+    };
 
     const isStep1Valid =
         step1.serviceType && step1.description.trim().length >= 10 && step1.preferredDate;
     const isStep2Valid =
         step2.address && step2.latitude !== null && step2.longitude !== null;
+
+    // Agency users must select a patient before proceeding
+    const isPatientValid = !isAgency || patientId;
 
     return (
         <APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}>
@@ -78,12 +104,92 @@ export default function NewRequestPage() {
                     <div className="max-w-170 mx-auto space-y-8">
                         <RequestStepper currentStep={currentStep} />
 
+                        {/* Patient Selector — agency only, shown before Step 1 */}
+                        {isAgency && currentStep === 1 && (
+                            <div className="bg-primary/5 dark:bg-primary/10 border border-primary/20 rounded-xl p-5">
+                                <div className="flex items-center gap-2 mb-3">
+                                    <MdPerson className="text-primary text-lg" />
+                                    <p className="text-xs font-bold text-text-muted dark:text-gray-400 uppercase tracking-wider">
+                                        Select Patient
+                                    </p>
+                                </div>
+
+                                {selectedPatient ? (
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary font-bold text-lg shrink-0">
+                                                {selectedPatient.fullName?.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)}
+                                            </div>
+                                            <div>
+                                                <p className="text-sm font-bold text-text-main dark:text-white">
+                                                    {selectedPatient.fullName}
+                                                </p>
+                                                <p className="text-xs text-text-muted dark:text-gray-400">
+                                                    {selectedPatient.email}
+                                                </p>
+                                                {selectedPatient.phone && (
+                                                    <p className="text-xs text-text-muted dark:text-gray-400">
+                                                        {selectedPatient.phone}
+                                                    </p>
+                                                )}
+                                            </div>
+                                        </div>
+                                        <button
+                                            onClick={() => setPatientId(null)}
+                                            className="text-primary text-sm font-bold hover:underline"
+                                        >
+                                            Change
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <div>
+                                        <select
+                                            value={patientId || ""}
+                                            onChange={(e) => setPatientId(e.target.value || null)}
+                                            className="w-full px-4 py-3 rounded-xl bg-white dark:bg-background-dark border border-border-light dark:border-border-dark text-text-main dark:text-white text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
+                                        >
+                                            <option value="">Choose a patient...</option>
+                                            {patients?.map((p) => (
+                                                <option key={p.id} value={p.id}>
+                                                    {p.fullName} — {p.email}
+                                                </option>
+                                            ))}
+                                        </select>
+                                        <Link
+                                            href="/customer/patients"
+                                            className="inline-flex items-center gap-1 text-primary text-xs font-bold hover:underline mt-2"
+                                        >
+                                            <MdAdd className="text-sm" />
+                                            Add a new patient
+                                        </Link>
+                                        {!patientId && (
+                                            <p className="text-xs text-amber-600 dark:text-amber-400 mt-1">
+                                                A patient must be selected to continue.
+                                            </p>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
                         {currentStep === 1 && <Step1ServiceDetails />}
                         {currentStep === 2 && <Step2Location />}
                         {currentStep === 3 && (
-                            <Step3Review
-                                onEditStep={(s) => useRequestStore.getState().goToStep(s)}
-                            />
+                            <>
+                                {/* Show patient badge in review step */}
+                                {isAgency && selectedPatient && (
+                                    <div className="bg-primary/5 dark:bg-primary/10 border border-primary/20 rounded-lg p-4 flex items-center gap-3">
+                                        <MdPerson className="text-primary text-lg shrink-0" />
+                                        <div>
+                                            <p className="text-xs font-bold text-text-muted dark:text-gray-400 uppercase">Patient</p>
+                                            <p className="text-sm font-semibold text-text-main dark:text-white">{selectedPatient.fullName}</p>
+                                        </div>
+                                    </div>
+                                )}
+                                <Step3Review
+                                    onEditStep={(s) => useRequestStore.getState().goToStep(s)}
+                                />
+                            </>
                         )}
 
                         {error && (
@@ -102,7 +208,7 @@ export default function NewRequestPage() {
                     onSubmit={handleSubmit}
                     canNext={
                         currentStep === 1
-                            ? isStep1Valid
+                            ? isStep1Valid && isPatientValid
                             : currentStep === 2
                                 ? isStep2Valid
                                 : true
@@ -111,6 +217,5 @@ export default function NewRequestPage() {
                 />
             </div>
         </APIProvider>
-    )
-
+    );
 }

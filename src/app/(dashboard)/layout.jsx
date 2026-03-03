@@ -14,7 +14,7 @@ import {
     MdChatBubble, MdPayments, MdPerson,
     MdSchedule, MdSettings, MdLogout, MdDescription,
     MdPersonSearch, MdCalendarToday, MdStars,
-    MdMenu, MdClose, MdLock
+    MdMenu, MdClose, MdLock, MdPeople
 } from "react-icons/md";
 
 function TherapistMessagesLink({ pathname }) {
@@ -306,6 +306,12 @@ export default function DashboardLayout({ children }) {
                         </div>
                         <nav className="flex-1 px-4 space-y-1 overflow-y-auto">
                             <NavLink href="/customer/dashboard" icon={MdDashboard} label="Dashboard" pathname={pathname} matchStart={false} />
+                            {user?.profile?.customerType === "agency" && (
+                                <Link href="/customer/patients" className={`sidebar-nav-link ${pathname.startsWith("/customer/patients") ? "sidebar-nav-link-active" : ""}`}>
+                                    <MdPeople className="text-lg shrink-0" />
+                                    My Patients
+                                </Link>
+                            )}
                             <NavLink href="/customer/requests" icon={MdDescription} label="My Requests" pathname={pathname} />
                             <NavLink href="/customer/find-therapists" icon={MdPersonSearch} label="Find Therapists" pathname={pathname} />
                             <NavLink href="/customer/bookings" icon={MdCalendarToday} label="My Bookings" pathname={pathname} />
@@ -328,7 +334,16 @@ export default function DashboardLayout({ children }) {
                                 </div>
                                 <div className="flex-1 min-w-0">
                                     <p className="text-sm font-semibold truncate text-slate-900 dark:text-white">{profileName}</p>
-                                    <p className="text-xs text-slate-500 truncate">Individual Account</p>
+                                    <div className="text-xs text-text-muted dark:text-gray-400 truncate">
+                                        {user?.profile?.customerType === "agency"
+                                            ? (user?.profile?.agencyName || "Agency Account")
+                                            : "Individual Account"}
+                                    </div>
+                                    {user?.profile?.customerType === "agency" && (
+                                        <span className="text-[10px] font-semibold text-primary bg-primary/10 px-1.5 py-0.5 rounded-full">
+                                            Agency
+                                        </span>
+                                    )}
                                 </div>
                             </div>
                         </div>

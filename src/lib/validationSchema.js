@@ -4,7 +4,7 @@ const phoneSchema = z
     .string()
     .regex(
         /^\+1\d{10}$/,
-        "Invalid US phone number format. Use +1XXXXXXXXXX"
+        "Invalid phone number format. Use +1XXXXXXXXXX"
     );
 
 const fullNameSchema = z
@@ -128,30 +128,6 @@ export const oauthOnboardingSchema = z.object({
                 .optional()
         ),
 
-    // Therapist fields - transform empty strings to undefined
-    specialization: z
-        .string()
-        .transform((val) => val === "" ? undefined : val)
-        .pipe(
-            z.string()
-                .max(1000, "Specialization must not exceed 1000 characters")
-                .optional()
-        ),
-
-    licenseNumber: z
-        .string()
-        .transform((val) => val === "" ? undefined : val)
-        .pipe(licenseNumberSchema.optional()),
-
-
-    workArea: z
-        .string()
-        .transform((val) => val === "" ? undefined : val)
-        .pipe(
-            z.string()
-                .max(500, "Work area must not exceed 500 characters")
-                .optional()
-        ),
 }).refine(
     // Customer type is required for customers
     (data) => {
@@ -176,19 +152,7 @@ export const oauthOnboardingSchema = z.object({
         error: "Agency name is required and must be at least 2 characters",
         path: ["agencyName"]
     }
-).refine(
-    // License number is required for therapists
-    (data) => {
-        if (data.role === "therapist") {
-            return !!data.licenseNumber?.trim();
-        }
-        return true;
-    },
-    {
-        error: "License number is required for therapists",
-        path: ["licenseNumber"]
-    }
-);
+)
 
 export const forgotPasswordSchema = z.object({
     email: z

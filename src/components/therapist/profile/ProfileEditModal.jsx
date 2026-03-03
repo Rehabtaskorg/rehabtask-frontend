@@ -10,6 +10,7 @@ import { LICENSE_TYPES } from "@/lib/constants/credentials";
 import { onboardingAPI } from "@/lib/onboarding.api";
 import { useUpdateProfile } from "@/hooks/useTherapistProfile";
 import Input from "@/components/ui/Input";
+import PhoneInput from "@/components/ui/PhoneInput";
 import Button from "@/components/ui/Button";
 import Alert from "@/components/ui/Alert";
 import Image from "next/image";
@@ -45,7 +46,7 @@ const ProfileEditModal = ({ isOpen, onClose, profile, onSuccess }) => {
 
     const updateProfile = useUpdateProfile();
 
-    const { register, handleSubmit, watch, formState: { errors } } = useForm({
+    const { register, handleSubmit, watch, control, formState: { errors } } = useForm({
         resolver: zodResolver(profileEditSchema),
         mode: "onChange",
         reValidateMode: "onChange",
@@ -214,12 +215,12 @@ const ProfileEditModal = ({ isOpen, onClose, profile, onSuccess }) => {
                             required
                             {...register("fullName")}
                         />
-                        <Input
+                        <PhoneInput
                             label="Phone"
-                            placeholder="+11234567890"
+                            name="phone"
+                            control={control}
                             error={errors.phone?.message}
                             required
-                            {...register("phone")}
                         />
                     </div>
 

@@ -8,6 +8,7 @@ import { useCustomerBookings } from "@/hooks/useBookings";
 import BookingStatusBadge from "@/components/bookings/BookingStatusBadge";
 import { formatCurrency } from "@/utils/messages";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import PatientBadge from "@/components/customer/PatientBadge";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -251,6 +252,7 @@ export default function CustomerBookingsPage() {
                                                     <span className="text-sm text-text-main dark:text-white">
                                                         {booking.offer?.request?.serviceType || "—"}
                                                     </span>
+                                                    <PatientBadge patient={booking.patient} />
                                                 </td>
                                                 <td className="py-3.5 pr-4">
                                                     <p className="text-sm text-text-main dark:text-white">
@@ -313,6 +315,7 @@ export default function CustomerBookingsPage() {
                                                 <p className="text-xs text-text-muted dark:text-gray-400 mb-2">
                                                     {booking.offer?.request?.serviceType || "—"}
                                                 </p>
+                                                <PatientBadge patient={booking.patient} />
                                                 <div className="flex items-center gap-4 text-xs text-text-muted dark:text-gray-400">
                                                     <span className="flex items-center gap-1">
                                                         <MdCalendarToday className="text-sm" />

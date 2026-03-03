@@ -13,6 +13,7 @@ import BookingTimeline from "@/components/bookings/BookingTimeline";
 import PaymentSummaryCard from "@/components/bookings/PaymentSummaryCard";
 import { formatCurrency } from "@/utils/messages";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import PatientInfoBlock from "@/components/customer/PatientInfoBlock";
 
 const formatDate = (dateStr) => {
     if (!dateStr) return "—";
@@ -216,6 +217,14 @@ export default function TherapistBookingDetailPage() {
                             )}
                         </div>
                     </div>
+
+                    {/* Patient info block (agency bookings only) */}
+                    {booking.patient && (
+                        <PatientInfoBlock
+                            patient={booking.patient}
+                            note="This booking is managed by an agency. The patient above is the person you will be treating."
+                        />
+                    )}
 
                     {/* Session Details */}
                     <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl p-5">

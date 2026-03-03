@@ -118,6 +118,13 @@ const EmailVerificationCard = ({ email, onResend }) => {
                     </Link>
 
                     <Link
+                        href="/forgot-password"
+                        className="text-text-muted dark:text-gray-500 text-sm hover:text-primary dark:hover:text-primary transition-colors"
+                    >
+                        Already have an account? Forgot your password?
+                    </Link>
+
+                    <Link
                         href="/support"
                         className="text-gray-400 dark:text-gray-600 text-xs hover:text-gray-600 dark:hover:text-gray-400 transition-colors"
                     >
