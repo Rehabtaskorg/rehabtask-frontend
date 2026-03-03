@@ -35,7 +35,6 @@ function OAuthOnboardingContent() {
             customerType: "",
             agencyName: "",
             specialization: "",
-            licenseNumber: "",
             workArea: ""
         }
     });
@@ -221,14 +220,6 @@ function OAuthOnboardingContent() {
                                             />
                                             {errors.specialization && <p className="mt-1 text-sm text-red-500">{errors.specialization.message}</p>}
                                         </div>
-                                        <Input
-                                            label="License Number"
-                                            type="text"
-                                            placeholder="e.g. PT123456"
-                                            error={errors.licenseNumber?.message}
-                                            {...register("licenseNumber")}
-                                            required
-                                        />
                                         <Input
                                             label="Work Area"
                                             type="text"
