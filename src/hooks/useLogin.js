@@ -23,7 +23,7 @@ export const useLogin = () => {
                 router.push("/customer/dashboard");
             } else if (user.role === "therapist") {
                 router.push("/therapist/dashboard");
-            } else if (user.role === "admin") {
+            } else if (user.role === "admin" || user.role === "sub_admin") {
                 router.push("/admin/dashboard");
             }
 

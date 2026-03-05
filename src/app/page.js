@@ -18,6 +18,8 @@ export default function HomePage() {
         router.push("/customer/requests");
       } else if (user.role === "therapist") {
         router.push("/therapist/requests");
+      } else if (user.role === "admin" || user.role === "sub_admin") {
+        router.push("/admin/dashboard");
       }
     } else {
       router.push("/login");
