@@ -14,7 +14,10 @@ import {
     MdChatBubble, MdPayments, MdPerson,
     MdSchedule, MdSettings, MdLogout, MdDescription,
     MdPersonSearch, MdCalendarToday, MdStars,
-    MdMenu, MdClose, MdLock, MdPeople
+    MdMenu, MdClose, MdLock, MdPeople, MdSupervisorAccount,
+    MdGavel, MdQuestionAnswer, MdNotifications,
+    MdManageAccounts, MdVerifiedUser,
+    MdCardMembership, MdAttachMoney, MdAdminPanelSettings,
 } from "react-icons/md";
 
 function TherapistMessagesLink({ pathname }) {
@@ -315,6 +318,7 @@ export default function DashboardLayout({ children }) {
                             <NavLink href="/customer/requests" icon={MdDescription} label="My Requests" pathname={pathname} />
                             <NavLink href="/customer/find-therapists" icon={MdPersonSearch} label="Find Therapists" pathname={pathname} />
                             <NavLink href="/customer/bookings" icon={MdCalendarToday} label="My Bookings" pathname={pathname} />
+                            <NavLink href="/customer/disputes" icon={MdGavel} label="Disputes" pathname={pathname} />
                             <CustomerMessagesLink pathname={pathname} />
                             <NavLink href="/customer/payments" icon={MdPayments} label="Payment History" pathname={pathname} />
                             <NavLink href="/customer/subscription" icon={MdStars} label="Subscription" pathname={pathname} />
@@ -371,6 +375,67 @@ export default function DashboardLayout({ children }) {
                         <div className="p-6">
                             <h1 className="text-primary text-xl font-bold leading-none">RehabTask</h1>
                             <p className="text-slate-500 text-xs mt-1">Setup your profile</p>
+                        </div>
+                    </aside>
+                    {sidebarOpen && (
+                        <div
+                            className="fixed inset-0 z-40 bg-black/50 lg:hidden"
+                            onClick={() => setSidebarOpen(false)}
+                        />
+                    )}
+                </>
+            )}
+
+            {/* ── ADMIN SIDEBAR ── */}
+            {(user.role === 'admin' || user.role === 'sub_admin') && (
+                <>
+                    <aside className={`w-64 border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-card-dark flex flex-col fixed h-full z-50 transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
+                        <button
+                            onClick={() => setSidebarOpen(false)}
+                            className="lg:hidden absolute top-3 right-3 p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400"
+                            aria-label="Close navigation"
+                        >
+                            <MdClose className="text-xl" />
+                        </button>
+                        <div className="p-5 border-b border-slate-100 dark:border-slate-800">
+                            <h1 className="text-primary text-xl font-bold leading-none">RehabTask</h1>
+                            <p className="text-slate-500 dark:text-slate-400 text-xs mt-1 font-medium flex items-center gap-1">
+                                <MdAdminPanelSettings className="text-sm" />
+                                {user.role === 'sub_admin' ? 'Sub-Admin Portal' : 'Admin Portal'}
+                            </p>
+                        </div>
+                        <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
+                            <NavLink href="/admin/dashboard" icon={MdDashboard} label="Dashboard" pathname={pathname} matchStart={false} />
+                            <NavLink href="/admin/users" icon={MdManageAccounts} label="Users" pathname={pathname} />
+                            <NavLink href="/admin/therapists" icon={MdVerifiedUser} label="Therapists" pathname={pathname} />
+                            <NavLink href="/admin/disputes" icon={MdGavel} label="Disputes" pathname={pathname} />
+                            <NavLink href="/admin/bookings" icon={MdCalendarMonth} label="Bookings" pathname={pathname} />
+                            <NavLink href="/admin/subscriptions" icon={MdCardMembership} label="Subscriptions" pathname={pathname} />
+                            <NavLink href="/admin/payments" icon={MdAttachMoney} label="Payments" pathname={pathname} />
+                            <NavLink href="/admin/faqs" icon={MdQuestionAnswer} label="FAQs" pathname={pathname} />
+                            <NavLink href="/admin/notifications" icon={MdNotifications} label="Notifications" pathname={pathname} />
+                            {user.role === 'admin' && (
+                                <NavLink href="/admin/sub-admins" icon={MdSupervisorAccount} label="Sub-Admins" pathname={pathname} />
+                            )}
+                        </nav>
+                        <div className="p-4 border-t border-slate-100 dark:border-slate-800 space-y-1">
+                            <NavLink href="/admin/settings" icon={MdSettings} label="Settings" pathname={pathname} />
+                            <button
+                                onClick={handleLogout}
+                                className="sidebar-nav-link w-full text-left text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20"
+                            >
+                                <MdLogout className="sidebar-icon" />
+                                <span>Logout</span>
+                            </button>
+                            <div className="flex items-center gap-3 p-2 mt-2 rounded-lg bg-slate-50 dark:bg-slate-800/50">
+                                <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-xs font-bold text-white shrink-0">
+                                    {initials || 'A'}
+                                </div>
+                                <div className="min-w-0">
+                                    <p className="text-sm font-semibold truncate text-slate-900 dark:text-white">{profileName || 'Admin'}</p>
+                                    <p className="text-xs text-text-muted dark:text-slate-400 capitalize">{user.role.replace('_', ' ')}</p>
+                                </div>
+                            </div>
                         </div>
                     </aside>
                     {sidebarOpen && (
