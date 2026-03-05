@@ -38,7 +38,7 @@ function TherapistSidePanel({ therapist, onClose, onApprove, onReject, loading, 
     const [reason, setReason] = useState('');
     const [reasonError, setReasonError] = useState('');
 
-    const isPending = therapist.approvalStatus === 'pending';
+    const isPending = therapist.therapistProfile?.approvalStatus === 'pending';
 
     const handleRejectSubmit = () => {
         if (reason.trim().length < 10) {
@@ -46,7 +46,7 @@ function TherapistSidePanel({ therapist, onClose, onApprove, onReject, loading, 
             return;
         }
         setReasonError('');
-        onReject(therapist.userId, reason.trim());
+        onReject(therapist.id, reason.trim());
     };
 
     const cancelReject = () => {
@@ -80,17 +80,17 @@ function TherapistSidePanel({ therapist, onClose, onApprove, onReject, loading, 
                 {/* Identity */}
                 <div className="flex items-center gap-3">
                     <div className="h-12 w-12 rounded-full bg-primary/10 dark:bg-primary/20 flex items-center justify-center text-base font-bold text-primary shrink-0">
-                        {therapist.fullName?.charAt(0)?.toUpperCase() || 'T'}
+                        {therapist.therapistProfile?.fullName?.charAt(0)?.toUpperCase() || 'T'}
                     </div>
                     <div className="min-w-0">
-                        <p className="font-semibold text-text-main dark:text-white truncate">{therapist.fullName}</p>
-                        <p className="text-sm text-text-muted dark:text-slate-400 truncate">{therapist.user?.email}</p>
+                        <p className="font-semibold text-text-main dark:text-white truncate">{therapist.therapistProfile?.fullName}</p>
+                        <p className="text-sm text-text-muted dark:text-slate-400 truncate">{therapist.email}</p>
                     </div>
                 </div>
 
                 {/* Status badge */}
-                <span className={`inline-flex px-2.5 py-1 rounded-full text-xs font-medium capitalize ${STATUS_STYLES[therapist.approvalStatus] ?? 'bg-slate-100 text-slate-600'}`}>
-                    {therapist.approvalStatus}
+                <span className={`inline-flex px-2.5 py-1 rounded-full text-xs font-medium capitalize ${STATUS_STYLES[therapist.therapistProfile?.approvalStatus] ?? 'bg-slate-100 text-slate-600'}`}>
+                    {therapist.therapistProfile?.approvalStatus}
                 </span>
 
                 {/* Details */}
@@ -98,13 +98,13 @@ function TherapistSidePanel({ therapist, onClose, onApprove, onReject, loading, 
                     <div className="flex justify-between gap-3">
                         <dt className="text-text-muted dark:text-slate-400">License type</dt>
                         <dd className="font-medium text-text-main dark:text-white text-right">
-                            {therapist.primaryLicenseType || '—'}
+                            {therapist.therapistProfile?.primaryLicenseType || '—'}
                         </dd>
                     </div>
                     <div className="flex justify-between gap-3">
                         <dt className="text-text-muted dark:text-slate-400">Applied</dt>
                         <dd className="font-medium text-text-main dark:text-white">
-                            {fmtDate(therapist.user?.createdAt)}
+                            {fmtDate(therapist.createdAt)}
                         </dd>
                     </div>
                     <div className="flex justify-between gap-3">
@@ -112,14 +112,14 @@ function TherapistSidePanel({ therapist, onClose, onApprove, onReject, loading, 
                             <MdDescription className="text-sm" /> Documents
                         </dt>
                         <dd className="font-medium text-text-main dark:text-white">
-                            {therapist.licenseDocuments?.length ?? 0} uploaded
+                            {therapist.therapistProfile?.licenseDocuments?.length ?? 0} uploaded
                         </dd>
                     </div>
-                    {therapist.approvalStatus === 'rejected' && therapist.rejectionReason && (
+                    {therapist.therapistProfile?.approvalStatus === 'rejected' && therapist.therapistProfile?.rejectionReason && (
                         <div>
                             <dt className="text-text-muted dark:text-slate-400 mb-1.5">Rejection reason</dt>
                             <dd className="text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 p-3 rounded-xl leading-relaxed">
-                                {therapist.rejectionReason}
+                                {therapist.therapistProfile.rejectionReason}
                             </dd>
                         </div>
                     )}
@@ -172,7 +172,7 @@ function TherapistSidePanel({ therapist, onClose, onApprove, onReject, loading, 
             {/* Fixed action footer */}
             <div className="p-5 border-t border-border-light dark:border-border-dark space-y-2.5 shrink-0">
                 <Link
-                    href={`/admin/therapists/${therapist.userId}`}
+                    href={`/admin/therapists/${therapist.id}`}
                     className="flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-xl border border-border-light dark:border-border-dark text-sm font-medium text-text-main dark:text-white hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
                 >
                     <MdOpenInNew className="text-base" />
@@ -182,7 +182,7 @@ function TherapistSidePanel({ therapist, onClose, onApprove, onReject, loading, 
                 {isPending && !showRejectForm && !success && (
                     <>
                         <button
-                            onClick={() => onApprove(therapist.userId)}
+                            onClick={() => onApprove(therapist.id)}
                             disabled={loading}
                             className="flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-xl bg-emerald-600 text-white text-sm font-medium hover:bg-emerald-700 disabled:opacity-50 transition-colors"
                         >
@@ -254,8 +254,8 @@ function TherapistsContent() {
             await approve.mutateAsync(therapistUserId);
             setActionSuccess('Application approved successfully.');
             setSelected(prev =>
-                prev?.userId === therapistUserId
-                    ? { ...prev, approvalStatus: 'approved' }
+                prev?.id === therapistUserId
+                    ? { ...prev, therapistProfile: { ...prev.therapistProfile, approvalStatus: 'approved' } }
                     : prev
             );
         } catch (e) {
@@ -269,8 +269,8 @@ function TherapistsContent() {
             await reject.mutateAsync({ therapistUserId, reason });
             setActionSuccess('Application rejected.');
             setSelected(prev =>
-                prev?.userId === therapistUserId
-                    ? { ...prev, approvalStatus: 'rejected', rejectionReason: reason }
+                prev?.id === therapistUserId
+                    ? { ...prev, therapistProfile: { ...prev.therapistProfile, approvalStatus: 'rejected', rejectionReason: reason } }
                     : prev
             );
         } catch (e) {
@@ -389,29 +389,29 @@ function TherapistsContent() {
                                                 <td className="px-5 py-4">
                                                     <div className="flex items-center gap-3">
                                                         <div className="h-9 w-9 rounded-full bg-primary/10 dark:bg-primary/20 flex items-center justify-center text-xs font-bold text-primary shrink-0">
-                                                            {t.fullName?.charAt(0)?.toUpperCase() || 'T'}
+                                                            {t.therapistProfile?.fullName?.charAt(0)?.toUpperCase() || 'T'}
                                                         </div>
                                                         <div className="min-w-0">
-                                                            <p className="font-medium text-text-main dark:text-white truncate">{t.fullName}</p>
-                                                            <p className="text-xs text-text-muted dark:text-slate-400 truncate hidden sm:block">{t.user?.email}</p>
+                                                            <p className="font-medium text-text-main dark:text-white truncate">{t.therapistProfile?.fullName}</p>
+                                                            <p className="text-xs text-text-muted dark:text-slate-400 truncate hidden sm:block">{t.email}</p>
                                                         </div>
                                                     </div>
                                                 </td>
                                                 <td className="px-5 py-4 text-text-muted dark:text-slate-400 hidden md:table-cell">
-                                                    {t.primaryLicenseType || '—'}
+                                                    {t.therapistProfile?.primaryLicenseType || '—'}
                                                 </td>
                                                 <td className="px-5 py-4">
-                                                    <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium capitalize ${STATUS_STYLES[t.approvalStatus] ?? 'bg-slate-100 text-slate-600'}`}>
-                                                        {t.approvalStatus}
+                                                    <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium capitalize ${STATUS_STYLES[t.therapistProfile?.approvalStatus] ?? 'bg-slate-100 text-slate-600'}`}>
+                                                        {t.therapistProfile?.approvalStatus}
                                                     </span>
                                                 </td>
                                                 <td className="px-5 py-4 text-text-muted dark:text-slate-400 hidden lg:table-cell">
-                                                    {fmtDate(t.user?.createdAt)}
+                                                    {fmtDate(t.createdAt)}
                                                 </td>
                                                 <td className="px-5 py-4 hidden lg:table-cell">
                                                     <span className="inline-flex items-center gap-1 text-text-muted dark:text-slate-400 text-xs">
                                                         <MdDescription className="text-base" />
-                                                        {t.licenseDocuments?.length ?? 0}
+                                                        {t.therapistProfile?.licenseDocuments?.length ?? 0}
                                                     </span>
                                                 </td>
                                             </tr>
@@ -421,7 +421,7 @@ function TherapistsContent() {
                             </div>
 
                             {/* Pagination */}
-                            {pagination && pagination.pages > 1 && (
+                            {pagination && pagination.totalPages > 1 && (
                                 <div className="flex items-center justify-between px-5 py-4 border-t border-border-light dark:border-border-dark">
                                     <p className="text-sm text-text-muted dark:text-slate-400">
                                         {(page - 1) * pagination.limit + 1}–{Math.min(page * pagination.limit, pagination.total)} of {pagination.total.toLocaleString()}
@@ -435,11 +435,11 @@ function TherapistsContent() {
                                             <MdChevronLeft className="text-xl text-slate-600 dark:text-slate-300" />
                                         </button>
                                         <span className="text-sm font-medium text-text-main dark:text-white min-w-15 text-center">
-                                            {page} / {pagination.pages}
+                                            {page} / {pagination.totalPages}
                                         </span>
                                         <button
                                             onClick={() => setPage(p => p + 1)}
-                                            disabled={page === pagination.pages}
+                                            disabled={page === pagination.totalPages}
                                             className="p-1.5 rounded-lg border border-border-light dark:border-border-dark hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed"
                                         >
                                             <MdChevronRight className="text-xl text-slate-600 dark:text-slate-300" />

@@ -90,7 +90,7 @@ function PermissionsCheckboxes({ selected, onChange }) {
                             onChange={() => toggle(perm.key)}
                             className="w-4 h-4 rounded accent-primary shrink-0"
                         />
-                        <span className="text-sm text-text-main">{perm.label}</span>
+                        <span className="text-sm text-text-main dark:text-white">{perm.label}</span>
                     </label>
                 ))}
             </div>
@@ -152,7 +152,7 @@ function AddSubAdminModal({ onClose }) {
             <div className="relative bg-card-light dark:bg-card-dark rounded-2xl border border-border-light dark:border-border-dark w-full max-w-md shadow-xl flex flex-col max-h-[90dvh]">
                 {/* Header */}
                 <div className="flex items-center justify-between px-5 py-4 border-b border-border-light dark:border-border-dark shrink-0">
-                    <h2 className="font-semibold text-text-main">Add Sub-Admin</h2>
+                    <h2 className="font-semibold text-text-main dark:text-white">Add Sub-Admin</h2>
                     <button
                         onClick={onClose}
                         className="p-1 rounded-lg hover:bg-background-light dark:hover:bg-background-dark text-text-muted"
@@ -178,8 +178,8 @@ function AddSubAdminModal({ onClose }) {
                                     setUserSearch("");
                                 }}
                                 className={`flex-1 py-1.5 rounded-md text-sm font-medium transition-colors ${mode === t.key
-                                    ? "bg-card-light dark:bg-card-dark text-text-main shadow-sm"
-                                    : "text-text-muted hover:text-text-main"
+                                    ? "bg-card-light dark:bg-card-dark text-text-main dark:text-white shadow-sm"
+                                    : "text-text-muted hover:text-text-main dark:hover:text-white"
                                     }`}
                             >
                                 {t.label}
@@ -197,7 +197,7 @@ function AddSubAdminModal({ onClose }) {
                         {/* Invite tab */}
                         {mode === "invite" && (
                             <div>
-                                <label className="block text-sm font-medium text-text-main mb-1">
+                                <label className="block text-sm font-medium text-text-main dark:text-white mb-1">
                                     Email Address <span className="text-red-500">*</span>
                                 </label>
                                 <input
@@ -205,7 +205,7 @@ function AddSubAdminModal({ onClose }) {
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                     placeholder="name@example.com"
-                                    className="w-full rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-main text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
+                                    className="w-full rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-main dark:text-white text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
                                 />
                                 <p className="text-xs text-text-muted mt-1">
                                     An invitation email will be sent to this address.
@@ -216,7 +216,7 @@ function AddSubAdminModal({ onClose }) {
                         {/* Promote tab */}
                         {mode === "promote" && (
                             <div className="space-y-2">
-                                <label className="block text-sm font-medium text-text-main mb-1">
+                                <label className="block text-sm font-medium text-text-main dark:text-white mb-1">
                                     Search User <span className="text-red-500">*</span>
                                 </label>
 
@@ -227,7 +227,7 @@ function AddSubAdminModal({ onClose }) {
                                             {selectedUser.firstName?.[0] ?? "?"}
                                         </div>
                                         <div className="flex-1 min-w-0">
-                                            <p className="text-sm font-medium text-text-main truncate">
+                                            <p className="text-sm font-medium text-text-main dark:text-white truncate">
                                                 {selectedUser.firstName} {selectedUser.lastName}
                                             </p>
                                             <p className="text-xs text-text-muted truncate">
@@ -237,7 +237,7 @@ function AddSubAdminModal({ onClose }) {
                                         <button
                                             type="button"
                                             onClick={() => setSelectedUser(null)}
-                                            className="text-text-muted hover:text-text-main shrink-0"
+                                            className="text-text-muted hover:text-text-main dark:hover:text-white shrink-0"
                                         >
                                             <MdClose size={16} />
                                         </button>
@@ -254,7 +254,7 @@ function AddSubAdminModal({ onClose }) {
                                                 value={userSearch}
                                                 onChange={(e) => setUserSearch(e.target.value)}
                                                 placeholder="Search by name or email…"
-                                                className="w-full pl-8 pr-3 py-2 rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-main text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                                                className="w-full pl-8 pr-3 py-2 rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-main dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                                             />
                                         </div>
 
@@ -283,7 +283,7 @@ function AddSubAdminModal({ onClose }) {
                                                                 {u.firstName?.[0] ?? "?"}
                                                             </div>
                                                             <div className="flex-1 min-w-0">
-                                                                <p className="text-sm text-text-main truncate">
+                                                                <p className="text-sm text-text-main dark:text-white truncate">
                                                                     {u.firstName} {u.lastName}
                                                                 </p>
                                                                 <p className="text-xs text-text-muted truncate">
@@ -398,7 +398,7 @@ function SubAdminSidePanel({ subAdmin, onClose }) {
             <aside className="fixed right-0 top-14 lg:top-0 h-[calc(100dvh-3.5rem)] lg:h-dvh max-w-95 w-full bg-card-light dark:bg-card-dark border-l border-border-light dark:border-border-dark z-40 lg:z-20 flex flex-col shadow-xl">
                 {/* Header */}
                 <div className="flex items-center justify-between px-4 py-3 border-b border-border-light dark:border-border-dark shrink-0">
-                    <h2 className="font-semibold text-text-main text-sm">
+                    <h2 className="font-semibold text-text-main dark:text-white text-sm">
                         Sub-Admin Detail
                     </h2>
                     <button
@@ -417,7 +417,7 @@ function SubAdminSidePanel({ subAdmin, onClose }) {
                             {subAdmin.firstName?.[0] ?? "?"}
                         </div>
                         <div className="flex-1 min-w-0">
-                            <p className="font-semibold text-text-main truncate">
+                            <p className="font-semibold text-text-main dark:text-white truncate">
                                 {subAdmin.firstName} {subAdmin.lastName}
                             </p>
                             <p className="text-sm text-text-muted truncate">
@@ -497,7 +497,7 @@ export default function AdminSubAdminsPage() {
                 {/* Header */}
                 <div className="flex items-center justify-between">
                     <div>
-                        <h1 className="text-xl font-bold text-text-main">
+                        <h1 className="text-xl font-bold text-text-main dark:text-white">
                             Sub-Admin Management
                         </h1>
                         <p className="text-sm text-text-muted mt-0.5">
@@ -585,7 +585,7 @@ export default function AdminSubAdminsPage() {
                                                         <div className="w-7 h-7 rounded-full bg-primary/20 text-primary flex items-center justify-center text-xs font-semibold shrink-0">
                                                             {sa.firstName?.[0] ?? "?"}
                                                         </div>
-                                                        <span className="text-text-main font-medium truncate max-w-25">
+                                                        <span className="text-text-main dark:text-white font-medium truncate max-w-25">
                                                             {sa.firstName} {sa.lastName}
                                                         </span>
                                                     </div>
