@@ -40,10 +40,11 @@ const fmtPct = (v) =>
     v == null ? "—" : `${(Number(v) * 100).toFixed(1)}%`;
 
 const PAYMENT_STATUS_STYLES = {
-    pending: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300",
-    held: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300",
+    intent_created: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300",
+    escrowed: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300",
     released: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300",
     refunded: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300",
+    failed: "bg-slate-100 text-slate-800 dark:bg-slate-900/30 dark:text-slate-300",
 };
 
 const BOOKING_STATUS_STYLES = {
@@ -110,7 +111,7 @@ function PaymentSidePanel({ payment, onClose }) {
     if (!payment) return null;
 
     const isReleasable =
-        payment.status === "held" || payment.status === "pending";
+        payment.status === "escrowed" || payment.status === "intent_created";
     const isRefundable = payment.status !== "refunded";
 
     const handleRelease = async () => {
@@ -142,7 +143,7 @@ function PaymentSidePanel({ payment, onClose }) {
             <aside className="fixed right-0 top-14 lg:top-0 h-[calc(100dvh-3.5rem)] lg:h-dvh max-w-95 w-full bg-card-light dark:bg-card-dark border-l border-border-light dark:border-border-dark z-40 lg:z-20 flex flex-col shadow-xl">
                 {/* Header */}
                 <div className="flex items-center justify-between px-4 py-3 border-b border-border-light dark:border-border-dark shrink-0">
-                    <h2 className="font-semibold text-text-main text-sm">
+                    <h2 className="font-semibold text-text-main dark:text-white text-sm">
                         Payment Detail
                     </h2>
                     <button
@@ -158,7 +159,7 @@ function PaymentSidePanel({ payment, onClose }) {
                     {/* Amount & Status */}
                     <div className="flex items-start justify-between">
                         <div>
-                            <p className="text-2xl font-bold text-text-main">
+                            <p className="text-2xl font-bold text-text-main dark:text-white">
                                 {fmt$(payment.amount)}
                             </p>
                             <p className="text-xs text-text-muted mt-0.5">Total charged</p>
@@ -173,20 +174,20 @@ function PaymentSidePanel({ payment, onClose }) {
                     <div className="bg-background-light dark:bg-background-dark rounded-lg p-3 space-y-2 text-sm">
                         <div className="flex justify-between">
                             <span className="text-text-muted">Platform Fee</span>
-                            <span className="text-text-main font-medium">
+                            <span className="text-text-main dark:text-white font-medium">
                                 {fmt$(payment.platformFee)}
                             </span>
                         </div>
                         <div className="flex justify-between">
                             <span className="text-text-muted">Therapist Payout</span>
-                            <span className="text-text-main font-medium">
+                            <span className="text-text-main dark:text-white font-medium">
                                 {fmt$(payment.therapistPayout)}
                             </span>
                         </div>
                         {payment.stripePaymentIntentId && (
                             <div className="pt-2 border-t border-border-light dark:border-border-dark">
                                 <p className="text-text-muted text-xs">Stripe ID</p>
-                                <p className="text-text-main font-mono text-xs truncate">
+                                <p className="text-text-main dark:text-white font-mono text-xs truncate">
                                     {payment.stripePaymentIntentId}
                                 </p>
                             </div>
@@ -200,15 +201,14 @@ function PaymentSidePanel({ payment, onClose }) {
                         </p>
                         <div className="flex items-center gap-2">
                             <div className="w-8 h-8 rounded-full bg-primary/20 text-primary flex items-center justify-center text-xs font-semibold shrink-0">
-                                {payment.booking?.customer?.firstName?.[0] ?? "?"}
+                                {payment.customer?.fullName?.[0] ?? "?"}
                             </div>
                             <div>
-                                <p className="text-sm font-medium text-text-main">
-                                    {payment.booking?.customer?.firstName}{" "}
-                                    {payment.booking?.customer?.lastName}
+                                <p className="text-sm font-medium text-text-main dark:text-white">
+                                    {payment.customer?.fullName ?? "—"}
                                 </p>
                                 <p className="text-xs text-text-muted">
-                                    {payment.booking?.customer?.email}
+                                    {payment.customer?.user?.email}
                                 </p>
                             </div>
                         </div>
@@ -221,15 +221,14 @@ function PaymentSidePanel({ payment, onClose }) {
                         </p>
                         <div className="flex items-center gap-2">
                             <div className="w-8 h-8 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 flex items-center justify-center text-xs font-semibold shrink-0">
-                                {payment.booking?.therapist?.firstName?.[0] ?? "?"}
+                                {payment.therapist?.fullName?.[0] ?? "?"}
                             </div>
                             <div>
-                                <p className="text-sm font-medium text-text-main">
-                                    {payment.booking?.therapist?.firstName}{" "}
-                                    {payment.booking?.therapist?.lastName}
+                                <p className="text-sm font-medium text-text-main dark:text-white">
+                                    {payment.therapist?.fullName ?? "—"}
                                 </p>
                                 <p className="text-xs text-text-muted">
-                                    {payment.booking?.therapist?.email}
+                                    {payment.therapist?.user?.email}
                                 </p>
                             </div>
                         </div>
@@ -244,7 +243,7 @@ function PaymentSidePanel({ payment, onClose }) {
                             <div className="bg-background-light dark:bg-background-dark rounded-lg p-3 space-y-1.5 text-sm">
                                 <div className="flex justify-between">
                                     <span className="text-text-muted">Date</span>
-                                    <span className="text-text-main">
+                                    <span className="text-text-main dark:text-white">
                                         {fmtDate(payment.booking.scheduledDate)}
                                     </span>
                                 </div>
@@ -274,7 +273,7 @@ function PaymentSidePanel({ payment, onClose }) {
                                 onChange={(e) => setRefundReason(e.target.value)}
                                 rows={3}
                                 placeholder="Explain why this payment is being refunded…"
-                                className="w-full rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-main text-sm px-3 py-2 resize-none focus:outline-none focus:ring-2 focus:ring-red-400"
+                                className="w-full rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-main dark:text-white text-sm px-3 py-2 resize-none focus:outline-none focus:ring-2 focus:ring-red-400"
                             />
                             <div className="flex gap-2">
                                 <button
@@ -380,7 +379,7 @@ function CommissionTab() {
                         {commLoading ? (
                             <Skeleton className="h-9 w-24 mt-1" />
                         ) : (
-                            <p className="text-3xl font-bold text-text-main">
+                            <p className="text-3xl font-bold text-text-main dark:text-white">
                                 {fmtPct(currentRate?.rate)}
                             </p>
                         )}
@@ -401,7 +400,7 @@ function CommissionTab() {
 
             {/* Update Rate Form */}
             <div className="bg-card-light dark:bg-card-dark rounded-xl border border-border-light dark:border-border-dark p-6">
-                <h3 className="font-semibold text-text-main mb-4">
+                <h3 className="font-semibold text-text-main dark:text-white mb-4">
                     Update Commission Rate
                 </h3>
                 <form onSubmit={handleSetRate} className="space-y-4">
@@ -418,7 +417,7 @@ function CommissionTab() {
                                 min="0"
                                 max="100"
                                 step="0.1"
-                                className="w-full rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-main px-3 py-2 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                                className="w-full rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-main dark:text-white px-3 py-2 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                             />
                             <span className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted text-sm">
                                 %
@@ -434,7 +433,7 @@ function CommissionTab() {
                             type="date"
                             value={effectiveFrom}
                             onChange={(e) => setEffectiveFrom(e.target.value)}
-                            className="w-full rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-main px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                            className="w-full rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-main dark:text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                         />
                         <p className="text-xs text-text-muted mt-1">
                             Leave blank to take effect immediately.
@@ -460,7 +459,7 @@ function CommissionTab() {
             <div className="bg-card-light dark:bg-card-dark rounded-xl border border-border-light dark:border-border-dark overflow-hidden">
                 <div className="px-4 py-3 border-b border-border-light dark:border-border-dark flex items-center gap-2">
                     <MdHistory size={18} className="text-text-muted" />
-                    <h3 className="font-semibold text-text-main text-sm">Rate History</h3>
+                    <h3 className="font-semibold text-text-main dark:text-white text-sm">Rate History</h3>
                 </div>
                 {histLoading ? (
                     <div className="p-4 space-y-3">
@@ -497,7 +496,7 @@ function CommissionTab() {
                                         key={h.id}
                                         className="hover:bg-background-light dark:hover:bg-background-dark transition-colors"
                                     >
-                                        <td className="px-4 py-3 font-semibold text-text-main">
+                                        <td className="px-4 py-3 font-semibold text-text-main dark:text-white">
                                             {fmtPct(h.rate)}
                                         </td>
                                         <td className="px-4 py-3 text-text-muted">
@@ -522,8 +521,8 @@ function CommissionTab() {
 
 const STATUS_TABS = [
     { key: "all", label: "All" },
-    { key: "pending", label: "Pending" },
-    { key: "held", label: "Held" },
+    { key: "intent_created", label: "Pending" },
+    { key: "escrowed", label: "Escrowed" },
     { key: "released", label: "Released" },
     { key: "refunded", label: "Refunded" },
 ];
@@ -555,7 +554,7 @@ export default function AdminPaymentsPage() {
                 {/* Page Header */}
                 <div className="flex flex-wrap items-center justify-between gap-3">
                     <div>
-                        <h1 className="text-xl font-bold text-text-main">
+                        <h1 className="text-xl font-bold text-text-main dark:text-white">
                             Payments & Commission
                         </h1>
                         <p className="text-sm text-text-muted mt-0.5">
@@ -575,8 +574,8 @@ export default function AdminPaymentsPage() {
                                     if (t.key !== "payments") setSelectedPayment(null);
                                 }}
                                 className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${activeTab === t.key
-                                    ? "bg-card-light dark:bg-card-dark text-text-main shadow-sm"
-                                    : "text-text-muted hover:text-text-main"
+                                    ? "bg-card-light dark:bg-card-dark text-text-main dark:text-white shadow-sm"
+                                    : "text-text-muted hover:text-text-main dark:hover:text-white"
                                     }`}
                             >
                                 {t.label}
@@ -591,28 +590,28 @@ export default function AdminPaymentsPage() {
                         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                             <StatCard
                                 icon={MdAttachMoney}
-                                label="Total Revenue"
-                                value={fmt$(stats.totalRevenue)}
+                                label="Total Volume"
+                                value={fmt$(stats.totalVolume)}
                                 loading={statsLoading}
                             />
                             <StatCard
                                 icon={MdTrendingUp}
-                                label="Platform Fees"
-                                value={fmt$(stats.totalPlatformFees)}
+                                label="Platform Revenue"
+                                value={fmt$(stats.platformRevenue)}
                                 loading={statsLoading}
                                 color="text-green-600"
                             />
                             <StatCard
                                 icon={MdAccountBalanceWallet}
-                                label="Therapist Payouts"
-                                value={fmt$(stats.totalTherapistPayouts)}
+                                label="Escrowed Funds"
+                                value={fmt$(stats.escrowedFunds)}
                                 loading={statsLoading}
                                 color="text-purple-600"
                             />
                             <StatCard
                                 icon={MdReceipt}
-                                label="Transactions"
-                                value={stats.totalTransactions ?? "—"}
+                                label="Total Refunded"
+                                value={fmt$(stats.totalRefunded)}
                                 loading={statsLoading}
                                 color="text-orange-600"
                             />
@@ -628,8 +627,8 @@ export default function AdminPaymentsPage() {
                                         setSelectedPayment(null);
                                     }}
                                     className={`px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${statusFilter === t.key
-                                        ? "bg-card-light dark:bg-card-dark text-text-main shadow-sm"
-                                        : "text-text-muted hover:text-text-main"
+                                        ? "bg-card-light dark:bg-card-dark text-text-main dark:text-white shadow-sm"
+                                        : "text-text-muted hover:text-text-main dark:hover:text-white"
                                         }`}
                                 >
                                     {t.label}
@@ -700,20 +699,17 @@ export default function AdminPaymentsPage() {
                                                     <td className="px-4 py-3">
                                                         <div className="flex items-center gap-2">
                                                             <div className="w-7 h-7 rounded-full bg-primary/20 text-primary flex items-center justify-center text-xs font-semibold shrink-0">
-                                                                {p.booking?.customer?.firstName?.[0] ??
-                                                                    "?"}
+                                                                {p.customer?.fullName?.[0] ?? "?"}
                                                             </div>
-                                                            <span className="text-text-main font-medium truncate max-w-22.5">
-                                                                {p.booking?.customer?.firstName}{" "}
-                                                                {p.booking?.customer?.lastName}
+                                                            <span className="text-text-main dark:text-white font-medium truncate max-w-22.5">
+                                                                {p.customer?.fullName ?? "—"}
                                                             </span>
                                                         </div>
                                                     </td>
-                                                    <td className="px-4 py-3 text-text-muted truncate max-w-22.5">
-                                                        {p.booking?.therapist?.firstName}{" "}
-                                                        {p.booking?.therapist?.lastName}
+                                                    <td className="px-4 py-3 text-text-main dark:text-white truncate max-w-22.5">
+                                                        {p.therapist?.fullName ?? "—"}
                                                     </td>
-                                                    <td className="px-4 py-3 font-medium text-text-main">
+                                                    <td className="px-4 py-3 font-medium text-text-main dark:text-white">
                                                         {fmt$(p.amount)}
                                                     </td>
                                                     <td className="px-4 py-3 text-text-muted hidden md:table-cell">

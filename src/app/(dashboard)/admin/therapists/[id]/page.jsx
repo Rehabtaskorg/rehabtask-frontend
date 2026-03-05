@@ -107,9 +107,10 @@ export default function AdminTherapistDetailPage() {
         );
     }
 
-    const isPending = therapist.approvalStatus === 'pending';
-    const isApproved = therapist.approvalStatus === 'approved';
-    const isRejected = therapist.approvalStatus === 'rejected';
+    const tp = therapist.therapistProfile;
+    const isPending = tp?.approvalStatus === 'pending';
+    const isApproved = tp?.approvalStatus === 'approved';
+    const isRejected = tp?.approvalStatus === 'rejected';
 
     return (
         <div className="p-4 md:p-6 max-w-4xl mx-auto space-y-5">
@@ -138,23 +139,23 @@ export default function AdminTherapistDetailPage() {
             <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl p-5">
                 <div className="flex flex-col sm:flex-row sm:items-start gap-4">
                     <div className="h-16 w-16 rounded-2xl bg-primary/10 dark:bg-primary/20 flex items-center justify-center text-xl font-bold text-primary shrink-0">
-                        {therapist.fullName?.charAt(0)?.toUpperCase() || 'T'}
+                        {tp?.fullName?.charAt(0)?.toUpperCase() || 'T'}
                     </div>
                     <div className="flex-1 min-w-0">
                         <div className="flex flex-wrap items-center gap-2 mb-1">
-                            <h1 className="text-lg font-bold text-text-main dark:text-white">{therapist.fullName}</h1>
-                            <span className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium capitalize ${STATUS_STYLES[therapist.approvalStatus] ?? 'bg-slate-100 text-slate-600'}`}>
-                                {therapist.approvalStatus}
+                            <h1 className="text-lg font-bold text-text-main dark:text-white">{tp?.fullName}</h1>
+                            <span className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium capitalize ${STATUS_STYLES[tp?.approvalStatus] ?? 'bg-slate-100 text-slate-600'}`}>
+                                {tp?.approvalStatus}
                             </span>
                         </div>
-                        <p className="text-sm text-text-muted dark:text-slate-400">{therapist.user?.email}</p>
+                        <p className="text-sm text-text-muted dark:text-slate-400">{therapist.email}</p>
                         <p className="text-xs text-text-muted dark:text-slate-500 mt-1">
-                            Applied {fmtDate(therapist.user?.createdAt)}
+                            Applied {fmtDate(therapist.createdAt)}
                         </p>
                     </div>
                     {/* Quick link to user account */}
                     <Link
-                        href={`/admin/users/${therapist.userId}`}
+                        href={`/admin/users/${therapist.id}`}
                         className="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border-light dark:border-border-dark text-xs text-text-muted dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
                     >
                         <MdOpenInNew className="text-sm" /> User Account
@@ -170,32 +171,32 @@ export default function AdminTherapistDetailPage() {
                         <div className="flex justify-between gap-3">
                             <dt className="text-text-muted dark:text-slate-400">Primary license type</dt>
                             <dd className="font-medium text-text-main dark:text-white text-right">
-                                {therapist.primaryLicenseType || '—'}
+                                {tp?.primaryLicenseType || '—'}
                             </dd>
                         </div>
                         <div className="flex justify-between gap-3">
                             <dt className="text-text-muted dark:text-slate-400">Onboarding progress</dt>
-                            <dd className={`font-medium capitalize ${therapist.onboardingComplete ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-400'}`}>
-                                {therapist.onboardingComplete ? 'Complete' : `Step ${therapist.onboardingStep ?? 1} of 5`}
+                            <dd className={`font-medium capitalize ${tp?.onboardingComplete ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-400'}`}>
+                                {tp?.onboardingComplete ? 'Complete' : `Step ${tp?.onboardingStep ?? 1} of 5`}
                             </dd>
                         </div>
                         <div className="flex justify-between gap-3">
                             <dt className="text-text-muted dark:text-slate-400">Service areas</dt>
                             <dd className="font-medium text-text-main dark:text-white">
-                                {therapist.workAreas?.length ?? 0} configured
+                                {tp?.workAreas?.length ?? 0} configured
                             </dd>
                         </div>
                         <div className="flex justify-between gap-3">
                             <dt className="text-text-muted dark:text-slate-400">Stripe connected</dt>
-                            <dd className={`font-medium ${therapist.stripeAccountId ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400 dark:text-slate-500'}`}>
-                                {therapist.stripeAccountId ? 'Yes' : 'No'}
+                            <dd className={`font-medium ${tp?.stripeAccountId ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400 dark:text-slate-500'}`}>
+                                {tp?.stripeAccountId ? 'Yes' : 'No'}
                             </dd>
                         </div>
-                        {therapist.bio && (
+                        {tp?.bio && (
                             <div className="pt-3 border-t border-border-light dark:border-border-dark">
                                 <dt className="text-text-muted dark:text-slate-400 mb-1.5">Bio</dt>
                                 <dd className="text-text-main dark:text-slate-200 leading-relaxed text-sm">
-                                    {therapist.bio}
+                                    {tp.bio}
                                 </dd>
                             </div>
                         )}
@@ -207,13 +208,13 @@ export default function AdminTherapistDetailPage() {
                     <dl className="space-y-3 text-sm">
                         <div className="flex justify-between gap-3">
                             <dt className="text-text-muted dark:text-slate-400">Account status</dt>
-                            <dd className={`font-medium ${therapist.user?.isActive ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-500 dark:text-red-400'}`}>
-                                {therapist.user?.isActive ? 'Active' : 'Deactivated'}
+                            <dd className={`font-medium ${therapist.isActive ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-500 dark:text-red-400'}`}>
+                                {therapist.isActive ? 'Active' : 'Deactivated'}
                             </dd>
                         </div>
                         <div className="flex justify-between gap-3">
                             <dt className="text-text-muted dark:text-slate-400">Registered</dt>
-                            <dd className="font-medium text-text-main dark:text-white">{fmtDate(therapist.user?.createdAt)}</dd>
+                            <dd className="font-medium text-text-main dark:text-white">{fmtDate(therapist.createdAt)}</dd>
                         </div>
                         <div className="flex justify-between gap-3">
                             <dt className="text-text-muted dark:text-slate-400">Approval status</dt>
@@ -221,14 +222,14 @@ export default function AdminTherapistDetailPage() {
                                 isRejected ? 'text-red-600 dark:text-red-400' :
                                     'text-amber-600 dark:text-amber-400'
                                 }`}>
-                                {therapist.approvalStatus}
+                                {tp?.approvalStatus}
                             </dd>
                         </div>
-                        {isRejected && therapist.rejectionReason && (
+                        {isRejected && tp?.rejectionReason && (
                             <div className="pt-3 border-t border-border-light dark:border-border-dark">
                                 <dt className="text-text-muted dark:text-slate-400 mb-1.5">Rejection reason</dt>
                                 <dd className="text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 p-3 rounded-xl leading-relaxed">
-                                    {therapist.rejectionReason}
+                                    {tp.rejectionReason}
                                 </dd>
                             </div>
                         )}
@@ -238,12 +239,12 @@ export default function AdminTherapistDetailPage() {
             </div> {/* end 2-col grid */}
 
             {/* License Documents */}
-            <SectionCard title={`License Documents (${therapist.licenseDocuments?.length ?? 0})`}>
-                {!therapist.licenseDocuments?.length ? (
+            <SectionCard title={`License Documents (${tp?.licenseDocuments?.length ?? 0})`}>
+                {!tp?.licenseDocuments?.length ? (
                     <p className="text-sm text-text-muted dark:text-slate-500 py-2">No documents uploaded yet.</p>
                 ) : (
                     <div className="space-y-2.5">
-                        {therapist.licenseDocuments.map(doc => (
+                        {tp.licenseDocuments.map(doc => (
                             <div
                                 key={doc.id}
                                 className="flex items-center justify-between gap-3 p-3 rounded-xl border border-border-light dark:border-border-dark"
@@ -278,10 +279,10 @@ export default function AdminTherapistDetailPage() {
             </SectionCard>
 
             {/* Service Areas */}
-            {!!therapist.workAreas?.length && (
-                <SectionCard title={`Service Areas (${therapist.workAreas.length})`}>
+            {!!tp?.workAreas?.length && (
+                <SectionCard title={`Service Areas (${tp.workAreas.length})`}>
                     <div className="space-y-2">
-                        {therapist.workAreas.map(area => (
+                        {tp.workAreas.map(area => (
                             <div key={area.id} className="flex items-start gap-2.5 text-sm">
                                 <MdLocationOn className="text-base text-text-muted dark:text-slate-400 mt-0.5 shrink-0" />
                                 <span className="text-text-main dark:text-slate-200">
