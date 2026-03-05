@@ -98,9 +98,9 @@ function DisputeSidePanel({ dispute, admins, onClose, onUpdate, onAssign, onReop
             <div className="flex items-start justify-between px-5 py-4 border-b border-border-light dark:border-border-dark shrink-0 gap-3">
                 <div className="min-w-0">
                     <p className="text-xs font-mono text-text-muted dark:text-slate-400">#{dispute.ticketId}</p>
-                    <h3 className="font-semibold text-text-main dark:text-white text-sm mt-0.5 leading-snug">
-                        {dispute.title || 'Dispute'}
-                    </h3>
+                    <p className="font-semibold text-text-main dark:text-white text-sm mt-0.5 leading-snug line-clamp-2">
+                        {dispute.description}
+                    </p>
                 </div>
                 <button
                     onClick={onClose}
@@ -460,7 +460,7 @@ export default function AdminDisputesPage() {
                                     <thead>
                                         <tr className="border-b border-border-light dark:border-border-dark bg-slate-50 dark:bg-slate-800/50">
                                             <th className="px-5 py-3 text-left text-xs font-semibold text-text-muted dark:text-slate-400 uppercase tracking-wide">Ticket</th>
-                                            <th className="px-5 py-3 text-left text-xs font-semibold text-text-muted dark:text-slate-400 uppercase tracking-wide">Title</th>
+                                            <th className="px-5 py-3 text-left text-xs font-semibold text-text-muted dark:text-slate-400 uppercase tracking-wide">Description</th>
                                             <th className="px-5 py-3 text-left text-xs font-semibold text-text-muted dark:text-slate-400 uppercase tracking-wide hidden md:table-cell">Filed By</th>
                                             <th className="px-5 py-3 text-left text-xs font-semibold text-text-muted dark:text-slate-400 uppercase tracking-wide">Status</th>
                                             <th className="px-5 py-3 text-left text-xs font-semibold text-text-muted dark:text-slate-400 uppercase tracking-wide hidden md:table-cell">Type</th>
@@ -488,7 +488,7 @@ export default function AdminDisputesPage() {
                                                 </td>
                                                 <td className="px-5 py-3.5">
                                                     <p className="font-medium text-text-main dark:text-white truncate max-w-50">
-                                                        {d.title || 'Untitled'}
+                                                        {d.description}
                                                     </p>
                                                 </td>
                                                 <td className="px-5 py-3.5 hidden md:table-cell text-text-muted dark:text-slate-400">
