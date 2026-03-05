@@ -262,7 +262,10 @@ export default function CustomerDashboard() {
                                                 <button className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs py-2.5 rounded-lg transition-colors">
                                                     Confirm Completion
                                                 </button>
-                                                <button className="w-full border border-red-500 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 font-bold text-xs py-2.5 rounded-lg transition-colors">
+                                                <button
+                                                    onClick={() => router.push(`/customer/disputes/new?bookingId=${booking.id}`)}
+                                                    className="w-full border border-red-500 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 font-bold text-xs py-2.5 rounded-lg transition-colors"
+                                                >
                                                     Dispute
                                                 </button>
                                             </div>

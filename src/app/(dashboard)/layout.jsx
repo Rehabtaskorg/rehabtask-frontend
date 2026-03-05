@@ -318,6 +318,7 @@ export default function DashboardLayout({ children }) {
                             <NavLink href="/customer/requests" icon={MdDescription} label="My Requests" pathname={pathname} />
                             <NavLink href="/customer/find-therapists" icon={MdPersonSearch} label="Find Therapists" pathname={pathname} />
                             <NavLink href="/customer/bookings" icon={MdCalendarToday} label="My Bookings" pathname={pathname} />
+                            <NavLink href="/customer/disputes" icon={MdGavel} label="Disputes" pathname={pathname} />
                             <CustomerMessagesLink pathname={pathname} />
                             <NavLink href="/customer/payments" icon={MdPayments} label="Payment History" pathname={pathname} />
                             <NavLink href="/customer/subscription" icon={MdStars} label="Subscription" pathname={pathname} />

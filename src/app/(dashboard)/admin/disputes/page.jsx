@@ -22,6 +22,14 @@ const fmtDate = (d) =>
 const getFilerName = (user) =>
     user?.customerProfile?.fullName || user?.therapistProfile?.fullName || user?.email || '—';
 
+const TYPE_STYLES = {
+    billing: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
+    service_quality: 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400',
+    no_show: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
+    communication: 'bg-cyan-100 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-400',
+    other: 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300',
+};
+
 const STATUS_STYLES = {
     open: 'bg-blue-100   text-blue-700   dark:bg-blue-900/30   dark:text-blue-400',
     under_review: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400',
@@ -43,6 +51,14 @@ function StatusBadge({ status }) {
     return (
         <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium capitalize whitespace-nowrap ${STATUS_STYLES[status] ?? 'bg-slate-100 text-slate-600'}`}>
             {status?.replace(/_/g, ' ')}
+        </span>
+    );
+}
+
+function TypeBadge({ type }) {
+    return (
+        <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium capitalize whitespace-nowrap ${TYPE_STYLES[type] ?? TYPE_STYLES.other}`}>
+            {type?.replace(/_/g, ' ') || 'Other'}
         </span>
     );
 }
@@ -142,6 +158,11 @@ function DisputeSidePanel({ dispute, admins, onClose, onUpdate, onAssign, onReop
                                 </Link>
                             )}
                         </dd>
+                    </div>
+
+                    <div className="flex items-center justify-between gap-3">
+                        <dt className="text-text-muted dark:text-slate-400">Type</dt>
+                        <dd><TypeBadge type={dispute.type} /></dd>
                     </div>
 
                     {dispute.booking && (
@@ -442,6 +463,7 @@ export default function AdminDisputesPage() {
                                             <th className="px-5 py-3 text-left text-xs font-semibold text-text-muted dark:text-slate-400 uppercase tracking-wide">Title</th>
                                             <th className="px-5 py-3 text-left text-xs font-semibold text-text-muted dark:text-slate-400 uppercase tracking-wide hidden md:table-cell">Filed By</th>
                                             <th className="px-5 py-3 text-left text-xs font-semibold text-text-muted dark:text-slate-400 uppercase tracking-wide">Status</th>
+                                            <th className="px-5 py-3 text-left text-xs font-semibold text-text-muted dark:text-slate-400 uppercase tracking-wide hidden md:table-cell">Type</th>
                                             <th className="px-5 py-3 text-left text-xs font-semibold text-text-muted dark:text-slate-400 uppercase tracking-wide hidden lg:table-cell">Assigned To</th>
                                             <th className="px-5 py-3 text-left text-xs font-semibold text-text-muted dark:text-slate-400 uppercase tracking-wide hidden lg:table-cell">Date</th>
                                         </tr>
@@ -474,6 +496,9 @@ export default function AdminDisputesPage() {
                                                 </td>
                                                 <td className="px-5 py-3.5">
                                                     <StatusBadge status={d.status} />
+                                                </td>
+                                                <td className="px-5 py-3.5 hidden md:table-cell">
+                                                    <TypeBadge type={d.type} />
                                                 </td>
                                                 <td className="px-5 py-3.5 hidden lg:table-cell text-text-muted dark:text-slate-400">
                                                     {d.assignedAdmin?.email ?? (
