@@ -322,6 +322,7 @@ export default function DashboardLayout({ children }) {
                             <CustomerMessagesLink pathname={pathname} />
                             <NavLink href="/customer/payments" icon={MdPayments} label="Payment History" pathname={pathname} />
                             <NavLink href="/customer/subscription" icon={MdStars} label="Subscription" pathname={pathname} />
+                            <NavLink href="/customer/faqs" icon={MdQuestionAnswer} label="FAQs" pathname={pathname} />
                             <NavLink href="/customer/profile" icon={MdSettings} label="Account Settings" pathname={pathname} />
                             <button
                                 onClick={handleLogout}

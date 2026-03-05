@@ -40,7 +40,7 @@ function FaqModal({ faq, onClose }) {
                 question: faq.question ?? "",
                 answer: faq.answer ?? "",
                 category: faq.category ?? "",
-                order: faq.order != null ? String(faq.order) : "",
+                order: faq.sortOrder != null ? String(faq.sortOrder) : "",
             }
             : EMPTY_FORM
     );
@@ -62,7 +62,7 @@ function FaqModal({ faq, onClose }) {
             question: form.question.trim(),
             answer: form.answer.trim(),
             ...(form.category.trim() ? { category: form.category.trim() } : {}),
-            ...(form.order.trim() !== "" ? { order: Number(form.order) } : {}),
+            ...(form.order.trim() !== "" ? { sortOrder: Number(form.order) } : {}),
         };
         try {
             if (isEdit) {
@@ -82,7 +82,7 @@ function FaqModal({ faq, onClose }) {
             <div className="relative bg-card-light dark:bg-card-dark rounded-2xl border border-border-light dark:border-border-dark w-full max-w-lg shadow-xl flex flex-col max-h-[90dvh]">
                 {/* Header */}
                 <div className="flex items-center justify-between px-5 py-4 border-b border-border-light dark:border-border-dark shrink-0">
-                    <h2 className="font-semibold text-text-main">
+                    <h2 className="font-semibold text-text-main dark:text-white">
                         {isEdit ? "Edit FAQ" : "New FAQ"}
                     </h2>
                     <button
@@ -100,7 +100,7 @@ function FaqModal({ faq, onClose }) {
                 >
                     <div className="flex-1 overflow-y-auto panel-scroll px-5 py-4 space-y-4">
                         <div>
-                            <label className="block text-sm font-medium text-text-main mb-1">
+                            <label className="block text-sm font-medium text-text-main dark:text-white mb-1">
                                 Question <span className="text-red-500">*</span>
                             </label>
                             <textarea
@@ -108,11 +108,11 @@ function FaqModal({ faq, onClose }) {
                                 onChange={set("question")}
                                 rows={2}
                                 placeholder="What is the question?"
-                                className="w-full rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-main text-sm px-3 py-2 resize-none focus:outline-none focus:ring-2 focus:ring-primary"
+                                className="w-full rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-main dark:text-white text-sm px-3 py-2 resize-none focus:outline-none focus:ring-2 focus:ring-primary"
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-text-main mb-1">
+                            <label className="block text-sm font-medium text-text-main dark:text-white mb-1">
                                 Answer <span className="text-red-500">*</span>
                             </label>
                             <textarea
@@ -120,12 +120,12 @@ function FaqModal({ faq, onClose }) {
                                 onChange={set("answer")}
                                 rows={6}
                                 placeholder="Provide a detailed answer…"
-                                className="w-full rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-main text-sm px-3 py-2 resize-none focus:outline-none focus:ring-2 focus:ring-primary"
+                                className="w-full rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-main dark:text-white text-sm px-3 py-2 resize-none focus:outline-none focus:ring-2 focus:ring-primary"
                             />
                         </div>
                         <div className="grid grid-cols-2 gap-3">
                             <div>
-                                <label className="block text-sm font-medium text-text-main mb-1">
+                                <label className="block text-sm font-medium text-text-main dark:text-white mb-1">
                                     Category
                                 </label>
                                 <input
@@ -133,11 +133,11 @@ function FaqModal({ faq, onClose }) {
                                     value={form.category}
                                     onChange={set("category")}
                                     placeholder="e.g. Billing"
-                                    className="w-full rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-main text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
+                                    className="w-full rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-main dark:text-white text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-text-main mb-1">
+                                <label className="block text-sm font-medium text-text-main dark:text-white mb-1">
                                     Display Order
                                 </label>
                                 <input
@@ -146,7 +146,7 @@ function FaqModal({ faq, onClose }) {
                                     onChange={set("order")}
                                     placeholder="0"
                                     min="0"
-                                    className="w-full rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-main text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
+                                    className="w-full rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-main dark:text-white text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
                                 />
                             </div>
                         </div>
@@ -203,12 +203,12 @@ function DeleteModal({ faq, onClose }) {
                     <div className="p-2.5 rounded-full bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 shrink-0">
                         <MdDelete size={20} />
                     </div>
-                    <h2 className="font-semibold text-text-main">Delete FAQ?</h2>
+                    <h2 className="font-semibold text-text-main dark:text-white">Delete FAQ?</h2>
                 </div>
                 <p className="text-sm text-text-muted mb-1">
                     This will permanently remove:
                 </p>
-                <p className="text-sm text-text-main font-medium line-clamp-2 mb-5">
+                <p className="text-sm text-text-main dark:text-white font-medium line-clamp-2 mb-5">
                     &quot;{faq.question}&quot;
                 </p>
                 <div className="flex gap-3">
@@ -248,11 +248,11 @@ function FaqItem({ faq, onEdit, onDelete }) {
                                 {faq.category}
                             </span>
                         )}
-                        {faq.order != null && (
-                            <span className="text-xs text-text-muted">#{faq.order}</span>
+                        {faq.sortOrder != null && (
+                            <span className="text-xs text-text-muted">#{faq.sortOrder}</span>
                         )}
                     </div>
-                    <p className="text-sm font-medium text-text-main leading-snug">
+                    <p className="text-sm font-medium text-text-main dark:text-white leading-snug">
                         {faq.question}
                     </p>
                 </div>
@@ -308,7 +308,7 @@ export default function AdminFaqsPage() {
 
     const { data, isLoading } = useAdminFaqs();
     const faqs = useMemo(
-        () => data?.faqs ?? [],
+        () => (Array.isArray(data) ? data : data?.faqs ?? []),
         [data]
     );
 
@@ -318,7 +318,7 @@ export default function AdminFaqsPage() {
     }, [faqs]);
 
     const filtered = useMemo(() => {
-        let list = [...faqs].sort((a, b) => (a.order ?? 999) - (b.order ?? 999));
+        let list = [...faqs].sort((a, b) => (a.sortOrder ?? 999) - (b.sortOrder ?? 999));
         if (categoryFilter !== "all") {
             list = list.filter((f) => f.category === categoryFilter);
         }
@@ -351,7 +351,7 @@ export default function AdminFaqsPage() {
             {/* Header */}
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-xl font-bold text-text-main">FAQ Management</h1>
+                    <h1 className="text-xl font-bold text-text-main dark:text-white">FAQ Management</h1>
                     <p className="text-sm text-text-muted mt-0.5">
                         {faqs.length} question{faqs.length !== 1 ? "s" : ""} published
                     </p>
@@ -377,14 +377,14 @@ export default function AdminFaqsPage() {
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                         placeholder="Search questions or answers…"
-                        className="w-full pl-9 pr-3 py-2 rounded-lg border border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark text-text-main text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                        className="w-full pl-9 pr-3 py-2 rounded-lg border border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark text-text-main dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                     />
                 </div>
                 {categories.length > 0 && (
                     <select
                         value={categoryFilter}
                         onChange={(e) => setCategoryFilter(e.target.value)}
-                        className="rounded-lg border border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark text-text-main text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
+                        className="rounded-lg border border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark text-text-main dark:text-white text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
                     >
                         <option value="all">All Categories</option>
                         {categories.map((c) => (
@@ -408,7 +408,7 @@ export default function AdminFaqsPage() {
                     <div className="p-4 rounded-full bg-background-light dark:bg-background-dark mb-3">
                         <MdQuestionAnswer size={32} className="text-text-muted" />
                     </div>
-                    <p className="text-sm font-medium text-text-main">No FAQs found</p>
+                    <p className="text-sm font-medium text-text-main dark:text-white">No FAQs found</p>
                     <p className="text-xs text-text-muted mt-1">
                         {search || categoryFilter !== "all"
                             ? "Try adjusting your filters."
