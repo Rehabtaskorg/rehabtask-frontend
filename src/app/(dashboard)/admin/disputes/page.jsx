@@ -19,8 +19,8 @@ import {
 const fmtDate = (d) =>
     d ? new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—';
 
-const getFilerName = (filer) =>
-    filer?.customerProfile?.fullName || filer?.therapistProfile?.fullName || filer?.email || '—';
+const getFilerName = (user) =>
+    user?.customerProfile?.fullName || user?.therapistProfile?.fullName || user?.email || '—';
 
 const STATUS_STYLES = {
     open: 'bg-blue-100   text-blue-700   dark:bg-blue-900/30   dark:text-blue-400',
@@ -124,17 +124,17 @@ function DisputeSidePanel({ dispute, admins, onClose, onUpdate, onAssign, onReop
                             </div>
                             <div className="min-w-0">
                                 <p className="font-medium text-text-main dark:text-white truncate">
-                                    {getFilerName(dispute.filer)}
+                                    {getFilerName(dispute.user)}
                                 </p>
-                                {dispute.filer?.email && (
+                                {dispute.user?.email && (
                                     <p className="text-xs text-text-muted dark:text-slate-400 truncate">
-                                        {dispute.filer.email}
+                                        {dispute.user.email}
                                     </p>
                                 )}
                             </div>
-                            {dispute.filer?.id && (
+                            {dispute.user?.id && (
                                 <Link
-                                    href={`/admin/users/${dispute.filer.id}`}
+                                    href={`/admin/users/${dispute.user.id}`}
                                     className="ml-auto shrink-0 text-primary hover:text-primary/80"
                                     title="View user"
                                 >
@@ -470,7 +470,7 @@ export default function AdminDisputesPage() {
                                                     </p>
                                                 </td>
                                                 <td className="px-5 py-3.5 hidden md:table-cell text-text-muted dark:text-slate-400">
-                                                    {getFilerName(d.filer)}
+                                                    {getFilerName(d.user)}
                                                 </td>
                                                 <td className="px-5 py-3.5">
                                                     <StatusBadge status={d.status} />
