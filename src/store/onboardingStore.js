@@ -38,8 +38,7 @@ const useOnboardingStore = create(
             availability: {
                 schedule: initialSchedule,
                 acceptingNewPatients: true,
-                baseZipCode: "",
-                serviceRadiusMiles: 15
+                workAreas: [],
             },
 
             backgroundCheck: {
@@ -93,6 +92,34 @@ const useOnboardingStore = create(
             updateAvailability: (data) =>
                 set((state) => ({
                     availability: { ...state.availability, ...data }
+                })),
+
+            addWorkArea: (area) =>
+                set((state) => ({
+                    availability: {
+                        ...state.availability,
+                        workAreas: [...state.availability.workAreas, area],
+                    },
+                })),
+
+            updateWorkArea: (index, area) =>
+                set((state) => ({
+                    availability: {
+                        ...state.availability,
+                        workAreas: state.availability.workAreas.map((wa, i) =>
+                            i === index ? area : wa
+                        ),
+                    },
+                })),
+
+            removeWorkArea: (index) =>
+                set((state) => ({
+                    availability: {
+                        ...state.availability,
+                        workAreas: state.availability.workAreas.filter(
+                            (_, i) => i !== index
+                        ),
+                    },
                 })),
 
             toggleDayAvailability: (day) => {
@@ -225,8 +252,7 @@ const useOnboardingStore = create(
                     availability: {
                         schedule: initialSchedule,
                         acceptingNewPatients: true,
-                        baseZipCode: "",
-                        serviceRadiusMiles: 15,
+                        workAreas: [],
                     },
                     backgroundCheck: {
                         consent: false,
