@@ -4,7 +4,8 @@ import { useState, useEffect } from "react";
 import { Map, AdvancedMarker } from "@vis.gl/react-google-maps";
 import { MdClose, MdLocationOn } from "react-icons/md";
 import Button from "@/components/ui/Button";
-import AddressAutocomplete from "@/components/maps/AddressAutocomplete";
+import Input from "@/components/ui/Input";
+import { geocodeZipCode } from "@/lib/geocoding";
 
 const DEFAULT_CENTER = { lat: 39.8283, lng: -98.5795 };
 const DEFAULT_ZOOM = 4;
@@ -13,30 +14,27 @@ const SELECTED_ZOOM = 10;
 const WorkAreaFormModal = ({ isOpen, onClose, workArea, onSave }) => {
     const isEditing = !!workArea;
 
-    const [addressText, setAddressText] = useState("");
+    const [zipCode, setZipCode] = useState("");
     const [city, setCity] = useState("");
     const [state, setState] = useState("");
     const [latitude, setLatitude] = useState(null);
     const [longitude, setLongitude] = useState(null);
     const [radiusMiles, setRadiusMiles] = useState(25);
+    const [isGeocoding, setIsGeocoding] = useState(false);
     const [error, setError] = useState(null);
 
     // Reset/populate state when modal opens
     useEffect(() => {
         if (isOpen) {
             if (workArea) {
-                setAddressText(
-                    workArea.city && workArea.state
-                        ? `${workArea.city}, ${workArea.state}`
-                        : ""
-                );
+                setZipCode(workArea.zipCode || "");
                 setCity(workArea.city || "");
                 setState(workArea.state || "");
                 setLatitude(parseFloat(workArea.latitude) || null);
                 setLongitude(parseFloat(workArea.longitude) || null);
                 setRadiusMiles(workArea.radiusMiles || 25);
             } else {
-                setAddressText("");
+                setZipCode("");
                 setCity("");
                 setState("");
                 setLatitude(null);
@@ -44,34 +42,59 @@ const WorkAreaFormModal = ({ isOpen, onClose, workArea, onSave }) => {
                 setRadiusMiles(25);
             }
             setError(null);
+            setIsGeocoding(false);
         }
     }, [isOpen, workArea]);
 
-    const handleAddressSelect = (result) => {
-        setAddressText(result.formattedAddress);
-        setCity(result.city);
-        setState(result.state);
-        setLatitude(result.latitude);
-        setLongitude(result.longitude);
+    const handleZipChange = async (e) => {
+        const value = e.target.value.replace(/\D/g, "").slice(0, 5);
+        setZipCode(value);
         setError(null);
-    };
 
-    const handleAddressChange = (text) => {
-        setAddressText(text);
-        // Clear resolved location when user types new text
-        if (latitude !== null) {
+        // Clear resolved location when ZIP changes
+        if (value.length < 5) {
             setCity("");
             setState("");
             setLatitude(null);
             setLongitude(null);
+            return;
+        }
+
+        // Auto-geocode when 5 digits entered
+        if (value.length === 5) {
+            setIsGeocoding(true);
+            try {
+                const result = await geocodeZipCode(value);
+                if (result) {
+                    setCity(result.city);
+                    setState(result.state);
+                    setLatitude(result.latitude);
+                    setLongitude(result.longitude);
+                } else {
+                    setError("Could not find a location for this ZIP code.");
+                    setCity("");
+                    setState("");
+                    setLatitude(null);
+                    setLongitude(null);
+                }
+            } catch {
+                setError("Failed to geocode ZIP code. Please try again.");
+            } finally {
+                setIsGeocoding(false);
+            }
         }
     };
 
     const handleSave = () => {
         setError(null);
 
+        if (!zipCode || zipCode.length !== 5) {
+            setError("Please enter a valid 5-digit US ZIP code.");
+            return;
+        }
+
         if (!city || !state || latitude === null || longitude === null) {
-            setError("Please select a valid US address from the suggestions.");
+            setError("Please enter a valid ZIP code that maps to a US location.");
             return;
         }
 
@@ -81,6 +104,7 @@ const WorkAreaFormModal = ({ isOpen, onClose, workArea, onSave }) => {
         }
 
         onSave({
+            zipCode,
             city,
             state,
             latitude,
@@ -136,19 +160,20 @@ const WorkAreaFormModal = ({ isOpen, onClose, workArea, onSave }) => {
                         </div>
                     )}
 
-                    {/* Address Input */}
-                    <AddressAutocomplete
-                        label="ADDRESS"
-                        placeholder="e.g. 456 Oak Ave, Houston, TX"
-                        value={addressText}
-                        onChange={handleAddressChange}
-                        onSelect={handleAddressSelect}
-                        helperText={
-                            isEditing && !hasSelectedLocation && addressText
-                                ? `Current: ${addressText} — type a new address to change`
-                                : undefined
-                        }
+                    {/* ZIP Code Input */}
+                    <Input
+                        label="ZIP Code"
+                        placeholder="e.g. 77001"
+                        value={zipCode}
+                        onChange={handleZipChange}
                         required
+                        helperText={
+                            isGeocoding
+                                ? "Looking up location..."
+                                : isEditing && !hasSelectedLocation && zipCode
+                                    ? "Enter a new ZIP code to change location"
+                                    : "Enter a 5-digit US ZIP code"
+                        }
                     />
 
                     {/* Resolved location badge */}
@@ -215,7 +240,7 @@ const WorkAreaFormModal = ({ isOpen, onClose, workArea, onSave }) => {
                         <Button variant="secondary" onClick={onClose}>
                             Cancel
                         </Button>
-                        <Button onClick={handleSave}>
+                        <Button onClick={handleSave} disabled={isGeocoding}>
                             {isEditing ? "Update" : "Add"} Work Area
                         </Button>
                     </div>

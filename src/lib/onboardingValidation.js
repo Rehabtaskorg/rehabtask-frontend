@@ -108,6 +108,7 @@ export const availabilitySchema = z.object({
     workAreas: z
         .array(
             z.object({
+                zipCode: z.string().regex(/^\d{5}$/, "ZIP code must be 5 digits"),
                 city: z.string().min(1),
                 state: z.string().min(1),
                 latitude: z.number().min(-90).max(90),

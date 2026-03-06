@@ -385,7 +385,7 @@ export default function AvailabilityPage() {
                                                             {area.city}, {area.state}
                                                         </p>
                                                         <p className="text-xs text-text-muted">
-                                                            {area.radiusMiles} mi radius
+                                                            ZIP {area.zipCode} &middot; {area.radiusMiles} mi radius
                                                         </p>
                                                     </div>
                                                 </div>
@@ -443,12 +443,6 @@ export default function AvailabilityPage() {
                                 </div>
                             </div>
 
-                            <WorkAreaFormModal
-                                isOpen={modalOpen}
-                                onClose={() => { setModalOpen(false); setEditingIndex(null); }}
-                                workArea={editingIndex !== null ? formData.workAreas?.[editingIndex] : null}
-                                onSave={handleModalSave}
-                            />
                         </div>
 
                         {/* Navigation */}
@@ -485,6 +479,13 @@ export default function AvailabilityPage() {
                             </button>
                         </div>
                     </form>
+
+                    <WorkAreaFormModal
+                        isOpen={modalOpen}
+                        onClose={() => { setModalOpen(false); setEditingIndex(null); }}
+                        workArea={editingIndex !== null ? formData.workAreas?.[editingIndex] : null}
+                        onSave={handleModalSave}
+                    />
                 </div>
             </div>
         </APIProvider>

@@ -103,7 +103,8 @@ const WorkAreasTab = ({ profile }) => {
         setAlert(null);
 
         // Build payload and call API immediately
-        const payload = remaining.map(({ city, state, latitude, longitude, radiusMiles }) => ({
+        const payload = remaining.map(({ zipCode, city, state, latitude, longitude, radiusMiles }) => ({
+            zipCode,
             city,
             state,
             latitude: parseFloat(latitude),
@@ -144,7 +145,8 @@ const WorkAreasTab = ({ profile }) => {
     const handleSaveAll = async () => {
         setAlert(null);
 
-        const payload = workAreas.map(({ city, state, latitude, longitude, radiusMiles }) => ({
+        const payload = workAreas.map(({ zipCode, city, state, latitude, longitude, radiusMiles }) => ({
+            zipCode,
             city,
             state,
             latitude: parseFloat(latitude),
@@ -275,6 +277,7 @@ const WorkAreasTab = ({ profile }) => {
                                     <tr className="border-b border-border-light dark:border-border-dark">
                                         <th className="text-left text-xs font-bold text-text-muted uppercase tracking-wide px-6 py-3">City</th>
                                         <th className="text-left text-xs font-bold text-text-muted uppercase tracking-wide px-6 py-3">State</th>
+                                        <th className="text-left text-xs font-bold text-text-muted uppercase tracking-wide px-6 py-3">ZIP</th>
                                         <th className="text-left text-xs font-bold text-text-muted uppercase tracking-wide px-6 py-3">Radius</th>
                                         <th className="text-left text-xs font-bold text-text-muted uppercase tracking-wide px-6 py-3">Coordinates</th>
                                         <th className="text-right text-xs font-bold text-text-muted uppercase tracking-wide px-6 py-3">Actions</th>
@@ -293,6 +296,7 @@ const WorkAreasTab = ({ profile }) => {
                                                 </div>
                                             </td>
                                             <td className="px-6 py-4 text-sm text-text-main dark:text-white">{area.state}</td>
+                                            <td className="px-6 py-4 text-sm text-text-main dark:text-white font-mono">{area.zipCode}</td>
                                             <td className="px-6 py-4">
                                                 <span className="text-xs font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-full">{area.radiusMiles} mi</span>
                                             </td>
@@ -326,6 +330,7 @@ const WorkAreasTab = ({ profile }) => {
                                             </div>
                                             <div>
                                                 <p className="text-sm font-semibold text-text-main dark:text-white">{area.city}, {area.state}</p>
+                                                <p className="text-xs text-text-muted mt-0.5">ZIP {area.zipCode}</p>
                                                 <span className="inline-block mt-1 text-xs font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-full">{area.radiusMiles} mi radius</span>
                                                 <p className="text-xs text-text-muted mt-1 font-mono">
                                                     {parseFloat(area.latitude).toFixed(4)}, {parseFloat(area.longitude).toFixed(4)}

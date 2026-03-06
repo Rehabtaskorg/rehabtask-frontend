@@ -98,7 +98,7 @@ const useOnboardingStore = create(
                 set((state) => ({
                     availability: {
                         ...state.availability,
-                        workAreas: [...state.availability.workAreas, area],
+                        workAreas: [...(state.availability.workAreas || []), area],
                     },
                 })),
 
@@ -106,7 +106,7 @@ const useOnboardingStore = create(
                 set((state) => ({
                     availability: {
                         ...state.availability,
-                        workAreas: state.availability.workAreas.map((wa, i) =>
+                        workAreas: (state.availability.workAreas || []).map((wa, i) =>
                             i === index ? area : wa
                         ),
                     },
@@ -116,7 +116,7 @@ const useOnboardingStore = create(
                 set((state) => ({
                     availability: {
                         ...state.availability,
-                        workAreas: state.availability.workAreas.filter(
+                        workAreas: (state.availability.workAreas || []).filter(
                             (_, i) => i !== index
                         ),
                     },
@@ -292,6 +292,15 @@ const useOnboardingStore = create(
                 payment: {
                     stripeConnected: state.payment.stripeConnected,
                     onboardingComplete: state.payment.onboardingComplete,
+                },
+            }),
+            merge: (persisted, current) => ({
+                ...current,
+                ...persisted,
+                availability: {
+                    ...current.availability,
+                    ...(persisted?.availability || {}),
+                    workAreas: persisted?.availability?.workAreas || [],
                 },
             }),
         }
