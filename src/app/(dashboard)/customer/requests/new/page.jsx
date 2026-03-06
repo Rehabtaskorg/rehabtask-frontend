@@ -63,6 +63,9 @@ export default function NewRequestPage() {
                 latitude: step2.latitude,
                 longitude: step2.longitude,
                 patientId: isAgency ? patientId : undefined,
+                rate: parseFloat(step1.rate),
+                visitType: step1.visitType === "Other" ? step1.visitTypeOther : step1.visitType,
+                emr: step1.emr === "Other" ? step1.emrOther : step1.emr,
             });
             reset();
             router.push("/customer/requests");
@@ -73,7 +76,12 @@ export default function NewRequestPage() {
     };
 
     const isStep1Valid =
-        step1.serviceType && step1.description.trim().length >= 10 && step1.preferredDate;
+        step1.serviceType &&
+        step1.description.trim().length >= 10 &&
+        step1.preferredDate &&
+        step1.rate && parseFloat(step1.rate) > 0 &&
+        step1.visitType && (step1.visitType !== "Other" || step1.visitTypeOther.trim()) &&
+        step1.emr && (step1.emr !== "Other" || step1.emrOther.trim());
     const isStep2Valid =
         step2.address && step2.latitude !== null && step2.longitude !== null;
 

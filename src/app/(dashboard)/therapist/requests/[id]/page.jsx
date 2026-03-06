@@ -158,6 +158,27 @@ export default function TherapistRequestDetailPage() {
                         </p>
                     </div>
 
+                    {request.visitType && (
+                        <div>
+                            <h3 className="font-semibold mb-1">Visit Type</h3>
+                            <p className="text-gray-700">{request.visitType}</p>
+                        </div>
+                    )}
+
+                    {request.rate != null && (
+                        <div>
+                            <h3 className="font-semibold mb-1">Rate per Visit</h3>
+                            <p className="text-gray-700">${parseFloat(request.rate).toFixed(2)}</p>
+                        </div>
+                    )}
+
+                    {request.emr && (
+                        <div>
+                            <h3 className="font-semibold mb-1">EMR System</h3>
+                            <p className="text-gray-700">{request.emr}</p>
+                        </div>
+                    )}
+
                     <div>
                         <h3 className="font-semibold mb-1">Posted</h3>
                         <p className="text-gray-700">

@@ -68,6 +68,33 @@ export default function Step3Review({ onEditStep }) {
                             {formatReviewDate(step1.preferredDate, step1.preferredTime)}
                         </p>
                     </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2 border-t border-border-light dark:border-border-dark">
+                        <div>
+                            <p className="text-[10px] font-bold uppercase tracking-wider text-text-muted dark:text-gray-400 mb-1">
+                                Rate per Visit
+                            </p>
+                            <p className="text-sm font-medium text-text-main dark:text-white">
+                                {step1.rate ? `$${parseFloat(step1.rate).toFixed(2)}` : "—"}
+                            </p>
+                        </div>
+                        <div>
+                            <p className="text-[10px] font-bold uppercase tracking-wider text-text-muted dark:text-gray-400 mb-1">
+                                Visit Type
+                            </p>
+                            <p className="text-sm font-medium text-text-main dark:text-white">
+                                {step1.visitType === "Other" ? step1.visitTypeOther : step1.visitType || "—"}
+                            </p>
+                        </div>
+                        <div>
+                            <p className="text-[10px] font-bold uppercase tracking-wider text-text-muted dark:text-gray-400 mb-1">
+                                EMR System
+                            </p>
+                            <p className="text-sm font-medium text-text-main dark:text-white">
+                                {step1.emr === "Other" ? step1.emrOther : step1.emr || "—"}
+                            </p>
+                        </div>
+                    </div>
                 </div>
             </div>
 

@@ -1,6 +1,7 @@
 "use client";
 
 import useRequestStore from "@/store/requestStore";
+import { useRequestOptions } from "@/hooks/useRequestOptions";
 
 const SERVICE_TYPES = [
     { value: "", label: "Select a service type..." },
@@ -16,6 +17,8 @@ const LABEL_CLASS = "block text-sm font-semibold text-slate-700 dark:text-slate-
 
 export default function Step1ServiceDetails() {
     const { step1, setStep1 } = useRequestStore();
+    const { data: visitTypeOptions = [] } = useRequestOptions("visit_type");
+    const { data: emrOptions = [] } = useRequestOptions("emr");
 
     const todayStr = new Date().toISOString().split("T")[0];
 
@@ -91,7 +94,95 @@ export default function Step1ServiceDetails() {
                     />
                 </div>
             </div>
-        </div>
-    )
 
+            {/* Rate per Visit */}
+            <div>
+                <label className={LABEL_CLASS}>
+                    Rate per Visit <span className="text-red-500">*</span>
+                </label>
+                <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 font-semibold text-sm">$</span>
+                    <input
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        value={step1.rate}
+                        onChange={(e) => setStep1({ rate: e.target.value })}
+                        placeholder="0.00"
+                        className={`${INPUT_CLASS} pl-7 font-mono`}
+                    />
+                </div>
+                {step1.rate && parseFloat(step1.rate) <= 0 && (
+                    <p className="text-xs text-red-500 mt-1">Rate must be a positive number</p>
+                )}
+            </div>
+
+            {/* Visit Type + EMR — 2-col grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {/* Visit Type */}
+                <div>
+                    <label className={LABEL_CLASS}>
+                        Type of Visit <span className="text-red-500">*</span>
+                    </label>
+                    <select
+                        value={step1.visitType}
+                        onChange={(e) => {
+                            setStep1({ visitType: e.target.value });
+                            if (e.target.value !== "Other") setStep1({ visitTypeOther: "" });
+                        }}
+                        className={INPUT_CLASS}
+                    >
+                        <option value="">Select visit type...</option>
+                        {visitTypeOptions.map((opt) => (
+                            <option key={opt.id} value={opt.value}>
+                                {opt.value}
+                            </option>
+                        ))}
+                        <option value="Other">Other</option>
+                    </select>
+                    {step1.visitType === "Other" && (
+                        <input
+                            type="text"
+                            value={step1.visitTypeOther}
+                            onChange={(e) => setStep1({ visitTypeOther: e.target.value })}
+                            placeholder="Enter visit type..."
+                            className={`${INPUT_CLASS} mt-2`}
+                        />
+                    )}
+                </div>
+
+                {/* EMR System */}
+                <div>
+                    <label className={LABEL_CLASS}>
+                        EMR System <span className="text-red-500">*</span>
+                    </label>
+                    <select
+                        value={step1.emr}
+                        onChange={(e) => {
+                            setStep1({ emr: e.target.value });
+                            if (e.target.value !== "Other") setStep1({ emrOther: "" });
+                        }}
+                        className={INPUT_CLASS}
+                    >
+                        <option value="">Select EMR system...</option>
+                        {emrOptions.map((opt) => (
+                            <option key={opt.id} value={opt.value}>
+                                {opt.value}
+                            </option>
+                        ))}
+                        <option value="Other">Other</option>
+                    </select>
+                    {step1.emr === "Other" && (
+                        <input
+                            type="text"
+                            value={step1.emrOther}
+                            onChange={(e) => setStep1({ emrOther: e.target.value })}
+                            placeholder="Enter EMR system..."
+                            className={`${INPUT_CLASS} mt-2`}
+                        />
+                    )}
+                </div>
+            </div>
+        </div>
+    );
 }
