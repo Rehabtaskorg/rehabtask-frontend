@@ -5,12 +5,13 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { LuCalendar, LuPlus, LuX, LuMapPin } from "react-icons/lu";
+import { MdEdit, MdDelete, MdLocationOn } from "react-icons/md";
 
 import useOnboardingStore from "@/store/onboardingStore";
 import { availabilitySchema } from "@/lib/onboardingValidation";
 import { onboardingAPI } from "@/lib/onboarding.api";
 import OnboardingProgressBar from "@/components/therapist/OnboardingProgressBar";
-import { geocodeZipCode } from "@/lib/geocoding";
+import WorkAreaFormModal from "@/components/therapist/profile/WorkAreaFormModal";
 
 import { APIProvider } from "@vis.gl/react-google-maps";
 import DatePicker from "react-datepicker";
@@ -41,12 +42,17 @@ export default function AvailabilityPage() {
         applyScheduleToWeekdays,
         applyScheduleToAllDays,
         updateAvailability,
+        addWorkArea,
+        updateWorkArea,
+        removeWorkArea,
         markStepComplete,
         setCurrentStep,
     } = useOnboardingStore();
 
     const [validationError, setValidationError] = useState("");
     const [loading, setLoading] = useState(false);
+    const [modalOpen, setModalOpen] = useState(false);
+    const [editingIndex, setEditingIndex] = useState(null);
 
     const defaultValues = useMemo(() => availability, [availability]);
 
@@ -70,35 +76,10 @@ export default function AvailabilityPage() {
         setLoading(true);
 
         try {
-            let workArea = null;
-
-            // Geocode zip code to coordinates if provide
-            if (data.baseZipCode && data.baseZipCode.trim()) {
-                try {
-                    const geoResult = await geocodeZipCode(data.baseZipCode.trim());
-
-                    if (geoResult) {
-                        workArea = {
-                            city: geoResult.city,
-                            state: geoResult.state,
-                            latitude: geoResult.latitude,
-                            longitude: geoResult.longitude,
-                            radiusMiles: parseInt(data.serviceRadiusMiles) || 25,
-                        };
-                    }
-                } catch (geoError) {
-                    console.warn("Zip code geocoding failed, continuing without work area:", geoError);
-                    // Don't block onboarding if geocoding fails — therapist can add work area later
-                }
-            }
-
-            // Call backend API to save availability + work area
             await onboardingAPI.saveAvailability({
                 schedule: data.schedule,
                 acceptingNewPatients: data.acceptingNewPatients,
-                baseZipCode: data.baseZipCode,
-                serviceRadiusMiles: data.serviceRadiusMiles,
-                workArea, // geocoded work area data (or null)
+                workAreas: data.workAreas,
             });
 
             updateAvailability(data);
@@ -113,6 +94,23 @@ export default function AvailabilityPage() {
         } finally {
             setLoading(false);
         }
+    };
+
+    const handleModalSave = (area) => {
+        if (editingIndex !== null) {
+            updateWorkArea(editingIndex, area);
+            setValue("workAreas", availability.workAreas.map((wa, i) => i === editingIndex ? area : wa));
+        } else {
+            addWorkArea(area);
+            setValue("workAreas", [...availability.workAreas, area]);
+        }
+        clearErrors("workAreas");
+        setEditingIndex(null);
+    };
+
+    const handleRemoveWorkArea = (index) => {
+        removeWorkArea(index);
+        setValue("workAreas", availability.workAreas.filter((_, i) => i !== index));
     };
 
     const parseTimeString = (timeStr) => {
@@ -354,121 +352,103 @@ export default function AvailabilityPage() {
                                 </div>
                             </div>
 
-                            {/* Service Area - Takes 1 column */}
+                            {/* Work Areas - Takes 1 column */}
                             <div className="flex flex-col gap-6">
                                 <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl p-6 flex flex-col gap-6 shadow-sm">
-                                    <h3 className="text-xl font-bold text-text-main dark:text-white flex items-center gap-2">
-                                        <LuMapPin size={20} className="text-primary" />
-                                        Service Reach
-                                    </h3>
-
-                                    <div className="flex flex-col gap-6">
-                                        <div className="flex flex-col gap-2">
-                                            <label className="text-sm font-bold text-text-main dark:text-gray-300">
-                                                Base ZIP Code <span className="text-red-500">*</span>
-                                            </label>
-                                            <div className="relative">
-                                                <Controller
-                                                    name="baseZipCode"
-                                                    control={control}
-                                                    render={({ field }) => (
-                                                        <input
-                                                            type="text"
-                                                            {...field}
-                                                            className="w-full h-12 rounded-lg border border-border-light dark:border-border-dark bg-input-light dark:bg-input-dark text-text-main dark:text-white px-4 pl-10 focus:border-primary focus:ring-1 focus:ring-primary outline-none"
-                                                            placeholder="e.g. 94103"
-                                                            maxLength={10}
-                                                        />
-                                                    )}
-                                                />
-                                                <svg
-                                                    className="w-5 h-5 text-gray-400 absolute left-3 top-3.5"
-                                                    fill="none"
-                                                    stroke="currentColor"
-                                                    viewBox="0 0 24 24"
-                                                >
-                                                    <path
-                                                        strokeLinecap="round"
-                                                        strokeLinejoin="round"
-                                                        strokeWidth={2}
-                                                        d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
-                                                    />
-                                                </svg>
-                                            </div>
-                                            {errors.baseZipCode && (
-                                                <p className="text-red-500 text-sm">
-                                                    {errors.baseZipCode.message}
-                                                </p>
-                                            )}
-                                        </div>
-
-                                        <div className="flex flex-col gap-4">
-                                            <div className="flex justify-between items-center">
-                                                <label className="text-sm font-bold text-text-main dark:text-gray-300">
-                                                    Service Radius
-                                                </label>
-                                                <span className="bg-primary/10 text-primary px-2 py-1 rounded text-xs font-bold">
-                                                    {formData.serviceRadiusMiles} miles
-                                                </span>
-                                            </div>
-                                            <Controller
-                                                name="serviceRadiusMiles"
-                                                control={control}
-                                                render={({ field }) => (
-                                                    <input
-                                                        type="range"
-                                                        min="1"
-                                                        max="100"
-                                                        step="5"
-                                                        {...field}
-                                                        className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-primary"
-                                                    />
-                                                )}
-                                            />
-                                            <div className="flex justify-between text-[10px] text-gray-400 font-bold uppercase tracking-tight">
-                                                <span>1 mi</span>
-                                                <span>50 mi</span>
-                                                <span>100 mi</span>
-                                            </div>
-                                            {errors.serviceRadiusMiles && (
-                                                <p className="text-red-500 text-sm">
-                                                    {errors.serviceRadiusMiles.message}
-                                                </p>
-                                            )}
-                                        </div>
+                                    <div className="flex justify-between items-center">
+                                        <h3 className="text-xl font-bold text-text-main dark:text-white flex items-center gap-2">
+                                            <LuMapPin size={20} className="text-primary" />
+                                            Work Areas
+                                        </h3>
+                                        <span className="text-xs text-text-muted font-medium">
+                                            {formData.workAreas?.length || 0} added
+                                        </span>
                                     </div>
+
+                                    {errors.workAreas && (
+                                        <p className="text-red-500 text-sm">
+                                            {errors.workAreas.message || errors.workAreas.root?.message}
+                                        </p>
+                                    )}
+
+                                    {/* Work areas list */}
+                                    <div className="flex flex-col gap-3">
+                                        {(formData.workAreas || []).map((area, index) => (
+                                            <div
+                                                key={index}
+                                                className="flex items-center justify-between p-3 rounded-lg border border-border-light dark:border-border-dark bg-muted-light dark:bg-muted-dark"
+                                            >
+                                                <div className="flex items-center gap-2.5 min-w-0">
+                                                    <MdLocationOn className="text-primary shrink-0" />
+                                                    <div className="min-w-0">
+                                                        <p className="text-sm font-medium text-text-main dark:text-white truncate">
+                                                            {area.city}, {area.state}
+                                                        </p>
+                                                        <p className="text-xs text-text-muted">
+                                                            {area.radiusMiles} mi radius
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                                <div className="flex items-center gap-1 shrink-0">
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => {
+                                                            setEditingIndex(index);
+                                                            setModalOpen(true);
+                                                        }}
+                                                        className="p-1.5 rounded-lg text-text-muted hover:text-primary hover:bg-primary/10 transition-colors"
+                                                    >
+                                                        <MdEdit size={16} />
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleRemoveWorkArea(index)}
+                                                        className="p-1.5 rounded-lg text-text-muted hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                                                    >
+                                                        <MdDelete size={16} />
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        ))}
+
+                                        {(!formData.workAreas || formData.workAreas.length === 0) && (
+                                            <p className="text-sm text-text-muted text-center py-4">
+                                                No work areas added yet. Add at least one to continue.
+                                            </p>
+                                        )}
+                                    </div>
+
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setEditingIndex(null);
+                                            setModalOpen(true);
+                                        }}
+                                        className="flex items-center justify-center gap-2 w-full py-2.5 rounded-lg border-2 border-dashed border-primary/30 text-primary text-sm font-semibold hover:bg-primary/5 hover:border-primary/50 transition-all"
+                                    >
+                                        <LuPlus size={16} />
+                                        Add Work Area
+                                    </button>
                                 </div>
 
                                 {/* Preview Card */}
                                 <div className="bg-primary/5 dark:bg-primary/10 border border-primary/10 dark:border-primary/20 p-6 rounded-xl">
                                     <h3 className="text-sm font-bold text-primary mb-2 flex items-center gap-2">
-                                        <svg
-                                            className="w-4 h-4"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            viewBox="0 0 24 24"
-                                        >
-                                            <path
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                                strokeWidth={2}
-                                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                                            />
-                                            <path
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                                strokeWidth={2}
-                                                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                                            />
-                                        </svg>
+                                        <LuMapPin size={14} />
                                         Marketplace Preview
                                     </h3>
                                     <p className="text-xs text-primary/80 dark:text-primary/70 leading-relaxed">
-                                        Patients will see your availability and{" "}
-                                        <b>{formData.serviceRadiusMiles}-mile</b> service radius.
+                                        Patients will see your availability and work areas when searching for therapists in their area.
                                     </p>
                                 </div>
                             </div>
+
+                            <WorkAreaFormModal
+                                isOpen={modalOpen}
+                                onClose={() => { setModalOpen(false); setEditingIndex(null); }}
+                                workArea={editingIndex !== null ? formData.workAreas?.[editingIndex] : null}
+                                onSave={handleModalSave}
+                            />
                         </div>
 
                         {/* Navigation */}

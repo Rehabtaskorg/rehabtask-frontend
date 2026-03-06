@@ -4,8 +4,7 @@ import { useState, useEffect } from "react";
 import { Map, AdvancedMarker } from "@vis.gl/react-google-maps";
 import { MdClose, MdLocationOn } from "react-icons/md";
 import Button from "@/components/ui/Button";
-import Input from "@/components/ui/Input";
-import { geocodeZipCode } from "@/lib/geocoding";
+import AddressAutocomplete from "@/components/maps/AddressAutocomplete";
 
 const DEFAULT_CENTER = { lat: 39.8283, lng: -98.5795 };
 const DEFAULT_ZOOM = 4;
@@ -14,27 +13,30 @@ const SELECTED_ZOOM = 10;
 const WorkAreaFormModal = ({ isOpen, onClose, workArea, onSave }) => {
     const isEditing = !!workArea;
 
-    const [zipCode, setZipCode] = useState("");
+    const [addressText, setAddressText] = useState("");
     const [city, setCity] = useState("");
     const [state, setState] = useState("");
     const [latitude, setLatitude] = useState(null);
     const [longitude, setLongitude] = useState(null);
     const [radiusMiles, setRadiusMiles] = useState(25);
     const [error, setError] = useState(null);
-    const [geocoding, setGeocoding] = useState(false);
 
     // Reset/populate state when modal opens
     useEffect(() => {
         if (isOpen) {
             if (workArea) {
-                setZipCode("");
+                setAddressText(
+                    workArea.city && workArea.state
+                        ? `${workArea.city}, ${workArea.state}`
+                        : ""
+                );
                 setCity(workArea.city || "");
                 setState(workArea.state || "");
                 setLatitude(parseFloat(workArea.latitude) || null);
                 setLongitude(parseFloat(workArea.longitude) || null);
                 setRadiusMiles(workArea.radiusMiles || 25);
             } else {
-                setZipCode("");
+                setAddressText("");
                 setCity("");
                 setState("");
                 setLatitude(null);
@@ -42,46 +44,26 @@ const WorkAreaFormModal = ({ isOpen, onClose, workArea, onSave }) => {
                 setRadiusMiles(25);
             }
             setError(null);
-            setGeocoding(false);
         }
     }, [isOpen, workArea]);
 
-    const handleZipChange = async (e) => {
-        const value = e.target.value.replace(/[^0-9]/g, "").slice(0, 5);
-        setZipCode(value);
+    const handleAddressSelect = (result) => {
+        setAddressText(result.formattedAddress);
+        setCity(result.city);
+        setState(result.state);
+        setLatitude(result.latitude);
+        setLongitude(result.longitude);
         setError(null);
+    };
 
-        // Clear previous location when user changes ZIP
-        if (value.length < 5) {
+    const handleAddressChange = (text) => {
+        setAddressText(text);
+        // Clear resolved location when user types new text
+        if (latitude !== null) {
             setCity("");
             setState("");
             setLatitude(null);
             setLongitude(null);
-            return;
-        }
-
-        // Auto-geocode when 5 digits entered
-        if (value.length === 5) {
-            setGeocoding(true);
-            try {
-                const result = await geocodeZipCode(value);
-                if (result) {
-                    setCity(result.city);
-                    setState(result.state);
-                    setLatitude(result.latitude);
-                    setLongitude(result.longitude);
-                } else {
-                    setError("Could not find this ZIP code. Please check and try again.");
-                    setCity("");
-                    setState("");
-                    setLatitude(null);
-                    setLongitude(null);
-                }
-            } catch {
-                setError("Geocoding failed. Please try again.");
-            } finally {
-                setGeocoding(false);
-            }
         }
     };
 
@@ -89,7 +71,7 @@ const WorkAreaFormModal = ({ isOpen, onClose, workArea, onSave }) => {
         setError(null);
 
         if (!city || !state || latitude === null || longitude === null) {
-            setError("Please enter a valid 5-digit US ZIP code.");
+            setError("Please select a valid US address from the suggestions.");
             return;
         }
 
@@ -154,20 +136,17 @@ const WorkAreaFormModal = ({ isOpen, onClose, workArea, onSave }) => {
                         </div>
                     )}
 
-                    {/* ZIP Code Input */}
-                    <Input
-                        label="ZIP CODE"
-                        placeholder="e.g. 90210"
-                        value={zipCode}
-                        onChange={handleZipChange}
-                        maxLength={5}
-                        inputMode="numeric"
+                    {/* Address Input */}
+                    <AddressAutocomplete
+                        label="ADDRESS"
+                        placeholder="e.g. 456 Oak Ave, Houston, TX"
+                        value={addressText}
+                        onChange={handleAddressChange}
+                        onSelect={handleAddressSelect}
                         helperText={
-                            isEditing && !zipCode
-                                ? `Current: ${city}, ${state} — enter a new ZIP to change`
-                                : geocoding
-                                    ? "Looking up ZIP code..."
-                                    : undefined
+                            isEditing && !hasSelectedLocation && addressText
+                                ? `Current: ${addressText} — type a new address to change`
+                                : undefined
                         }
                         required
                     />
@@ -236,7 +215,7 @@ const WorkAreaFormModal = ({ isOpen, onClose, workArea, onSave }) => {
                         <Button variant="secondary" onClick={onClose}>
                             Cancel
                         </Button>
-                        <Button onClick={handleSave} disabled={geocoding}>
+                        <Button onClick={handleSave}>
                             {isEditing ? "Update" : "Add"} Work Area
                         </Button>
                     </div>

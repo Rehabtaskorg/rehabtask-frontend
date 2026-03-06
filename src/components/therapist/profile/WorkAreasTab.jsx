@@ -16,7 +16,6 @@ import { useUpdateWorkAreas } from "@/hooks/useTherapistProfile";
 import Button from "@/components/ui/Button";
 import Alert from "@/components/ui/Alert";
 
-const MAX_WORK_AREAS = 5;
 const DEFAULT_CENTER = { lat: 39.8283, lng: -98.5795 };
 const DEFAULT_ZOOM = 4;
 
@@ -241,14 +240,13 @@ const WorkAreasTab = ({ profile }) => {
                             Work Areas
                         </h3>
                         <p className="text-sm text-text-muted">
-                            {workAreas.length}/{MAX_WORK_AREAS} areas configured
+                            {workAreas.length} area{workAreas.length !== 1 ? "s" : ""} configured
                         </p>
                     </div>
                     <Button
                         variant="outline"
                         size="sm"
                         onClick={handleAdd}
-                        disabled={workAreas.length >= MAX_WORK_AREAS}
                     >
                         <MdAdd className="text-lg" />
                         Add Area
