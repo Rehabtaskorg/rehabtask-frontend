@@ -338,6 +338,7 @@ const TABS = [
 
 export default function AdminDisputesPage() {
     const currentUser = useAdminUser();
+    const isFullAdmin = currentUser?.role === 'admin';
     const [statusFilter, setStatusFilter] = useState('');
     const [unassignedOnly, setUnassigned] = useState(false);
     const [page, setPage] = useState(1);
@@ -353,8 +354,8 @@ export default function AdminDisputesPage() {
     };
 
     const { data, isLoading, error } = useAdminDisputes(params);
-    const { data: adminData } = useAdminUsers({ role: 'admin', limit: 100 });
-    const { data: subAdminData } = useAdminUsers({ role: 'sub_admin', limit: 100 });
+    const { data: adminData } = useAdminUsers({ role: 'admin', limit: 100, enabled: isFullAdmin });
+    const { data: subAdminData } = useAdminUsers({ role: 'sub_admin', limit: 100, enabled: isFullAdmin });
     const updateDispute = useUpdateDispute();
     const assignDispute = useAssignDispute();
     const reopenDispute = useReopenDispute();
@@ -424,7 +425,9 @@ export default function AdminDisputesPage() {
                 <div className="mb-5">
                     <h1 className="text-xl md:text-2xl font-bold text-text-main dark:text-white">Disputes</h1>
                     <p className="text-text-muted dark:text-slate-400 text-sm mt-0.5">
-                        {pagination ? `${pagination.total.toLocaleString()} disputes` : 'Manage platform disputes'}
+                        {pagination
+                            ? `${pagination.total.toLocaleString()} ${isFullAdmin ? 'disputes' : 'disputes assigned to you'}`
+                            : isFullAdmin ? 'Manage platform disputes' : 'Disputes assigned to you'}
                     </p>
                 </div>
 
@@ -446,17 +449,19 @@ export default function AdminDisputesPage() {
                         ))}
                     </div>
 
-                    {/* Unassigned toggle */}
-                    <button
-                        onClick={() => { setUnassigned(v => !v); setPage(1); setSelected(null); }}
-                        className={`flex items-center gap-2 px-3 py-2 rounded-xl border text-sm font-medium transition-colors
-                            ${unassignedOnly
-                                ? 'border-primary bg-primary/10 text-primary dark:bg-primary/20'
-                                : 'border-border-light dark:border-border-dark text-text-muted dark:text-slate-400 hover:border-primary/40 hover:text-primary'}`}
-                    >
-                        <span className={`h-2 w-2 rounded-full ${unassignedOnly ? 'bg-primary' : 'bg-slate-300 dark:bg-slate-600'}`} />
-                        Unassigned only
-                    </button>
+                    {/* Unassigned toggle — admin only */}
+                    {isFullAdmin && (
+                        <button
+                            onClick={() => { setUnassigned(v => !v); setPage(1); setSelected(null); }}
+                            className={`flex items-center gap-2 px-3 py-2 rounded-xl border text-sm font-medium transition-colors
+                                ${unassignedOnly
+                                    ? 'border-primary bg-primary/10 text-primary dark:bg-primary/20'
+                                    : 'border-border-light dark:border-border-dark text-text-muted dark:text-slate-400 hover:border-primary/40 hover:text-primary'}`}
+                        >
+                            <span className={`h-2 w-2 rounded-full ${unassignedOnly ? 'bg-primary' : 'bg-slate-300 dark:bg-slate-600'}`} />
+                            Unassigned only
+                        </button>
+                    )}
                 </div>
 
                 {/* Table */}
