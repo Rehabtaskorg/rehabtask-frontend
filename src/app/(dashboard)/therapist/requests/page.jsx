@@ -514,6 +514,30 @@ export default function TherapistRequestsPage() {
                                             {selectedRequest.offers?.length || 0} offer{selectedRequest.offers?.length !== 1 ? 's' : ''}
                                         </p>
                                     </div>
+                                    {selectedRequest.rate != null && (
+                                        <div className="p-3 rounded-lg border border-slate-100 dark:border-border-dark">
+                                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Rate per Visit</p>
+                                            <p className="text-sm font-semibold text-slate-900 dark:text-white mt-1">
+                                                ${parseFloat(selectedRequest.rate).toFixed(2)}
+                                            </p>
+                                        </div>
+                                    )}
+                                    {selectedRequest.visitType && (
+                                        <div className="p-3 rounded-lg border border-slate-100 dark:border-border-dark">
+                                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Visit Type</p>
+                                            <p className="text-sm font-semibold text-slate-900 dark:text-white mt-1">
+                                                {selectedRequest.visitType}
+                                            </p>
+                                        </div>
+                                    )}
+                                    {selectedRequest.emr && (
+                                        <div className="p-3 rounded-lg border border-slate-100 dark:border-border-dark">
+                                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">EMR System</p>
+                                            <p className="text-sm font-semibold text-slate-900 dark:text-white mt-1">
+                                                {selectedRequest.emr}
+                                            </p>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
 

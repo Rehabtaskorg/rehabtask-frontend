@@ -13,6 +13,11 @@ const useRequestStore = create(
                 description: "",
                 preferredDate: "",
                 preferredTime: "",
+                rate: "",
+                visitType: "",
+                emr: "",
+                emrOther: "",
+                visitTypeOther: "",
             },
             step2: {
                 address: "",
@@ -31,7 +36,7 @@ const useRequestStore = create(
                 set({
                     currentStep: 1,
                     patientId: null,
-                    step1: { serviceType: "", description: "", preferredDate: "", preferredTime: "" },
+                    step1: { serviceType: "", description: "", preferredDate: "", preferredTime: "", rate: "", visitType: "", emr: "", emrOther: "", visitTypeOther: "" },
                     step2: { address: "", latitude: null, longitude: null },
                 }),
 
@@ -52,6 +57,18 @@ const useRequestStore = create(
                 patientId: state.patientId,
                 step1: state.step1,
                 step2: state.step2,
+            }),
+            merge: (persisted, current) => ({
+                ...current,
+                ...persisted,
+                step1: {
+                    ...current.step1,
+                    ...(persisted?.step1 || {}),
+                },
+                step2: {
+                    ...current.step2,
+                    ...(persisted?.step2 || {}),
+                },
             }),
         }
     )
