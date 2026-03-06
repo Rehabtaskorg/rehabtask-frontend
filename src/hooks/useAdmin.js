@@ -32,10 +32,11 @@ export const useMarkAllNotificationsRead = () => {
 };
 
 // Admin - Users
-export const useAdminUsers = (params) =>
+export const useAdminUsers = ({ enabled, ...params } = {}) =>
     useQuery({
         queryKey: ['admin', 'users', params],
         queryFn: () => adminUsersApi.list(params).then(r => r.data.data),
+        enabled: enabled !== false,
     });
 
 export const useAdminUser = (userId) =>
@@ -61,11 +62,20 @@ export const useReactivateUser = () => {
     });
 };
 
+export const useUpdateUser = () => {
+    const qc = useQueryClient();
+    return useMutation({
+        mutationFn: ({ userId, data }) => adminUsersApi.update(userId, data),
+        onSuccess: () => qc.invalidateQueries({ queryKey: ['admin', 'users'] }),
+    });
+};
+
 // Admin - Therapists
-export const useAdminTherapists = (params) =>
+export const useAdminTherapists = ({ enabled, ...params } = {}) =>
     useQuery({
         queryKey: ['admin', 'therapists', params],
         queryFn: () => adminTherapistsApi.list(params).then(r => r.data.data),
+        enabled: enabled !== false,
     });
 
 export const useAdminTherapist = (therapistUserId) =>
@@ -93,10 +103,11 @@ export const useRejectTherapist = () => {
 };
 
 // Admin - Disputes
-export const useAdminDisputes = (params) =>
+export const useAdminDisputes = ({ enabled, ...params } = {}) =>
     useQuery({
         queryKey: ['admin', 'disputes', params],
         queryFn: () => adminDisputesApi.list(params).then(r => r.data.data),
+        enabled: enabled !== false,
     });
 
 export const useAdminDispute = (id) =>
@@ -135,10 +146,11 @@ export const useReopenDispute = () => {
 };
 
 // Admin - Bookings
-export const useAdminBookings = (params) =>
+export const useAdminBookings = ({ enabled, ...params } = {}) =>
     useQuery({
         queryKey: ['admin', 'bookings', params],
         queryFn: () => adminBookingsApi.list(params).then(r => r.data.data),
+        enabled: enabled !== false,
     });
 
 export const useAdminBooking = (id) =>
@@ -157,10 +169,11 @@ export const useCancelAdminBooking = () => {
 };
 
 // Admin - Subscriptions
-export const useAdminSubscriptionStats = () =>
+export const useAdminSubscriptionStats = ({ enabled } = {}) =>
     useQuery({
         queryKey: ['admin', 'subscriptions', 'stats'],
         queryFn: () => adminSubscriptionsApi.stats().then(r => r.data.data),
+        enabled: enabled !== false,
     });
 
 export const useAdminSubscriptions = (params) =>
@@ -187,10 +200,11 @@ export const useCancelAdminSubscription = () => {
 };
 
 // Admin - Payments
-export const useAdminPaymentStats = () =>
+export const useAdminPaymentStats = ({ enabled } = {}) =>
     useQuery({
         queryKey: ['admin', 'payments', 'stats'],
         queryFn: () => adminPaymentsApi.stats().then(r => r.data.data),
+        enabled: enabled !== false,
     });
 
 export const useAdminPayments = (params) =>

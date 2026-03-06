@@ -7,6 +7,7 @@ import { authAPi } from '@/lib/auth.api';
 import { supabase } from '@/lib/supabase';
 import { getTherapistRedirect } from '@/lib/therapistRouteAccess';
 import { TherapistAccessProvider } from '@/contexts/TherapistAccessContext';
+import { AdminUserProvider } from '@/contexts/AdminUserContext';
 import OnboardingBanner from '@/components/therapist/OnboardingBanner';
 import { useUnreadCount } from '@/hooks/useMessages';
 import {
@@ -219,6 +220,52 @@ export default function DashboardLayout({ children }) {
         };
     })() : null;
 
+    // Sub-admin permission-based sidebar filtering
+    const subAdminPermissions = user.role === 'sub_admin' ? (user.profile?.permissions || []) : null;
+    const hasAdminPermission = (permission) => {
+        if (user.role === 'admin') return true;
+        return subAdminPermissions?.includes(permission) ?? false;
+    };
+
+    const adminNavItems = [
+        { href: '/admin/users', icon: MdManageAccounts, label: 'Users', permission: 'users' },
+        { href: '/admin/therapists', icon: MdVerifiedUser, label: 'Therapists', permission: 'therapists' },
+        { href: '/admin/disputes', icon: MdGavel, label: 'Disputes', permission: 'disputes' },
+        { href: '/admin/bookings', icon: MdCalendarMonth, label: 'Bookings', permission: 'bookings' },
+        { href: '/admin/subscriptions', icon: MdCardMembership, label: 'Subscriptions', permission: 'subscriptions' },
+        { href: '/admin/payments', icon: MdAttachMoney, label: 'Payments', permission: 'payments' },
+        { href: '/admin/faqs', icon: MdQuestionAnswer, label: 'FAQs', permission: 'faqs' },
+        { href: '/admin/notifications', icon: MdNotifications, label: 'Notifications', permission: 'notifications' },
+    ];
+
+    // Route guard: redirect sub-admins away from pages they don't have permission for
+    if (user.role === 'sub_admin' && pathname.startsWith('/admin/')) {
+        const currentNavItem = adminNavItems.find(item => pathname.startsWith(item.href));
+        if (currentNavItem && !hasAdminPermission(currentNavItem.permission)) {
+            router.replace('/admin/dashboard');
+            return (
+                <div className="min-h-screen flex items-center justify-center bg-background-light dark:bg-background-dark">
+                    <div className="text-center">
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+                        <p className="mt-4 text-text-muted dark:text-gray-400">Redirecting...</p>
+                    </div>
+                </div>
+            );
+        }
+        // Block sub-admins from accessing sub-admins management page
+        if (pathname.startsWith('/admin/sub-admins')) {
+            router.replace('/admin/dashboard');
+            return (
+                <div className="min-h-screen flex items-center justify-center bg-background-light dark:bg-background-dark">
+                    <div className="text-center">
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+                        <p className="mt-4 text-text-muted dark:text-gray-400">Redirecting...</p>
+                    </div>
+                </div>
+            );
+        }
+    }
+
     return (
         <div className="flex min-h-screen bg-background-light dark:bg-background-dark">
 
@@ -407,14 +454,9 @@ export default function DashboardLayout({ children }) {
                         </div>
                         <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
                             <NavLink href="/admin/dashboard" icon={MdDashboard} label="Dashboard" pathname={pathname} matchStart={false} />
-                            <NavLink href="/admin/users" icon={MdManageAccounts} label="Users" pathname={pathname} />
-                            <NavLink href="/admin/therapists" icon={MdVerifiedUser} label="Therapists" pathname={pathname} />
-                            <NavLink href="/admin/disputes" icon={MdGavel} label="Disputes" pathname={pathname} />
-                            <NavLink href="/admin/bookings" icon={MdCalendarMonth} label="Bookings" pathname={pathname} />
-                            <NavLink href="/admin/subscriptions" icon={MdCardMembership} label="Subscriptions" pathname={pathname} />
-                            <NavLink href="/admin/payments" icon={MdAttachMoney} label="Payments" pathname={pathname} />
-                            <NavLink href="/admin/faqs" icon={MdQuestionAnswer} label="FAQs" pathname={pathname} />
-                            <NavLink href="/admin/notifications" icon={MdNotifications} label="Notifications" pathname={pathname} />
+                            {adminNavItems.filter(item => hasAdminPermission(item.permission)).map(item => (
+                                <NavLink key={item.href} href={item.href} icon={item.icon} label={item.label} pathname={pathname} />
+                            ))}
                             {user.role === 'admin' && (
                                 <NavLink href="/admin/sub-admins" icon={MdSupervisorAccount} label="Sub-Admins" pathname={pathname} />
                             )}
@@ -455,6 +497,10 @@ export default function DashboardLayout({ children }) {
                     <TherapistAccessProvider value={therapistAccess}>
                         {children}
                     </TherapistAccessProvider>
+                ) : (user.role === 'admin' || user.role === 'sub_admin') ? (
+                    <AdminUserProvider value={{ id: user.id, email: user.email, role: user.role, permissions: subAdminPermissions }}>
+                        {children}
+                    </AdminUserProvider>
                 ) : (
                     children
                 )}

@@ -41,7 +41,8 @@ function Skeleton({ className }) {
 // ─── Side Panel ───────────────────────────────────────────────────────────────
 
 function UserSidePanel({ user, onClose, onDeactivate, onReactivate, mutating }) {
-    const profile = user.customerProfile || user.therapistProfile;
+    const [confirmDeactivate, setConfirmDeactivate] = useState(false);
+    const [confirmReactivate, setConfirmReactivate] = useState(false);
     const displayName = getDisplayName(user);
     const initials = getInitials(user);
 
@@ -153,23 +154,65 @@ function UserSidePanel({ user, onClose, onDeactivate, onReactivate, mutating }) 
                 </Link>
 
                 {user.isActive ? (
-                    <button
-                        onClick={() => onDeactivate(user.id)}
-                        disabled={mutating}
-                        className="flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-xl bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-sm font-medium hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                        <MdBlock className="text-base" />
-                        {mutating ? 'Processing…' : 'Deactivate User'}
-                    </button>
+                    confirmDeactivate ? (
+                        <div className="space-y-2">
+                            <p className="text-xs text-red-600 dark:text-red-400">This user will be unable to log in or access the platform.</p>
+                            <div className="flex gap-2">
+                                <button
+                                    onClick={() => { onDeactivate(user.id); setConfirmDeactivate(false); }}
+                                    disabled={mutating}
+                                    className="flex-1 px-4 py-2 rounded-xl bg-red-600 text-white text-sm font-medium hover:bg-red-700 transition-colors disabled:opacity-50"
+                                >
+                                    {mutating ? 'Processing…' : 'Confirm'}
+                                </button>
+                                <button
+                                    onClick={() => setConfirmDeactivate(false)}
+                                    className="flex-1 px-4 py-2 rounded-xl border border-border-light dark:border-border-dark text-sm font-medium text-text-main dark:text-white hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                                >
+                                    Cancel
+                                </button>
+                            </div>
+                        </div>
+                    ) : (
+                        <button
+                            onClick={() => setConfirmDeactivate(true)}
+                            disabled={mutating}
+                            className="flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-xl bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-sm font-medium hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            <MdBlock className="text-base" />
+                            Deactivate User
+                        </button>
+                    )
                 ) : (
-                    <button
-                        onClick={() => onReactivate(user.id)}
-                        disabled={mutating}
-                        className="flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 text-sm font-medium hover:bg-emerald-100 dark:hover:bg-emerald-900/30 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                        <MdCheckCircle className="text-base" />
-                        {mutating ? 'Processing…' : 'Reactivate User'}
-                    </button>
+                    confirmReactivate ? (
+                        <div className="space-y-2">
+                            <p className="text-xs text-emerald-600 dark:text-emerald-400">This will restore the user&apos;s access to the platform.</p>
+                            <div className="flex gap-2">
+                                <button
+                                    onClick={() => { onReactivate(user.id); setConfirmReactivate(false); }}
+                                    disabled={mutating}
+                                    className="flex-1 px-4 py-2 rounded-xl bg-emerald-600 text-white text-sm font-medium hover:bg-emerald-700 transition-colors disabled:opacity-50"
+                                >
+                                    {mutating ? 'Processing…' : 'Confirm'}
+                                </button>
+                                <button
+                                    onClick={() => setConfirmReactivate(false)}
+                                    className="flex-1 px-4 py-2 rounded-xl border border-border-light dark:border-border-dark text-sm font-medium text-text-main dark:text-white hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                                >
+                                    Cancel
+                                </button>
+                            </div>
+                        </div>
+                    ) : (
+                        <button
+                            onClick={() => setConfirmReactivate(true)}
+                            disabled={mutating}
+                            className="flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 text-sm font-medium hover:bg-emerald-100 dark:hover:bg-emerald-900/30 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            <MdCheckCircle className="text-base" />
+                            Reactivate User
+                        </button>
+                    )
                 )}
             </div>
         </div>
@@ -377,7 +420,7 @@ export default function AdminUsersPage() {
                             </div>
 
                             {/* Pagination */}
-                            {pagination && pagination.pages > 1 && (
+                            {pagination && pagination.totalPages > 1 && (
                                 <div className="flex items-center justify-between px-5 py-4 border-t border-border-light dark:border-border-dark">
                                     <p className="text-sm text-text-muted dark:text-slate-400">
                                         {(page - 1) * pagination.limit + 1}–{Math.min(page * pagination.limit, pagination.total)} of {pagination.total.toLocaleString()}
@@ -391,11 +434,11 @@ export default function AdminUsersPage() {
                                             <MdChevronLeft className="text-xl text-slate-600 dark:text-slate-300" />
                                         </button>
                                         <span className="text-sm font-medium text-text-main dark:text-white min-w-15 text-center">
-                                            {page} / {pagination.pages}
+                                            {page} / {pagination.totalPages}
                                         </span>
                                         <button
                                             onClick={() => setPage(p => p + 1)}
-                                            disabled={page === pagination.pages}
+                                            disabled={page === pagination.totalPages}
                                             className="p-1.5 rounded-lg border border-border-light dark:border-border-dark hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                                         >
                                             <MdChevronRight className="text-xl text-slate-600 dark:text-slate-300" />

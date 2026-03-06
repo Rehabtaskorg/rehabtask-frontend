@@ -15,6 +15,7 @@ import {
     useReopenDispute,
     useAdminUsers,
 } from '@/hooks/useAdmin';
+import { useAdminUser } from '@/contexts/AdminUserContext';
 
 const fmtDate = (d) =>
     d ? new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—';
@@ -63,7 +64,7 @@ function TypeBadge({ type }) {
     );
 }
 
-function DisputeSidePanel({ dispute, admins, onClose, onUpdate, onAssign, onReopen, loading, error, success }) {
+function DisputeSidePanel({ dispute, admins, onClose, onUpdate, onAssign, onReopen, loading, error, success, currentUser }) {
     const [formStatus, setFormStatus] = useState(dispute.status);
     const [formResolution, setFormResolution] = useState(dispute.resolution || '');
     const [formAssignId, setFormAssignId] = useState(dispute.assignedAdmin?.id || '');
@@ -79,6 +80,11 @@ function DisputeSidePanel({ dispute, admins, onClose, onUpdate, onAssign, onReop
 
     const isResolved = dispute.status === 'resolved' || dispute.status === 'closed';
     const isDirty = formStatus !== dispute.status || formResolution !== (dispute.resolution || '');
+
+    const isFullAdmin = currentUser?.role === 'admin';
+    const isAssignedToMe = dispute.assignedAdminId === currentUser?.id || dispute.assignedAdmin?.id === currentUser?.id;
+    const canModify = isFullAdmin || isAssignedToMe;
+    const canAssign = isFullAdmin;
 
     const handleSaveUpdate = () => {
         onUpdate(dispute.id, {
@@ -203,97 +209,109 @@ function DisputeSidePanel({ dispute, admins, onClose, onUpdate, onAssign, onReop
                 )}
 
                 {/* ── Update Status section ── */}
-                <div className="border border-border-light dark:border-border-dark rounded-xl overflow-hidden">
-                    <button
-                        onClick={() => setActiveSection(prev => prev === 'update' ? null : 'update')}
-                        className="w-full flex items-center justify-between px-4 py-3 text-sm font-medium text-text-main dark:text-white hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
-                    >
-                        Update Status & Resolution
-                        <span className="text-text-muted text-xs">{activeSection === 'update' ? '▲' : '▼'}</span>
-                    </button>
+                {canModify ? (
+                    <div className="border border-border-light dark:border-border-dark rounded-xl overflow-hidden">
+                        <button
+                            onClick={() => setActiveSection(prev => prev === 'update' ? null : 'update')}
+                            className="w-full flex items-center justify-between px-4 py-3 text-sm font-medium text-text-main dark:text-white hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
+                        >
+                            Update Status & Resolution
+                            <span className="text-text-muted text-xs">{activeSection === 'update' ? '▲' : '▼'}</span>
+                        </button>
 
-                    {activeSection === 'update' && (
-                        <div className="px-4 pb-4 space-y-3 border-t border-border-light dark:border-border-dark">
-                            <div className="pt-3">
-                                <label className="block text-xs font-medium text-text-muted dark:text-slate-400 mb-1.5">
-                                    Status
-                                </label>
+                        {activeSection === 'update' && (
+                            <div className="px-4 pb-4 space-y-3 border-t border-border-light dark:border-border-dark">
+                                <div className="pt-3">
+                                    <label className="block text-xs font-medium text-text-muted dark:text-slate-400 mb-1.5">
+                                        Status
+                                    </label>
+                                    <select
+                                        value={formStatus}
+                                        onChange={e => setFormStatus(e.target.value)}
+                                        className="w-full px-3 py-2.5 text-sm rounded-xl border border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark text-text-main dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                                    >
+                                        {STATUS_OPTIONS.map(o => (
+                                            <option key={o.value} value={o.value}>{o.label}</option>
+                                        ))}
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label className="block text-xs font-medium text-text-muted dark:text-slate-400 mb-1.5">
+                                        Resolution Note
+                                        <span className="font-normal ml-1">(optional)</span>
+                                    </label>
+                                    <textarea
+                                        value={formResolution}
+                                        onChange={e => setFormResolution(e.target.value)}
+                                        placeholder="Describe how this dispute was resolved…"
+                                        rows={3}
+                                        className="w-full px-3 py-2.5 text-sm rounded-xl border border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark text-text-main dark:text-white placeholder:text-text-muted resize-none focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                                    />
+                                </div>
+
+                                <button
+                                    onClick={handleSaveUpdate}
+                                    disabled={loading || !isDirty}
+                                    className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-primary text-white text-sm font-medium hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                >
+                                    <MdSave className="text-base" />
+                                    {loading ? 'Saving…' : 'Save Changes'}
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                ) : (
+                    <div className="rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-border-light dark:border-border-dark px-4 py-3">
+                        <p className="text-xs font-medium text-text-muted dark:text-slate-400">
+                            {dispute.assignedAdmin
+                                ? `This dispute is assigned to ${dispute.assignedAdmin.email}. Only the assigned admin or a full admin can update it.`
+                                : 'This dispute is unassigned. Only a full admin can update unassigned disputes.'}
+                        </p>
+                    </div>
+                )}
+
+                {/* ── Assign Admin section — full admins only ── */}
+                {canAssign && (
+                    <div className="border border-border-light dark:border-border-dark rounded-xl overflow-hidden">
+                        <button
+                            onClick={() => setActiveSection(prev => prev === 'assign' ? null : 'assign')}
+                            className="w-full flex items-center justify-between px-4 py-3 text-sm font-medium text-text-main dark:text-white hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
+                        >
+                            Assign to Admin
+                            <span className="text-text-muted text-xs">{activeSection === 'assign' ? '▲' : '▼'}</span>
+                        </button>
+
+                        {activeSection === 'assign' && (
+                            <div className="px-4 pb-4 space-y-3 border-t border-border-light dark:border-border-dark pt-3">
                                 <select
-                                    value={formStatus}
-                                    onChange={e => setFormStatus(e.target.value)}
+                                    value={formAssignId}
+                                    onChange={e => setFormAssignId(e.target.value)}
                                     className="w-full px-3 py-2.5 text-sm rounded-xl border border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark text-text-main dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                                 >
-                                    {STATUS_OPTIONS.map(o => (
-                                        <option key={o.value} value={o.value}>{o.label}</option>
+                                    <option value="">Select an admin…</option>
+                                    {admins.map(admin => (
+                                        <option key={admin.id} value={admin.id}>
+                                            {admin.email}{admin.role === 'sub_admin' ? ' (Sub-Admin)' : ' (Admin)'}
+                                        </option>
                                     ))}
                                 </select>
+
+                                <button
+                                    onClick={handleAssign}
+                                    disabled={loading || !formAssignId || formAssignId === dispute.assignedAdmin?.id}
+                                    className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-primary text-white text-sm font-medium hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                >
+                                    {loading ? 'Assigning…' : 'Assign'}
+                                </button>
                             </div>
-
-                            <div>
-                                <label className="block text-xs font-medium text-text-muted dark:text-slate-400 mb-1.5">
-                                    Resolution Note
-                                    <span className="font-normal ml-1">(optional)</span>
-                                </label>
-                                <textarea
-                                    value={formResolution}
-                                    onChange={e => setFormResolution(e.target.value)}
-                                    placeholder="Describe how this dispute was resolved…"
-                                    rows={3}
-                                    className="w-full px-3 py-2.5 text-sm rounded-xl border border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark text-text-main dark:text-white placeholder:text-text-muted resize-none focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                                />
-                            </div>
-
-                            <button
-                                onClick={handleSaveUpdate}
-                                disabled={loading || !isDirty}
-                                className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-primary text-white text-sm font-medium hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                            >
-                                <MdSave className="text-base" />
-                                {loading ? 'Saving…' : 'Save Changes'}
-                            </button>
-                        </div>
-                    )}
-                </div>
-
-                {/* ── Assign Admin section ── */}
-                <div className="border border-border-light dark:border-border-dark rounded-xl overflow-hidden">
-                    <button
-                        onClick={() => setActiveSection(prev => prev === 'assign' ? null : 'assign')}
-                        className="w-full flex items-center justify-between px-4 py-3 text-sm font-medium text-text-main dark:text-white hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
-                    >
-                        Assign to Admin
-                        <span className="text-text-muted text-xs">{activeSection === 'assign' ? '▲' : '▼'}</span>
-                    </button>
-
-                    {activeSection === 'assign' && (
-                        <div className="px-4 pb-4 space-y-3 border-t border-border-light dark:border-border-dark pt-3">
-                            <select
-                                value={formAssignId}
-                                onChange={e => setFormAssignId(e.target.value)}
-                                className="w-full px-3 py-2.5 text-sm rounded-xl border border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark text-text-main dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                            >
-                                <option value="">Select an admin…</option>
-                                {admins.map(admin => (
-                                    <option key={admin.id} value={admin.id}>
-                                        {admin.customerProfile?.fullName || admin.therapistProfile?.fullName || admin.email}
-                                    </option>
-                                ))}
-                            </select>
-
-                            <button
-                                onClick={handleAssign}
-                                disabled={loading || !formAssignId || formAssignId === dispute.assignedAdmin?.id}
-                                className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-primary text-white text-sm font-medium hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                            >
-                                {loading ? 'Assigning…' : 'Assign'}
-                            </button>
-                        </div>
-                    )}
-                </div>
+                        )}
+                    </div>
+                )}
             </div>
 
             {/* Fixed footer — reopen action */}
-            {isResolved && (
+            {isResolved && canModify && (
                 <div className="p-5 border-t border-border-light dark:border-border-dark shrink-0">
                     <button
                         onClick={() => onReopen(dispute.id)}
@@ -319,6 +337,7 @@ const TABS = [
 ];
 
 export default function AdminDisputesPage() {
+    const currentUser = useAdminUser();
     const [statusFilter, setStatusFilter] = useState('');
     const [unassignedOnly, setUnassigned] = useState(false);
     const [page, setPage] = useState(1);
@@ -334,14 +353,18 @@ export default function AdminDisputesPage() {
     };
 
     const { data, isLoading, error } = useAdminDisputes(params);
-    const { data: adminsData } = useAdminUsers({ role: 'admin', limit: 100 });
+    const { data: adminData } = useAdminUsers({ role: 'admin', limit: 100 });
+    const { data: subAdminData } = useAdminUsers({ role: 'sub_admin', limit: 100 });
     const updateDispute = useUpdateDispute();
     const assignDispute = useAssignDispute();
     const reopenDispute = useReopenDispute();
 
     const disputes = data?.disputes ?? [];
     const pagination = data?.pagination;
-    const admins = adminsData?.users ?? [];
+    const admins = [
+        ...(adminData?.users ?? []),
+        ...(subAdminData?.users ?? []),
+    ];
     const mutating = updateDispute.isPending || assignDispute.isPending || reopenDispute.isPending;
 
     const clear = () => { setActionError(''); setActionSuccess(''); };
@@ -515,7 +538,7 @@ export default function AdminDisputesPage() {
                             </div>
 
                             {/* Pagination */}
-                            {pagination && pagination.pages > 1 && (
+                            {pagination && pagination.totalPages > 1 && (
                                 <div className="flex items-center justify-between px-5 py-4 border-t border-border-light dark:border-border-dark">
                                     <p className="text-sm text-text-muted dark:text-slate-400">
                                         {(page - 1) * pagination.limit + 1}–{Math.min(page * pagination.limit, pagination.total)} of {pagination.total.toLocaleString()}
@@ -529,11 +552,11 @@ export default function AdminDisputesPage() {
                                             <MdChevronLeft className="text-xl text-slate-600 dark:text-slate-300" />
                                         </button>
                                         <span className="text-sm font-medium text-text-main dark:text-white min-w-15 text-center">
-                                            {page} / {pagination.pages}
+                                            {page} / {pagination.totalPages}
                                         </span>
                                         <button
                                             onClick={() => setPage(p => p + 1)}
-                                            disabled={page === pagination.pages}
+                                            disabled={page === pagination.totalPages}
                                             className="p-1.5 rounded-lg border border-border-light dark:border-border-dark hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed"
                                         >
                                             <MdChevronRight className="text-xl text-slate-600 dark:text-slate-300" />
@@ -564,6 +587,7 @@ export default function AdminDisputesPage() {
                             loading={mutating}
                             error={actionError}
                             success={actionSuccess}
+                            currentUser={currentUser}
                         />
                     </div>
                 </>
