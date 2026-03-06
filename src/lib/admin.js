@@ -11,6 +11,7 @@ export const notificationsApi = {
 export const adminUsersApi = {
     list: (params) => api.get('/admin/users', { params }),
     get: (userId) => api.get(`/admin/users/${userId}`),
+    update: (userId, data) => api.put(`/admin/users/${userId}`, data),
     deactivate: (userId) => api.put(`/admin/users/${userId}/deactivate`),
     reactivate: (userId) => api.put(`/admin/users/${userId}/reactivate`),
 };

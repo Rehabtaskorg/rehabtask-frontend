@@ -39,6 +39,17 @@ function Skeleton({ className = "" }) {
     );
 }
 
+const getSubAdminDisplayName = (user) =>
+    user.customerProfile?.fullName ||
+    user.therapistProfile?.fullName ||
+    user.email?.split("@")[0] ||
+    "Unknown";
+
+const getSubAdminInitial = (user) => {
+    const name = user.customerProfile?.fullName || user.therapistProfile?.fullName || user.email;
+    return (name?.[0] || "?").toUpperCase();
+};
+
 function StatusBadge({ isActive }) {
     return (
         <span
@@ -224,11 +235,11 @@ function AddSubAdminModal({ onClose }) {
                                 {selectedUser ? (
                                     <div className="flex items-center gap-2 p-2.5 rounded-lg bg-primary/5 border border-primary/20">
                                         <div className="w-7 h-7 rounded-full bg-primary/20 text-primary flex items-center justify-center text-xs font-semibold shrink-0">
-                                            {selectedUser.firstName?.[0] ?? "?"}
+                                            {getSubAdminInitial(selectedUser)}
                                         </div>
                                         <div className="flex-1 min-w-0">
                                             <p className="text-sm font-medium text-text-main dark:text-white truncate">
-                                                {selectedUser.firstName} {selectedUser.lastName}
+                                                {getSubAdminDisplayName(selectedUser)}
                                             </p>
                                             <p className="text-xs text-text-muted truncate">
                                                 {selectedUser.email}
@@ -280,11 +291,11 @@ function AddSubAdminModal({ onClose }) {
                                                             className="w-full flex items-center gap-2 px-3 py-2.5 hover:bg-background-light dark:hover:bg-background-dark text-left transition-colors border-b border-border-light dark:border-border-dark last:border-0"
                                                         >
                                                             <div className="w-6 h-6 rounded-full bg-primary/20 text-primary flex items-center justify-center text-xs font-semibold shrink-0">
-                                                                {u.firstName?.[0] ?? "?"}
+                                                                {getSubAdminInitial(u)}
                                                             </div>
                                                             <div className="flex-1 min-w-0">
                                                                 <p className="text-sm text-text-main dark:text-white truncate">
-                                                                    {u.firstName} {u.lastName}
+                                                                    {getSubAdminDisplayName(u)}
                                                                 </p>
                                                                 <p className="text-xs text-text-muted truncate">
                                                                     {u.email}
@@ -356,6 +367,8 @@ function SubAdminSidePanel({ subAdmin, onClose }) {
     const [dirty, setDirty] = useState(false);
     const [error, setError] = useState("");
 
+    const [confirmDeactivate, setConfirmDeactivate] = useState(false);
+    const [confirmReactivate, setConfirmReactivate] = useState(false);
     const updateMutation = useUpdateSubAdminPermissions();
     const deactivateMutation = useDeactivateSubAdmin();
     const reactivateMutation = useReactivateSubAdmin();
@@ -414,11 +427,11 @@ function SubAdminSidePanel({ subAdmin, onClose }) {
                     {/* Identity */}
                     <div className="flex items-center gap-3">
                         <div className="w-12 h-12 rounded-full bg-primary/20 text-primary flex items-center justify-center text-lg font-bold shrink-0">
-                            {subAdmin.firstName?.[0] ?? "?"}
+                            {getSubAdminInitial(subAdmin)}
                         </div>
                         <div className="flex-1 min-w-0">
                             <p className="font-semibold text-text-main dark:text-white truncate">
-                                {subAdmin.firstName} {subAdmin.lastName}
+                                {getSubAdminDisplayName(subAdmin)}
                             </p>
                             <p className="text-sm text-text-muted truncate">
                                 {subAdmin.email}
@@ -456,25 +469,63 @@ function SubAdminSidePanel({ subAdmin, onClose }) {
                 {/* Footer */}
                 <div className="px-4 py-3 border-t border-border-light dark:border-border-dark shrink-0">
                     {subAdmin.isActive ? (
-                        <button
-                            onClick={() => deactivateMutation.mutate(subAdmin.id)}
-                            disabled={deactivateMutation.isPending}
-                            className="w-full py-2 rounded-lg border border-red-300 dark:border-red-700 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 text-sm font-medium disabled:opacity-50"
-                        >
-                            {deactivateMutation.isPending
-                                ? "Deactivating…"
-                                : "Deactivate Sub-Admin"}
-                        </button>
+                        confirmDeactivate ? (
+                            <div className="space-y-2">
+                                <p className="text-xs text-red-600 dark:text-red-400">This sub-admin will be unable to log in or access the platform.</p>
+                                <div className="flex gap-2">
+                                    <button
+                                        onClick={() => { deactivateMutation.mutate(subAdmin.id); setConfirmDeactivate(false); }}
+                                        disabled={deactivateMutation.isPending}
+                                        className="flex-1 py-2 rounded-lg bg-red-600 text-white text-sm font-medium hover:bg-red-700 disabled:opacity-50"
+                                    >
+                                        {deactivateMutation.isPending ? "Deactivating…" : "Confirm"}
+                                    </button>
+                                    <button
+                                        onClick={() => setConfirmDeactivate(false)}
+                                        className="flex-1 py-2 rounded-lg border border-border-light dark:border-border-dark text-sm font-medium text-text-main dark:text-white hover:bg-background-light dark:hover:bg-background-dark"
+                                    >
+                                        Cancel
+                                    </button>
+                                </div>
+                            </div>
+                        ) : (
+                            <button
+                                onClick={() => setConfirmDeactivate(true)}
+                                disabled={deactivateMutation.isPending}
+                                className="w-full py-2 rounded-lg border border-red-300 dark:border-red-700 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 text-sm font-medium disabled:opacity-50"
+                            >
+                                Deactivate Sub-Admin
+                            </button>
+                        )
                     ) : (
-                        <button
-                            onClick={() => reactivateMutation.mutate(subAdmin.id)}
-                            disabled={reactivateMutation.isPending}
-                            className="w-full py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white text-sm font-medium disabled:opacity-50"
-                        >
-                            {reactivateMutation.isPending
-                                ? "Reactivating…"
-                                : "Reactivate Sub-Admin"}
-                        </button>
+                        confirmReactivate ? (
+                            <div className="space-y-2">
+                                <p className="text-xs text-emerald-600 dark:text-emerald-400">This will restore the sub-admin&apos;s access to the platform.</p>
+                                <div className="flex gap-2">
+                                    <button
+                                        onClick={() => { reactivateMutation.mutate(subAdmin.id); setConfirmReactivate(false); }}
+                                        disabled={reactivateMutation.isPending}
+                                        className="flex-1 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium disabled:opacity-50"
+                                    >
+                                        {reactivateMutation.isPending ? 'Processing…' : 'Confirm'}
+                                    </button>
+                                    <button
+                                        onClick={() => setConfirmReactivate(false)}
+                                        className="flex-1 py-2 rounded-lg border border-border-light dark:border-border-dark text-sm font-medium text-text-main dark:text-white hover:bg-slate-50 dark:hover:bg-slate-800"
+                                    >
+                                        Cancel
+                                    </button>
+                                </div>
+                            </div>
+                        ) : (
+                            <button
+                                onClick={() => setConfirmReactivate(true)}
+                                disabled={reactivateMutation.isPending}
+                                className="w-full py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white text-sm font-medium disabled:opacity-50"
+                            >
+                                Reactivate Sub-Admin
+                            </button>
+                        )
                     )}
                 </div>
             </aside>
@@ -488,6 +539,11 @@ export default function AdminSubAdminsPage() {
 
     const { data, isLoading } = useAdminSubAdmins();
     const subAdmins = data?.subAdmins ?? [];
+
+    // Keep selectedSubAdmin in sync with fresh query data
+    const resolvedSubAdmin = selectedSubAdmin
+        ? subAdmins.find((sa) => sa.id === selectedSubAdmin.id) ?? selectedSubAdmin
+        : null;
 
     return (
         <div
@@ -583,10 +639,10 @@ export default function AdminSubAdminsPage() {
                                                 <td className="px-4 py-3">
                                                     <div className="flex items-center gap-2">
                                                         <div className="w-7 h-7 rounded-full bg-primary/20 text-primary flex items-center justify-center text-xs font-semibold shrink-0">
-                                                            {sa.firstName?.[0] ?? "?"}
+                                                            {getSubAdminInitial(sa)}
                                                         </div>
                                                         <span className="text-text-main dark:text-white font-medium truncate max-w-25">
-                                                            {sa.firstName} {sa.lastName}
+                                                            {getSubAdminDisplayName(sa)}
                                                         </span>
                                                     </div>
                                                 </td>
@@ -636,9 +692,9 @@ export default function AdminSubAdminsPage() {
             </div>
 
             {/* Side Panel */}
-            {selectedSubAdmin && (
+            {resolvedSubAdmin && (
                 <SubAdminSidePanel
-                    subAdmin={selectedSubAdmin}
+                    subAdmin={resolvedSubAdmin}
                     onClose={() => setSelectedSubAdmin(null)}
                 />
             )}

@@ -33,7 +33,9 @@ export const useLogin = () => {
             const errorCode = err.response?.data?.code;
             const errorMessage = err.response?.data?.message;
 
-            if (errorCode === "EMAIL_NOT_VERIFIED") {
+            if (errorCode === "ACCOUNT_DEACTIVATED") {
+                setError("Your account has been deactivated. Please contact support.");
+            } else if (errorCode === "EMAIL_NOT_VERIFIED") {
                 setNeedsEmailVerification(true);
                 setUserEmail(formData.email);
                 setError(errorMessage || "Please verify your email before logging in.")

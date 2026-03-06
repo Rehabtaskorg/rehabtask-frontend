@@ -39,7 +39,17 @@ api.interceptors.response.use(
         const originalRequest = error.config;
 
         // Only handle 401 errors in browser context
-        if (error?.response?.status !== 401 || typeof window === "undefined") {
+        if (typeof window === "undefined") {
+            return Promise.reject(error);
+        }
+
+        // If account was deactivated, redirect immediately
+        if (error?.response?.data?.code === "ACCOUNT_DEACTIVATED") {
+            window.location.href = "/login?reason=deactivated";
+            return Promise.reject(error);
+        }
+
+        if (error?.response?.status !== 401) {
             return Promise.reject(error);
         }
 
