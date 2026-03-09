@@ -90,6 +90,7 @@ function DisputeSidePanel({ dispute, admins, onClose, onUpdate, onAssign, onReop
         onUpdate(dispute.id, {
             status: formStatus,
             ...(formResolution && { resolution: formResolution }),
+            expectedUpdatedAt: dispute.updatedAt,
         });
     };
 
@@ -373,9 +374,11 @@ export default function AdminDisputesPage() {
     const handleUpdate = async (id, updateData) => {
         clear();
         try {
-            await updateDispute.mutateAsync({ id, ...updateData });
+            const { data: res } = await updateDispute.mutateAsync({ id, ...updateData });
             setActionSuccess('Dispute updated successfully.');
-            setSelected(prev => prev?.id === id ? { ...prev, ...updateData } : prev);
+            // Use server response to keep updatedAt current for concurrency guard
+            const serverDispute = res?.data;
+            setSelected(prev => prev?.id === id ? { ...prev, ...updateData, ...(serverDispute && { updatedAt: serverDispute.updatedAt }) } : prev);
         } catch (e) {
             setActionError(e?.response?.data?.message || 'Failed to update dispute.');
         }
