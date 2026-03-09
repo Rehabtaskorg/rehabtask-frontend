@@ -69,7 +69,7 @@ export default function CredentialsPage() {
             router.push("/therapist/onboarding/availability");
         } catch (error) {
             console.error("Failed to save credentials:", error);
-            setUploadError(error.message || "Failed to save credentials. Please try again.");
+            setUploadError(error.response?.data?.message || "Failed to save credentials. Please try again.");
         } finally {
             setLoading(false);
         }
@@ -95,7 +95,7 @@ export default function CredentialsPage() {
 
             try {
                 for (const file of acceptedFiles) {
-                    if (file.size > 10 * 1024 * 1024) {
+                    if (file.size > 25 * 1024 * 1024) {
                         setUploadError(`${file.name} is too large. Maximum size is 25MB.`);
                         continue;
                     }
@@ -152,8 +152,16 @@ export default function CredentialsPage() {
     });
 
 
-    const handleRemoveDocument = (index) => {
+    const handleRemoveDocument = async (index) => {
         setUploadError("");
+        const doc = uploadedDocs[index];
+        if (doc?.id) {
+            try {
+                await onboardingAPI.deleteDocument(doc.id);
+            } catch (error) {
+                console.error("Failed to delete document:", error);
+            }
+        }
         removeLicenseDocument(index);
     };
 
@@ -268,7 +276,7 @@ export default function CredentialsPage() {
                                         </p>
 
                                         <p className="text-text-muted dark:text-gray-400 text-sm mt-1 text-center">
-                                            PDF, JPG or PNG (max. 25MB each)
+                                            PDF, JPG or PNG (max. 10MB each)
                                         </p>
                                     </>
                                 )}

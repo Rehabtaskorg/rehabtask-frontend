@@ -22,6 +22,7 @@ const fmtDate = (d) =>
 
 const STATUS_STYLES = {
     pending: 'bg-amber-100  text-amber-700  dark:bg-amber-900/30  dark:text-amber-400',
+    review: 'bg-blue-100   text-blue-700   dark:bg-blue-900/30   dark:text-blue-400',
     approved: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
     rejected: 'bg-red-100    text-red-700    dark:bg-red-900/30    dark:text-red-400',
     incomplete: 'bg-slate-100  text-slate-600  dark:bg-slate-700     dark:text-slate-300',
@@ -38,7 +39,7 @@ function TherapistSidePanel({ therapist, onClose, onApprove, onReject, loading, 
     const [reason, setReason] = useState('');
     const [reasonError, setReasonError] = useState('');
 
-    const isPending = therapist.therapistProfile?.approvalStatus === 'pending';
+    const isPending = ['pending', 'review'].includes(therapist.therapistProfile?.approvalStatus);
 
     const handleRejectSubmit = () => {
         if (reason.trim().length < 10) {
@@ -209,6 +210,7 @@ function TherapistSidePanel({ therapist, onClose, onApprove, onReject, loading, 
 const TABS = [
     { value: '', label: 'All' },
     { value: 'pending', label: 'Pending' },
+    { value: 'review', label: 'Review' },
     { value: 'approved', label: 'Approved' },
     { value: 'rejected', label: 'Rejected' },
 ];
@@ -236,9 +238,11 @@ function TherapistsContent() {
         limit: 20,
     };
 
-    // Separate lightweight query for the pending badge count
+    // Separate lightweight queries for badge counts
     const { data: pendingCountData } = useAdminTherapists({ approvalStatus: 'pending', limit: 1 });
     const pendingBadge = pendingCountData?.pagination?.total ?? 0;
+    const { data: reviewCountData } = useAdminTherapists({ approvalStatus: 'review', limit: 1 });
+    const reviewBadge = reviewCountData?.pagination?.total ?? 0;
 
     const { data, isLoading, error } = useAdminTherapists(params);
     const approve = useApproveTherapist();
@@ -315,6 +319,11 @@ function TherapistsContent() {
                             {tab.value === 'pending' && pendingBadge > 0 && (
                                 <span className="min-w-4.5 h-4.5 px-1 rounded-full bg-amber-500 text-white text-[10px] font-bold flex items-center justify-center leading-none">
                                     {pendingBadge > 99 ? '99+' : pendingBadge}
+                                </span>
+                            )}
+                            {tab.value === 'review' && reviewBadge > 0 && (
+                                <span className="min-w-4.5 h-4.5 px-1 rounded-full bg-blue-500 text-white text-[10px] font-bold flex items-center justify-center leading-none">
+                                    {reviewBadge > 99 ? '99+' : reviewBadge}
                                 </span>
                             )}
                         </button>

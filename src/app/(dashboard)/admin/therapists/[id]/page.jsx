@@ -13,12 +13,14 @@ import {
     useApproveTherapist,
     useRejectTherapist,
 } from '@/hooks/useAdmin';
+import { adminTherapistsApi } from '@/lib/admin';
 
 const fmtDate = (d) =>
     d ? new Date(d).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : '—';
 
 const STATUS_STYLES = {
     pending: 'bg-amber-100  text-amber-700  dark:bg-amber-900/30  dark:text-amber-400',
+    review: 'bg-blue-100   text-blue-700   dark:bg-blue-900/30   dark:text-blue-400',
     approved: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
     rejected: 'bg-red-100    text-red-700    dark:bg-red-900/30    dark:text-red-400',
     incomplete: 'bg-slate-100  text-slate-600  dark:bg-slate-700     dark:text-slate-300',
@@ -35,6 +37,63 @@ function SectionCard({ title, children }) {
                 <h3 className="font-semibold text-text-main dark:text-white text-sm">{title}</h3>
             </div>
             <div className="p-5">{children}</div>
+        </div>
+    );
+}
+
+const formatFileSize = (bytes) => {
+    if (!bytes) return null;
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1048576) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / 1048576).toFixed(1)} MB`;
+};
+
+function DocumentRow({ doc, therapistUserId }) {
+    const [loading, setLoading] = useState(false);
+
+    const handleView = async () => {
+        setLoading(true);
+        try {
+            const { data } = await adminTherapistsApi.getDocumentUrl(therapistUserId, doc.id);
+            window.open(data.data.signedUrl, '_blank');
+        } catch {
+            alert('Failed to load document. Please try again.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const fileSize = formatFileSize(doc.fileSize);
+    const meta = [
+        doc.documentType?.replace(/_/g, ' '),
+        fileSize,
+    ].filter(Boolean).join(' · ');
+
+    return (
+        <div className="flex items-center justify-between gap-3 p-3 rounded-xl border border-border-light dark:border-border-dark">
+            <div className="flex items-center gap-3 min-w-0">
+                <div className="p-1.5 rounded-lg bg-blue-100 dark:bg-blue-900/30 shrink-0">
+                    <MdDescription className="text-blue-600 dark:text-blue-400 text-base" />
+                </div>
+                <div className="min-w-0">
+                    <p className="text-sm font-medium text-text-main dark:text-white truncate">
+                        {doc.fileName || 'License Document'}
+                    </p>
+                    <p className="text-xs text-text-muted dark:text-slate-500">
+                        {meta && <span className="capitalize">{meta}</span>}
+                        {meta && ' · '}Uploaded {fmtDate(doc.uploadedAt || doc.createdAt)}
+                    </p>
+                </div>
+            </div>
+            <div className="shrink-0">
+                <button
+                    onClick={handleView}
+                    disabled={loading}
+                    className="inline-flex items-center gap-1 text-primary text-xs font-medium hover:underline disabled:opacity-50"
+                >
+                    {loading ? 'Loading...' : 'View'} <MdOpenInNew className="text-sm" />
+                </button>
+            </div>
         </div>
     );
 }
@@ -108,7 +167,7 @@ export default function AdminTherapistDetailPage() {
     }
 
     const tp = therapist.therapistProfile;
-    const isPending = tp?.approvalStatus === 'pending';
+    const isPending = ['pending', 'review'].includes(tp?.approvalStatus);
     const isApproved = tp?.approvalStatus === 'approved';
     const isRejected = tp?.approvalStatus === 'rejected';
 
@@ -245,34 +304,7 @@ export default function AdminTherapistDetailPage() {
                 ) : (
                     <div className="space-y-2.5">
                         {tp.licenseDocuments.map(doc => (
-                            <div
-                                key={doc.id}
-                                className="flex items-center justify-between gap-3 p-3 rounded-xl border border-border-light dark:border-border-dark"
-                            >
-                                <div className="flex items-center gap-3 min-w-0">
-                                    <div className="p-1.5 rounded-lg bg-blue-100 dark:bg-blue-900/30 shrink-0">
-                                        <MdDescription className="text-blue-600 dark:text-blue-400 text-base" />
-                                    </div>
-                                    <div className="min-w-0">
-                                        <p className="text-sm font-medium text-text-main dark:text-white capitalize truncate">
-                                            {doc.documentType?.replace(/_/g, ' ') || 'License Document'}
-                                        </p>
-                                        <p className="text-xs text-text-muted dark:text-slate-500">
-                                            Uploaded {fmtDate(doc.uploadedAt || doc.createdAt)}
-                                        </p>
-                                    </div>
-                                </div>
-                                {doc.fileUrl && (
-                                    <a
-                                        href={doc.fileUrl}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="inline-flex items-center gap-1 text-primary text-xs font-medium hover:underline shrink-0"
-                                    >
-                                        View <MdOpenInNew className="text-sm" />
-                                    </a>
-                                )}
-                            </div>
+                            <DocumentRow key={doc.id} doc={doc} therapistUserId={id} />
                         ))}
                     </div>
                 )}
@@ -286,10 +318,10 @@ export default function AdminTherapistDetailPage() {
                             <div key={area.id} className="flex items-start gap-2.5 text-sm">
                                 <MdLocationOn className="text-base text-text-muted dark:text-slate-400 mt-0.5 shrink-0" />
                                 <span className="text-text-main dark:text-slate-200">
-                                    {area.address}
-                                    {area.radius && (
+                                    {[area.city, area.state, area.zipCode].filter(Boolean).join(', ')}
+                                    {area.radiusMiles && (
                                         <span className="text-text-muted dark:text-slate-400 ml-1.5">
-                                            ({area.radius} km radius)
+                                            ({area.radiusMiles} mi radius)
                                         </span>
                                     )}
                                 </span>
@@ -299,7 +331,7 @@ export default function AdminTherapistDetailPage() {
                 </SectionCard>
             )}
 
-            {/* ── Approval Decision Panel (pending only, before any action taken) ── */}
+            {/* ── Approval Decision Panel (pending/review, before any action taken) ── */}
             {isPending && !actionSuccess && (
                 <div className="bg-card-light dark:bg-card-dark border-2 border-amber-200 dark:border-amber-700 rounded-xl overflow-hidden">
                     <div className="px-5 py-4 bg-amber-50 dark:bg-amber-900/10 border-b border-amber-200 dark:border-amber-700">
