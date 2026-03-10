@@ -22,6 +22,7 @@ export const adminTherapistsApi = {
     get: (therapistUserId) => api.get(`/admin/therapists/${therapistUserId}`),
     approve: (therapistUserId) => api.put(`/admin/therapists/${therapistUserId}/approve`),
     reject: (therapistUserId, data) => api.put(`/admin/therapists/${therapistUserId}/reject`, data),
+    updatePlan: (therapistUserId, data) => api.put(`/admin/therapists/${therapistUserId}/plan`, data),
     getDocumentUrl: (therapistUserId, documentId) => api.get(`/admin/therapists/${therapistUserId}/documents/${documentId}`),
 };
 
@@ -75,9 +76,9 @@ export const adminReportsApi = {
 
 // Admin - Commission
 export const adminCommissionApi = {
-    getCurrent: () => api.get('/admin/commission'),
-    getHistory: () => api.get('/admin/commission/history'),
-    setRate: (data) => api.post('/admin/commission', data),
+    getRates: () => api.get('/admin/commission/rates'),
+    setTierRate: (data) => api.post('/admin/commission/rates', data),
+    getHistory: (params) => api.get('/admin/commission/history', { params }),
 };
 
 // Admin - FAQs

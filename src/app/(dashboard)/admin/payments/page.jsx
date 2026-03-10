@@ -20,9 +20,9 @@ import {
     useAdminPayments,
     useReleaseAdminPayment,
     useRefundAdminPayment,
-    useAdminCommission,
+    useAdminTierRates,
     useAdminCommissionHistory,
-    useSetCommissionRate,
+    useSetTierCommissionRate,
 } from "@/hooks/useAdmin";
 
 const fmt$ = (v) =>
@@ -385,149 +385,241 @@ function PaymentSidePanel({ payment, onClose }) {
     );
 }
 
-function CommissionTab() {
-    const { data: commData, isLoading: commLoading } = useAdminCommission();
-    const { data: histData, isLoading: histLoading } = useAdminCommissionHistory();
-    const setRateMutation = useSetCommissionRate();
+const TIER_META = {
+    basic: {
+        label: "Basic",
+        description: "Free plan",
+        color: "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300",
+        accent: "border-slate-300 dark:border-slate-600",
+    },
+    pro: {
+        label: "Pro",
+        description: "$19/mo · $190/yr",
+        color: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300",
+        accent: "border-blue-300 dark:border-blue-600",
+    },
+    elite: {
+        label: "Elite",
+        description: "$39/mo · $351/yr",
+        color: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300",
+        accent: "border-amber-300 dark:border-amber-600",
+    },
+};
 
+function TierRateCard({ tierData, onSave, isSaving }) {
+    const [editing, setEditing] = useState(false);
     const [newRate, setNewRate] = useState("");
-    const [effectiveFrom, setEffectiveFrom] = useState("");
-    const [formError, setFormError] = useState("");
+    const [scheduleDate, setScheduleDate] = useState("");
+    const [useSchedule, setUseSchedule] = useState(false);
+    const [error, setError] = useState("");
 
-    const currentRate = commData;
-    const history = histData?.configs ?? [];
+    const meta = TIER_META[tierData.tier];
 
-    const handleSetRate = async (e) => {
-        e.preventDefault();
-        setFormError("");
+    // Minimum date for scheduler: tomorrow (no past dates allowed)
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const minDate = tomorrow.toISOString().split("T")[0];
+
+    const resetForm = () => {
+        setEditing(false);
+        setNewRate("");
+        setScheduleDate("");
+        setUseSchedule(false);
+        setError("");
+    };
+
+    const handleSave = async () => {
+        setError("");
         const parsed = parseFloat(newRate);
         if (isNaN(parsed) || parsed < 0 || parsed > 100) {
-            setFormError("Enter a valid percentage between 0 and 100.");
+            setError("Enter a valid percentage between 0 and 100.");
             return;
         }
+        if (useSchedule && !scheduleDate) {
+            setError("Select a future date or switch to Apply Now.");
+            return;
+        }
+        const payload = { tier: tierData.tier, rate: parsed / 100 };
+        if (useSchedule && scheduleDate) {
+            payload.effectiveFrom = new Date(scheduleDate + "T00:00:00").toISOString();
+        }
         try {
-            await setRateMutation.mutateAsync({
-                rate: parsed / 100,
-                ...(effectiveFrom
-                    ? { effectiveFrom: new Date(effectiveFrom).toISOString() }
-                    : {}),
-            });
-            setNewRate("");
-            setEffectiveFrom("");
+            await onSave(payload);
+            resetForm();
         } catch (err) {
-            setFormError(
-                err?.response?.data?.message ?? "Failed to update rate."
-            );
+            setError(err?.response?.data?.message ?? "Failed to update rate.");
         }
     };
 
     return (
-        <div className="space-y-6 max-w-2xl">
-            {/* Current Rate */}
-            <div className="bg-card-light dark:bg-card-dark rounded-xl border border-border-light dark:border-border-dark p-6">
-                <div className="flex items-center gap-3 mb-3">
-                    <div className="p-2.5 rounded-lg bg-primary/10 text-primary">
-                        <MdPercent size={22} />
-                    </div>
-                    <div>
-                        <p className="text-xs text-text-muted">Current Commission Rate</p>
-                        {commLoading ? (
-                            <Skeleton className="h-9 w-24 mt-1" />
-                        ) : (
-                            <p className="text-3xl font-bold text-text-main dark:text-white">
-                                {fmtPct(currentRate?.rate)}
-                            </p>
-                        )}
-                    </div>
+        <div className={`bg-card-light dark:bg-card-dark rounded-xl border-2 ${meta.accent} p-5 flex flex-col gap-3`}>
+            {/* Header */}
+            <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                    <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold ${meta.color}`}>
+                        {meta.label}
+                    </span>
+                    <span className="text-xs text-text-muted">{meta.description}</span>
                 </div>
-                {!commLoading && currentRate && (
-                    <div className="text-xs text-text-muted space-y-0.5 ml-0.5">
-                        <p>Effective: {fmtDate(currentRate.effectiveFrom)}</p>
-                        {currentRate.createdByAdmin && (
-                            <p>Set by: {currentRate.createdByAdmin.email}</p>
-                        )}
-                    </div>
+                {tierData.isDefault && (
+                    <span className="text-xs text-text-muted italic">PRD default</span>
                 )}
             </div>
 
-            {/* Update Rate Form */}
-            <div className="bg-card-light dark:bg-card-dark rounded-xl border border-border-light dark:border-border-dark p-6">
-                <h3 className="font-semibold text-text-main dark:text-white mb-4">
-                    Update Commission Rate
-                </h3>
-                <form onSubmit={handleSetRate} className="space-y-4">
-                    <div>
-                        <label className="block text-sm text-text-muted mb-1">
-                            New Rate (%)
-                        </label>
-                        <div className="relative">
-                            <input
-                                type="number"
-                                value={newRate}
-                                onChange={(e) => setNewRate(e.target.value)}
-                                placeholder="e.g. 15"
-                                min="0"
-                                max="100"
-                                step="0.1"
-                                className="w-full rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-main dark:text-white px-3 py-2 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-                            />
-                            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted text-sm">
-                                %
-                            </span>
-                        </div>
+            {/* Current Rate */}
+            <div>
+                <p className="text-xs text-text-muted mb-0.5">Commission Rate</p>
+                <p className="text-3xl font-bold text-text-main dark:text-white">
+                    {(tierData.rate * 100).toFixed(1)}%
+                </p>
+                {tierData.effectiveFrom && (
+                    <p className="text-xs text-text-muted mt-0.5">
+                        Since {fmtDate(tierData.effectiveFrom)}
+                        {tierData.createdByAdmin && ` · ${tierData.createdByAdmin.email}`}
+                    </p>
+                )}
+            </div>
+
+            {/* Edit */}
+            {editing ? (
+                <div className="space-y-2">
+                    <div className="relative">
+                        <input
+                            type="number"
+                            value={newRate}
+                            onChange={(e) => setNewRate(e.target.value)}
+                            placeholder={`e.g. ${(tierData.rate * 100).toFixed(0)}`}
+                            min="0"
+                            max="100"
+                            step="0.1"
+                            autoFocus
+                            className="w-full rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-main dark:text-white px-3 py-2 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                        />
+                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted text-sm">%</span>
                     </div>
-                    <div>
-                        <label className="block text-sm text-text-muted mb-1">
-                            Effective From{" "}
-                            <span className="text-text-muted font-normal">(optional)</span>
+
+                    {/* Apply Now vs Schedule */}
+                    <div className="flex items-center gap-3">
+                        <label className="flex items-center gap-1.5 cursor-pointer">
+                            <input
+                                type="radio"
+                                name={`schedule-${tierData.tier}`}
+                                checked={!useSchedule}
+                                onChange={() => { setUseSchedule(false); setScheduleDate(""); }}
+                                className="accent-primary"
+                            />
+                            <span className="text-xs text-text-main dark:text-white">Apply now</span>
                         </label>
+                        <label className="flex items-center gap-1.5 cursor-pointer">
+                            <input
+                                type="radio"
+                                name={`schedule-${tierData.tier}`}
+                                checked={useSchedule}
+                                onChange={() => setUseSchedule(true)}
+                                className="accent-primary"
+                            />
+                            <span className="text-xs text-text-main dark:text-white">Schedule</span>
+                        </label>
+                    </div>
+
+                    {useSchedule && (
                         <input
                             type="date"
-                            value={effectiveFrom}
-                            onChange={(e) => setEffectiveFrom(e.target.value)}
+                            value={scheduleDate}
+                            onChange={(e) => setScheduleDate(e.target.value)}
+                            min={minDate}
                             className="w-full rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-main dark:text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                         />
-                        <p className="text-xs text-text-muted mt-1">
-                            Leave blank to take effect immediately.
-                        </p>
-                    </div>
-                    {formError && (
-                        <div className="flex items-center gap-2 text-sm text-red-600 dark:text-red-400">
-                            <MdWarning size={16} />
-                            {formError}
-                        </div>
                     )}
-                    <button
-                        type="submit"
-                        disabled={!newRate || setRateMutation.isPending}
-                        className="w-full py-2 rounded-lg bg-primary hover:bg-primary/90 text-white text-sm font-medium disabled:opacity-50"
-                    >
-                        {setRateMutation.isPending ? "Saving…" : "Save New Rate"}
-                    </button>
-                </form>
+
+                    {error && (
+                        <p className="text-xs text-red-500 dark:text-red-400 flex items-center gap-1">
+                            <MdWarning size={13} />{error}
+                        </p>
+                    )}
+                    <div className="flex gap-2">
+                        <button
+                            onClick={handleSave}
+                            disabled={!newRate || isSaving}
+                            className="flex-1 py-1.5 rounded-lg bg-primary hover:bg-primary/90 text-white text-xs font-medium disabled:opacity-50"
+                        >
+                            {isSaving
+                                ? "Saving…"
+                                : useSchedule
+                                    ? "Schedule"
+                                    : "Save"
+                            }
+                        </button>
+                        <button
+                            onClick={resetForm}
+                            className="flex-1 py-1.5 rounded-lg border border-border-light dark:border-border-dark text-text-muted hover:text-text-main dark:hover:text-white text-xs"
+                        >
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            ) : (
+                <button
+                    onClick={() => setEditing(true)}
+                    className="w-full py-1.5 rounded-lg border border-primary text-primary hover:bg-primary hover:text-white transition-colors text-xs font-medium"
+                >
+                    Edit Rate
+                </button>
+            )}
+        </div>
+    );
+}
+
+function CommissionTab() {
+    const { data: tierRates, isLoading: ratesLoading } = useAdminTierRates();
+    const { data: histData, isLoading: histLoading } = useAdminCommissionHistory();
+    const setRateMutation = useSetTierCommissionRate();
+
+    const history = histData?.configs ?? [];
+
+    return (
+        <div className="space-y-6">
+            {/* Tier Rate Cards */}
+            <div>
+                <h3 className="font-semibold text-text-main dark:text-white text-sm mb-3">
+                    Commission Rates by Plan Tier
+                </h3>
+                {ratesLoading ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-40 w-full rounded-xl" />)}
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        {(tierRates ?? []).map((t) => (
+                            <TierRateCard
+                                key={t.tier}
+                                tierData={t}
+                                onSave={(data) => setRateMutation.mutateAsync(data)}
+                                isSaving={setRateMutation.isPending}
+                            />
+                        ))}
+                    </div>
+                )}
             </div>
 
             {/* Rate History */}
             <div className="bg-card-light dark:bg-card-dark rounded-xl border border-border-light dark:border-border-dark overflow-hidden">
                 <div className="px-4 py-3 border-b border-border-light dark:border-border-dark flex items-center gap-2">
                     <MdHistory size={18} className="text-text-muted" />
-                    <h3 className="font-semibold text-text-main dark:text-white text-sm">Rate History</h3>
+                    <h3 className="font-semibold text-text-main dark:text-white text-sm">Rate Change History</h3>
                 </div>
                 {histLoading ? (
                     <div className="p-4 space-y-3">
-                        {[...Array(4)].map((_, i) => (
-                            <Skeleton key={i} className="h-10 w-full" />
-                        ))}
+                        {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-10 w-full" />)}
                     </div>
                 ) : history.length === 0 ? (
-                    <p className="p-8 text-center text-sm text-text-muted">
-                        No rate history yet.
-                    </p>
+                    <p className="p-8 text-center text-sm text-text-muted">No rate history yet.</p>
                 ) : (
                     <div className="overflow-x-auto">
                         <table className="w-full text-sm">
                             <thead>
                                 <tr className="border-b border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark">
+                                    <th className="px-4 py-2.5 text-left text-xs font-medium text-text-muted">Tier</th>
                                     <th className="px-4 py-2.5 text-left text-xs font-medium text-text-muted">Rate</th>
                                     <th className="px-4 py-2.5 text-left text-xs font-medium text-text-muted">Effective From</th>
                                     <th className="px-4 py-2.5 text-left text-xs font-medium text-text-muted">Set By</th>
@@ -535,19 +627,28 @@ function CommissionTab() {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-border-light dark:divide-border-dark">
-                                {history.map((h) => (
-                                    <tr
-                                        key={h.id}
-                                        className="hover:bg-background-light dark:hover:bg-background-dark transition-colors"
-                                    >
-                                        <td className="px-4 py-3 font-semibold text-text-main dark:text-white">
-                                            {fmtPct(h.rate)}
-                                        </td>
-                                        <td className="px-4 py-3 text-text-muted">{fmtDate(h.effectiveFrom)}</td>
-                                        <td className="px-4 py-3 text-text-muted">{h.createdByAdmin?.email ?? "—"}</td>
-                                        <td className="px-4 py-3 text-text-muted">{fmtDate(h.createdAt)}</td>
-                                    </tr>
-                                ))}
+                                {history.map((h) => {
+                                    const tierMeta = h.tier ? TIER_META[h.tier] : null;
+                                    return (
+                                        <tr key={h.id} className="hover:bg-background-light dark:hover:bg-background-dark transition-colors">
+                                            <td className="px-4 py-3">
+                                                {tierMeta ? (
+                                                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium capitalize ${tierMeta.color}`}>
+                                                        {tierMeta.label}
+                                                    </span>
+                                                ) : (
+                                                    <span className="text-text-muted text-xs">Global</span>
+                                                )}
+                                            </td>
+                                            <td className="px-4 py-3 font-semibold text-text-main dark:text-white">
+                                                {fmtPct(h.rate)}
+                                            </td>
+                                            <td className="px-4 py-3 text-text-muted">{fmtDate(h.effectiveFrom)}</td>
+                                            <td className="px-4 py-3 text-text-muted">{h.createdByAdmin?.email ?? "—"}</td>
+                                            <td className="px-4 py-3 text-text-muted">{fmtDate(h.createdAt)}</td>
+                                        </tr>
+                                    );
+                                })}
                             </tbody>
                         </table>
                     </div>

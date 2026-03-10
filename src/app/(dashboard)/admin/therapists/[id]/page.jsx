@@ -7,14 +7,33 @@ import Link from 'next/link';
 import {
     MdArrowBack, MdVerifiedUser, MdDescription, MdLocationOn,
     MdCheckCircle, MdEmail, MdCalendarMonth, MdPerson,
-    MdThumbUp, MdThumbDown, MdOpenInNew, MdWarning,
+    MdThumbUp, MdThumbDown, MdOpenInNew, MdWarning, MdWorkspacePremium,
 } from 'react-icons/md';
 import {
     useAdminTherapist,
     useApproveTherapist,
     useRejectTherapist,
+    useUpdateTherapistPlan,
 } from '@/hooks/useAdmin';
 import { adminTherapistsApi } from '@/lib/admin';
+
+const THERAPIST_PLAN_META = {
+    basic: {
+        label: "Basic",
+        description: "Free · 20% commission",
+        badge: "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300",
+    },
+    pro: {
+        label: "Pro",
+        description: "$19/mo · 12% commission",
+        badge: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300",
+    },
+    elite: {
+        label: "Elite",
+        description: "$39/mo · 7% commission",
+        badge: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300",
+    },
+};
 
 const fmtDate = (d) =>
     d ? new Date(d).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : '—';
@@ -109,9 +128,13 @@ export default function AdminTherapistDetailPage() {
     const [actionError, setActionError] = useState('');
     const [actionSuccess, setActionSuccess] = useState('');
 
+    const [planTierError, setPlanTierError] = useState('');
+    const [planTierSuccess, setPlanTierSuccess] = useState('');
+
     const { data: therapist, isLoading, error } = useAdminTherapist(id);
     const approve = useApproveTherapist();
     const reject = useRejectTherapist();
+    const updatePlan = useUpdateTherapistPlan();
     const mutating = approve.isPending || reject.isPending;
 
     const handleApprove = async () => {
@@ -136,6 +159,17 @@ export default function AdminTherapistDetailPage() {
             setShowRejectForm(false);
         } catch (e) {
             setActionError(e?.response?.data?.message || 'Failed to reject application.');
+        }
+    };
+
+    const handlePlanTierChange = async (newTier) => {
+        setPlanTierError('');
+        setPlanTierSuccess('');
+        try {
+            await updatePlan.mutateAsync({ therapistUserId: id, planTier: newTier });
+            setPlanTierSuccess(`Plan tier updated to ${THERAPIST_PLAN_META[newTier]?.label ?? newTier}.`);
+        } catch (e) {
+            setPlanTierError(e?.response?.data?.message || 'Failed to update plan tier.');
         }
     };
 
@@ -329,6 +363,70 @@ export default function AdminTherapistDetailPage() {
                                 </span>
                             </div>
                         ))}
+                    </div>
+                </SectionCard>
+            )}
+
+            {/* ── Subscription Plan Tier ── */}
+            {isApproved && (
+                <SectionCard title="Subscription Plan Tier">
+                    <div className="space-y-4">
+                        <p className="text-xs text-text-muted">
+                            Controls the commission rate applied to this therapist&apos;s payments.
+                            Changes take effect on the next booking payment.
+                        </p>
+
+                        {/* Current tier badge */}
+                        {(() => {
+                            const currentTier = tp?.planTier ?? 'basic';
+                            const meta = THERAPIST_PLAN_META[currentTier];
+                            return (
+                                <div className="flex items-center gap-3">
+                                    <MdWorkspacePremium className="text-text-muted text-lg shrink-0" />
+                                    <div>
+                                        <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold ${meta?.badge}`}>
+                                            {meta?.label ?? currentTier}
+                                        </span>
+                                        <p className="text-xs text-text-muted mt-0.5">{meta?.description}</p>
+                                    </div>
+                                </div>
+                            );
+                        })()}
+
+                        {/* Tier selector */}
+                        <div className="grid grid-cols-3 gap-2">
+                            {Object.entries(THERAPIST_PLAN_META).map(([tier, meta]) => {
+                                const isActive = (tp?.planTier ?? 'basic') === tier;
+                                return (
+                                    <button
+                                        key={tier}
+                                        onClick={() => !isActive && handlePlanTierChange(tier)}
+                                        disabled={isActive || updatePlan.isPending}
+                                        className={`py-2.5 px-3 rounded-lg border text-xs font-medium transition-colors ${
+                                            isActive
+                                                ? 'border-primary bg-primary/10 text-primary cursor-default'
+                                                : 'border-border-light dark:border-border-dark text-text-muted hover:border-primary hover:text-primary disabled:opacity-50'
+                                        }`}
+                                    >
+                                        {meta.label}
+                                    </button>
+                                );
+                            })}
+                        </div>
+
+                        {updatePlan.isPending && (
+                            <p className="text-xs text-text-muted">Updating…</p>
+                        )}
+                        {planTierSuccess && (
+                            <div className="flex items-center gap-2 text-xs text-emerald-600 dark:text-emerald-400">
+                                <MdCheckCircle size={14} /> {planTierSuccess}
+                            </div>
+                        )}
+                        {planTierError && (
+                            <div className="flex items-center gap-2 text-xs text-red-600 dark:text-red-400">
+                                <MdWarning size={14} /> {planTierError}
+                            </div>
+                        )}
                     </div>
                 </SectionCard>
             )}
