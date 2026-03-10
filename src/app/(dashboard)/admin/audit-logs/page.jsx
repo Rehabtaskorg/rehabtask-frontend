@@ -15,7 +15,7 @@ const fmtDateTime = (d) =>
         hour: '2-digit', minute: '2-digit', second: '2-digit',
     }) : '—';
 
-const ENTITY_TYPES = ['payment', 'booking', 'subscription', 'therapist', 'user'];
+const ENTITY_TYPES = ['payment', 'booking', 'subscription', 'therapist', 'user', 'commission'];
 
 function Skeleton({ className }) {
     return <div className={`animate-pulse rounded bg-slate-200 dark:bg-slate-700 ${className}`} />;
@@ -178,7 +178,7 @@ export default function AdminAuditLogsPage() {
                                 <thead>
                                     <tr className="border-b border-border-light dark:border-border-dark bg-slate-50 dark:bg-slate-800/50">
                                         <th className="px-5 py-3 text-left text-xs font-semibold text-text-muted dark:text-slate-400 uppercase tracking-wide">Timestamp</th>
-                                        <th className="px-5 py-3 text-left text-xs font-semibold text-text-muted dark:text-slate-400 uppercase tracking-wide hidden md:table-cell">Admin</th>
+                                        <th className="px-5 py-3 text-left text-xs font-semibold text-text-muted dark:text-slate-400 uppercase tracking-wide hidden md:table-cell">Actor</th>
                                         <th className="px-5 py-3 text-left text-xs font-semibold text-text-muted dark:text-slate-400 uppercase tracking-wide">Action</th>
                                         <th className="px-5 py-3 text-left text-xs font-semibold text-text-muted dark:text-slate-400 uppercase tracking-wide hidden lg:table-cell">Entity Type</th>
                                         <th className="px-5 py-3 text-left text-xs font-semibold text-text-muted dark:text-slate-400 uppercase tracking-wide hidden lg:table-cell">Entity ID</th>

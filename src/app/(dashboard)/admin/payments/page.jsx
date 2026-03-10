@@ -409,9 +409,24 @@ const TIER_META = {
 function TierRateCard({ tierData, onSave, isSaving }) {
     const [editing, setEditing] = useState(false);
     const [newRate, setNewRate] = useState("");
+    const [scheduleDate, setScheduleDate] = useState("");
+    const [useSchedule, setUseSchedule] = useState(false);
     const [error, setError] = useState("");
 
     const meta = TIER_META[tierData.tier];
+
+    // Minimum date for scheduler: tomorrow (no past dates allowed)
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const minDate = tomorrow.toISOString().split("T")[0];
+
+    const resetForm = () => {
+        setEditing(false);
+        setNewRate("");
+        setScheduleDate("");
+        setUseSchedule(false);
+        setError("");
+    };
 
     const handleSave = async () => {
         setError("");
@@ -420,10 +435,17 @@ function TierRateCard({ tierData, onSave, isSaving }) {
             setError("Enter a valid percentage between 0 and 100.");
             return;
         }
+        if (useSchedule && !scheduleDate) {
+            setError("Select a future date or switch to Apply Now.");
+            return;
+        }
+        const payload = { tier: tierData.tier, rate: parsed / 100 };
+        if (useSchedule && scheduleDate) {
+            payload.effectiveFrom = new Date(scheduleDate + "T00:00:00").toISOString();
+        }
         try {
-            await onSave({ tier: tierData.tier, rate: parsed / 100 });
-            setEditing(false);
-            setNewRate("");
+            await onSave(payload);
+            resetForm();
         } catch (err) {
             setError(err?.response?.data?.message ?? "Failed to update rate.");
         }
@@ -475,6 +497,41 @@ function TierRateCard({ tierData, onSave, isSaving }) {
                         />
                         <span className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted text-sm">%</span>
                     </div>
+
+                    {/* Apply Now vs Schedule */}
+                    <div className="flex items-center gap-3">
+                        <label className="flex items-center gap-1.5 cursor-pointer">
+                            <input
+                                type="radio"
+                                name={`schedule-${tierData.tier}`}
+                                checked={!useSchedule}
+                                onChange={() => { setUseSchedule(false); setScheduleDate(""); }}
+                                className="accent-primary"
+                            />
+                            <span className="text-xs text-text-main dark:text-white">Apply now</span>
+                        </label>
+                        <label className="flex items-center gap-1.5 cursor-pointer">
+                            <input
+                                type="radio"
+                                name={`schedule-${tierData.tier}`}
+                                checked={useSchedule}
+                                onChange={() => setUseSchedule(true)}
+                                className="accent-primary"
+                            />
+                            <span className="text-xs text-text-main dark:text-white">Schedule</span>
+                        </label>
+                    </div>
+
+                    {useSchedule && (
+                        <input
+                            type="date"
+                            value={scheduleDate}
+                            onChange={(e) => setScheduleDate(e.target.value)}
+                            min={minDate}
+                            className="w-full rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-main dark:text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                        />
+                    )}
+
                     {error && (
                         <p className="text-xs text-red-500 dark:text-red-400 flex items-center gap-1">
                             <MdWarning size={13} />{error}
@@ -486,10 +543,15 @@ function TierRateCard({ tierData, onSave, isSaving }) {
                             disabled={!newRate || isSaving}
                             className="flex-1 py-1.5 rounded-lg bg-primary hover:bg-primary/90 text-white text-xs font-medium disabled:opacity-50"
                         >
-                            {isSaving ? "Saving…" : "Save"}
+                            {isSaving
+                                ? "Saving…"
+                                : useSchedule
+                                    ? "Schedule"
+                                    : "Save"
+                            }
                         </button>
                         <button
-                            onClick={() => { setEditing(false); setNewRate(""); setError(""); }}
+                            onClick={resetForm}
                             className="flex-1 py-1.5 rounded-lg border border-border-light dark:border-border-dark text-text-muted hover:text-text-main dark:hover:text-white text-xs"
                         >
                             Cancel
@@ -499,9 +561,9 @@ function TierRateCard({ tierData, onSave, isSaving }) {
             ) : (
                 <button
                     onClick={() => setEditing(true)}
-                    className="text-xs text-primary hover:underline text-left"
+                    className="w-full py-1.5 rounded-lg border border-primary text-primary hover:bg-primary hover:text-white transition-colors text-xs font-medium"
                 >
-                    Edit rate
+                    Edit Rate
                 </button>
             )}
         </div>
