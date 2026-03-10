@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { usePageTitle } from "@/hooks/usePageTitle";
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import {
@@ -99,6 +100,7 @@ function DocumentRow({ doc, therapistUserId }) {
 }
 
 export default function AdminTherapistDetailPage() {
+    usePageTitle("Therapist Details");
     const { id } = useParams();
 
     const [showRejectForm, setShowRejectForm] = useState(false);

@@ -76,7 +76,7 @@ export default function MyRequestsPage() {
     const [loading, setLoading] = useState(true);
     const [activeFilter, setActiveFilter] = useState("all");
     const [selectedRequest, setSelectedRequest] = useState(null);
-    const [detailLoading, setDetailLoading] = useState(false);
+    const [detailLoading] = useState(false);
     const [mobileDetailOpen, setMobileDetailOpen] = useState(false);
     const [accepting, setAccepting] = useState(null);
     const [declining, setDeclining] = useState(null);
@@ -102,31 +102,30 @@ export default function MyRequestsPage() {
     }, [fetchRequests]);
 
     const fetchDetail = useCallback(async (id) => {
-        setDetailLoading(true);
         try {
             const res = await api.get(`/requests/${id}`);
             setSelectedRequest(res.data.data);
         } catch (err) {
             console.error("Failed to fetch request detail:", err);
-        } finally {
-            setDetailLoading(false);
         }
     }, []);
 
-    const refetchDetail = useCallback(
-        async (id) => {
-            const res = await api.get(`/requests/${id}`)
+    const refetchDetail = useCallback(async (id) => {
+        try {
+            const res = await api.get(`/requests/${id}`);
             setSelectedRequest(res.data.data);
-        },
-        []
-    );
+        } catch (err) {
+            console.error("Failed to refetch request detail:", err);
+        }
+    }, []);
 
     const handleSelectRequest = useCallback(
         (req) => {
-            fetchDetail(req.id);
+            setSelectedRequest(req);   // show list data instantly
             setMobileDetailOpen(true);
             setChangeOfferId(null);
             setChangeNote("");
+            fetchDetail(req.id);       // silently refresh with full detail in background
         },
         [fetchDetail]
     );

@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import { usePageTitle } from "@/hooks/usePageTitle";
 import Link from "next/link";
 import {
     MdPeople, MdVerifiedUser, MdPendingActions, MdAttachMoney,
@@ -107,6 +108,7 @@ function EmptyRow({ icon: Icon, message }) {
 }
 
 export default function AdminDashboardPage() {
+    usePageTitle("Admin Dashboard");
     const adminUser = useAdminUser();
     const can = (perm) => adminUser?.role === 'admin' || adminUser?.permissions?.includes(perm);
 

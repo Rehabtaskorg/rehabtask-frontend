@@ -2,6 +2,7 @@
 'use client';
 
 import { useState, useEffect, Suspense } from 'react';
+import { usePageTitle } from "@/hooks/usePageTitle";
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import {
@@ -486,6 +487,7 @@ function TherapistsContent() {
 }
 
 export default function AdminTherapistsPage() {
+    usePageTitle("Therapists");
     return (
         <Suspense fallback={
             <div className="p-6 space-y-4">

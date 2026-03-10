@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
+import { usePageTitle } from "@/hooks/usePageTitle";
 import {
     MdCardMembership, MdClose, MdChevronLeft, MdChevronRight,
     MdCheckCircle, MdWarning, MdPerson, MdTrendingUp, MdSearch,
@@ -225,6 +226,7 @@ function SubscriptionSidePanel({ subscription, onClose, onCancel, loading, error
 }
 
 export default function AdminSubscriptionsPage() {
+    usePageTitle("Subscriptions");
     const [statusFilter, setStatusFilter] = useState('');
     const [planFilter, setPlanFilter] = useState('');
     const [searchInput, setSearchInput] = useState('');

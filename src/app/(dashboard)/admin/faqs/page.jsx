@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import { usePageTitle } from "@/hooks/usePageTitle";
 import {
     MdAdd,
     MdEdit,
@@ -328,6 +329,7 @@ function FaqItem({ faq, onEdit, onDelete }) {
 }
 
 export default function AdminFaqsPage() {
+    usePageTitle("FAQ Management");
     const [search, setSearch] = useState("");
     const [categoryFilter, setCategoryFilter] = useState("all");
     const [showModal, setShowModal] = useState(false);

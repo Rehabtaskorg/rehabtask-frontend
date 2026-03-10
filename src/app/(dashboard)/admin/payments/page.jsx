@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
+import { usePageTitle } from "@/hooks/usePageTitle";
 import {
     MdAttachMoney,
     MdAccountBalanceWallet,
@@ -11,6 +12,8 @@ import {
     MdHistory,
     MdPercent,
     MdWarning,
+    MdSearch,
+    MdSwapVert,
 } from "react-icons/md";
 import {
     useAdminPaymentStats,
@@ -53,6 +56,11 @@ const BOOKING_STATUS_STYLES = {
     completed: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300",
     cancelled: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300",
 };
+
+const SORT_OPTIONS = [
+    { value: "createdAt", label: "Date Created" },
+    { value: "amount", label: "Amount" },
+];
 
 function StatusBadge({ value, styleMap }) {
     const cls =
@@ -98,24 +106,37 @@ function StatCard({ icon: Icon, label, value, loading, color = "text-primary" })
 function PaymentSidePanel({ payment, onClose }) {
     const [showRefundForm, setShowRefundForm] = useState(false);
     const [refundReason, setRefundReason] = useState("");
+    const [releaseAmount, setReleaseAmount] = useState("");
 
     const releaseMutation = useReleaseAdminPayment();
     const refundMutation = useRefundAdminPayment();
 
+    const maxPayout = payment ? parseFloat(payment.therapistPayout ?? 0) : 0;
+
     useEffect(() => {
-        // eslint-disable-next-line react-hooks/set-state-in-effect
         setShowRefundForm(false);
         setRefundReason("");
+        setReleaseAmount("");
     }, [payment?.id]);
 
     if (!payment) return null;
 
     const isReleasable = payment.status === "escrowed";
-    const isRefundable = payment.status !== "refunded";
+    const isRefundable = ["escrowed", "intent_created"].includes(payment.status);
+
+    const parsedReleaseAmount = parseFloat(releaseAmount);
+    const releaseAmountValid =
+        releaseAmount === "" ||
+        (!isNaN(parsedReleaseAmount) && parsedReleaseAmount >= 0.01 && parsedReleaseAmount <= maxPayout);
+    const releaseAmountToSend = releaseAmount !== "" && !isNaN(parsedReleaseAmount)
+        ? parsedReleaseAmount
+        : null;
+    const isPartial = releaseAmountToSend !== null && releaseAmountToSend < maxPayout;
 
     const handleRelease = async () => {
+        if (!releaseAmountValid) return;
         try {
-            await releaseMutation.mutateAsync(payment.id);
+            await releaseMutation.mutateAsync({ id: payment.id, amount: releaseAmountToSend });
         } catch { }
     };
 
@@ -261,6 +282,39 @@ function PaymentSidePanel({ payment, onClose }) {
                         Created: {fmtDate(payment.createdAt)}
                     </p>
 
+                    {/* Partial release amount input */}
+                    {isReleasable && !showRefundForm && (
+                        <div className="space-y-1.5">
+                            <label className="block text-xs font-medium text-text-muted">
+                                Release Amount{" "}
+                                <span className="font-normal">(leave blank for full {fmt$(maxPayout)})</span>
+                            </label>
+                            <input
+                                type="number"
+                                value={releaseAmount}
+                                onChange={(e) => setReleaseAmount(e.target.value)}
+                                placeholder={`Max ${maxPayout.toFixed(2)}`}
+                                min="0.01"
+                                max={maxPayout}
+                                step="0.01"
+                                className={`w-full rounded-lg border px-3 py-2 text-sm bg-background-light dark:bg-background-dark text-text-main dark:text-white focus:outline-none focus:ring-2 focus:ring-primary ${!releaseAmountValid
+                                    ? "border-red-400 dark:border-red-600"
+                                    : "border-border-light dark:border-border-dark"
+                                    }`}
+                            />
+                            {!releaseAmountValid && (
+                                <p className="text-xs text-red-500">
+                                    Amount must be between $0.01 and {fmt$(maxPayout)}.
+                                </p>
+                            )}
+                            {isPartial && releaseAmountValid && (
+                                <p className="text-xs text-amber-600 dark:text-amber-400">
+                                    Partial release: {fmt$(releaseAmountToSend)} of {fmt$(maxPayout)} will be sent to the therapist.
+                                </p>
+                            )}
+                        </div>
+                    )}
+
                     {/* Refund form */}
                     {showRefundForm && (
                         <div className="border border-red-200 dark:border-red-800 rounded-lg p-3 space-y-2">
@@ -306,13 +360,15 @@ function PaymentSidePanel({ payment, onClose }) {
                     {isReleasable && !showRefundForm && (
                         <button
                             onClick={handleRelease}
-                            disabled={releaseMutation.isPending}
+                            disabled={releaseMutation.isPending || !releaseAmountValid}
                             className="w-full py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white text-sm font-medium disabled:opacity-50 flex items-center justify-center gap-2"
                         >
                             <MdCheckCircle size={16} />
                             {releaseMutation.isPending
                                 ? "Releasing…"
-                                : "Release Payment"}
+                                : isPartial
+                                    ? `Partial Release (${fmt$(releaseAmountToSend)})`
+                                    : "Release Full Payment"}
                         </button>
                     )}
                     {isRefundable && !showRefundForm && (
@@ -472,18 +528,10 @@ function CommissionTab() {
                         <table className="w-full text-sm">
                             <thead>
                                 <tr className="border-b border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark">
-                                    <th className="px-4 py-2.5 text-left text-xs font-medium text-text-muted">
-                                        Rate
-                                    </th>
-                                    <th className="px-4 py-2.5 text-left text-xs font-medium text-text-muted">
-                                        Effective From
-                                    </th>
-                                    <th className="px-4 py-2.5 text-left text-xs font-medium text-text-muted">
-                                        Set By
-                                    </th>
-                                    <th className="px-4 py-2.5 text-left text-xs font-medium text-text-muted">
-                                        Created
-                                    </th>
+                                    <th className="px-4 py-2.5 text-left text-xs font-medium text-text-muted">Rate</th>
+                                    <th className="px-4 py-2.5 text-left text-xs font-medium text-text-muted">Effective From</th>
+                                    <th className="px-4 py-2.5 text-left text-xs font-medium text-text-muted">Set By</th>
+                                    <th className="px-4 py-2.5 text-left text-xs font-medium text-text-muted">Created</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-border-light dark:divide-border-dark">
@@ -495,15 +543,9 @@ function CommissionTab() {
                                         <td className="px-4 py-3 font-semibold text-text-main dark:text-white">
                                             {fmtPct(h.rate)}
                                         </td>
-                                        <td className="px-4 py-3 text-text-muted">
-                                            {fmtDate(h.effectiveFrom)}
-                                        </td>
-                                        <td className="px-4 py-3 text-text-muted">
-                                            {h.createdByAdmin?.email ?? '—'}
-                                        </td>
-                                        <td className="px-4 py-3 text-text-muted">
-                                            {fmtDate(h.createdAt)}
-                                        </td>
+                                        <td className="px-4 py-3 text-text-muted">{fmtDate(h.effectiveFrom)}</td>
+                                        <td className="px-4 py-3 text-text-muted">{h.createdByAdmin?.email ?? "—"}</td>
+                                        <td className="px-4 py-3 text-text-muted">{fmtDate(h.createdAt)}</td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -524,20 +566,48 @@ const STATUS_TABS = [
 ];
 
 export default function AdminPaymentsPage() {
+    usePageTitle("Payments");
     const [activeTab, setActiveTab] = useState("payments");
     const [statusFilter, setStatusFilter] = useState("all");
     const [selectedPayment, setSelectedPayment] = useState(null);
 
+    // Search & filter state
+    const [searchInput, setSearchInput] = useState("");
+    const [search, setSearch] = useState("");
+    const [sortBy, setSortBy] = useState("createdAt");
+    const [sortOrder, setSortOrder] = useState("desc");
+    const [startDate, setStartDate] = useState("");
+    const [endDate, setEndDate] = useState("");
+
+    const commitSearch = () => setSearch(searchInput.trim());
+
+    const hasFilters = search || startDate || endDate || sortBy !== "createdAt" || sortOrder !== "desc";
+
+    const clearFilters = () => {
+        setSearchInput("");
+        setSearch("");
+        setSortBy("createdAt");
+        setSortOrder("desc");
+        setStartDate("");
+        setEndDate("");
+        setSelectedPayment(null);
+    };
+
     const params = useMemo(() => {
         const p = {};
         if (statusFilter !== "all") p.status = statusFilter;
+        if (search) p.search = search;
+        if (sortBy) p.sortBy = sortBy;
+        if (sortOrder) p.sortOrder = sortOrder;
+        if (startDate) p.startDate = startDate;
+        if (endDate) p.endDate = endDate;
         return p;
-    }, [statusFilter]);
+    }, [statusFilter, search, sortBy, sortOrder, startDate, endDate]);
 
     const { data: statsData, isLoading: statsLoading } = useAdminPaymentStats();
     const { data: paymentsData, isLoading: paymentsLoading } = useAdminPayments(params);
 
-    const stats    = statsData ?? {};
+    const stats = statsData ?? {};
     const payments = paymentsData?.payments ?? [];
 
     const panelOpen = selectedPayment && activeTab === "payments";
@@ -632,30 +702,77 @@ export default function AdminPaymentsPage() {
                             ))}
                         </div>
 
+                        {/* Search & Sort Filters */}
+                        <div className="bg-card-light dark:bg-card-dark rounded-xl border border-border-light dark:border-border-dark p-3 space-y-3">
+                            <div className="flex flex-wrap gap-2">
+                                {/* Search */}
+                                <div className="relative flex-1 min-w-44">
+                                    <MdSearch size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" />
+                                    <input
+                                        type="text"
+                                        value={searchInput}
+                                        onChange={(e) => setSearchInput(e.target.value)}
+                                        onBlur={commitSearch}
+                                        onKeyDown={(e) => e.key === "Enter" && commitSearch()}
+                                        placeholder="Search customer or therapist…"
+                                        className="w-full pl-8 pr-3 py-2 rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-main dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                                    />
+                                </div>
+                                {/* Sort by */}
+                                <select
+                                    value={sortBy}
+                                    onChange={(e) => setSortBy(e.target.value)}
+                                    className="rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-main dark:text-white text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
+                                >
+                                    {SORT_OPTIONS.map((o) => (
+                                        <option key={o.value} value={o.value}>{o.label}</option>
+                                    ))}
+                                </select>
+                                {/* Sort order toggle */}
+                                <button
+                                    onClick={() => setSortOrder((o) => o === "asc" ? "desc" : "asc")}
+                                    className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-muted hover:text-text-main dark:hover:text-white text-sm"
+                                    title={sortOrder === "asc" ? "Ascending" : "Descending"}
+                                >
+                                    <MdSwapVert size={16} />
+                                    {sortOrder === "asc" ? "Asc" : "Desc"}
+                                </button>
+                                {/* Date range */}
+                                <input
+                                    type="date"
+                                    value={startDate}
+                                    onChange={(e) => setStartDate(e.target.value)}
+                                    className="rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-main dark:text-white text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
+                                />
+                                <input
+                                    type="date"
+                                    value={endDate}
+                                    onChange={(e) => setEndDate(e.target.value)}
+                                    className="rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-main dark:text-white text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
+                                />
+                                {hasFilters && (
+                                    <button
+                                        onClick={clearFilters}
+                                        className="px-3 py-2 rounded-lg border border-border-light dark:border-border-dark text-text-muted hover:text-text-main dark:hover:text-white text-sm"
+                                    >
+                                        Clear
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+
                         {/* Payments Table */}
                         <div className="bg-card-light dark:bg-card-dark rounded-xl border border-border-light dark:border-border-dark overflow-hidden">
                             <div className="overflow-x-auto">
                                 <table className="w-full text-sm">
                                     <thead>
                                         <tr className="border-b border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark">
-                                            <th className="px-4 py-3 text-left text-xs font-medium text-text-muted">
-                                                Customer
-                                            </th>
-                                            <th className="px-4 py-3 text-left text-xs font-medium text-text-muted">
-                                                Therapist
-                                            </th>
-                                            <th className="px-4 py-3 text-left text-xs font-medium text-text-muted">
-                                                Amount
-                                            </th>
-                                            <th className="px-4 py-3 text-left text-xs font-medium text-text-muted hidden md:table-cell">
-                                                Platform Fee
-                                            </th>
-                                            <th className="px-4 py-3 text-left text-xs font-medium text-text-muted">
-                                                Status
-                                            </th>
-                                            <th className="px-4 py-3 text-left text-xs font-medium text-text-muted hidden lg:table-cell">
-                                                Date
-                                            </th>
+                                            <th className="px-4 py-3 text-left text-xs font-medium text-text-muted">Customer</th>
+                                            <th className="px-4 py-3 text-left text-xs font-medium text-text-muted">Therapist</th>
+                                            <th className="px-4 py-3 text-left text-xs font-medium text-text-muted">Amount</th>
+                                            <th className="px-4 py-3 text-left text-xs font-medium text-text-muted hidden md:table-cell">Platform Fee</th>
+                                            <th className="px-4 py-3 text-left text-xs font-medium text-text-muted">Status</th>
+                                            <th className="px-4 py-3 text-left text-xs font-medium text-text-muted hidden lg:table-cell">Date</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-border-light dark:divide-border-dark">
@@ -671,10 +788,7 @@ export default function AdminPaymentsPage() {
                                             ))
                                         ) : payments.length === 0 ? (
                                             <tr>
-                                                <td
-                                                    colSpan={6}
-                                                    className="px-4 py-10 text-center text-sm text-text-muted"
-                                                >
+                                                <td colSpan={6} className="px-4 py-10 text-center text-sm text-text-muted">
                                                     No payments found.
                                                 </td>
                                             </tr>

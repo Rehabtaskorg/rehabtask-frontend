@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
+import { usePageTitle } from "@/hooks/usePageTitle";
 import {
     MdNotifications,
     MdSend,
@@ -593,6 +594,7 @@ function BroadcastTab() {
 }
 
 export default function AdminNotificationsPage() {
+    usePageTitle("Notifications");
     const [activeTab, setActiveTab] = useState("all");
 
     return (

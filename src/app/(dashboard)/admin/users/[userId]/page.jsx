@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { usePageTitle } from "@/hooks/usePageTitle";
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
@@ -129,6 +130,7 @@ function EditableTextarea({ label, value, onChange, placeholder = '' }) {
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function AdminUserDetailPage() {
+    usePageTitle("User Details");
     const { userId } = useParams();
     const router = useRouter();
     const [actionError, setActionError] = useState('');
