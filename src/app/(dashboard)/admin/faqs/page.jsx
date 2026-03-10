@@ -27,7 +27,7 @@ function Skeleton({ className = "" }) {
     );
 }
 
-const EMPTY_FORM = { question: "", answer: "", category: "", order: "" };
+const EMPTY_FORM = { question: "", answer: "", category: "", order: "", isActive: true };
 
 function FaqModal({ faq, onClose }) {
     const isEdit = Boolean(faq);
@@ -41,6 +41,7 @@ function FaqModal({ faq, onClose }) {
                 answer: faq.answer ?? "",
                 category: faq.category ?? "",
                 order: faq.sortOrder != null ? String(faq.sortOrder) : "",
+                isActive: faq.isActive ?? true,
             }
             : EMPTY_FORM
     );
@@ -48,6 +49,8 @@ function FaqModal({ faq, onClose }) {
 
     const set = (field) => (e) =>
         setForm((prev) => ({ ...prev, [field]: e.target.value }));
+    const toggle = (field) => () =>
+        setForm((prev) => ({ ...prev, [field]: !prev[field] }));
 
     const isPending = createMutation.isPending || updateMutation.isPending;
 
@@ -58,11 +61,16 @@ function FaqModal({ faq, onClose }) {
             setError("Question and answer are required.");
             return;
         }
+        if (!form.category.trim()) {
+            setError("Category is required.");
+            return;
+        }
         const payload = {
             question: form.question.trim(),
             answer: form.answer.trim(),
-            ...(form.category.trim() ? { category: form.category.trim() } : {}),
+            category: form.category.trim(),
             ...(form.order.trim() !== "" ? { sortOrder: Number(form.order) } : {}),
+            isActive: form.isActive,
         };
         try {
             if (isEdit) {
@@ -126,7 +134,7 @@ function FaqModal({ faq, onClose }) {
                         <div className="grid grid-cols-2 gap-3">
                             <div>
                                 <label className="block text-sm font-medium text-text-main dark:text-white mb-1">
-                                    Category
+                                    Category <span className="text-red-500">*</span>
                                 </label>
                                 <input
                                     type="text"
@@ -149,6 +157,21 @@ function FaqModal({ faq, onClose }) {
                                     className="w-full rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-main dark:text-white text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
                                 />
                             </div>
+                        </div>
+
+                        {/* Active toggle */}
+                        <div className="flex items-center justify-between py-2 px-3 rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark">
+                            <div>
+                                <p className="text-sm font-medium text-text-main dark:text-white">Active</p>
+                                <p className="text-xs text-text-muted">Visible to users on the public FAQ page</p>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={toggle("isActive")}
+                                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${form.isActive ? "bg-primary" : "bg-slate-300 dark:bg-slate-600"}`}
+                            >
+                                <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${form.isActive ? "translate-x-6" : "translate-x-1"}`} />
+                            </button>
                         </div>
                         {error && (
                             <div className="flex items-center gap-2 text-sm text-red-600 dark:text-red-400">
@@ -250,6 +273,11 @@ function FaqItem({ faq, onEdit, onDelete }) {
                         )}
                         {faq.sortOrder != null && (
                             <span className="text-xs text-text-muted">#{faq.sortOrder}</span>
+                        )}
+                        {!faq.isActive && (
+                            <span className="text-xs px-2 py-0.5 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-400 font-medium">
+                                Inactive
+                            </span>
                         )}
                     </div>
                     <p className="text-sm font-medium text-text-main dark:text-white leading-snug">

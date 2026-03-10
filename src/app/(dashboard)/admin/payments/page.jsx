@@ -110,8 +110,7 @@ function PaymentSidePanel({ payment, onClose }) {
 
     if (!payment) return null;
 
-    const isReleasable =
-        payment.status === "escrowed" || payment.status === "intent_created";
+    const isReleasable = payment.status === "escrowed";
     const isRefundable = payment.status !== "refunded";
 
     const handleRelease = async () => {
@@ -340,7 +339,7 @@ function CommissionTab() {
     const [formError, setFormError] = useState("");
 
     const currentRate = commData;
-    const history = histData?.history ?? [];
+    const history = histData?.configs ?? [];
 
     const handleSetRate = async (e) => {
         e.preventDefault();
@@ -388,11 +387,8 @@ function CommissionTab() {
                 {!commLoading && currentRate && (
                     <div className="text-xs text-text-muted space-y-0.5 ml-0.5">
                         <p>Effective: {fmtDate(currentRate.effectiveFrom)}</p>
-                        {currentRate.setByUser && (
-                            <p>
-                                Set by: {currentRate.setByUser.firstName}{" "}
-                                {currentRate.setByUser.lastName}
-                            </p>
+                        {currentRate.createdByAdmin && (
+                            <p>Set by: {currentRate.createdByAdmin.email}</p>
                         )}
                     </div>
                 )}
@@ -503,7 +499,7 @@ function CommissionTab() {
                                             {fmtDate(h.effectiveFrom)}
                                         </td>
                                         <td className="px-4 py-3 text-text-muted">
-                                            {h.setByUser?.firstName} {h.setByUser?.lastName}
+                                            {h.createdByAdmin?.email ?? '—'}
                                         </td>
                                         <td className="px-4 py-3 text-text-muted">
                                             {fmtDate(h.createdAt)}

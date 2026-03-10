@@ -56,7 +56,7 @@ function BookingSidePanel({ booking, onClose, onCancel, loading, error, success 
     const [showCancelForm, setShowCancelForm] = useState(false);
     const [cancelReason, setCancelReason] = useState('');
 
-    const isCancellable = ['pending', 'confirmed'].includes(booking.status);
+    const isCancellable = ['pending', 'confirmed', 'reschedule_requested'].includes(booking.status);
 
     const handleCancel = () => {
         onCancel(booking.id, cancelReason.trim() || undefined);
@@ -105,8 +105,30 @@ function BookingSidePanel({ booking, onClose, onCancel, loading, error, success 
                         </dt>
                         <dd className="font-medium text-text-main dark:text-white text-right">
                             {booking.customer?.fullName || '—'}
+                            {booking.customer?.customerType === 'agency' && (
+                                <span className="block text-xs text-text-muted dark:text-slate-400 font-normal">
+                                    {booking.customer.agencyName || 'Agency'}
+                                </span>
+                            )}
                         </dd>
                     </div>
+
+                    {booking.patient && (
+                        <div className="flex justify-between gap-3">
+                            <dt className="text-text-muted dark:text-slate-400 flex items-center gap-1">
+                                <MdPerson className="text-sm" /> Patient
+                            </dt>
+                            <dd className="text-right">
+                                <p className="font-medium text-text-main dark:text-white">{booking.patient.fullName}</p>
+                                {booking.patient.email && (
+                                    <p className="text-xs text-text-muted dark:text-slate-400 font-normal">{booking.patient.email}</p>
+                                )}
+                                {booking.patient.phone && (
+                                    <p className="text-xs text-text-muted dark:text-slate-400 font-normal">{booking.patient.phone}</p>
+                                )}
+                            </dd>
+                        </div>
+                    )}
 
                     <div className="flex justify-between gap-3">
                         <dt className="text-text-muted dark:text-slate-400 flex items-center gap-1">
@@ -200,6 +222,7 @@ const TABS = [
     { value: '', label: 'All' },
     { value: 'pending', label: 'Pending' },
     { value: 'confirmed', label: 'Confirmed' },
+    { value: 'reschedule_requested', label: 'Reschedule' },
     { value: 'completed', label: 'Completed' },
     { value: 'cancelled', label: 'Cancelled' },
 ];
@@ -338,7 +361,7 @@ export default function AdminBookingsPage() {
                             </div>
 
                             {/* Pagination */}
-                            {pagination && pagination.pages > 1 && (
+                            {pagination && pagination.totalPages > 1 && (
                                 <div className="flex items-center justify-between px-5 py-4 border-t border-border-light dark:border-border-dark">
                                     <p className="text-sm text-text-muted dark:text-slate-400">
                                         {(page - 1) * pagination.limit + 1}–{Math.min(page * pagination.limit, pagination.total)} of {pagination.total.toLocaleString()}
@@ -352,11 +375,11 @@ export default function AdminBookingsPage() {
                                             <MdChevronLeft className="text-xl text-slate-600 dark:text-slate-300" />
                                         </button>
                                         <span className="text-sm font-medium text-text-main dark:text-white min-w-15 text-center">
-                                            {page} / {pagination.pages}
+                                            {page} / {pagination.totalPages}
                                         </span>
                                         <button
                                             onClick={() => setPage(p => p + 1)}
-                                            disabled={page === pagination.pages}
+                                            disabled={page === pagination.totalPages}
                                             className="p-1.5 rounded-lg border border-border-light dark:border-border-dark hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed"
                                         >
                                             <MdChevronRight className="text-xl text-slate-600 dark:text-slate-300" />

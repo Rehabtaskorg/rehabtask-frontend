@@ -231,7 +231,7 @@ export const useReleaseAdminPayment = () => {
 export const useRefundAdminPayment = () => {
     const qc = useQueryClient();
     return useMutation({
-        mutationFn: ({ id, reason }) => adminPaymentsApi.refund(id, { reason }),
+        mutationFn: ({ paymentId, reason }) => adminPaymentsApi.refund(paymentId, { reason }),
         onSuccess: () => qc.invalidateQueries({ queryKey: ['admin', 'payments'] }),
     });
 };
@@ -358,3 +358,8 @@ export const useReactivateSubAdmin = () => {
         onSuccess: () => qc.invalidateQueries({ queryKey: ['admin', 'sub-admins'] }),
     });
 };
+
+export const useResendSubAdminInvite = () =>
+    useMutation({
+        mutationFn: (userId) => adminSubAdminsApi.resendInvite(userId),
+    });

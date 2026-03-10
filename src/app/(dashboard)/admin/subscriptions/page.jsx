@@ -14,9 +14,6 @@ import {
 const fmtDate = (d) =>
     d ? new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—';
 
-const fmt$ = (v) =>
-    new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(parseFloat(v) || 0);
-
 const SUB_STATUS_STYLES = {
     active: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
     cancelled: 'bg-red-100    text-red-700    dark:bg-red-900/30    dark:text-red-400',
@@ -26,7 +23,7 @@ const SUB_STATUS_STYLES = {
 };
 
 const PLAN_STYLES = {
-    basic: 'bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300',
+    free: 'bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300',
     premium: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400',
 };
 
@@ -129,29 +126,22 @@ function SubscriptionSidePanel({ subscription, onClose, onCancel, loading, error
                         </dd>
                     </div>
 
-                    {subscription.amount && (
+                    {subscription.currentPeriodStart && (
                         <div className="flex justify-between gap-3">
-                            <dt className="text-text-muted dark:text-slate-400">Amount</dt>
-                            <dd className="font-semibold text-text-main dark:text-white">
-                                {fmt$(subscription.amount)}
+                            <dt className="text-text-muted dark:text-slate-400">Started</dt>
+                            <dd className="font-medium text-text-main dark:text-white">
+                                {fmtDate(subscription.currentPeriodStart)}
                             </dd>
                         </div>
                     )}
 
-                    <div className="flex justify-between gap-3">
-                        <dt className="text-text-muted dark:text-slate-400">Started</dt>
-                        <dd className="font-medium text-text-main dark:text-white">
-                            {fmtDate(subscription.startDate)}
-                        </dd>
-                    </div>
-
-                    {subscription.endDate && (
+                    {subscription.currentPeriodEnd && (
                         <div className="flex justify-between gap-3">
                             <dt className="text-text-muted dark:text-slate-400">
-                                {subscription.status === 'active' ? 'Renews' : 'Ended'}
+                                {subscription.status === 'active' || subscription.status === 'trialing' ? 'Renews' : 'Ended'}
                             </dt>
                             <dd className="font-medium text-text-main dark:text-white">
-                                {fmtDate(subscription.endDate)}
+                                {fmtDate(subscription.currentPeriodEnd)}
                             </dd>
                         </div>
                     )}
@@ -230,14 +220,13 @@ export default function AdminSubscriptionsPage() {
     const pagination = data?.pagination;
     const mutating = cancelSub.isPending;
 
-    // Compute stats from groupBy response
+    // Compute stats from backend response { total, active, cancelled, pastDue, byPlan }
     const stats = useMemo(() => {
-        if (!statsData?.stats) return { total: 0, basic: 0, premium: 0 };
-        const active = statsData.stats.filter(s => s.status === 'active');
+        if (!statsData) return { total: 0, free: 0, premium: 0 };
         return {
-            total: active.reduce((sum, s) => sum + (s._count?.id ?? 0), 0),
-            basic: active.filter(s => s.planType === 'basic').reduce((sum, s) => sum + (s._count?.id ?? 0), 0),
-            premium: active.filter(s => s.planType === 'premium').reduce((sum, s) => sum + (s._count?.id ?? 0), 0),
+            total: statsData.active ?? 0,
+            free: statsData.byPlan?.free ?? 0,
+            premium: statsData.byPlan?.premium ?? 0,
         };
     }, [statsData]);
 
@@ -286,8 +275,8 @@ export default function AdminSubscriptionsPage() {
                     />
                     <StatCard
                         icon={MdTrendingUp}
-                        label="Basic Plan"
-                        value={stats.basic}
+                        label="Free Plan"
+                        value={stats.free}
                         iconBg="bg-slate-500"
                         loading={statsLoading}
                     />
@@ -321,7 +310,7 @@ export default function AdminSubscriptionsPage() {
                         className="px-3 py-2.5 text-sm rounded-xl border border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark text-text-main dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                     >
                         <option value="">All Plans</option>
-                        <option value="basic">Basic</option>
+                        <option value="free">Free</option>
                         <option value="premium">Premium</option>
                     </select>
 
@@ -391,10 +380,10 @@ export default function AdminSubscriptionsPage() {
                                                     <StatusBadge status={sub.status} styleMap={SUB_STATUS_STYLES} />
                                                 </td>
                                                 <td className="px-5 py-3.5 text-text-muted dark:text-slate-400 hidden md:table-cell">
-                                                    {fmtDate(sub.startDate)}
+                                                    {fmtDate(sub.currentPeriodStart)}
                                                 </td>
                                                 <td className="px-5 py-3.5 text-text-muted dark:text-slate-400 hidden lg:table-cell">
-                                                    {fmtDate(sub.endDate)}
+                                                    {fmtDate(sub.currentPeriodEnd)}
                                                 </td>
                                             </tr>
                                         ))}
@@ -403,7 +392,7 @@ export default function AdminSubscriptionsPage() {
                             </div>
 
                             {/* Pagination */}
-                            {pagination && pagination.pages > 1 && (
+                            {pagination && pagination.totalPages > 1 && (
                                 <div className="flex items-center justify-between px-5 py-4 border-t border-border-light dark:border-border-dark">
                                     <p className="text-sm text-text-muted dark:text-slate-400">
                                         {(page - 1) * pagination.limit + 1}–{Math.min(page * pagination.limit, pagination.total)} of {pagination.total.toLocaleString()}
@@ -417,11 +406,11 @@ export default function AdminSubscriptionsPage() {
                                             <MdChevronLeft className="text-xl text-slate-600 dark:text-slate-300" />
                                         </button>
                                         <span className="text-sm font-medium text-text-main dark:text-white min-w-15 text-center">
-                                            {page} / {pagination.pages}
+                                            {page} / {pagination.totalPages}
                                         </span>
                                         <button
                                             onClick={() => setPage(p => p + 1)}
-                                            disabled={page === pagination.pages}
+                                            disabled={page === pagination.totalPages}
                                             className="p-1.5 rounded-lg border border-border-light dark:border-border-dark hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed"
                                         >
                                             <MdChevronRight className="text-xl text-slate-600 dark:text-slate-300" />

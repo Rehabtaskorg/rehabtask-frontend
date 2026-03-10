@@ -101,10 +101,10 @@ function UserPicker({ value, onChange }) {
         return (
             <div className="flex items-center gap-2 px-3 py-2 rounded-lg border border-primary/30 bg-primary/5 text-sm">
                 <div className="w-5 h-5 rounded-full bg-primary/20 text-primary flex items-center justify-center text-xs font-semibold shrink-0">
-                    {value.firstName?.[0] ?? "?"}
+                    {(value.customerProfile?.fullName ?? value.therapistProfile?.fullName ?? value.email)?.[0]?.toUpperCase() ?? "?"}
                 </div>
                 <span className="text-text-main truncate flex-1">
-                    {value.firstName} {value.lastName}
+                    {value.customerProfile?.fullName ?? value.therapistProfile?.fullName ?? value.email}
                 </span>
                 <button
                     onClick={() => onChange(null)}
@@ -156,11 +156,11 @@ function UserPicker({ value, onChange }) {
                                 className="w-full flex items-center gap-2 px-3 py-2 hover:bg-background-light dark:hover:bg-background-dark text-left transition-colors border-b border-border-light dark:border-border-dark last:border-0"
                             >
                                 <div className="w-6 h-6 rounded-full bg-primary/20 text-primary flex items-center justify-center text-xs font-semibold shrink-0">
-                                    {u.firstName?.[0] ?? "?"}
+                                    {(u.customerProfile?.fullName ?? u.therapistProfile?.fullName ?? u.email)?.[0]?.toUpperCase() ?? "?"}
                                 </div>
                                 <div className="flex-1 min-w-0">
                                     <p className="text-sm text-text-main dark:text-white truncate">
-                                        {u.firstName} {u.lastName}
+                                        {u.customerProfile?.fullName ?? u.therapistProfile?.fullName ?? u.email}
                                     </p>
                                     <p className="text-xs text-text-muted truncate">
                                         {u.email}
@@ -312,11 +312,11 @@ function AllNotificationsTab() {
                                         <td className="px-4 py-3">
                                             <div className="flex items-center gap-2">
                                                 <div className="w-7 h-7 rounded-full bg-primary/20 text-primary flex items-center justify-center text-xs font-semibold shrink-0">
-                                                    {n.user?.firstName?.[0] ?? "?"}
+                                                    {(n.user?.customerProfile?.fullName ?? n.user?.therapistProfile?.fullName ?? n.user?.email)?.[0]?.toUpperCase() ?? "?"}
                                                 </div>
                                                 <div className="min-w-0">
                                                     <p className="text-xs font-medium text-text-main dark:text-white truncate max-w-22.5">
-                                                        {n.user?.firstName} {n.user?.lastName}
+                                                        {n.user?.customerProfile?.fullName ?? n.user?.therapistProfile?.fullName ?? n.user?.email ?? "—"}
                                                     </p>
                                                     <p className="text-xs text-text-muted truncate max-w-22.5">
                                                         {n.user?.email}
@@ -336,7 +336,7 @@ function AllNotificationsTab() {
                                             </p>
                                         </td>
                                         <td className="px-4 py-3">
-                                            {n.read ? (
+                                            {n.isRead ? (
                                                 <span className="inline-flex items-center gap-1 text-xs text-green-600 dark:text-green-400">
                                                     <MdCheckCircle size={14} />
                                                     Read

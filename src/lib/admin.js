@@ -88,4 +88,5 @@ export const adminSubAdminsApi = {
     updatePermissions: (userId, data) => api.put(`/admin/sub-admins/${userId}/permissions`, data),
     deactivate: (userId) => api.put(`/admin/sub-admins/${userId}/deactivate`),
     reactivate: (userId) => api.put(`/admin/sub-admins/${userId}/reactivate`),
+    resendInvite: (userId) => api.post(`/admin/sub-admins/${userId}/resend-invite`),
 };
