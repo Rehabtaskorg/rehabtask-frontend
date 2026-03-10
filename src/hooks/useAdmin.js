@@ -5,7 +5,7 @@ import {
     notificationsApi, adminUsersApi, adminTherapistsApi, adminDisputesApi,
     adminBookingsApi, adminSubscriptionsApi, adminPaymentsApi,
     adminCommissionApi, adminFaqsApi, adminNotificationsApi,
-    adminSubAdminsApi,
+    adminSubAdminsApi, adminAuditApi,
 } from '@/lib/admin';
 
 // Notifications (user-facing)
@@ -246,7 +246,9 @@ export const useAdminPayment = (id) =>
 export const useReleaseAdminPayment = () => {
     const qc = useQueryClient();
     return useMutation({
-        mutationFn: (id) => adminPaymentsApi.release(id),
+        // Accepts { id } for full release, or { id, amount } for partial release
+        mutationFn: ({ id, amount }) =>
+            adminPaymentsApi.release(id, amount != null ? { amount } : {}),
         onSuccess: () => qc.invalidateQueries({ queryKey: ['admin', 'payments'] }),
     });
 };
@@ -385,4 +387,12 @@ export const useReactivateSubAdmin = () => {
 export const useResendSubAdminInvite = () =>
     useMutation({
         mutationFn: (userId) => adminSubAdminsApi.resendInvite(userId),
+    });
+
+// Admin - Audit Logs
+export const useAdminAuditLogs = ({ enabled, ...params } = {}) =>
+    useQuery({
+        queryKey: ['admin', 'audit-logs', params],
+        queryFn: () => adminAuditApi.list(params).then(r => r.data.data),
+        enabled: enabled !== false,
     });

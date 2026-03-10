@@ -19,6 +19,7 @@ import {
     MdGavel, MdQuestionAnswer, MdNotifications,
     MdManageAccounts, MdVerifiedUser,
     MdCardMembership, MdAttachMoney, MdAdminPanelSettings,
+    MdHistory, MdAssessment,
 } from "react-icons/md";
 
 function TherapistMessagesLink({ pathname }) {
@@ -252,8 +253,9 @@ export default function DashboardLayout({ children }) {
                 </div>
             );
         }
-        // Block sub-admins from accessing sub-admins management page
-        if (pathname.startsWith('/admin/sub-admins')) {
+        // Block sub-admins from admin-only pages
+        const adminOnlyPaths = ['/admin/sub-admins', '/admin/audit-logs', '/admin/reports'];
+        if (adminOnlyPaths.some(p => pathname.startsWith(p))) {
             router.replace('/admin/dashboard');
             return (
                 <div className="min-h-screen flex items-center justify-center bg-background-light dark:bg-background-dark">
@@ -458,7 +460,11 @@ export default function DashboardLayout({ children }) {
                                 <NavLink key={item.href} href={item.href} icon={item.icon} label={item.label} pathname={pathname} />
                             ))}
                             {user.role === 'admin' && (
-                                <NavLink href="/admin/sub-admins" icon={MdSupervisorAccount} label="Sub-Admins" pathname={pathname} />
+                                <>
+                                    <NavLink href="/admin/sub-admins" icon={MdSupervisorAccount} label="Sub-Admins" pathname={pathname} />
+                                    <NavLink href="/admin/reports" icon={MdAssessment} label="Reports" pathname={pathname} />
+                                    <NavLink href="/admin/audit-logs" icon={MdHistory} label="Audit Logs" pathname={pathname} />
+                                </>
                             )}
                         </nav>
                         <div className="p-4 border-t border-slate-100 dark:border-slate-800 space-y-1">

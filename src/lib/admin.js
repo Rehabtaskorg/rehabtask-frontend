@@ -57,8 +57,20 @@ export const adminPaymentsApi = {
     stats: () => api.get('/admin/payments/stats'),
     list: (params) => api.get('/admin/payments', { params }),
     get: (id) => api.get(`/admin/payments/${id}`),
-    release: (id) => api.put(`/admin/payments/${id}/release`),
+    release: (id, data) => api.put(`/admin/payments/${id}/release`, data),
     refund: (id, data) => api.put(`/admin/payments/${id}/refund`, data),
+};
+
+// Admin - Audit Logs
+export const adminAuditApi = {
+    list: (params) => api.get('/admin/audit-logs', { params }),
+};
+
+// Admin - Reports
+export const adminReportsApi = {
+    bookings: (params) => api.get('/admin/reports/bookings', { params, responseType: 'blob' }),
+    payments: (params) => api.get('/admin/reports/payments', { params, responseType: 'blob' }),
+    users: (params) => api.get('/admin/reports/users', { params, responseType: 'blob' }),
 };
 
 // Admin - Commission
