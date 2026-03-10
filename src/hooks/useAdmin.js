@@ -146,6 +146,13 @@ export const useReopenDispute = () => {
 };
 
 // Admin - Bookings
+export const useAdminBookingStats = ({ enabled } = {}) =>
+    useQuery({
+        queryKey: ['admin', 'bookings', 'stats'],
+        queryFn: () => adminBookingsApi.stats().then(r => r.data.data),
+        enabled: enabled !== false,
+    });
+
 export const useAdminBookings = ({ enabled, ...params } = {}) =>
     useQuery({
         queryKey: ['admin', 'bookings', params],
@@ -164,6 +171,22 @@ export const useCancelAdminBooking = () => {
     const qc = useQueryClient();
     return useMutation({
         mutationFn: ({ id, reason }) => adminBookingsApi.cancel(id, { reason }),
+        onSuccess: () => qc.invalidateQueries({ queryKey: ['admin', 'bookings'] }),
+    });
+};
+
+export const useApproveBookingReschedule = () => {
+    const qc = useQueryClient();
+    return useMutation({
+        mutationFn: (id) => adminBookingsApi.approveReschedule(id),
+        onSuccess: () => qc.invalidateQueries({ queryKey: ['admin', 'bookings'] }),
+    });
+};
+
+export const useDenyBookingReschedule = () => {
+    const qc = useQueryClient();
+    return useMutation({
+        mutationFn: ({ id, reason }) => adminBookingsApi.denyReschedule(id, { reason }),
         onSuccess: () => qc.invalidateQueries({ queryKey: ['admin', 'bookings'] }),
     });
 };
