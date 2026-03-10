@@ -261,24 +261,36 @@ export const useRefundAdminPayment = () => {
     });
 };
 
-// Admin - Commission
-export const useAdminCommission = () =>
+// Admin - Commission (tier-based)
+export const useAdminTierRates = () =>
     useQuery({
-        queryKey: ['admin', 'commission', 'current'],
-        queryFn: () => adminCommissionApi.getCurrent().then(r => r.data.data),
+        queryKey: ['admin', 'commission', 'rates'],
+        queryFn: () => adminCommissionApi.getRates().then(r => r.data.data),
     });
 
-export const useAdminCommissionHistory = () =>
+export const useAdminCommissionHistory = (params) =>
     useQuery({
-        queryKey: ['admin', 'commission', 'history'],
-        queryFn: () => adminCommissionApi.getHistory().then(r => r.data.data),
+        queryKey: ['admin', 'commission', 'history', params],
+        queryFn: () => adminCommissionApi.getHistory(params).then(r => r.data.data),
     });
 
-export const useSetCommissionRate = () => {
+export const useSetTierCommissionRate = () => {
     const qc = useQueryClient();
     return useMutation({
-        mutationFn: (data) => adminCommissionApi.setRate(data),
+        mutationFn: (data) => adminCommissionApi.setTierRate(data),
         onSuccess: () => qc.invalidateQueries({ queryKey: ['admin', 'commission'] }),
+    });
+};
+
+export const useUpdateTherapistPlan = () => {
+    const qc = useQueryClient();
+    return useMutation({
+        mutationFn: ({ therapistUserId, planTier }) =>
+            adminTherapistsApi.updatePlan(therapistUserId, { planTier }),
+        onSuccess: (_, vars) => {
+            qc.invalidateQueries({ queryKey: ['admin', 'therapists', vars.therapistUserId] });
+            qc.invalidateQueries({ queryKey: ['admin', 'therapists'] });
+        },
     });
 };
 
