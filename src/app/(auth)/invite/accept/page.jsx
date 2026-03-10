@@ -10,10 +10,22 @@ import Button from "@/components/ui/Button";
 import Alert from "@/components/ui/Alert";
 import Link from "next/link";
 import Footer from "@/components/shared/Footer";
-import { resetPasswordSchema } from "@/lib/validationSchema";
+import { z } from "zod";
 import { supabase } from "@/lib/supabase";
 import { authAPi } from "@/lib/auth.api";
 import { usePageTitle } from "@/hooks/usePageTitle";
+
+const inviteAcceptSchema = z.object({
+    fullName: z.string().min(2, "Full name must be at least 2 characters").max(100),
+    password: z
+        .string()
+        .min(8, "Password must be at least 8 characters")
+        .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])/, "Password must contain uppercase, lowercase, number, and symbol"),
+    confirmPassword: z.string(),
+}).refine((d) => d.password === d.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+});
 
 function InviteAcceptContent() {
     usePageTitle("Accept Invite");
@@ -26,10 +38,11 @@ function InviteAcceptContent() {
     const [sessionUserId, setSessionUserId] = useState(null);
 
     const { register, handleSubmit, watch, formState: { errors } } = useForm({
-        resolver: zodResolver(resetPasswordSchema),
+        resolver: zodResolver(inviteAcceptSchema),
         mode: "onChange",
         reValidateMode: "onChange",
         defaultValues: {
+            fullName: "",
             password: "",
             confirmPassword: "",
         },
@@ -114,9 +127,9 @@ function InviteAcceptContent() {
                 throw updateError;
             }
 
-            // Mark email as verified in the backend
+            // Mark email as verified in the backend and persist the chosen display name
             if (sessionUserId) {
-                await authAPi.verifyEmail(sessionUserId);
+                await authAPi.verifyEmail(sessionUserId, data.fullName);
             }
 
             setSuccess("Password set successfully! Redirecting to login...");
@@ -182,6 +195,21 @@ function InviteAcceptContent() {
                 {success && (
                     <Alert type="success" message={success} />
                 )}
+
+                <div>
+                    <label className="block text-sm font-medium text-text-main dark:text-gray-200 mb-1">
+                        Full Name <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                        type="text"
+                        placeholder="Your full name"
+                        {...register("fullName")}
+                        className="w-full rounded-lg border border-border-subtle dark:border-gray-700 bg-white dark:bg-[#1a242f] text-text-main dark:text-white text-sm px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary"
+                    />
+                    {errors.fullName && (
+                        <p className="mt-1 text-xs text-red-500">{errors.fullName.message}</p>
+                    )}
+                </div>
 
                 <PasswordInput
                     label="Password"

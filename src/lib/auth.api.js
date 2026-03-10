@@ -121,8 +121,8 @@ export const authAPi = {
     /**
     * Verify email in database
     */
-    verifyEmail: async (userId) => {
-        return api.post("/auth/verify-email", { userId });
+    verifyEmail: async (userId, fullName) => {
+        return api.post("/auth/verify-email", { userId, ...(fullName ? { fullName } : {}) });
     },
 
     /**

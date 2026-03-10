@@ -3,7 +3,8 @@
 import { useState, useMemo } from 'react';
 import {
     MdCardMembership, MdClose, MdChevronLeft, MdChevronRight,
-    MdCheckCircle, MdWarning, MdPerson, MdTrendingUp,
+    MdCheckCircle, MdWarning, MdPerson, MdTrendingUp, MdSearch,
+    MdSwapVert, MdFilterList,
 } from 'react-icons/md';
 import {
     useAdminSubscriptions,
@@ -14,21 +15,24 @@ import {
 const fmtDate = (d) =>
     d ? new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—';
 
-const fmt$ = (v) =>
-    new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(parseFloat(v) || 0);
-
+// DB enum values: active | inactive | cancelled | past_due
 const SUB_STATUS_STYLES = {
-    active: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
+    active:    'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
+    inactive:  'bg-slate-100  text-slate-600  dark:bg-slate-700     dark:text-slate-300',
     cancelled: 'bg-red-100    text-red-700    dark:bg-red-900/30    dark:text-red-400',
-    expired: 'bg-slate-100  text-slate-600  dark:bg-slate-700     dark:text-slate-300',
-    past_due: 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400',
-    trialing: 'bg-blue-100   text-blue-700   dark:bg-blue-900/30   dark:text-blue-400',
+    past_due:  'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400',
 };
 
 const PLAN_STYLES = {
-    basic: 'bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300',
+    free:    'bg-slate-100  text-slate-700  dark:bg-slate-700    dark:text-slate-300',
     premium: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400',
 };
+
+const SORT_OPTIONS = [
+    { value: 'createdAt',          label: 'Date Created' },
+    { value: 'currentPeriodStart', label: 'Period Start' },
+    { value: 'currentPeriodEnd',   label: 'Period End' },
+];
 
 function StatusBadge({ status, styleMap }) {
     return (
@@ -63,11 +67,10 @@ function StatCard({ icon: Icon, label, value, iconBg, loading }) {
     );
 }
 
-
 function SubscriptionSidePanel({ subscription, onClose, onCancel, loading, error, success }) {
     const [confirmCancel, setConfirmCancel] = useState(false);
 
-    const isActive = subscription.status === 'active' || subscription.status === 'trialing';
+    const isActive = subscription.status === 'active';
 
     return (
         <div className="flex flex-col h-full">
@@ -129,32 +132,46 @@ function SubscriptionSidePanel({ subscription, onClose, onCancel, loading, error
                         </dd>
                     </div>
 
-                    {subscription.amount && (
+                    <div className="flex justify-between gap-3">
+                        <dt className="text-text-muted dark:text-slate-400">Therapist Limit</dt>
+                        <dd className="font-medium text-text-main dark:text-white">
+                            {subscription.therapistLimit ?? '—'}
+                        </dd>
+                    </div>
+
+                    <div className="flex justify-between gap-3">
+                        <dt className="text-text-muted dark:text-slate-400">Request Limit</dt>
+                        <dd className="font-medium text-text-main dark:text-white">
+                            {subscription.requestLimit ?? '—'}
+                        </dd>
+                    </div>
+
+                    {subscription.currentPeriodStart && (
                         <div className="flex justify-between gap-3">
-                            <dt className="text-text-muted dark:text-slate-400">Amount</dt>
-                            <dd className="font-semibold text-text-main dark:text-white">
-                                {fmt$(subscription.amount)}
+                            <dt className="text-text-muted dark:text-slate-400">Started</dt>
+                            <dd className="font-medium text-text-main dark:text-white">
+                                {fmtDate(subscription.currentPeriodStart)}
+                            </dd>
+                        </div>
+                    )}
+
+                    {subscription.currentPeriodEnd && (
+                        <div className="flex justify-between gap-3">
+                            <dt className="text-text-muted dark:text-slate-400">
+                                {isActive ? 'Renews' : 'Ended'}
+                            </dt>
+                            <dd className="font-medium text-text-main dark:text-white">
+                                {fmtDate(subscription.currentPeriodEnd)}
                             </dd>
                         </div>
                     )}
 
                     <div className="flex justify-between gap-3">
-                        <dt className="text-text-muted dark:text-slate-400">Started</dt>
+                        <dt className="text-text-muted dark:text-slate-400">Created</dt>
                         <dd className="font-medium text-text-main dark:text-white">
-                            {fmtDate(subscription.startDate)}
+                            {fmtDate(subscription.createdAt)}
                         </dd>
                     </div>
-
-                    {subscription.endDate && (
-                        <div className="flex justify-between gap-3">
-                            <dt className="text-text-muted dark:text-slate-400">
-                                {subscription.status === 'active' ? 'Renews' : 'Ended'}
-                            </dt>
-                            <dd className="font-medium text-text-main dark:text-white">
-                                {fmtDate(subscription.endDate)}
-                            </dd>
-                        </div>
-                    )}
 
                     {subscription.stripeSubscriptionId && (
                         <div className="flex justify-between gap-3">
@@ -210,6 +227,12 @@ function SubscriptionSidePanel({ subscription, onClose, onCancel, loading, error
 export default function AdminSubscriptionsPage() {
     const [statusFilter, setStatusFilter] = useState('');
     const [planFilter, setPlanFilter] = useState('');
+    const [searchInput, setSearchInput] = useState('');
+    const [search, setSearch] = useState('');
+    const [sortBy, setSortBy] = useState('createdAt');
+    const [sortOrder, setSortOrder] = useState('desc');
+    const [startDate, setStartDate] = useState('');
+    const [endDate, setEndDate] = useState('');
     const [page, setPage] = useState(1);
     const [selected, setSelected] = useState(null);
     const [actionError, setActionError] = useState('');
@@ -218,6 +241,11 @@ export default function AdminSubscriptionsPage() {
     const params = {
         ...(statusFilter && { status: statusFilter }),
         ...(planFilter && { planType: planFilter }),
+        ...(search && { search }),
+        sortBy,
+        sortOrder,
+        ...(startDate && { startDate }),
+        ...(endDate && { endDate }),
         page,
         limit: 20,
     };
@@ -230,16 +258,25 @@ export default function AdminSubscriptionsPage() {
     const pagination = data?.pagination;
     const mutating = cancelSub.isPending;
 
-    // Compute stats from groupBy response
     const stats = useMemo(() => {
-        if (!statsData?.stats) return { total: 0, basic: 0, premium: 0 };
-        const active = statsData.stats.filter(s => s.status === 'active');
+        if (!statsData) return { total: 0, active: 0, pastDue: 0, free: 0, premium: 0 };
         return {
-            total: active.reduce((sum, s) => sum + (s._count?.id ?? 0), 0),
-            basic: active.filter(s => s.planType === 'basic').reduce((sum, s) => sum + (s._count?.id ?? 0), 0),
-            premium: active.filter(s => s.planType === 'premium').reduce((sum, s) => sum + (s._count?.id ?? 0), 0),
+            total: statsData.total ?? 0,
+            active: statsData.active ?? 0,
+            pastDue: statsData.pastDue ?? 0,
+            free: statsData.byPlan?.free ?? 0,
+            premium: statsData.byPlan?.premium ?? 0,
         };
     }, [statsData]);
+
+    const hasActiveFilters = statusFilter || planFilter || search || startDate || endDate ||
+        sortBy !== 'createdAt' || sortOrder !== 'desc';
+
+    const commitSearch = (val) => {
+        setSearch(val.trim());
+        setPage(1);
+        setSelected(null);
+    };
 
     const handleCancel = async (id) => {
         setActionError(''); setActionSuccess('');
@@ -255,11 +292,19 @@ export default function AdminSubscriptionsPage() {
     const resetFilters = () => {
         setStatusFilter('');
         setPlanFilter('');
+        setSearch('');
+        setSearchInput('');
+        setSortBy('createdAt');
+        setSortOrder('desc');
+        setStartDate('');
+        setEndDate('');
         setPage(1);
         setSelected(null);
         setActionError('');
         setActionSuccess('');
     };
+
+    const inputCls = 'px-3 py-2.5 text-sm rounded-xl border border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark text-text-main dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary';
 
     return (
         <div className="flex min-h-screen relative">
@@ -276,63 +321,104 @@ export default function AdminSubscriptionsPage() {
                 </div>
 
                 {/* Stats row */}
-                <div className="grid grid-cols-3 gap-3 md:gap-4 mb-6">
-                    <StatCard
-                        icon={MdCardMembership}
-                        label="Active Subscriptions"
-                        value={stats.total}
-                        iconBg="bg-emerald-500"
-                        loading={statsLoading}
-                    />
-                    <StatCard
-                        icon={MdTrendingUp}
-                        label="Basic Plan"
-                        value={stats.basic}
-                        iconBg="bg-slate-500"
-                        loading={statsLoading}
-                    />
-                    <StatCard
-                        icon={MdTrendingUp}
-                        label="Premium Plan"
-                        value={stats.premium}
-                        iconBg="bg-purple-500"
-                        loading={statsLoading}
-                    />
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-6">
+                    <StatCard icon={MdCardMembership} label="Total" value={stats.total} iconBg="bg-primary" loading={statsLoading} />
+                    <StatCard icon={MdCheckCircle} label="Active" value={stats.active} iconBg="bg-emerald-500" loading={statsLoading} />
+                    <StatCard icon={MdTrendingUp} label="Free Plan" value={stats.free} iconBg="bg-slate-500" loading={statsLoading} />
+                    <StatCard icon={MdTrendingUp} label="Premium Plan" value={stats.premium} iconBg="bg-purple-500" loading={statsLoading} />
                 </div>
 
-                {/* Filters */}
-                <div className="flex flex-wrap gap-3 mb-5">
-                    <select
-                        value={statusFilter}
-                        onChange={e => { setStatusFilter(e.target.value); setPage(1); setSelected(null); }}
-                        className="px-3 py-2.5 text-sm rounded-xl border border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark text-text-main dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                    >
-                        <option value="">All Statuses</option>
-                        <option value="active">Active</option>
-                        <option value="trialing">Trialing</option>
-                        <option value="cancelled">Cancelled</option>
-                        <option value="expired">Expired</option>
-                        <option value="past_due">Past Due</option>
-                    </select>
+                {/* Filters panel */}
+                <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl p-4 mb-5 space-y-3">
+                    {/* Row 1: Search + Status + Plan */}
+                    <div className="flex flex-wrap gap-3 items-center">
+                        <div className="relative flex-1 min-w-48">
+                            <MdSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted dark:text-slate-400 text-lg pointer-events-none" />
+                            <input
+                                type="text"
+                                placeholder="Search customer name or email…"
+                                value={searchInput}
+                                onChange={e => setSearchInput(e.target.value)}
+                                onKeyDown={e => { if (e.key === 'Enter') commitSearch(e.target.value); }}
+                                onBlur={e => commitSearch(e.target.value)}
+                                className={`${inputCls} pl-9 w-full`}
+                            />
+                        </div>
 
-                    <select
-                        value={planFilter}
-                        onChange={e => { setPlanFilter(e.target.value); setPage(1); setSelected(null); }}
-                        className="px-3 py-2.5 text-sm rounded-xl border border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark text-text-main dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                    >
-                        <option value="">All Plans</option>
-                        <option value="basic">Basic</option>
-                        <option value="premium">Premium</option>
-                    </select>
-
-                    {(statusFilter || planFilter) && (
-                        <button
-                            onClick={resetFilters}
-                            className="px-3 py-2.5 text-sm rounded-xl border border-border-light dark:border-border-dark text-text-muted dark:text-slate-400 hover:text-text-main dark:hover:text-white hover:border-primary/40 transition-colors"
+                        <select
+                            value={statusFilter}
+                            onChange={e => { setStatusFilter(e.target.value); setPage(1); setSelected(null); }}
+                            className={inputCls}
                         >
-                            Clear filters
-                        </button>
-                    )}
+                            <option value="">All Statuses</option>
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                            <option value="cancelled">Cancelled</option>
+                            <option value="past_due">Past Due</option>
+                        </select>
+
+                        <select
+                            value={planFilter}
+                            onChange={e => { setPlanFilter(e.target.value); setPage(1); setSelected(null); }}
+                            className={inputCls}
+                        >
+                            <option value="">All Plans</option>
+                            <option value="free">Free</option>
+                            <option value="premium">Premium</option>
+                        </select>
+                    </div>
+
+                    {/* Row 2: Sort + Date range + Clear */}
+                    <div className="flex flex-wrap gap-3 items-center">
+                        <div className="flex items-center gap-2">
+                            <MdSwapVert className="text-text-muted dark:text-slate-400 text-lg shrink-0" />
+                            <select
+                                value={sortBy}
+                                onChange={e => { setSortBy(e.target.value); setPage(1); }}
+                                className={inputCls}
+                            >
+                                {SORT_OPTIONS.map(o => (
+                                    <option key={o.value} value={o.value}>{o.label}</option>
+                                ))}
+                            </select>
+                            <button
+                                onClick={() => { setSortOrder(o => o === 'desc' ? 'asc' : 'desc'); setPage(1); }}
+                                title={sortOrder === 'desc' ? 'Descending — click for ascending' : 'Ascending — click for descending'}
+                                className={`${inputCls} font-mono text-xs min-w-16`}
+                            >
+                                {sortOrder === 'desc' ? '↓ Desc' : '↑ Asc'}
+                            </button>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                            <MdFilterList className="text-text-muted dark:text-slate-400 text-lg shrink-0" />
+                            <input
+                                type="date"
+                                value={startDate}
+                                onChange={e => { setStartDate(e.target.value); setPage(1); setSelected(null); }}
+                                title="Created from"
+                                className={inputCls}
+                            />
+                            <span className="text-text-muted dark:text-slate-400 text-sm shrink-0">to</span>
+                            <input
+                                type="date"
+                                value={endDate}
+                                min={startDate || undefined}
+                                onChange={e => { setEndDate(e.target.value); setPage(1); setSelected(null); }}
+                                title="Created until"
+                                className={inputCls}
+                            />
+                        </div>
+
+                        {hasActiveFilters && (
+                            <button
+                                onClick={resetFilters}
+                                className="px-3 py-2.5 text-sm rounded-xl border border-border-light dark:border-border-dark text-text-muted dark:text-slate-400 hover:text-text-main dark:hover:text-white hover:border-primary/40 transition-colors"
+                            >
+                                Clear all
+                            </button>
+                        )}
+                    </div>
                 </div>
 
                 {/* Table */}
@@ -391,10 +477,10 @@ export default function AdminSubscriptionsPage() {
                                                     <StatusBadge status={sub.status} styleMap={SUB_STATUS_STYLES} />
                                                 </td>
                                                 <td className="px-5 py-3.5 text-text-muted dark:text-slate-400 hidden md:table-cell">
-                                                    {fmtDate(sub.startDate)}
+                                                    {fmtDate(sub.currentPeriodStart)}
                                                 </td>
                                                 <td className="px-5 py-3.5 text-text-muted dark:text-slate-400 hidden lg:table-cell">
-                                                    {fmtDate(sub.endDate)}
+                                                    {fmtDate(sub.currentPeriodEnd)}
                                                 </td>
                                             </tr>
                                         ))}
@@ -403,7 +489,7 @@ export default function AdminSubscriptionsPage() {
                             </div>
 
                             {/* Pagination */}
-                            {pagination && pagination.pages > 1 && (
+                            {pagination && pagination.totalPages > 1 && (
                                 <div className="flex items-center justify-between px-5 py-4 border-t border-border-light dark:border-border-dark">
                                     <p className="text-sm text-text-muted dark:text-slate-400">
                                         {(page - 1) * pagination.limit + 1}–{Math.min(page * pagination.limit, pagination.total)} of {pagination.total.toLocaleString()}
@@ -417,11 +503,11 @@ export default function AdminSubscriptionsPage() {
                                             <MdChevronLeft className="text-xl text-slate-600 dark:text-slate-300" />
                                         </button>
                                         <span className="text-sm font-medium text-text-main dark:text-white min-w-15 text-center">
-                                            {page} / {pagination.pages}
+                                            {page} / {pagination.totalPages}
                                         </span>
                                         <button
                                             onClick={() => setPage(p => p + 1)}
-                                            disabled={page === pagination.pages}
+                                            disabled={page === pagination.totalPages}
                                             className="p-1.5 rounded-lg border border-border-light dark:border-border-dark hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed"
                                         >
                                             <MdChevronRight className="text-xl text-slate-600 dark:text-slate-300" />

@@ -405,7 +405,7 @@ export default function AdminDisputesPage() {
         try {
             await reopenDispute.mutateAsync(id);
             setActionSuccess('Dispute reopened.');
-            setSelected(prev => prev?.id === id ? { ...prev, status: 'open' } : prev);
+            setSelected(prev => prev?.id === id ? { ...prev, status: 'under_review' } : prev);
         } catch (e) {
             setActionError(e?.response?.data?.message || 'Failed to reopen dispute.');
         }

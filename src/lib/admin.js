@@ -36,9 +36,12 @@ export const adminDisputesApi = {
 
 // Admin - Bookings
 export const adminBookingsApi = {
+    stats: () => api.get('/admin/bookings/stats'),
     list: (params) => api.get('/admin/bookings', { params }),
     get: (id) => api.get(`/admin/bookings/${id}`),
     cancel: (id, data) => api.put(`/admin/bookings/${id}/cancel`, data),
+    approveReschedule: (id) => api.put(`/admin/bookings/${id}/approve-reschedule`),
+    denyReschedule: (id, data) => api.put(`/admin/bookings/${id}/deny-reschedule`, data),
 };
 
 // Admin - Subscriptions
@@ -88,4 +91,5 @@ export const adminSubAdminsApi = {
     updatePermissions: (userId, data) => api.put(`/admin/sub-admins/${userId}/permissions`, data),
     deactivate: (userId) => api.put(`/admin/sub-admins/${userId}/deactivate`),
     reactivate: (userId) => api.put(`/admin/sub-admins/${userId}/reactivate`),
+    resendInvite: (userId) => api.post(`/admin/sub-admins/${userId}/resend-invite`),
 };

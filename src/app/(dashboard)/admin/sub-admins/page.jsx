@@ -17,6 +17,7 @@ import {
     useUpdateSubAdminPermissions,
     useDeactivateSubAdmin,
     useReactivateSubAdmin,
+    useResendSubAdminInvite,
 } from "@/hooks/useAdmin";
 
 const ALL_PERMISSIONS = [
@@ -40,13 +41,14 @@ function Skeleton({ className = "" }) {
 }
 
 const getSubAdminDisplayName = (user) =>
+    user.subAdminProfile?.fullName ||
     user.customerProfile?.fullName ||
     user.therapistProfile?.fullName ||
     user.email?.split("@")[0] ||
     "Unknown";
 
 const getSubAdminInitial = (user) => {
-    const name = user.customerProfile?.fullName || user.therapistProfile?.fullName || user.email;
+    const name = user.subAdminProfile?.fullName || user.customerProfile?.fullName || user.therapistProfile?.fullName || user.email;
     return (name?.[0] || "?").toUpperCase();
 };
 
@@ -366,12 +368,15 @@ function SubAdminSidePanel({ subAdmin, onClose }) {
     );
     const [dirty, setDirty] = useState(false);
     const [error, setError] = useState("");
+    const [actionError, setActionError] = useState("");
 
     const [confirmDeactivate, setConfirmDeactivate] = useState(false);
     const [confirmReactivate, setConfirmReactivate] = useState(false);
+    const [resendSuccess, setResendSuccess] = useState(false);
     const updateMutation = useUpdateSubAdminPermissions();
     const deactivateMutation = useDeactivateSubAdmin();
     const reactivateMutation = useReactivateSubAdmin();
+    const resendMutation = useResendSubAdminInvite();
 
     // Sync when selected sub-admin changes
     useEffect(() => {
@@ -379,6 +384,8 @@ function SubAdminSidePanel({ subAdmin, onClose }) {
         setPermissions(perms);
         setDirty(false);
         setError("");
+        setActionError("");
+        setResendSuccess(false);
     }, [subAdmin.id, subAdmin?.subAdminProfile?.permissions]);
 
     const handlePermissionsChange = (newPerms) => {
@@ -437,10 +444,46 @@ function SubAdminSidePanel({ subAdmin, onClose }) {
                                 {subAdmin.email}
                             </p>
                             <div className="mt-1.5">
-                                <StatusBadge isActive={subAdmin.isActive} />
+                                {!subAdmin.emailVerified ? (
+                                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300">
+                                        Pending Invite
+                                    </span>
+                                ) : (
+                                    <StatusBadge isActive={subAdmin.isActive} />
+                                )}
                             </div>
                         </div>
                     </div>
+
+                    {/* Meta */}
+                    <dl className="space-y-1.5 text-xs">
+                        {subAdmin.subAdminProfile?.createdByAdmin && (
+                            <div className="flex justify-between gap-3">
+                                <dt className="text-text-muted">Added by</dt>
+                                <dd className="text-text-main dark:text-white truncate max-w-40 text-right">
+                                    {subAdmin.subAdminProfile.createdByAdmin.email}
+                                </dd>
+                            </div>
+                        )}
+                        {subAdmin.subAdminProfile?.createdAt && (
+                            <div className="flex justify-between gap-3">
+                                <dt className="text-text-muted">Added on</dt>
+                                <dd className="text-text-main dark:text-white">
+                                    {new Date(subAdmin.subAdminProfile.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                                </dd>
+                            </div>
+                        )}
+                        <div className="flex justify-between gap-3">
+                            <dt className="text-text-muted">Invite status</dt>
+                            <dd>
+                                {subAdmin.emailVerified ? (
+                                    <span className="text-green-600 dark:text-green-400 font-medium">Accepted</span>
+                                ) : (
+                                    <span className="text-amber-600 dark:text-amber-400 font-medium">Pending</span>
+                                )}
+                            </dd>
+                        </div>
+                    </dl>
 
                     {/* Permissions */}
                     <PermissionsCheckboxes
@@ -467,21 +510,64 @@ function SubAdminSidePanel({ subAdmin, onClose }) {
                 </div>
 
                 {/* Footer */}
-                <div className="px-4 py-3 border-t border-border-light dark:border-border-dark shrink-0">
+                <div className="px-4 py-3 border-t border-border-light dark:border-border-dark shrink-0 space-y-2">
+                    {!subAdmin.emailVerified && (
+                        <div>
+                            {resendSuccess ? (
+                                <p className="text-xs text-green-600 dark:text-green-400 text-center py-2">
+                                    Invite resent successfully.
+                                </p>
+                            ) : (
+                                <>
+                                    {resendMutation.error && (
+                                        <p className="text-xs text-red-600 dark:text-red-400 flex items-center gap-1 mb-1.5">
+                                            <MdWarning size={13} />
+                                            {resendMutation.error?.response?.data?.message ?? "Failed to resend invite."}
+                                        </p>
+                                    )}
+                                    <button
+                                        onClick={async () => {
+                                            try {
+                                                await resendMutation.mutateAsync(subAdmin.id);
+                                                setResendSuccess(true);
+                                            } catch { /* shown via resendMutation.error */ }
+                                        }}
+                                        disabled={resendMutation.isPending}
+                                        className="w-full py-2 rounded-lg border border-border-light dark:border-border-dark text-sm font-medium text-text-main dark:text-white hover:bg-background-light dark:hover:bg-background-dark disabled:opacity-50"
+                                    >
+                                        {resendMutation.isPending ? "Sending…" : "Resend Invite"}
+                                    </button>
+                                </>
+                            )}
+                        </div>
+                    )}
                     {subAdmin.isActive ? (
                         confirmDeactivate ? (
                             <div className="space-y-2">
                                 <p className="text-xs text-red-600 dark:text-red-400">This sub-admin will be unable to log in or access the platform.</p>
+                                {actionError && (
+                                    <p className="text-xs text-red-600 dark:text-red-400 flex items-center gap-1">
+                                        <MdWarning size={13} /> {actionError}
+                                    </p>
+                                )}
                                 <div className="flex gap-2">
                                     <button
-                                        onClick={() => { deactivateMutation.mutate(subAdmin.id); setConfirmDeactivate(false); }}
+                                        onClick={async () => {
+                                            setActionError("");
+                                            try {
+                                                await deactivateMutation.mutateAsync(subAdmin.id);
+                                                setConfirmDeactivate(false);
+                                            } catch (err) {
+                                                setActionError(err?.response?.data?.message ?? "Failed to deactivate.");
+                                            }
+                                        }}
                                         disabled={deactivateMutation.isPending}
                                         className="flex-1 py-2 rounded-lg bg-red-600 text-white text-sm font-medium hover:bg-red-700 disabled:opacity-50"
                                     >
                                         {deactivateMutation.isPending ? "Deactivating…" : "Confirm"}
                                     </button>
                                     <button
-                                        onClick={() => setConfirmDeactivate(false)}
+                                        onClick={() => { setConfirmDeactivate(false); setActionError(""); }}
                                         className="flex-1 py-2 rounded-lg border border-border-light dark:border-border-dark text-sm font-medium text-text-main dark:text-white hover:bg-background-light dark:hover:bg-background-dark"
                                     >
                                         Cancel
@@ -501,16 +587,29 @@ function SubAdminSidePanel({ subAdmin, onClose }) {
                         confirmReactivate ? (
                             <div className="space-y-2">
                                 <p className="text-xs text-emerald-600 dark:text-emerald-400">This will restore the sub-admin&apos;s access to the platform.</p>
+                                {actionError && (
+                                    <p className="text-xs text-red-600 dark:text-red-400 flex items-center gap-1">
+                                        <MdWarning size={13} /> {actionError}
+                                    </p>
+                                )}
                                 <div className="flex gap-2">
                                     <button
-                                        onClick={() => { reactivateMutation.mutate(subAdmin.id); setConfirmReactivate(false); }}
+                                        onClick={async () => {
+                                            setActionError("");
+                                            try {
+                                                await reactivateMutation.mutateAsync(subAdmin.id);
+                                                setConfirmReactivate(false);
+                                            } catch (err) {
+                                                setActionError(err?.response?.data?.message ?? "Failed to reactivate.");
+                                            }
+                                        }}
                                         disabled={reactivateMutation.isPending}
                                         className="flex-1 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium disabled:opacity-50"
                                     >
                                         {reactivateMutation.isPending ? 'Processing…' : 'Confirm'}
                                     </button>
                                     <button
-                                        onClick={() => setConfirmReactivate(false)}
+                                        onClick={() => { setConfirmReactivate(false); setActionError(""); }}
                                         className="flex-1 py-2 rounded-lg border border-border-light dark:border-border-dark text-sm font-medium text-text-main dark:text-white hover:bg-slate-50 dark:hover:bg-slate-800"
                                     >
                                         Cancel
@@ -679,7 +778,13 @@ export default function AdminSubAdminsPage() {
                                                     </div>
                                                 </td>
                                                 <td className="px-4 py-3">
-                                                    <StatusBadge isActive={sa.isActive} />
+                                                    {!sa.emailVerified ? (
+                                                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300">
+                                                            Pending Invite
+                                                        </span>
+                                                    ) : (
+                                                        <StatusBadge isActive={sa.isActive} />
+                                                    )}
                                                 </td>
                                             </tr>
                                         );

@@ -179,9 +179,9 @@ export default function AdminDashboardPage() {
                 {can('payments') && (
                     <StatCard
                         icon={MdAttachMoney}
-                        label="Total Revenue"
-                        value={fmt$(payStats?.totalRevenue)}
-                        sub={`${payStats?.totalTransactions ?? 0} transactions`}
+                        label="Total Volume"
+                        value={fmt$(payStats?.totalVolume)}
+                        sub="Escrowed & released"
                         iconBg="bg-emerald-500"
                         href="/admin/payments"
                         loading={payLoading}
@@ -206,8 +206,8 @@ export default function AdminDashboardPage() {
                         <>
                             <StatCard
                                 icon={MdTrendingUp}
-                                label="Platform Fees"
-                                value={fmt$(payStats?.totalPlatformFees)}
+                                label="Platform Revenue"
+                                value={fmt$(payStats?.platformRevenue)}
                                 sub="All time earned"
                                 iconBg="bg-indigo-500"
                                 href="/admin/payments"
@@ -216,7 +216,7 @@ export default function AdminDashboardPage() {
                             <StatCard
                                 icon={MdCheckCircle}
                                 label="Payouts Released"
-                                value={fmt$(payStats?.totalTherapistPayouts)}
+                                value={fmt$(payStats?.therapistPayouts)}
                                 sub="To therapists"
                                 iconBg="bg-purple-500"
                                 href="/admin/payments"
@@ -286,18 +286,18 @@ export default function AdminDashboardPage() {
                                     {pendingData.therapists.map(t => (
                                         <li key={t.id}>
                                             <Link
-                                                href={`/admin/therapists/${t.userId}`}
+                                                href={`/admin/therapists/${t.id}`}
                                                 className="flex items-center gap-3 px-5 py-3.5 hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors"
                                             >
                                                 <div className="h-9 w-9 rounded-full bg-primary/10 dark:bg-primary/20 flex items-center justify-center text-sm font-bold text-primary shrink-0">
-                                                    {t.fullName?.charAt(0)?.toUpperCase() || 'T'}
+                                                    {t.therapistProfile?.fullName?.charAt(0)?.toUpperCase() || 'T'}
                                                 </div>
                                                 <div className="flex-1 min-w-0">
                                                     <p className="text-sm font-medium text-text-main dark:text-white truncate">
-                                                        {t.fullName}
+                                                        {t.therapistProfile?.fullName ?? '—'}
                                                     </p>
                                                     <p className="text-xs text-text-muted dark:text-slate-500 truncate">
-                                                        {t.primaryLicenseType || 'Therapist'} · Applied {fmtDate(t.createdAt)}
+                                                        {t.therapistProfile?.primaryLicenseType || 'Therapist'} · Applied {fmtDate(t.createdAt)}
                                                     </p>
                                                 </div>
                                                 <StatusBadge status="pending" />
