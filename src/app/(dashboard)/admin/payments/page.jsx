@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
+import { usePageTitle } from "@/hooks/usePageTitle";
 import {
     MdAttachMoney,
     MdAccountBalanceWallet,
@@ -121,7 +122,7 @@ function PaymentSidePanel({ payment, onClose }) {
     if (!payment) return null;
 
     const isReleasable = payment.status === "escrowed";
-    const isRefundable = payment.status !== "refunded";
+    const isRefundable = ["escrowed", "intent_created"].includes(payment.status);
 
     const parsedReleaseAmount = parseFloat(releaseAmount);
     const releaseAmountValid =
@@ -565,6 +566,7 @@ const STATUS_TABS = [
 ];
 
 export default function AdminPaymentsPage() {
+    usePageTitle("Payments");
     const [activeTab, setActiveTab] = useState("payments");
     const [statusFilter, setStatusFilter] = useState("all");
     const [selectedPayment, setSelectedPayment] = useState(null);

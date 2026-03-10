@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { usePageTitle } from "@/hooks/usePageTitle";
 import Link from 'next/link';
 import {
     MdSearch, MdClose, MdPeople, MdChevronLeft,
@@ -222,6 +223,7 @@ function UserSidePanel({ user, onClose, onDeactivate, onReactivate, mutating }) 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function AdminUsersPage() {
+    usePageTitle("Users");
     const [search, setSearch] = useState('');
     const [debouncedSearch, setDebounced] = useState('');
     const [roleFilter, setRoleFilter] = useState('');

@@ -2,6 +2,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { usePageTitle } from "@/hooks/usePageTitle";
 import Link from 'next/link';
 import {
     MdGavel, MdClose, MdChevronLeft, MdChevronRight,
@@ -338,6 +339,7 @@ const TABS = [
 ];
 
 export default function AdminDisputesPage() {
+    usePageTitle("Disputes");
     const currentUser = useAdminUser();
     const isFullAdmin = currentUser?.role === 'admin';
     const [statusFilter, setStatusFilter] = useState('');

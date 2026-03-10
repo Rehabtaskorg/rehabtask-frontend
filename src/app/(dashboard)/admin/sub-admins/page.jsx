@@ -2,6 +2,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { usePageTitle } from "@/hooks/usePageTitle";
 import {
     MdAdd,
     MdClose,
@@ -633,6 +634,7 @@ function SubAdminSidePanel({ subAdmin, onClose }) {
 }
 
 export default function AdminSubAdminsPage() {
+    usePageTitle("Sub-Admins");
     const [showAddModal, setShowAddModal] = useState(false);
     const [selectedSubAdmin, setSelectedSubAdmin] = useState(null);
 

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { usePageTitle } from "@/hooks/usePageTitle";
 import React from 'react';
 import {
     MdHistory, MdChevronLeft, MdChevronRight,
@@ -43,6 +44,7 @@ function ChangesViewer({ changes }) {
 }
 
 export default function AdminAuditLogsPage() {
+    usePageTitle("Audit Logs");
     const [entityType, setEntityType] = useState('');
     const [actionInput, setActionInput] = useState('');
     const [action, setAction] = useState('');

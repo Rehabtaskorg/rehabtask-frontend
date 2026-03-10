@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { usePageTitle } from "@/hooks/usePageTitle";
 import {
     MdDownload, MdCalendarMonth, MdPayments, MdPeople, MdWarning,
 } from 'react-icons/md';
@@ -59,6 +60,7 @@ function ReportCard({ icon: Icon, iconBg, title, description, children, onDownlo
 }
 
 export default function AdminReportsPage() {
+    usePageTitle("Reports");
     const today = new Date().toISOString().split('T')[0];
 
     const inputCls = 'w-full px-3 py-2.5 text-sm rounded-xl border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-main dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary';

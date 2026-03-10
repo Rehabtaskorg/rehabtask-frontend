@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
+import { usePageTitle } from "@/hooks/usePageTitle";
 import {
     MdCalendarMonth, MdClose, MdChevronLeft, MdChevronRight,
     MdCheckCircle, MdWarning, MdPerson, MdSearch, MdSwapVert,
@@ -337,6 +338,7 @@ function BookingSidePanel({ booking, onClose, onCancel, onApproveReschedule, onD
 }
 
 export default function AdminBookingsPage() {
+    usePageTitle("Bookings");
     const [statusFilter, setStatusFilter] = useState('');
     const [searchInput, setSearchInput] = useState('');
     const [search, setSearch] = useState('');
