@@ -114,6 +114,7 @@ function PaymentSidePanel({ payment, onClose }) {
     const maxPayout = payment ? parseFloat(payment.therapistPayout ?? 0) : 0;
 
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setShowRefundForm(false);
         setRefundReason("");
         setReleaseAmount("");

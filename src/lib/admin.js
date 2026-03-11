@@ -24,6 +24,7 @@ export const adminTherapistsApi = {
     reject: (therapistUserId, data) => api.put(`/admin/therapists/${therapistUserId}/reject`, data),
     updatePlan: (therapistUserId, data) => api.put(`/admin/therapists/${therapistUserId}/plan`, data),
     getDocumentUrl: (therapistUserId, documentId) => api.get(`/admin/therapists/${therapistUserId}/documents/${documentId}`),
+    getPlanStats: () => api.get('/admin/therapists/plan-stats'),
 };
 
 // Admin - Disputes

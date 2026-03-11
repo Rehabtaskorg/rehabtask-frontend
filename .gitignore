@@ -35,6 +35,11 @@ yarn-error.log*
 
 # vercel
 .vercel
+
+# Claude Code context (local only)
+CLAUDE.md
+docs/PRD.md
+docs/FUTURE-DB-DESIGN.md
 test.ts
 # typescript
 *.tsbuildinfo

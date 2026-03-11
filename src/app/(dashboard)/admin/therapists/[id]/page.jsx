@@ -14,25 +14,38 @@ import {
     useApproveTherapist,
     useRejectTherapist,
     useUpdateTherapistPlan,
+    useAdminTierRates,
 } from '@/hooks/useAdmin';
 import { adminTherapistsApi } from '@/lib/admin';
 
 const THERAPIST_PLAN_META = {
     basic: {
         label: "Basic",
-        description: "Free · 20% commission",
+        price: "Free",
         badge: "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300",
     },
     pro: {
         label: "Pro",
-        description: "$19/mo · 12% commission",
+        price: "$19/mo",
         badge: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300",
     },
     elite: {
         label: "Elite",
-        description: "$39/mo · 7% commission",
+        price: "$39/mo",
         badge: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300",
     },
+};
+
+const getTierCommission = (tierRates, tier) => {
+    const found = tierRates?.find(t => t.tier === tier);
+    return found ? `${(found.rate * 100).toFixed(1)}%` : null;
+};
+
+const buildTierDescription = (tierRates, tier) => {
+    const meta = THERAPIST_PLAN_META[tier];
+    const commission = getTierCommission(tierRates, tier);
+    if (!meta) return '';
+    return commission ? `${meta.price} · ${commission} commission` : meta.price;
 };
 
 const fmtDate = (d) =>
@@ -130,8 +143,10 @@ export default function AdminTherapistDetailPage() {
 
     const [planTierError, setPlanTierError] = useState('');
     const [planTierSuccess, setPlanTierSuccess] = useState('');
+    const [confirmPlanTier, setConfirmPlanTier] = useState(null);
 
     const { data: therapist, isLoading, error } = useAdminTherapist(id);
+    const { data: tierRates } = useAdminTierRates();
     const approve = useApproveTherapist();
     const reject = useRejectTherapist();
     const updatePlan = useUpdateTherapistPlan();
@@ -387,7 +402,7 @@ export default function AdminTherapistDetailPage() {
                                         <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold ${meta?.badge}`}>
                                             {meta?.label ?? currentTier}
                                         </span>
-                                        <p className="text-xs text-text-muted mt-0.5">{meta?.description}</p>
+                                        <p className="text-xs text-text-muted mt-0.5">{buildTierDescription(tierRates, currentTier)}</p>
                                     </div>
                                 </div>
                             );
@@ -400,7 +415,7 @@ export default function AdminTherapistDetailPage() {
                                 return (
                                     <button
                                         key={tier}
-                                        onClick={() => !isActive && handlePlanTierChange(tier)}
+                                        onClick={() => !isActive && setConfirmPlanTier(tier)}
                                         disabled={isActive || updatePlan.isPending}
                                         className={`py-2.5 px-3 rounded-lg border text-xs font-medium transition-colors ${
                                             isActive
@@ -414,8 +429,37 @@ export default function AdminTherapistDetailPage() {
                             })}
                         </div>
 
-                        {updatePlan.isPending && (
-                            <p className="text-xs text-text-muted">Updating…</p>
+                        {/* Confirmation */}
+                        {confirmPlanTier && (
+                            <div className="border border-border-light dark:border-border-dark rounded-xl p-4 space-y-3">
+                                <p className="text-sm text-text-main dark:text-white">
+                                    Change plan from <span className="font-semibold">{THERAPIST_PLAN_META[tp?.planTier ?? 'basic']?.label}</span> to{' '}
+                                    <span className="font-semibold">{THERAPIST_PLAN_META[confirmPlanTier]?.label}</span>?
+                                </p>
+                                <p className="text-xs text-text-muted dark:text-slate-400">
+                                    Commission rate will change from {getTierCommission(tierRates, tp?.planTier ?? 'basic') ?? '—'} to {getTierCommission(tierRates, confirmPlanTier) ?? '—'} for future transactions.
+                                </p>
+                                <div className="flex gap-2">
+                                    <button
+                                        onClick={() => { handlePlanTierChange(confirmPlanTier); setConfirmPlanTier(null); }}
+                                        disabled={updatePlan.isPending}
+                                        className="flex-1 py-2 rounded-lg bg-primary text-white text-xs font-medium hover:bg-primary/90 disabled:opacity-50 transition-colors"
+                                    >
+                                        {updatePlan.isPending ? 'Updating\u2026' : 'Confirm Change'}
+                                    </button>
+                                    <button
+                                        onClick={() => setConfirmPlanTier(null)}
+                                        disabled={updatePlan.isPending}
+                                        className="px-4 py-2 rounded-lg border border-border-light dark:border-border-dark text-xs text-text-main dark:text-white hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                                    >
+                                        Cancel
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+
+                        {updatePlan.isPending && !confirmPlanTier && (
+                            <p className="text-xs text-text-muted">Updating\u2026</p>
                         )}
                         {planTierSuccess && (
                             <div className="flex items-center gap-2 text-xs text-emerald-600 dark:text-emerald-400">
