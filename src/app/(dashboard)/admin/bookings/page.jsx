@@ -107,6 +107,7 @@ function BookingSidePanel({ booking, onClose, onCancel, onApproveReschedule, onD
     const [cancelReason, setCancelReason] = useState('');
     const [showDenyForm, setShowDenyForm] = useState(false);
     const [denyReason, setDenyReason] = useState('');
+    const [confirmApproveReschedule, setConfirmApproveReschedule] = useState(false);
 
     const isCancellable = ['pending', 'confirmed', 'reschedule_requested'].includes(booking.status);
     const isRescheduleRequested = booking.status === 'reschedule_requested';
@@ -246,22 +247,46 @@ function BookingSidePanel({ booking, onClose, onCancel, onApproveReschedule, onD
                             <p className="text-xs text-text-muted dark:text-slate-400">
                                 Approve to confirm the new date, or deny to keep the original schedule.
                             </p>
-                            <div className="flex gap-2">
-                                <button
-                                    onClick={() => onApproveReschedule(booking.id)}
-                                    disabled={loading}
-                                    className="flex-1 py-2.5 rounded-xl bg-emerald-600 text-white text-sm font-medium hover:bg-emerald-700 disabled:opacity-50 transition-colors"
-                                >
-                                    {loading ? '…' : 'Approve'}
-                                </button>
-                                <button
-                                    onClick={() => setShowDenyForm(v => !v)}
-                                    disabled={loading}
-                                    className="flex-1 py-2.5 rounded-xl border border-red-300 dark:border-red-700 text-red-600 dark:text-red-400 text-sm font-medium hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors"
-                                >
-                                    Deny
-                                </button>
-                            </div>
+                            {confirmApproveReschedule ? (
+                                <div className="space-y-2">
+                                    <p className="text-xs text-text-muted dark:text-slate-400">
+                                        This will confirm the booking for the new requested date. Continue?
+                                    </p>
+                                    <div className="flex gap-2">
+                                        <button
+                                            onClick={() => { onApproveReschedule(booking.id); setConfirmApproveReschedule(false); }}
+                                            disabled={loading}
+                                            className="flex-1 py-2.5 rounded-xl bg-emerald-600 text-white text-sm font-medium hover:bg-emerald-700 disabled:opacity-50 transition-colors"
+                                        >
+                                            {loading ? '\u2026' : 'Confirm Approve'}
+                                        </button>
+                                        <button
+                                            onClick={() => setConfirmApproveReschedule(false)}
+                                            disabled={loading}
+                                            className="px-4 py-2.5 rounded-xl border border-border-light dark:border-border-dark text-sm text-text-main dark:text-white hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                                        >
+                                            Back
+                                        </button>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="flex gap-2">
+                                    <button
+                                        onClick={() => setConfirmApproveReschedule(true)}
+                                        disabled={loading}
+                                        className="flex-1 py-2.5 rounded-xl bg-emerald-600 text-white text-sm font-medium hover:bg-emerald-700 disabled:opacity-50 transition-colors"
+                                    >
+                                        Approve
+                                    </button>
+                                    <button
+                                        onClick={() => setShowDenyForm(v => !v)}
+                                        disabled={loading}
+                                        className="flex-1 py-2.5 rounded-xl border border-red-300 dark:border-red-700 text-red-600 dark:text-red-400 text-sm font-medium hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors"
+                                    >
+                                        Deny
+                                    </button>
+                                </div>
+                            )}
                             {showDenyForm && (
                                 <div className="space-y-2 pt-1">
                                     <textarea

@@ -78,6 +78,12 @@ export const useAdminTherapists = ({ enabled, ...params } = {}) =>
         enabled: enabled !== false,
     });
 
+export const useAdminTherapistPlanStats = () =>
+    useQuery({
+        queryKey: ['admin', 'therapists', 'plan-stats'],
+        queryFn: () => adminTherapistsApi.getPlanStats().then(r => r.data.data),
+    });
+
 export const useAdminTherapist = (therapistUserId) =>
     useQuery({
         queryKey: ['admin', 'therapists', therapistUserId],

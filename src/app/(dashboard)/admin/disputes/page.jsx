@@ -314,15 +314,39 @@ function DisputeSidePanel({ dispute, admins, onClose, onUpdate, onAssign, onReop
 
             {/* Fixed footer — reopen action */}
             {isResolved && canModify && (
-                <div className="p-5 border-t border-border-light dark:border-border-dark shrink-0">
-                    <button
-                        onClick={() => onReopen(dispute.id)}
-                        disabled={loading}
-                        className="flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-xl border border-amber-200 dark:border-amber-700 text-amber-700 dark:text-amber-400 text-sm font-medium hover:bg-amber-50 dark:hover:bg-amber-900/20 disabled:opacity-50 transition-colors"
-                    >
-                        <MdRefresh className="text-base" />
-                        {loading ? 'Processing…' : 'Reopen Dispute'}
-                    </button>
+                <div className="p-5 border-t border-border-light dark:border-border-dark shrink-0 space-y-3">
+                    {activeSection === 'reopen' ? (
+                        <>
+                            <p className="text-xs text-text-muted dark:text-slate-400">
+                                This will reopen the dispute and notify all parties. Are you sure?
+                            </p>
+                            <div className="flex gap-2">
+                                <button
+                                    onClick={() => { onReopen(dispute.id); setActiveSection(null); }}
+                                    disabled={loading}
+                                    className="flex-1 py-2.5 rounded-xl bg-amber-600 text-white text-sm font-medium hover:bg-amber-700 disabled:opacity-50 transition-colors"
+                                >
+                                    {loading ? 'Processing\u2026' : 'Confirm Reopen'}
+                                </button>
+                                <button
+                                    onClick={() => setActiveSection(null)}
+                                    disabled={loading}
+                                    className="px-4 py-2.5 rounded-xl border border-border-light dark:border-border-dark text-sm text-text-main dark:text-white hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                                >
+                                    Cancel
+                                </button>
+                            </div>
+                        </>
+                    ) : (
+                        <button
+                            onClick={() => setActiveSection('reopen')}
+                            disabled={loading}
+                            className="flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-xl border border-amber-200 dark:border-amber-700 text-amber-700 dark:text-amber-400 text-sm font-medium hover:bg-amber-50 dark:hover:bg-amber-900/20 disabled:opacity-50 transition-colors"
+                        >
+                            <MdRefresh className="text-base" />
+                            Reopen Dispute
+                        </button>
+                    )}
                 </div>
             )}
         </div>
