@@ -491,6 +491,19 @@ export default function TherapistRequestsPage() {
                                 </span>
                             </div>
 
+                            {/* Patient Info */}
+                            {selectedRequest.patient && (
+                                <div className="flex items-center gap-3 p-4 rounded-xl bg-primary/5 dark:bg-primary/10 border border-primary/20">
+                                    <div className="w-9 h-9 rounded-full bg-primary/10 dark:bg-primary/20 flex items-center justify-center shrink-0">
+                                        <svg className="w-4.5 h-4.5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+                                    </div>
+                                    <div>
+                                        <p className="text-[10px] font-bold text-primary/70 uppercase tracking-widest">Patient</p>
+                                        <p className="text-sm font-bold text-slate-900 dark:text-white">{selectedRequest.patient.fullName}</p>
+                                    </div>
+                                </div>
+                            )}
+
                             {/* Request Details */}
                             <div className="space-y-3">
                                 <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-border-dark">
