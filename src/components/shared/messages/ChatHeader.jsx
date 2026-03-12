@@ -2,7 +2,9 @@ import UserAvatar from "../../ui/UserAvatar";
 import { getPhotoUrl, getContextBadge } from "@/utils/messages";
 
 export default function ChatHeader({ selected, selectedConversation, onBack, headerActions }) {
-    const badge = selected ? getContextBadge(selected.type) : null;
+    // Use contextType (actual conversation context) for badge/display, not type (which is always 'direct' for merged threads)
+    const displayType = selected?.contextType ?? selected?.type;
+    const badge = selected ? getContextBadge(displayType) : null;
 
     return (
         <div className="flex items-center justify-between px-4 md:px-6 py-3 border-b border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark shrink-0">
@@ -21,7 +23,7 @@ export default function ChatHeader({ selected, selectedConversation, onBack, hea
                         {badge && <span className={`shrink-0 px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide ${badge.className}`}>{badge.label}</span>}
                     </div>
                     <p className="text-xs text-text-muted dark:text-gray-400">
-                        {selected.type === 'booking' ? 'Booking Conversation' : selected.type === 'offer' ? 'Offer Conversation' : 'Request Conversation'}
+                        {displayType === 'booking' ? 'Booking Conversation' : displayType === 'offer' ? 'Offer Conversation' : displayType === 'direct' ? 'Direct Message' : 'Conversation'}
                     </p>
                 </div>
             </div>

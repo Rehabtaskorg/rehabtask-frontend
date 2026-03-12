@@ -55,10 +55,19 @@ export const messagesApi = {
     /**
      * Get the other party's info for a conversation
      * Used when no messages exist yet to resolve the other user's name
-     * @param {string} contextType - "offer" | "booking"
+     * @param {string} contextType - "offer" | "booking" | "direct"
      * @param {string} contextId - UUID of the context
      */
     getConversationContext: async (contextType, contextId) => {
         return api.get(`/messages/${contextType}/${contextId}/context`);
-    }
+    },
+
+    /**
+     * Send a direct message (creates conversation if needed)
+     * @param {string} recipientId - UUID of the recipient user
+     * @param {string} content - Message text
+     */
+    sendDirectMessage: async (recipientId, content) => {
+        return api.post("/messages/direct", { recipientId, content });
+    },
 };

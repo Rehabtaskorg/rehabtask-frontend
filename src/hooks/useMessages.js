@@ -1,9 +1,24 @@
 "use client";
 
-import { useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { messagesApi } from "@/lib/messages.api";
 import { useAuth } from "./useAuth";
+
+/**
+ * Retry config for polling queries — backs off on 429 (rate limit) instead of hammering the server
+ */
+const pollingRetryConfig = {
+    retry: (failureCount, error) => {
+        if (error?.response?.status === 429) return failureCount < 3;
+        if (error?.response?.status === 401) return false;
+        return failureCount < 2;
+    },
+    retryDelay: (attempt, error) => {
+        if (error?.response?.status === 429) return Math.min(5000 * 2 ** attempt, 30000);
+        return Math.min(1000 * 2 ** attempt, 10000);
+    },
+};
 
 /**
  * Hook to manage conversation list with polling
@@ -17,6 +32,8 @@ export function useConversations(pollInterval = 10000) {
             return res.data.data.conversations;
         },
         refetchInterval: pollInterval,
+        refetchIntervalInBackground: false,
+        ...pollingRetryConfig,
     });
 
     const isSessionExpired = error?.response?.status === 401;
@@ -35,9 +52,11 @@ export function useConversations(pollInterval = 10000) {
  * @param {string} contextType - "offer" | "booking"
  * @param {string} contextId - UUID
  */
-export function useMessages(contextType, contextId, pollInterval = 5000) {
+export function useMessages(contextType, contextId, pollInterval = 10000) {
     const queryClient = useQueryClient();
     const { user } = useAuth();
+    const [hasMore, setHasMore] = useState(false);
+    const [loadingMore, setLoadingMore] = useState(false);
 
     const messagesQueryKey = useMemo(
         () => ["messages", contextType, contextId],
@@ -51,11 +70,19 @@ export function useMessages(contextType, contextId, pollInterval = 5000) {
                 limit: 50,
                 order: "asc"
             });
+            setHasMore(res.data.data.hasMore ?? false);
             return res.data.data.messages;
         },
         enabled: !!contextType && !!contextId,
         refetchInterval: pollInterval,
+        refetchIntervalInBackground: false,
+        ...pollingRetryConfig,
     });
+
+    // Reset hasMore when switching conversations
+    useEffect(() => {
+        setHasMore(false);
+    }, [contextType, contextId]);
 
     const isSessionExpired = error?.response?.status === 401;
 
@@ -66,12 +93,19 @@ export function useMessages(contextType, contextId, pollInterval = 5000) {
         messagesApi.markAsRead(contextType, contextId)
             .then(() => {
                 queryClient.setQueryData(["conversations"], (old) =>
-                    old?.map((conv) =>
-                        conv.currentContext?.type === contextType &&
-                            conv.currentContext?.id === contextId
+                    old?.map((conv) => {
+                        // Match by currentContext (offer/booking)
+                        const matchesCurrent = conv.currentContext?.type === contextType &&
+                            conv.currentContext?.id === contextId;
+                        // Also match by directConversationId (direct conversations may have
+                        // been upgraded to offer/booking context but still share the same thread)
+                        const matchesDirect = contextType === "direct" &&
+                            conv.directConversationId === contextId;
+
+                        return (matchesCurrent || matchesDirect)
                             ? { ...conv, unreadCount: 0 }
-                            : conv
-                    ) ?? []
+                            : conv;
+                    }) ?? []
                 );
                 queryClient.invalidateQueries({ queryKey: ["unreadCount"] });
             })
@@ -143,9 +177,12 @@ export function useMessages(contextType, contextId, pollInterval = 5000) {
             );
         },
 
-        onSettled: () => {
-            // Resume polling / sync ground truth
-            queryClient.invalidateQueries({ queryKey: messagesQueryKey });
+        onSettled: (_data, error) => {
+            // Only refetch on success — on error, keep the failed optimistic message visible
+            // so the user can see the failure state and retry
+            if (!error) {
+                queryClient.invalidateQueries({ queryKey: messagesQueryKey });
+            }
         }
     });
 
@@ -156,6 +193,35 @@ export function useMessages(contextType, contextId, pollInterval = 5000) {
         },
         [user, sendMessageMutation]
     );
+
+    const loadOlderMessages = useCallback(async () => {
+        if (!hasMore || loadingMore || !contextType || !contextId) return;
+        const current = queryClient.getQueryData(messagesQueryKey);
+        // Find the oldest real message (not system divider) to use as cursor
+        const oldestReal = current?.find(m => m.type !== "system" && !m.id?.startsWith("optimistic"));
+        if (!oldestReal) return;
+
+        setLoadingMore(true);
+        try {
+            const res = await messagesApi.getMessages(contextType, contextId, {
+                limit: 50,
+                order: "asc",
+                cursor: oldestReal.id,
+            });
+            const olderMessages = res.data.data.messages;
+            setHasMore(res.data.data.hasMore ?? false);
+
+            if (olderMessages.length > 0) {
+                queryClient.setQueryData(messagesQueryKey, (old) =>
+                    old ? [...olderMessages, ...old] : olderMessages
+                );
+            }
+        } catch {
+            // Silently fail — user can try again
+        } finally {
+            setLoadingMore(false);
+        }
+    }, [hasMore, loadingMore, contextType, contextId, queryClient, messagesQueryKey]);
 
     const retryMessage = useCallback(
         (tempId) => {
@@ -180,7 +246,10 @@ export function useMessages(contextType, contextId, pollInterval = 5000) {
         sessionExpired: isSessionExpired,
         sendMessage,
         retryMessage,
-        refetch
+        refetch,
+        hasMore,
+        loadOlderMessages,
+        loadingMore,
     };
 }
 
@@ -220,7 +289,8 @@ export function useUnreadCount(pollInterval = 15000) {
             const res = await messagesApi.getUnreadCount();
             return res.data.data.count;
         },
-        refetchInterval: pollInterval
+        refetchInterval: pollInterval,
+        ...pollingRetryConfig,
     });
 
     return data ?? 0;

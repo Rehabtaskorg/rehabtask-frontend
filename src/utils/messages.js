@@ -6,6 +6,7 @@
 export const getDisplayName = (user) =>
     user?.therapistProfile?.fullName ||
     user?.customerProfile?.fullName ||
+    user?.fullName ||
     'Unknown User';
 
 /**Extract profile photo url from a user object */
@@ -25,8 +26,10 @@ export const formatTime = (dateString) => {
     return date.toLocaleDateString([], { month: 'short', day: 'numeric' });
 };
 
-export const formatMessageTime = (dateString) =>
-    new Date(dateString).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+export const formatMessageTime = (dateString) => {
+    if (!dateString) return '';
+    return new Date(dateString).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+};
 
 export const formatDateSeparator = (dateString) => {
     const date = new Date(dateString);
@@ -48,6 +51,9 @@ export const getContextBadge = (type) => {
     if (type === 'booking') {
         return { label: 'Booking', className: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300' };
     }
+    if (type === 'direct') {
+        return null; // no badge for direct conversations
+    }
     return { label: 'Offer', className: 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300' };
 };
 
@@ -58,7 +64,7 @@ export const parseContextParam = (param) => {
     if (idx === -1) return null;
     const type = param.slice(0, idx);
     const id = param.slice(idx + 1);
-    if (!['offer', 'booking'].includes(type) || !id) return null;
+    if (!['offer', 'booking', 'direct'].includes(type) || !id) return null;
     return { type, id };
 };
 

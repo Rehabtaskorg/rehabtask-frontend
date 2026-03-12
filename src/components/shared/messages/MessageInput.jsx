@@ -10,6 +10,8 @@ export default function MessageInput({ inputValue, setInputValue, onSend, placeh
         if (!inputValue.trim()) return;
         const content = inputValue;
         setInputValue('');
+        // Reset textarea height after clearing (onInput won't fire on programmatic changes)
+        if (inputRef.current) inputRef.current.style.height = 'auto';
         onSend(content);
         inputRef.current?.focus();
     };

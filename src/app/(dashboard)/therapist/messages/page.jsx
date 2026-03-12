@@ -3,9 +3,7 @@
 import Link from "next/link";
 import { useMessagesPage } from "@/hooks/useMessagesPage";
 import { ConversationList, ChatHeader, ChatThread, MessageInput } from "@/components/shared/messages";
-import SessionOfferWidget from "./SessionOfferWidget";
 import TherapistRightSidebar from "./TherapistRightSidebar";
-import TherapistInputActions from "./TherapistInputActions";
 import { usePageTitle } from "@/hooks/usePageTitle";
 
 const THERAPIST_FILTERS = [
@@ -27,21 +25,19 @@ export default function TherapistMessagesPage() {
         user, conversations, messages, selected, selectedConversation,
         convLoading, convError, convSessionExpired, msgLoading, msgError,
         mobileView, inputValue, setInputValue,
+        hasMore, loadOlderMessages, loadingMore,
         handleSelectConversation, handleBackToList, handleSendMessage, retryMessage
     } = useMessagesPage("/therapist/messages");
 
-    const isOfferContext = selected?.type === "offer";
-    const offerWidget = isOfferContext ? <SessionOfferWidget offerId={selected.id} /> : null;
-
     const headerActions = (
         <>
-            {selected?.type === 'booking' && (
-                <Link href={`/therapist/bookings/${selected.id}`} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-white text-xs font-bold hover:bg-primary/90 transition-colors">
+            {selected?.contextType === 'booking' && (
+                <Link href={`/therapist/bookings/${selected.contextId}`} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-white text-xs font-bold hover:bg-primary/90 transition-colors">
                     <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
                     View Booking
                 </Link>
             )}
-            {selected?.type === 'offer' && (
+            {selected?.contextType === 'offer' && (
                 <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border-light dark:border-border-dark text-text-main dark:text-white text-xs font-bold">
                     <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
                     View Offer
@@ -65,12 +61,6 @@ export default function TherapistMessagesPage() {
                     filterFn={therapistFilterFn}
                     subtitle="Your patient conversations"
                     emptyDescription="Your conversations will appear here once you start messaging customers."
-                    headerExtra={
-                        <button type="button" className="text-primary text-sm font-bold flex items-center gap-1">
-                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
-                            New
-                        </button>
-                    }
                 />
             </aside>
 
@@ -87,8 +77,10 @@ export default function TherapistMessagesPage() {
                             error={msgError}
                             currentUser={user}
                             retryMessage={retryMessage}
-                            emptyStateExtra={isOfferContext ? <div className="mb-6 w-full">{offerWidget}</div> : null}
-                            beforeMessages={offerWidget}
+                            threadId={selected?.id}
+                            hasMore={hasMore}
+                            loadOlderMessages={loadOlderMessages}
+                            loadingMore={loadingMore}
                         />
                         <MessageInput
                             inputValue={inputValue}

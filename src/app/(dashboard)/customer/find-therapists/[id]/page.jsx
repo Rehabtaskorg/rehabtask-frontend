@@ -31,7 +31,8 @@ export default function TherapistProfilePage() {
     const [showReviewForm, setShowReviewForm] = useState(false);
 
     const handleMessage = () => {
-        router.push("/customer/messages");
+        if (!therapist?.userId) return;
+        router.push(`/customer/messages?c=direct:${therapist.userId}`);
     };
 
     const handleReviewSuccess = () => {
