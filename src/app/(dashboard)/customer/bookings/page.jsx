@@ -20,7 +20,7 @@ const FILTER_TABS = [
 ];
 
 const isUpcoming = (status) =>
-    ["pending", "confirmed", "in_progress", "reschedule_requested"].includes(status);
+    ["pending", "accepted", "confirmed", "in_progress", "reschedule_requested"].includes(status);
 
 const formatDate = (dateStr) => {
     if (!dateStr) return "—";
@@ -49,6 +49,12 @@ export default function CustomerBookingsPage() {
     // Alert: any booking needs customer confirmation
     const actionNeeded = useMemo(
         () => bookings.some((b) => b.session?.status === "completed_by_therapist"),
+        [bookings]
+    );
+
+    // Alert: any booking awaiting payment
+    const paymentNeeded = useMemo(
+        () => bookings.find((b) => b.status === "accepted"),
         [bookings]
     );
 
@@ -153,6 +159,22 @@ export default function CustomerBookingsPage() {
                         className="text-xs font-bold text-amber-700 dark:text-amber-300 hover:underline whitespace-nowrap"
                     >
                         View Booking
+                    </button>
+                </div>
+            )}
+
+            {/* Payment Needed Banner */}
+            {paymentNeeded && (
+                <div className="mx-4 sm:mx-8 mt-4 flex items-center gap-3 px-4 py-3 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
+                    <MdWarning className="text-blue-600 dark:text-blue-400 text-lg shrink-0" />
+                    <p className="text-sm text-blue-800 dark:text-blue-300 flex-1">
+                        You have a booking awaiting payment. Complete payment to confirm your session.
+                    </p>
+                    <button
+                        onClick={() => router.push(`/customer/bookings/${paymentNeeded.id}`)}
+                        className="text-xs font-bold text-blue-700 dark:text-blue-300 hover:underline whitespace-nowrap"
+                    >
+                        Pay Now
                     </button>
                 </div>
             )}

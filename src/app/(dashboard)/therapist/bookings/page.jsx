@@ -19,7 +19,7 @@ const FILTER_TABS = [
 ];
 
 const isUpcoming = (status) =>
-    ["pending", "confirmed", "in_progress", "reschedule_requested"].includes(status);
+    ["pending", "accepted", "confirmed", "in_progress", "reschedule_requested"].includes(status);
 
 const formatDate = (dateStr) => {
     if (!dateStr) return "—";

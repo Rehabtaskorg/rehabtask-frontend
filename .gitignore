@@ -40,6 +40,7 @@ yarn-error.log*
 CLAUDE.md
 docs/PRD.md
 docs/FUTURE-DB-DESIGN.md
+docs/PAYMENT-FLOW-REDESIGN.md
 test.ts
 # typescript
 *.tsbuildinfo

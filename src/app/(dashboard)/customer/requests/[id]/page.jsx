@@ -56,8 +56,10 @@ export default function CustomerRequestDetailPage() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [params.id])
 
+    const [acceptedBooking, setAcceptedBooking] = useState(null);
+
     const handleAcceptOffer = async (offerId) => {
-        if (!confirm("Are you sure you want to accept this offer?")) {
+        if (!confirm("Accept this offer? A booking will be created and you can pay when ready.")) {
             return;
         }
 
@@ -66,9 +68,9 @@ export default function CustomerRequestDetailPage() {
         try {
             const res = await api.post(`/offers/${offerId}/accept`);
             const booking = res.data.data.booking;
-
-            alert("Offer accepted! Redirecting to payment...");
-            router.push(`/customer/bookings/${booking.id}/payment`);
+            setAcceptedBooking(booking);
+            // Refresh data to show updated offer statuses
+            fetchRequest();
         } catch (error) {
             alert("Error: " + (error.response?.data?.message || "Failed to accept offer"));
         } finally {
@@ -113,6 +115,26 @@ export default function CustomerRequestDetailPage() {
                 <MdArrowBack className="text-base" />
                 Back to Requests
             </button>
+
+            {/* Accepted offer success banner */}
+            {acceptedBooking && (
+                <div className="flex items-start gap-3 p-4 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 mb-5">
+                    <MdCheckCircle className="text-xl text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
+                    <div className="flex-1 min-w-0">
+                        <p className="text-sm font-bold text-emerald-800 dark:text-emerald-200">Offer accepted — Booking created!</p>
+                        <p className="text-xs text-emerald-700 dark:text-emerald-300 mt-0.5">You can pay when you&apos;re ready from the booking page.</p>
+                        <button
+                            onClick={() => router.push(`/customer/bookings/${acceptedBooking.id}`)}
+                            className="mt-2 text-xs font-bold text-primary hover:underline inline-flex items-center gap-1"
+                        >
+                            View Booking →
+                        </button>
+                    </div>
+                    <button onClick={() => setAcceptedBooking(null)} className="text-emerald-400 hover:text-emerald-600 dark:hover:text-emerald-300 shrink-0">
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                    </button>
+                </div>
+            )}
 
             {/* Request info card */}
             <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl shadow-sm p-6 mb-4">

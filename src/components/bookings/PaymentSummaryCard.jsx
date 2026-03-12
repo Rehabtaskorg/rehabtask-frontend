@@ -56,8 +56,8 @@ export default function PaymentSummaryCard({ booking, role, onAction }) {
     let ctaAction = null;
     let ctaColor = "bg-primary hover:bg-primary/90";
 
-    if (isCustomer && booking.status === "pending" && !payment) {
-        ctaLabel = "Proceed to Payment";
+    if (isCustomer && ["pending", "accepted"].includes(booking.status) && !payment) {
+        ctaLabel = "Pay Now";
         ctaAction = "proceed_payment";
     } else if (isCustomer && session?.status === "completed_by_therapist") {
         ctaLabel = "Confirm Completion";

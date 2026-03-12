@@ -296,8 +296,8 @@ export default function TherapistBookingDetailPage() {
 
                     {/* ── Action Area ── */}
                     <div className="space-y-4">
-                        {/* Pending — waiting for customer payment */}
-                        {booking.status === "pending" && (
+                        {/* Pending/Accepted — waiting for customer payment */}
+                        {["pending", "accepted"].includes(booking.status) && (
                             <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-5">
                                 <div className="flex items-start gap-3">
                                     <MdInfo className="text-amber-600 dark:text-amber-400 text-lg mt-0.5 shrink-0" />
