@@ -317,6 +317,7 @@ export default function MyRequestsPage() {
                 {/* ── RIGHT PANEL (desktop) ── */}
                 <section className="hidden lg:flex lg:w-[45%] flex-col overflow-hidden">
                     {selectedRequest ? (
+                        <>
                         {acceptedBooking && (
                             <div className="mx-6 mt-4 flex items-start gap-3 p-4 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800">
                                 <svg className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
@@ -356,6 +357,7 @@ export default function MyRequestsPage() {
                             }}
                             onChangeNoteUpdate={setChangeNote}
                         />
+                        </>
                     ) : (
                         <div className="flex-1 flex items-center justify-center">
                             <div className="text-center space-y-2">
