@@ -213,6 +213,38 @@ export function useMessagesPage(basePath) {
         }
     }, [pendingDirectRecipientId, urlOtherUser]); // eslint-disable-line react-hooks/exhaustive-deps
 
+    // Sync selectedConversation with latest polled data
+    // When conversations refresh (e.g. context upgrades from offer → booking),
+    // update the selected state so the header, sidebar, and widget reflect the change
+    useEffect(() => {
+        if (!selectedConversation || !conversations.length || pendingDirectRecipientId) return;
+
+        // Find the matching conversation in the latest polled data
+        let match = null;
+        if (selectedConversation.directConversationId) {
+            match = conversations.find(c => c.directConversationId === selectedConversation.directConversationId);
+        }
+        if (!match && selectedConversation.currentContext?.id) {
+            match = conversations.find(c => c.currentContext?.id === selectedConversation.currentContext.id);
+        }
+        if (!match && selectedConversation.otherUser?.id) {
+            match = conversations.find(c => c.otherUser?.id === selectedConversation.otherUser.id);
+        }
+
+        if (!match) return;
+
+        // Check if context has changed (e.g. offer → booking upgrade)
+        const currentCtx = selectedConversation.currentContext;
+        const newCtx = match.currentContext;
+        const contextChanged = currentCtx?.type !== newCtx?.type || currentCtx?.id !== newCtx?.id;
+        // Also sync if directConversationId was added (conversation got merged)
+        const directIdAdded = !selectedConversation.directConversationId && match.directConversationId;
+
+        if (contextChanged || directIdAdded) {
+            setSelectedConversation(match);
+        }
+    }, [conversations, selectedConversation, pendingDirectRecipientId]);
+
     // Reset input when switching conversations
     useEffect(() => {
         if (selected?.id) {
