@@ -25,7 +25,7 @@ export default function ConversationListItem({ conversation, isSelected, onSelec
                 <div className="flex items-center justify-between gap-2 mb-0.5">
                     <div className="flex items-center gap-1.5 min-w-0">
                         <p className={`text-sm truncate ${hasUnread ? 'font-bold' : 'font-medium'} text-text-main dark:text-white`}>{name}</p>
-                        <span className={`shrink-0 px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide ${badge.className}`}>{badge.label}</span>
+                        {badge && <span className={`shrink-0 px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide ${badge.className}`}>{badge.label}</span>}
                     </div>
                     <span className="shrink-0 text-[10px] text-text-muted dark:text-gray-500">{formatTime(conversation.lastMessage?.createdAt)}</span>
                 </div>

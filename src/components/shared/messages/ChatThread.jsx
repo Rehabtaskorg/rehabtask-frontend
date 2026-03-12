@@ -47,9 +47,18 @@ function NoConversationSelected() {
  * @param {React.ReactNode} [props.emptyStateExtra] - content above the empty state (e.g. SessionOfferWidget)
  * @param {React.ReactNode} [props.beforeMessages] - content before the messages list (e.g. SessionOfferWidget for non-empty)
  */
-export default function ChatThread({ messages, loading, error, currentUser, retryMessage, emptyStateExtra, beforeMessages }) {
+export default function ChatThread({ messages, loading, error, currentUser, retryMessage, emptyStateExtra, beforeMessages, threadId, hasMore, loadOlderMessages, loadingMore }) {
     const messagesEndRef = useRef(null);
     const isFirstLoad = useRef(true);
+    const prevThreadId = useRef(null);
+
+    // Reset scroll flag when the conversation thread changes
+    useEffect(() => {
+        if (threadId !== prevThreadId.current) {
+            isFirstLoad.current = true;
+            prevThreadId.current = threadId;
+        }
+    }, [threadId]);
 
     useEffect(() => {
         if (messages.length === 0) return;
@@ -60,11 +69,6 @@ export default function ChatThread({ messages, loading, error, currentUser, retr
             messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
         }
     }, [messages]);
-
-    // Reset scroll flag when thread changes
-    useEffect(() => {
-        isFirstLoad.current = true;
-    }, [currentUser]);
 
     return (
         <>
@@ -82,6 +86,18 @@ export default function ChatThread({ messages, loading, error, currentUser, retr
                     </>
                 ) : (
                     <>
+                        {hasMore && (
+                            <div className="flex justify-center py-2">
+                                <button
+                                    type="button"
+                                    onClick={loadOlderMessages}
+                                    disabled={loadingMore}
+                                    className="px-4 py-1.5 rounded-full text-xs font-bold text-primary bg-primary/10 hover:bg-primary/20 disabled:opacity-50 transition-colors"
+                                >
+                                    {loadingMore ? 'Loading...' : 'Load older messages'}
+                                </button>
+                            </div>
+                        )}
                         {beforeMessages}
                         {messages.map((msg, idx) => (
                             <MessageBubble

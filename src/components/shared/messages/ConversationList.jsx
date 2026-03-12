@@ -123,7 +123,10 @@ export default function ConversationList({
                             <ConversationListItem
                                 key={`${conversation.currentContext?.type}-${conversation.currentContext?.id}-${idx}`}
                                 conversation={conversation}
-                                isSelected={selected?.id === conversation.currentContext?.id && selected?.type === conversation.currentContext?.type}
+                                isSelected={
+                                    (selected?.id === conversation.currentContext?.id && selected?.type === conversation.currentContext?.type) ||
+                                    (selected?.type === 'direct' && !!conversation.directConversationId && selected?.id === conversation.directConversationId)
+                                }
                                 onSelect={onSelect}
                             />
                         ))}

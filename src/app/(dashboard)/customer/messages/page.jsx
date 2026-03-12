@@ -10,18 +10,27 @@ import UserAvatar from "@/components/ui/UserAvatar";
 import { usePageTitle } from "@/hooks/usePageTitle";
 
 function CustomerRightSidebar({ selectedConversation }) {
-    const contextType = selectedConversation?.currentContext?.type;
-    const contextId = selectedConversation?.currentContext?.id;
+    // API call type: use directConversationId when available (for merged thread context resolution)
+    const apiContextType = selectedConversation?.directConversationId
+        ? 'direct'
+        : selectedConversation?.currentContext?.type;
+    const apiContextId = selectedConversation?.directConversationId
+        || selectedConversation?.currentContext?.id;
+
+    // Display type: actual conversation context (booking/offer/direct) for UI labels and links
+    const displayContextType = selectedConversation?.currentContext?.type ?? 'direct';
+    const displayContextId = selectedConversation?.currentContext?.id;
 
     const { otherUser: contextOtherUser, patient: contextPatient, loading: contextLoading } =
-        useConversationContext(contextType, contextId);
+        useConversationContext(apiContextType, apiContextId);
 
     const otherUser = selectedConversation?.otherUser || contextOtherUser;
-    const patient = selectedConversation?.patient || contextPatient;
+    // Prefer contextPatient (from API, has full details like email) over conversation list patient
+    const patient = contextPatient || selectedConversation?.patient;
     const name = otherUser ? getDisplayName(otherUser) : 'Unknown';
-    const badge = getContextBadge(contextType);
-    const specialization = otherUser?.specialization || null;
-    const yearsExp = otherUser?.yearsOfExperience || null;
+    const badge = getContextBadge(displayContextType);
+    const specialization = otherUser?.therapistProfile?.specialization || otherUser?.specialization || null;
+    const yearsExp = otherUser?.therapistProfile?.yearsOfExperience || otherUser?.yearsOfExperience || null;
 
     if (contextLoading && !otherUser) return <RightSidebarSkeleton />;
 
@@ -36,9 +45,11 @@ function CustomerRightSidebar({ selectedConversation }) {
                 />
                 <div>
                     <h4 className="text-text-main dark:text-white text-base font-bold">{name}</h4>
-                    <span className={`inline-block mt-1 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${badge.className}`}>
-                        {badge.label}
-                    </span>
+                    {badge && (
+                        <span className={`inline-block mt-1 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${badge.className}`}>
+                            {badge.label}
+                        </span>
+                    )}
                 </div>
             </div>
 
@@ -64,28 +75,33 @@ function CustomerRightSidebar({ selectedConversation }) {
                 <div className="mt-4 space-y-1">
                     <p className="text-text-muted dark:text-gray-400 text-[10px] font-bold uppercase tracking-widest">Patient</p>
                     <p className="text-text-main dark:text-white text-sm font-medium">{patient.fullName}</p>
+                    {patient.email && (
+                        <p className="text-text-muted dark:text-gray-400 text-xs">{patient.email}</p>
+                    )}
                 </div>
             )}
 
             <div className="mt-4 space-y-1">
                 <p className="text-text-muted dark:text-gray-400 text-[10px] font-bold uppercase tracking-widest">Context</p>
-                {contextType === 'booking' ? (
-                    <Link href={`/customer/bookings/${contextId}`} className="text-primary text-sm font-medium hover:underline inline-flex items-center gap-1">
+                {displayContextType === 'booking' ? (
+                    <Link href={`/customer/bookings/${displayContextId}`} className="text-primary text-sm font-medium hover:underline inline-flex items-center gap-1">
                         <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
                         View Booking
                     </Link>
+                ) : displayContextType === 'direct' ? (
+                    <p className="text-text-main dark:text-white text-sm">Direct Message</p>
                 ) : (
                     <p className="text-text-main dark:text-white text-sm">Request Conversation</p>
                 )}
             </div>
 
-            {contextType === 'booking' && (
+            {displayContextType === 'booking' && (
                 <div className="mt-4 space-y-2">
                     <p className="text-text-muted dark:text-gray-400 text-[10px] font-bold uppercase tracking-widest">Upcoming Session</p>
                     <div className="p-3 rounded-lg bg-primary/5 dark:bg-primary/10 border border-primary/20">
                         <p className="text-[10px] text-primary font-bold">NEXT SESSION</p>
                         <p className="text-xs text-text-main dark:text-white font-bold mt-1">View booking for details</p>
-                        <Link href={`/customer/bookings/${contextId}`} className="text-[10px] text-primary font-medium hover:underline mt-1 inline-block">Go to booking →</Link>
+                        <Link href={`/customer/bookings/${displayContextId}`} className="text-[10px] text-primary font-medium hover:underline mt-1 inline-block">Go to booking →</Link>
                     </div>
                 </div>
             )}
@@ -99,11 +115,12 @@ export default function CustomerMessagesPage() {
         user, conversations, messages, selected, selectedConversation,
         convLoading, convError, convSessionExpired, msgLoading, msgError,
         mobileView, inputValue, setInputValue,
+        hasMore, loadOlderMessages, loadingMore,
         handleSelectConversation, handleBackToList, handleSendMessage, retryMessage,
     } = useMessagesPage("/customer/messages");
 
-    const headerActions = selected?.type === "booking" ? (
-        <Link href={`/customer/bookings/${selected.id}`} className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-white text-xs font-bold hover:bg-primary/90 transition-colors">
+    const headerActions = selected?.contextType === "booking" ? (
+        <Link href={`/customer/bookings/${selected.contextId}`} className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-white text-xs font-bold hover:bg-primary/90 transition-colors">
             <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
             View Booking
         </Link>
@@ -132,7 +149,7 @@ export default function CustomerMessagesPage() {
                 ) : (
                     <>
                         <ChatHeader selected={selected} selectedConversation={selectedConversation} onBack={handleBackToList} headerActions={headerActions} />
-                        <ChatThread messages={messages} loading={msgLoading} error={msgError} currentUser={user} retryMessage={retryMessage} />
+                        <ChatThread messages={messages} loading={msgLoading} error={msgError} currentUser={user} retryMessage={retryMessage} threadId={selected?.id} hasMore={hasMore} loadOlderMessages={loadOlderMessages} loadingMore={loadingMore} />
                         <MessageInput inputValue={inputValue} setInputValue={setInputValue} onSend={handleSendMessage} />
                     </>
                 )}
