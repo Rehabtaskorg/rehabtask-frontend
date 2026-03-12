@@ -18,11 +18,18 @@
       "Read(//c/Users/steve/Documents/work_projects/rehabtask-platform/backend/src/routes/**)",
       "Read(//c/Users/steve/Documents/work_projects/rehabtask-platform/backend/prisma/**)",
       "Bash(done)",
-      "Bash(xargs grep -l \"dispute\" -i)"
+      "Bash(xargs grep -l \"dispute\" -i)",
+      "Read(//c/Users/steve/Documents/work_projects/rehabtask-platform/backend/src/**)",
+      "Bash(grep -r commission c:UserssteveDocumentswork_projectsrehabtask-platformbackendsrcroutes --include=*.js)",
+      "Bash(grep -r \"SubscriptionPlan\\\\|BASIC\\\\|PREMIUM\\\\|ELITE\\\\|subscriptionPlan\" c:UserssteveDocumentswork_projectsrehabtask-platformbackend --include=*.js)"
     ],
     "additionalDirectories": [
       "c:\\Users\\steve\\Documents\\work_projects\\rehabtask-platform\\backend\\src\\validators",
-      "c:\\Users\\steve\\Documents\\work_projects\\rehabtask-platform\\backend\\src\\controllers"
+      "c:\\Users\\steve\\Documents\\work_projects\\rehabtask-platform\\backend\\src\\controllers",
+      "c:\\Users\\steve\\Documents\\work_projects\\rehabtask-platform\\backend\\emails",
+      "c:\\Users\\steve\\Documents\\work_projects\\rehabtask-platform\\backend\\src\\services",
+      "c:\\Users\\steve\\Documents\\work_projects\\rehabtask-platform\\backend\\src\\config",
+      "c:\\Users\\steve\\Documents\\work_projects\\rehabtask-platform\\backend\\src\\routes"
     ]
   }
 }
