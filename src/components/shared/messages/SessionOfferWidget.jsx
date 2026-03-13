@@ -45,7 +45,10 @@ export default function SessionOfferWidget({ offerId }) {
         );
     }
 
-    if (error || !offer) return null;
+    if (error || !offer) {
+        if (error) console.warn(`[SessionOfferWidget] Failed to load offer ${offerId}`);
+        return null;
+    }
 
     const statusBadge = getOfferStatusBadge(offer.status);
 
