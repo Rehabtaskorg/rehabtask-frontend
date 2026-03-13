@@ -81,7 +81,7 @@ export default function TherapistBookingsPage() {
 
     const getEarnings = (booking) => {
         if (booking.payment?.therapistPayout) return parseFloat(booking.payment.therapistPayout);
-        return parseFloat(booking.rate) * 0.9;
+        return null;
     };
 
     // ─── Loading ────
@@ -202,7 +202,7 @@ export default function TherapistBookingsPage() {
                                         <th className="pb-3 pr-4">Customer</th>
                                         <th className="pb-3 pr-4">Service</th>
                                         <th className="pb-3 pr-4">Date & Time</th>
-                                        <th className="pb-3 pr-4">Earnings</th>
+                                        <th className="pb-3 pr-4">Earnings / Rate</th>
                                         <th className="pb-3 pr-4">Status</th>
                                         <th className="pb-3 w-8"></th>
                                     </tr>
@@ -246,7 +246,7 @@ export default function TherapistBookingsPage() {
                                                 </td>
                                                 <td className="py-3.5 pr-4">
                                                     <span className="text-sm font-bold text-emerald-600 dark:text-emerald-400 font-mono">
-                                                        {formatCurrency(earnings)}
+                                                        {earnings != null ? formatCurrency(earnings) : <>{formatCurrency(parseFloat(booking.rate))} <span className="text-xs font-normal text-text-muted dark:text-gray-400">(rate)</span></>}
                                                     </span>
                                                 </td>
                                                 <td className="py-3.5 pr-4">
@@ -295,7 +295,7 @@ export default function TherapistBookingsPage() {
                                                         {formatDate(booking.scheduledDate)}
                                                     </span>
                                                     <span className="font-bold text-emerald-600 dark:text-emerald-400 font-mono">
-                                                        {formatCurrency(earnings)}
+                                                        {earnings != null ? formatCurrency(earnings) : <>{formatCurrency(parseFloat(booking.rate))} <span className="font-normal text-text-muted dark:text-gray-400">(rate)</span></>}
                                                     </span>
                                                 </div>
                                             </div>

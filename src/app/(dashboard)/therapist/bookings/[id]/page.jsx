@@ -124,7 +124,7 @@ export default function TherapistBookingDetailPage() {
 
     const earnings = payment
         ? parseFloat(payment.therapistPayout)
-        : parseFloat(booking.rate) * 0.9;
+        : null;
 
     return (
         <div className="p-4 sm:p-8 max-w-6xl mx-auto">
@@ -206,7 +206,7 @@ export default function TherapistBookingDetailPage() {
                                     </p>
                                 )}
                             </div>
-                            {["confirmed", "in_progress", "completed"].includes(booking.status) && (
+                            {["accepted", "confirmed", "in_progress", "completed"].includes(booking.status) && (
                                 <button
                                     onClick={handleMessageCustomer}
                                     className="flex items-center gap-1.5 px-3 py-2 border border-primary text-primary rounded-lg text-xs font-bold hover:bg-primary/5 transition-colors shrink-0"
@@ -337,7 +337,7 @@ export default function TherapistBookingDetailPage() {
                             <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-5">
                                 <p className="text-sm font-bold text-blue-900 dark:text-blue-200 mb-1">Mark Session as Complete?</p>
                                 <p className="text-xs text-blue-700 dark:text-blue-300 mb-4">
-                                    The customer will be notified to confirm completion. Payment of {formatCurrency(earnings)} will be released after their confirmation.
+                                    The customer will be notified to confirm completion. {earnings != null ? <>Payment of {formatCurrency(earnings)} will be released</> : <>Payment will be released</>} after their confirmation.
                                 </p>
                                 <div className="flex items-center gap-2">
                                     <button
@@ -431,7 +431,7 @@ export default function TherapistBookingDetailPage() {
                     />
 
                     {/* Message Customer */}
-                    {["confirmed", "in_progress", "completed"].includes(booking.status) && (
+                    {["accepted", "confirmed", "in_progress", "completed"].includes(booking.status) && (
                         <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl p-4">
                             <button
                                 onClick={handleMessageCustomer}

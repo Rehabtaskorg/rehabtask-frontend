@@ -96,6 +96,7 @@ function PaymentMethodsTab() {
     const queryClient = useQueryClient();
     const [showAddForm, setShowAddForm] = useState(false);
     const [setupClientSecret, setSetupClientSecret] = useState(null);
+    const [addCardLoading, setAddCardLoading] = useState(false);
     const [actionLoading, setActionLoading] = useState(null);
     const [actionError, setActionError] = useState(null);
 
@@ -108,6 +109,8 @@ function PaymentMethodsTab() {
     });
 
     const handleAddCard = async () => {
+        if (addCardLoading) return;
+        setAddCardLoading(true);
         setActionError(null);
         try {
             const res = await paymentsApi.createSetupIntent();
@@ -115,6 +118,8 @@ function PaymentMethodsTab() {
             setShowAddForm(true);
         } catch (err) {
             setActionError(err.response?.data?.message || "Failed to start card setup.");
+        } finally {
+            setAddCardLoading(false);
         }
     };
 
@@ -184,10 +189,11 @@ function PaymentMethodsTab() {
                 {methods.length > 0 && !showAddForm && (
                     <button
                         onClick={handleAddCard}
-                        className="flex items-center gap-2 px-4 py-2 bg-primary hover:bg-primary/90 text-white text-sm font-bold rounded-lg shadow-lg shadow-primary/20 transition-colors"
+                        disabled={addCardLoading}
+                        className="flex items-center gap-2 px-4 py-2 bg-primary hover:bg-primary/90 text-white text-sm font-bold rounded-lg shadow-lg shadow-primary/20 transition-colors disabled:opacity-50"
                     >
                         <MdAdd className="text-lg" />
-                        Add Card
+                        {addCardLoading ? "Loading..." : "Add Card"}
                     </button>
                 )}
             </div>
@@ -268,10 +274,11 @@ function PaymentMethodsTab() {
                     </p>
                     <button
                         onClick={handleAddCard}
-                        className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary hover:bg-primary/90 text-white text-sm font-bold rounded-lg shadow-lg shadow-primary/20 transition-colors"
+                        disabled={addCardLoading}
+                        className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary hover:bg-primary/90 text-white text-sm font-bold rounded-lg shadow-lg shadow-primary/20 transition-colors disabled:opacity-50"
                     >
                         <MdAdd className="text-lg" />
-                        Add Payment Method
+                        {addCardLoading ? "Loading..." : "Add Payment Method"}
                     </button>
                 </div>
             )}

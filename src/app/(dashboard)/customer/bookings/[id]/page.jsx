@@ -102,9 +102,10 @@ function InlinePaymentSection({ booking, onPaymentSuccess }) {
             const defaultCard = methods.find((m) => m.isDefault) || methods[0];
             setSelectedPmId(defaultCard.id);
         }
-    }, [methods]);
+    }, [methods.length]);
 
     const handlePayWithSavedCard = async () => {
+        if (paying) return;
         if (!selectedPmId) return;
         setPaying(true);
         setPayError(null);
@@ -124,17 +125,24 @@ function InlinePaymentSection({ booking, onPaymentSuccess }) {
 
             if (result.status === "requires_action" && result.clientSecret) {
                 const stripeInstance = await stripePromise;
-                const { error } = await stripeInstance.handleCardAction(result.clientSecret);
+                const { error, paymentIntent } = await stripeInstance.handleCardAction(result.clientSecret);
                 if (error) {
                     setPayError(error.message);
-                } else {
+                } else if (paymentIntent?.status === "succeeded") {
                     onPaymentSuccess();
+                } else {
+                    setPayError("Payment authentication passed but payment was not completed. Please try again.");
                 }
                 return;
             }
 
-            // Fallback: payment intent created but not confirmed (shouldn't happen with saved card)
-            onPaymentSuccess();
+            if (result.status === "processing") {
+                setPayError("Payment is processing. Please wait a moment and refresh.");
+                return;
+            }
+
+            // Any other status is unexpected
+            setPayError("Payment could not be completed. Please try again or use a different card.");
         } catch (err) {
             setPayError(err.response?.data?.message || "Payment failed. Please try again.");
         } finally {
@@ -321,7 +329,8 @@ export default function CustomerBookingDetailPage() {
     const clearError = () => setActionError(null);
 
     const handleProceedToPayment = () => {
-        router.push(`/customer/bookings/${params.id}/payment`);
+        // Scroll to the inline payment section on this page
+        document.getElementById("inline-payment")?.scrollIntoView({ behavior: "smooth" });
     };
 
     const handleConfirmCompletion = async () => {
@@ -612,33 +621,17 @@ export default function CustomerBookingDetailPage() {
                             </div>
                         )}
 
-                        {/* Accepted/Pending — inline payment section */}
-                        {["pending", "accepted"].includes(booking.status) && !payment && (
-                            <InlinePaymentSection
-                                booking={booking}
-                                onPaymentSuccess={() => {
-                                    setShowPaymentBanner(true);
-                                    refetch();
-                                    const timer = setTimeout(() => setShowPaymentBanner(false), 6000);
-                                }}
-                            />
-                        )}
-
-                        {/* Payment intent created — waiting */}
-                        {payment?.status === "intent_created" && (
-                            <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-5">
-                                <div className="flex items-start gap-3">
-                                    <MdInfo className="text-amber-600 dark:text-amber-400 text-lg mt-0.5 shrink-0" />
-                                    <div className="flex-1">
-                                        <p className="text-sm font-bold text-amber-900 dark:text-amber-200">Payment Processing</p>
-                                        <p className="text-xs text-amber-700 dark:text-amber-300 mt-0.5">
-                                            Waiting for payment confirmation.
-                                        </p>
-                                    </div>
-                                    <button onClick={refetch} className="text-xs font-bold text-amber-700 dark:text-amber-300 hover:underline flex items-center gap-1">
-                                        <MdRefresh className="text-sm" /> Refresh
-                                    </button>
-                                </div>
+                        {/* Accepted/Pending — inline payment section (show when no payment or payment needs action) */}
+                        {["pending", "accepted"].includes(booking.status) && (!payment || ["intent_created", "requires_action"].includes(payment.status)) && (
+                            <div id="inline-payment">
+                                <InlinePaymentSection
+                                    booking={booking}
+                                    onPaymentSuccess={() => {
+                                        setShowPaymentBanner(true);
+                                        refetch();
+                                        const timer = setTimeout(() => setShowPaymentBanner(false), 6000);
+                                    }}
+                                />
                             </div>
                         )}
 
