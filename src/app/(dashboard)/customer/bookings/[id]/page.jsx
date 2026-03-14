@@ -514,7 +514,7 @@ export default function CustomerBookingDetailPage() {
                                     </p>
                                 )}
                             </div>
-                            {["confirmed", "in_progress", "completed"].includes(booking.status) && (
+                            {["accepted", "confirmed", "in_progress", "completed", "reschedule_requested"].includes(booking.status) && (
                                 <button
                                     onClick={handleMessageTherapist}
                                     className="flex items-center gap-1.5 px-3 py-2 border border-primary text-primary rounded-lg text-xs font-bold hover:bg-primary/5 transition-colors shrink-0"
