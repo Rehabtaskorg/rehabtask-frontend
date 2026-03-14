@@ -50,7 +50,6 @@ export default function SessionOfferWidget({ offerId }) {
     }
 
     if (error || !offer) {
-        if (error) console.warn(`[SessionOfferWidget] Failed to load offer ${offerId}`);
         return null;
     }
 
