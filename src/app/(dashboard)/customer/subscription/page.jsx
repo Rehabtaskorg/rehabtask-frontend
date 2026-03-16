@@ -260,19 +260,9 @@ export default function SubscriptionPage() {
                                             Current Plan
                                         </button>
                                     ) : plan.key === "free" ? (
-                                        isPaid ? (
-                                            <button
-                                                onClick={() => billingPortal.mutate()}
-                                                disabled={billingPortal.isPending}
-                                                className="w-full py-2.5 rounded-lg border border-border-light dark:border-border-dark text-text-muted dark:text-slate-400 font-medium hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-                                            >
-                                                Manage via Billing Portal
-                                            </button>
-                                        ) : (
-                                            <button disabled className="w-full py-2.5 rounded-lg bg-gray-100 dark:bg-gray-700 text-text-muted dark:text-slate-400 font-medium cursor-default">
-                                                Free Plan
-                                            </button>
-                                        )
+                                        <button disabled className="w-full py-2.5 rounded-lg bg-gray-100 dark:bg-gray-700 text-text-muted dark:text-slate-400 font-medium cursor-default">
+                                            Free Plan
+                                        </button>
                                     ) : (
                                         <button
                                             onClick={() => handleUpgrade(plan.key)}
