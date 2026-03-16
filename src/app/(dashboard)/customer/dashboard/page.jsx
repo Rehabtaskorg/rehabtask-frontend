@@ -6,9 +6,10 @@ import Link from "next/link";
 import { api } from "@/lib/api";
 import {
     MdWarning, MdClose, MdAssignment,
-    MdEvent, MdSchedule, MdCheckCircle, MdInfo
+    MdEvent, MdSchedule, MdCheckCircle, MdInfo, MdStars, MdAccessTime
 } from "react-icons/md";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import { useSubscription } from "@/hooks/useSubscription";
 
 const STATUS_STYLES = {
     created: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
@@ -282,20 +283,92 @@ export default function CustomerDashboard() {
                         </div>
                     </div>
 
-                    {/* Subscription CTA */}
-                    {/* <div className="bg-primary p-6 rounded-xl text-white relative overflow-hidden">
-                        <div className="relative z-10 space-y-4">
-                            <h5 className="font-bold text-lg">Pro Subscription</h5>
-                            <p className="text-white/70 text-sm leading-relaxed">Get priority access to top-rated therapists and lower transaction fees.</p>
-                            <button onClick={() => router.push('/customer/subscription')} className="bg-white text-primary font-bold px-4 py-2 rounded-lg text-sm hover:bg-white/90 transition-colors">
-                                Learn More
-                            </button>
-                        </div>
-                        <div className="absolute -bottom-8 -right-8 size-32 bg-white/10 rounded-full pointer-events-none"></div>
-                    </div> */}
+                    {/* Subscription Status */}
+                    <SubscriptionWidget />
                 </div>
             </div>
         </div>
     )
 
+}
+
+function SubscriptionWidget() {
+    const { subscription } = useSubscription();
+    const router = useRouter();
+    const status = subscription?.status;
+    const plan = subscription?.planType || "free";
+    const isTrial = status === "trialing";
+    const isGrace = status === "grace_period";
+    const isFree = plan === "free" && !isTrial;
+
+    const trialDays = isTrial && subscription?.trialEndsAt
+        ? Math.max(0, Math.ceil((new Date(subscription.trialEndsAt) - Date.now()) / (1000 * 60 * 60 * 24)))
+        : 0;
+
+    if (isTrial) {
+        return (
+            <div className="bg-primary p-6 rounded-xl text-white relative overflow-hidden">
+                <div className="relative z-10 space-y-3">
+                    <div className="flex items-center gap-2">
+                        <MdAccessTime className="text-xl" />
+                        <h5 className="font-bold text-lg">Free Trial — {trialDays} day{trialDays !== 1 ? "s" : ""} left</h5>
+                    </div>
+                    <p className="text-white/70 text-sm">Upgrade before your trial ends to keep Standard plan features.</p>
+                    <button onClick={() => router.push("/customer/subscription")} className="bg-white text-primary font-bold px-4 py-2 rounded-lg text-sm hover:bg-white/90 transition-colors">
+                        View Plans
+                    </button>
+                </div>
+                <div className="absolute -bottom-8 -right-8 size-32 bg-white/10 rounded-full pointer-events-none" />
+            </div>
+        );
+    }
+
+    if (isGrace) {
+        return (
+            <div className="bg-amber-500 p-6 rounded-xl text-white relative overflow-hidden">
+                <div className="relative z-10 space-y-3">
+                    <div className="flex items-center gap-2">
+                        <MdWarning className="text-xl" />
+                        <h5 className="font-bold text-lg">Payment Overdue</h5>
+                    </div>
+                    <p className="text-white/80 text-sm">Update your payment method to avoid being downgraded to Free.</p>
+                    <button onClick={() => router.push("/customer/subscription")} className="bg-white text-amber-600 font-bold px-4 py-2 rounded-lg text-sm hover:bg-white/90 transition-colors">
+                        Update Payment
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
+    if (isFree) {
+        return (
+            <div className="bg-primary p-6 rounded-xl text-white relative overflow-hidden">
+                <div className="relative z-10 space-y-3">
+                    <div className="flex items-center gap-2">
+                        <MdStars className="text-xl" />
+                        <h5 className="font-bold text-lg">Free Plan</h5>
+                    </div>
+                    <p className="text-white/70 text-sm">Upgrade to unlock more requests, therapists, and premium features.</p>
+                    <button onClick={() => router.push("/customer/subscription")} className="bg-white text-primary font-bold px-4 py-2 rounded-lg text-sm hover:bg-white/90 transition-colors">
+                        Upgrade Plan
+                    </button>
+                </div>
+                <div className="absolute -bottom-8 -right-8 size-32 bg-white/10 rounded-full pointer-events-none" />
+            </div>
+        );
+    }
+
+    // Active paid plan — show current plan info
+    return (
+        <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark p-6 rounded-xl">
+            <div className="flex items-center gap-2 mb-2">
+                <MdStars className="text-xl text-primary" />
+                <h5 className="font-bold text-lg text-text-main">{plan.charAt(0).toUpperCase() + plan.slice(1)} Plan</h5>
+                <span className="px-2 py-0.5 text-xs font-semibold rounded-full bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">Active</span>
+            </div>
+            <button onClick={() => router.push("/customer/subscription")} className="text-sm text-primary hover:underline">
+                Manage Subscription →
+            </button>
+        </div>
+    );
 }

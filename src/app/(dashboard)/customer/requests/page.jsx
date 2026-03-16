@@ -158,7 +158,14 @@ export default function MyRequestsPage() {
             // Refresh the request detail to show updated offer statuses
             if (selectedRequest?.id) await refetchDetail(selectedRequest.id);
         } catch (err) {
-            alert(err.response?.data?.message || "Failed to accept offer.");
+            const code = err.response?.data?.code;
+            if (code === "THERAPIST_LIMIT_REACHED" || code === "REQUEST_LIMIT_REACHED") {
+                if (window.confirm(err.response.data.message + "\n\nWould you like to upgrade your plan?")) {
+                    router.push("/customer/subscription");
+                }
+            } else {
+                alert(err.response?.data?.message || "Failed to accept offer.");
+            }
         } finally {
             setAccepting(null);
         }

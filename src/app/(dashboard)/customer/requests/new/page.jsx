@@ -14,8 +14,9 @@ import RequestFormFooter from "./_components/RequestFormFooter";
 import Step1ServiceDetails from "./_components/Step1ServiceDetails";
 import Step2Location from "./_components/Step2Location";
 import Step3Review from "./_components/Step3Review";
-import { MdArrowBack, MdPerson, MdAdd } from "react-icons/md";
+import { MdArrowBack, MdPerson, MdAdd, MdLock } from "react-icons/md";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import { useSubscription } from "@/hooks/useSubscription";
 
 export default function NewRequestPage() {
     usePageTitle("Create New Request");
@@ -23,6 +24,10 @@ export default function NewRequestPage() {
     const { currentStep, nextStep, prevStep, reset, getPreferredDateISO, step1, step2, patientId, setPatientId } = useRequestStore();
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState("");
+    const { subscription, usage } = useSubscription();
+
+    const requestLimit = subscription?.requestLimit;
+    const isAtRequestLimit = requestLimit !== null && requestLimit < 999999 && usage.activeRequests >= requestLimit;
     const [user, setUser] = useState(null);
 
     // Fetch user to check customerType
@@ -87,6 +92,29 @@ export default function NewRequestPage() {
 
     // Agency users must select a patient before proceeding
     const isPatientValid = !isAgency || patientId;
+
+    if (isAtRequestLimit) {
+        return (
+            <div className="max-w-lg mx-auto mt-20 text-center">
+                <div className="bg-card-light dark:bg-card-dark rounded-xl border border-border-light dark:border-border-dark p-8 shadow-sm">
+                    <MdLock className="w-12 h-12 text-amber-500 mx-auto mb-4" />
+                    <h2 className="text-xl font-bold text-text-main mb-2">Request Limit Reached</h2>
+                    <p className="text-text-muted mb-4">
+                        You&apos;ve used all {requestLimit} of your active request slots ({usage.activeRequests}/{requestLimit}).
+                        Upgrade your plan to create more requests.
+                    </p>
+                    <div className="flex gap-3 justify-center">
+                        <Link href="/customer/requests" className="px-4 py-2 rounded-lg border border-border-light dark:border-border-dark text-text-main font-medium hover:bg-gray-50 dark:hover:bg-gray-800">
+                            Back to Requests
+                        </Link>
+                        <Link href="/customer/subscription" className="px-4 py-2 rounded-lg bg-primary text-white font-medium hover:bg-primary/90 transition-colors">
+                            Upgrade Plan
+                        </Link>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}>
