@@ -4,18 +4,290 @@
 import { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
+import { useQuery } from "@tanstack/react-query";
+import { loadStripe } from "@stripe/stripe-js";
+import { Elements, PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import {
     MdArrowBack, MdChat, MdCalendarToday, MdAccessTime, MdLocationOn, MdVideocam, MdPerson,
     MdCheckCircle, MdClose, MdWarning, MdInfo, MdRefresh, MdSchedule, MdUpdate,
+    MdLock, MdCreditCard,
 } from "react-icons/md";
 import { useBookingDetail } from "@/hooks/useBookings";
 import { bookingsApi } from "@/lib/bookings.api";
+import { api } from "@/lib/api";
+import { paymentsApi } from "@/lib/payments.api";
 import BookingStatusBadge from "@/components/bookings/BookingStatusBadge";
 import BookingTimeline from "@/components/bookings/BookingTimeline";
 import PaymentSummaryCard from "@/components/bookings/PaymentSummaryCard";
 import { formatCurrency } from "@/utils/messages";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import PatientInfoBlock from "@/components/customer/PatientInfoBlock";
+
+const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY);
+
+const BRAND_LABELS = {
+    visa: "Visa", mastercard: "Mastercard", amex: "Amex",
+    discover: "Discover", diners: "Diners", jcb: "JCB", unionpay: "UnionPay",
+};
+
+// ─── New Card Checkout (inside Stripe Elements) ──────────────────────────────
+function NewCardCheckoutForm({ booking, onSuccess, onError }) {
+    const stripe = useStripe();
+    const elements = useElements();
+    const [processing, setProcessing] = useState(false);
+    const [error, setError] = useState(null);
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        if (!stripe || !elements) return;
+
+        setProcessing(true);
+        setError(null);
+
+        try {
+            const { error: submitError } = await stripe.confirmPayment({
+                elements,
+                confirmParams: {
+                    return_url: `${window.location.origin}/customer/bookings/${booking.id}?payment=success`,
+                },
+            });
+
+            if (submitError) {
+                setError(submitError.message);
+            }
+        } catch (err) {
+            setError("An unexpected error occurred.");
+        } finally {
+            setProcessing(false);
+        }
+    };
+
+    return (
+        <form onSubmit={handleSubmit} className="space-y-4">
+            <PaymentElement />
+            {error && (
+                <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+            )}
+            <button
+                type="submit"
+                disabled={!stripe || processing}
+                className="w-full py-3 bg-primary hover:bg-primary/90 text-white font-bold rounded-xl shadow-lg shadow-primary/20 transition-colors disabled:opacity-50 text-sm"
+            >
+                {processing ? "Processing..." : `Pay ${formatCurrency(parseFloat(booking.rate))}`}
+            </button>
+        </form>
+    );
+}
+
+// ─── Inline Payment Section ──────────────────────────────────────────────────
+function InlinePaymentSection({ booking, onPaymentSuccess }) {
+    const [selectedPmId, setSelectedPmId] = useState(null);
+    const [showNewCard, setShowNewCard] = useState(false);
+    const [paying, setPaying] = useState(false);
+    const [payError, setPayError] = useState(null);
+    const [newCardClientSecret, setNewCardClientSecret] = useState(null);
+    const [loadingNewCard, setLoadingNewCard] = useState(false);
+
+    const { data: methods = [], isLoading: methodsLoading } = useQuery({
+        queryKey: ["paymentMethods"],
+        queryFn: async () => {
+            const res = await paymentsApi.getPaymentMethods();
+            return res.data.data;
+        },
+    });
+
+    // Auto-select default card
+    useEffect(() => {
+        if (methods.length > 0 && !selectedPmId) {
+            const defaultCard = methods.find((m) => m.isDefault) || methods[0];
+            setSelectedPmId(defaultCard.id);
+        }
+    }, [methods.length]);
+
+    const handlePayWithSavedCard = async () => {
+        if (paying) return;
+        if (!selectedPmId) return;
+        setPaying(true);
+        setPayError(null);
+
+        try {
+            const res = await api.post("/payments/create-intent", {
+                bookingId: booking.id,
+                paymentMethodId: selectedPmId,
+            });
+
+            const result = res.data.data;
+
+            if (result.status === "succeeded") {
+                onPaymentSuccess();
+                return;
+            }
+
+            if (result.status === "requires_action" && result.clientSecret) {
+                const stripeInstance = await stripePromise;
+                const { error, paymentIntent } = await stripeInstance.handleCardAction(result.clientSecret);
+                if (error) {
+                    setPayError(error.message);
+                } else if (paymentIntent?.status === "succeeded") {
+                    onPaymentSuccess();
+                } else {
+                    setPayError("Payment authentication passed but payment was not completed. Please try again.");
+                }
+                return;
+            }
+
+            if (result.status === "processing") {
+                setPayError("Payment is processing. Please wait a moment and refresh.");
+                return;
+            }
+
+            // Any other status is unexpected
+            setPayError("Payment could not be completed. Please try again or use a different card.");
+        } catch (err) {
+            setPayError(err.response?.data?.message || "Payment failed. Please try again.");
+        } finally {
+            setPaying(false);
+        }
+    };
+
+    const handleShowNewCard = async () => {
+        setLoadingNewCard(true);
+        setPayError(null);
+        try {
+            const res = await api.post("/payments/create-intent", { bookingId: booking.id });
+            setNewCardClientSecret(res.data.data.clientSecret);
+            setShowNewCard(true);
+        } catch (err) {
+            setPayError(err.response?.data?.message || "Failed to start payment.");
+        } finally {
+            setLoadingNewCard(false);
+        }
+    };
+
+    const amount = formatCurrency(parseFloat(booking.rate));
+
+    return (
+        <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl p-6 space-y-5">
+            {/* Header */}
+            <div className="flex items-center gap-2">
+                <MdLock className="text-text-muted dark:text-gray-400" />
+                <h3 className="text-base font-bold text-text-main dark:text-white">Complete Payment</h3>
+            </div>
+
+            {/* Escrow info */}
+            <div className="flex items-start gap-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg px-3 py-2.5">
+                <MdInfo className="text-blue-600 dark:text-blue-400 text-sm mt-0.5 shrink-0" />
+                <p className="text-xs text-blue-700 dark:text-blue-300">
+                    Your payment will be held securely until you confirm session completion
+                </p>
+            </div>
+
+            {/* Amount */}
+            <div>
+                <p className="text-xs font-bold text-text-muted dark:text-gray-400 uppercase tracking-wider">Session Rate</p>
+                <p className="text-2xl font-black text-text-main dark:text-white">{amount}</p>
+            </div>
+
+            {payError && (
+                <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg px-3 py-2.5">
+                    <p className="text-xs text-red-700 dark:text-red-300">{payError}</p>
+                </div>
+            )}
+
+            {methodsLoading ? (
+                <div className="flex justify-center py-6">
+                    <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                </div>
+            ) : !showNewCard ? (
+                <>
+                    {/* Saved Cards */}
+                    {methods.length > 0 && (
+                        <div className="space-y-2">
+                            {methods.map((pm) => (
+                                <label
+                                    key={pm.id}
+                                    className={`flex items-center gap-3 px-4 py-3 rounded-xl border cursor-pointer transition-colors ${
+                                        selectedPmId === pm.id
+                                            ? "border-primary bg-primary/5 dark:bg-primary/10"
+                                            : "border-border-light dark:border-border-dark hover:border-slate-300 dark:hover:border-slate-600"
+                                    }`}
+                                >
+                                    <input
+                                        type="radio"
+                                        name="paymentMethod"
+                                        value={pm.id}
+                                        checked={selectedPmId === pm.id}
+                                        onChange={() => setSelectedPmId(pm.id)}
+                                        className="accent-primary"
+                                    />
+                                    <MdCreditCard className="text-lg text-text-muted dark:text-gray-400" />
+                                    <div className="flex-1 min-w-0">
+                                        <span className="text-sm font-bold text-text-main dark:text-white">
+                                            {BRAND_LABELS[pm.brand] || pm.brand} &bull;&bull;&bull;&bull; {pm.last4}
+                                        </span>
+                                        <span className="text-xs text-text-muted dark:text-gray-400 ml-2">
+                                            Expires {String(pm.expMonth).padStart(2, "0")}/{String(pm.expYear).slice(-2)}
+                                        </span>
+                                    </div>
+                                    {pm.isDefault && (
+                                        <span className="text-[10px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full">
+                                            Default
+                                        </span>
+                                    )}
+                                </label>
+                            ))}
+                        </div>
+                    )}
+
+                    {/* Use different method link */}
+                    <button
+                        onClick={handleShowNewCard}
+                        disabled={loadingNewCard}
+                        className="text-sm text-primary hover:text-primary/80 font-medium transition-colors disabled:opacity-50"
+                    >
+                        {loadingNewCard ? "Loading..." : methods.length > 0 ? "Use a different payment method" : "Enter card details"}
+                    </button>
+
+                    {/* Pay button (saved card) */}
+                    {methods.length > 0 && (
+                        <button
+                            onClick={handlePayWithSavedCard}
+                            disabled={paying || !selectedPmId}
+                            className="w-full py-3 bg-primary hover:bg-primary/90 text-white font-bold rounded-xl shadow-lg shadow-primary/20 transition-colors disabled:opacity-50 text-sm"
+                        >
+                            {paying ? "Processing..." : `Pay ${amount}`}
+                        </button>
+                    )}
+                </>
+            ) : (
+                /* New Card Form */
+                newCardClientSecret && (
+                    <div className="space-y-3">
+                        {methods.length > 0 && (
+                            <button
+                                onClick={() => setShowNewCard(false)}
+                                className="text-sm text-primary hover:text-primary/80 font-medium transition-colors"
+                            >
+                                &larr; Back to saved cards
+                            </button>
+                        )}
+                        <Elements
+                            stripe={stripePromise}
+                            options={{ clientSecret: newCardClientSecret, appearance: { theme: "stripe" } }}
+                        >
+                            <NewCardCheckoutForm booking={booking} onSuccess={onPaymentSuccess} />
+                        </Elements>
+                    </div>
+                )
+            )}
+
+            {/* Stripe footer */}
+            <p className="text-[10px] text-text-muted dark:text-gray-500 text-center">
+                Powered by Stripe
+            </p>
+        </div>
+    );
+}
 
 const formatDate = (dateStr) => {
     if (!dateStr) return "—";
@@ -57,7 +329,8 @@ export default function CustomerBookingDetailPage() {
     const clearError = () => setActionError(null);
 
     const handleProceedToPayment = () => {
-        router.push(`/customer/bookings/${params.id}/payment`);
+        // Scroll to the inline payment section on this page
+        document.getElementById("inline-payment")?.scrollIntoView({ behavior: "smooth" });
     };
 
     const handleConfirmCompletion = async () => {
@@ -241,7 +514,7 @@ export default function CustomerBookingDetailPage() {
                                     </p>
                                 )}
                             </div>
-                            {["confirmed", "in_progress", "completed"].includes(booking.status) && (
+                            {["accepted", "confirmed", "in_progress", "completed", "reschedule_requested"].includes(booking.status) && (
                                 <button
                                     onClick={handleMessageTherapist}
                                     className="flex items-center gap-1.5 px-3 py-2 border border-primary text-primary rounded-lg text-xs font-bold hover:bg-primary/5 transition-colors shrink-0"
@@ -348,42 +621,17 @@ export default function CustomerBookingDetailPage() {
                             </div>
                         )}
 
-                        {/* Pending — no payment yet */}
-                        {booking.status === "pending" && !payment && (
-                            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-5">
-                                <div className="flex items-start gap-3">
-                                    <MdInfo className="text-blue-600 dark:text-blue-400 text-lg mt-0.5 shrink-0" />
-                                    <div>
-                                        <p className="text-sm font-bold text-blue-900 dark:text-blue-200">Payment Required</p>
-                                        <p className="text-xs text-blue-700 dark:text-blue-300 mt-0.5">
-                                            Complete payment to confirm your session.
-                                        </p>
-                                    </div>
-                                </div>
-                                <button
-                                    onClick={handleProceedToPayment}
-                                    className="mt-3 ml-8 bg-primary hover:bg-primary/90 text-white px-5 py-2 rounded-lg text-sm font-bold transition-colors"
-                                >
-                                    Proceed to Payment
-                                </button>
-                            </div>
-                        )}
-
-                        {/* Payment intent created — waiting */}
-                        {payment?.status === "intent_created" && (
-                            <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-5">
-                                <div className="flex items-start gap-3">
-                                    <MdInfo className="text-amber-600 dark:text-amber-400 text-lg mt-0.5 shrink-0" />
-                                    <div className="flex-1">
-                                        <p className="text-sm font-bold text-amber-900 dark:text-amber-200">Payment Processing</p>
-                                        <p className="text-xs text-amber-700 dark:text-amber-300 mt-0.5">
-                                            Waiting for payment confirmation.
-                                        </p>
-                                    </div>
-                                    <button onClick={refetch} className="text-xs font-bold text-amber-700 dark:text-amber-300 hover:underline flex items-center gap-1">
-                                        <MdRefresh className="text-sm" /> Refresh
-                                    </button>
-                                </div>
+                        {/* Accepted/Pending — inline payment section (show when no payment or payment needs action) */}
+                        {["pending", "accepted"].includes(booking.status) && (!payment || ["intent_created", "requires_action"].includes(payment.status)) && (
+                            <div id="inline-payment">
+                                <InlinePaymentSection
+                                    booking={booking}
+                                    onPaymentSuccess={() => {
+                                        setShowPaymentBanner(true);
+                                        refetch();
+                                        const timer = setTimeout(() => setShowPaymentBanner(false), 6000);
+                                    }}
+                                />
                             </div>
                         )}
 

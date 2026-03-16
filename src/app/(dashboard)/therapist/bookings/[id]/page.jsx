@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import {
     MdArrowBack, MdChat, MdCalendarToday, MdAccessTime, MdLocationOn, MdVideocam, MdPerson,
-    MdCheckCircle, MdClose, MdWarning, MdInfo, MdRefresh, MdSchedule
+    MdCheckCircle, MdClose, MdWarning, MdInfo, MdRefresh, MdSchedule, MdUpdate
 } from "react-icons/md";
 import { useBookingDetail } from "@/hooks/useBookings";
 import { bookingsApi } from "@/lib/bookings.api";
@@ -36,15 +36,21 @@ export default function TherapistBookingDetailPage() {
     const [showCompleteDialog, setShowCompleteDialog] = useState(false);
     const [actionError, setActionError] = useState(null);
 
-    // Auto-refresh when waiting for customer confirmation
+    // Reschedule states
+    const [showRescheduleModal, setShowRescheduleModal] = useState(false);
+    const [rescheduleDate, setRescheduleDate] = useState("");
+    const [rescheduleTime, setRescheduleTime] = useState("");
+    const [rescheduling, setRescheduling] = useState(false);
+
+    // Auto-refresh when waiting for customer confirmation or reschedule response
     useEffect(() => {
-        if (booking?.session?.status === "completed_by_therapist") {
+        if (booking?.session?.status === "completed_by_therapist" || booking?.status === "reschedule_requested") {
             const interval = setInterval(() => {
                 refetch();
             }, 3000);
             return () => clearInterval(interval);
         }
-    }, [booking?.session?.status, refetch]);
+    }, [booking?.session?.status, booking?.status, refetch]);
 
     const clearError = () => setActionError(null);
 
@@ -65,6 +71,24 @@ export default function TherapistBookingDetailPage() {
             }
         } finally {
             setCompleting(false);
+        }
+    };
+
+    const handleRequestReschedule = async () => {
+        if (!rescheduleDate || !rescheduleTime) return;
+        setRescheduling(true);
+        clearError();
+        try {
+            const newDate = new Date(`${rescheduleDate}T${rescheduleTime}`).toISOString();
+            await bookingsApi.rescheduleBooking(params.id, newDate);
+            setShowRescheduleModal(false);
+            setRescheduleDate("");
+            setRescheduleTime("");
+            await refetch();
+        } catch (err) {
+            setActionError(err.response?.data?.message || "Failed to request reschedule.");
+        } finally {
+            setRescheduling(false);
         }
     };
 
@@ -124,7 +148,7 @@ export default function TherapistBookingDetailPage() {
 
     const earnings = payment
         ? parseFloat(payment.therapistPayout)
-        : parseFloat(booking.rate) * 0.9;
+        : null;
 
     return (
         <div className="p-4 sm:p-8 max-w-6xl mx-auto">
@@ -206,7 +230,7 @@ export default function TherapistBookingDetailPage() {
                                     </p>
                                 )}
                             </div>
-                            {["confirmed", "in_progress", "completed"].includes(booking.status) && (
+                            {["accepted", "confirmed", "in_progress", "completed", "reschedule_requested"].includes(booking.status) && (
                                 <button
                                     onClick={handleMessageCustomer}
                                     className="flex items-center gap-1.5 px-3 py-2 border border-primary text-primary rounded-lg text-xs font-bold hover:bg-primary/5 transition-colors shrink-0"
@@ -296,8 +320,83 @@ export default function TherapistBookingDetailPage() {
 
                     {/* ── Action Area ── */}
                     <div className="space-y-4">
-                        {/* Pending — waiting for customer payment */}
-                        {booking.status === "pending" && (
+                        {/* Reschedule requested — waiting for customer response */}
+                        {booking.status === "reschedule_requested" && (
+                            <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-5">
+                                <div className="flex items-start gap-3">
+                                    <MdUpdate className="text-amber-600 dark:text-amber-400 text-lg mt-0.5 shrink-0" />
+                                    <div className="flex-1">
+                                        <p className="text-sm font-bold text-amber-900 dark:text-amber-200">Reschedule Requested</p>
+                                        <p className="text-xs text-amber-700 dark:text-amber-300 mt-0.5">
+                                            You proposed: {formatDate(booking.proposedNewDate)} at {formatTime(booking.proposedNewDate)}
+                                        </p>
+                                        <p className="text-xs text-amber-600 dark:text-amber-400 mt-1 italic">
+                                            Waiting for customer response...
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Reschedule button — visible for eligible statuses */}
+                        {["accepted", "confirmed"].includes(booking.status) && !showRescheduleModal && (
+                            <button
+                                onClick={() => setShowRescheduleModal(true)}
+                                className="flex items-center gap-2 text-sm font-semibold text-primary hover:text-primary/80 transition-colors"
+                            >
+                                <MdUpdate className="text-base" />
+                                Request Reschedule
+                            </button>
+                        )}
+
+                        {/* Reschedule modal (inline) */}
+                        {showRescheduleModal && (
+                            <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl p-5">
+                                <h4 className="text-sm font-bold text-text-main dark:text-white mb-1">Request Reschedule</h4>
+                                <p className="text-xs text-text-muted dark:text-gray-400 mb-4">
+                                    Propose a new date and time. The customer will be notified and can accept or decline.
+                                </p>
+                                <div className="grid grid-cols-2 gap-3 mb-4">
+                                    <div>
+                                        <label className="text-xs font-bold text-text-muted dark:text-gray-400 block mb-1">Date</label>
+                                        <input
+                                            type="date"
+                                            value={rescheduleDate}
+                                            onChange={(e) => setRescheduleDate(e.target.value)}
+                                            min={new Date().toISOString().split("T")[0]}
+                                            className="w-full text-sm rounded-lg bg-white dark:bg-slate-800 border border-border-light dark:border-border-dark p-2 focus:ring-primary focus:outline-none text-text-main dark:text-white"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="text-xs font-bold text-text-muted dark:text-gray-400 block mb-1">Time</label>
+                                        <input
+                                            type="time"
+                                            value={rescheduleTime}
+                                            onChange={(e) => setRescheduleTime(e.target.value)}
+                                            className="w-full text-sm rounded-lg bg-white dark:bg-slate-800 border border-border-light dark:border-border-dark p-2 focus:ring-primary focus:outline-none text-text-main dark:text-white"
+                                        />
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <button
+                                        onClick={handleRequestReschedule}
+                                        disabled={rescheduling || !rescheduleDate || !rescheduleTime}
+                                        className="bg-primary hover:bg-primary/90 text-white px-5 py-2 rounded-lg text-sm font-bold disabled:opacity-50 transition-colors"
+                                    >
+                                        {rescheduling ? "Sending..." : "Send Request"}
+                                    </button>
+                                    <button
+                                        onClick={() => { setShowRescheduleModal(false); setRescheduleDate(""); setRescheduleTime(""); }}
+                                        className="text-sm text-slate-500 dark:text-slate-400 font-bold hover:text-text-main dark:hover:text-white transition-colors"
+                                    >
+                                        Cancel
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Pending/Accepted — waiting for customer payment */}
+                        {["pending", "accepted"].includes(booking.status) && (
                             <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-5">
                                 <div className="flex items-start gap-3">
                                     <MdInfo className="text-amber-600 dark:text-amber-400 text-lg mt-0.5 shrink-0" />
@@ -337,7 +436,7 @@ export default function TherapistBookingDetailPage() {
                             <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-5">
                                 <p className="text-sm font-bold text-blue-900 dark:text-blue-200 mb-1">Mark Session as Complete?</p>
                                 <p className="text-xs text-blue-700 dark:text-blue-300 mb-4">
-                                    The customer will be notified to confirm completion. Payment of {formatCurrency(earnings)} will be released after their confirmation.
+                                    The customer will be notified to confirm completion. {earnings != null ? <>Payment of {formatCurrency(earnings)} will be released</> : <>Payment will be released</>} after their confirmation.
                                 </p>
                                 <div className="flex items-center gap-2">
                                     <button
@@ -431,7 +530,7 @@ export default function TherapistBookingDetailPage() {
                     />
 
                     {/* Message Customer */}
-                    {["confirmed", "in_progress", "completed"].includes(booking.status) && (
+                    {["accepted", "confirmed", "in_progress", "completed"].includes(booking.status) && (
                         <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl p-4">
                             <button
                                 onClick={handleMessageCustomer}

@@ -8,9 +8,13 @@ const getOfferStatusBadge = (status) => {
         case 'accepted':
             return { label: 'ACCEPTED', className: 'bg-green-500 text-white' };
         case 'rejected':
-            return { label: 'REJECTED', className: 'bg-red-500 text-white' };
+            return { label: 'DECLINED', className: 'bg-red-500 text-white' };
         case 'expired':
             return { label: 'EXPIRED', className: 'bg-gray-500 text-white' };
+        case 'change_requested':
+            return { label: 'CHANGE REQUESTED', className: 'bg-amber-500 text-white' };
+        case 'withdrawn':
+            return { label: 'WITHDRAWN', className: 'bg-gray-500 text-white' };
         default:
             return { label: 'PENDING', className: 'bg-primary text-white' };
     }
@@ -45,7 +49,9 @@ export default function SessionOfferWidget({ offerId }) {
         );
     }
 
-    if (error || !offer) return null;
+    if (error || !offer) {
+        return null;
+    }
 
     const statusBadge = getOfferStatusBadge(offer.status);
 
@@ -110,7 +116,11 @@ export default function SessionOfferWidget({ offerId }) {
                                 ? 'Offer accepted by patient'
                                 : offer.status === 'rejected'
                                     ? 'Offer declined by patient'
-                                    : 'Offer expired'}
+                                    : offer.status === 'change_requested'
+                                        ? 'Patient requested changes to this offer'
+                                        : offer.status === 'withdrawn'
+                                            ? 'Offer was withdrawn by therapist'
+                                            : 'Offer expired'}
                     </p>
                 </div>
             </div>

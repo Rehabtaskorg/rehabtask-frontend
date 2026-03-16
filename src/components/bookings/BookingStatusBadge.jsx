@@ -7,6 +7,7 @@ import {
     MdTaskAlt,
     MdCancel,
     MdUpdate,
+    MdPayment,
 } from "react-icons/md";
 
 const STATUS_CONFIG = {
@@ -15,6 +16,12 @@ const STATUS_CONFIG = {
         text: "text-amber-800 dark:text-amber-300",
         icon: MdPending,
         label: "Pending Payment",
+    },
+    accepted: {
+        bg: "bg-teal-100 dark:bg-teal-900/30",
+        text: "text-teal-800 dark:text-teal-300",
+        icon: MdPayment,
+        label: "Accepted — Awaiting Payment",
     },
     confirmed: {
         bg: "bg-blue-100 dark:bg-blue-900/30",

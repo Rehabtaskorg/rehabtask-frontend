@@ -45,8 +45,8 @@ export default function PaymentSummaryCard({ booking, role, onAction }) {
     const isCustomer = role === "customer";
     const isTherapist = role === "therapist";
 
-    const platformFee = payment ? parseFloat(payment.platformFee) : rate * 0.1;
-    const payout = payment ? parseFloat(payment.therapistPayout) : rate * 0.9;
+    const platformFee = payment ? parseFloat(payment.platformFee) : null;
+    const payout = payment ? parseFloat(payment.therapistPayout) : null;
 
     const paymentConfig = payment ? PAYMENT_STATUS_CONFIG[payment.status] : null;
     const PaymentIcon = paymentConfig?.icon || MdPayments;
@@ -56,8 +56,8 @@ export default function PaymentSummaryCard({ booking, role, onAction }) {
     let ctaAction = null;
     let ctaColor = "bg-primary hover:bg-primary/90";
 
-    if (isCustomer && booking.status === "pending" && !payment) {
-        ctaLabel = "Proceed to Payment";
+    if (isCustomer && ["pending", "accepted"].includes(booking.status) && !payment) {
+        ctaLabel = "Pay Now";
         ctaAction = "proceed_payment";
     } else if (isCustomer && session?.status === "completed_by_therapist") {
         ctaLabel = "Confirm Completion";
@@ -91,10 +91,10 @@ export default function PaymentSummaryCard({ booking, role, onAction }) {
                 </div>
 
                 {/* Therapist view: show fee breakdown */}
-                {isTherapist && (
+                {isTherapist && payment && (
                     <>
                         <div className="flex items-center justify-between">
-                            <span className="text-sm text-text-muted dark:text-gray-400">Platform Fee (10%)</span>
+                            <span className="text-sm text-text-muted dark:text-gray-400">Platform Fee</span>
                             <span className="text-sm font-medium text-red-500 dark:text-red-400">
                                 -{formatCurrency(platformFee)}
                             </span>
@@ -106,6 +106,13 @@ export default function PaymentSummaryCard({ booking, role, onAction }) {
                             </span>
                         </div>
                     </>
+                )}
+                {isTherapist && !payment && (
+                    <div className="border-t border-border-light dark:border-border-dark pt-3">
+                        <p className="text-xs text-text-muted dark:text-gray-400">
+                            Commission applied at payment
+                        </p>
+                    </div>
                 )}
 
                 {/* Customer view: total */}

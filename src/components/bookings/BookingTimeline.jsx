@@ -93,8 +93,14 @@ export default function BookingTimeline({ booking }) {
         isCompleted: true,
     });
 
-    // 2. Payment Escrowed
-    if (payment) {
+    // 2. Payment Escrowed (or awaiting payment)
+    if (!payment && ["pending", "accepted"].includes(booking.status)) {
+        steps.push({
+            icon: MdPayments,
+            title: "Awaiting Payment",
+            isWaiting: true,
+        });
+    } else if (payment) {
         const escrowed = ["escrowed", "released", "refunded"].includes(payment.status);
         const failed = payment.status === "failed";
         steps.push({

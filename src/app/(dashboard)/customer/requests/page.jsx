@@ -146,14 +146,20 @@ export default function MyRequestsPage() {
 
     // Offer Actions
 
+    const [acceptedBooking, setAcceptedBooking] = useState(null);
+
     const handleAccept = async (offerId) => {
-        if (!window.confirm("Accept this offer? You will be redirected to payment.")) return;
+        if (!window.confirm("Accept this offer? A booking will be created and you can pay when ready.")) return;
         setAccepting(offerId);
         try {
             const res = await api.post(`/offers/${offerId}/accept`);
-            router.push(`/customer/bookings/${res.data.data.booking.id}/payment`);
+            const booking = res.data.data.booking;
+            setAcceptedBooking(booking);
+            // Refresh the request detail to show updated offer statuses
+            if (selectedRequest?.id) await refetchDetail(selectedRequest.id);
         } catch (err) {
             alert(err.response?.data?.message || "Failed to accept offer.");
+        } finally {
             setAccepting(null);
         }
     }
@@ -311,6 +317,25 @@ export default function MyRequestsPage() {
                 {/* ── RIGHT PANEL (desktop) ── */}
                 <section className="hidden lg:flex lg:w-[45%] flex-col overflow-hidden">
                     {selectedRequest ? (
+                        <>
+                        {acceptedBooking && (
+                            <div className="mx-6 mt-4 flex items-start gap-3 p-4 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800">
+                                <svg className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                <div className="flex-1 min-w-0">
+                                    <p className="text-sm font-bold text-emerald-800 dark:text-emerald-200">Offer accepted — Booking created!</p>
+                                    <p className="text-xs text-emerald-700 dark:text-emerald-300 mt-0.5">You can pay when you&apos;re ready from the booking page.</p>
+                                    <button
+                                        onClick={() => router.push(`/customer/bookings/${acceptedBooking.id}`)}
+                                        className="mt-2 text-xs font-bold text-primary hover:underline inline-flex items-center gap-1"
+                                    >
+                                        View Booking →
+                                    </button>
+                                </div>
+                                <button onClick={() => setAcceptedBooking(null)} className="text-emerald-400 hover:text-emerald-600 dark:hover:text-emerald-300 shrink-0">
+                                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                                </button>
+                            </div>
+                        )}
                         <DetailPanel
                             request={selectedRequest}
                             loading={detailLoading}
@@ -332,6 +357,7 @@ export default function MyRequestsPage() {
                             }}
                             onChangeNoteUpdate={setChangeNote}
                         />
+                        </>
                     ) : (
                         <div className="flex-1 flex items-center justify-center">
                             <div className="text-center space-y-2">
@@ -356,6 +382,23 @@ export default function MyRequestsPage() {
                                 Back to list
                             </button>
                         </div>
+                        {acceptedBooking && (
+                            <div className="mx-4 mt-3 flex items-start gap-3 p-4 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800">
+                                <svg className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                <div className="flex-1 min-w-0">
+                                    <p className="text-sm font-bold text-emerald-800 dark:text-emerald-200">Offer accepted — Booking created!</p>
+                                    <button
+                                        onClick={() => router.push(`/customer/bookings/${acceptedBooking.id}`)}
+                                        className="mt-1 text-xs font-bold text-primary hover:underline"
+                                    >
+                                        View Booking →
+                                    </button>
+                                </div>
+                                <button onClick={() => setAcceptedBooking(null)} className="text-emerald-400 hover:text-emerald-600 shrink-0">
+                                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                                </button>
+                            </div>
+                        )}
                         <DetailPanel
                             request={selectedRequest}
                             loading={detailLoading}
