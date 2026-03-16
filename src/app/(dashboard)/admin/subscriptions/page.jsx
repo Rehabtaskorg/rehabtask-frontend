@@ -20,12 +20,14 @@ import {
 const fmtDate = (d) =>
     d ? new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—';
 
-// DB enum values: active | inactive | cancelled | past_due
+// DB enum values: active | inactive | cancelled | past_due | trialing | grace_period
 const SUB_STATUS_STYLES = {
-    active:    'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
-    inactive:  'bg-slate-100  text-slate-600  dark:bg-slate-700     dark:text-slate-300',
-    cancelled: 'bg-red-100    text-red-700    dark:bg-red-900/30    dark:text-red-400',
-    past_due:  'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400',
+    active:       'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
+    inactive:     'bg-slate-100  text-slate-600  dark:bg-slate-700     dark:text-slate-300',
+    cancelled:    'bg-red-100    text-red-700    dark:bg-red-900/30    dark:text-red-400',
+    past_due:     'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400',
+    trialing:     'bg-blue-100   text-blue-700   dark:bg-blue-900/30   dark:text-blue-400',
+    grace_period: 'bg-amber-100  text-amber-700  dark:bg-amber-900/30  dark:text-amber-400',
 };
 
 const PLAN_STYLES = {
@@ -160,6 +162,18 @@ function SubscriptionSidePanel({ subscription, onClose, onCancel, loading, error
                         <div className="flex justify-between gap-3">
                             <dt className="text-text-muted dark:text-slate-400">{isActive ? 'Renews' : 'Ended'}</dt>
                             <dd className="font-medium text-text-main dark:text-white">{fmtDate(subscription.currentPeriodEnd)}</dd>
+                        </div>
+                    )}
+                    {subscription.trialEndsAt && (
+                        <div className="flex justify-between gap-3">
+                            <dt className="text-text-muted dark:text-slate-400">Trial Ends</dt>
+                            <dd className="font-medium text-blue-600 dark:text-blue-400">{fmtDate(subscription.trialEndsAt)}</dd>
+                        </div>
+                    )}
+                    {subscription.gracePeriodEndsAt && (
+                        <div className="flex justify-between gap-3">
+                            <dt className="text-text-muted dark:text-slate-400">Grace Period Ends</dt>
+                            <dd className="font-medium text-amber-600 dark:text-amber-400">{fmtDate(subscription.gracePeriodEndsAt)}</dd>
                         </div>
                     )}
                     <div className="flex justify-between gap-3">
@@ -412,9 +426,11 @@ function CustomerSubscriptionsTab() {
                         <select value={statusFilter} onChange={e => { setStatusFilter(e.target.value); setPage(1); setSelected(null); }} className={inputCls}>
                             <option value="">All Statuses</option>
                             <option value="active">Active</option>
+                            <option value="trialing">Trialing</option>
                             <option value="inactive">Inactive</option>
                             <option value="cancelled">Cancelled</option>
                             <option value="past_due">Past Due</option>
+                            <option value="grace_period">Grace Period</option>
                         </select>
                         <select value={planFilter} onChange={e => { setPlanFilter(e.target.value); setPage(1); setSelected(null); }} className={inputCls}>
                             <option value="">All Plans</option>
