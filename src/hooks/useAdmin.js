@@ -78,12 +78,6 @@ export const useAdminTherapists = ({ enabled, ...params } = {}) =>
         enabled: enabled !== false,
     });
 
-export const useAdminTherapistPlanStats = () =>
-    useQuery({
-        queryKey: ['admin', 'therapists', 'plan-stats'],
-        queryFn: () => adminTherapistsApi.getPlanStats().then(r => r.data.data),
-    });
-
 export const useAdminTherapist = (therapistUserId) =>
     useQuery({
         queryKey: ['admin', 'therapists', therapistUserId],
@@ -267,11 +261,11 @@ export const useRefundAdminPayment = () => {
     });
 };
 
-// Admin - Commission (tier-based)
-export const useAdminTierRates = () =>
+// Admin - Commission (global rate)
+export const useAdminCommissionRate = () =>
     useQuery({
-        queryKey: ['admin', 'commission', 'rates'],
-        queryFn: () => adminCommissionApi.getRates().then(r => r.data.data),
+        queryKey: ['admin', 'commission', 'rate'],
+        queryFn: () => adminCommissionApi.getRate().then(r => r.data.data),
     });
 
 export const useAdminCommissionHistory = (params) =>
@@ -280,23 +274,11 @@ export const useAdminCommissionHistory = (params) =>
         queryFn: () => adminCommissionApi.getHistory(params).then(r => r.data.data),
     });
 
-export const useSetTierCommissionRate = () => {
+export const useSetCommissionRate = () => {
     const qc = useQueryClient();
     return useMutation({
-        mutationFn: (data) => adminCommissionApi.setTierRate(data),
+        mutationFn: (data) => adminCommissionApi.setRate(data),
         onSuccess: () => qc.invalidateQueries({ queryKey: ['admin', 'commission'] }),
-    });
-};
-
-export const useUpdateTherapistPlan = () => {
-    const qc = useQueryClient();
-    return useMutation({
-        mutationFn: ({ therapistUserId, planTier }) =>
-            adminTherapistsApi.updatePlan(therapistUserId, { planTier }),
-        onSuccess: (_, vars) => {
-            qc.invalidateQueries({ queryKey: ['admin', 'therapists', vars.therapistUserId] });
-            qc.invalidateQueries({ queryKey: ['admin', 'therapists'] });
-        },
     });
 };
 

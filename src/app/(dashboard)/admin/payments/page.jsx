@@ -20,9 +20,9 @@ import {
     useAdminPayments,
     useReleaseAdminPayment,
     useRefundAdminPayment,
-    useAdminTierRates,
+    useAdminCommissionRate,
     useAdminCommissionHistory,
-    useSetTierCommissionRate,
+    useSetCommissionRate,
 } from "@/hooks/useAdmin";
 
 const fmt$ = (v) =>
@@ -386,35 +386,12 @@ function PaymentSidePanel({ payment, onClose }) {
     );
 }
 
-const TIER_META = {
-    basic: {
-        label: "Basic",
-        description: "Free plan",
-        color: "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300",
-        accent: "border-slate-300 dark:border-slate-600",
-    },
-    pro: {
-        label: "Pro",
-        description: "$19/mo · $190/yr",
-        color: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300",
-        accent: "border-blue-300 dark:border-blue-600",
-    },
-    elite: {
-        label: "Elite",
-        description: "$39/mo · $351/yr",
-        color: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300",
-        accent: "border-amber-300 dark:border-amber-600",
-    },
-};
-
-function TierRateCard({ tierData, onSave, isSaving }) {
+function CommissionRateCard({ rateData, onSave, isSaving }) {
     const [editing, setEditing] = useState(false);
     const [newRate, setNewRate] = useState("");
     const [scheduleDate, setScheduleDate] = useState("");
     const [useSchedule, setUseSchedule] = useState(false);
     const [error, setError] = useState("");
-
-    const meta = TIER_META[tierData.tier];
 
     // Minimum date for scheduler: tomorrow (no past dates allowed)
     const tomorrow = new Date();
@@ -440,7 +417,7 @@ function TierRateCard({ tierData, onSave, isSaving }) {
             setError("Select a future date or switch to Apply Now.");
             return;
         }
-        const payload = { tier: tierData.tier, rate: parsed / 100 };
+        const payload = { rate: parsed / 100 };
         if (useSchedule && scheduleDate) {
             payload.effectiveFrom = new Date(scheduleDate + "T00:00:00").toISOString();
         }
@@ -453,17 +430,15 @@ function TierRateCard({ tierData, onSave, isSaving }) {
     };
 
     return (
-        <div className={`bg-card-light dark:bg-card-dark rounded-xl border-2 ${meta.accent} p-5 flex flex-col gap-3`}>
+        <div className="bg-card-light dark:bg-card-dark rounded-xl border-2 border-primary/30 dark:border-primary/40 p-5 flex flex-col gap-3 max-w-md">
             {/* Header */}
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                    <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold ${meta.color}`}>
-                        {meta.label}
-                    </span>
-                    <span className="text-xs text-text-muted">{meta.description}</span>
+                    <MdPercent className="text-primary text-lg" />
+                    <span className="text-sm font-semibold text-text-main dark:text-white">Platform Commission</span>
                 </div>
-                {tierData.isDefault && (
-                    <span className="text-xs text-text-muted italic">PRD default</span>
+                {rateData?.isDefault && (
+                    <span className="text-xs text-text-muted italic">Default</span>
                 )}
             </div>
 
@@ -471,12 +446,12 @@ function TierRateCard({ tierData, onSave, isSaving }) {
             <div>
                 <p className="text-xs text-text-muted mb-0.5">Commission Rate</p>
                 <p className="text-3xl font-bold text-text-main dark:text-white">
-                    {(tierData.rate * 100).toFixed(1)}%
+                    {rateData ? (rateData.rate * 100).toFixed(1) : "—"}%
                 </p>
-                {tierData.effectiveFrom && (
+                {rateData?.effectiveFrom && (
                     <p className="text-xs text-text-muted mt-0.5">
-                        Since {fmtDate(tierData.effectiveFrom)}
-                        {tierData.createdByAdmin && ` · ${tierData.createdByAdmin.email}`}
+                        Since {fmtDate(rateData.effectiveFrom)}
+                        {rateData.createdByAdmin && ` · ${rateData.createdByAdmin.email}`}
                     </p>
                 )}
             </div>
@@ -489,7 +464,7 @@ function TierRateCard({ tierData, onSave, isSaving }) {
                             type="number"
                             value={newRate}
                             onChange={(e) => setNewRate(e.target.value)}
-                            placeholder={`e.g. ${(tierData.rate * 100).toFixed(0)}`}
+                            placeholder={rateData ? `e.g. ${(rateData.rate * 100).toFixed(0)}` : "e.g. 20"}
                             min="0"
                             max="100"
                             step="0.1"
@@ -504,7 +479,7 @@ function TierRateCard({ tierData, onSave, isSaving }) {
                         <label className="flex items-center gap-1.5 cursor-pointer">
                             <input
                                 type="radio"
-                                name={`schedule-${tierData.tier}`}
+                                name="schedule-commission"
                                 checked={!useSchedule}
                                 onChange={() => { setUseSchedule(false); setScheduleDate(""); }}
                                 className="accent-primary"
@@ -514,7 +489,7 @@ function TierRateCard({ tierData, onSave, isSaving }) {
                         <label className="flex items-center gap-1.5 cursor-pointer">
                             <input
                                 type="radio"
-                                name={`schedule-${tierData.tier}`}
+                                name="schedule-commission"
                                 checked={useSchedule}
                                 onChange={() => setUseSchedule(true)}
                                 className="accent-primary"
@@ -572,34 +547,27 @@ function TierRateCard({ tierData, onSave, isSaving }) {
 }
 
 function CommissionTab() {
-    const { data: tierRates, isLoading: ratesLoading } = useAdminTierRates();
+    const { data: rateData, isLoading: rateLoading } = useAdminCommissionRate();
     const { data: histData, isLoading: histLoading } = useAdminCommissionHistory();
-    const setRateMutation = useSetTierCommissionRate();
+    const setRateMutation = useSetCommissionRate();
 
     const history = histData?.configs ?? [];
 
     return (
         <div className="space-y-6">
-            {/* Tier Rate Cards */}
+            {/* Commission Rate Card */}
             <div>
                 <h3 className="font-semibold text-text-main dark:text-white text-sm mb-3">
-                    Commission Rates by Plan Tier
+                    Platform Commission Rate
                 </h3>
-                {ratesLoading ? (
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                        {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-40 w-full rounded-xl" />)}
-                    </div>
+                {rateLoading ? (
+                    <Skeleton className="h-40 max-w-md rounded-xl" />
                 ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                        {(tierRates ?? []).map((t) => (
-                            <TierRateCard
-                                key={t.tier}
-                                tierData={t}
-                                onSave={(data) => setRateMutation.mutateAsync(data)}
-                                isSaving={setRateMutation.isPending}
-                            />
-                        ))}
-                    </div>
+                    <CommissionRateCard
+                        rateData={rateData}
+                        onSave={(data) => setRateMutation.mutateAsync(data)}
+                        isSaving={setRateMutation.isPending}
+                    />
                 )}
             </div>
 
@@ -620,7 +588,6 @@ function CommissionTab() {
                         <table className="w-full text-sm">
                             <thead>
                                 <tr className="border-b border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark">
-                                    <th className="px-4 py-2.5 text-left text-xs font-medium text-text-muted">Tier</th>
                                     <th className="px-4 py-2.5 text-left text-xs font-medium text-text-muted">Rate</th>
                                     <th className="px-4 py-2.5 text-left text-xs font-medium text-text-muted">Effective From</th>
                                     <th className="px-4 py-2.5 text-left text-xs font-medium text-text-muted">Set By</th>
@@ -628,28 +595,16 @@ function CommissionTab() {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-border-light dark:divide-border-dark">
-                                {history.map((h) => {
-                                    const tierMeta = h.tier ? TIER_META[h.tier] : null;
-                                    return (
-                                        <tr key={h.id} className="hover:bg-background-light dark:hover:bg-background-dark transition-colors">
-                                            <td className="px-4 py-3">
-                                                {tierMeta ? (
-                                                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium capitalize ${tierMeta.color}`}>
-                                                        {tierMeta.label}
-                                                    </span>
-                                                ) : (
-                                                    <span className="text-text-muted text-xs">Global</span>
-                                                )}
-                                            </td>
-                                            <td className="px-4 py-3 font-semibold text-text-main dark:text-white">
-                                                {fmtPct(h.rate)}
-                                            </td>
-                                            <td className="px-4 py-3 text-text-muted">{fmtDate(h.effectiveFrom)}</td>
-                                            <td className="px-4 py-3 text-text-muted">{h.createdByAdmin?.email ?? "—"}</td>
-                                            <td className="px-4 py-3 text-text-muted">{fmtDate(h.createdAt)}</td>
-                                        </tr>
-                                    );
-                                })}
+                                {history.map((h) => (
+                                    <tr key={h.id} className="hover:bg-background-light dark:hover:bg-background-dark transition-colors">
+                                        <td className="px-4 py-3 font-semibold text-text-main dark:text-white">
+                                            {fmtPct(h.rate)}
+                                        </td>
+                                        <td className="px-4 py-3 text-text-muted">{fmtDate(h.effectiveFrom)}</td>
+                                        <td className="px-4 py-3 text-text-muted">{h.createdByAdmin?.email ?? "—"}</td>
+                                        <td className="px-4 py-3 text-text-muted">{fmtDate(h.createdAt)}</td>
+                                    </tr>
+                                ))}
                             </tbody>
                         </table>
                     </div>

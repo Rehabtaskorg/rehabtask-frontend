@@ -5,16 +5,12 @@ import { usePageTitle } from "@/hooks/usePageTitle";
 import {
     MdCardMembership, MdClose, MdChevronLeft, MdChevronRight,
     MdCheckCircle, MdWarning, MdPerson, MdTrendingUp, MdSearch,
-    MdSwapVert, MdFilterList, MdWorkspacePremium,
+    MdSwapVert, MdFilterList,
 } from 'react-icons/md';
 import {
     useAdminSubscriptions,
     useAdminSubscriptionStats,
     useCancelAdminSubscription,
-    useAdminTherapists,
-    useAdminTherapistPlanStats,
-    useUpdateTherapistPlan,
-    useAdminTierRates,
 } from '@/hooks/useAdmin';
 
 const fmtDate = (d) =>
@@ -36,29 +32,6 @@ const PLAN_STYLES = {
     premium:  'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400',
 };
 
-const TIER_STYLES = {
-    basic: 'bg-slate-100  text-slate-700  dark:bg-slate-700    dark:text-slate-300',
-    pro:   'bg-blue-100   text-blue-700   dark:bg-blue-900/30  dark:text-blue-400',
-    elite: 'bg-amber-100  text-amber-700  dark:bg-amber-900/30 dark:text-amber-400',
-};
-
-const TIER_META = {
-    basic: { label: 'Basic', price: 'Free' },
-    pro:   { label: 'Pro',   price: '$19/mo' },
-    elite: { label: 'Elite', price: '$39/mo' },
-};
-
-const getTierCommission = (tierRates, tier) => {
-    const found = tierRates?.find(t => t.tier === tier);
-    return found ? `${(found.rate * 100).toFixed(1)}%` : '—';
-};
-
-const APPROVAL_STYLES = {
-    approved: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
-    review:   'bg-amber-100   text-amber-700   dark:bg-amber-900/30   dark:text-amber-400',
-    pending:  'bg-blue-100    text-blue-700    dark:bg-blue-900/30    dark:text-blue-400',
-    rejected: 'bg-red-100     text-red-700     dark:bg-red-900/30     dark:text-red-400',
-};
 
 const SORT_OPTIONS = [
     { value: 'createdAt',          label: 'Date Created' },
@@ -105,6 +78,12 @@ function StatCard({ icon: Icon, label, value, iconBg, loading }) {
 function SubscriptionSidePanel({ subscription, onClose, onCancel, loading, error, success }) {
     const [confirmCancel, setConfirmCancel] = useState(false);
     const isActive = subscription.status === 'active';
+    const isTrialing = subscription.status === 'trialing';
+    const isCancellable = (isActive && subscription.stripeSubscriptionId) || isTrialing;
+    const cancelLabel = isTrialing ? 'End Trial' : 'Cancel Subscription';
+    const cancelDescription = isTrialing
+        ? 'This will end the trial immediately and downgrade the customer to the Free plan.'
+        : 'This will cancel the subscription immediately in Stripe and update the status. This action cannot be undone.';
 
     return (
         <div className="flex flex-col h-full">
@@ -187,15 +166,15 @@ function SubscriptionSidePanel({ subscription, onClose, onCancel, loading, error
                         </div>
                     )}
                 </dl>
-                {isActive && !success && (
+                {isCancellable && !success && (
                     <div className="border border-border-light dark:border-border-dark rounded-xl overflow-hidden">
                         <button onClick={() => setConfirmCancel(v => !v)} className="w-full flex items-center justify-between px-4 py-3 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors">
-                            Cancel Subscription
+                            {cancelLabel}
                             <span className="text-text-muted text-xs">{confirmCancel ? '▲' : '▼'}</span>
                         </button>
                         {confirmCancel && (
                             <div className="px-4 pb-4 space-y-3 border-t border-border-light dark:border-border-dark pt-3">
-                                <p className="text-xs text-text-muted dark:text-slate-400">This will cancel the subscription immediately in Stripe and update the status. This action cannot be undone.</p>
+                                <p className="text-xs text-text-muted dark:text-slate-400">{cancelDescription}</p>
                                 <div className="flex gap-2">
                                     <button onClick={() => onCancel(subscription.id)} disabled={loading} className="flex-1 py-2.5 rounded-xl bg-red-600 text-white text-sm font-medium hover:bg-red-700 disabled:opacity-50 transition-colors">
                                         {loading ? 'Cancelling\u2026' : 'Confirm Cancellation'}
@@ -213,123 +192,6 @@ function SubscriptionSidePanel({ subscription, onClose, onCancel, loading, error
     );
 }
 
-/* ─────────────────────────────────────────────────────────
-   Therapist Plans Side Panel
-   ───────────────────────────────────────────────────────── */
-function TherapistPlanSidePanel({ therapist, onClose, onUpdatePlan, loading, error, success, tierRates }) {
-    const [confirmTier, setConfirmTier] = useState(null);
-    const profile = therapist.therapistProfile;
-    const currentTier = profile?.planTier || 'basic';
-
-    return (
-        <div className="flex flex-col h-full">
-            <div className="flex items-center justify-between px-5 py-4 border-b border-border-light dark:border-border-dark shrink-0">
-                <h3 className="font-semibold text-text-main dark:text-white text-sm">Therapist Plan Details</h3>
-                <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
-                    <MdClose className="text-xl" />
-                </button>
-            </div>
-            <div className="flex-1 overflow-y-auto panel-scroll p-5 space-y-5">
-                <div className="flex items-center gap-2 flex-wrap">
-                    <StatusBadge status={currentTier} styleMap={TIER_STYLES} />
-                    <StatusBadge status={profile?.approvalStatus} styleMap={APPROVAL_STYLES} />
-                </div>
-
-                {error && (
-                    <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-sm">
-                        <MdWarning className="shrink-0 text-base" /> {error}
-                    </div>
-                )}
-                {success && (
-                    <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 text-sm">
-                        <MdCheckCircle className="shrink-0 text-base" /> {success}
-                    </div>
-                )}
-
-                <dl className="space-y-3 text-sm">
-                    <div className="flex justify-between gap-3">
-                        <dt className="text-text-muted dark:text-slate-400 flex items-center gap-1"><MdPerson className="text-sm" /> Therapist</dt>
-                        <dd className="font-medium text-text-main dark:text-white text-right">{profile?.fullName || '—'}</dd>
-                    </div>
-                    <div className="flex justify-between gap-3">
-                        <dt className="text-text-muted dark:text-slate-400">Email</dt>
-                        <dd className="text-text-main dark:text-white text-right truncate max-w-45">{therapist.email}</dd>
-                    </div>
-                    <div className="flex justify-between gap-3">
-                        <dt className="text-text-muted dark:text-slate-400">Current Tier</dt>
-                        <dd className="font-medium text-text-main dark:text-white capitalize">{TIER_META[currentTier]?.label}</dd>
-                    </div>
-                    <div className="flex justify-between gap-3">
-                        <dt className="text-text-muted dark:text-slate-400">Commission Rate</dt>
-                        <dd className="font-medium text-text-main dark:text-white">{getTierCommission(tierRates, currentTier)}</dd>
-                    </div>
-                    <div className="flex justify-between gap-3">
-                        <dt className="text-text-muted dark:text-slate-400">License Type</dt>
-                        <dd className="font-medium text-text-main dark:text-white">{profile?.primaryLicenseType || '—'}</dd>
-                    </div>
-                    <div className="flex justify-between gap-3">
-                        <dt className="text-text-muted dark:text-slate-400">Joined</dt>
-                        <dd className="font-medium text-text-main dark:text-white">{fmtDate(therapist.createdAt)}</dd>
-                    </div>
-                </dl>
-
-                {/* Change Plan Tier */}
-                {profile?.approvalStatus === 'approved' && !success && (
-                    <div className="space-y-3">
-                        <p className="text-xs font-semibold text-text-muted dark:text-slate-400 uppercase tracking-wide">Change Plan Tier</p>
-                        <div className="grid grid-cols-3 gap-2">
-                            {Object.entries(TIER_META).map(([tier, meta]) => (
-                                <button
-                                    key={tier}
-                                    onClick={() => tier !== currentTier ? setConfirmTier(tier) : null}
-                                    disabled={tier === currentTier || loading}
-                                    className={`py-2.5 px-2 rounded-xl text-sm font-medium transition-colors border ${
-                                        tier === currentTier
-                                            ? 'bg-primary/10 border-primary text-primary dark:bg-primary/20 dark:text-blue-300'
-                                            : 'border-border-light dark:border-border-dark text-text-main dark:text-white hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-primary/40'
-                                    } disabled:opacity-50`}
-                                >
-                                    <span className="block">{meta.label}</span>
-                                    <span className="block text-xs text-text-muted dark:text-slate-400 mt-0.5">{getTierCommission(tierRates, tier)}</span>
-                                </button>
-                            ))}
-                        </div>
-
-                        {/* Confirmation */}
-                        {confirmTier && (
-                            <div className="border border-border-light dark:border-border-dark rounded-xl p-4 space-y-3">
-                                <p className="text-sm text-text-main dark:text-white">
-                                    Change <span className="font-semibold">{profile?.fullName}</span> from{' '}
-                                    <span className="font-semibold capitalize">{TIER_META[currentTier]?.label}</span> to{' '}
-                                    <span className="font-semibold capitalize">{TIER_META[confirmTier]?.label}</span>?
-                                </p>
-                                <p className="text-xs text-text-muted dark:text-slate-400">
-                                    Commission rate will change from {getTierCommission(tierRates, currentTier)} to {getTierCommission(tierRates, confirmTier)} for future transactions.
-                                </p>
-                                <div className="flex gap-2">
-                                    <button
-                                        onClick={() => { onUpdatePlan(therapist.id, confirmTier); setConfirmTier(null); }}
-                                        disabled={loading}
-                                        className="flex-1 py-2.5 rounded-xl bg-primary text-white text-sm font-medium hover:bg-primary/90 disabled:opacity-50 transition-colors"
-                                    >
-                                        {loading ? 'Updating\u2026' : 'Confirm Change'}
-                                    </button>
-                                    <button
-                                        onClick={() => setConfirmTier(null)}
-                                        disabled={loading}
-                                        className="px-4 py-2.5 rounded-xl border border-border-light dark:border-border-dark text-sm text-text-main dark:text-white hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
-                                    >
-                                        Cancel
-                                    </button>
-                                </div>
-                            </div>
-                        )}
-                    </div>
-                )}
-            </div>
-        </div>
-    );
-}
 
 /* ─────────────────────────────────────────────────────────
    Customer Subscriptions Tab
@@ -500,8 +362,10 @@ function CustomerSubscriptionsTab() {
                                                 </td>
                                                 <td className="px-5 py-3.5"><StatusBadge status={sub.planType} styleMap={PLAN_STYLES} /></td>
                                                 <td className="px-5 py-3.5"><StatusBadge status={sub.status} styleMap={SUB_STATUS_STYLES} /></td>
-                                                <td className="px-5 py-3.5 text-text-muted dark:text-slate-400 hidden md:table-cell">{fmtDate(sub.currentPeriodStart)}</td>
-                                                <td className="px-5 py-3.5 text-text-muted dark:text-slate-400 hidden lg:table-cell">{fmtDate(sub.currentPeriodEnd)}</td>
+                                                <td className="px-5 py-3.5 text-text-muted dark:text-slate-400 hidden md:table-cell">{fmtDate(sub.currentPeriodStart || sub.createdAt)}</td>
+                                                <td className="px-5 py-3.5 text-text-muted dark:text-slate-400 hidden lg:table-cell">
+                                                    {fmtDate(sub.currentPeriodEnd || (sub.status === 'trialing' ? sub.trialEndsAt : sub.gracePeriodEndsAt))}
+                                                </td>
                                             </tr>
                                         ))}
                                     </tbody>
@@ -543,218 +407,20 @@ function CustomerSubscriptionsTab() {
     );
 }
 
-/* ─────────────────────────────────────────────────────────
-   Therapist Plans Tab
-   ───────────────────────────────────────────────────────── */
-function TherapistPlansTab() {
-    const [tierFilter, setTierFilter] = useState('');
-    const [searchInput, setSearchInput] = useState('');
-    const [search, setSearch] = useState('');
-    const [page, setPage] = useState(1);
-    const [selected, setSelected] = useState(null);
-    const [actionError, setActionError] = useState('');
-    const [actionSuccess, setActionSuccess] = useState('');
-
-    const params = {
-        ...(tierFilter && { planTier: tierFilter }),
-        ...(search && { search }),
-        approvalStatus: 'approved',
-        page, limit: 20,
-    };
-
-    const { data: planStats, isLoading: statsLoading } = useAdminTherapistPlanStats();
-    const { data: tierRates } = useAdminTierRates();
-    const { data, isLoading, error } = useAdminTherapists(params);
-    const updatePlan = useUpdateTherapistPlan();
-
-    const therapists = data?.therapists ?? [];
-    const pagination = data?.pagination;
-
-    const commitSearch = (val) => { setSearch(val.trim()); setPage(1); setSelected(null); };
-
-    const handleUpdatePlan = async (therapistUserId, planTier) => {
-        setActionError(''); setActionSuccess('');
-        try {
-            await updatePlan.mutateAsync({ therapistUserId, planTier });
-            setActionSuccess(`Plan updated to ${TIER_META[planTier]?.label} successfully.`);
-            setSelected(prev => {
-                if (!prev || prev.id !== therapistUserId) return prev;
-                return { ...prev, therapistProfile: { ...prev.therapistProfile, planTier } };
-            });
-        } catch (e) {
-            setActionError(e?.response?.data?.message || 'Failed to update plan tier.');
-        }
-    };
-
-    const hasActiveFilters = tierFilter || search;
-
-    const resetFilters = () => {
-        setTierFilter(''); setSearch(''); setSearchInput('');
-        setPage(1); setSelected(null); setActionError(''); setActionSuccess('');
-    };
-
-    const inputCls = 'px-3 py-2.5 text-sm rounded-xl border border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark text-text-main dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary';
-
-    return (
-        <div className="flex min-h-0 relative">
-            <div className={`flex-1 min-w-0 transition-all duration-300 ${selected ? 'lg:mr-95' : ''}`}>
-                {/* Stats */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-6">
-                    <StatCard icon={MdWorkspacePremium} label="Total Approved" value={planStats?.approved ?? 0} iconBg="bg-primary" loading={statsLoading} />
-                    <StatCard icon={MdTrendingUp} label="Basic Tier" value={planStats?.byTier?.basic ?? 0} iconBg="bg-slate-500" loading={statsLoading} />
-                    <StatCard icon={MdTrendingUp} label="Pro Tier" value={planStats?.byTier?.pro ?? 0} iconBg="bg-blue-500" loading={statsLoading} />
-                    <StatCard icon={MdTrendingUp} label="Elite Tier" value={planStats?.byTier?.elite ?? 0} iconBg="bg-amber-500" loading={statsLoading} />
-                </div>
-
-                {/* Filters */}
-                <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl p-4 mb-5">
-                    <div className="flex flex-wrap gap-3 items-center">
-                        <div className="relative flex-1 min-w-48">
-                            <MdSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted dark:text-slate-400 text-lg pointer-events-none" />
-                            <input type="text" placeholder="Search therapist name or email\u2026" value={searchInput}
-                                onChange={e => setSearchInput(e.target.value)}
-                                onKeyDown={e => { if (e.key === 'Enter') commitSearch(e.target.value); }}
-                                onBlur={e => commitSearch(e.target.value)}
-                                className={`${inputCls} pl-9 w-full`} />
-                        </div>
-                        <select value={tierFilter} onChange={e => { setTierFilter(e.target.value); setPage(1); setSelected(null); }} className={inputCls}>
-                            <option value="">All Tiers</option>
-                            <option value="basic">Basic</option>
-                            <option value="pro">Pro</option>
-                            <option value="elite">Elite</option>
-                        </select>
-                        {hasActiveFilters && (
-                            <button onClick={resetFilters} className="px-3 py-2.5 text-sm rounded-xl border border-border-light dark:border-border-dark text-text-muted dark:text-slate-400 hover:text-text-main dark:hover:text-white hover:border-primary/40 transition-colors">
-                                Clear all
-                            </button>
-                        )}
-                    </div>
-                </div>
-
-                {/* Table */}
-                <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl overflow-hidden">
-                    {isLoading ? (
-                        <div className="p-5 space-y-3">{[...Array(6)].map((_, i) => <Skeleton key={i} className="h-16" />)}</div>
-                    ) : error ? (
-                        <div className="p-12 text-center text-sm text-red-500">Failed to load therapists. Please refresh.</div>
-                    ) : !therapists.length ? (
-                        <div className="p-12 text-center">
-                            <MdWorkspacePremium className="text-4xl text-slate-300 dark:text-slate-600 mx-auto mb-2" />
-                            <p className="text-sm text-text-muted dark:text-slate-400">No therapists found</p>
-                        </div>
-                    ) : (
-                        <>
-                            <div className="overflow-x-auto">
-                                <table className="w-full text-sm">
-                                    <thead>
-                                        <tr className="border-b border-border-light dark:border-border-dark bg-slate-50 dark:bg-slate-800/50">
-                                            <th className="px-5 py-3 text-left text-xs font-semibold text-text-muted dark:text-slate-400 uppercase tracking-wide">Therapist</th>
-                                            <th className="px-5 py-3 text-left text-xs font-semibold text-text-muted dark:text-slate-400 uppercase tracking-wide">Plan Tier</th>
-                                            <th className="px-5 py-3 text-left text-xs font-semibold text-text-muted dark:text-slate-400 uppercase tracking-wide hidden md:table-cell">Commission</th>
-                                            <th className="px-5 py-3 text-left text-xs font-semibold text-text-muted dark:text-slate-400 uppercase tracking-wide hidden md:table-cell">License</th>
-                                            <th className="px-5 py-3 text-left text-xs font-semibold text-text-muted dark:text-slate-400 uppercase tracking-wide hidden lg:table-cell">Joined</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="divide-y divide-border-light dark:divide-border-dark">
-                                        {therapists.map(t => {
-                                            const tier = t.therapistProfile?.planTier || 'basic';
-                                            return (
-                                                <tr key={t.id}
-                                                    onClick={() => { setSelected(prev => prev?.id === t.id ? null : t); setActionError(''); setActionSuccess(''); }}
-                                                    className={`cursor-pointer transition-colors ${selected?.id === t.id ? 'bg-primary/5 dark:bg-primary/10' : 'hover:bg-slate-50 dark:hover:bg-slate-800/40'}`}>
-                                                    <td className="px-5 py-3.5">
-                                                        <p className="font-medium text-text-main dark:text-white">{t.therapistProfile?.fullName || '—'}</p>
-                                                        <p className="text-xs text-text-muted dark:text-slate-400 hidden sm:block">{t.email}</p>
-                                                    </td>
-                                                    <td className="px-5 py-3.5"><StatusBadge status={tier} styleMap={TIER_STYLES} /></td>
-                                                    <td className="px-5 py-3.5 text-text-muted dark:text-slate-400 hidden md:table-cell">{getTierCommission(tierRates, tier)}</td>
-                                                    <td className="px-5 py-3.5 text-text-muted dark:text-slate-400 hidden md:table-cell">{t.therapistProfile?.primaryLicenseType || '—'}</td>
-                                                    <td className="px-5 py-3.5 text-text-muted dark:text-slate-400 hidden lg:table-cell">{fmtDate(t.createdAt)}</td>
-                                                </tr>
-                                            );
-                                        })}
-                                    </tbody>
-                                </table>
-                            </div>
-                            {pagination && pagination.totalPages > 1 && (
-                                <div className="flex items-center justify-between px-5 py-4 border-t border-border-light dark:border-border-dark">
-                                    <p className="text-sm text-text-muted dark:text-slate-400">
-                                        {(page - 1) * pagination.limit + 1}–{Math.min(page * pagination.limit, pagination.total)} of {pagination.total.toLocaleString()}
-                                    </p>
-                                    <div className="flex items-center gap-2">
-                                        <button onClick={() => setPage(p => p - 1)} disabled={page === 1} className="p-1.5 rounded-lg border border-border-light dark:border-border-dark hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed">
-                                            <MdChevronLeft className="text-xl text-slate-600 dark:text-slate-300" />
-                                        </button>
-                                        <span className="text-sm font-medium text-text-main dark:text-white min-w-15 text-center">{page} / {pagination.totalPages}</span>
-                                        <button onClick={() => setPage(p => p + 1)} disabled={page === pagination.totalPages} className="p-1.5 rounded-lg border border-border-light dark:border-border-dark hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed">
-                                            <MdChevronRight className="text-xl text-slate-600 dark:text-slate-300" />
-                                        </button>
-                                    </div>
-                                </div>
-                            )}
-                        </>
-                    )}
-                </div>
-            </div>
-
-            {/* Side Panel */}
-            {selected && (
-                <>
-                    <div className="fixed inset-0 bg-black/40 z-30 lg:hidden" onClick={() => setSelected(null)} />
-                    <div className="fixed right-0 top-14 lg:top-0 h-[calc(100dvh-3.5rem)] lg:h-dvh w-full max-w-95 bg-card-light dark:bg-card-dark border-l border-border-light dark:border-border-dark z-40 lg:z-20 shadow-xl flex flex-col overflow-hidden">
-                        <TherapistPlanSidePanel therapist={selected}
-                            onClose={() => { setSelected(null); setActionError(''); setActionSuccess(''); }}
-                            onUpdatePlan={handleUpdatePlan} loading={updatePlan.isPending}
-                            error={actionError} success={actionSuccess} tierRates={tierRates} />
-                    </div>
-                </>
-            )}
-        </div>
-    );
-}
-
-/* ─────────────────────────────────────────────────────────
-   Main Page with Tabs
-   ───────────────────────────────────────────────────────── */
-const TABS = [
-    { key: 'customers', label: 'Customer Subscriptions' },
-    { key: 'therapists', label: 'Therapist Plans' },
-];
-
 export default function AdminSubscriptionsPage() {
     usePageTitle("Subscriptions");
-    const [activeTab, setActiveTab] = useState('customers');
 
     return (
         <div className="p-4 md:p-6">
             {/* Header */}
             <div className="mb-5">
-                <h1 className="text-xl md:text-2xl font-bold text-text-main dark:text-white">Subscriptions & Plans</h1>
+                <h1 className="text-xl md:text-2xl font-bold text-text-main dark:text-white">Customer Subscriptions</h1>
                 <p className="text-text-muted dark:text-slate-400 text-sm mt-0.5">
-                    Manage customer subscriptions and therapist plan tiers
+                    Manage customer subscriptions
                 </p>
             </div>
 
-            {/* Tabs */}
-            <div className="flex gap-1 mb-6 border-b border-border-light dark:border-border-dark">
-                {TABS.map(tab => (
-                    <button
-                        key={tab.key}
-                        onClick={() => setActiveTab(tab.key)}
-                        className={`px-4 py-2.5 text-sm font-medium transition-colors border-b-2 -mb-px ${
-                            activeTab === tab.key
-                                ? 'border-primary text-primary'
-                                : 'border-transparent text-text-muted dark:text-slate-400 hover:text-text-main dark:hover:text-white'
-                        }`}
-                    >
-                        {tab.label}
-                    </button>
-                ))}
-            </div>
-
-            {/* Tab Content */}
-            {activeTab === 'customers' && <CustomerSubscriptionsTab />}
-            {activeTab === 'therapists' && <TherapistPlansTab />}
+            <CustomerSubscriptionsTab />
         </div>
     );
 }
