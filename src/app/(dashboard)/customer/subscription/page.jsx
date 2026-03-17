@@ -157,7 +157,7 @@ export default function SubscriptionPage() {
                             </span>
                         </div>
                     </div>
-                    {isPaid && subscription?.currentPeriodEnd && (
+                    {isPaid && !isGracePeriod && !subscription?.cancelledAt && subscription?.currentPeriodEnd && (
                         <div className="text-right text-sm text-text-muted dark:text-slate-400">
                             <p>Next billing date</p>
                             <p className="font-semibold text-text-main dark:text-white">
@@ -195,10 +195,10 @@ export default function SubscriptionPage() {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
                     {PLANS.map((plan) => {
-                        // During trial, no plan is "current" — they're previewing Standard for free
+                        // During trial or grace period, no plan is "current" — user needs to (re)subscribe
                         // For free users (non-trial), Free card is current
                         // For paid users, their paid plan card is current
-                        const isCurrentPlan = !isTrial && plan.key === currentPlan && (plan.key === "free" || isPaid);
+                        const isCurrentPlan = !isTrial && !isGracePeriod && plan.key === currentPlan && (plan.key === "free" || isPaid);
                         const price = billingInterval === "monthly" ? plan.monthlyPrice : plan.annualPrice;
                         const monthlyEquiv = billingInterval === "annual" && plan.annualPrice > 0
                             ? (plan.annualPrice / 12).toFixed(0)
@@ -282,8 +282,8 @@ export default function SubscriptionPage() {
                 </div>
             </div>
 
-            {/* Billing Management */}
-            {isPaid && (
+            {/* Billing Management — hide during grace period (subscription already cancelled in Stripe) */}
+            {isPaid && !isGracePeriod && (
                 <div className="bg-card-light dark:bg-card-dark rounded-xl border border-border-light dark:border-border-dark p-6 shadow-sm">
                     <h2 className="font-bold text-lg text-text-main dark:text-white mb-4 flex items-center gap-2">
                         <MdCreditCard className="w-5 h-5 text-text-muted dark:text-slate-400" />
