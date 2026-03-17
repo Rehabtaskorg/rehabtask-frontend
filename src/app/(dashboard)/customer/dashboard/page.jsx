@@ -363,7 +363,7 @@ function SubscriptionWidget() {
         <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark p-6 rounded-xl">
             <div className="flex items-center gap-2 mb-2">
                 <MdStars className="text-xl text-primary" />
-                <h5 className="font-bold text-lg text-text-main">{plan.charAt(0).toUpperCase() + plan.slice(1)} Plan</h5>
+                <h5 className="font-bold text-lg text-text-main dark:text-white">{plan.charAt(0).toUpperCase() + plan.slice(1)} Plan</h5>
                 <span className="px-2 py-0.5 text-xs font-semibold rounded-full bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">Active</span>
             </div>
             <button onClick={() => router.push("/customer/subscription")} className="text-sm text-primary hover:underline">

@@ -98,8 +98,8 @@ export default function NewRequestPage() {
             <div className="max-w-lg mx-auto mt-20 text-center">
                 <div className="bg-card-light dark:bg-card-dark rounded-xl border border-border-light dark:border-border-dark p-8 shadow-sm">
                     <MdLock className="w-12 h-12 text-amber-500 mx-auto mb-4" />
-                    <h2 className="text-xl font-bold text-text-main mb-2">Request Limit Reached</h2>
-                    <p className="text-text-muted mb-4">
+                    <h2 className="text-xl font-bold text-text-main dark:text-white mb-2">Request Limit Reached</h2>
+                    <p className="text-text-muted dark:text-slate-400 mb-4">
                         You&apos;ve used all {requestLimit} of your active request slots ({usage.activeRequests}/{requestLimit}).
                         Upgrade your plan to create more requests.
                     </p>
