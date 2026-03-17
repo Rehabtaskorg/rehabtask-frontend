@@ -195,7 +195,10 @@ export default function SubscriptionPage() {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
                     {PLANS.map((plan) => {
-                        const isCurrentPlan = plan.key === currentPlan;
+                        // During trial, no plan is "current" — they're previewing Standard for free
+                        // For free users (non-trial), Free card is current
+                        // For paid users, their paid plan card is current
+                        const isCurrentPlan = !isTrial && plan.key === currentPlan && (plan.key === "free" || isPaid);
                         const price = billingInterval === "monthly" ? plan.monthlyPrice : plan.annualPrice;
                         const monthlyEquiv = billingInterval === "annual" && plan.annualPrice > 0
                             ? (plan.annualPrice / 12).toFixed(0)
