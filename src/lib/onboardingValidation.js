@@ -105,16 +105,18 @@ export const availabilitySchema = z.object({
 
     acceptingNewPatients: z.boolean(),
 
-    baseZipCode: z
-        .string()
-        .regex(/^\d{5}(-\d{4})?$/, "Please enter a valid ZIP code")
-        .optional(),
-
-    serviceRadiusMiles: z
-        .coerce.number()
-        .min(0, "Service radius must be 0 or greater")
-        .max(100, "Service radius must not exceed 100 miles")
-        .optional(),
+    workAreas: z
+        .array(
+            z.object({
+                zipCode: z.string().regex(/^\d{5}$/, "ZIP code must be 5 digits"),
+                city: z.string().min(1),
+                state: z.string().min(1),
+                latitude: z.number().min(-90).max(90),
+                longitude: z.number().min(-180).max(180),
+                radiusMiles: z.number().int().min(1).max(100),
+            })
+        )
+        .min(1, "Please add at least one work area"),
 });
 
 export const backgroundCheckSchema = z.object({

@@ -2,8 +2,10 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 export default function HomePage() {
+  usePageTitle("Home");
   const router = useRouter();
 
   useEffect(() => {
@@ -16,6 +18,8 @@ export default function HomePage() {
         router.push("/customer/requests");
       } else if (user.role === "therapist") {
         router.push("/therapist/requests");
+      } else if (user.role === "admin" || user.role === "sub_admin") {
+        router.push("/admin/dashboard");
       }
     } else {
       router.push("/login");

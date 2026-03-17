@@ -37,14 +37,24 @@ export default function OnboardingBanner() {
                 return;
             }
 
-            const { onboardingComplete, approvalStatus, progress: backendProgress } = status;
+            const { onboardingComplete, approvalStatus, progress: backendProgress, steps } = status;
 
             // Determine banner type based on backend data
             if (!onboardingComplete) {
-                // Still in onboarding
-                setBannerType("incomplete");
-                setProgress(backendProgress);
-                setShowBanner(true);
+                // Check if only Stripe is missing (all essential steps done)
+                const essentialStepsDone = steps?.profile && steps?.credentials &&
+                    steps?.availability && steps?.backgroundCheck;
+
+                if (essentialStepsDone) {
+                    // All essential steps done, only Stripe is missing — show review banner
+                    setBannerType("review");
+                    setShowBanner(true);
+                } else {
+                    // Still in onboarding
+                    setBannerType("incomplete");
+                    setProgress(backendProgress);
+                    setShowBanner(true);
+                }
             } else if (approvalStatus === "review" || approvalStatus === "pending") {
                 // Onboarding complete, under review
                 setBannerType("review");
@@ -88,7 +98,8 @@ export default function OnboardingBanner() {
         router.push("/therapist/onboarding/profile");
     }
 
-    const handleViewPending = () => router.push("/therapist/onboarding/pending")
+    // Navigate to dashboard (which shows the pending view)
+    const handleViewPending = () => router.push("/therapist/dashboard")
     const handleViewSuccess = () => router.push("/therapist/approved");
 
     // Don't show anything while loading or if not therapist

@@ -1,8 +1,10 @@
 "use client";
 
+import { usePageTitle } from "@/hooks/usePageTitle";
 import { useRouter } from "next/navigation";
 
 export default function ApprovedSuccessPage() {
+    usePageTitle("Account Approved");
     const router = useRouter();
 
     return (

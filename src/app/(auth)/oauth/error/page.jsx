@@ -5,8 +5,10 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { MdError } from "react-icons/md";
 import Button from "@/components/ui/Button";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 function OAuthErrorContent() {
+    usePageTitle("Authentication Error");
     const searchParams = useSearchParams();
     const errorMessage =
         searchParams.get("message") ||

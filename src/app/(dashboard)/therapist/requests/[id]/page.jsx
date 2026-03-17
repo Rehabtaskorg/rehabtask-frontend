@@ -3,8 +3,13 @@
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { api } from "@/lib/api";
+import Input from "@/components/ui/Input";
+import Button from "@/components/ui/Button";
+import { usePageTitle } from "@/hooks/usePageTitle";
+import PatientInfoBlock from "@/components/customer/PatientInfoBlock";
 
 export default function TherapistRequestDetailPage() {
+    usePageTitle("Request Details");
     const router = useRouter();
     const params = useParams();
     const [request, setRequest] = useState(null);
@@ -72,6 +77,12 @@ export default function TherapistRequestDetailPage() {
         return request?.offers && request.offers.length > 0;
     }
 
+    // Navigate to messaging in the context of this offer
+    // Only shown after therapist has sent an offer
+    const handleMessageCustomer = () => {
+        router.push(`/therapist/messages?c=offer:${request.offers[0]?.id}`);
+    }
+
     if (loading) {
         return (
             <div className="py-8 px-4">
@@ -128,6 +139,13 @@ export default function TherapistRequestDetailPage() {
                         <p className="text-sm text-gray-600">{request.customer.phone}</p>
                     </div>
 
+                    {request.patient && (
+                        <PatientInfoBlock
+                            patient={request.patient}
+                            note="This session is managed by an agency on the patient's behalf."
+                        />
+                    )}
+
                     <div>
                         <h3 className="font-semibold mb-1">Description</h3>
                         <p className="text-gray-700">{request.description}</p>
@@ -139,6 +157,27 @@ export default function TherapistRequestDetailPage() {
                             {new Date(request.preferredDate).toLocaleString()}
                         </p>
                     </div>
+
+                    {request.visitType && (
+                        <div>
+                            <h3 className="font-semibold mb-1">Visit Type</h3>
+                            <p className="text-gray-700">{request.visitType}</p>
+                        </div>
+                    )}
+
+                    {request.rate != null && (
+                        <div>
+                            <h3 className="font-semibold mb-1">Rate per Visit</h3>
+                            <p className="text-gray-700">${parseFloat(request.rate).toFixed(2)}</p>
+                        </div>
+                    )}
+
+                    {request.emr && (
+                        <div>
+                            <h3 className="font-semibold mb-1">EMR System</h3>
+                            <p className="text-gray-700">{request.emr}</p>
+                        </div>
+                    )}
 
                     <div>
                         <h3 className="font-semibold mb-1">Posted</h3>
@@ -158,11 +197,23 @@ export default function TherapistRequestDetailPage() {
                     </button>
                 )}
 
+                {/* Offer sent — show confirmation + Message Customer button (Option B) */}
                 {hasMyOffer() && (
-                    <div className="mt-6 bg-green-50 border border-green-200 rounded-lg p-4">
-                        <p className="text-green-800 font-semibold">
-                            ✓ You have already sent an offer for this request
-                        </p>
+                    <div className="mt-6 space-y-3">
+                        <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                            <p className="text-green-800 font-semibold">
+                                ✓ You have already sent an offer for this request
+                            </p>
+                        </div>
+                        <button
+                            onClick={handleMessageCustomer}
+                            className="w-full flex items-center justify-center gap-2 border border-primary text-primary py-3 rounded-lg font-semibold hover:bg-primary/5 transition-colors"
+                        >
+                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                            </svg>
+                            Message Customer
+                        </button>
                     </div>
                 )}
 
@@ -176,37 +227,30 @@ export default function TherapistRequestDetailPage() {
             </div>
 
             {showOfferForm && (
-                <div className="bg-white rounded-lg shadow p-6">
-                    <h2 className="text-xl font-semibold mb-4">Send Your Offer</h2>
+                <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl p-6">
+                    <h2 className="text-xl font-semibold mb-4 text-text-main dark:text-white">Send Your Offer</h2>
 
                     <form onSubmit={handleSubmitOffer} className="space-y-4">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Your Rate (USD) *
-                            </label>
-                            <input
-                                type="number"
-                                step="0.01"
-                                required
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                                placeholder="100.00"
-                                value={offerData.rate}
-                                onChange={(e) =>
-                                    setOfferData({ ...offerData, rate: e.target.value })
-                                }
-                            />
-                            <p className="text-xs text-gray-500 mt-1">
-                                Platform fee: 10% (You&lsquo;ll receive 90% of this amount)
-                            </p>
-                        </div>
+                        <Input
+                            type="number"
+                            step="0.01"
+                            required
+                            label="Your Rate (USD)"
+                            placeholder="100.00"
+                            helperText="Platform fee: 10% (You'll receive 90% of this amount)"
+                            value={offerData.rate}
+                            onChange={(e) =>
+                                setOfferData({ ...offerData, rate: e.target.value })
+                            }
+                        />
 
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Session Type *
+                        <div className="space-y-2">
+                            <label className="block text-sm font-bold text-text-main dark:text-white uppercase tracking-wide">
+                                Session Type <span className="text-red-500 ml-1">*</span>
                             </label>
                             <select
                                 required
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                                className="w-full px-4 py-3 rounded-xl bg-white dark:bg-background-dark border border-border-subtle dark:border-[#2a3038] focus:ring-2 focus:ring-primary/20 focus:border-primary text-text-main dark:text-white transition-all outline-none"
                                 value={offerData.sessionType}
                                 onChange={(e) =>
                                     setOfferData({ ...offerData, sessionType: e.target.value })
@@ -217,29 +261,24 @@ export default function TherapistRequestDetailPage() {
                             </select>
                         </div>
 
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Proposed Date & Time *
-                            </label>
-                            <input
-                                type="datetime-local"
-                                required
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                                value={offerData.proposedDate}
-                                onChange={(e) =>
-                                    setOfferData({ ...offerData, proposedDate: e.target.value })
-                                }
-                            />
-                        </div>
+                        <Input
+                            type="datetime-local"
+                            required
+                            label="Proposed Date & Time"
+                            value={offerData.proposedDate}
+                            onChange={(e) =>
+                                setOfferData({ ...offerData, proposedDate: e.target.value })
+                            }
+                        />
 
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Message to Customer *
+                        <div className="space-y-2">
+                            <label className="block text-sm font-bold text-text-main dark:text-white uppercase tracking-wide">
+                                Message to Customer <span className="text-red-500 ml-1">*</span>
                             </label>
                             <textarea
                                 required
                                 rows={4}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                                className="w-full px-4 py-3 rounded-xl bg-white dark:bg-background-dark border border-border-subtle dark:border-[#2a3038] focus:ring-2 focus:ring-primary/20 focus:border-primary text-text-main dark:text-white placeholder:text-text-muted/50 transition-all outline-none resize-none"
                                 placeholder="Introduce yourself and explain how you can help..."
                                 value={offerData.description}
                                 onChange={(e) =>
@@ -248,20 +287,21 @@ export default function TherapistRequestDetailPage() {
                             />
                         </div>
 
-                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                            <p className="text-sm text-blue-800">
-                                💡 Your offer will be valid for 48 hours. The customer will be notified
+                        <div className="bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900/50 rounded-xl p-4">
+                            <p className="text-sm text-blue-800 dark:text-blue-300">
+                                Your offer will be valid for 48 hours. The customer will be notified
                                 and can accept it at any time within this period.
                             </p>
                         </div>
 
-                        <button
+                        <Button
                             type="submit"
                             disabled={submitting}
-                            className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 disabled:bg-gray-400"
+                            loading={submitting}
+                            fullWidth
                         >
-                            {submitting ? 'Sending...' : 'Send Offer'}
-                        </button>
+                            Send Offer
+                        </Button>
                     </form>
                 </div>
             )}

@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements, PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import { api } from "@/lib/api";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY);
 
@@ -95,6 +96,7 @@ function CheckoutForm({ booking }) {
 
 
 export default function PaymentPage() {
+    usePageTitle("Make Payment");
     const params = useParams();
     const router = useRouter();
     const [booking, setBooking] = useState(null);

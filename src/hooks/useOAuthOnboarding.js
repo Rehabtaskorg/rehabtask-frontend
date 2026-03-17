@@ -26,10 +26,6 @@ export const useOAuthOnboarding = () => {
                     ? formData.agencyName
                     : undefined;
                 payload.location = formData.location || undefined;
-            } else if (formData.role === "therapist") {
-                payload.specialization = formData.specialization || undefined;
-                payload.licenseNumber = formData.licenseNumber;
-                payload.workArea = formData.workArea || undefined;
             }
 
             const response = await authAPi.completeOAuthOnboarding(payload);
@@ -44,7 +40,7 @@ export const useOAuthOnboarding = () => {
             }
 
             return { success: true, data: response.data };
-        } catch (error) {
+        } catch (err) {
             const apiError = err.response?.data;
 
             let errorMessage;

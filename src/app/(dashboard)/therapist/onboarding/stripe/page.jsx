@@ -5,8 +5,10 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { onboardingAPI } from "@/lib/onboarding.api";
 import useOnboardingStore from "@/store/onboardingStore";
 import OnboardingProgressBar from "@/components/therapist/OnboardingProgressBar";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 export default function StripeOnboardingPage() {
+    usePageTitle("Payment Setup");
     const router = useRouter();
     const searchParams = useSearchParams();
     const { markStepComplete, markStripeConnected } = useOnboardingStore();
@@ -32,8 +34,14 @@ export default function StripeOnboardingPage() {
                         markStepComplete(5);
                         markStripeConnected(accountId);
 
-                        await onboardingAPI.completeOnboarding();
-                        router.push("/therapist/onboarding/pending");
+                        // Try to finalize onboarding (may already be done from step 4)
+                        try {
+                            await onboardingAPI.completeOnboarding();
+                        } catch (completeErr) {
+                            console.warn("Complete onboarding after Stripe connect:", completeErr.message);
+                        }
+
+                        router.push("/therapist/dashboard");
                     } else {
                         setError("Stripe account setup is incomplete. Please complete all required steps.");
                     }
@@ -71,18 +79,13 @@ export default function StripeOnboardingPage() {
 
     const handleSkipForNow = async () => {
         setLoading(true);
+        // Try to finalize onboarding (may already be done from step 4)
         try {
-            markStepComplete(5);
-
             await onboardingAPI.completeOnboarding();
-
-            // Navigating to completion page (they can connect Stripe later)
-            router.push("/therapist/onboarding/pending");
         } catch (error) {
-            setError(err.message);
-        } finally {
-            setLoading(false);
+            console.warn("Complete onboarding failed:", error.message);
         }
+        router.push("/therapist/dashboard");
     };
 
     if (checkingStatus) {
@@ -211,13 +214,18 @@ export default function StripeOnboardingPage() {
                                 )}
                             </button>
 
-                            <button
-                                onClick={handleSkipForNow}
-                                disabled={loading}
-                                className="w-full text-text-muted dark:text-gray-400 hover:text-text-main dark:hover:text-white px-8 py-3 rounded-lg font-semibold transition-colors disabled:opacity-50"
-                            >
-                                I&apos;ll do this later
-                            </button>
+                            <div className="text-center">
+                                <button
+                                    onClick={handleSkipForNow}
+                                    disabled={loading}
+                                    className="w-full text-text-muted dark:text-gray-400 hover:text-text-main dark:hover:text-white px-8 py-3 rounded-lg font-semibold transition-colors disabled:opacity-50"
+                                >
+                                    I&apos;ll do this later
+                                </button>
+                                <p className="text-xs text-text-muted dark:text-gray-500 mt-1">
+                                    You can connect Stripe anytime from Account Settings. This won&apos;t delay your review.
+                                </p>
+                            </div>
                         </div>
 
                         {/* Security Note */}

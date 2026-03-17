@@ -1,3 +1,5 @@
+export const metadata = { title: "Password Reset Successful" };
+
 import PasswordResetSuccess from "@/components/shared/PasswordResetSuccess";
 
 export default function ResetPasswordSuccessPage() {

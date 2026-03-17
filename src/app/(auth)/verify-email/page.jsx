@@ -5,8 +5,10 @@ import { useSearchParams } from "next/navigation";
 import EmailVerificationCard from "@/components/shared/EmailVerificationCard";
 import Footer from "@/components/shared/Footer";
 import { authAPi } from "@/lib/auth.api";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 function VerifyEmailContent() {
+    usePageTitle("Verify Email");
     const searchParams = useSearchParams();
     const email = searchParams.get("email") || "your email";
 

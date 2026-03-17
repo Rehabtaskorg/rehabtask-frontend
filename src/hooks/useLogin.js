@@ -23,7 +23,7 @@ export const useLogin = () => {
                 router.push("/customer/dashboard");
             } else if (user.role === "therapist") {
                 router.push("/therapist/dashboard");
-            } else if (user.role === "admin") {
+            } else if (user.role === "admin" || user.role === "sub_admin") {
                 router.push("/admin/dashboard");
             }
 
@@ -33,7 +33,9 @@ export const useLogin = () => {
             const errorCode = err.response?.data?.code;
             const errorMessage = err.response?.data?.message;
 
-            if (errorCode === "EMAIL_NOT_VERIFIED") {
+            if (errorCode === "ACCOUNT_DEACTIVATED") {
+                setError("Your account has been deactivated. Please contact support.");
+            } else if (errorCode === "EMAIL_NOT_VERIFIED") {
                 setNeedsEmailVerification(true);
                 setUserEmail(formData.email);
                 setError(errorMessage || "Please verify your email before logging in.")

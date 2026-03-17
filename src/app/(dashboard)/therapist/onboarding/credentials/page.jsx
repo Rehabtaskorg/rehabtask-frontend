@@ -12,8 +12,10 @@ import { onboardingAPI } from "@/lib/onboarding.api";
 import OnboardingProgressBar from "@/components/therapist/OnboardingProgressBar";
 import { US_STATES } from "@/lib/constants/credentials";
 import { useAuth } from "@/hooks/useAuth";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 export default function CredentialsPage() {
+    usePageTitle("Add Credentials");
     const router = useRouter();
     const { user, loading: authLoading } = useAuth()
     const { credentials, updateCredentials, addLicenseDocument, removeLicenseDocument, markStepComplete, setCurrentStep } = useOnboardingStore();
@@ -67,7 +69,7 @@ export default function CredentialsPage() {
             router.push("/therapist/onboarding/availability");
         } catch (error) {
             console.error("Failed to save credentials:", error);
-            setUploadError(error.message || "Failed to save credentials. Please try again.");
+            setUploadError(error.response?.data?.message || "Failed to save credentials. Please try again.");
         } finally {
             setLoading(false);
         }
@@ -93,8 +95,8 @@ export default function CredentialsPage() {
 
             try {
                 for (const file of acceptedFiles) {
-                    if (file.size > 10 * 1024 * 1024) {
-                        setUploadError(`${file.name} is too large. Maximum size is 10MB.`);
+                    if (file.size > 25 * 1024 * 1024) {
+                        setUploadError(`${file.name} is too large. Maximum size is 25MB.`);
                         continue;
                     }
 
@@ -130,6 +132,16 @@ export default function CredentialsPage() {
 
     const { getRootProps, getInputProps, isDragActive } = useDropzone({
         onDrop,
+        onDropRejected: (rejections) => {
+            const rejection = rejections[0];
+            if (rejection?.errors[0]?.code === "file-invalid-type") {
+                setUploadError("Invalid file type. Only PDF, JPEG, and PNG files are allowed.");
+            } else if (rejection?.errors[0]?.code === "too-many-files") {
+                setUploadError("Too many files. Maximum 5 documents allowed.");
+            } else {
+                setUploadError("File rejected. Please check the file type and try again.");
+            }
+        },
         accept: {
             "application/pdf": [".pdf"],
             "image/*": [".jpeg", ".jpg", ".png"],
@@ -140,8 +152,16 @@ export default function CredentialsPage() {
     });
 
 
-    const handleRemoveDocument = (index) => {
+    const handleRemoveDocument = async (index) => {
         setUploadError("");
+        const doc = uploadedDocs[index];
+        if (doc?.id) {
+            try {
+                await onboardingAPI.deleteDocument(doc.id);
+            } catch (error) {
+                console.error("Failed to delete document:", error);
+            }
+        }
         removeLicenseDocument(index);
     };
 
@@ -216,8 +236,8 @@ export default function CredentialsPage() {
                             <div
                                 {...getRootProps()}
                                 className={`border-2 border-dashed border-border-light dark:border-border-dark rounded-xl p-10 flex flex-col items-center justify-center bg-muted-light dark:bg-muted-dark transition-colors ${uploadedDocs.length >= 5 || uploading
-                                        ? "opacity-50 cursor-not-allowed"
-                                        : "hover:bg-primary/5 hover:border-primary cursor-pointer group"
+                                    ? "opacity-50 cursor-not-allowed"
+                                    : "hover:bg-primary/5 hover:border-primary cursor-pointer group"
                                     }`}
                             >
                                 <input {...getInputProps()} />

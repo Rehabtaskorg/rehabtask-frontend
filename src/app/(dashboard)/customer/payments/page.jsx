@@ -2,8 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { api } from "@/lib/api";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 export default function CustomerPaymentsPage() {
+    usePageTitle("Payment History");
     const [payments, setPayments] = useState([]);
     const [loading, setLoading] = useState(true);
 
@@ -24,13 +26,13 @@ export default function CustomerPaymentsPage() {
 
     const getStatusColor = (status) => {
         const colors = {
-            intent_created: 'bg-yellow-100 text-yellow-800',
-            escrowed: 'bg-blue-100 text-blue-800',
-            released: 'bg-green-100 text-green-800',
-            refunded: 'bg-gray-100 text-gray-800',
-            failed: 'bg-red-100 text-red-800',
+            intent_created: 'bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300',
+            escrowed: 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300',
+            released: 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400',
+            refunded: 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400',
+            failed: 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400',
         };
-        return colors[status] || 'bg-gray-100 text-gray-800';
+        return colors[status] || 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400';
     };
 
     const getStatusText = (status) => {
@@ -46,11 +48,11 @@ export default function CustomerPaymentsPage() {
 
     if (loading) {
         return (
-            <div className="py-8 px-4">
-                <h1 className="text-2xl font-bold mb-6">Payment History</h1>
-                <div className="animate-pulse space-y-4">
-                    {[1, 2, 3].map((i) => (
-                        <div key={i} className="h-24 bg-gray-200 rounded"></div>
+            <div className="py-6 px-4 max-w-4xl mx-auto">
+                <h1 className="text-2xl font-bold text-text-main dark:text-white mb-6">Payment History</h1>
+                <div className="animate-pulse space-y-3">
+                    {[1, 2, 3].map(i => (
+                        <div key={i} className="h-24 bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl" />
                     ))}
                 </div>
             </div>
@@ -58,69 +60,65 @@ export default function CustomerPaymentsPage() {
     }
 
     return (
-        <div className="py-8 px-4">
-            <h1 className="text-2xl font-bold mb-6">Payment History</h1>
+        <div className="py-6 px-4 max-w-4xl mx-auto">
+            <h1 className="text-2xl font-bold text-text-main dark:text-white mb-6">Payment History</h1>
 
             {payments.length === 0 ? (
-                <div className="bg-gray-50 rounded-lg p-8 text-center">
-                    <p className="text-gray-600">No payment history yet</p>
+                <div className="bg-background-light dark:bg-background-dark rounded-xl p-8 text-center">
+                    <p className="text-text-muted dark:text-gray-400">No payment history yet</p>
                 </div>
             ) : (
                 <div className="space-y-4">
                     {payments.map((payment) => (
                         <div
                             key={payment.id}
-                            className="bg-white rounded-lg shadow p-6"
+                            className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl p-5"
                         >
-                            <div className="flex justify-between items-start mb-4">
+                            {/* Header row — therapist + status badge */}
+                            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-4">
                                 <div>
-                                    <h3 className="font-semibold text-lg">
+                                    <h3 className="font-semibold text-text-main dark:text-white">
                                         {payment.booking.therapist.fullName}
                                     </h3>
-                                    <p className="text-sm text-gray-600">
+                                    <p className="text-sm text-text-muted dark:text-gray-400">
                                         {payment.booking.offer.request.serviceType}
                                     </p>
-                                    <p className="text-xs text-gray-500 mt-1">
+                                    <p className="text-xs text-text-muted dark:text-gray-400 mt-1">
                                         Session: {new Date(payment.booking.scheduledDate).toLocaleDateString()}
                                     </p>
                                 </div>
-                                <span
-                                    className={`px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(
-                                        payment.status
-                                    )}`}
-                                >
+                                <span className={`self-start px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(payment.status)}`}>
                                     {getStatusText(payment.status)}
                                 </span>
                             </div>
 
-                            <div className="border-t pt-4 grid grid-cols-3 gap-4 text-sm">
+                            {/* Payment breakdown — 2 cols on mobile, 3 cols on sm+ */}
+                            <div className="border-t border-border-light dark:border-border-dark pt-4 grid grid-cols-2 sm:grid-cols-3 gap-3 text-sm">
                                 <div>
-                                    <p className="text-gray-600">Amount Paid</p>
-                                    <p className="font-semibold">${payment.amount}</p>
+                                    <p className="text-text-muted dark:text-gray-400">Amount Paid</p>
+                                    <p className="font-semibold text-text-main dark:text-white">${payment.amount}</p>
                                 </div>
                                 <div>
-                                    <p className="text-gray-600">Transaction Date</p>
-                                    <p>{new Date(payment.createdAt).toLocaleDateString()}</p>
+                                    <p className="text-text-muted dark:text-gray-400">Transaction Date</p>
+                                    <p className="text-text-main dark:text-slate-200">{new Date(payment.createdAt).toLocaleDateString()}</p>
                                 </div>
-                                <div>
-                                    <p className="text-gray-600">Payment ID</p>
-                                    <p className="text-xs text-gray-500 truncate">
-                                        {payment.id}
-                                    </p>
+                                <div className="col-span-2 sm:col-span-1">
+                                    <p className="text-text-muted dark:text-gray-400">Payment ID</p>
+                                    <p className="text-xs text-text-muted dark:text-gray-400 truncate">{payment.id}</p>
                                 </div>
                             </div>
 
                             {payment.status === 'escrowed' && (
-                                <div className="mt-4 bg-blue-50 border border-blue-200 rounded p-3">
-                                    <p className="text-sm text-blue-800">
+                                <div className="mt-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800/50 rounded-lg p-3">
+                                    <p className="text-sm text-blue-800 dark:text-blue-300">
                                         💡 Payment is being held securely. It will be released to the therapist after you confirm session completion.
                                     </p>
                                 </div>
                             )}
 
                             {payment.refundedAt && (
-                                <div className="mt-4 bg-gray-50 border border-gray-200 rounded p-3">
-                                    <p className="text-sm text-gray-600">
+                                <div className="mt-4 bg-background-light dark:bg-background-dark border border-border-light dark:border-border-dark rounded-lg p-3">
+                                    <p className="text-sm text-text-muted dark:text-gray-400">
                                         Refunded on {new Date(payment.refundedAt).toLocaleDateString()}
                                     </p>
                                 </div>

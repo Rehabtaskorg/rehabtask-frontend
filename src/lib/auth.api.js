@@ -19,6 +19,8 @@ const getRecaptchaToken = async (action) => {
     }
 
     try {
+        // Wait for RECAPTCHA to be fully initialized before executing
+        await new Promise((resolve) => window.grecaptcha.ready(resolve));
         const token = await window.grecaptcha.execute(siteKey, { action });
         return token;
     } catch (error) {
@@ -95,11 +97,14 @@ export const authAPi = {
     /**
      * Change password for authenticated user
      */
-    changePassword: async (currentPassword, newPassword) => {
-        return api.post("/auth/password/change", {
+    changePassword: async (currentPassword, newPassword, confirmNewPassword) => {
+        const payload = {
             currentPassword,
-            newPassword
-        });
+            newPassword,
+            confirmNewPassword
+        }
+
+        return api.post("/auth/password/change", payload);
     },
 
     /**
@@ -116,8 +121,8 @@ export const authAPi = {
     /**
     * Verify email in database
     */
-    verifyEmail: async (userId) => {
-        return api.post("/auth/verify-email", { userId });
+    verifyEmail: async (userId, fullName) => {
+        return api.post("/auth/verify-email", { userId, ...(fullName ? { fullName } : {}) });
     },
 
     /**

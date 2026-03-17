@@ -1,0 +1,35 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls:*)",
+      "Bash(wc -l /c/Users/steve/Documents/work_projects/rehabtask-platform/frontend/src/app/\\\\\\(dashboard\\\\\\)/therapist/requests/page.jsx)",
+      "Bash(wc -l /c/Users/steve/Documents/work_projects/rehabtask-platform/frontend/src/components/ui/*.jsx)",
+      "Bash(wc -l /c/Users/steve/Documents/work_projects/rehabtask-platform/frontend/src/app/\\\\\\(dashboard\\\\\\)/customer/requests/page.jsx)",
+      "Bash(cat /c/Users/steve/Documents/work_projects/rehabtask-platform/frontend/src/app/\\\\\\(dashboard\\\\\\)/therapist/messages/SessionOfferWidget.jsx)",
+      "Bash(head -200 /c/Users/steve/Documents/work_projects/rehabtask-platform/frontend/src/app/\\\\\\(dashboard\\\\\\)/customer/requests/[id]/page.jsx)",
+      "Bash(wc -l /c/Users/steve/Documents/work_projects/rehabtask-platform/frontend/src/app/\\\\\\(dashboard\\\\\\)/therapist/requests/[id]/page.jsx)",
+      "Bash(head -300 /c/Users/steve/Documents/work_projects/rehabtask-platform/frontend/src/app/\\\\\\(dashboard\\\\\\)/therapist/requests/page.jsx)",
+      "Bash(tail -400 /c/Users/steve/Documents/work_projects/rehabtask-platform/frontend/src/app/\\\\\\(dashboard\\\\\\)/therapist/requests/page.jsx)",
+      "Bash(wc -l \"c:/Users/steve/Documents/work_projects/rehabtask-platform/frontend/src/app/\\(dashboard\\)/therapist/requests/page.jsx\")",
+      "Bash(head -50 /c/Users/steve/Documents/work_projects/rehabtask-platform/frontend/src/app/\\\\\\(dashboard\\\\\\)/layout.jsx)",
+      "Read(//c/Users/steve/Documents/work_projects/AlignysWebNextJs/**)",
+      "Read(//c/Users/steve/Documents/work_projects/rehabtask-platform/backend/src/controllers/**)",
+      "Read(//c/Users/steve/Documents/work_projects/rehabtask-platform/backend/src/services/**)",
+      "Read(//c/Users/steve/Documents/work_projects/rehabtask-platform/backend/src/routes/**)",
+      "Read(//c/Users/steve/Documents/work_projects/rehabtask-platform/backend/prisma/**)",
+      "Bash(done)",
+      "Bash(xargs grep -l \"dispute\" -i)",
+      "Read(//c/Users/steve/Documents/work_projects/rehabtask-platform/backend/src/**)",
+      "Bash(grep -r commission c:UserssteveDocumentswork_projectsrehabtask-platformbackendsrcroutes --include=*.js)",
+      "Bash(grep -r \"SubscriptionPlan\\\\|BASIC\\\\|PREMIUM\\\\|ELITE\\\\|subscriptionPlan\" c:UserssteveDocumentswork_projectsrehabtask-platformbackend --include=*.js)"
+    ],
+    "additionalDirectories": [
+      "c:\\Users\\steve\\Documents\\work_projects\\rehabtask-platform\\backend\\src\\validators",
+      "c:\\Users\\steve\\Documents\\work_projects\\rehabtask-platform\\backend\\src\\controllers",
+      "c:\\Users\\steve\\Documents\\work_projects\\rehabtask-platform\\backend\\emails",
+      "c:\\Users\\steve\\Documents\\work_projects\\rehabtask-platform\\backend\\src\\services",
+      "c:\\Users\\steve\\Documents\\work_projects\\rehabtask-platform\\backend\\src\\config",
+      "c:\\Users\\steve\\Documents\\work_projects\\rehabtask-platform\\backend\\src\\routes"
+    ]
+  }
+}

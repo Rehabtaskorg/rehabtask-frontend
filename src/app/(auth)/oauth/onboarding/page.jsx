@@ -14,8 +14,10 @@ import Button from "@/components/ui/Button";
 import Alert from "@/components/ui/Alert";
 import { oauthOnboardingSchema } from "@/lib/validationSchema";
 import { useOAuthOnboarding } from "@/hooks/useOAuthOnboarding";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 function OAuthOnboardingContent() {
+    usePageTitle("Complete Your Profile");
     const router = useRouter();
     const searchParams = useSearchParams();
     const provider = searchParams.get("provider") || "Google";
@@ -32,10 +34,6 @@ function OAuthOnboardingContent() {
             phone: "",
             customerType: "",
             agencyName: "",
-            location: "",
-            specialization: "",
-            licenseNumber: "",
-            workArea: ""
         }
     });
 
@@ -208,33 +206,6 @@ function OAuthOnboardingContent() {
 
                                 {selectedRole === "therapist" && (
                                     <>
-                                        <div>
-                                            <label className="block text-sm font-semibold text-text-main dark:text-white mb-2">
-                                                Specialization
-                                            </label>
-                                            <textarea
-                                                placeholder="Describe your areas of expertise..."
-                                                {...register("specialization")}
-                                                rows={3}
-                                                className="w-full px-4 py-3 border border-border-subtle dark:border-[#2d3a4a] rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-white dark:bg-[#1a2632] text-text-main dark:text-white placeholder-text-muted"
-                                            />
-                                            {errors.specialization && <p className="mt-1 text-sm text-red-500">{errors.specialization.message}</p>}
-                                        </div>
-                                        <Input
-                                            label="License Number"
-                                            type="text"
-                                            placeholder="e.g. PT123456"
-                                            error={errors.licenseNumber?.message}
-                                            {...register("licenseNumber")}
-                                            required
-                                        />
-                                        <Input
-                                            label="Work Area"
-                                            type="text"
-                                            placeholder="e.g. Los Angeles, CA"
-                                            error={errors.workArea?.message}
-                                            {...register("workArea")}
-                                        />
                                         <Alert
                                             type="info"
                                             message="Your therapist account will be reviewed by our admin team before approval."
