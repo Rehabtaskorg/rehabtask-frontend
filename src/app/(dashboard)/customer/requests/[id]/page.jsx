@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { api } from "@/lib/api";
-import { MdArrowBack, MdChatBubble, MdCheckCircle } from "react-icons/md";
+import { MdArrowBack, MdChatBubble, MdCheckCircle, MdEdit } from "react-icons/md";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import PatientInfoBlock from "@/components/customer/PatientInfoBlock";
 
@@ -150,9 +150,20 @@ export default function CustomerRequestDetailPage() {
                         <h1 className="text-2xl font-bold text-text-main dark:text-white mb-1">{request.serviceType}</h1>
                         <p className="text-text-muted dark:text-gray-400">{request.location}</p>
                     </div>
-                    <span className={`self-start px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide ${STATUS_STYLES[request.status] || 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400'}`}>
-                        {STATUS_LABELS[request.status] || request.status}
-                    </span>
+                    <div className="flex items-center gap-2 shrink-0">
+                        {["created", "offers_received"].includes(request.status) && (
+                            <button
+                                onClick={() => router.push(`/customer/requests/new?edit=${request.id}`)}
+                                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-primary border border-primary/30 rounded-lg hover:bg-primary/5 dark:hover:bg-primary/10 transition-colors"
+                            >
+                                <MdEdit className="text-sm" />
+                                Edit
+                            </button>
+                        )}
+                        <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide ${STATUS_STYLES[request.status] || 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400'}`}>
+                            {STATUS_LABELS[request.status] || request.status}
+                        </span>
+                    </div>
                 </div>
 
                 {/* Patient Info Block — shown when request has patient (agency bookings) */}

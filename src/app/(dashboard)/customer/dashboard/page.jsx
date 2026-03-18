@@ -360,15 +360,19 @@ function SubscriptionWidget() {
 
     // Active paid plan — show current plan info
     return (
-        <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark p-6 rounded-xl">
-            <div className="flex items-center gap-2 mb-2">
-                <MdStars className="text-xl text-primary" />
-                <h5 className="font-bold text-lg text-text-main">{plan.charAt(0).toUpperCase() + plan.slice(1)} Plan</h5>
-                <span className="px-2 py-0.5 text-xs font-semibold rounded-full bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">Active</span>
+        <div className="bg-primary p-6 rounded-xl text-white relative overflow-hidden">
+            <div className="relative z-10 space-y-3">
+                <div className="flex items-center gap-2">
+                    <MdStars className="text-xl" />
+                    <h5 className="font-bold text-lg">{plan.charAt(0).toUpperCase() + plan.slice(1)} Plan</h5>
+                    <span className="px-2 py-0.5 text-xs font-semibold rounded-full bg-white/20">Active</span>
+                </div>
+                <p className="text-white/70 text-sm">Your subscription is active. Manage your plan and billing settings.</p>
+                <button onClick={() => router.push("/customer/subscription")} className="bg-white text-primary font-bold px-4 py-2 rounded-lg text-sm hover:bg-white/90 transition-colors">
+                    Manage Subscription
+                </button>
             </div>
-            <button onClick={() => router.push("/customer/subscription")} className="text-sm text-primary hover:underline">
-                Manage Subscription →
-            </button>
+            <div className="absolute -bottom-8 -right-8 size-32 bg-white/10 rounded-full pointer-events-none" />
         </div>
     );
 }
