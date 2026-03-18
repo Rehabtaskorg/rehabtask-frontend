@@ -65,6 +65,7 @@ export default function TherapistRequestsPage() {
     const [submitting, setSubmitting] = useState(false);
     const [offerSuccess, setOfferSuccess] = useState(false);
     const [offerError, setOfferError] = useState('');
+    const [commissionRate, setCommissionRate] = useState(null);
 
     // Mobile state
     const [mobileView, setMobileView] = useState('list');
@@ -83,7 +84,12 @@ export default function TherapistRequestsPage() {
         }
     }
 
-    useEffect(() => { fetchRequests(); }, []);
+    useEffect(() => {
+        fetchRequests();
+        api.get("/payments/commission-rate").then(res => {
+            setCommissionRate(res.data.data.rate);
+        }).catch(() => {});
+    }, []);
 
     // Filter + Sort
     const applyFilters = useCallback(() => {
@@ -563,7 +569,7 @@ export default function TherapistRequestsPage() {
                                     <div className="space-y-4">
                                         <div className="flex items-center justify-between">
                                             <h4 className="font-bold text-lg text-slate-900 dark:text-white">Send Offer</h4>
-                                            <span className="text-xs font-medium text-slate-500 italic">You earn 90% of rate</span>
+                                            <span className="text-xs font-medium text-slate-500 italic">You earn {commissionRate !== null ? `${Math.round((1 - commissionRate) * 100)}` : "90"}% of rate</span>
                                         </div>
                                         {offerSuccess && (
                                             <div className="flex items-center gap-2 p-3 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-lg">

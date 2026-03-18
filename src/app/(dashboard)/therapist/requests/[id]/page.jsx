@@ -15,6 +15,7 @@ export default function TherapistRequestDetailPage() {
     const [request, setRequest] = useState(null);
     const [loading, setLoading] = useState(true);
     const [showOfferForm, setShowOfferForm] = useState(false);
+    const [commissionRate, setCommissionRate] = useState(null);
     const [offerData, setOfferData] = useState({
         rate: "",
         sessionType: "in-person",
@@ -45,6 +46,9 @@ export default function TherapistRequestDetailPage() {
 
     useEffect(() => {
         fetchRequest();
+        api.get("/payments/commission-rate").then(res => {
+            setCommissionRate(res.data.data.rate);
+        }).catch(() => {});
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [params.id]);
 
@@ -237,7 +241,7 @@ export default function TherapistRequestDetailPage() {
                             required
                             label="Your Rate (USD)"
                             placeholder="100.00"
-                            helperText="Platform fee: 10% (You'll receive 90% of this amount)"
+                            helperText={commissionRate !== null ? `Platform fee: ${Math.round(commissionRate * 100)}% (You'll receive ${Math.round((1 - commissionRate) * 100)}% of this amount)` : "Loading commission rate..."}
                             value={offerData.rate}
                             onChange={(e) =>
                                 setOfferData({ ...offerData, rate: e.target.value })
