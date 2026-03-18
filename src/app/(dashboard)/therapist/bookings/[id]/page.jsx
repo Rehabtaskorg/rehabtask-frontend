@@ -103,7 +103,7 @@ export default function TherapistBookingDetailPage() {
     // ─── Loading ────
     if (loading) {
         return (
-            <div className="p-4 sm:p-8 max-w-6xl mx-auto">
+            <div className="p-4 md:p-6 max-w-6xl mx-auto">
                 <div className="animate-pulse space-y-4">
                     <div className="h-8 w-32 bg-slate-200 dark:bg-slate-700 rounded" />
                     <div className="h-6 w-64 bg-slate-200 dark:bg-slate-700 rounded" />
@@ -124,7 +124,7 @@ export default function TherapistBookingDetailPage() {
     // ─── Error / Not found ────
     if (error || !booking) {
         return (
-            <div className="p-4 sm:p-8 max-w-6xl mx-auto">
+            <div className="p-4 md:p-6 max-w-6xl mx-auto">
                 <button onClick={() => router.back()} className="flex items-center gap-1 text-sm text-text-muted dark:text-gray-400 hover:text-primary transition-colors mb-6">
                     <MdArrowBack className="text-base" /> Back
                 </button>
@@ -151,7 +151,7 @@ export default function TherapistBookingDetailPage() {
         : null;
 
     return (
-        <div className="p-4 sm:p-8 max-w-6xl mx-auto">
+        <div className="p-4 md:p-6 max-w-6xl mx-auto">
             {/* Action error banner */}
             {actionError === "STRIPE_NOT_CONNECTED" ? (
                 <div className="mb-4 flex items-start gap-3 px-4 py-3 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800">

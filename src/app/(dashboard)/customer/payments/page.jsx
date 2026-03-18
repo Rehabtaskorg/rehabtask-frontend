@@ -48,7 +48,7 @@ export default function CustomerPaymentsPage() {
 
     if (loading) {
         return (
-            <div className="py-6 px-4 max-w-4xl mx-auto">
+            <div className="p-4 md:p-6">
                 <h1 className="text-2xl font-bold text-text-main dark:text-white mb-6">Payment History</h1>
                 <div className="animate-pulse space-y-3">
                     {[1, 2, 3].map(i => (
@@ -60,7 +60,7 @@ export default function CustomerPaymentsPage() {
     }
 
     return (
-        <div className="py-6 px-4 max-w-4xl mx-auto">
+        <div className="p-4 md:p-6">
             <h1 className="text-2xl font-bold text-text-main dark:text-white mb-6">Payment History</h1>
 
             {payments.length === 0 ? (

@@ -105,7 +105,7 @@ export default function TherapistRequestDetailPage() {
     }
 
     return (
-        <div className="py-8 px-4 max-w-4xl mx-auto">
+        <div className="p-4 md:p-6 max-w-5xl mx-auto">
             <button
                 onClick={() => router.back()}
                 className="text-blue-600 hover:text-blue-700 mb-4"

@@ -389,7 +389,7 @@ export default function CustomerBookingDetailPage() {
     // Loading
     if (loading) {
         return (
-            <div className="p-4 sm:p-8 max-w-6xl mx-auto">
+            <div className="p-4 md:p-6 max-w-6xl mx-auto">
                 <div className="animate-pulse space-y-4">
                     <div className="h-8 w-32 bg-slate-200 dark:bg-slate-700 rounded" />
                     <div className="h-6 w-64 bg-slate-200 dark:bg-slate-700 rounded" />
@@ -410,7 +410,7 @@ export default function CustomerBookingDetailPage() {
     // Error / Not found
     if (error || !booking) {
         return (
-            <div className="p-4 sm:p-8 max-w-6xl mx-auto">
+            <div className="p-4 md:p-6 max-w-6xl mx-auto">
                 <button onClick={() => router.back()} className="flex items-center gap-1 text-sm text-text-muted dark:text-gray-400 hover:text-primary transition-colors mb-6">
                     <MdArrowBack className="text-base" /> Back
                 </button>
@@ -433,7 +433,7 @@ export default function CustomerBookingDetailPage() {
     const sessionType = offer?.sessionType;
 
     return (
-        <div className="p-4 sm:p-8 max-w-6xl mx-auto">
+        <div className="p-4 md:p-6 max-w-6xl mx-auto">
             {/* Payment success banner */}
             {showPaymentBanner && (
                 <div className="mb-4 flex items-center gap-3 px-4 py-3 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800">

@@ -116,7 +116,7 @@ export default function SubscriptionPage() {
     };
 
     return (
-        <div className="py-6 px-4 max-w-5xl mx-auto space-y-8">
+        <div className="p-4 md:p-6 space-y-8">
             <div>
                 <h1 className="text-2xl font-bold text-text-main dark:text-white">Subscription</h1>
                 <p className="text-text-muted dark:text-slate-400 mt-1">Manage your plan and billing</p>

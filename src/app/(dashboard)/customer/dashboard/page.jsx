@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { api } from "@/lib/api";
 import {
-    MdWarning, MdClose, MdAssignment,
+    MdWarning, MdClose, MdAssignment, MdArrowForward,
     MdEvent, MdSchedule, MdCheckCircle, MdInfo, MdStars, MdAccessTime
 } from "react-icons/md";
 import { usePageTitle } from "@/hooks/usePageTitle";
@@ -84,7 +84,8 @@ export default function CustomerDashboard() {
     }
 
     return (
-        <div className="p-4 sm:p-8 space-y-6">
+        <div className="p-4 md:p-6">
+            <div className="max-w-7xl mx-auto space-y-6">
 
             {/* Alert Banner */}
             {!alertDismissed && pendingConfirmations.length > 0 && (
@@ -103,42 +104,46 @@ export default function CustomerDashboard() {
             )}
 
             {/* Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <button onClick={() => router.push('/customer/requests')} className="bg-white dark:bg-card-dark p-5 rounded-xl border border-slate-200 dark:border-border-dark shadow-sm hover:shadow-md transition-all text-left flex items-start gap-4">
-                    <div className="p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg text-amber-600 shrink-0">
-                        <MdAssignment className="text-2xl" />
+            <div className="grid grid-cols-2 xl:grid-cols-4 gap-3 md:gap-4">
+                <button onClick={() => router.push('/customer/requests')} className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl p-5 hover:shadow-md hover:border-primary/30 transition-all text-left">
+                    <div className="flex items-start justify-between mb-3">
+                        <div className="p-2.5 rounded-xl bg-amber-500">
+                            <MdAssignment className="text-xl text-white" />
+                        </div>
+                        <MdArrowForward className="text-slate-300 dark:text-slate-600 text-lg mt-0.5" />
                     </div>
-                    <div>
-                        <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Open Requests</p>
-                        <p className="text-3xl font-black text-slate-900 dark:text-white">{stats.activeRequests}</p>
-                    </div>
+                    <p className="text-2xl font-bold text-text-main dark:text-white">{stats.activeRequests}</p>
+                    <p className="text-sm text-text-muted dark:text-slate-400 mt-0.5">Open Requests</p>
                 </button>
-                <button onClick={() => router.push('/customer/bookings')} className="bg-white dark:bg-card-dark p-5 rounded-xl border border-slate-200 dark:border-border-dark shadow-sm hover:shadow-md transition-all text-left flex items-start gap-4">
-                    <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg text-blue-600 shrink-0">
-                        <MdEvent className="text-2xl" />
+                <button onClick={() => router.push('/customer/bookings')} className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl p-5 hover:shadow-md hover:border-primary/30 transition-all text-left">
+                    <div className="flex items-start justify-between mb-3">
+                        <div className="p-2.5 rounded-xl bg-blue-500">
+                            <MdEvent className="text-xl text-white" />
+                        </div>
+                        <MdArrowForward className="text-slate-300 dark:text-slate-600 text-lg mt-0.5" />
                     </div>
-                    <div>
-                        <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Upcoming Sessions</p>
-                        <p className="text-3xl font-black text-slate-900 dark:text-white">{stats.upcomingBookings}</p>
-                    </div>
+                    <p className="text-2xl font-bold text-text-main dark:text-white">{stats.upcomingBookings}</p>
+                    <p className="text-sm text-text-muted dark:text-slate-400 mt-0.5">Upcoming Sessions</p>
                 </button>
-                <button onClick={() => router.push('/customer/bookings')} className="bg-white dark:bg-card-dark p-5 rounded-xl border border-slate-200 dark:border-border-dark shadow-sm hover:shadow-md transition-all text-left flex items-start gap-4">
-                    <div className="p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg text-amber-600 shrink-0">
-                        <MdSchedule className="text-2xl" />
+                <button onClick={() => router.push('/customer/bookings')} className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl p-5 hover:shadow-md hover:border-primary/30 transition-all text-left">
+                    <div className="flex items-start justify-between mb-3">
+                        <div className="p-2.5 rounded-xl bg-orange-500">
+                            <MdSchedule className="text-xl text-white" />
+                        </div>
+                        <MdArrowForward className="text-slate-300 dark:text-slate-600 text-lg mt-0.5" />
                     </div>
-                    <div>
-                        <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Pending Confirmations</p>
-                        <p className="text-3xl font-black text-slate-900 dark:text-white">{pendingConfirmations.length}</p>
-                    </div>
+                    <p className="text-2xl font-bold text-text-main dark:text-white">{pendingConfirmations.length}</p>
+                    <p className="text-sm text-text-muted dark:text-slate-400 mt-0.5">Pending Confirmations</p>
                 </button>
-                <button onClick={() => router.push('/customer/bookings')} className="bg-white dark:bg-card-dark p-5 rounded-xl border border-slate-200 dark:border-border-dark shadow-sm hover:shadow-md transition-all text-left flex items-start gap-4">
-                    <div className="p-3 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg text-emerald-600 shrink-0">
-                        <MdCheckCircle className="text-2xl" />
+                <button onClick={() => router.push('/customer/bookings')} className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl p-5 hover:shadow-md hover:border-primary/30 transition-all text-left">
+                    <div className="flex items-start justify-between mb-3">
+                        <div className="p-2.5 rounded-xl bg-emerald-500">
+                            <MdCheckCircle className="text-xl text-white" />
+                        </div>
+                        <MdArrowForward className="text-slate-300 dark:text-slate-600 text-lg mt-0.5" />
                     </div>
-                    <div>
-                        <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Total Completed</p>
-                        <p className="text-3xl font-black text-slate-900 dark:text-white">{stats.completedSessions}</p>
-                    </div>
+                    <p className="text-2xl font-bold text-text-main dark:text-white">{stats.completedSessions}</p>
+                    <p className="text-sm text-text-muted dark:text-slate-400 mt-0.5">Total Completed</p>
                 </button>
             </div>
 
@@ -286,6 +291,7 @@ export default function CustomerDashboard() {
                     {/* Subscription Status */}
                     <SubscriptionWidget />
                 </div>
+            </div>
             </div>
         </div>
     )

@@ -42,7 +42,7 @@ export default function TherapistEarningsPage() {
 
     if (loading) {
         return (
-            <div className="py-6 px-4 max-w-5xl mx-auto">
+            <div className="p-4 md:p-6">
                 <h1 className="text-2xl font-bold text-text-main dark:text-white mb-6">Earnings & Payouts</h1>
                 <div className="animate-pulse space-y-4">
                     <div className="h-32 bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl animate-pulse"></div>
@@ -54,7 +54,7 @@ export default function TherapistEarningsPage() {
 
     if (!data) {
         return (
-            <div className="py-6 px-4 max-w-5xl mx-auto">
+            <div className="p-4 md:p-6">
                 <h1 className="text-2xl font-bold text-text-main dark:text-white mb-6">Earnings & Payouts</h1>
                 <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-6">
                     <p className="text-red-800 dark:text-red-300">Failed to load earnings data</p>
@@ -64,7 +64,7 @@ export default function TherapistEarningsPage() {
     }
 
     return (
-        <div className="py-6 px-4 max-w-5xl mx-auto">
+        <div className="p-4 md:p-6">
             <h1 className="text-2xl font-bold text-text-main dark:text-white mb-6">Earnings & Payouts</h1>
 
             {/* Summary Cards */}

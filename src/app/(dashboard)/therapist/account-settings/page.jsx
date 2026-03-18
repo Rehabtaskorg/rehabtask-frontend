@@ -11,7 +11,7 @@ export default function TherapistAccountSettingsPage() {
     usePageTitle("Account Settings");
     return (
         <Suspense fallback={
-            <div className="py-8 px-4 max-w-4xl mx-auto">
+            <div className="p-4 md:p-6">
                 <h1 className="text-2xl font-bold text-text-main dark:text-white mb-6">Account Settings</h1>
                 <div className="animate-pulse space-y-4">
                     <div className="h-32 bg-gray-200 dark:bg-gray-700 rounded-xl" />
@@ -76,7 +76,7 @@ function AccountSettingsContent() {
 
     if (loading) {
         return (
-            <div className="py-8 px-4 max-w-4xl mx-auto">
+            <div className="p-4 md:p-6">
                 <h1 className="text-2xl font-bold text-text-main dark:text-white mb-6">Account Settings</h1>
                 <div className="animate-pulse space-y-4">
                     <div className="h-32 bg-gray-200 dark:bg-gray-700 rounded-xl" />
@@ -86,7 +86,7 @@ function AccountSettingsContent() {
     }
 
     return (
-        <div className="py-8 px-4 max-w-4xl mx-auto space-y-6">
+        <div className="p-4 md:p-6 space-y-6">
             <div className="flex items-center gap-3 mb-2">
                 <div className="p-2 bg-primary/10 rounded-lg">
                     <MdSettings className="text-primary text-xl" />
