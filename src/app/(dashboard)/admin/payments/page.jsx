@@ -45,6 +45,7 @@ const fmtPct = (v) =>
 const PAYMENT_STATUS_STYLES = {
     intent_created: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300",
     escrowed: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300",
+    partially_released: "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300",
     released: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300",
     refunded: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300",
     failed: "bg-slate-100 text-slate-800 dark:bg-slate-900/30 dark:text-slate-300",
@@ -123,7 +124,11 @@ function PaymentSidePanel({ payment, onClose }) {
     if (!payment) return null;
 
     const isReleasable = payment.status === "escrowed";
+    const isPartiallyReleased = payment.status === "partially_released";
     const isRefundable = ["escrowed", "intent_created"].includes(payment.status);
+
+    const alreadyReleased = parseFloat(payment.releasedAmount ?? 0);
+    const remainderAmount = isPartiallyReleased ? parseFloat((maxPayout - alreadyReleased).toFixed(2)) : 0;
 
     const parsedReleaseAmount = parseFloat(releaseAmount);
     const releaseAmountValid =
@@ -138,6 +143,12 @@ function PaymentSidePanel({ payment, onClose }) {
         if (!releaseAmountValid) return;
         try {
             await releaseMutation.mutateAsync({ id: payment.id, amount: releaseAmountToSend });
+        } catch { }
+    };
+
+    const handleReleaseRemainder = async () => {
+        try {
+            await releaseMutation.mutateAsync({ id: payment.id, remainder: true });
         } catch { }
     };
 
@@ -371,6 +382,26 @@ function PaymentSidePanel({ payment, onClose }) {
                                     ? `Partial Release (${fmt$(releaseAmountToSend)})`
                                     : "Release Full Payment"}
                         </button>
+                    )}
+                    {isPartiallyReleased && (
+                        <div className="space-y-2">
+                            <div className="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg p-3">
+                                <p className="text-xs font-medium text-orange-800 dark:text-orange-300">
+                                    Partially released: {fmt$(alreadyReleased)} of {fmt$(maxPayout)}
+                                </p>
+                                <p className="text-xs text-orange-600 dark:text-orange-400 mt-0.5">
+                                    Remaining: {fmt$(remainderAmount)}
+                                </p>
+                            </div>
+                            <button
+                                onClick={handleReleaseRemainder}
+                                disabled={releaseMutation.isPending}
+                                className="w-full py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white text-sm font-medium disabled:opacity-50 flex items-center justify-center gap-2"
+                            >
+                                <MdCheckCircle size={16} />
+                                {releaseMutation.isPending ? "Releasing…" : `Release Remainder (${fmt$(remainderAmount)})`}
+                            </button>
+                        </div>
                     )}
                     {isRefundable && !showRefundForm && (
                         <button

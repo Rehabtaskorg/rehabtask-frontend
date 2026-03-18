@@ -58,6 +58,7 @@ export const adminPaymentsApi = {
     list: (params) => api.get('/admin/payments', { params }),
     get: (id) => api.get(`/admin/payments/${id}`),
     release: (id, data) => api.put(`/admin/payments/${id}/release`, data),
+    releaseRemainder: (id) => api.put(`/admin/payments/${id}/release-remainder`),
     refund: (id, data) => api.put(`/admin/payments/${id}/refund`, data),
 };
 

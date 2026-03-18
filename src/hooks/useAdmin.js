@@ -246,9 +246,11 @@ export const useAdminPayment = (id) =>
 export const useReleaseAdminPayment = () => {
     const qc = useQueryClient();
     return useMutation({
-        // Accepts { id } for full release, or { id, amount } for partial release
-        mutationFn: ({ id, amount }) =>
-            adminPaymentsApi.release(id, amount != null ? { amount } : {}),
+        // Accepts { id } for full release, { id, amount } for partial, or { id, remainder: true } for remainder
+        mutationFn: ({ id, amount, remainder }) => {
+            if (remainder) return adminPaymentsApi.releaseRemainder(id);
+            return adminPaymentsApi.release(id, amount != null ? { amount } : {});
+        },
         onSuccess: () => qc.invalidateQueries({ queryKey: ['admin', 'payments'] }),
     });
 };
