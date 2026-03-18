@@ -139,7 +139,7 @@ export default function TherapistEarningsPage() {
                                         <p className="font-semibold text-text-main dark:text-white">${payment.amount}</p>
                                     </div>
                                     <div>
-                                        <p className="text-text-muted dark:text-gray-400">Platform Fee (10%)</p>
+                                        <p className="text-text-muted dark:text-gray-400">Platform Fee ({parseFloat(payment.amount) > 0 ? Math.round((parseFloat(payment.platformFee) / parseFloat(payment.amount)) * 100) : 0}%)</p>
                                         <p className="text-red-600 dark:text-red-400">-${payment.platformFee}</p>
                                     </div>
                                     <div>
