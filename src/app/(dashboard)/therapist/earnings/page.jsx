@@ -27,6 +27,7 @@ export default function TherapistEarningsPage() {
     const getStatusColor = (status) => {
         const colors = {
             escrowed: "bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300",
+            partially_released: "bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400",
             released: "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400",
         };
         return colors[status] || "bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400";
@@ -35,6 +36,7 @@ export default function TherapistEarningsPage() {
     const getStatusText = (status) => {
         const texts = {
             escrowed: 'Pending Customer Confirmation',
+            partially_released: 'Partially Paid',
             released: 'Paid Out',
         };
         return texts[status] || status;
@@ -143,14 +145,21 @@ export default function TherapistEarningsPage() {
                                         <p className="text-red-600 dark:text-red-400">-${payment.platformFee}</p>
                                     </div>
                                     <div>
-                                        <p className="text-text-muted dark:text-gray-400">Your Earnings</p>
-                                        <p className="font-semibold text-emerald-600 dark:text-emerald-400">
-                                            ${payment.therapistPayout}
+                                        <p className="text-text-muted dark:text-gray-400">
+                                            {payment.status === 'partially_released' ? 'Released So Far' : 'Your Earnings'}
                                         </p>
+                                        <p className="font-semibold text-emerald-600 dark:text-emerald-400">
+                                            ${payment.releasedAmount ?? payment.therapistPayout}
+                                        </p>
+                                        {payment.status === 'partially_released' && (
+                                            <p className="text-xs text-amber-600 dark:text-amber-400 mt-0.5">
+                                                of ${payment.therapistPayout} total
+                                            </p>
+                                        )}
                                     </div>
                                     <div>
                                         <p className="text-text-muted dark:text-gray-400">
-                                            {payment.status === 'released' ? 'Paid On' : 'Created'}
+                                            {payment.status === 'released' ? 'Paid On' : payment.status === 'partially_released' ? 'Partial Release' : 'Created'}
                                         </p>
                                         <p className="text-xs text-text-main dark:text-white">
                                             {new Date(
