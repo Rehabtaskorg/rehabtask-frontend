@@ -10,6 +10,7 @@ import {
     MdSchedule,
     MdInfo,
     MdVisibility,
+    MdEdit,
 
 } from "react-icons/md";
 import { api } from "@/lib/api";
@@ -477,14 +478,25 @@ function DetailPanel({
                     <h2 className="text-xl font-bold text-text-main dark:text-white">
                         {request.serviceType}
                     </h2>
-                    <span
-                        className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full shrink-0 ${badge.bg}`}
-                    >
-                        {badge.label}
-                        {request.status === "offers_received" && offers.length > 0
-                            ? ` (${offers.length})`
-                            : ""}
-                    </span>
+                    <div className="flex items-center gap-2 shrink-0">
+                        {["created", "offers_received"].includes(request.status) && (
+                            <button
+                                onClick={() => window.location.href = `/customer/requests/new?edit=${request.id}`}
+                                className="flex items-center gap-1 px-2.5 py-1 text-[10px] font-bold text-primary border border-primary/30 rounded-full hover:bg-primary/5 dark:hover:bg-primary/10 transition-colors"
+                            >
+                                <MdEdit className="text-xs" />
+                                Edit
+                            </button>
+                        )}
+                        <span
+                            className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${badge.bg}`}
+                        >
+                            {badge.label}
+                            {request.status === "offers_received" && offers.length > 0
+                                ? ` (${offers.length})`
+                                : ""}
+                        </span>
+                    </div>
                 </div>
 
                 {/* Metadata chips */}

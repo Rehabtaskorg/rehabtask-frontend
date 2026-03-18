@@ -9,9 +9,13 @@ export default function RequestFormFooter({
     onNext,
     onSubmit,
     canNext,
-    submitting
+    submitting,
+    isEditMode = false,
 }) {
     const router = useRouter();
+
+    const submitLabel = isEditMode ? "Update Request" : "Post Request";
+    const submittingLabel = isEditMode ? "Updating..." : "Posting...";
 
     return (
         <div className="fixed bottom-0 left-0 lg:left-64 right-0 z-20 bg-card-light dark:bg-card-dark border-t border-border-light dark:border-border-dark">
@@ -75,10 +79,10 @@ export default function RequestFormFooter({
                                             d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
                                         />
                                     </svg>
-                                    Posting...
+                                    {submittingLabel}
                                 </>
                             ) : (
-                                "Post Request"
+                                submitLabel
                             )}
                         </button>
                     )}

@@ -8,6 +8,7 @@ const useRequestStore = create(
         (set, get) => ({
             currentStep: 1,
             patientId: null,
+            editingRequestId: null,
             step1: {
                 serviceType: "",
                 description: "",
@@ -36,9 +37,39 @@ const useRequestStore = create(
                 set({
                     currentStep: 1,
                     patientId: null,
+                    editingRequestId: null,
                     step1: { serviceType: "", description: "", preferredDate: "", preferredTime: "", rate: "", visitType: "", emr: "", emrOther: "", visitTypeOther: "" },
                     step2: { address: "", latitude: null, longitude: null },
                 }),
+
+            // Edit mode: pre-fill store from an existing request
+            setEditData: (request) => {
+                const date = request.preferredDate ? new Date(request.preferredDate) : null;
+                const preferredDate = date ? date.toISOString().split("T")[0] : "";
+                const preferredTime = date ? date.toTimeString().slice(0, 5) : "";
+
+                set({
+                    editingRequestId: request.id,
+                    currentStep: 1,
+                    patientId: request.patientId || null,
+                    step1: {
+                        serviceType: request.serviceType || "",
+                        description: request.description || "",
+                        preferredDate,
+                        preferredTime,
+                        rate: request.rate ? String(parseFloat(request.rate)) : "",
+                        visitType: request.visitType || "",
+                        emr: request.emr || "",
+                        emrOther: "",
+                        visitTypeOther: "",
+                    },
+                    step2: {
+                        address: request.location || "",
+                        latitude: request.latitude ? parseFloat(request.latitude) : null,
+                        longitude: request.longitude ? parseFloat(request.longitude) : null,
+                    },
+                });
+            },
 
             // Computed: build ISO preferredData from date + time
             getPreferredDateISO: () => {
@@ -55,6 +86,7 @@ const useRequestStore = create(
             partialize: (state) => ({
                 currentStep: state.currentStep,
                 patientId: state.patientId,
+                editingRequestId: state.editingRequestId,
                 step1: state.step1,
                 step2: state.step2,
             }),

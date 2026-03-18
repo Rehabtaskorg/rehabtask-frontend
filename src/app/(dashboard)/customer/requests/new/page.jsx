@@ -1,33 +1,43 @@
 "use client";
 
 import { APIProvider } from "@vis.gl/react-google-maps";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { api } from "@/lib/api";
 import { authAPi } from "@/lib/auth.api";
 import useRequestStore from "@/store/requestStore";
 import { usePatients } from "@/hooks/usePatients";
-import PatientBadge from "@/components/customer/PatientBadge";
 import RequestStepper from "./_components/RequestStepper";
 import RequestFormFooter from "./_components/RequestFormFooter";
 import Step1ServiceDetails from "./_components/Step1ServiceDetails";
 import Step2Location from "./_components/Step2Location";
 import Step3Review from "./_components/Step3Review";
-import { MdArrowBack, MdPerson, MdAdd, MdLock } from "react-icons/md";
+import { MdArrowBack, MdPerson, MdAdd, MdLock, MdWarning } from "react-icons/md";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { useSubscription } from "@/hooks/useSubscription";
 
 export default function NewRequestPage() {
-    usePageTitle("Create New Request");
     const router = useRouter();
-    const { currentStep, nextStep, prevStep, reset, getPreferredDateISO, step1, step2, patientId, setPatientId } = useRequestStore();
+    const searchParams = useSearchParams();
+    const editId = searchParams.get("edit");
+
+    const {
+        currentStep, nextStep, prevStep, reset, getPreferredDateISO,
+        step1, step2, patientId, setPatientId, editingRequestId, setEditData
+    } = useRequestStore();
+
+    const isEditMode = !!editId;
+    usePageTitle(isEditMode ? "Edit Request" : "Create New Request");
+
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState("");
+    const [loadingRequest, setLoadingRequest] = useState(!!editId);
+    const [hasOffers, setHasOffers] = useState(false);
     const { subscription, usage } = useSubscription();
 
     const requestLimit = subscription?.requestLimit;
-    const isAtRequestLimit = requestLimit !== null && requestLimit < 999999 && usage.activeRequests >= requestLimit;
+    const isAtRequestLimit = !isEditMode && requestLimit !== null && requestLimit < 999999 && usage.activeRequests >= requestLimit;
     const [user, setUser] = useState(null);
 
     // Fetch user to check customerType
@@ -42,6 +52,46 @@ export default function NewRequestPage() {
         };
         fetchUser();
     }, []);
+
+    // Edit mode: fetch existing request and pre-fill store
+    useEffect(() => {
+        if (!editId) {
+            // If navigating to create mode but store has stale edit data, reset it
+            if (editingRequestId) {
+                reset();
+            }
+            setLoadingRequest(false);
+            return;
+        }
+
+        // Skip if store already has the correct edit data
+        if (editingRequestId === editId) {
+            setLoadingRequest(false);
+            return;
+        }
+
+        const fetchRequest = async () => {
+            try {
+                const res = await api.get(`/requests/${editId}`);
+                const request = res.data.data;
+
+                // Verify the request is editable
+                if (!["created", "offers_received"].includes(request.status)) {
+                    router.replace("/customer/requests");
+                    return;
+                }
+
+                setEditData(request);
+                setHasOffers((request.offers?.length || 0) > 0);
+            } catch (err) {
+                setError("Failed to load request. It may have been deleted.");
+            } finally {
+                setLoadingRequest(false);
+            }
+        };
+        fetchRequest();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [editId]);
 
     const isAgency = user?.profile?.customerType === "agency";
     const { data: patients } = usePatients();
@@ -60,22 +110,30 @@ export default function NewRequestPage() {
         setError("");
         setSubmitting(true);
         try {
-            await api.post("/requests", {
+            const payload = {
                 serviceType: step1.serviceType,
                 description: step1.description,
                 preferredDate: getPreferredDateISO(),
                 location: step2.address,
                 latitude: step2.latitude,
                 longitude: step2.longitude,
-                patientId: isAgency ? patientId : undefined,
                 rate: parseFloat(step1.rate),
                 visitType: step1.visitType === "Other" ? step1.visitTypeOther : step1.visitType,
                 emr: step1.emr === "Other" ? step1.emrOther : step1.emr,
-            });
+            };
+
+            if (isEditMode) {
+                await api.put(`/requests/${editId}`, payload);
+            } else {
+                payload.patientId = isAgency ? patientId : undefined;
+                await api.post("/requests", payload);
+            }
+
             reset();
             router.push("/customer/requests");
         } catch (error) {
-            setError(error.response?.data?.message || "Failed to create request. Please try again.");
+            const msg = isEditMode ? "Failed to update request." : "Failed to create request.";
+            setError(error.response?.data?.message || `${msg} Please try again.`);
             setSubmitting(false);
         }
     };
@@ -90,8 +148,8 @@ export default function NewRequestPage() {
     const isStep2Valid =
         step2.address && step2.latitude !== null && step2.longitude !== null;
 
-    // Agency users must select a patient before proceeding
-    const isPatientValid = !isAgency || patientId;
+    // Agency users must select a patient before proceeding (create mode only)
+    const isPatientValid = isEditMode || !isAgency || patientId;
 
     if (isAtRequestLimit) {
         return (
@@ -116,6 +174,25 @@ export default function NewRequestPage() {
         );
     }
 
+    if (loadingRequest) {
+        return (
+            <div className="flex flex-col min-h-full bg-background-light dark:bg-background-dark">
+                <header className="bg-card-light dark:bg-card-dark border-b border-border-light dark:border-border-dark sticky top-0 z-10 px-4 sm:px-8 py-4">
+                    <div className="max-w-170 mx-auto">
+                        <div className="h-4 w-24 bg-slate-200 dark:bg-slate-700 rounded animate-pulse mb-2" />
+                        <div className="h-7 w-48 bg-slate-200 dark:bg-slate-700 rounded animate-pulse" />
+                    </div>
+                </header>
+                <div className="flex-1 px-4 sm:px-8 py-6">
+                    <div className="max-w-170 mx-auto space-y-6">
+                        <div className="h-12 bg-slate-200 dark:bg-slate-700 rounded-xl animate-pulse" />
+                        <div className="h-64 bg-slate-200 dark:bg-slate-700 rounded-xl animate-pulse" />
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}>
             <div className="flex flex-col min-h-full bg-background-light dark:bg-background-dark">
@@ -130,7 +207,7 @@ export default function NewRequestPage() {
                             My Requests
                         </button>
                         <h2 className="text-xl sm:text-2xl font-bold text-text-main dark:text-white">
-                            Create New Request
+                            {isEditMode ? "Edit Request" : "Create New Request"}
                         </h2>
                     </div>
                 </header>
@@ -140,8 +217,23 @@ export default function NewRequestPage() {
                     <div className="max-w-170 mx-auto space-y-8">
                         <RequestStepper currentStep={currentStep} />
 
-                        {/* Patient Selector — agency only, shown before Step 1 */}
-                        {isAgency && currentStep === 1 && (
+                        {/* Warning banner: editing will withdraw offers */}
+                        {isEditMode && hasOffers && currentStep === 1 && (
+                            <div className="flex items-start gap-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-4">
+                                <MdWarning className="text-amber-500 text-xl shrink-0 mt-0.5" />
+                                <div>
+                                    <p className="text-sm font-semibold text-amber-800 dark:text-amber-200">
+                                        This request has pending offers
+                                    </p>
+                                    <p className="text-xs text-amber-700 dark:text-amber-300 mt-0.5">
+                                        Updating this request will automatically withdraw all pending offers. Affected therapists will be notified and can submit new offers on the updated request.
+                                    </p>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Patient Selector — agency only, create mode only, shown before Step 1 */}
+                        {isAgency && !isEditMode && currentStep === 1 && (
                             <div className="bg-primary/5 dark:bg-primary/10 border border-primary/20 rounded-xl p-5">
                                 <div className="flex items-center gap-2 mb-3">
                                     <MdPerson className="text-primary text-lg" />
@@ -208,6 +300,27 @@ export default function NewRequestPage() {
                             </div>
                         )}
 
+                        {/* Edit mode: show patient info (read-only) */}
+                        {isEditMode && isAgency && selectedPatient && currentStep === 1 && (
+                            <div className="bg-primary/5 dark:bg-primary/10 border border-primary/20 rounded-xl p-5">
+                                <div className="flex items-center gap-2 mb-3">
+                                    <MdPerson className="text-primary text-lg" />
+                                    <p className="text-xs font-bold text-text-muted dark:text-gray-400 uppercase tracking-wider">
+                                        Patient (cannot be changed)
+                                    </p>
+                                </div>
+                                <div className="flex items-center gap-3">
+                                    <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary font-bold text-lg shrink-0">
+                                        {selectedPatient.fullName?.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)}
+                                    </div>
+                                    <div>
+                                        <p className="text-sm font-bold text-text-main dark:text-white">{selectedPatient.fullName}</p>
+                                        <p className="text-xs text-text-muted dark:text-gray-400">{selectedPatient.email}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
                         {currentStep === 1 && <Step1ServiceDetails />}
                         {currentStep === 2 && <Step2Location />}
                         {currentStep === 3 && (
@@ -250,6 +363,7 @@ export default function NewRequestPage() {
                                 : true
                     }
                     submitting={submitting}
+                    isEditMode={isEditMode}
                 />
             </div>
         </APIProvider>
