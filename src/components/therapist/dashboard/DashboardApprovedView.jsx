@@ -7,14 +7,14 @@ import { api } from "@/lib/api";
 import {
     MdNotifications, MdWarning,
     MdArrowForward, MdNearMe,
-    MdPendingActions, MdError,
+    MdPendingActions,
     MdCheckCircle, MdLocationOn,
     MdCalendarToday
-
 } from "react-icons/md";
 
 export default function DashboardApprovedView() {
     const router = useRouter();
+    const fmt$ = (v) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(parseFloat(v) || 0);
     const [stats, setStats] = useState({
         availableRequests: 0,
         upcomingBookings: 0,
@@ -62,8 +62,8 @@ export default function DashboardApprovedView() {
 
     if (loading) {
         return (
-            <div className="p-4 sm:p-8">
-                <div className="animate-pulse space-y-6 max-w-6xl mx-auto">
+            <div className="p-4 md:p-6">
+                <div className="animate-pulse space-y-6 max-w-7xl mx-auto">
                     <div className="h-8 bg-slate-200 dark:bg-slate-700 rounded w-1/4"></div>
                     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                         {[1, 2, 3, 4].map(i => <div key={i} className="h-28 bg-slate-200 dark:bg-slate-700 rounded-xl"></div>)}
@@ -75,8 +75,8 @@ export default function DashboardApprovedView() {
     }
 
     return (
-        <div className="p-4 sm:p-8">
-            <div className="max-w-6xl mx-auto space-y-6 sm:space-y-8">
+        <div className="p-4 md:p-6">
+            <div className="max-w-7xl mx-auto space-y-6">
 
                 {/* Header */}
                 <header className="flex justify-between items-center">
@@ -114,35 +114,47 @@ export default function DashboardApprovedView() {
                 )}
 
                 {/* Stats Grid */}
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-                    <div className="bg-white dark:bg-card-dark border border-slate-200 dark:border-border-dark p-4 sm:p-6 rounded-xl shadow-sm">
-                        <div className="mb-3 sm:mb-4">
-                            <MdNearMe className="p-2 bg-blue-50 dark:bg-blue-900/30 rounded-lg text-blue-600 dark:text-blue-400 text-3xl" />
+                <div className="grid grid-cols-2 xl:grid-cols-4 gap-3 md:gap-4">
+                    <Link href="/therapist/requests" className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl p-5 hover:shadow-md hover:border-primary/30 transition-all">
+                        <div className="flex items-start justify-between mb-3">
+                            <div className="p-2.5 rounded-xl bg-blue-500">
+                                <MdNearMe className="text-xl text-white" />
+                            </div>
+                            <MdArrowForward className="text-slate-300 dark:text-slate-600 text-lg mt-0.5" />
                         </div>
-                        <p className="text-slate-500 dark:text-slate-400 text-xs sm:text-sm font-medium">Open Requests</p>
-                        <h3 className="text-2xl sm:text-3xl font-bold mt-1 text-slate-900 dark:text-white">{stats.availableRequests}</h3>
-                    </div>
-                    <div className="bg-white dark:bg-card-dark border border-slate-200 dark:border-border-dark p-4 sm:p-6 rounded-xl shadow-sm">
-                        <div className="mb-3 sm:mb-4">
-                            <MdPendingActions className="p-2 bg-amber-50 dark:bg-amber-900/30 rounded-lg text-amber-600 dark:text-amber-400 text-3xl" />
+                        <p className="text-2xl font-bold text-text-main dark:text-white">{stats.availableRequests}</p>
+                        <p className="text-sm text-text-muted dark:text-slate-400 mt-0.5">Open Requests</p>
+                    </Link>
+                    <Link href="/therapist/offers" className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl p-5 hover:shadow-md hover:border-primary/30 transition-all">
+                        <div className="flex items-start justify-between mb-3">
+                            <div className="p-2.5 rounded-xl bg-amber-500">
+                                <MdPendingActions className="text-xl text-white" />
+                            </div>
+                            <MdArrowForward className="text-slate-300 dark:text-slate-600 text-lg mt-0.5" />
                         </div>
-                        <p className="text-slate-500 dark:text-slate-400 text-xs sm:text-sm font-medium">Pending Offers</p>
-                        <h3 className="text-2xl sm:text-3xl font-bold mt-1 text-slate-900 dark:text-white">0</h3>
-                    </div>
-                    <div className="bg-white dark:bg-card-dark border border-slate-200 dark:border-border-dark p-4 sm:p-6 rounded-xl shadow-sm">
-                        <div className="mb-3 sm:mb-4">
-                            <MdError className="p-2 bg-red-50 dark:bg-red-900/30 rounded-lg text-red-600 dark:text-red-400 text-3xl" />
+                        <p className="text-2xl font-bold text-text-main dark:text-white">{stats.upcomingBookings}</p>
+                        <p className="text-sm text-text-muted dark:text-slate-400 mt-0.5">Upcoming Bookings</p>
+                    </Link>
+                    <Link href="/therapist/bookings" className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl p-5 hover:shadow-md hover:border-primary/30 transition-all">
+                        <div className="flex items-start justify-between mb-3">
+                            <div className="p-2.5 rounded-xl bg-emerald-500">
+                                <MdCheckCircle className="text-xl text-white" />
+                            </div>
+                            <MdArrowForward className="text-slate-300 dark:text-slate-600 text-lg mt-0.5" />
                         </div>
-                        <p className="text-slate-500 dark:text-slate-400 text-xs sm:text-sm font-medium">Needs Update</p>
-                        <h3 className="text-2xl sm:text-3xl font-bold mt-1 text-slate-900 dark:text-white">0</h3>
-                    </div>
-                    <div className="bg-white dark:bg-card-dark border border-slate-200 dark:border-border-dark p-4 sm:p-6 rounded-xl shadow-sm">
-                        <div className="mb-3 sm:mb-4">
-                            <MdCheckCircle className="p-2 bg-emerald-50 dark:bg-emerald-900/30 rounded-lg text-emerald-600 dark:text-emerald-400 text-3xl" />
+                        <p className="text-2xl font-bold text-text-main dark:text-white">{stats.completedSessions}</p>
+                        <p className="text-sm text-text-muted dark:text-slate-400 mt-0.5">Completed Sessions</p>
+                    </Link>
+                    <Link href="/therapist/earnings" className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl p-5 hover:shadow-md hover:border-primary/30 transition-all">
+                        <div className="flex items-start justify-between mb-3">
+                            <div className="p-2.5 rounded-xl bg-purple-500">
+                                <MdCalendarToday className="text-xl text-white" />
+                            </div>
+                            <MdArrowForward className="text-slate-300 dark:text-slate-600 text-lg mt-0.5" />
                         </div>
-                        <p className="text-slate-500 dark:text-slate-400 text-xs sm:text-sm font-medium">Accepted Offers</p>
-                        <h3 className="text-2xl sm:text-3xl font-bold mt-1 text-slate-900 dark:text-white">{stats.upcomingBookings}</h3>
-                    </div>
+                        <p className="text-2xl font-bold text-text-main dark:text-white">{fmt$(stats.totalEarnings)}</p>
+                        <p className="text-sm text-text-muted dark:text-slate-400 mt-0.5">Total Earnings</p>
+                    </Link>
                 </div>
 
                 {/* Sections */}

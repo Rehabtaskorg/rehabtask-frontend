@@ -175,7 +175,7 @@ export default function MyOffersPage() {
                 <header className="h-16 border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md sticky top-14 lg:top-0 z-10 flex items-center justify-between px-8">
                     <h2 className="text-2xl font-black tracking-tight text-text-main dark:text-white">My Offers</h2>
                 </header>
-                <div className="p-8 max-w-6xl mx-auto">
+                <div className="p-4 md:p-6">
                     <div className="animate-pulse space-y-4">
                         {[1, 2, 3].map((i) => (
                             <div
@@ -197,7 +197,7 @@ export default function MyOffersPage() {
                 <header className="h-16 border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md sticky top-14 lg:top-0 z-10 flex items-center justify-between px-8">
                     <h2 className="text-2xl font-black tracking-tight text-text-main dark:text-white">My Offers</h2>
                 </header>
-                <div className="p-8 max-w-6xl mx-auto text-center py-16">
+                <div className="p-4 md:p-6 text-center py-16">
                     <p className="text-red-500 text-sm font-medium">Failed to load offers. Please try again later.</p>
                     <button onClick={() => refetch()} className="mt-4 text-primary hover:underline text-sm font-bold">
                         Retry
@@ -223,7 +223,7 @@ export default function MyOffersPage() {
                 </button>
             </header>
 
-            <div className="p-8 max-w-6xl mx-auto space-y-6">
+            <div className="p-4 md:p-6 space-y-6">
                 {/* Action Required Banner */}
                 {changeRequestedCount > 0 && (
                     <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/50 p-4 rounded-xl flex items-center justify-between gap-4">

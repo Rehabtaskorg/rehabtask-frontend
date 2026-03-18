@@ -43,7 +43,7 @@ export default function TherapistProfilePage() {
     // ─── Loading ────
     if (loading) {
         return (
-            <div className="p-4 sm:p-8 max-w-5xl mx-auto">
+            <div className="p-4 md:p-6 max-w-5xl mx-auto">
                 <div className="animate-pulse space-y-6">
                     <div className="h-6 w-48 bg-slate-200 dark:bg-slate-700 rounded" />
                     <div className="h-48 bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl" />
@@ -60,7 +60,7 @@ export default function TherapistProfilePage() {
     // ─── Error ────
     if (error || !therapist) {
         return (
-            <div className="p-4 sm:p-8 max-w-5xl mx-auto">
+            <div className="p-4 md:p-6 max-w-5xl mx-auto">
                 <button
                     onClick={() => router.push("/customer/find-therapists")}
                     className="flex items-center gap-1 text-sm text-text-muted dark:text-gray-400 hover:text-primary transition-colors mb-6"
@@ -83,7 +83,7 @@ export default function TherapistProfilePage() {
 
     return (
         <APIProvider apiKey={GOOGLE_MAPS_API_KEY}>
-            <div className="p-4 sm:p-8 max-w-5xl mx-auto pb-24 lg:pb-8">
+            <div className="p-4 md:p-6 max-w-5xl mx-auto pb-24 lg:pb-8">
                 {/* Breadcrumb */}
                 <nav className="flex items-center gap-1 text-sm mb-6">
                     <button

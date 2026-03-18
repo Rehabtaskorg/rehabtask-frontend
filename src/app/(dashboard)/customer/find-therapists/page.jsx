@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { MdSearch, MdTune, MdChevronLeft, MdChevronRight, MdAdd, MdClose, MdRefresh, MdPersonSearch } from "react-icons/md";
+import { MdSearch, MdTune, MdChevronLeft, MdChevronRight, MdAdd, MdClose, MdRefresh, MdSort } from "react-icons/md";
 import { APIProvider } from "@vis.gl/react-google-maps";
 import { useTherapistSearch } from "@/hooks/useTherapistSearch";
 import TherapistCard from "@/components/therapist/TherapistCard";
@@ -20,29 +20,74 @@ const DEFAULT_FILTERS = {
     specializations: [],
 };
 
+const SORT_OPTIONS = [
+    { value: "relevance", label: "Relevance" },
+    { value: "rating", label: "Highest Rated" },
+    { value: "experience", label: "Most Experience" },
+    { value: "newest", label: "Newest" },
+];
+
 export default function FindTherapistsPage() {
     usePageTitle("Find Therapists");
     const router = useRouter();
     const [filters, setFilters] = useState(DEFAULT_FILTERS);
     const [page, setPage] = useState(1);
     const [showMobileFilters, setShowMobileFilters] = useState(false);
+    const [searchInput, setSearchInput] = useState("");
+    const [searchQuery, setSearchQuery] = useState("");
+    const [sortBy, setSortBy] = useState("relevance");
+    const debounceRef = useRef(null);
+
+    // Debounce search input (300ms)
+    useEffect(() => {
+        if (debounceRef.current) clearTimeout(debounceRef.current);
+        debounceRef.current = setTimeout(() => {
+            const trimmed = searchInput.trim();
+            // Only trigger search for 2+ characters or when clearing
+            if (trimmed.length >= 2 || trimmed.length === 0) {
+                setSearchQuery(trimmed);
+                setPage(1);
+            }
+        }, 300);
+
+        return () => {
+            if (debounceRef.current) clearTimeout(debounceRef.current);
+        };
+    }, [searchInput]);
 
     // Build search params from filters
     const searchParams = useMemo(() => {
         const params = { page, limit: 20 };
+
+        // Name search
+        if (searchQuery) {
+            params.search = searchQuery;
+        }
+
+        // Location
         if (filters.latitude && filters.longitude) {
             params.latitude = filters.latitude;
             params.longitude = filters.longitude;
             params.radiusMiles = filters.radiusMiles;
         }
+
+        // Multi-value license types (comma-separated)
         if (filters.licenseTypes && filters.licenseTypes.length > 0) {
-            params.primaryLicenseType = filters.licenseTypes[0];
+            params.primaryLicenseType = filters.licenseTypes.join(",");
         }
+
+        // Multi-value specializations (comma-separated)
         if (filters.specializations && filters.specializations.length > 0) {
-            params.specialization = filters.specializations[0];
+            params.specialization = filters.specializations.join(",");
         }
+
+        // Sort
+        if (sortBy && sortBy !== "relevance") {
+            params.sortBy = sortBy;
+        }
+
         return params;
-    }, [filters, page]);
+    }, [filters, page, searchQuery, sortBy]);
 
     const { therapists, pagination, loading, error, refetch } = useTherapistSearch(searchParams);
 
@@ -53,6 +98,15 @@ export default function FindTherapistsPage() {
 
     const handleClearFilters = useCallback(() => {
         setFilters(DEFAULT_FILTERS);
+        setSearchInput("");
+        setSearchQuery("");
+        setSortBy("relevance");
+        setPage(1);
+    }, []);
+
+    const handleClearSearch = useCallback(() => {
+        setSearchInput("");
+        setSearchQuery("");
         setPage(1);
     }, []);
 
@@ -72,28 +126,73 @@ export default function FindTherapistsPage() {
         return pages;
     }, [page, totalPages]);
 
+    const hasActiveFilters = searchQuery || filters.licenseTypes.length > 0 || filters.specializations.length > 0 || filters.zipCode || sortBy !== "relevance";
+
     return (
         <APIProvider apiKey={GOOGLE_MAPS_API_KEY}>
             <div className="flex-1 flex flex-col overflow-hidden">
                 {/* Sticky Header */}
-                <header className="h-16 border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md sticky top-14 lg:top-0 z-10 flex items-center justify-between px-4 sm:px-8 shrink-0">
-                    <div>
-                        <h2 className="text-xl sm:text-2xl font-black tracking-tight text-text-main dark:text-white">
-                            Find Therapists
-                        </h2>
-                        {!loading && (
-                            <p className="text-xs text-text-muted dark:text-gray-400 -mt-0.5">
-                                {total} therapist{total !== 1 ? "s" : ""} found
-                            </p>
-                        )}
+                <header className="border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md sticky top-14 lg:top-0 z-10 px-4 sm:px-8 py-3 shrink-0">
+                  <div className="max-w-7xl mx-auto">
+                    <div className="flex items-center justify-between mb-3">
+                        <div>
+                            <h2 className="text-xl sm:text-2xl font-black tracking-tight text-text-main dark:text-white">
+                                Find Therapists
+                            </h2>
+                            {!loading && (
+                                <p className="text-xs text-text-muted dark:text-gray-400 -mt-0.5">
+                                    {total} therapist{total !== 1 ? "s" : ""} found
+                                </p>
+                            )}
+                        </div>
+                        <button
+                            onClick={() => router.push("/customer/requests/new")}
+                            className="bg-primary hover:bg-primary/90 text-white px-4 sm:px-5 py-2 rounded-lg text-sm font-bold flex items-center gap-2 transition-colors"
+                        >
+                            <MdAdd className="text-lg" />
+                            <span className="hidden sm:inline">Create a Request</span>
+                        </button>
                     </div>
-                    <button
-                        onClick={() => router.push("/customer/requests/new")}
-                        className="bg-primary hover:bg-primary/90 text-white px-4 sm:px-5 py-2 rounded-lg text-sm font-bold flex items-center gap-2 transition-colors"
-                    >
-                        <MdAdd className="text-lg" />
-                        <span className="hidden sm:inline">Create a Request</span>
-                    </button>
+
+                    {/* Search Bar */}
+                    <div className="flex items-center gap-3">
+                        <div className="relative flex-1" role="search">
+                            <MdSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-lg text-text-muted dark:text-gray-400 pointer-events-none" />
+                            <input
+                                type="text"
+                                value={searchInput}
+                                onChange={(e) => setSearchInput(e.target.value)}
+                                placeholder="Search by therapist name..."
+                                aria-label="Search therapists by name"
+                                className="w-full pl-10 pr-9 py-2.5 text-sm rounded-xl border border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark text-text-main dark:text-white placeholder:text-text-muted dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                            />
+                            {searchInput && (
+                                <button
+                                    onClick={handleClearSearch}
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted dark:text-gray-400 hover:text-text-main dark:hover:text-white"
+                                    aria-label="Clear search"
+                                >
+                                    <MdClose className="text-base" />
+                                </button>
+                            )}
+                        </div>
+
+                        {/* Sort Dropdown */}
+                        <div className="hidden sm:flex items-center gap-1.5">
+                            <MdSort className="text-lg text-text-muted dark:text-gray-400" />
+                            <select
+                                value={sortBy}
+                                onChange={(e) => { setSortBy(e.target.value); setPage(1); }}
+                                aria-label="Sort therapists"
+                                className="text-sm rounded-xl border border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark text-text-main dark:text-white py-2.5 px-3 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                            >
+                                {SORT_OPTIONS.map((opt) => (
+                                    <option key={opt.value} value={opt.value}>{opt.label}</option>
+                                ))}
+                            </select>
+                        </div>
+                    </div>
+                  </div>
                 </header>
 
                 {/* Content */}
@@ -110,6 +209,21 @@ export default function FindTherapistsPage() {
 
                         {/* ── Main Content ── */}
                         <div className="flex-1 min-w-0">
+                            {/* Mobile Sort (shown below search on mobile) */}
+                            <div className="sm:hidden mb-4 flex items-center gap-2">
+                                <MdSort className="text-lg text-text-muted dark:text-gray-400" />
+                                <select
+                                    value={sortBy}
+                                    onChange={(e) => { setSortBy(e.target.value); setPage(1); }}
+                                    aria-label="Sort therapists"
+                                    className="flex-1 text-sm rounded-xl border border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark text-text-main dark:text-white py-2.5 px-3 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                                >
+                                    {SORT_OPTIONS.map((opt) => (
+                                        <option key={opt.value} value={opt.value}>{opt.label}</option>
+                                    ))}
+                                </select>
+                            </div>
+
                             {/* Loading */}
                             {loading && (
                                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -144,9 +258,20 @@ export default function FindTherapistsPage() {
                                     <p className="text-text-main dark:text-white font-bold text-base mb-1">
                                         No therapists found
                                     </p>
-                                    <p className="text-text-muted dark:text-gray-400 text-sm">
-                                        Try adjusting your filters or expanding the search radius.
+                                    <p className="text-text-muted dark:text-gray-400 text-sm mb-4">
+                                        {searchQuery
+                                            ? `No results for "${searchQuery}". Try a different name or adjust your filters.`
+                                            : "Try adjusting your filters or expanding the search radius."
+                                        }
                                     </p>
+                                    {hasActiveFilters && (
+                                        <button
+                                            onClick={handleClearFilters}
+                                            className="text-primary hover:underline text-sm font-bold"
+                                        >
+                                            Clear all filters
+                                        </button>
+                                    )}
                                 </div>
                             )}
 

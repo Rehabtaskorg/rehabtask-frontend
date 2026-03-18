@@ -91,7 +91,7 @@ export default function CustomerRequestDetailPage() {
 
     if (loading) {
         return (
-            <div className="py-6 px-4 max-w-4xl mx-auto">
+            <div className="p-4 md:p-6 max-w-5xl mx-auto">
                 <div className="animate-pulse space-y-4">
                     <div className="h-8 bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl w-1/3"></div>
                     <div className="h-40 bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl"></div>
@@ -103,7 +103,7 @@ export default function CustomerRequestDetailPage() {
 
     if (!request) {
         return (
-            <div className="py-6 px-4 max-w-4xl mx-auto">
+            <div className="p-4 md:p-6 max-w-5xl mx-auto">
                 <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-6">
                     <p className="text-red-800 dark:text-red-300">Request not found</p>
                 </div>
@@ -112,7 +112,7 @@ export default function CustomerRequestDetailPage() {
     }
 
     return (
-        <div className="py-6 px-4 max-w-4xl mx-auto">
+        <div className="p-4 md:p-6 max-w-5xl mx-auto">
 
             {/* Back button */}
             <button

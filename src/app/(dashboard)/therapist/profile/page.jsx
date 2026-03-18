@@ -23,7 +23,7 @@ const TABS = [
 
 function ProfilePageSkeleton() {
     return (
-        <div className="py-8 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto">
+        <div className="p-4 md:p-6">
             <div className="animate-pulse space-y-6">
                 <div className="flex items-center gap-4">
                     <div className="w-16 h-16 rounded-full bg-gray-200 dark:bg-gray-700" />
@@ -64,7 +64,7 @@ function TherapistProfileContent() {
 
     if (error || !profile) {
         return (
-            <div className="py-8 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto">
+            <div className="p-4 md:p-6">
                 <Alert
                     type="error"
                     message="Failed to load your profile. Please try again."
@@ -96,7 +96,7 @@ function TherapistProfileContent() {
     };
 
     return (
-        <div className="py-8 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto">
+        <div className="p-4 md:p-6">
             {/* Page Header */}
             <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-8">
                 {profile.profilePhotoUrl ? (
