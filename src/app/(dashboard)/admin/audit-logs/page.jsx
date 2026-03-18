@@ -15,7 +15,7 @@ const fmtDateTime = (d) =>
         hour: '2-digit', minute: '2-digit', second: '2-digit',
     }) : '—';
 
-const ENTITY_TYPES = ['payment', 'booking', 'subscription', 'therapist', 'user', 'commission'];
+const ENTITY_TYPES = ['payment', 'booking', 'subscription', 'therapist', 'user', 'commission', 'request', 'offer', 'session', 'message', 'dispute'];
 
 function Skeleton({ className }) {
     return <div className={`animate-pulse rounded bg-slate-200 dark:bg-slate-700 ${className}`} />;
@@ -206,13 +206,21 @@ export default function AdminAuditLogsPage() {
                                                         {fmtDateTime(log.createdAt)}
                                                     </td>
                                                     <td className="px-5 py-3.5 hidden md:table-cell">
-                                                        <p className="font-medium text-text-main dark:text-white truncate max-w-48">
-                                                            {log.actor?.email || '—'}
-                                                        </p>
-                                                        {log.actor?.role && (
-                                                            <p className="text-xs text-text-muted dark:text-slate-500 capitalize">
-                                                                {log.actor.role.replace('_', ' ')}
-                                                            </p>
+                                                        {log.actor ? (
+                                                            <>
+                                                                <p className="font-medium text-text-main dark:text-white truncate max-w-48">
+                                                                    {log.actor.email}
+                                                                </p>
+                                                                {log.actor.role && (
+                                                                    <p className="text-xs text-text-muted dark:text-slate-500 capitalize">
+                                                                        {log.actor.role.replace('_', ' ')}
+                                                                    </p>
+                                                                )}
+                                                            </>
+                                                        ) : (
+                                                            <span className="inline-flex items-center gap-1 text-xs font-medium text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/30 px-2 py-0.5 rounded-full">
+                                                                System
+                                                            </span>
                                                         )}
                                                     </td>
                                                     <td className="px-5 py-3.5">
