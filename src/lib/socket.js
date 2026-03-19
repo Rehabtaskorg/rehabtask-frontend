@@ -1,12 +1,14 @@
 import { io } from "socket.io-client";
-import { supabase } from "./supabase";
+import { api } from "./api";
 
 let socket = null;
 
 /**
  * Get or create the Socket.io client singleton.
- * Passes auth token via handshake (not cookies) for cross-origin compatibility.
- * autoConnect is false — the SocketProvider manages connection lifecycle.
+ * Uses a one-time ticket for authentication (safe for cross-origin).
+ * The ticket is fetched from the backend via an authenticated REST call
+ * (cookies are sent automatically), so the actual access token is never
+ * exposed to JavaScript.
  */
 export function getSocket() {
     if (!socket) {
@@ -23,10 +25,12 @@ export function getSocket() {
             reconnectionAttempts: Infinity,
             auth: async (cb) => {
                 try {
-                    const { data } = await supabase.auth.getSession();
-                    cb({ token: data?.session?.access_token || "" });
+                    // Fetch a one-time ticket from the backend
+                    // This REST call sends httpOnly cookies automatically
+                    const res = await api.get("/auth/socket-ticket");
+                    cb({ ticket: res.data.data.ticket });
                 } catch {
-                    cb({ token: "" });
+                    cb({ ticket: "" });
                 }
             },
         });
