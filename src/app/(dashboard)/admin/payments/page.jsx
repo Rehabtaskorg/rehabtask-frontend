@@ -663,6 +663,7 @@ const STATUS_TABS = [
     { key: "all", label: "All" },
     { key: "intent_created", label: "Pending" },
     { key: "escrowed", label: "Escrowed" },
+    { key: "partially_released", label: "Partial" },
     { key: "released", label: "Released" },
     { key: "refunded", label: "Refunded" },
 ];
