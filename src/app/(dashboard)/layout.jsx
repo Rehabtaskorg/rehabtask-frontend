@@ -270,6 +270,7 @@ export default function DashboardLayout({ children }) {
     }
 
     return (
+        <SocketProvider userId={user.id}>
         <div className="flex min-h-screen bg-background-light dark:bg-background-dark">
 
             {/* Mobile top bar — hidden on lg+ */}
@@ -498,7 +499,6 @@ export default function DashboardLayout({ children }) {
             )}
 
             {/* ── MAIN CONTENT ── */}
-            <SocketProvider userId={user.id}>
                 <main className="ml-0 lg:ml-64 flex-1 min-h-screen pt-14 lg:pt-0">
                     {user.role === 'therapist' && !isOnOnboardingRoute && <OnboardingBanner />}
                     {user.role === 'therapist' && therapistAccess ? (
@@ -513,7 +513,7 @@ export default function DashboardLayout({ children }) {
                         children
                     )}
                 </main>
-            </SocketProvider>
         </div>
+        </SocketProvider>
     );
 }

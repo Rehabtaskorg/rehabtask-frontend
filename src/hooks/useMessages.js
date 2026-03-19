@@ -98,8 +98,10 @@ export function useMessages(contextType, contextId, pollInterval) {
         if (!contextType || !contextId) return;
 
         const timer = setTimeout(() => {
+            console.log("[MarkAsRead] Firing for:", contextType, contextId);
             messagesApi.markAsRead(contextType, contextId)
                 .then(() => {
+                    console.log("[MarkAsRead] Success — invalidating caches");
                     queryClient.setQueryData(["conversations"], (old) =>
                         old?.map((conv) => {
                             const matchesCurrent = conv.currentContext?.type === contextType &&
@@ -116,7 +118,7 @@ export function useMessages(contextType, contextId, pollInterval) {
                     queryClient.invalidateQueries({ queryKey: ["conversations"] });
                     queryClient.invalidateQueries({ queryKey: ["messages", contextType, contextId] });
                 })
-                .catch(() => { });
+                .catch((err) => { console.error("[MarkAsRead] Failed:", err.response?.data || err.message); });
         }, 300);
 
         return () => clearTimeout(timer);
