@@ -93,30 +93,32 @@ export function useMessages(contextType, contextId, pollInterval) {
 
     const isSessionExpired = error?.response?.status === 401;
 
-    // Mark as read when conversation opens
+    // Mark as read when conversation opens (debounced to prevent rapid-switch spam)
     useEffect(() => {
         if (!contextType || !contextId) return;
 
-        messagesApi.markAsRead(contextType, contextId)
-            .then(() => {
-                queryClient.setQueryData(["conversations"], (old) =>
-                    old?.map((conv) => {
-                        // Match by currentContext (offer/booking)
-                        const matchesCurrent = conv.currentContext?.type === contextType &&
-                            conv.currentContext?.id === contextId;
-                        // Also match by directConversationId (direct conversations may have
-                        // been upgraded to offer/booking context but still share the same thread)
-                        const matchesDirect = contextType === "direct" &&
-                            conv.directConversationId === contextId;
+        const timer = setTimeout(() => {
+            messagesApi.markAsRead(contextType, contextId)
+                .then(() => {
+                    queryClient.setQueryData(["conversations"], (old) =>
+                        old?.map((conv) => {
+                            const matchesCurrent = conv.currentContext?.type === contextType &&
+                                conv.currentContext?.id === contextId;
+                            const matchesDirect = contextType === "direct" &&
+                                conv.directConversationId === contextId;
 
-                        return (matchesCurrent || matchesDirect)
-                            ? { ...conv, unreadCount: 0 }
-                            : conv;
-                    }) ?? []
-                );
-                queryClient.invalidateQueries({ queryKey: ["unreadCount"] });
-            })
-            .catch(() => { });
+                            return (matchesCurrent || matchesDirect)
+                                ? { ...conv, unreadCount: 0 }
+                                : conv;
+                        }) ?? []
+                    );
+                    queryClient.invalidateQueries({ queryKey: ["unreadCount"] });
+                    queryClient.invalidateQueries({ queryKey: ["messages", contextType, contextId] });
+                })
+                .catch(() => { });
+        }, 300);
+
+        return () => clearTimeout(timer);
     }, [contextType, contextId, queryClient]);
 
     const { mutateAsync: sendMessageMutation } = useMutation({
