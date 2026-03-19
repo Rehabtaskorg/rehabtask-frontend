@@ -4,7 +4,7 @@ import { createContext, useContext, useEffect, useState, useCallback, useRef } f
 import { useQueryClient } from "@tanstack/react-query";
 import { getSocket, destroySocket } from "@/lib/socket";
 
-const SocketContext = createContext({ connected: false, socket: null });
+const SocketContext = createContext({ connected: false });
 
 export function useSocketContext() {
     return useContext(SocketContext);
@@ -19,13 +19,12 @@ export function useSocketContext() {
 export function SocketProvider({ children, userId }) {
     const queryClient = useQueryClient();
     const [connected, setConnected] = useState(false);
-    const socketRef = useRef(null);
 
     // Track the current conversation the user is viewing (for join/leave)
     const currentRoomRef = useRef(null);
 
     const joinConversation = useCallback((contextType, contextId) => {
-        const socket = socketRef.current;
+        const socket = getSocket();
         if (!socket?.connected || !contextType || !contextId) return;
 
         // Leave previous room if different
@@ -41,7 +40,7 @@ export function SocketProvider({ children, userId }) {
     }, []);
 
     const leaveConversation = useCallback(() => {
-        const socket = socketRef.current;
+        const socket = getSocket();
         if (!socket?.connected || !currentRoomRef.current) return;
 
         const { contextType, contextId } = currentRoomRef.current;
@@ -57,7 +56,6 @@ export function SocketProvider({ children, userId }) {
         }
 
         const socket = getSocket();
-        socketRef.current = socket;
 
         // ─── Connection Events ───────────────────────────────────────────
         const onConnect = () => {
@@ -75,7 +73,6 @@ export function SocketProvider({ children, userId }) {
 
         // ─── Message Events ─────────────────────────────────────────────
         const onNewMessage = () => {
-            // Invalidate message queries — React Query re-fetches instantly
             queryClient.invalidateQueries({ queryKey: ["messages"] });
             queryClient.invalidateQueries({ queryKey: ["conversations"] });
         };
@@ -110,7 +107,7 @@ export function SocketProvider({ children, userId }) {
     }, [userId, queryClient]);
 
     return (
-        <SocketContext.Provider value={{ connected, socket: socketRef.current, joinConversation, leaveConversation }}>
+        <SocketContext.Provider value={{ connected, joinConversation, leaveConversation }}>
             {children}
         </SocketContext.Provider>
     );
