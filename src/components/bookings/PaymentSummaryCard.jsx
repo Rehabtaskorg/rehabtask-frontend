@@ -16,6 +16,12 @@ const PAYMENT_STATUS_CONFIG = {
         bg: "bg-blue-50 dark:bg-blue-900/20",
         label: "Held in Escrow",
     },
+    partially_released: {
+        icon: MdLock,
+        color: "text-orange-600 dark:text-orange-400",
+        bg: "bg-orange-50 dark:bg-orange-900/20",
+        label: "Partially Released",
+    },
     released: {
         icon: MdCheckCircle,
         color: "text-emerald-600 dark:text-emerald-400",
@@ -47,6 +53,8 @@ export default function PaymentSummaryCard({ booking, role, onAction }) {
 
     const platformFee = payment ? parseFloat(payment.platformFee) : null;
     const payout = payment ? parseFloat(payment.therapistPayout) : null;
+    const releasedAmount = payment?.releasedAmount ? parseFloat(payment.releasedAmount) : null;
+    const isPartialRelease = payment?.status === "partially_released";
 
     const paymentConfig = payment ? PAYMENT_STATUS_CONFIG[payment.status] : null;
     const PaymentIcon = paymentConfig?.icon || MdPayments;
@@ -99,11 +107,23 @@ export default function PaymentSummaryCard({ booking, role, onAction }) {
                                 -{formatCurrency(platformFee)}
                             </span>
                         </div>
-                        <div className="border-t border-border-light dark:border-border-dark pt-3 flex items-center justify-between">
-                            <span className="text-sm font-semibold text-text-main dark:text-white">Your Earnings</span>
-                            <span className="text-lg font-bold text-emerald-600 dark:text-emerald-400">
-                                {formatCurrency(payout)}
-                            </span>
+                        <div className="border-t border-border-light dark:border-border-dark pt-3">
+                            <div className="flex items-center justify-between">
+                                <span className="text-sm font-semibold text-text-main dark:text-white">Your Earnings</span>
+                                <span className="text-lg font-bold text-emerald-600 dark:text-emerald-400">
+                                    {formatCurrency(payout)}
+                                </span>
+                            </div>
+                            {isPartialRelease && releasedAmount !== null && (
+                                <div className="mt-2 bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg px-3 py-2">
+                                    <p className="text-xs font-medium text-orange-700 dark:text-orange-300">
+                                        Released so far: {formatCurrency(releasedAmount)} of {formatCurrency(payout)}
+                                    </p>
+                                    <p className="text-xs text-orange-600 dark:text-orange-400 mt-0.5">
+                                        Remaining {formatCurrency(payout - releasedAmount)} held by admin
+                                    </p>
+                                </div>
+                            )}
                         </div>
                     </>
                 )}
