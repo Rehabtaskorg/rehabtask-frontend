@@ -51,7 +51,6 @@ export function SocketProvider({ children, userId }) {
     useEffect(() => {
         if (!userId) {
             destroySocket();
-            setConnected(false);
             return;
         }
 
