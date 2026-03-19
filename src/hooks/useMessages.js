@@ -113,6 +113,7 @@ export function useMessages(contextType, contextId, pollInterval) {
                         }) ?? []
                     );
                     queryClient.invalidateQueries({ queryKey: ["unreadCount"] });
+                    queryClient.invalidateQueries({ queryKey: ["conversations"] });
                     queryClient.invalidateQueries({ queryKey: ["messages", contextType, contextId] });
                 })
                 .catch(() => { });
