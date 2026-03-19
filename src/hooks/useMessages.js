@@ -93,20 +93,22 @@ export function useMessages(contextType, contextId, pollInterval) {
 
     const isSessionExpired = error?.response?.status === 401;
 
-    // Mark as read when conversation opens
-    // Fire immediately — do NOT cancel on unmount (user may leave quickly but messages should still be marked read)
-    const markAsReadRef = useRef(null);
+    // Mark messages as read — fires on open AND when new messages arrive while viewing
+    const lastReadCountRef = useRef(0);
     useEffect(() => {
-        if (!contextType || !contextId) return;
+        if (!contextType || !contextId || !data) return;
 
-        // Prevent duplicate calls for the same conversation
-        const key = `${contextType}:${contextId}`;
-        if (markAsReadRef.current === key) return;
-        markAsReadRef.current = key;
+        // Check if there are messages from others that are unread
+        const unreadFromOthers = data.filter(
+            m => m.senderId !== user?.id && !m.readAt && m.type !== "system" && !m.id?.startsWith("optimistic")
+        ).length;
+
+        // Skip if no unread messages from others, or if count hasn't changed
+        if (unreadFromOthers === 0 || unreadFromOthers === lastReadCountRef.current) return;
+        lastReadCountRef.current = unreadFromOthers;
 
         messagesApi.markAsRead(contextType, contextId)
             .then(() => {
-                // Optimistic: immediately set unreadCount to 0 in conversations cache
                 queryClient.setQueryData(["conversations"], (old) =>
                     old?.map((conv) => {
                         const matchesCurrent = conv.currentContext?.type === contextType &&
@@ -124,9 +126,8 @@ export function useMessages(contextType, contextId, pollInterval) {
             })
             .catch(() => { });
 
-        // Reset ref when conversation changes so re-entry marks as read again
-        return () => { markAsReadRef.current = null; };
-    }, [contextType, contextId, queryClient]);
+        return () => { lastReadCountRef.current = 0; };
+    }, [contextType, contextId, data, user?.id, queryClient]);
 
     const { mutateAsync: sendMessageMutation } = useMutation({
         mutationFn: (content) =>
