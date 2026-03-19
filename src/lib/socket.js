@@ -9,7 +9,11 @@ let socket = null;
  */
 export function getSocket() {
     if (!socket) {
-        const url = process.env.NEXT_PUBLIC_SOCKET_URL || process.env.NEXT_PUBLIC_API_URL?.replace("/api", "") || "";
+        const url = process.env.NEXT_PUBLIC_SOCKET_URL || process.env.NEXT_PUBLIC_API_URL?.replace("/api", "");
+        if (!url) {
+            console.warn("[Socket] No socket URL configured — real-time disabled");
+            return null;
+        }
         socket = io(url, {
             withCredentials: true,
             autoConnect: false,

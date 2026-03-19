@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { messagesApi } from "@/lib/messages.api";
 import { useAuth } from "./useAuth";
@@ -93,35 +93,39 @@ export function useMessages(contextType, contextId, pollInterval) {
 
     const isSessionExpired = error?.response?.status === 401;
 
-    // Mark as read when conversation opens (debounced to prevent rapid-switch spam)
+    // Mark as read when conversation opens
+    // Fire immediately — do NOT cancel on unmount (user may leave quickly but messages should still be marked read)
+    const markAsReadRef = useRef(null);
     useEffect(() => {
         if (!contextType || !contextId) return;
 
-        const timer = setTimeout(() => {
-            console.log("[MarkAsRead] Firing for:", contextType, contextId);
-            messagesApi.markAsRead(contextType, contextId)
-                .then(() => {
-                    console.log("[MarkAsRead] Success — invalidating caches");
-                    queryClient.setQueryData(["conversations"], (old) =>
-                        old?.map((conv) => {
-                            const matchesCurrent = conv.currentContext?.type === contextType &&
-                                conv.currentContext?.id === contextId;
-                            const matchesDirect = contextType === "direct" &&
-                                conv.directConversationId === contextId;
+        // Prevent duplicate calls for the same conversation
+        const key = `${contextType}:${contextId}`;
+        if (markAsReadRef.current === key) return;
+        markAsReadRef.current = key;
 
-                            return (matchesCurrent || matchesDirect)
-                                ? { ...conv, unreadCount: 0 }
-                                : conv;
-                        }) ?? []
-                    );
-                    queryClient.invalidateQueries({ queryKey: ["unreadCount"] });
-                    queryClient.invalidateQueries({ queryKey: ["conversations"] });
-                    queryClient.invalidateQueries({ queryKey: ["messages", contextType, contextId] });
-                })
-                .catch((err) => { console.error("[MarkAsRead] Failed:", err.response?.data || err.message); });
-        }, 300);
+        messagesApi.markAsRead(contextType, contextId)
+            .then(() => {
+                // Optimistic: immediately set unreadCount to 0 in conversations cache
+                queryClient.setQueryData(["conversations"], (old) =>
+                    old?.map((conv) => {
+                        const matchesCurrent = conv.currentContext?.type === contextType &&
+                            conv.currentContext?.id === contextId;
+                        const matchesDirect = contextType === "direct" &&
+                            conv.directConversationId === contextId;
 
-        return () => clearTimeout(timer);
+                        return (matchesCurrent || matchesDirect)
+                            ? { ...conv, unreadCount: 0 }
+                            : conv;
+                    }) ?? []
+                );
+                queryClient.invalidateQueries({ queryKey: ["unreadCount"] });
+                queryClient.invalidateQueries({ queryKey: ["conversations"] });
+            })
+            .catch(() => { });
+
+        // Reset ref when conversation changes so re-entry marks as read again
+        return () => { markAsReadRef.current = null; };
     }, [contextType, contextId, queryClient]);
 
     const { mutateAsync: sendMessageMutation } = useMutation({
@@ -210,7 +214,7 @@ export function useMessages(contextType, contextId, pollInterval) {
         if (!hasMore || loadingMore || !contextType || !contextId) return;
         const current = queryClient.getQueryData(messagesQueryKey);
         // Find the oldest real message (not system divider) to use as cursor
-        const oldestReal = current?.find(m => m.type !== "system" && !m.id?.startsWith("optimistic"));
+        const oldestReal = current?.findLast(m => m.type !== "system" && !m.id?.startsWith("optimistic"));
         if (!oldestReal) return;
 
         setLoadingMore(true);

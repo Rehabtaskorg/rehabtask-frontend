@@ -58,40 +58,64 @@ export function SocketProvider({ children, userId }) {
 
         // ─── Connection Events ───────────────────────────────────────────
         const onConnect = () => {
+            console.log("[Socket] Connected:", socket.id);
             setConnected(true);
-            // Rejoin conversation room if user was viewing one during reconnect
             if (currentRoomRef.current) {
                 const { contextType, contextId } = currentRoomRef.current;
                 socket.emit("join:conversation", { contextType, contextId });
             }
         };
 
-        const onDisconnect = () => {
+        const onDisconnect = (reason) => {
+            console.log("[Socket] Disconnected:", reason);
             setConnected(false);
         };
 
-        // ─── Message Events ─────────────────────────────────────────────
-        const onNewMessage = () => {
-            queryClient.invalidateQueries({ queryKey: ["messages"] });
-            queryClient.invalidateQueries({ queryKey: ["conversations"] });
+        const onConnectError = (err) => {
+            console.error("[Socket] Connection error:", err.message);
         };
 
-        const onUnreadUpdate = () => {
+        // ─── Message Events ─────────────────────────────────────────────
+        const onNewMessage = (data) => {
+            console.log("[Socket] message:new received", data?.id);
+            // Targeted: invalidate only the affected conversation's messages
+            if (data?._contextType && data?._contextId) {
+                queryClient.invalidateQueries({ queryKey: ["messages", data._contextType, data._contextId] });
+            }
+            // Also invalidate if viewing via direct thread (messages merge across contexts)
+            if (data?.conversationId) {
+                queryClient.invalidateQueries({ queryKey: ["messages", "direct", data.conversationId] });
+            }
+            // Always refresh conversation list (last message preview, unread count, ordering)
+            queryClient.invalidateQueries({ queryKey: ["conversations"] });
+            queryClient.invalidateQueries({ queryKey: ["unreadCount"] });
+        };
+
+        const onUnreadUpdate = (data) => {
+            console.log("[Socket] unread_update received", data);
             queryClient.invalidateQueries({ queryKey: ["unreadCount"] });
             queryClient.invalidateQueries({ queryKey: ["conversations"] });
         };
 
-        const onMarkedRead = () => {
+        const onMarkedRead = (data) => {
+            console.log("[Socket] marked_read received", data);
             queryClient.invalidateQueries({ queryKey: ["conversations"] });
+            queryClient.invalidateQueries({ queryKey: ["unreadCount"] });
+            // Refresh message thread to show read receipts
+            if (data?.contextType && data?.contextId) {
+                queryClient.invalidateQueries({ queryKey: ["messages", data.contextType, data.contextId] });
+            }
         };
 
         socket.on("connect", onConnect);
         socket.on("disconnect", onDisconnect);
+        socket.on("connect_error", onConnectError);
         socket.on("message:new", onNewMessage);
         socket.on("message:unread_update", onUnreadUpdate);
         socket.on("messages:marked_read", onMarkedRead);
 
         // Connect
+        console.log("[Socket] Attempting connection for user:", userId);
         if (!socket.connected) {
             socket.connect();
         }
@@ -99,6 +123,7 @@ export function SocketProvider({ children, userId }) {
         return () => {
             socket.off("connect", onConnect);
             socket.off("disconnect", onDisconnect);
+            socket.off("connect_error", onConnectError);
             socket.off("message:new", onNewMessage);
             socket.off("message:unread_update", onUnreadUpdate);
             socket.off("messages:marked_read", onMarkedRead);
