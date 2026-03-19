@@ -467,8 +467,11 @@ function DetailPanel({
 
     const badge = STATUS_BADGE[request.status] || STATUS_BADGE.created;
     const offers = request.offers || [];
-    const pendingOffers = offers.filter((o) => o.status === "pending");
-    const otherOffers = offers.filter((o) => o.status !== "pending");
+    const now = new Date();
+    // Treat pending offers that have expired as non-actionable
+    const pendingOffers = offers.filter((o) => o.status === "pending" && (!o.expiresAt || new Date(o.expiresAt) > now));
+    const expiredPendingOffers = offers.filter((o) => o.status === "pending" && o.expiresAt && new Date(o.expiresAt) <= now);
+    const otherOffers = [...offers.filter((o) => o.status !== "pending"), ...expiredPendingOffers];
 
     return (
         <div className="flex-1 overflow-y-auto panel-scroll">
@@ -592,7 +595,9 @@ function OfferCard({
     onChangeNoteUpdate,
 }) {
     const therapist = offer.therapist;
-    const offerBadge = OFFER_STATUS_BADGE[offer.status] || OFFER_STATUS_BADGE.pending;
+    const isClientExpired = offer.status === "pending" && offer.expiresAt && new Date(offer.expiresAt) <= new Date();
+    const displayStatus = isClientExpired ? "expired" : offer.status;
+    const offerBadge = OFFER_STATUS_BADGE[displayStatus] || OFFER_STATUS_BADGE.pending;
 
     return (
         <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl shadow-sm p-4">
@@ -658,19 +663,24 @@ function OfferCard({
                 </p>
             )}
 
-            {/* Non-pending badge */}
-            {!isPending && (
+            {/* Status badge — show for non-pending OR client-side expired */}
+            {(!isPending || isClientExpired) && (
                 <div className="mt-3">
                     <span
                         className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded ${offerBadge.bg}`}
                     >
                         {offerBadge.label}
                     </span>
+                    {isClientExpired && offer.expiresAt && (
+                        <p className="text-xs text-text-muted dark:text-gray-400 mt-1.5">
+                            Expired {formatDateTime(offer.expiresAt)}. The therapist can submit a new offer if still interested.
+                        </p>
+                    )}
                 </div>
             )}
 
-            {/* Action buttons (pending only) */}
-            {isPending && (
+            {/* Action buttons (pending and not expired only) */}
+            {isPending && !isClientExpired && (
                 <div className="flex items-center gap-2 mt-4">
                     <button
                         onClick={() => onAccept(offer.id)}
@@ -696,7 +706,7 @@ function OfferCard({
             )}
 
             {/* Inline change request form */}
-            {isPending && changeOfferId === offer.id && (
+            {isPending && !isClientExpired && changeOfferId === offer.id && (
                 <div className="mt-3 p-4 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-lg">
                     <label className="text-xs font-semibold text-amber-800 dark:text-amber-300 block mb-2">
                         What would you like to change?

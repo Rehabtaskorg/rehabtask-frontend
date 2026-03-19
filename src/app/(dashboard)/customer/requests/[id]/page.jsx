@@ -242,36 +242,50 @@ export default function CustomerRequestDetailPage() {
                                 )}
 
                                 {/* Footer: status badge + actions */}
-                                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-3 border-t border-border-light dark:border-border-dark">
-                                    <span className={`self-start px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${OFFER_STATUS_STYLES[offer.status] || 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400'}`}>
-                                        {offer.status.replace(/_/g, ' ')}
-                                    </span>
+                                {(() => {
+                                    const isExpired = offer.status === 'pending' && offer.expiresAt && new Date(offer.expiresAt) <= new Date();
+                                    const displayStatus = isExpired ? 'expired' : offer.status;
+                                    return (
+                                        <>
+                                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-3 border-t border-border-light dark:border-border-dark">
+                                                <span className={`self-start px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${OFFER_STATUS_STYLES[displayStatus] || 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400'}`}>
+                                                    {displayStatus.replace(/_/g, ' ')}
+                                                </span>
 
-                                    {offer.status === 'pending' && (
-                                        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-                                            <button
-                                                onClick={() => handleMessageTherapist(offer.id)}
-                                                className="flex items-center justify-center gap-1.5 px-4 py-2 border border-border-light dark:border-border-dark text-text-main dark:text-white rounded-lg text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
-                                            >
-                                                <MdChatBubble className="text-base text-primary" />
-                                                Message
-                                            </button>
-                                            <button
-                                                onClick={() => handleAcceptOffer(offer.id)}
-                                                disabled={accepting === offer.id}
-                                                className="flex items-center justify-center gap-1.5 bg-primary hover:opacity-90 text-white px-4 py-2 rounded-lg text-sm font-bold transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
-                                            >
-                                                <MdCheckCircle className="text-base" />
-                                                {accepting === offer.id ? 'Accepting...' : 'Accept Offer'}
-                                            </button>
-                                        </div>
-                                    )}
-                                </div>
+                                                {offer.status === 'pending' && !isExpired && (
+                                                    <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                                                        <button
+                                                            onClick={() => handleMessageTherapist(offer.id)}
+                                                            className="flex items-center justify-center gap-1.5 px-4 py-2 border border-border-light dark:border-border-dark text-text-main dark:text-white rounded-lg text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+                                                        >
+                                                            <MdChatBubble className="text-base text-primary" />
+                                                            Message
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handleAcceptOffer(offer.id)}
+                                                            disabled={accepting === offer.id}
+                                                            className="flex items-center justify-center gap-1.5 bg-primary hover:opacity-90 text-white px-4 py-2 rounded-lg text-sm font-bold transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+                                                        >
+                                                            <MdCheckCircle className="text-base" />
+                                                            {accepting === offer.id ? 'Accepting...' : 'Accept Offer'}
+                                                        </button>
+                                                    </div>
+                                                )}
+                                            </div>
 
-                                {/* Expires at */}
-                                <p className="text-xs text-text-muted dark:text-gray-400 mt-2">
-                                    Expires: {new Date(offer.expiresAt).toLocaleString()}
-                                </p>
+                                            {/* Expiry info */}
+                                            {isExpired ? (
+                                                <p className="text-xs text-text-muted dark:text-gray-400 mt-2">
+                                                    Expired {new Date(offer.expiresAt).toLocaleString()}. The therapist can submit a new offer if still interested.
+                                                </p>
+                                            ) : offer.expiresAt ? (
+                                                <p className="text-xs text-text-muted dark:text-gray-400 mt-2">
+                                                    Expires: {new Date(offer.expiresAt).toLocaleString()}
+                                                </p>
+                                            ) : null}
+                                        </>
+                                    );
+                                })()}
                             </div>
                         ))}
                     </div>
