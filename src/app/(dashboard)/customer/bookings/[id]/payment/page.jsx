@@ -117,7 +117,7 @@ export default function PaymentPage() {
             setBooking(bookingData);
 
             if (bookingData.payment) {
-                if (bookingData.payment.status === "escrowed" || bookingData.payment.status === "released") {
+                if (["escrowed", "partially_released", "released"].includes(bookingData.payment.status)) {
                     router.push(`/customers/bookings/${params.id}`);
                     return;
                 }

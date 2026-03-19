@@ -63,15 +63,29 @@ const SORT_OPTIONS = [
     { value: "amount", label: "Amount" },
 ];
 
+const STATUS_LABELS = {
+    intent_created: "Pending",
+    escrowed: "Escrowed",
+    partially_released: "Partial Release",
+    released: "Released",
+    refunded: "Refunded",
+    failed: "Failed",
+    accepted: "Accepted",
+    confirmed: "Confirmed",
+    in_progress: "In Progress",
+    completed: "Completed",
+    cancelled: "Cancelled",
+};
+
 function StatusBadge({ value, styleMap }) {
     const cls =
         styleMap?.[value] ??
         "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300";
     return (
         <span
-            className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium capitalize ${cls}`}
+            className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${cls}`}
         >
-            {value ?? "—"}
+            {STATUS_LABELS[value] || value?.replace(/_/g, " ") || "—"}
         </span>
     );
 }
@@ -649,6 +663,7 @@ const STATUS_TABS = [
     { key: "all", label: "All" },
     { key: "intent_created", label: "Pending" },
     { key: "escrowed", label: "Escrowed" },
+    { key: "partially_released", label: "Partial" },
     { key: "released", label: "Released" },
     { key: "refunded", label: "Refunded" },
 ];

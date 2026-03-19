@@ -101,7 +101,7 @@ export default function BookingTimeline({ booking }) {
             isWaiting: true,
         });
     } else if (payment) {
-        const escrowed = ["escrowed", "released", "refunded"].includes(payment.status);
+        const escrowed = ["escrowed", "partially_released", "released", "refunded"].includes(payment.status);
         const failed = payment.status === "failed";
         steps.push({
             icon: MdPayments,
