@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { messagesApi } from "@/lib/messages.api";
 import { useAuth } from "./useAuth";
+import { useSocketContext } from "@/components/providers/SocketProvider";
 
 /**
  * Retry config for polling queries — backs off on 429 (rate limit) instead of hammering the server
@@ -24,14 +25,18 @@ const pollingRetryConfig = {
  * Hook to manage conversation list with polling
  * Use in the message sidebar
  */
-export function useConversations(pollInterval = 10000) {
+export function useConversations(pollInterval) {
+    const { connected } = useSocketContext();
+    // Fast poll (10s) when socket is disconnected, slow poll (60s) when connected
+    const interval = pollInterval ?? (connected ? 60000 : 10000);
+
     const { data, isLoading, error, refetch } = useQuery({
         queryKey: ["conversations"],
         queryFn: async () => {
             const res = await messagesApi.getConversations();
             return res.data.data.conversations;
         },
-        refetchInterval: pollInterval,
+        refetchInterval: interval,
         refetchIntervalInBackground: false,
         ...pollingRetryConfig,
     });
@@ -52,9 +57,11 @@ export function useConversations(pollInterval = 10000) {
  * @param {string} contextType - "offer" | "booking"
  * @param {string} contextId - UUID
  */
-export function useMessages(contextType, contextId, pollInterval = 10000) {
+export function useMessages(contextType, contextId, pollInterval) {
     const queryClient = useQueryClient();
     const { user } = useAuth();
+    const { connected } = useSocketContext();
+    const resolvedPollInterval = pollInterval ?? (connected ? 60000 : 10000);
     const [hasMore, setHasMore] = useState(false);
     const [loadingMore, setLoadingMore] = useState(false);
 
@@ -74,7 +81,7 @@ export function useMessages(contextType, contextId, pollInterval = 10000) {
             return res.data.data.messages;
         },
         enabled: !!contextType && !!contextId,
-        refetchInterval: pollInterval,
+        refetchInterval: resolvedPollInterval,
         refetchIntervalInBackground: false,
         ...pollingRetryConfig,
     });
@@ -282,14 +289,17 @@ export function useConversationContext(contextType, contextId) {
  * Hook to get and poll unread message count
  * Used in the nav badge
  */
-export function useUnreadCount(pollInterval = 15000) {
+export function useUnreadCount(pollInterval) {
+    const { connected } = useSocketContext();
+    const interval = pollInterval ?? (connected ? 60000 : 15000);
+
     const { data } = useQuery({
         queryKey: ["unreadCount"],
         queryFn: async () => {
             const res = await messagesApi.getUnreadCount();
             return res.data.data.count;
         },
-        refetchInterval: pollInterval,
+        refetchInterval: interval,
         ...pollingRetryConfig,
     });
 

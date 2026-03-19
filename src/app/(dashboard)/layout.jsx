@@ -8,6 +8,7 @@ import { supabase } from '@/lib/supabase';
 import { getTherapistRedirect } from '@/lib/therapistRouteAccess';
 import { TherapistAccessProvider } from '@/contexts/TherapistAccessContext';
 import { AdminUserProvider } from '@/contexts/AdminUserContext';
+import { SocketProvider } from '@/components/providers/SocketProvider';
 import OnboardingBanner from '@/components/therapist/OnboardingBanner';
 import { useUnreadCount } from '@/hooks/useMessages';
 import {
@@ -497,20 +498,22 @@ export default function DashboardLayout({ children }) {
             )}
 
             {/* ── MAIN CONTENT ── */}
-            <main className="ml-0 lg:ml-64 flex-1 min-h-screen pt-14 lg:pt-0">
-                {user.role === 'therapist' && !isOnOnboardingRoute && <OnboardingBanner />}
-                {user.role === 'therapist' && therapistAccess ? (
-                    <TherapistAccessProvider value={therapistAccess}>
-                        {children}
-                    </TherapistAccessProvider>
-                ) : (user.role === 'admin' || user.role === 'sub_admin') ? (
-                    <AdminUserProvider value={{ id: user.id, email: user.email, role: user.role, permissions: subAdminPermissions }}>
-                        {children}
-                    </AdminUserProvider>
-                ) : (
-                    children
-                )}
-            </main>
+            <SocketProvider userId={user.id}>
+                <main className="ml-0 lg:ml-64 flex-1 min-h-screen pt-14 lg:pt-0">
+                    {user.role === 'therapist' && !isOnOnboardingRoute && <OnboardingBanner />}
+                    {user.role === 'therapist' && therapistAccess ? (
+                        <TherapistAccessProvider value={therapistAccess}>
+                            {children}
+                        </TherapistAccessProvider>
+                    ) : (user.role === 'admin' || user.role === 'sub_admin') ? (
+                        <AdminUserProvider value={{ id: user.id, email: user.email, role: user.role, permissions: subAdminPermissions }}>
+                            {children}
+                        </AdminUserProvider>
+                    ) : (
+                        children
+                    )}
+                </main>
+            </SocketProvider>
         </div>
     );
 }
