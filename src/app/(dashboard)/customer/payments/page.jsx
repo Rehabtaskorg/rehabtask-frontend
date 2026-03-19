@@ -108,7 +108,7 @@ export default function CustomerPaymentsPage() {
                                 </div>
                             </div>
 
-                            {payment.status === 'escrowed' && (
+                            {['escrowed', 'partially_released'].includes(payment.status) && (
                                 <div className="mt-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800/50 rounded-lg p-3">
                                     <p className="text-sm text-blue-800 dark:text-blue-300">
                                         💡 Payment is being held securely. It will be released to the therapist after you confirm session completion.
