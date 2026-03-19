@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { useConversations, useMessages, useConversationContext } from "./useMessages";
 import { useAuth } from "./useAuth";
+import { useSocketContext } from "@/components/providers/SocketProvider";
 import { messagesApi } from "@/lib/messages.api";
 import { getDisplayName, parseContextParam } from "@/utils/messages";
 
@@ -48,6 +49,7 @@ export function useMessagesPage(basePath) {
     const { user } = useAuth();
 
     const [selectedConversation, setSelectedConversation] = useState(null);
+    const { joinConversation, leaveConversation } = useSocketContext();
 
     // For direct conversations, prefer using the directConversationId for merged thread view
     // `selected.type` / `selected.id` drive which messages to fetch (always direct for merged threads)
@@ -75,6 +77,13 @@ export function useMessagesPage(basePath) {
         })()
         : null;
 
+    // Join/leave Socket.io conversation room when selection changes
+    useEffect(() => {
+        if (selected?.type && selected?.id) {
+            joinConversation(selected.type, selected.id);
+        }
+        return () => { leaveConversation(); };
+    }, [selected?.type, selected?.id, joinConversation, leaveConversation]);
     const [mobileView, setMobileView] = useState('list');
     const [inputValue, setInputValue] = useState('');
 

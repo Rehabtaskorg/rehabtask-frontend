@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { messagesApi } from "@/lib/messages.api";
 import { useAuth } from "./useAuth";
+import { useSocketContext } from "@/components/providers/SocketProvider";
 
 /**
  * Retry config for polling queries — backs off on 429 (rate limit) instead of hammering the server
@@ -24,14 +25,18 @@ const pollingRetryConfig = {
  * Hook to manage conversation list with polling
  * Use in the message sidebar
  */
-export function useConversations(pollInterval = 10000) {
+export function useConversations(pollInterval) {
+    const { connected } = useSocketContext();
+    // Fast poll (10s) when socket is disconnected, slow poll (60s) when connected
+    const interval = pollInterval ?? (connected ? 60000 : 10000);
+
     const { data, isLoading, error, refetch } = useQuery({
         queryKey: ["conversations"],
         queryFn: async () => {
             const res = await messagesApi.getConversations();
             return res.data.data.conversations;
         },
-        refetchInterval: pollInterval,
+        refetchInterval: interval,
         refetchIntervalInBackground: false,
         ...pollingRetryConfig,
     });
@@ -52,9 +57,11 @@ export function useConversations(pollInterval = 10000) {
  * @param {string} contextType - "offer" | "booking"
  * @param {string} contextId - UUID
  */
-export function useMessages(contextType, contextId, pollInterval = 10000) {
+export function useMessages(contextType, contextId, pollInterval) {
     const queryClient = useQueryClient();
     const { user } = useAuth();
+    const { connected } = useSocketContext();
+    const resolvedPollInterval = pollInterval ?? (connected ? 60000 : 10000);
     const [hasMore, setHasMore] = useState(false);
     const [loadingMore, setLoadingMore] = useState(false);
 
@@ -74,7 +81,7 @@ export function useMessages(contextType, contextId, pollInterval = 10000) {
             return res.data.data.messages;
         },
         enabled: !!contextType && !!contextId,
-        refetchInterval: pollInterval,
+        refetchInterval: resolvedPollInterval,
         refetchIntervalInBackground: false,
         ...pollingRetryConfig,
     });
@@ -86,19 +93,26 @@ export function useMessages(contextType, contextId, pollInterval = 10000) {
 
     const isSessionExpired = error?.response?.status === 401;
 
-    // Mark as read when conversation opens
+    // Mark messages as read — fires on open AND when new messages arrive while viewing
+    const lastReadCountRef = useRef(0);
     useEffect(() => {
-        if (!contextType || !contextId) return;
+        if (!contextType || !contextId || !data) return;
+
+        // Check if there are messages from others that are unread
+        const unreadFromOthers = data.filter(
+            m => m.senderId !== user?.id && !m.readAt && m.type !== "system" && !m.id?.startsWith("optimistic")
+        ).length;
+
+        // Skip if no unread messages from others, or if count hasn't changed
+        if (unreadFromOthers === 0 || unreadFromOthers === lastReadCountRef.current) return;
+        lastReadCountRef.current = unreadFromOthers;
 
         messagesApi.markAsRead(contextType, contextId)
             .then(() => {
                 queryClient.setQueryData(["conversations"], (old) =>
                     old?.map((conv) => {
-                        // Match by currentContext (offer/booking)
                         const matchesCurrent = conv.currentContext?.type === contextType &&
                             conv.currentContext?.id === contextId;
-                        // Also match by directConversationId (direct conversations may have
-                        // been upgraded to offer/booking context but still share the same thread)
                         const matchesDirect = contextType === "direct" &&
                             conv.directConversationId === contextId;
 
@@ -108,9 +122,12 @@ export function useMessages(contextType, contextId, pollInterval = 10000) {
                     }) ?? []
                 );
                 queryClient.invalidateQueries({ queryKey: ["unreadCount"] });
+                queryClient.invalidateQueries({ queryKey: ["conversations"] });
             })
             .catch(() => { });
-    }, [contextType, contextId, queryClient]);
+
+        return () => { lastReadCountRef.current = 0; };
+    }, [contextType, contextId, data, user?.id, queryClient]);
 
     const { mutateAsync: sendMessageMutation } = useMutation({
         mutationFn: (content) =>
@@ -198,7 +215,7 @@ export function useMessages(contextType, contextId, pollInterval = 10000) {
         if (!hasMore || loadingMore || !contextType || !contextId) return;
         const current = queryClient.getQueryData(messagesQueryKey);
         // Find the oldest real message (not system divider) to use as cursor
-        const oldestReal = current?.find(m => m.type !== "system" && !m.id?.startsWith("optimistic"));
+        const oldestReal = current?.findLast(m => m.type !== "system" && !m.id?.startsWith("optimistic"));
         if (!oldestReal) return;
 
         setLoadingMore(true);
@@ -282,14 +299,17 @@ export function useConversationContext(contextType, contextId) {
  * Hook to get and poll unread message count
  * Used in the nav badge
  */
-export function useUnreadCount(pollInterval = 15000) {
+export function useUnreadCount(pollInterval) {
+    const { connected } = useSocketContext();
+    const interval = pollInterval ?? (connected ? 60000 : 15000);
+
     const { data } = useQuery({
         queryKey: ["unreadCount"],
         queryFn: async () => {
             const res = await messagesApi.getUnreadCount();
             return res.data.data.count;
         },
-        refetchInterval: pollInterval,
+        refetchInterval: interval,
         ...pollingRetryConfig,
     });
 
