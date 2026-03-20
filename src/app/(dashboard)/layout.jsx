@@ -20,7 +20,7 @@ import {
     MdGavel, MdQuestionAnswer, MdNotifications,
     MdManageAccounts, MdVerifiedUser,
     MdCardMembership, MdAttachMoney, MdAdminPanelSettings,
-    MdHistory, MdAssessment,
+    MdHistory, MdAssessment, MdMedicalServices,
 } from "react-icons/md";
 
 function TherapistMessagesLink({ pathname }) {
@@ -465,6 +465,7 @@ export default function DashboardLayout({ children }) {
                                 <>
                                     <NavLink href="/admin/sub-admins" icon={MdSupervisorAccount} label="Sub-Admins" pathname={pathname} />
                                     <NavLink href="/admin/reports" icon={MdAssessment} label="Reports" pathname={pathname} />
+                                    <NavLink href="/admin/visit-types" icon={MdMedicalServices} label="Visit Types" pathname={pathname} />
                                     <NavLink href="/admin/audit-logs" icon={MdHistory} label="Audit Logs" pathname={pathname} />
                                 </>
                             )}

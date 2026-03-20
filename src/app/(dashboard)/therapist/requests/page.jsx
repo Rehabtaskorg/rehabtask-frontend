@@ -61,7 +61,9 @@ export default function TherapistRequestsPage() {
         sessionType: 'in-person',
         proposedDate: '',
         description: '',
+        visitTypeId: '',
     });
+    const [visitTypes, setVisitTypes] = useState([]);
     const [submitting, setSubmitting] = useState(false);
     const [offerSuccess, setOfferSuccess] = useState(false);
     const [offerError, setOfferError] = useState('');
@@ -88,6 +90,9 @@ export default function TherapistRequestsPage() {
         fetchRequests();
         api.get("/payments/commission-rate").then(res => {
             setCommissionRate(res.data.data.rate);
+        }).catch(() => {});
+        api.get("/visit-types").then(res => {
+            setVisitTypes(res.data.data || []);
         }).catch(() => {});
     }, []);
 
@@ -134,7 +139,7 @@ export default function TherapistRequestsPage() {
             const d = new Date(req.preferredDate);
             const localDT = new Date(d.getTime() - d.getTimezoneOffset() * 60000)
                 .toISOString().slice(0, 16);
-            setOfferData({ rate: '', sessionType: 'in-person', proposedDate: localDT, description: '' });
+            setOfferData({ rate: '', sessionType: 'in-person', proposedDate: localDT, description: '', visitTypeId: '' });
         }
     };
 
@@ -155,6 +160,7 @@ export default function TherapistRequestsPage() {
                 sessionType: offerData.sessionType,
                 proposedDate: new Date(offerData.proposedDate).toISOString(),
                 description: offerData.description,
+                ...(offerData.visitTypeId && { visitTypeId: offerData.visitTypeId }),
             });
             setOfferSuccess(true);
             const res = await api.get("/requests/available");
@@ -182,6 +188,7 @@ export default function TherapistRequestsPage() {
                 sessionType: offerData.sessionType,
                 proposedDate: new Date(offerData.proposedDate).toISOString(),
                 description: offerData.description,
+                ...(offerData.visitTypeId && { visitTypeId: offerData.visitTypeId }),
             });
             setOfferSuccess(true);
             const res = await api.get("/requests/available");
@@ -620,6 +627,21 @@ export default function TherapistRequestsPage() {
                                                     </div>
                                                 </div>
                                             </div>
+                                            {visitTypes.length > 0 && (
+                                                <div className="space-y-1.5">
+                                                    <label className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase">Visit Type</label>
+                                                    <select
+                                                        value={offerData.visitTypeId}
+                                                        onChange={e => setOfferData(prev => ({ ...prev, visitTypeId: e.target.value }))}
+                                                        className="w-full rounded-lg border-slate-200 dark:border-border-dark dark:bg-card-dark dark:text-white text-sm focus:ring-primary focus:border-primary"
+                                                    >
+                                                        <option value="">Select visit type</option>
+                                                        {visitTypes.map(vt => (
+                                                            <option key={vt.id} value={vt.id}>{vt.name} ({vt.code})</option>
+                                                        ))}
+                                                    </select>
+                                                </div>
+                                            )}
                                             <div className="space-y-1.5">
                                                 <label className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase">Proposed First Session</label>
                                                 <input
@@ -679,6 +701,12 @@ export default function TherapistRequestsPage() {
                                                     <p className="text-sm font-semibold text-slate-900 dark:text-white mt-0.5 capitalize">{myOffer.sessionType}</p>
                                                 </div>
                                             </div>
+                                            {myOffer.visitType && (
+                                                <div>
+                                                    <p className="text-[10px] font-bold text-slate-400 uppercase">Visit Type</p>
+                                                    <p className="text-sm font-semibold text-slate-900 dark:text-white mt-0.5">{myOffer.visitType.name} ({myOffer.visitType.code})</p>
+                                                </div>
+                                            )}
                                             <div>
                                                 <p className="text-[10px] font-bold text-slate-400 uppercase">Proposed Date</p>
                                                 <p className="text-sm font-semibold text-slate-900 dark:text-white mt-0.5">
@@ -773,6 +801,21 @@ export default function TherapistRequestsPage() {
                                                         </div>
                                                     </div>
                                                 </div>
+                                                {visitTypes.length > 0 && (
+                                                    <div className="space-y-1.5">
+                                                        <label className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase">Visit Type</label>
+                                                        <select
+                                                            value={offerData.visitTypeId}
+                                                            onChange={e => setOfferData(prev => ({ ...prev, visitTypeId: e.target.value }))}
+                                                            className="w-full rounded-lg border-slate-200 dark:border-border-dark dark:bg-card-dark dark:text-white text-sm focus:ring-primary focus:border-primary"
+                                                        >
+                                                            <option value="">Select visit type</option>
+                                                            {visitTypes.map(vt => (
+                                                                <option key={vt.id} value={vt.id}>{vt.name} ({vt.code})</option>
+                                                            ))}
+                                                        </select>
+                                                    </div>
+                                                )}
                                                 <div className="space-y-1.5">
                                                     <label className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase">Updated Message</label>
                                                     <textarea
