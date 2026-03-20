@@ -439,11 +439,21 @@ export default function AdminUserDetailPage() {
                             onChange={(v) => setEditForm(f => ({ ...f, phone: v }))}
                             placeholder="+1XXXXXXXXXX"
                         />
-                        <EditableField
-                            label="Primary license type"
-                            value={editForm.primaryLicenseType || ''}
-                            onChange={(v) => setEditForm(f => ({ ...f, primaryLicenseType: v }))}
-                        />
+                        <div className="flex flex-col gap-1">
+                            <label className="text-sm font-medium text-text-muted">Primary license type</label>
+                            <select
+                                value={editForm.primaryLicenseType || ''}
+                                onChange={(e) => setEditForm(f => ({ ...f, primaryLicenseType: e.target.value }))}
+                                className="w-full px-3 py-2 rounded-lg border border-border-light dark:border-border-dark bg-white dark:bg-card-dark text-text-main dark:text-white text-sm"
+                            >
+                                <option value="">Select License Type</option>
+                                <option value="Physical Therapist">Physical Therapist (PT)</option>
+                                <option value="Occupational Therapist">Occupational Therapist (OT)</option>
+                                <option value="Speech-Language Pathologist">Speech-Language Pathologist (SLP)</option>
+                                <option value="Physical Therapist Assistant">PT Assistant (PTA)</option>
+                                <option value="Occupational Therapist Assistant">OT Assistant (OTA)</option>
+                            </select>
+                        </div>
                         <EditableTextarea
                             label="Bio"
                             value={editForm.bio || ''}
