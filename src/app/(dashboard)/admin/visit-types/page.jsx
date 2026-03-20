@@ -124,7 +124,7 @@ export default function AdminVisitTypesPage() {
                                 value={formData.code}
                                 onChange={e => setFormData(p => ({ ...p, code: e.target.value.toUpperCase() }))}
                                 placeholder="PTE"
-                                className="w-full mt-1 rounded-lg border-border-light dark:border-border-dark dark:bg-slate-800 dark:text-white text-sm"
+                                className="w-full mt-1 rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-main dark:text-white text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
                             />
                         </div>
                         <div>
@@ -135,7 +135,7 @@ export default function AdminVisitTypesPage() {
                                 value={formData.name}
                                 onChange={e => setFormData(p => ({ ...p, name: e.target.value }))}
                                 placeholder="Physical Therapist Evaluation"
-                                className="w-full mt-1 rounded-lg border-border-light dark:border-border-dark dark:bg-slate-800 dark:text-white text-sm"
+                                className="w-full mt-1 rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-main dark:text-white text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
                             />
                         </div>
                         <div>
@@ -144,7 +144,7 @@ export default function AdminVisitTypesPage() {
                                 required
                                 value={formData.discipline}
                                 onChange={e => setFormData(p => ({ ...p, discipline: e.target.value }))}
-                                className="w-full mt-1 rounded-lg border-border-light dark:border-border-dark dark:bg-slate-800 dark:text-white text-sm"
+                                className="w-full mt-1 rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-main dark:text-white text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
                             >
                                 <option value="">Select discipline</option>
                                 {DISCIPLINES.map(d => <option key={d} value={d}>{d}</option>)}
@@ -156,7 +156,7 @@ export default function AdminVisitTypesPage() {
                                 type="number"
                                 value={formData.sortOrder}
                                 onChange={e => setFormData(p => ({ ...p, sortOrder: parseInt(e.target.value) || 0 }))}
-                                className="w-full mt-1 rounded-lg border-border-light dark:border-border-dark dark:bg-slate-800 dark:text-white text-sm"
+                                className="w-full mt-1 rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-main dark:text-white text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
                             />
                         </div>
                     </div>

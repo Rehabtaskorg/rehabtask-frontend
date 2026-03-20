@@ -236,7 +236,7 @@ export default function TherapistRequestsPage() {
     return (
         <div className="flex h-[calc(100vh-3.5rem)] lg:h-full overflow-hidden">
 
-            {/* ── PANEL 1: Filters ─────────────────────────────────────────── */}
+            {/* ── PANEL 1: Filters ──────���──────────────────────────────────── */}
             <aside className={`
                 border-r border-slate-200 dark:border-border-dark
                 bg-white dark:bg-card-dark p-5 overflow-y-auto panel-scroll shrink-0
@@ -604,13 +604,13 @@ export default function TherapistRequestsPage() {
                                                             placeholder="0.00"
                                                             value={offerData.rate}
                                                             onChange={e => setOfferData(prev => ({ ...prev, rate: e.target.value }))}
-                                                            className="w-full pl-7 rounded-lg border-slate-200 dark:border-border-dark dark:bg-card-dark dark:text-white font-mono text-sm focus:ring-primary focus:border-primary"
+                                                            className="w-full pl-7 rounded-lg border border-border-light dark:border-border-dark bg-white dark:bg-card-dark text-text-main dark:text-white font-mono text-sm py-2 pr-3 focus:outline-none focus:ring-2 focus:ring-primary"
                                                         />
                                                     </div>
                                                 </div>
                                                 <div className="space-y-1.5">
                                                     <label className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase">Session Type</label>
-                                                    <div className="flex bg-white dark:bg-slate-800 rounded-lg p-1 border border-slate-200 dark:border-border-dark gap-1">
+                                                    <div className="flex bg-white dark:bg-card-dark rounded-lg p-1 border border-border-light dark:border-border-dark gap-1">
                                                         {['in-person', 'virtual'].map(type => (
                                                             <button
                                                                 key={type}
@@ -633,7 +633,7 @@ export default function TherapistRequestsPage() {
                                                     <select
                                                         value={offerData.visitTypeId}
                                                         onChange={e => setOfferData(prev => ({ ...prev, visitTypeId: e.target.value }))}
-                                                        className="w-full rounded-lg border-slate-200 dark:border-border-dark dark:bg-card-dark dark:text-white text-sm focus:ring-primary focus:border-primary"
+                                                        className="w-full rounded-lg border border-border-light dark:border-border-dark bg-white dark:bg-card-dark text-text-main dark:text-white text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
                                                     >
                                                         <option value="">Select visit type</option>
                                                         {visitTypes.map(vt => (
@@ -649,7 +649,7 @@ export default function TherapistRequestsPage() {
                                                     required
                                                     value={offerData.proposedDate}
                                                     onChange={e => setOfferData(prev => ({ ...prev, proposedDate: e.target.value }))}
-                                                    className="w-full rounded-lg border-slate-200 dark:border-border-dark dark:bg-card-dark dark:text-white text-sm focus:ring-primary focus:border-primary"
+                                                    className="w-full rounded-lg border border-border-light dark:border-border-dark bg-white dark:bg-card-dark text-text-main dark:text-white text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
                                                 />
                                             </div>
                                             <div className="space-y-1.5">
@@ -660,7 +660,7 @@ export default function TherapistRequestsPage() {
                                                     value={offerData.description}
                                                     onChange={e => setOfferData(prev => ({ ...prev, description: e.target.value }))}
                                                     placeholder="Explain your experience with this condition and your approach..."
-                                                    className="w-full rounded-lg border-slate-200 dark:border-border-dark dark:bg-card-dark dark:text-white text-sm resize-none focus:ring-primary focus:border-primary"
+                                                    className="w-full rounded-lg border border-border-light dark:border-border-dark bg-white dark:bg-card-dark text-text-main dark:text-white text-sm px-3 py-2 resize-none focus:outline-none focus:ring-2 focus:ring-primary"
                                                 />
                                             </div>
                                             <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-900/50 rounded-lg p-3">
@@ -778,13 +778,13 @@ export default function TherapistRequestsPage() {
                                                                 required
                                                                 value={offerData.rate || parseFloat(myOffer.rate).toFixed(2)}
                                                                 onChange={e => setOfferData(prev => ({ ...prev, rate: e.target.value }))}
-                                                                className="w-full pl-7 rounded-lg border-slate-200 dark:border-border-dark dark:bg-card-dark dark:text-white font-mono text-sm focus:ring-primary focus:border-primary"
+                                                                className="w-full pl-7 rounded-lg border border-border-light dark:border-border-dark bg-white dark:bg-card-dark text-text-main dark:text-white font-mono text-sm py-2 pr-3 focus:outline-none focus:ring-2 focus:ring-primary"
                                                             />
                                                         </div>
                                                     </div>
                                                     <div className="space-y-1.5">
                                                         <label className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase">Session Type</label>
-                                                        <div className="flex bg-white dark:bg-slate-800 rounded-lg p-1 border border-slate-200 dark:border-border-dark gap-1">
+                                                        <div className="flex bg-white dark:bg-card-dark rounded-lg p-1 border border-border-light dark:border-border-dark gap-1">
                                                             {['in-person', 'virtual'].map(type => (
                                                                 <button
                                                                     key={type}
@@ -807,7 +807,7 @@ export default function TherapistRequestsPage() {
                                                         <select
                                                             value={offerData.visitTypeId}
                                                             onChange={e => setOfferData(prev => ({ ...prev, visitTypeId: e.target.value }))}
-                                                            className="w-full rounded-lg border-slate-200 dark:border-border-dark dark:bg-card-dark dark:text-white text-sm focus:ring-primary focus:border-primary"
+                                                            className="w-full rounded-lg border border-border-light dark:border-border-dark bg-white dark:bg-card-dark text-text-main dark:text-white text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
                                                         >
                                                             <option value="">Select visit type</option>
                                                             {visitTypes.map(vt => (
@@ -824,7 +824,7 @@ export default function TherapistRequestsPage() {
                                                         value={offerData.description}
                                                         onChange={e => setOfferData(prev => ({ ...prev, description: e.target.value }))}
                                                         placeholder="Address the customer's request..."
-                                                        className="w-full rounded-lg border-slate-200 dark:border-border-dark dark:bg-card-dark dark:text-white text-sm resize-none focus:ring-primary focus:border-primary"
+                                                        className="w-full rounded-lg border border-border-light dark:border-border-dark bg-white dark:bg-card-dark text-text-main dark:text-white text-sm px-3 py-2 resize-none focus:outline-none focus:ring-2 focus:ring-primary"
                                                     />
                                                 </div>
                                                 {offerError && (
