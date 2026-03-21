@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import {
     MdArrowBack, MdChat, MdCalendarToday, MdAccessTime, MdLocationOn, MdVideocam, MdPerson,
@@ -96,9 +96,6 @@ export default function TherapistBookingDetailPage() {
         router.push(`/therapist/messages?c=booking:${params.id}`);
     };
 
-    const handlePaymentAction = useCallback((action) => {
-        if (action === "mark_complete") setShowCompleteDialog(true);
-    }, []);
 
     // ─── Loading ────
     if (loading) {
@@ -526,7 +523,6 @@ export default function TherapistBookingDetailPage() {
                     <PaymentSummaryCard
                         booking={booking}
                         role="therapist"
-                        onAction={handlePaymentAction}
                     />
 
                     {/* Message Customer */}
