@@ -88,6 +88,8 @@ export default function CustomerRequestDetailPage() {
     const [changeOfferId, setChangeOfferId] = useState(null);
     const [changeNote, setChangeNote] = useState("");
     const [changingOffer, setChangingOffer] = useState(false);
+    const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+    const [cancelling, setCancelling] = useState(false);
 
     const fetchRequest = async () => {
         try {
@@ -156,6 +158,19 @@ export default function CustomerRequestDetailPage() {
             alert(msg);
         } finally {
             setChangingOffer(false);
+        }
+    };
+
+    const handleCancelRequest = async () => {
+        setCancelling(true);
+        try {
+            await api.post(`/requests/${params.id}/cancel`);
+            fetchRequest();
+            setShowCancelConfirm(false);
+        } catch (err) {
+            alert("Error: " + (err.response?.data?.message || "Failed to cancel request"));
+        } finally {
+            setCancelling(false);
         }
     };
 
@@ -515,14 +530,45 @@ export default function CustomerRequestDetailPage() {
                                     Edit Request
                                 </button>
                             )}
-                            {isEditable && (
+                            {isEditable && !showCancelConfirm && (
                                 <button
-                                    onClick={() => alert("Cancel request feature coming soon")}
+                                    onClick={() => setShowCancelConfirm(true)}
                                     className="w-full py-3 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-lg font-bold transition-all flex items-center justify-center gap-2 text-sm"
                                 >
                                     <MdCancel className="text-lg" />
                                     Cancel Request
                                 </button>
+                            )}
+                            {showCancelConfirm && (
+                                <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+                                    <div className="flex items-start gap-2 mb-3">
+                                        <MdWarning className="text-red-600 dark:text-red-400 text-lg shrink-0 mt-0.5" />
+                                        <div>
+                                            <p className="text-sm font-bold text-red-800 dark:text-red-200">Cancel this request?</p>
+                                            <p className="text-xs text-red-700 dark:text-red-300 mt-1">
+                                                {offers.length > 0
+                                                    ? `This will cancel your request and withdraw ${offers.filter(o => ["pending", "change_requested"].includes(o.status)).length} pending offer(s). Affected therapists will be notified.`
+                                                    : "This will cancel your request. This action cannot be undone."
+                                                }
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div className="flex gap-2 justify-end">
+                                        <button
+                                            onClick={() => setShowCancelConfirm(false)}
+                                            className="text-sm text-slate-500 dark:text-slate-400 font-bold hover:text-text-main dark:hover:text-white transition-colors px-3 py-1.5"
+                                        >
+                                            Go Back
+                                        </button>
+                                        <button
+                                            onClick={handleCancelRequest}
+                                            disabled={cancelling}
+                                            className="bg-red-600 hover:bg-red-700 text-white px-5 py-1.5 rounded-lg text-sm font-bold disabled:opacity-50 transition-colors"
+                                        >
+                                            {cancelling ? "Cancelling..." : "Yes, Cancel"}
+                                        </button>
+                                    </div>
+                                </div>
                             )}
                             {request.status === "offers_accepted" && (
                                 <button

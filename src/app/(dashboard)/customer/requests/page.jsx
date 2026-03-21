@@ -12,6 +12,8 @@ import {
     MdVisibility,
     MdEdit,
     MdOpenInNew,
+    MdCancel,
+    MdWarning,
 
 } from "react-icons/md";
 import { api } from "@/lib/api";
@@ -85,6 +87,8 @@ export default function MyRequestsPage() {
     const [changeOfferId, setChangeOfferId] = useState(null);
     const [changeNote, setChangeNote] = useState("");
     const [changingOffer, setChangingOffer] = useState(false);
+    const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+    const [cancelling, setCancelling] = useState(false);
 
     // Data fetching
     const fetchRequests = useCallback(async () => {
@@ -201,6 +205,24 @@ export default function MyRequestsPage() {
             setChangingOffer(false);
         }
     }
+
+    const handleCancelRequest = async () => {
+        if (!selectedRequest) return;
+        setCancelling(true);
+        try {
+            await api.post(`/requests/${selectedRequest.id}/cancel`);
+            setShowCancelConfirm(false);
+            // Refresh the requests list
+            const res = await api.get("/requests/my-requests");
+            setRequests(res.data.data);
+            setSelectedRequest(null);
+            setMobileDetailOpen(false);
+        } catch (err) {
+            alert("Error: " + (err.response?.data?.message || "Failed to cancel request"));
+        } finally {
+            setCancelling(false);
+        }
+    };
 
     return (
         <div className="flex-1 flex flex-col overflow-hidden">
@@ -372,6 +394,11 @@ export default function MyRequestsPage() {
                                 setChangeNote("");
                             }}
                             onChangeNoteUpdate={setChangeNote}
+                            showCancelConfirm={showCancelConfirm}
+                            cancelling={cancelling}
+                            onCancelRequest={handleCancelRequest}
+                            onOpenCancel={() => setShowCancelConfirm(true)}
+                            onCloseCancel={() => setShowCancelConfirm(false)}
                         />
                         </>
                     ) : (
@@ -435,6 +462,11 @@ export default function MyRequestsPage() {
                                 setChangeNote("");
                             }}
                             onChangeNoteUpdate={setChangeNote}
+                            showCancelConfirm={showCancelConfirm}
+                            cancelling={cancelling}
+                            onCancelRequest={handleCancelRequest}
+                            onOpenCancel={() => setShowCancelConfirm(true)}
+                            onCloseCancel={() => setShowCancelConfirm(false)}
                         />
                     </section>
                 )}
@@ -459,6 +491,11 @@ function DetailPanel({
     onOpenChange,
     onCloseChange,
     onChangeNoteUpdate,
+    showCancelConfirm,
+    cancelling,
+    onCancelRequest,
+    onOpenCancel,
+    onCloseCancel,
 }) {
     if (loading) {
         return (
@@ -538,14 +575,48 @@ function DetailPanel({
                     </div>
                 )}
 
-                {/* View Full Details link */}
-                <a
-                    href={`/customer/requests/${request.id}`}
-                    className="inline-flex items-center gap-1.5 mt-4 text-sm font-bold text-primary hover:text-primary/80 transition-colors"
-                >
-                    <MdOpenInNew className="text-base" />
-                    View Full Details
-                </a>
+                {/* View Full Details + Cancel */}
+                <div className="flex items-center gap-4 mt-4">
+                    <a
+                        href={`/customer/requests/${request.id}`}
+                        className="inline-flex items-center gap-1.5 text-sm font-bold text-primary hover:text-primary/80 transition-colors"
+                    >
+                        <MdOpenInNew className="text-base" />
+                        View Full Details
+                    </a>
+                    {["created", "offers_received"].includes(request.status) && !showCancelConfirm && (
+                        <button
+                            onClick={onOpenCancel}
+                            className="inline-flex items-center gap-1 text-sm font-bold text-red-500 hover:text-red-600 transition-colors"
+                        >
+                            <MdCancel className="text-base" />
+                            Cancel
+                        </button>
+                    )}
+                </div>
+
+                {/* Cancel confirmation */}
+                {showCancelConfirm && (
+                    <div className="mt-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+                        <p className="text-sm font-bold text-red-800 dark:text-red-200 mb-1">Cancel this request?</p>
+                        <p className="text-xs text-red-700 dark:text-red-300 mb-3">
+                            {offers.length > 0
+                                ? `This will withdraw ${pendingOffers.length} pending offer(s) and notify therapists.`
+                                : "This action cannot be undone."
+                            }
+                        </p>
+                        <div className="flex gap-2 justify-end">
+                            <button onClick={onCloseCancel} className="text-sm text-slate-500 font-bold px-3 py-1.5">Go Back</button>
+                            <button
+                                onClick={onCancelRequest}
+                                disabled={cancelling}
+                                className="bg-red-600 hover:bg-red-700 text-white px-5 py-1.5 rounded-lg text-sm font-bold disabled:opacity-50 transition-colors"
+                            >
+                                {cancelling ? "Cancelling..." : "Yes, Cancel"}
+                            </button>
+                        </div>
+                    </div>
+                )}
             </div>
 
             {/* Offers section */}
