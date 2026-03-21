@@ -1,6 +1,6 @@
 "use client";
 
-import { MdPayments, MdLock, MdCheckCircle, MdError, MdRefresh, MdArrowForward, MdTaskAlt, } from "react-icons/md";
+import { MdPayments, MdLock, MdCheckCircle, MdError, MdRefresh, MdArrowForward } from "react-icons/md";
 import { formatCurrency } from "@/utils/messages";
 
 const PAYMENT_STATUS_CONFIG = {
@@ -59,7 +59,8 @@ export default function PaymentSummaryCard({ booking, role, onAction }) {
     const paymentConfig = payment ? PAYMENT_STATUS_CONFIG[payment.status] : null;
     const PaymentIcon = paymentConfig?.icon || MdPayments;
 
-    // Determine CTA
+    // Determine CTA — only "Pay Now" lives here. Mark Complete and Confirm Completion
+    // are in the main content area where their confirmation dialogs appear.
     let ctaLabel = null;
     let ctaAction = null;
     let ctaColor = "bg-primary hover:bg-primary/90";
@@ -67,13 +68,6 @@ export default function PaymentSummaryCard({ booking, role, onAction }) {
     if (isCustomer && ["pending", "accepted"].includes(booking.status) && !payment) {
         ctaLabel = "Pay Now";
         ctaAction = "proceed_payment";
-    } else if (isCustomer && session?.status === "completed_by_therapist") {
-        ctaLabel = "Confirm Completion";
-        ctaAction = "confirm_completion";
-        ctaColor = "bg-emerald-500 hover:bg-emerald-600";
-    } else if (isTherapist && booking.status === "confirmed" && session?.status === "scheduled") {
-        ctaLabel = "Mark Session Complete";
-        ctaAction = "mark_complete";
     }
 
     return (
@@ -163,13 +157,7 @@ export default function PaymentSummaryCard({ booking, role, onAction }) {
                         onClick={() => onAction(ctaAction)}
                         className={`w-full flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-bold text-white transition-colors ${ctaColor}`}
                     >
-                        {ctaAction === "confirm_completion" ? (
-                            <MdTaskAlt className="text-base" />
-                        ) : ctaAction === "mark_complete" ? (
-                            <MdCheckCircle className="text-base" />
-                        ) : (
-                            <MdArrowForward className="text-base" />
-                        )}
+                        <MdArrowForward className="text-base" />
                         {ctaLabel}
                     </button>
                 </div>

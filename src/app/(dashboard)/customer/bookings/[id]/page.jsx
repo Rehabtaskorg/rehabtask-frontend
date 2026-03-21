@@ -383,7 +383,6 @@ export default function CustomerBookingDetailPage() {
 
     const handlePaymentAction = useCallback((action) => {
         if (action === "proceed_payment") handleProceedToPayment();
-        else if (action === "confirm_completion") setShowConfirmDialog(true);
     }, []);
 
     // Loading

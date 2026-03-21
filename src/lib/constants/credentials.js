@@ -52,9 +52,9 @@ export const US_STATES = [
 ];
 
 export const LICENSE_TYPES = [
-    { value: "PT", label: "Physical Therapist (PT)" },
-    { value: "OT", label: "Occupational Therapist (OT)" },
-    { value: "SLP", label: "Speech-Language Pathologist (SLP)" },
-    { value: "PTA", label: "PT Assistant (PTA)" },
-    { value: "OTA", label: "OT Assistant (OTA)" },
+    { value: "Physical Therapist", label: "Physical Therapist (PT)" },
+    { value: "Occupational Therapist", label: "Occupational Therapist (OT)" },
+    { value: "Speech-Language Pathologist", label: "Speech-Language Pathologist (SLP)" },
+    { value: "Physical Therapist Assistant", label: "PT Assistant (PTA)" },
+    { value: "Occupational Therapist Assistant", label: "OT Assistant (OTA)" },
 ];
