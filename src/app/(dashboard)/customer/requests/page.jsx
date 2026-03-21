@@ -11,6 +11,7 @@ import {
     MdInfo,
     MdVisibility,
     MdEdit,
+    MdOpenInNew,
 
 } from "react-icons/md";
 import { api } from "@/lib/api";
@@ -282,7 +283,14 @@ export default function MyRequestsPage() {
                                     return (
                                         <button
                                             key={req.id}
-                                            onClick={() => handleSelectRequest(req)}
+                                            onClick={() => {
+                                                // Mobile: navigate to detail page. Desktop: open side panel.
+                                                if (window.innerWidth < 1024) {
+                                                    router.push(`/customer/requests/${req.id}`);
+                                                } else {
+                                                    handleSelectRequest(req);
+                                                }
+                                            }}
                                             className={`w-full text-left p-4 rounded-xl transition-all ${isSelected
                                                 ? "border-2 border-primary bg-card-light dark:bg-card-dark shadow-md"
                                                 : "border border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark hover:shadow-sm"
@@ -529,6 +537,15 @@ function DetailPanel({
                         </p>
                     </div>
                 )}
+
+                {/* View Full Details link */}
+                <a
+                    href={`/customer/requests/${request.id}`}
+                    className="inline-flex items-center gap-1.5 mt-4 text-sm font-bold text-primary hover:text-primary/80 transition-colors"
+                >
+                    <MdOpenInNew className="text-base" />
+                    View Full Details
+                </a>
             </div>
 
             {/* Offers section */}

@@ -6,7 +6,7 @@ import { api } from "@/lib/api";
 import {
     MdLocationOn, MdCalendarToday, MdSend, MdChatBubble,
     MdCheckCircle, MdWarning, MdError, MdAccessTime,
-    MdFilterList, MdClose, MdTune
+    MdFilterList, MdClose, MdTune, MdOpenInNew
 } from "react-icons/md";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import PatientBadge from "@/components/customer/PatientBadge";
@@ -394,7 +394,13 @@ export default function TherapistRequestsPage() {
                         return (
                             <div
                                 key={req.id}
-                                onClick={() => handleSelectRequest(req)}
+                                onClick={() => {
+                                    if (window.innerWidth < 1024) {
+                                        router.push(`/therapist/requests/${req.id}`);
+                                    } else {
+                                        handleSelectRequest(req);
+                                    }
+                                }}
                                 className={`p-4 rounded-lg cursor-pointer transition-all ${isSelected
                                     ? 'request-card-active shadow-md'
                                     : 'bg-white dark:bg-card-dark border border-transparent hover:border-slate-300 dark:hover:border-border-dark shadow-sm'
@@ -525,6 +531,13 @@ export default function TherapistRequestsPage() {
                                         {selectedRequest.description}
                                     </p>
                                 </div>
+                                <a
+                                    href={`/therapist/requests/${selectedRequest.id}`}
+                                    className="inline-flex items-center gap-1.5 text-sm font-bold text-primary hover:text-primary/80 transition-colors mb-3"
+                                >
+                                    <MdOpenInNew className="text-base" />
+                                    View Full Details
+                                </a>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                     <div className="p-3 rounded-lg border border-slate-100 dark:border-border-dark">
                                         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Preferred Date</p>
