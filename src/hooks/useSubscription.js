@@ -68,3 +68,31 @@ export function useCancelSubscription() {
 
     return mutation;
 }
+
+export function useUpgradeSubscription() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: async ({ planType, billingInterval }) => {
+            const res = await subscriptionApi.upgrade({ planType, billingInterval });
+            return res.data.data;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["subscription"] });
+        },
+    });
+}
+
+export function useDowngradeSubscription() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: async ({ planType, billingInterval }) => {
+            const res = await subscriptionApi.downgrade({ planType, billingInterval });
+            return res.data.data;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["subscription"] });
+        },
+    });
+}
