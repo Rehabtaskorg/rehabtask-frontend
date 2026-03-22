@@ -186,6 +186,10 @@ const ProfileTab = ({ profile, approvalStatus }) => {
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1">
                             <InfoRow label="Specialization" value={profile?.specialization} />
+                            <InfoRow
+                                label="Rate per Visit"
+                                value={profile?.ratePerVisit ? `$${parseFloat(profile.ratePerVisit).toFixed(2)}` : null}
+                            />
                             <InfoRow label="License Type" value={licenseTypeLabel} />
                             <InfoRow
                                 label="License Number"

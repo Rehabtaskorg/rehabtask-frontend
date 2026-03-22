@@ -37,6 +37,7 @@ export default function StripeOnboardingPage() {
                         // Try to finalize onboarding (may already be done from step 4)
                         try {
                             await onboardingAPI.completeOnboarding();
+                            useOnboardingStore.getState().reset();
                         } catch (completeErr) {
                             console.warn("Complete onboarding after Stripe connect:", completeErr.message);
                         }
@@ -82,6 +83,7 @@ export default function StripeOnboardingPage() {
         // Try to finalize onboarding (may already be done from step 4)
         try {
             await onboardingAPI.completeOnboarding();
+            useOnboardingStore.getState().reset();
         } catch (error) {
             console.warn("Complete onboarding failed:", error.message);
         }

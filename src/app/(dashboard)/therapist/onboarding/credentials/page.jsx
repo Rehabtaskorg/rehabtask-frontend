@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useDropzone } from "react-dropzone";
+import { z } from "zod";
 
 import useOnboardingStore from "@/store/onboardingStore";
 import { credentialsSchema } from "@/lib/onboardingValidation";
@@ -27,10 +28,13 @@ export default function CredentialsPage() {
     const uploadedDocs = credentials.licenseDocuments;
 
     const { register, handleSubmit, formState: { errors } } = useForm({
-        resolver: zodResolver(credentialsSchema.omit({ licenseDocuments: true })),
+        resolver: zodResolver(credentialsSchema.omit({ licenseDocuments: true }).extend({
+            ratePerVisit: z.coerce.number().min(0).max(10000).optional().nullable().transform(val => val === 0 ? null : val),
+        })),
         defaultValues: {
             licenseNumber: credentials.licenseNumber,
             licenseState: credentials.licenseState,
+            ratePerVisit: "",
         },
     });
 
@@ -45,9 +49,10 @@ export default function CredentialsPage() {
             }
 
             // Call backend API to save credentials
-            await onboardingAPI.saveCredentials({
+            const payload = {
                 licenseNumber: data.licenseNumber,
                 licenseState: data.licenseState,
+                ...(data.ratePerVisit != null && data.ratePerVisit !== "" && { ratePerVisit: data.ratePerVisit }),
                 licenseDocuments: credentials.licenseDocuments.map(doc => ({
                     path: doc.path,
                     fileName: doc.fileName,
@@ -55,7 +60,8 @@ export default function CredentialsPage() {
                     documentType: doc.documentType,
                     mimeType: doc.mimeType,
                 })),
-            });
+            };
+            await onboardingAPI.saveCredentials(payload);
 
             // Update local store
             updateCredentials({
@@ -222,6 +228,23 @@ export default function CredentialsPage() {
                                     </p>
                                 )}
                             </div>
+                        </div>
+
+                        {/* Rate per Visit */}
+                        <div className="flex flex-col gap-2 mt-4">
+                            <label className="text-text-main dark:text-white text-sm font-semibold">
+                                Rate per Visit ($) <span className="text-gray-400 font-normal ml-1">(optional)</span>
+                            </label>
+                            <input
+                                type="number"
+                                min="0"
+                                max="10000"
+                                step="0.01"
+                                {...register("ratePerVisit")}
+                                className="w-full px-4 py-3 h-12 rounded-lg border border-border-light dark:border-border-dark bg-input-light dark:bg-input-dark text-text-main dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all md:w-1/2"
+                                placeholder="e.g. 85.00"
+                            />
+                            <p className="text-xs text-text-muted">Your standard rate per session. This will pre-fill your offers and show on your profile. You can adjust per offer.</p>
                         </div>
 
                         {/* File Upload */}

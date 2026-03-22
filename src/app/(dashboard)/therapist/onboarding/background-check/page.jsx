@@ -59,6 +59,7 @@ export default function BackgroundCheckPage() {
             // This ensures onboardingComplete:true is set BEFORE reaching the Stripe page
             try {
                 await onboardingAPI.completeOnboarding();
+                useOnboardingStore.getState().reset();
             } catch (completeErr) {
                 // Don't block — Stripe skip and route guard handle this gracefully
                 console.warn("Auto-complete onboarding after step 4 failed:", completeErr.message);

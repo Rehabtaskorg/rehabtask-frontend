@@ -1,6 +1,6 @@
 "use client";
 
-import { MdWork, MdLocationOn, MdVerified } from "react-icons/md";
+import { MdWork, MdLocationOn, MdVerified, MdAttachMoney } from "react-icons/md";
 import UserAvatar from "../ui/UserAvatar";
 import StarRating from "./StarRating";
 
@@ -63,6 +63,12 @@ export default function TherapistCard({ therapist, onClick }) {
                     <MdLocationOn className="text-base shrink-0" />
                     <span className="truncate">{workAreaText}</span>
                 </div>
+                {therapist.ratePerVisit && (
+                    <div className="flex items-center gap-2 text-sm font-semibold text-emerald-600 dark:text-emerald-400">
+                        <MdAttachMoney className="text-base shrink-0" />
+                        <span>${parseFloat(therapist.ratePerVisit).toFixed(2)}/visit</span>
+                    </div>
+                )}
             </div>
 
             {/* Tags */}
