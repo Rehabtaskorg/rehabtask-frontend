@@ -10,6 +10,7 @@ import { TherapistAccessProvider } from '@/contexts/TherapistAccessContext';
 import { AdminUserProvider } from '@/contexts/AdminUserContext';
 import { SocketProvider } from '@/components/providers/SocketProvider';
 import OnboardingBanner from '@/components/therapist/OnboardingBanner';
+import useOnboardingStore from '@/store/onboardingStore';
 import { useUnreadCount } from '@/hooks/useMessages';
 import {
     MdDashboard, MdSearch, MdSend, MdCalendarMonth,
@@ -169,7 +170,8 @@ export default function DashboardLayout({ children }) {
         } catch (error) {
             console.error("Logout error:", error);
         } finally {
-            // always clear frontend supabase local session (localStorage)
+            // Clear all frontend state
+            useOnboardingStore.getState().reset();
             await supabase.auth.signOut();
             router.push("/login");
         }

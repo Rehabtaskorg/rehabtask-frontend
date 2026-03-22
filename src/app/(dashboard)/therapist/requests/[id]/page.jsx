@@ -9,6 +9,7 @@ import {
     MdVideocam, MdPersonPin, MdSend, MdSchedule, MdClose
 } from "react-icons/md";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import { useAuth } from "@/hooks/useAuth";
 import PatientInfoBlock from "@/components/customer/PatientInfoBlock";
 
 const STATUS_STYLES = {
@@ -33,6 +34,8 @@ export default function TherapistRequestDetailPage() {
     usePageTitle("Request Details");
     const router = useRouter();
     const params = useParams();
+    const { user } = useAuth();
+    const profileRate = user?.profile?.ratePerVisit ? parseFloat(user.profile.ratePerVisit).toFixed(2) : '';
     const [request, setRequest] = useState(null);
     const [loading, setLoading] = useState(true);
     const [commissionRate, setCommissionRate] = useState(null);
@@ -62,10 +65,7 @@ export default function TherapistRequestDetailPage() {
                 setOfferData(prev => ({ ...prev, proposedDate: localDateTime }));
             }
 
-            // Pre-fill rate from request
-            if (res.data.data.rate) {
-                setOfferData(prev => ({ ...prev, rate: parseFloat(res.data.data.rate).toFixed(2) }));
-            }
+            // Rate pre-fill is handled by a separate effect (avoids race condition with auth loading)
         } catch (error) {
             console.error("Error fetching request:", error);
         } finally {
@@ -83,6 +83,16 @@ export default function TherapistRequestDetailPage() {
         }).catch(() => {});
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [params.id]);
+
+    // Pre-fill rate: profile rate > request rate > empty
+    // Single effect handles both sources to avoid race conditions
+    useEffect(() => {
+        if (profileRate) {
+            setOfferData(prev => ({ ...prev, rate: profileRate }));
+        } else if (request?.rate) {
+            setOfferData(prev => ({ ...prev, rate: parseFloat(request.rate).toFixed(2) }));
+        }
+    }, [profileRate, request]);
 
     const handleSubmitOffer = async (e) => {
         e.preventDefault();

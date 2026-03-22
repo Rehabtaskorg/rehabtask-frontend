@@ -9,6 +9,7 @@ import {
     MdFilterList, MdClose, MdTune, MdOpenInNew
 } from "react-icons/md";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import { useAuth } from "@/hooks/useAuth";
 import PatientBadge from "@/components/customer/PatientBadge";
 
 // Helpers
@@ -46,6 +47,8 @@ const SERVICE_TYPE_OPTIONS = [
 export default function TherapistRequestsPage() {
     usePageTitle("Browse Requests");
     const router = useRouter();
+    const { user } = useAuth();
+    const profileRate = user?.profile?.ratePerVisit ? parseFloat(user.profile.ratePerVisit).toFixed(2) : '';
     const [requests, setRequests] = useState([]);
     const [filtered, setFiltered] = useState([]);
     const [selectedRequest, setSelectedRequest] = useState(null);
@@ -96,6 +99,13 @@ export default function TherapistRequestsPage() {
         }).catch(() => {});
     }, []);
 
+    // Pre-fill offer rate from therapist profile
+    useEffect(() => {
+        if (profileRate) {
+            setOfferData(prev => ({ ...prev, rate: profileRate }));
+        }
+    }, [profileRate]);
+
     // Filter + Sort
     const applyFilters = useCallback(() => {
         let result = [...requests];
@@ -139,7 +149,7 @@ export default function TherapistRequestsPage() {
             const d = new Date(req.preferredDate);
             const localDT = new Date(d.getTime() - d.getTimezoneOffset() * 60000)
                 .toISOString().slice(0, 16);
-            setOfferData({ rate: '', sessionType: 'in-person', proposedDate: localDT, description: '', visitTypeId: '' });
+            setOfferData({ rate: profileRate, sessionType: 'in-person', proposedDate: localDT, description: '', visitTypeId: '' });
         }
     };
 

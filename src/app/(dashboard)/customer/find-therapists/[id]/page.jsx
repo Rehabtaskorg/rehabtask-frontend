@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import {
-    MdChevronRight, MdVerified, MdWork, MdMedicalServices, MdPhone, MdChat, MdStar, MdChevronLeft, MdRefresh, MdArrowBack,
+    MdChevronRight, MdVerified, MdWork, MdMedicalServices, MdPhone, MdChat, MdStar, MdChevronLeft, MdRefresh, MdArrowBack, MdAttachMoney,
 } from "react-icons/md";
 import { APIProvider } from "@vis.gl/react-google-maps";
 import { useTherapistPublicProfile, useTherapistReviews } from "@/hooks/useTherapistSearch";
@@ -140,6 +140,12 @@ export default function TherapistProfilePage() {
                                     <span className="flex items-center gap-1">
                                         <MdWork className="text-base" />
                                         {therapist.yearsOfExperience} Years Exp.
+                                    </span>
+                                )}
+                                {therapist.ratePerVisit && (
+                                    <span className="flex items-center gap-1 font-semibold text-emerald-600 dark:text-emerald-400">
+                                        <MdAttachMoney className="text-base" />
+                                        ${parseFloat(therapist.ratePerVisit).toFixed(2)}/visit
                                     </span>
                                 )}
                                 <StarRating

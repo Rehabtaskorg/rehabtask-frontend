@@ -32,6 +32,13 @@ const profileEditSchema = z.object({
         .refine((val) => SPECIALIZATIONS.includes(val), {
             message: "Invalid specialization",
         }),
+    ratePerVisit: z.coerce
+        .number({ invalid_type_error: "Must be a number" })
+        .min(0, "Must be 0 or greater")
+        .max(10000, "Must be $10,000 or less")
+        .optional()
+        .nullable()
+        .transform(val => val === 0 ? null : val),
     professionalSummary: z
         .string()
         .min(100, "Must be at least 100 characters")
@@ -55,6 +62,7 @@ const ProfileEditModal = ({ isOpen, onClose, profile, onSuccess }) => {
             phone: profile?.phone || "",
             yearsOfExperience: profile?.yearsOfExperience || 0,
             specialization: profile?.specialization || "",
+            ratePerVisit: profile?.ratePerVisit ? parseFloat(profile.ratePerVisit) : "",
             professionalSummary: profile?.professionalSummary || "",
         }
     })
@@ -233,7 +241,19 @@ const ProfileEditModal = ({ isOpen, onClose, profile, onSuccess }) => {
                             error={errors.yearsOfExperience?.message}
                             {...register("yearsOfExperience")}
                         />
+                        <Input
+                            label="Rate per Visit ($)"
+                            type="number"
+                            min={0}
+                            max={10000}
+                            step="0.01"
+                            placeholder="e.g. 85.00"
+                            error={errors.ratePerVisit?.message}
+                            {...register("ratePerVisit")}
+                        />
+                    </div>
 
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                         <div className="space-y-2">
                             <label className="block text-sm font-bold text-text-main dark:text-white uppercase tracking-wide">
                                 Specialization
