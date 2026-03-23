@@ -58,7 +58,7 @@ function UsageBar({ label, current, limit }) {
             <div className="flex justify-between text-sm">
                 <span className="text-text-muted dark:text-slate-400">{label}</span>
                 <span className={`font-medium ${isAtLimit ? "text-red-500" : "text-text-main dark:text-white"}`}>
-                    {isUnlimited ? `${current} used` : `${current}/${limit}`}
+                    {isUnlimited ? `${current} used · Unlimited` : `${current}/${limit}`}
                 </span>
             </div>
             {!isUnlimited && (
@@ -67,11 +67,6 @@ function UsageBar({ label, current, limit }) {
                         className={`h-full rounded-full transition-all ${isAtLimit ? "bg-red-500" : "bg-primary"}`}
                         style={{ width: `${percentage}%` }}
                     />
-                </div>
-            )}
-            {isUnlimited && (
-                <div className="h-2 rounded-full bg-primary/20">
-                    <div className="h-full rounded-full bg-primary w-full opacity-30" />
                 </div>
             )}
         </div>
