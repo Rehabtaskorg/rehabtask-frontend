@@ -5,4 +5,7 @@ export const subscriptionApi = {
     createCheckout: (data) => api.post("/subscriptions/checkout", data),
     createBillingPortal: () => api.post("/subscriptions/billing-portal"),
     cancel: () => api.post("/subscriptions/cancel"),
+    previewUpgrade: (data) => api.post("/subscriptions/preview-upgrade", data),
+    upgrade: (data) => api.post("/subscriptions/upgrade", data),
+    downgrade: (data) => api.post("/subscriptions/downgrade", data),
 };

@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { MdStars, MdCheckCircle, MdRocketLaunch, MdCreditCard, MdCancel, MdWarning, MdAccessTime } from "react-icons/md";
-import { useSubscription, useCreateCheckout, useCreateBillingPortal, useCancelSubscription } from "@/hooks/useSubscription";
+import { MdStars, MdCheckCircle, MdRocketLaunch, MdCreditCard, MdCancel, MdWarning, MdAccessTime, MdArrowUpward, MdArrowDownward } from "react-icons/md";
+import { useSubscription, useCreateCheckout, useCreateBillingPortal, useCancelSubscription, useUpgradeSubscription, useDowngradeSubscription } from "@/hooks/useSubscription";
+import { subscriptionApi } from "@/lib/subscription.api";
 import { usePageTitle } from "@/hooks/usePageTitle";
 
 const PLANS = [
@@ -13,6 +14,7 @@ const PLANS = [
         annualPrice: 0,
         requestLimit: 5,
         therapistLimit: 5,
+        rank: 0,
         features: ["5 active requests", "5 active therapist bookings", "Basic support"],
     },
     {
@@ -22,6 +24,7 @@ const PLANS = [
         annualPrice: 530,
         requestLimit: 10,
         therapistLimit: 10,
+        rank: 1,
         features: ["10 active requests", "10 active therapist bookings", "Priority support"],
         popular: true,
     },
@@ -32,6 +35,7 @@ const PLANS = [
         annualPrice: 1071,
         requestLimit: null,
         therapistLimit: null,
+        rank: 2,
         features: ["Unlimited requests", "Unlimited therapist bookings", "Filter Elite therapists", "Dedicated coordinator", "Premium support"],
     },
 ];
@@ -55,7 +59,7 @@ function UsageBar({ label, current, limit }) {
             <div className="flex justify-between text-sm">
                 <span className="text-text-muted dark:text-slate-400">{label}</span>
                 <span className={`font-medium ${isAtLimit ? "text-red-500" : "text-text-main dark:text-white"}`}>
-                    {isUnlimited ? `${current} used` : `${current}/${limit}`}
+                    {isUnlimited ? `${current} used · Unlimited` : `${current}/${limit}`}
                 </span>
             </div>
             {!isUnlimited && (
@@ -64,11 +68,6 @@ function UsageBar({ label, current, limit }) {
                         className={`h-full rounded-full transition-all ${isAtLimit ? "bg-red-500" : "bg-primary"}`}
                         style={{ width: `${percentage}%` }}
                     />
-                </div>
-            )}
-            {isUnlimited && (
-                <div className="h-2 rounded-full bg-primary/20">
-                    <div className="h-full rounded-full bg-primary w-full opacity-30" />
                 </div>
             )}
         </div>
@@ -81,9 +80,16 @@ export default function SubscriptionPage() {
     const checkout = useCreateCheckout();
     const billingPortal = useCreateBillingPortal();
     const cancelSub = useCancelSubscription();
+    const upgradeMutation = useUpgradeSubscription();
+    const downgradeMutation = useDowngradeSubscription();
     const [billingInterval, setBillingInterval] = useState("monthly");
     const [showCancelModal, setShowCancelModal] = useState(false);
+    const [showUpgradeModal, setShowUpgradeModal] = useState(null);
+    const [showDowngradeModal, setShowDowngradeModal] = useState(null);
     const [upgradingPlan, setUpgradingPlan] = useState(null);
+    const [upgradePreview, setUpgradePreview] = useState(null);
+    const [previewLoading, setPreviewLoading] = useState(false);
+    const [upgradeError, setUpgradeError] = useState(null);
 
     if (loading) {
         return (
@@ -108,10 +114,72 @@ export default function SubscriptionPage() {
         ? Math.max(0, Math.ceil((new Date(subscription.gracePeriodEndsAt) - Date.now()) / (1000 * 60 * 60 * 24)))
         : 0;
 
-    const handleUpgrade = (planType) => {
-        setUpgradingPlan(planType);
-        checkout.mutate({ planType, billingInterval }, {
-            onError: () => setUpgradingPlan(null),
+    const currentPlanRank = PLANS.find(p => p.key === currentPlan)?.rank ?? 0;
+    const pendingDowngrade = subscription?.cancelReason?.startsWith("scheduled_downgrade:")
+        ? subscription.cancelReason.split(":")[1]
+        : null;
+
+    const handlePlanAction = (targetPlan) => {
+        const targetRank = PLANS.find(p => p.key === targetPlan)?.rank ?? 0;
+
+        // Free/Trial → Paid: use Stripe Checkout (need card)
+        if (!isPaid || isTrial || isGracePeriod) {
+            setUpgradingPlan(targetPlan);
+            checkout.mutate({ planType: targetPlan, billingInterval }, {
+                onError: () => setUpgradingPlan(null),
+            });
+            return;
+        }
+
+        // Paid → Higher Paid: fetch preview then show upgrade modal
+        if (targetRank > currentPlanRank) {
+            setShowUpgradeModal(targetPlan);
+            setUpgradePreview(null);
+            setUpgradeError(null);
+            setPreviewLoading(true);
+            subscriptionApi.previewUpgrade({ planType: targetPlan, billingInterval })
+                .then(res => setUpgradePreview(res.data.data))
+                .catch(() => setUpgradePreview(null))
+                .finally(() => setPreviewLoading(false));
+            return;
+        }
+
+        // Paid → Lower Paid: show downgrade modal
+        if (targetRank < currentPlanRank && targetPlan !== "free") {
+            setShowDowngradeModal(targetPlan);
+            return;
+        }
+    };
+
+    const confirmUpgrade = () => {
+        const targetPlan = showUpgradeModal;
+        setUpgradeError(null);
+        setUpgradingPlan(targetPlan);
+        upgradeMutation.mutate({ planType: targetPlan, billingInterval }, {
+            onSuccess: () => {
+                setShowUpgradeModal(null);
+                setUpgradePreview(null);
+                setUpgradingPlan(null);
+            },
+            onError: (error) => {
+                setUpgradingPlan(null);
+                const msg = error?.response?.data?.message || "Upgrade failed. Please try again.";
+                const code = error?.response?.data?.code;
+                if (code === "PAYMENT_FAILED" || error?.response?.status === 402) {
+                    setUpgradeError(msg);
+                } else {
+                    setUpgradeError(msg);
+                }
+            },
+        });
+    };
+
+    const confirmDowngrade = () => {
+        const targetPlan = showDowngradeModal;
+        setShowDowngradeModal(null);
+        setUpgradingPlan(targetPlan);
+        downgradeMutation.mutate({ planType: targetPlan, billingInterval }, {
+            onSettled: () => setUpgradingPlan(null),
         });
     };
 
@@ -129,6 +197,20 @@ export default function SubscriptionPage() {
                     <div>
                         <p className="font-semibold text-blue-700 dark:text-blue-400">Free Trial — {trialDaysLeft} day{trialDaysLeft !== 1 ? "s" : ""} remaining</p>
                         <p className="text-sm text-blue-600 dark:text-blue-300">You have Standard plan access. Upgrade before your trial ends to keep your features.</p>
+                    </div>
+                </div>
+            )}
+
+            {pendingDowngrade && !isGracePeriod && (
+                <div className="flex items-center gap-3 p-4 rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800">
+                    <MdArrowDownward className="w-6 h-6 text-amber-500 shrink-0" />
+                    <div>
+                        <p className="font-semibold text-amber-700 dark:text-amber-400">
+                            Downgrade to {pendingDowngrade.charAt(0).toUpperCase() + pendingDowngrade.slice(1)} scheduled
+                        </p>
+                        <p className="text-sm text-amber-600 dark:text-amber-300">
+                            Your current plan stays active until {subscription?.currentPeriodEnd ? new Date(subscription.currentPeriodEnd).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" }) : "the end of your billing period"}.
+                        </p>
                     </div>
                 </div>
             )}
@@ -266,15 +348,37 @@ export default function SubscriptionPage() {
                                         <button disabled className="w-full py-2.5 rounded-lg bg-gray-100 dark:bg-gray-700 text-text-muted dark:text-slate-400 font-medium cursor-default">
                                             Free Plan
                                         </button>
-                                    ) : (
+                                    ) : plan.rank > currentPlanRank || !isPaid || isTrial || isGracePeriod ? (
                                         <button
-                                            onClick={() => handleUpgrade(plan.key)}
+                                            onClick={() => handlePlanAction(plan.key)}
                                             disabled={upgradingPlan !== null}
-                                            className="w-full py-2.5 rounded-lg bg-primary text-white font-medium hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20 disabled:opacity-60 disabled:cursor-not-allowed"
+                                            className="w-full py-2.5 rounded-lg bg-primary text-white font-medium hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20 disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                                         >
-                                            {upgradingPlan === plan.key ? "Redirecting..." : `Upgrade to ${plan.name}`}
+                                            {upgradingPlan === plan.key ? (isPaid ? "Upgrading..." : "Redirecting...") : (
+                                                <>
+                                                    <MdArrowUpward className="w-4 h-4" />
+                                                    {!isPaid || isTrial || isGracePeriod ? `Upgrade to ${plan.name}` : `Upgrade to ${plan.name}`}
+                                                </>
+                                            )}
                                         </button>
-                                    )}
+                                    ) : plan.rank < currentPlanRank && isPaid ? (
+                                        <button
+                                            onClick={() => handlePlanAction(plan.key)}
+                                            disabled={upgradingPlan !== null || pendingDowngrade === plan.key}
+                                            className="w-full py-2.5 rounded-lg border border-amber-300 dark:border-amber-700 text-amber-600 dark:text-amber-400 font-medium hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                                        >
+                                            {pendingDowngrade === plan.key ? (
+                                                `Downgrade scheduled`
+                                            ) : upgradingPlan === plan.key ? (
+                                                "Processing..."
+                                            ) : (
+                                                <>
+                                                    <MdArrowDownward className="w-4 h-4" />
+                                                    Downgrade to {plan.name}
+                                                </>
+                                            )}
+                                        </button>
+                                    ) : null}
                                 </div>
                             </div>
                         );
@@ -314,6 +418,153 @@ export default function SubscriptionPage() {
                     </div>
                 </div>
             )}
+
+            {/* Upgrade Modal with Preview */}
+            {showUpgradeModal && (() => {
+                const targetPlan = PLANS.find(p => p.key === showUpgradeModal);
+                const targetPrice = billingInterval === "monthly" ? targetPlan?.monthlyPrice : targetPlan?.annualPrice;
+                return (
+                    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+                        <div className="bg-card-light dark:bg-card-dark rounded-xl p-6 max-w-md w-full shadow-xl">
+                            <div className="flex items-center gap-3 mb-4">
+                                <MdArrowUpward className="w-8 h-8 text-primary" />
+                                <h3 className="text-lg font-bold text-text-main dark:text-white">Upgrade to {targetPlan?.name}</h3>
+                            </div>
+
+                            {/* Preview Loading */}
+                            {previewLoading && (
+                                <div className="flex items-center justify-center py-8">
+                                    <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                                    <span className="ml-3 text-sm text-text-muted dark:text-slate-400">Calculating proration...</span>
+                                </div>
+                            )}
+
+                            {/* Preview Loaded — Show Exact Amounts */}
+                            {!previewLoading && upgradePreview && (
+                                <>
+                                    <div className="bg-card-light dark:bg-slate-800 rounded-lg border border-border-light dark:border-border-dark p-4 mb-4 space-y-2">
+                                        <div className="flex justify-between text-sm">
+                                            <span className="text-text-muted dark:text-slate-400">Credit for unused {PLANS.find(p => p.key === currentPlan)?.name}</span>
+                                            <span className="text-green-600 dark:text-green-400 font-medium">-${upgradePreview.credit.toFixed(2)}</span>
+                                        </div>
+                                        <div className="flex justify-between text-sm">
+                                            <span className="text-text-muted dark:text-slate-400">{targetPlan?.name} for remaining period</span>
+                                            <span className="text-text-main dark:text-white font-medium">${upgradePreview.charge.toFixed(2)}</span>
+                                        </div>
+                                        <div className="border-t border-border-light dark:border-border-dark pt-2 flex justify-between">
+                                            <span className="font-bold text-text-main dark:text-white">Charge today</span>
+                                            <span className="font-bold text-primary text-lg">${upgradePreview.netAmount.toFixed(2)}</span>
+                                        </div>
+                                    </div>
+                                    <p className="text-sm text-text-muted dark:text-slate-400 mb-2">
+                                        Starting next cycle: <strong className="text-text-main dark:text-white">${targetPrice}/{billingInterval === "monthly" ? "mo" : "yr"}</strong>
+                                    </p>
+                                </>
+                            )}
+
+                            {/* Preview Failed — Show Generic Info */}
+                            {!previewLoading && !upgradePreview && !upgradeError && (
+                                <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 mb-4">
+                                    <p className="text-sm text-blue-700 dark:text-blue-300">
+                                        A prorated amount will be charged for the remainder of this billing period. Starting next cycle: <strong>${targetPrice}/{billingInterval === "monthly" ? "mo" : "yr"}</strong>
+                                    </p>
+                                </div>
+                            )}
+
+                            {/* Payment Error */}
+                            {upgradeError && (
+                                <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 mb-4">
+                                    <div className="flex items-start gap-2">
+                                        <MdWarning className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
+                                        <div>
+                                            <p className="text-sm font-medium text-red-700 dark:text-red-300">{upgradeError}</p>
+                                            <button
+                                                onClick={() => billingPortal.mutate()}
+                                                className="text-sm text-primary hover:underline mt-2 font-medium"
+                                            >
+                                                Update payment method →
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {!upgradeError && (
+                                <p className="text-sm text-green-600 dark:text-green-400 mb-6 flex items-center gap-2">
+                                    <MdCheckCircle className="w-4 h-4" />
+                                    {targetPlan?.name} features available immediately
+                                </p>
+                            )}
+
+                            <div className="flex gap-3 justify-end">
+                                <button
+                                    onClick={() => { setShowUpgradeModal(null); setUpgradePreview(null); setUpgradeError(null); }}
+                                    className="px-4 py-2 rounded-lg border border-border-light dark:border-border-dark text-text-main dark:text-white font-medium hover:bg-gray-50 dark:hover:bg-gray-800"
+                                >
+                                    Cancel
+                                </button>
+                                {!upgradeError && (
+                                    <button
+                                        onClick={confirmUpgrade}
+                                        disabled={upgradeMutation.isPending || previewLoading}
+                                        className="px-4 py-2 rounded-lg bg-primary text-white font-medium hover:bg-primary/90 transition-colors flex items-center gap-2 disabled:opacity-50"
+                                    >
+                                        {upgradeMutation.isPending ? "Upgrading..." : upgradePreview ? `Confirm & Pay $${upgradePreview.netAmount.toFixed(2)}` : "Confirm Upgrade"}
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                );
+            })()}
+
+            {/* Downgrade Modal */}
+            {showDowngradeModal && (() => {
+                const targetPlan = PLANS.find(p => p.key === showDowngradeModal);
+                return (
+                    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+                        <div className="bg-card-light dark:bg-card-dark rounded-xl p-6 max-w-md w-full shadow-xl">
+                            <div className="flex items-center gap-3 mb-4">
+                                <MdArrowDownward className="w-8 h-8 text-amber-500" />
+                                <h3 className="text-lg font-bold text-text-main dark:text-white">Downgrade to {targetPlan?.name}</h3>
+                            </div>
+                            <p className="text-text-muted dark:text-slate-400 mb-2">
+                                Your current plan features will remain active until the end of your billing period
+                                {subscription?.currentPeriodEnd && (
+                                    <> ({new Date(subscription.currentPeriodEnd).toLocaleDateString()})</>
+                                )}.
+                            </p>
+                            <div className="bg-amber-50 dark:bg-amber-900/20 rounded-lg p-4 mb-4">
+                                <p className="text-sm text-amber-700 dark:text-amber-300">
+                                    After that, your plan will switch to {targetPlan?.name} with:
+                                </p>
+                                <ul className="text-sm text-amber-700 dark:text-amber-300 mt-2 space-y-1">
+                                    {targetPlan?.features.map(f => (
+                                        <li key={f} className="flex items-center gap-2">
+                                            <MdCheckCircle className="w-3 h-3 shrink-0" /> {f}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                            <div className="flex gap-3 justify-end">
+                                <button
+                                    onClick={() => setShowDowngradeModal(null)}
+                                    className="px-4 py-2 rounded-lg border border-border-light dark:border-border-dark text-text-main dark:text-white font-medium hover:bg-gray-50 dark:hover:bg-gray-800"
+                                >
+                                    Keep Current Plan
+                                </button>
+                                <button
+                                    onClick={confirmDowngrade}
+                                    disabled={downgradeMutation.isPending}
+                                    className="px-4 py-2 rounded-lg bg-amber-500 text-white font-medium hover:bg-amber-600 transition-colors"
+                                >
+                                    {downgradeMutation.isPending ? "Processing..." : "Confirm Downgrade"}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                );
+            })()}
 
             {/* Cancel Modal */}
             {showCancelModal && (
