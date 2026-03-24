@@ -165,7 +165,15 @@ function InlinePaymentSection({ booking, onPaymentSuccess }) {
         }
     };
 
-    const amount = formatCurrency(parseFloat(booking.rate));
+    const perSessionRate = parseFloat(booking.rate);
+    const request = booking.offer?.request;
+    const totalSessionsFromFreq = (request?.visitsPerWeek && request?.numberOfWeeks)
+        ? request.visitsPerWeek * request.numberOfWeeks
+        : 1;
+    const sessionsCount = booking.sessions?.length > 1 ? booking.sessions.length : totalSessionsFromFreq;
+    const isMultiSession = sessionsCount > 1;
+    const totalAmount = perSessionRate * sessionsCount;
+    const amount = formatCurrency(totalAmount);
 
     return (
         <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl p-6 space-y-5">
@@ -179,14 +187,25 @@ function InlinePaymentSection({ booking, onPaymentSuccess }) {
             <div className="flex items-start gap-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg px-3 py-2.5">
                 <MdInfo className="text-blue-600 dark:text-blue-400 text-sm mt-0.5 shrink-0" />
                 <p className="text-xs text-blue-700 dark:text-blue-300">
-                    Your payment will be held securely until you confirm session completion
+                    Your payment will be held securely until you confirm {isMultiSession ? "all sessions" : "session"} completion
                 </p>
             </div>
 
             {/* Amount */}
             <div>
-                <p className="text-xs font-bold text-text-muted dark:text-gray-400 uppercase tracking-wider">Session Rate</p>
-                <p className="text-2xl font-black text-text-main dark:text-white">{amount}</p>
+                {isMultiSession ? (
+                    <>
+                        <p className="text-xs font-bold text-text-muted dark:text-gray-400 uppercase tracking-wider">
+                            {formatCurrency(perSessionRate)}/session × {totalSessions} sessions
+                        </p>
+                        <p className="text-2xl font-black text-text-main dark:text-white">{amount}</p>
+                    </>
+                ) : (
+                    <>
+                        <p className="text-xs font-bold text-text-muted dark:text-gray-400 uppercase tracking-wider">Session Rate</p>
+                        <p className="text-2xl font-black text-text-main dark:text-white">{amount}</p>
+                    </>
+                )}
             </div>
 
             {payError && (
@@ -432,6 +451,15 @@ export default function CustomerBookingDetailPage() {
     const request = offer?.request;
     const therapistInitial = therapist?.fullName?.charAt(0) || "?";
     const sessionType = offer?.sessionType;
+
+    // Calculate total sessions from request frequency (available before payment/sessions created)
+    const totalSessionsFromFrequency = (request?.visitsPerWeek && request?.numberOfWeeks)
+        ? request.visitsPerWeek * request.numberOfWeeks
+        : 1;
+    const totalSessions = sessions.length > 1 ? sessions.length : totalSessionsFromFrequency;
+    const isMultiSession = totalSessions > 1;
+    const perSessionRate = parseFloat(booking.rate);
+    const totalAmount = payment ? parseFloat(payment.amount) : perSessionRate * totalSessions;
 
     return (
         <div className="p-4 md:p-6 max-w-6xl mx-auto">

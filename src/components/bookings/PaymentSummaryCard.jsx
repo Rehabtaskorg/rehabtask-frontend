@@ -49,7 +49,11 @@ export default function PaymentSummaryCard({ booking, role, onAction }) {
     const payment = booking.payment;
     const sessions = booking.sessions || [];
     const session = sessions[0];
-    const totalSessions = sessions.length || 1;
+    const request = booking.offer?.request;
+    const totalSessionsFromFreq = (request?.visitsPerWeek && request?.numberOfWeeks)
+        ? request.visitsPerWeek * request.numberOfWeeks
+        : 1;
+    const totalSessions = sessions.length > 1 ? sessions.length : totalSessionsFromFreq;
     const isMultiSession = totalSessions > 1;
     const totalAmount = payment ? parseFloat(payment.amount) : perSessionRate * totalSessions;
     const isCustomer = role === "customer";
