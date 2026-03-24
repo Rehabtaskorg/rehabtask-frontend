@@ -196,7 +196,7 @@ function InlinePaymentSection({ booking, onPaymentSuccess }) {
                 {isMultiSession ? (
                     <>
                         <p className="text-xs font-bold text-text-muted dark:text-gray-400 uppercase tracking-wider">
-                            {formatCurrency(perSessionRate)}/session × {totalSessions} sessions
+                            {formatCurrency(perSessionRate)}/session × {sessionsCount} sessions
                         </p>
                         <p className="text-2xl font-black text-text-main dark:text-white">{amount}</p>
                     </>
