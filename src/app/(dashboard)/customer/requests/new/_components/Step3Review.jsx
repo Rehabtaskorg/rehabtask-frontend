@@ -69,6 +69,22 @@ export default function Step3Review({ onEditStep }) {
                         </p>
                     </div>
 
+                    {step1.visitsPerWeek && step1.numberOfWeeks && (
+                        <div className="pt-2 border-t border-border-light dark:border-border-dark">
+                            <p className="text-[10px] font-bold uppercase tracking-wider text-text-muted dark:text-gray-400 mb-1">
+                                Treatment Frequency
+                            </p>
+                            <p className="text-sm font-semibold text-primary">
+                                {step1.visitsPerWeek}x/week · {step1.numberOfWeeks} week{parseInt(step1.numberOfWeeks) > 1 ? "s" : ""} ({parseInt(step1.visitsPerWeek) * parseInt(step1.numberOfWeeks)} visits total)
+                                {step1.rate && parseFloat(step1.rate) > 0 && (
+                                    <span className="text-text-muted dark:text-gray-400 font-normal ml-2">
+                                        · ${(parseFloat(step1.rate) * parseInt(step1.visitsPerWeek) * parseInt(step1.numberOfWeeks)).toFixed(2)} estimated total
+                                    </span>
+                                )}
+                            </p>
+                        </div>
+                    )}
+
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2 border-t border-border-light dark:border-border-dark">
                         <div>
                             <p className="text-[10px] font-bold uppercase tracking-wider text-text-muted dark:text-gray-400 mb-1">

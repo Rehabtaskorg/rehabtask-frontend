@@ -3,7 +3,7 @@
 import { useState } from "react";
 import {
     MdCheckCircle, MdRadioButtonUnchecked, MdTimer, MdCancel,
-    MdCalendarToday, MdSchedule, MdTaskAlt, MdWarning
+    MdCalendarToday, MdSchedule, MdTaskAlt, MdEdit
 } from "react-icons/md";
 
 const STATUS_CONFIG = {
@@ -13,6 +13,8 @@ const STATUS_CONFIG = {
     confirmed_by_customer: { icon: MdCheckCircle, color: "text-emerald-500", bg: "bg-emerald-50 dark:bg-emerald-900/20", label: "Confirmed" },
     cancelled: { icon: MdCancel, color: "text-red-500", bg: "bg-red-50 dark:bg-red-900/20", label: "Cancelled" },
 };
+
+const INPUT_CLASS = "w-full bg-muted-light dark:bg-muted-dark border border-border-light dark:border-border-dark rounded-lg px-3 py-2 text-sm text-text-main dark:text-white focus:ring-2 focus:ring-primary focus:border-primary focus:outline-none";
 
 const formatDate = (dateStr) => {
     if (!dateStr) return "Not scheduled";
@@ -31,12 +33,11 @@ export default function SessionList({
     onMarkComplete,
     onConfirm,
     onSchedule,
-    completing,
-    confirming,
-    scheduling,
 }) {
     const [scheduleSessionId, setScheduleSessionId] = useState(null);
     const [scheduleDate, setScheduleDate] = useState("");
+    const [loadingSessionId, setLoadingSessionId] = useState(null);
+    const [loadingAction, setLoadingAction] = useState(null);
 
     if (!sessions || sessions.length <= 1) return null;
 
@@ -46,11 +47,52 @@ export default function SessionList({
 
     const todayStr = new Date().toISOString().slice(0, 16);
 
-    const handleScheduleSubmit = (sessionId) => {
+    const handleScheduleSubmit = async (sessionId) => {
         if (!scheduleDate) return;
-        onSchedule?.(sessionId, new Date(scheduleDate).toISOString());
-        setScheduleSessionId(null);
-        setScheduleDate("");
+        setLoadingSessionId(sessionId);
+        setLoadingAction("schedule");
+        try {
+            await onSchedule?.(sessionId, new Date(scheduleDate).toISOString());
+        } finally {
+            setLoadingSessionId(null);
+            setLoadingAction(null);
+            setScheduleSessionId(null);
+            setScheduleDate("");
+        }
+    };
+
+    const handleComplete = async (sessionId) => {
+        setLoadingSessionId(sessionId);
+        setLoadingAction("complete");
+        try {
+            await onMarkComplete?.(sessionId);
+        } finally {
+            setLoadingSessionId(null);
+            setLoadingAction(null);
+        }
+    };
+
+    const handleConfirm = async (sessionId) => {
+        setLoadingSessionId(sessionId);
+        setLoadingAction("confirm");
+        try {
+            await onConfirm?.(sessionId);
+        } finally {
+            setLoadingSessionId(null);
+            setLoadingAction(null);
+        }
+    };
+
+    const openScheduleFor = (session) => {
+        setScheduleSessionId(session.id);
+        // Pre-fill with existing date if rescheduling
+        if (session.scheduledDate) {
+            const d = new Date(session.scheduledDate);
+            const local = new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+            setScheduleDate(local);
+        } else {
+            setScheduleDate("");
+        }
     };
 
     return (
@@ -79,93 +121,101 @@ export default function SessionList({
                 {sessions.map((session) => {
                     const config = STATUS_CONFIG[session.status] || STATUS_CONFIG.pending_schedule;
                     const StatusIcon = config.icon;
-                    const isSchedulable = role === "therapist" && session.status === "pending_schedule";
+                    const isSchedulable = role === "therapist" && (session.status === "pending_schedule" || session.status === "scheduled");
                     const isCompletable = role === "therapist" && session.status === "scheduled";
                     const isConfirmable = role === "customer" && session.status === "completed_by_therapist";
+                    const isThisLoading = loadingSessionId === session.id;
 
                     return (
-                        <div
-                            key={session.id}
-                            className={`flex items-center gap-3 p-3 rounded-lg border ${
-                                session.status === "confirmed_by_customer"
-                                    ? "border-emerald-200 dark:border-emerald-800/30 bg-emerald-50/50 dark:bg-emerald-900/10"
-                                    : "border-border-light dark:border-border-dark"
-                            }`}
-                        >
-                            {/* Status icon */}
-                            <StatusIcon className={`text-xl flex-shrink-0 ${config.color}`} />
+                        <div key={session.id}>
+                            <div
+                                className={`flex items-center gap-3 p-3 rounded-lg border ${
+                                    session.status === "confirmed_by_customer"
+                                        ? "border-emerald-200 dark:border-emerald-800/30 bg-emerald-50/50 dark:bg-emerald-900/10"
+                                        : "border-border-light dark:border-border-dark"
+                                }`}
+                            >
+                                {/* Status icon */}
+                                <StatusIcon className={`text-xl flex-shrink-0 ${config.color}`} />
 
-                            {/* Session info */}
-                            <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-2">
-                                    <span className="text-sm font-bold text-text-main dark:text-white">
-                                        Session {session.sessionNumber}
-                                    </span>
-                                    <span className={`text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded ${config.bg} ${config.color}`}>
-                                        {config.label}
-                                    </span>
+                                {/* Session info */}
+                                <div className="flex-1 min-w-0">
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-sm font-bold text-text-main dark:text-white">
+                                            Session {session.sessionNumber}
+                                        </span>
+                                        <span className={`text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded ${config.bg} ${config.color}`}>
+                                            {config.label}
+                                        </span>
+                                    </div>
+                                    <p className="text-xs text-text-muted dark:text-slate-400 mt-0.5">
+                                        {session.scheduledDate ? `${formatDate(session.scheduledDate)} · ${formatTime(session.scheduledDate)}` : "Date not set"}
+                                    </p>
                                 </div>
-                                <p className="text-xs text-text-muted dark:text-slate-400 mt-0.5">
-                                    {session.scheduledDate ? `${formatDate(session.scheduledDate)} · ${formatTime(session.scheduledDate)}` : "Date not set"}
-                                </p>
+
+                                {/* Actions */}
+                                <div className="flex-shrink-0 flex items-center gap-2">
+                                    {isSchedulable && scheduleSessionId !== session.id && (
+                                        <button
+                                            onClick={() => openScheduleFor(session)}
+                                            className="text-xs font-bold text-primary hover:underline flex items-center gap-1"
+                                        >
+                                            {session.status === "scheduled" ? <><MdEdit className="text-sm" /> Reschedule</> : "Schedule"}
+                                        </button>
+                                    )}
+
+                                    {isCompletable && scheduleSessionId !== session.id && (
+                                        <button
+                                            onClick={() => handleComplete(session.id)}
+                                            disabled={isThisLoading && loadingAction === "complete"}
+                                            className="text-xs font-bold text-white bg-primary px-3 py-1.5 rounded-lg hover:bg-primary/90 disabled:opacity-50"
+                                        >
+                                            {isThisLoading && loadingAction === "complete" ? "Completing..." : "Complete"}
+                                        </button>
+                                    )}
+
+                                    {isConfirmable && (
+                                        <button
+                                            onClick={() => handleConfirm(session.id)}
+                                            disabled={isThisLoading && loadingAction === "confirm"}
+                                            className="text-xs font-bold text-white bg-emerald-600 px-3 py-1.5 rounded-lg hover:bg-emerald-700 disabled:opacity-50"
+                                        >
+                                            {isThisLoading && loadingAction === "confirm" ? "Confirming..." : "Confirm"}
+                                        </button>
+                                    )}
+                                </div>
                             </div>
 
-                            {/* Actions */}
-                            <div className="flex-shrink-0">
-                                {isSchedulable && scheduleSessionId !== session.id && (
-                                    <button
-                                        onClick={() => setScheduleSessionId(session.id)}
-                                        className="text-xs font-bold text-primary hover:underline"
-                                    >
-                                        Schedule
-                                    </button>
-                                )}
-
-                                {isSchedulable && scheduleSessionId === session.id && (
+                            {/* Schedule date picker (inline below the session row) */}
+                            {scheduleSessionId === session.id && (
+                                <div className="ml-9 mt-2 p-3 rounded-lg border border-primary/20 bg-primary/5 dark:bg-primary/10">
+                                    <label className="block text-xs font-semibold text-text-muted dark:text-slate-400 mb-1.5">
+                                        {session.status === "scheduled" ? "Reschedule to:" : "Schedule for:"}
+                                    </label>
                                     <div className="flex items-center gap-2">
                                         <input
                                             type="datetime-local"
                                             min={todayStr}
                                             value={scheduleDate}
                                             onChange={(e) => setScheduleDate(e.target.value)}
-                                            className="text-xs bg-muted-light dark:bg-muted-dark border border-border-light dark:border-border-dark rounded px-2 py-1"
+                                            className={`${INPUT_CLASS} flex-1`}
                                         />
                                         <button
                                             onClick={() => handleScheduleSubmit(session.id)}
-                                            disabled={!scheduleDate || scheduling}
-                                            className="text-xs font-bold text-white bg-primary px-2 py-1 rounded disabled:opacity-50"
+                                            disabled={!scheduleDate || (isThisLoading && loadingAction === "schedule")}
+                                            className="text-xs font-bold text-white bg-primary px-4 py-2.5 rounded-lg hover:bg-primary/90 disabled:opacity-50 whitespace-nowrap"
                                         >
-                                            {scheduling ? "..." : "Set"}
+                                            {isThisLoading && loadingAction === "schedule" ? "Setting..." : "Set Date"}
                                         </button>
                                         <button
                                             onClick={() => { setScheduleSessionId(null); setScheduleDate(""); }}
-                                            className="text-xs text-text-muted hover:text-red-500"
+                                            className="text-xs text-text-muted hover:text-red-500 px-2 py-2.5"
                                         >
-                                            ✕
+                                            Cancel
                                         </button>
                                     </div>
-                                )}
-
-                                {isCompletable && (
-                                    <button
-                                        onClick={() => onMarkComplete?.(session.id)}
-                                        disabled={completing}
-                                        className="text-xs font-bold text-white bg-primary px-3 py-1.5 rounded-lg hover:bg-primary/90 disabled:opacity-50"
-                                    >
-                                        {completing ? "..." : "Complete"}
-                                    </button>
-                                )}
-
-                                {isConfirmable && (
-                                    <button
-                                        onClick={() => onConfirm?.(session.id)}
-                                        disabled={confirming}
-                                        className="text-xs font-bold text-white bg-emerald-600 px-3 py-1.5 rounded-lg hover:bg-emerald-700 disabled:opacity-50"
-                                    >
-                                        {confirming ? "..." : "Confirm"}
-                                    </button>
-                                )}
-                            </div>
+                                </div>
+                            )}
                         </div>
                     );
                 })}

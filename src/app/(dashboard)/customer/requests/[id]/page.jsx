@@ -8,7 +8,7 @@ import {
     MdArrowBack, MdCheckCircle, MdEdit, MdCancel, MdLocationOn,
     MdCalendarToday, MdAccessTime, MdAttachMoney, MdAssignment,
     MdPerson, MdInfo, MdSchedule, MdClose, MdChat, MdMoreHoriz,
-    MdVideocam, MdPersonPin, MdWarning
+    MdVideocam, MdPersonPin, MdWarning, MdRefresh
 } from "react-icons/md";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import PatientInfoBlock from "@/components/customer/PatientInfoBlock";
@@ -321,6 +321,18 @@ export default function CustomerRequestDetailPage() {
                                 </div>
                             )}
                         </div>
+
+                        {request.visitsPerWeek && request.numberOfWeeks && (
+                            <div className="mt-4 flex items-center gap-3 px-4 py-3 rounded-lg bg-indigo-50 dark:bg-indigo-900/10 border border-indigo-200 dark:border-indigo-800/30">
+                                <MdRefresh className="text-indigo-500 text-xl flex-shrink-0" />
+                                <div>
+                                    <p className="font-bold text-sm text-text-main dark:text-white">
+                                        {request.visitsPerWeek}x/week · {request.numberOfWeeks} week{request.numberOfWeeks > 1 ? "s" : ""} ({request.visitsPerWeek * request.numberOfWeeks} visits)
+                                    </p>
+                                    <p className="text-xs text-text-muted dark:text-gray-400">Treatment frequency from referral</p>
+                                </div>
+                            </div>
+                        )}
 
                         {request.description && (
                             <div className="pt-6 border-t border-border-light dark:border-border-dark">

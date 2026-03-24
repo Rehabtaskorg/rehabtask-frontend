@@ -45,10 +45,13 @@ const PAYMENT_STATUS_CONFIG = {
 export default function PaymentSummaryCard({ booking, role, onAction }) {
     if (!booking) return null;
 
-    const rate = parseFloat(booking.rate);
+    const perSessionRate = parseFloat(booking.rate);
     const payment = booking.payment;
     const sessions = booking.sessions || [];
     const session = sessions[0];
+    const totalSessions = sessions.length || 1;
+    const isMultiSession = totalSessions > 1;
+    const totalAmount = payment ? parseFloat(payment.amount) : perSessionRate * totalSessions;
     const isCustomer = role === "customer";
     const isTherapist = role === "therapist";
 
@@ -85,13 +88,30 @@ export default function PaymentSummaryCard({ booking, role, onAction }) {
 
             {/* Body */}
             <div className="p-5 space-y-3">
-                {/* Session rate */}
-                <div className="flex items-center justify-between">
-                    <span className="text-sm text-text-muted dark:text-gray-400">Session Rate</span>
-                    <span className="text-sm font-semibold text-text-main dark:text-white">
-                        {formatCurrency(rate)}
-                    </span>
-                </div>
+                {/* Rate */}
+                {isMultiSession ? (
+                    <>
+                        <div className="flex items-center justify-between">
+                            <span className="text-sm text-text-muted dark:text-gray-400">Rate per Session</span>
+                            <span className="text-sm font-medium text-text-main dark:text-white">
+                                {formatCurrency(perSessionRate)} × {totalSessions} sessions
+                            </span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                            <span className="text-sm font-semibold text-text-main dark:text-white">Total Amount</span>
+                            <span className="text-sm font-bold text-text-main dark:text-white">
+                                {formatCurrency(totalAmount)}
+                            </span>
+                        </div>
+                    </>
+                ) : (
+                    <div className="flex items-center justify-between">
+                        <span className="text-sm text-text-muted dark:text-gray-400">Session Rate</span>
+                        <span className="text-sm font-semibold text-text-main dark:text-white">
+                            {formatCurrency(perSessionRate)}
+                        </span>
+                    </div>
+                )}
 
                 {/* Therapist view: show fee breakdown */}
                 {isTherapist && payment && (
@@ -131,11 +151,11 @@ export default function PaymentSummaryCard({ booking, role, onAction }) {
                 )}
 
                 {/* Customer view: total */}
-                {isCustomer && (
+                {isCustomer && !isMultiSession && (
                     <div className="border-t border-border-light dark:border-border-dark pt-3 flex items-center justify-between">
                         <span className="text-sm font-semibold text-text-main dark:text-white">Total</span>
                         <span className="text-lg font-bold text-primary dark:text-blue-400">
-                            {formatCurrency(rate)}
+                            {formatCurrency(totalAmount)}
                         </span>
                     </div>
                 )}

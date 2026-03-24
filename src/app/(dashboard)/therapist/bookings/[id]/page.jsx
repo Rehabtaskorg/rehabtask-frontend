@@ -323,25 +323,13 @@ export default function TherapistBookingDetailPage() {
                             sessions={sessions}
                             role="therapist"
                             onMarkComplete={async (sessionId) => {
-                                setCompleting(true);
-                                try {
-                                    await bookingsApi.completeSession(sessionId);
-                                    await refetch();
-                                } catch (err) {
-                                    setActionError(err.response?.data?.message || "Failed to complete session");
-                                } finally {
-                                    setCompleting(false);
-                                }
+                                await bookingsApi.completeSession(sessionId);
+                                await refetch();
                             }}
                             onSchedule={async (sessionId, scheduledDate) => {
-                                try {
-                                    await bookingsApi.scheduleSession(sessionId, scheduledDate);
-                                    await refetch();
-                                } catch (err) {
-                                    setActionError(err.response?.data?.message || "Failed to schedule session");
-                                }
+                                await bookingsApi.scheduleSession(sessionId, scheduledDate);
+                                await refetch();
                             }}
-                            completing={completing}
                         />
                     )}
 

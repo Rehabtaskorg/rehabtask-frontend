@@ -595,17 +595,9 @@ export default function CustomerBookingDetailPage() {
                             sessions={sessions}
                             role="customer"
                             onConfirm={async (sessionId) => {
-                                setConfirming(true);
-                                try {
-                                    await bookingsApi.confirmSession(sessionId);
-                                    await refetch();
-                                } catch (err) {
-                                    setActionError(err.response?.data?.message || "Failed to confirm session");
-                                } finally {
-                                    setConfirming(false);
-                                }
+                                await bookingsApi.confirmSession(sessionId);
+                                await refetch();
                             }}
-                            confirming={confirming}
                         />
                     )}
 
@@ -764,9 +756,11 @@ export default function CustomerBookingDetailPage() {
                                 <div className="flex items-start gap-3">
                                     <MdCheckCircle className="text-emerald-600 dark:text-emerald-400 text-lg mt-0.5 shrink-0" />
                                     <div>
-                                        <p className="text-sm font-bold text-emerald-900 dark:text-emerald-200">Session Complete</p>
+                                        <p className="text-sm font-bold text-emerald-900 dark:text-emerald-200">
+                                            {sessions.length > 1 ? "All Sessions Complete" : "Session Complete"}
+                                        </p>
                                         <p className="text-xs text-emerald-700 dark:text-emerald-300 mt-0.5">
-                                            Payment of {formatCurrency(parseFloat(booking.rate))} has been released to the therapist.
+                                            Payment of {formatCurrency(payment ? parseFloat(payment.amount) : parseFloat(booking.rate))} has been released to the therapist.
                                         </p>
                                     </div>
                                 </div>
