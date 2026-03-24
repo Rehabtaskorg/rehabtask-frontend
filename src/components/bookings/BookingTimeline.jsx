@@ -79,7 +79,9 @@ function TimelineStep({ icon: Icon, iconColor, title, subtitle, timestamp, isCom
 export default function BookingTimeline({ booking }) {
     if (!booking) return null;
 
-    const { session, payment } = booking;
+    const sessions = booking.sessions || [];
+    const session = sessions[0];
+    const { payment } = booking;
     const isCancelled = booking.status === "cancelled";
 
     // Build steps dynamically

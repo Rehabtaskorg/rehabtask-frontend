@@ -48,7 +48,7 @@ export default function CustomerBookingsPage() {
 
     // Alert: any booking needs customer confirmation
     const actionNeeded = useMemo(
-        () => bookings.some((b) => b.session?.status === "completed_by_therapist"),
+        () => bookings.some((b) => b.sessions?.[0]?.status === "completed_by_therapist"),
         [bookings]
     );
 
@@ -153,7 +153,7 @@ export default function CustomerBookingsPage() {
                     </p>
                     <button
                         onClick={() => {
-                            const b = bookings.find((b) => b.session?.status === "completed_by_therapist");
+                            const b = bookings.find((b) => b.sessions?.[0]?.status === "completed_by_therapist");
                             if (b) router.push(`/customer/bookings/${b.id}`);
                         }}
                         className="text-xs font-bold text-amber-700 dark:text-amber-300 hover:underline whitespace-nowrap"

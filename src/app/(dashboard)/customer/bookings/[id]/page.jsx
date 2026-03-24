@@ -337,7 +337,7 @@ export default function CustomerBookingDetailPage() {
         setConfirming(true);
         clearError();
         try {
-            await bookingsApi.confirmSession(booking.session.id);
+            await bookingsApi.confirmSession(booking.sessions?.[0]?.id);
             setShowConfirmDialog(false);
             await refetch();
         } catch (err) {
@@ -424,7 +424,8 @@ export default function CustomerBookingDetailPage() {
     }
 
     const therapist = booking.therapist;
-    const session = booking.session;
+    const sessions = booking.sessions || [];
+    const session = sessions[0];
     const payment = booking.payment;
     const offer = booking.offer;
     const request = offer?.request;

@@ -228,10 +228,10 @@ function BookingSidePanel({ booking, onClose, onCancel, onApproveReschedule, onD
                         </div>
                     )}
 
-                    {booking.session && (
+                    {booking.sessions?.[0] && (
                         <div className="flex justify-between gap-3 items-center">
                             <dt className="text-text-muted dark:text-slate-400">Session</dt>
-                            <dd><StatusBadge status={booking.session.status} styleMap={SESSION_STYLES} /></dd>
+                            <dd><StatusBadge status={booking.sessions[0].status} styleMap={SESSION_STYLES} /></dd>
                         </div>
                     )}
                 </dl>

@@ -44,13 +44,13 @@ export default function TherapistBookingDetailPage() {
 
     // Auto-refresh when waiting for customer confirmation or reschedule response
     useEffect(() => {
-        if (booking?.session?.status === "completed_by_therapist" || booking?.status === "reschedule_requested") {
+        if (booking?.sessions?.[0]?.status === "completed_by_therapist" || booking?.status === "reschedule_requested") {
             const interval = setInterval(() => {
                 refetch();
             }, 3000);
             return () => clearInterval(interval);
         }
-    }, [booking?.session?.status, booking?.status, refetch]);
+    }, [booking?.sessions?.[0]?.status, booking?.status, refetch]);
 
     const clearError = () => setActionError(null);
 
@@ -58,7 +58,7 @@ export default function TherapistBookingDetailPage() {
         setCompleting(true);
         clearError();
         try {
-            await bookingsApi.completeSession(booking.session.id);
+            await bookingsApi.completeSession(booking.sessions?.[0]?.id);
             setShowCompleteDialog(false);
             await refetch();
         } catch (err) {
@@ -136,7 +136,8 @@ export default function TherapistBookingDetailPage() {
     }
 
     const customer = booking.customer;
-    const session = booking.session;
+    const sessions = booking.sessions || [];
+    const session = sessions[0];
     const payment = booking.payment;
     const offer = booking.offer;
     const request = offer?.request;

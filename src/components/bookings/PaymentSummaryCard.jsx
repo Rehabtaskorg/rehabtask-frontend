@@ -47,7 +47,8 @@ export default function PaymentSummaryCard({ booking, role, onAction }) {
 
     const rate = parseFloat(booking.rate);
     const payment = booking.payment;
-    const session = booking.session;
+    const sessions = booking.sessions || [];
+    const session = sessions[0];
     const isCustomer = role === "customer";
     const isTherapist = role === "therapist";
 
