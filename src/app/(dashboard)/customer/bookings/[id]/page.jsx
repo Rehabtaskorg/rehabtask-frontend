@@ -18,6 +18,7 @@ import { api } from "@/lib/api";
 import { paymentsApi } from "@/lib/payments.api";
 import BookingStatusBadge from "@/components/bookings/BookingStatusBadge";
 import BookingTimeline from "@/components/bookings/BookingTimeline";
+import SessionList from "@/components/bookings/SessionList";
 import PaymentSummaryCard from "@/components/bookings/PaymentSummaryCard";
 import { formatCurrency } from "@/utils/messages";
 import { usePageTitle } from "@/hooks/usePageTitle";
@@ -587,6 +588,26 @@ export default function CustomerBookingDetailPage() {
 
                     {/* Timeline */}
                     <BookingTimeline booking={booking} />
+
+                    {/* Multi-session treatment plan */}
+                    {sessions.length > 1 && (
+                        <SessionList
+                            sessions={sessions}
+                            role="customer"
+                            onConfirm={async (sessionId) => {
+                                setConfirming(true);
+                                try {
+                                    await bookingsApi.confirmSession(sessionId);
+                                    await refetch();
+                                } catch (err) {
+                                    setActionError(err.response?.data?.message || "Failed to confirm session");
+                                } finally {
+                                    setConfirming(false);
+                                }
+                            }}
+                            confirming={confirming}
+                        />
+                    )}
 
                     {/* ── Action Area ── */}
                     <div className="space-y-4">

@@ -10,6 +10,7 @@ import { useBookingDetail } from "@/hooks/useBookings";
 import { bookingsApi } from "@/lib/bookings.api";
 import BookingStatusBadge from "@/components/bookings/BookingStatusBadge";
 import BookingTimeline from "@/components/bookings/BookingTimeline";
+import SessionList from "@/components/bookings/SessionList";
 import PaymentSummaryCard from "@/components/bookings/PaymentSummaryCard";
 import { formatCurrency } from "@/utils/messages";
 import { usePageTitle } from "@/hooks/usePageTitle";
@@ -315,6 +316,34 @@ export default function TherapistBookingDetailPage() {
 
                     {/* Timeline */}
                     <BookingTimeline booking={booking} />
+
+                    {/* Multi-session treatment plan */}
+                    {sessions.length > 1 && (
+                        <SessionList
+                            sessions={sessions}
+                            role="therapist"
+                            onMarkComplete={async (sessionId) => {
+                                setCompleting(true);
+                                try {
+                                    await bookingsApi.completeSession(sessionId);
+                                    await refetch();
+                                } catch (err) {
+                                    setActionError(err.response?.data?.message || "Failed to complete session");
+                                } finally {
+                                    setCompleting(false);
+                                }
+                            }}
+                            onSchedule={async (sessionId, scheduledDate) => {
+                                try {
+                                    await bookingsApi.scheduleSession(sessionId, scheduledDate);
+                                    await refetch();
+                                } catch (err) {
+                                    setActionError(err.response?.data?.message || "Failed to schedule session");
+                                }
+                            }}
+                            completing={completing}
+                        />
+                    )}
 
                     {/* ── Action Area ── */}
                     <div className="space-y-4">
