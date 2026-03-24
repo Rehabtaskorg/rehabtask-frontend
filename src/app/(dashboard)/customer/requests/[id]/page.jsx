@@ -409,6 +409,11 @@ export default function CustomerRequestDetailPage() {
                                                     <span className="flex items-center gap-1 font-semibold text-text-main dark:text-white">
                                                         <MdAttachMoney className="text-emerald-500" />
                                                         ${parseFloat(offer.rate).toFixed(2)}/session
+                                                        {request.visitsPerWeek && request.numberOfWeeks && (
+                                                            <span className="text-text-muted dark:text-gray-400 font-normal text-xs ml-1">
+                                                                (${(parseFloat(offer.rate) * request.visitsPerWeek * request.numberOfWeeks).toFixed(2)} total)
+                                                            </span>
+                                                        )}
                                                     </span>
                                                     <span className="flex items-center gap-1">
                                                         {offer.sessionType === "virtual" ? <MdVideocam className="text-sm" /> : <MdPersonPin className="text-sm" />}

@@ -19,6 +19,8 @@ const useRequestStore = create(
                 emr: "",
                 emrOther: "",
                 visitTypeOther: "",
+                visitsPerWeek: "",
+                numberOfWeeks: "",
             },
             step2: {
                 address: "",
@@ -38,7 +40,7 @@ const useRequestStore = create(
                     currentStep: 1,
                     patientId: null,
                     editingRequestId: null,
-                    step1: { serviceType: "", description: "", preferredDate: "", preferredTime: "", rate: "", visitType: "", emr: "", emrOther: "", visitTypeOther: "" },
+                    step1: { serviceType: "", description: "", preferredDate: "", preferredTime: "", rate: "", visitType: "", emr: "", emrOther: "", visitTypeOther: "", visitsPerWeek: "", numberOfWeeks: "" },
                     step2: { address: "", latitude: null, longitude: null },
                 }),
 
@@ -62,6 +64,8 @@ const useRequestStore = create(
                         emr: request.emr || "",
                         emrOther: "",
                         visitTypeOther: "",
+                        visitsPerWeek: request.visitsPerWeek ? String(request.visitsPerWeek) : "",
+                        numberOfWeeks: request.numberOfWeeks ? String(request.numberOfWeeks) : "",
                     },
                     step2: {
                         address: request.location || "",
