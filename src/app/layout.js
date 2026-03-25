@@ -4,6 +4,7 @@ import { PostHogProvider } from "@/components/providers/PostHogProvider";
 import ToastProvider from "@/components/providers/ToastProvider";
 import "./globals.css";
 import "react-datepicker/dist/react-datepicker.css";
+import "react-toastify/dist/ReactToastify.css";
 
 export const metadata = {
   title: {
