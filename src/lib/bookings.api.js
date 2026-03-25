@@ -28,6 +28,9 @@ export const bookingsApi = {
     cancelSession: async (sessionId, reason) => {
         return api.post(`/sessions/${sessionId}/cancel`, { reason });
     },
+    scheduleSession: async (sessionId, scheduledDate) => {
+        return api.post(`/sessions/${sessionId}/schedule`, { scheduledDate });
+    },
 
     // Payment endpoints
     requestRefund: async (bookingId, reason) => {

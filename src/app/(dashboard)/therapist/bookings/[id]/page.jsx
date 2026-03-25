@@ -10,6 +10,7 @@ import { useBookingDetail } from "@/hooks/useBookings";
 import { bookingsApi } from "@/lib/bookings.api";
 import BookingStatusBadge from "@/components/bookings/BookingStatusBadge";
 import BookingTimeline from "@/components/bookings/BookingTimeline";
+import SessionList from "@/components/bookings/SessionList";
 import PaymentSummaryCard from "@/components/bookings/PaymentSummaryCard";
 import { formatCurrency } from "@/utils/messages";
 import { usePageTitle } from "@/hooks/usePageTitle";
@@ -44,13 +45,13 @@ export default function TherapistBookingDetailPage() {
 
     // Auto-refresh when waiting for customer confirmation or reschedule response
     useEffect(() => {
-        if (booking?.session?.status === "completed_by_therapist" || booking?.status === "reschedule_requested") {
+        if (booking?.sessions?.[0]?.status === "completed_by_therapist" || booking?.status === "reschedule_requested") {
             const interval = setInterval(() => {
                 refetch();
             }, 3000);
             return () => clearInterval(interval);
         }
-    }, [booking?.session?.status, booking?.status, refetch]);
+    }, [booking?.sessions?.[0]?.status, booking?.status, refetch]);
 
     const clearError = () => setActionError(null);
 
@@ -58,7 +59,7 @@ export default function TherapistBookingDetailPage() {
         setCompleting(true);
         clearError();
         try {
-            await bookingsApi.completeSession(booking.session.id);
+            await bookingsApi.completeSession(booking.sessions?.[0]?.id);
             setShowCompleteDialog(false);
             await refetch();
         } catch (err) {
@@ -136,7 +137,8 @@ export default function TherapistBookingDetailPage() {
     }
 
     const customer = booking.customer;
-    const session = booking.session;
+    const sessions = booking.sessions || [];
+    const session = sessions[0];
     const payment = booking.payment;
     const offer = booking.offer;
     const request = offer?.request;
@@ -314,6 +316,22 @@ export default function TherapistBookingDetailPage() {
 
                     {/* Timeline */}
                     <BookingTimeline booking={booking} />
+
+                    {/* Multi-session treatment plan */}
+                    {sessions.length > 1 && (
+                        <SessionList
+                            sessions={sessions}
+                            role="therapist"
+                            onMarkComplete={async (sessionId) => {
+                                await bookingsApi.completeSession(sessionId);
+                                await refetch();
+                            }}
+                            onSchedule={async (sessionId, scheduledDate) => {
+                                await bookingsApi.scheduleSession(sessionId, scheduledDate);
+                                await refetch();
+                            }}
+                        />
+                    )}
 
                     {/* ── Action Area ── */}
                     <div className="space-y-4">

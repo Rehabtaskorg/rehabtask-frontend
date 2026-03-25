@@ -8,7 +8,7 @@ import {
     MdArrowBack, MdCheckCircle, MdEdit, MdCancel, MdLocationOn,
     MdCalendarToday, MdAccessTime, MdAttachMoney, MdAssignment,
     MdPerson, MdInfo, MdSchedule, MdClose, MdChat, MdMoreHoriz,
-    MdVideocam, MdPersonPin, MdWarning
+    MdVideocam, MdPersonPin, MdWarning, MdRefresh
 } from "react-icons/md";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import PatientInfoBlock from "@/components/customer/PatientInfoBlock";
@@ -322,6 +322,18 @@ export default function CustomerRequestDetailPage() {
                             )}
                         </div>
 
+                        {request.visitsPerWeek && request.numberOfWeeks && (
+                            <div className="mt-4 flex items-center gap-3 px-4 py-3 rounded-lg bg-indigo-50 dark:bg-indigo-900/10 border border-indigo-200 dark:border-indigo-800/30">
+                                <MdRefresh className="text-indigo-500 text-xl flex-shrink-0" />
+                                <div>
+                                    <p className="font-bold text-sm text-text-main dark:text-white">
+                                        {request.visitsPerWeek}x/week · {request.numberOfWeeks} week{request.numberOfWeeks > 1 ? "s" : ""} ({request.visitsPerWeek * request.numberOfWeeks} visits)
+                                    </p>
+                                    <p className="text-xs text-text-muted dark:text-gray-400">Treatment frequency from referral</p>
+                                </div>
+                            </div>
+                        )}
+
                         {request.description && (
                             <div className="pt-6 border-t border-border-light dark:border-border-dark">
                                 <h4 className="text-xs font-bold text-text-muted dark:text-gray-400 uppercase tracking-widest mb-3">Description</h4>
@@ -409,6 +421,11 @@ export default function CustomerRequestDetailPage() {
                                                     <span className="flex items-center gap-1 font-semibold text-text-main dark:text-white">
                                                         <MdAttachMoney className="text-emerald-500" />
                                                         ${parseFloat(offer.rate).toFixed(2)}/session
+                                                        {request.visitsPerWeek && request.numberOfWeeks && (
+                                                            <span className="text-text-muted dark:text-gray-400 font-normal text-xs ml-1">
+                                                                (${(parseFloat(offer.rate) * request.visitsPerWeek * request.numberOfWeeks).toFixed(2)} total)
+                                                            </span>
+                                                        )}
                                                     </span>
                                                     <span className="flex items-center gap-1">
                                                         {offer.sessionType === "virtual" ? <MdVideocam className="text-sm" /> : <MdPersonPin className="text-sm" />}

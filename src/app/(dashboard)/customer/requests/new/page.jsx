@@ -120,6 +120,8 @@ export default function NewRequestPage() {
                 rate: parseFloat(step1.rate),
                 visitType: step1.visitType === "Other" ? step1.visitTypeOther : step1.visitType,
                 emr: step1.emr === "Other" ? step1.emrOther : step1.emr,
+                ...(step1.visitsPerWeek && { visitsPerWeek: parseInt(step1.visitsPerWeek) }),
+                ...(step1.numberOfWeeks && { numberOfWeeks: parseInt(step1.numberOfWeeks) }),
             };
 
             if (isEditMode) {

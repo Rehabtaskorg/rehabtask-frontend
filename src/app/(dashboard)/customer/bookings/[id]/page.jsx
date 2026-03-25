@@ -18,6 +18,7 @@ import { api } from "@/lib/api";
 import { paymentsApi } from "@/lib/payments.api";
 import BookingStatusBadge from "@/components/bookings/BookingStatusBadge";
 import BookingTimeline from "@/components/bookings/BookingTimeline";
+import SessionList from "@/components/bookings/SessionList";
 import PaymentSummaryCard from "@/components/bookings/PaymentSummaryCard";
 import { formatCurrency } from "@/utils/messages";
 import { usePageTitle } from "@/hooks/usePageTitle";
@@ -164,7 +165,15 @@ function InlinePaymentSection({ booking, onPaymentSuccess }) {
         }
     };
 
-    const amount = formatCurrency(parseFloat(booking.rate));
+    const perSessionRate = parseFloat(booking.rate);
+    const request = booking.offer?.request;
+    const totalSessionsFromFreq = (request?.visitsPerWeek && request?.numberOfWeeks)
+        ? request.visitsPerWeek * request.numberOfWeeks
+        : 1;
+    const sessionsCount = booking.sessions?.length > 1 ? booking.sessions.length : totalSessionsFromFreq;
+    const isMultiSession = sessionsCount > 1;
+    const totalAmount = perSessionRate * sessionsCount;
+    const amount = formatCurrency(totalAmount);
 
     return (
         <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl p-6 space-y-5">
@@ -178,14 +187,25 @@ function InlinePaymentSection({ booking, onPaymentSuccess }) {
             <div className="flex items-start gap-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg px-3 py-2.5">
                 <MdInfo className="text-blue-600 dark:text-blue-400 text-sm mt-0.5 shrink-0" />
                 <p className="text-xs text-blue-700 dark:text-blue-300">
-                    Your payment will be held securely until you confirm session completion
+                    Your payment will be held securely until you confirm {isMultiSession ? "all sessions" : "session"} completion
                 </p>
             </div>
 
             {/* Amount */}
             <div>
-                <p className="text-xs font-bold text-text-muted dark:text-gray-400 uppercase tracking-wider">Session Rate</p>
-                <p className="text-2xl font-black text-text-main dark:text-white">{amount}</p>
+                {isMultiSession ? (
+                    <>
+                        <p className="text-xs font-bold text-text-muted dark:text-gray-400 uppercase tracking-wider">
+                            {formatCurrency(perSessionRate)}/session × {sessionsCount} sessions
+                        </p>
+                        <p className="text-2xl font-black text-text-main dark:text-white">{amount}</p>
+                    </>
+                ) : (
+                    <>
+                        <p className="text-xs font-bold text-text-muted dark:text-gray-400 uppercase tracking-wider">Session Rate</p>
+                        <p className="text-2xl font-black text-text-main dark:text-white">{amount}</p>
+                    </>
+                )}
             </div>
 
             {payError && (
@@ -316,6 +336,14 @@ export default function CustomerBookingDetailPage() {
     const [rescheduleResponding, setRescheduleResponding] = useState(null);
     const [actionError, setActionError] = useState(null);
 
+    // Auto-refresh when waiting for therapist actions (mark complete, schedule sessions)
+    useEffect(() => {
+        if (booking && ["confirmed", "in_progress"].includes(booking.status)) {
+            const interval = setInterval(() => { refetch(); }, 5000);
+            return () => clearInterval(interval);
+        }
+    }, [booking?.status, refetch]);
+
     // Payment success banner from redirect
     useEffect(() => {
         if (searchParams.get("payment") === "success") {
@@ -337,7 +365,7 @@ export default function CustomerBookingDetailPage() {
         setConfirming(true);
         clearError();
         try {
-            await bookingsApi.confirmSession(booking.session.id);
+            await bookingsApi.confirmSession(booking.sessions?.[0]?.id);
             setShowConfirmDialog(false);
             await refetch();
         } catch (err) {
@@ -424,12 +452,22 @@ export default function CustomerBookingDetailPage() {
     }
 
     const therapist = booking.therapist;
-    const session = booking.session;
+    const sessions = booking.sessions || [];
+    const session = sessions[0];
     const payment = booking.payment;
     const offer = booking.offer;
     const request = offer?.request;
     const therapistInitial = therapist?.fullName?.charAt(0) || "?";
     const sessionType = offer?.sessionType;
+
+    // Calculate total sessions from request frequency (available before payment/sessions created)
+    const totalSessionsFromFrequency = (request?.visitsPerWeek && request?.numberOfWeeks)
+        ? request.visitsPerWeek * request.numberOfWeeks
+        : 1;
+    const totalSessions = sessions.length > 1 ? sessions.length : totalSessionsFromFrequency;
+    const isMultiSession = totalSessions > 1;
+    const perSessionRate = parseFloat(booking.rate);
+    const totalAmount = payment ? parseFloat(payment.amount) : perSessionRate * totalSessions;
 
     return (
         <div className="p-4 md:p-6 max-w-6xl mx-auto">
@@ -587,6 +625,18 @@ export default function CustomerBookingDetailPage() {
                     {/* Timeline */}
                     <BookingTimeline booking={booking} />
 
+                    {/* Multi-session treatment plan */}
+                    {sessions.length > 1 && (
+                        <SessionList
+                            sessions={sessions}
+                            role="customer"
+                            onConfirm={async (sessionId) => {
+                                await bookingsApi.confirmSession(sessionId);
+                                await refetch();
+                            }}
+                        />
+                    )}
+
                     {/* ── Action Area ── */}
                     <div className="space-y-4">
                         {/* Reschedule request */}
@@ -737,19 +787,32 @@ export default function CustomerBookingDetailPage() {
                         )}
 
                         {/* Confirmed by customer — success */}
-                        {session?.status === "confirmed_by_customer" && (
-                            <div className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl p-5">
-                                <div className="flex items-start gap-3">
-                                    <MdCheckCircle className="text-emerald-600 dark:text-emerald-400 text-lg mt-0.5 shrink-0" />
-                                    <div>
-                                        <p className="text-sm font-bold text-emerald-900 dark:text-emerald-200">Session Complete</p>
-                                        <p className="text-xs text-emerald-700 dark:text-emerald-300 mt-0.5">
-                                            Payment of {formatCurrency(parseFloat(booking.rate))} has been released to the therapist.
-                                        </p>
+                        {(() => {
+                            const allConfirmed = isMultiSession
+                                ? sessions.length > 0 && sessions.every(s => s.status === "confirmed_by_customer")
+                                : session?.status === "confirmed_by_customer";
+                            const paymentReleased = payment?.status === "released";
+
+                            if (allConfirmed || paymentReleased) return (
+                                <div className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl p-5">
+                                    <div className="flex items-start gap-3">
+                                        <MdCheckCircle className="text-emerald-600 dark:text-emerald-400 text-lg mt-0.5 shrink-0" />
+                                        <div>
+                                            <p className="text-sm font-bold text-emerald-900 dark:text-emerald-200">
+                                                {isMultiSession ? "All Sessions Complete" : "Session Complete"}
+                                            </p>
+                                            <p className="text-xs text-emerald-700 dark:text-emerald-300 mt-0.5">
+                                                {paymentReleased
+                                                    ? `Payment of ${formatCurrency(parseFloat(payment.amount))} has been released to the therapist.`
+                                                    : "Payment will be released shortly."
+                                                }
+                                            </p>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        )}
+                            );
+                            return null;
+                        })()}
 
                         {/* Cancelled */}
                         {booking.status === "cancelled" && (

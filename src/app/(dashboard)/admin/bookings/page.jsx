@@ -38,14 +38,16 @@ const BOOKING_STYLES = {
 };
 
 const PAYMENT_STYLES = {
-    intent_created: 'bg-slate-100  text-slate-600  dark:bg-slate-700     dark:text-slate-300',
-    escrowed:       'bg-cyan-100   text-cyan-700   dark:bg-cyan-900/30   dark:text-cyan-400',
-    released:       'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
-    refunded:       'bg-red-100    text-red-700    dark:bg-red-900/30    dark:text-red-400',
-    failed:         'bg-rose-100   text-rose-700   dark:bg-rose-900/30   dark:text-rose-400',
+    intent_created:      'bg-slate-100  text-slate-600  dark:bg-slate-700     dark:text-slate-300',
+    escrowed:            'bg-cyan-100   text-cyan-700   dark:bg-cyan-900/30   dark:text-cyan-400',
+    partially_released:  'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400',
+    released:            'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
+    refunded:            'bg-red-100    text-red-700    dark:bg-red-900/30    dark:text-red-400',
+    failed:              'bg-rose-100   text-rose-700   dark:bg-rose-900/30   dark:text-rose-400',
 };
 
 const SESSION_STYLES = {
+    pending_schedule:       'bg-slate-100  text-slate-600  dark:bg-slate-700     dark:text-slate-300',
     scheduled:              'bg-blue-100   text-blue-700   dark:bg-blue-900/30   dark:text-blue-400',
     completed_by_therapist: 'bg-amber-100  text-amber-700  dark:bg-amber-900/30  dark:text-amber-400',
     confirmed_by_customer:  'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
@@ -228,13 +230,44 @@ function BookingSidePanel({ booking, onClose, onCancel, onApproveReschedule, onD
                         </div>
                     )}
 
-                    {booking.session && (
+                    {booking.sessions?.length === 1 && (
                         <div className="flex justify-between gap-3 items-center">
                             <dt className="text-text-muted dark:text-slate-400">Session</dt>
-                            <dd><StatusBadge status={booking.session.status} styleMap={SESSION_STYLES} /></dd>
+                            <dd><StatusBadge status={booking.sessions[0].status} styleMap={SESSION_STYLES} /></dd>
                         </div>
                     )}
                 </dl>
+
+                {/* Multi-session breakdown */}
+                {booking.sessions?.length > 1 && (
+                    <div className="border border-border-light dark:border-border-dark rounded-xl overflow-hidden">
+                        <div className="px-4 py-3 bg-slate-50 dark:bg-slate-800/50 flex items-center justify-between">
+                            <p className="text-xs font-bold text-text-main dark:text-white uppercase tracking-wider">
+                                Treatment Plan
+                            </p>
+                            <p className="text-xs font-semibold text-text-muted dark:text-slate-400">
+                                {booking.sessions.filter(s => s.status === "confirmed_by_customer").length} of {booking.sessions.length} confirmed
+                            </p>
+                        </div>
+                        <div className="divide-y divide-border-light dark:divide-border-dark">
+                            {booking.sessions.map((s) => (
+                                <div key={s.id} className="px-4 py-2.5 flex items-center justify-between">
+                                    <div>
+                                        <p className="text-xs font-semibold text-text-main dark:text-white">
+                                            Session {s.sessionNumber}
+                                        </p>
+                                        <p className="text-[10px] text-text-muted dark:text-slate-500">
+                                            {s.scheduledDate
+                                                ? new Date(s.scheduledDate).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" })
+                                                : "Not scheduled"}
+                                        </p>
+                                    </div>
+                                    <StatusBadge status={s.status} styleMap={SESSION_STYLES} />
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
 
                 {/* ── Reschedule approve/deny section ── */}
                 {isRescheduleRequested && !success && (

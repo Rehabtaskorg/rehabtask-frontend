@@ -6,7 +6,7 @@ import { api } from "@/lib/api";
 import {
     MdLocationOn, MdCalendarToday, MdSend, MdChatBubble,
     MdCheckCircle, MdWarning, MdError, MdAccessTime,
-    MdFilterList, MdClose, MdTune, MdOpenInNew
+    MdFilterList, MdClose, MdTune, MdOpenInNew, MdRefresh
 } from "react-icons/md";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { useAuth } from "@/hooks/useAuth";
@@ -431,6 +431,12 @@ export default function TherapistRequestsPage() {
                                     {req.description}
                                 </p>
                                 <PatientBadge patient={req.patient} />
+                                {req.visitsPerWeek && req.numberOfWeeks && (
+                                    <div className="flex items-center gap-1 text-xs font-semibold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/20 px-2 py-1 rounded-md mb-2 w-fit">
+                                        <MdRefresh className="text-[13px]" />
+                                        {req.visitsPerWeek}x/week · {req.numberOfWeeks} weeks ({req.visitsPerWeek * req.numberOfWeeks} visits)
+                                    </div>
+                                )}
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-3">
                                         <div className="flex items-center gap-1 text-slate-400">

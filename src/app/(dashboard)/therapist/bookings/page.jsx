@@ -47,7 +47,7 @@ export default function TherapistBookingsPage() {
 
     // Alert: any booking ready to complete
     const readyToComplete = useMemo(
-        () => bookings.some((b) => b.status === "confirmed" && b.session?.status === "scheduled"),
+        () => bookings.some((b) => b.status === "confirmed" && b.sessions?.[0]?.status === "scheduled"),
         [bookings]
     );
 
@@ -146,7 +146,7 @@ export default function TherapistBookingsPage() {
                     </p>
                     <button
                         onClick={() => {
-                            const b = bookings.find((b) => b.status === "confirmed" && b.session?.status === "scheduled");
+                            const b = bookings.find((b) => b.status === "confirmed" && b.sessions?.[0]?.status === "scheduled");
                             if (b) router.push(`/therapist/bookings/${b.id}`);
                         }}
                         className="text-xs font-bold text-amber-700 dark:text-amber-300 hover:underline whitespace-nowrap"
