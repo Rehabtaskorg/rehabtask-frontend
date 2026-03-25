@@ -82,7 +82,7 @@ function OAuthOnboardingContent() {
                     <p className="text-text-muted dark:text-[#a1b0c0]">
                         {selectedRole
                             ? `Please provide the following information for your ${selectedRole} account.`
-                            : `You've successfully signed in with ${provider}. Please select your account type.`}
+                            : "To get started, please select your account type below."}
                     </p>
                 </div>
 
