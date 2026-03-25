@@ -787,21 +787,32 @@ export default function CustomerBookingDetailPage() {
                         )}
 
                         {/* Confirmed by customer — success */}
-                        {session?.status === "confirmed_by_customer" && (
-                            <div className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl p-5">
-                                <div className="flex items-start gap-3">
-                                    <MdCheckCircle className="text-emerald-600 dark:text-emerald-400 text-lg mt-0.5 shrink-0" />
-                                    <div>
-                                        <p className="text-sm font-bold text-emerald-900 dark:text-emerald-200">
-                                            {sessions.length > 1 ? "All Sessions Complete" : "Session Complete"}
-                                        </p>
-                                        <p className="text-xs text-emerald-700 dark:text-emerald-300 mt-0.5">
-                                            Payment of {formatCurrency(payment ? parseFloat(payment.amount) : parseFloat(booking.rate))} has been released to the therapist.
-                                        </p>
+                        {(() => {
+                            const allConfirmed = isMultiSession
+                                ? sessions.length > 0 && sessions.every(s => s.status === "confirmed_by_customer")
+                                : session?.status === "confirmed_by_customer";
+                            const paymentReleased = payment?.status === "released";
+
+                            if (allConfirmed || paymentReleased) return (
+                                <div className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl p-5">
+                                    <div className="flex items-start gap-3">
+                                        <MdCheckCircle className="text-emerald-600 dark:text-emerald-400 text-lg mt-0.5 shrink-0" />
+                                        <div>
+                                            <p className="text-sm font-bold text-emerald-900 dark:text-emerald-200">
+                                                {isMultiSession ? "All Sessions Complete" : "Session Complete"}
+                                            </p>
+                                            <p className="text-xs text-emerald-700 dark:text-emerald-300 mt-0.5">
+                                                {paymentReleased
+                                                    ? `Payment of ${formatCurrency(parseFloat(payment.amount))} has been released to the therapist.`
+                                                    : "Payment will be released shortly."
+                                                }
+                                            </p>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        )}
+                            );
+                            return null;
+                        })()}
 
                         {/* Cancelled */}
                         {booking.status === "cancelled" && (
