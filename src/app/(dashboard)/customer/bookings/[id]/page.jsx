@@ -336,6 +336,14 @@ export default function CustomerBookingDetailPage() {
     const [rescheduleResponding, setRescheduleResponding] = useState(null);
     const [actionError, setActionError] = useState(null);
 
+    // Auto-refresh when waiting for therapist actions (mark complete, schedule sessions)
+    useEffect(() => {
+        if (booking && ["confirmed", "in_progress"].includes(booking.status)) {
+            const interval = setInterval(() => { refetch(); }, 5000);
+            return () => clearInterval(interval);
+        }
+    }, [booking?.status, refetch]);
+
     // Payment success banner from redirect
     useEffect(() => {
         if (searchParams.get("payment") === "success") {

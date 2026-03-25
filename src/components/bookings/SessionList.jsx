@@ -125,6 +125,7 @@ export default function SessionList({
                     const isCompletable = role === "therapist" && session.status === "scheduled";
                     const isConfirmable = role === "customer" && session.status === "completed_by_therapist";
                     const isThisLoading = loadingSessionId === session.id;
+                    const isAnyLoading = loadingSessionId !== null;
 
                     return (
                         <div key={session.id}>
@@ -158,7 +159,8 @@ export default function SessionList({
                                     {isSchedulable && scheduleSessionId !== session.id && (
                                         <button
                                             onClick={() => openScheduleFor(session)}
-                                            className="text-xs font-bold text-primary hover:underline flex items-center gap-1"
+                                            disabled={isAnyLoading}
+                                            className="text-xs font-bold text-primary hover:underline flex items-center gap-1 disabled:opacity-50 disabled:pointer-events-none"
                                         >
                                             {session.status === "scheduled" ? <><MdEdit className="text-sm" /> Reschedule</> : "Schedule"}
                                         </button>
@@ -167,7 +169,7 @@ export default function SessionList({
                                     {isCompletable && scheduleSessionId !== session.id && (
                                         <button
                                             onClick={() => handleComplete(session.id)}
-                                            disabled={isThisLoading && loadingAction === "complete"}
+                                            disabled={isAnyLoading}
                                             className="text-xs font-bold text-white bg-primary px-3 py-1.5 rounded-lg hover:bg-primary/90 disabled:opacity-50"
                                         >
                                             {isThisLoading && loadingAction === "complete" ? "Completing..." : "Complete"}
@@ -177,7 +179,7 @@ export default function SessionList({
                                     {isConfirmable && (
                                         <button
                                             onClick={() => handleConfirm(session.id)}
-                                            disabled={isThisLoading && loadingAction === "confirm"}
+                                            disabled={isAnyLoading}
                                             className="text-xs font-bold text-white bg-emerald-600 px-3 py-1.5 rounded-lg hover:bg-emerald-700 disabled:opacity-50"
                                         >
                                             {isThisLoading && loadingAction === "confirm" ? "Confirming..." : "Confirm"}
