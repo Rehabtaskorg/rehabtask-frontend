@@ -304,6 +304,41 @@ function PaymentSidePanel({ payment, onClose }) {
                         </div>
                     )}
 
+                    {/* Multi-session breakdown */}
+                    {payment.booking?.sessions?.length > 1 && (
+                        <div className="border border-border-light dark:border-border-dark rounded-xl overflow-hidden">
+                            <div className="px-3 py-2.5 bg-slate-50 dark:bg-slate-800/50 flex items-center justify-between">
+                                <p className="text-[10px] font-bold text-text-main dark:text-white uppercase tracking-wider">
+                                    Sessions
+                                </p>
+                                <p className="text-[10px] font-semibold text-text-muted dark:text-slate-400">
+                                    {payment.booking.sessions.filter(s => s.status === "confirmed_by_customer").length}/{payment.booking.sessions.length} confirmed
+                                </p>
+                            </div>
+                            <div className="divide-y divide-border-light dark:divide-border-dark">
+                                {payment.booking.sessions.map((s) => {
+                                    const statusColors = {
+                                        pending_schedule: "text-slate-400",
+                                        scheduled: "text-blue-500",
+                                        completed_by_therapist: "text-amber-500",
+                                        confirmed_by_customer: "text-emerald-500",
+                                        cancelled: "text-red-500",
+                                    };
+                                    return (
+                                        <div key={s.id} className="px-3 py-2 flex items-center justify-between">
+                                            <span className="text-xs font-medium text-text-main dark:text-white">
+                                                Session {s.sessionNumber}
+                                            </span>
+                                            <span className={`text-[10px] font-bold uppercase ${statusColors[s.status] || "text-slate-400"}`}>
+                                                {s.status?.replace(/_/g, " ")}
+                                            </span>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    )}
+
                     <p className="text-xs text-text-muted">
                         Created: {fmtDate(payment.createdAt)}
                     </p>
