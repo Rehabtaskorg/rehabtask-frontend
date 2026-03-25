@@ -62,17 +62,14 @@ export default function TherapistBookingDetailPage() {
             await refetch();
         } catch (err) {
             const errorCode = err.response?.data?.code;
-            console.log("[DEBUG] completeSession error:", errorCode, err.response?.data?.message);
             if (errorCode === "STRIPE_NOT_CONNECTED") {
                 setShowCompleteDialog(false);
                 showToast.warning(
                     "You must connect and complete your Stripe account setup before marking a session as complete. Go to Account Settings to set up Stripe.",
                     { autoClose: 10000 }
                 );
-                console.log("[DEBUG] showToast.warning called");
             } else {
                 showToast.error(err.response?.data?.message || "Failed to mark session as complete.");
-                console.log("[DEBUG] showToast.error called");
             }
         } finally {
             setCompleting(false);
@@ -296,8 +293,21 @@ export default function TherapistBookingDetailPage() {
                             sessions={sessions}
                             role="therapist"
                             onMarkComplete={async (sessionId) => {
-                                await bookingsApi.completeSession(sessionId);
-                                await refetch();
+                                try {
+                                    await bookingsApi.completeSession(sessionId);
+                                    showToast.success("Session marked as complete. Waiting for customer confirmation.");
+                                    await refetch();
+                                } catch (err) {
+                                    const errorCode = err.response?.data?.code;
+                                    if (errorCode === "STRIPE_NOT_CONNECTED") {
+                                        showToast.warning(
+                                            "You must connect and complete your Stripe account setup before marking a session as complete. Go to Account Settings to set up Stripe.",
+                                            { autoClose: 10000 }
+                                        );
+                                    } else {
+                                        showToast.error(err.response?.data?.message || "Failed to mark session as complete.");
+                                    }
+                                }
                             }}
                             onSchedule={async (sessionId, scheduledDate) => {
                                 await bookingsApi.scheduleSession(sessionId, scheduledDate);
