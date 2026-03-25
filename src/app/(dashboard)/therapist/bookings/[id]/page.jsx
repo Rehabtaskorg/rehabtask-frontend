@@ -62,14 +62,17 @@ export default function TherapistBookingDetailPage() {
             await refetch();
         } catch (err) {
             const errorCode = err.response?.data?.code;
+            console.log("[DEBUG] completeSession error:", errorCode, err.response?.data?.message);
             if (errorCode === "STRIPE_NOT_CONNECTED") {
                 setShowCompleteDialog(false);
                 showToast.warning(
                     "You must connect and complete your Stripe account setup before marking a session as complete. Go to Account Settings to set up Stripe.",
                     { autoClose: 10000 }
                 );
+                console.log("[DEBUG] showToast.warning called");
             } else {
                 showToast.error(err.response?.data?.message || "Failed to mark session as complete.");
+                console.log("[DEBUG] showToast.error called");
             }
         } finally {
             setCompleting(false);
