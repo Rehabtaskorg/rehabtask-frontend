@@ -4,10 +4,11 @@ import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import {
     MdArrowBack, MdChat, MdCalendarToday, MdAccessTime, MdLocationOn, MdVideocam, MdPerson,
-    MdCheckCircle, MdClose, MdWarning, MdInfo, MdRefresh, MdSchedule, MdUpdate
+    MdCheckCircle, MdWarning, MdInfo, MdRefresh, MdSchedule, MdUpdate
 } from "react-icons/md";
 import { useBookingDetail } from "@/hooks/useBookings";
 import { bookingsApi } from "@/lib/bookings.api";
+import { showToast } from "@/lib/toast";
 import BookingStatusBadge from "@/components/bookings/BookingStatusBadge";
 import BookingTimeline from "@/components/bookings/BookingTimeline";
 import SessionList from "@/components/bookings/SessionList";
@@ -35,7 +36,6 @@ export default function TherapistBookingDetailPage() {
     // UI states
     const [completing, setCompleting] = useState(false);
     const [showCompleteDialog, setShowCompleteDialog] = useState(false);
-    const [actionError, setActionError] = useState(null);
 
     // Reschedule states
     const [showRescheduleModal, setShowRescheduleModal] = useState(false);
@@ -53,22 +53,23 @@ export default function TherapistBookingDetailPage() {
         }
     }, [booking?.sessions?.[0]?.status, booking?.status, refetch]);
 
-    const clearError = () => setActionError(null);
-
     const handleMarkComplete = async () => {
         setCompleting(true);
-        clearError();
         try {
             await bookingsApi.completeSession(booking.sessions?.[0]?.id);
             setShowCompleteDialog(false);
+            showToast.success("Session marked as complete. Waiting for customer confirmation.");
             await refetch();
         } catch (err) {
             const errorCode = err.response?.data?.code;
             if (errorCode === "STRIPE_NOT_CONNECTED") {
                 setShowCompleteDialog(false);
-                setActionError("STRIPE_NOT_CONNECTED");
+                showToast.warning(
+                    "You must connect and complete your Stripe account setup before marking a session as complete. Go to Account Settings to set up Stripe.",
+                    { autoClose: 10000 }
+                );
             } else {
-                setActionError(err.response?.data?.message || "Failed to mark session as complete.");
+                showToast.error(err.response?.data?.message || "Failed to mark session as complete.");
             }
         } finally {
             setCompleting(false);
@@ -78,16 +79,16 @@ export default function TherapistBookingDetailPage() {
     const handleRequestReschedule = async () => {
         if (!rescheduleDate || !rescheduleTime) return;
         setRescheduling(true);
-        clearError();
         try {
             const newDate = new Date(`${rescheduleDate}T${rescheduleTime}`).toISOString();
             await bookingsApi.rescheduleBooking(params.id, newDate);
             setShowRescheduleModal(false);
             setRescheduleDate("");
             setRescheduleTime("");
+            showToast.success("Reschedule request sent. Waiting for customer response.");
             await refetch();
         } catch (err) {
-            setActionError(err.response?.data?.message || "Failed to request reschedule.");
+            showToast.error(err.response?.data?.message || "Failed to request reschedule.");
         } finally {
             setRescheduling(false);
         }
@@ -151,37 +152,6 @@ export default function TherapistBookingDetailPage() {
 
     return (
         <div className="p-4 md:p-6 max-w-6xl mx-auto">
-            {/* Action error banner */}
-            {actionError === "STRIPE_NOT_CONNECTED" ? (
-                <div className="mb-4 flex items-start gap-3 px-4 py-3 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800">
-                    <MdWarning className="text-amber-600 dark:text-amber-400 text-lg shrink-0 mt-0.5" />
-                    <div className="flex-1">
-                        <p className="text-sm font-bold text-amber-800 dark:text-amber-200">Stripe Account Required</p>
-                        <p className="text-sm text-amber-700 dark:text-amber-300 mt-0.5">
-                            You must connect and complete your Stripe account setup before marking a session as complete.
-                        </p>
-                        <button
-                            onClick={() => router.push("/therapist/account-settings")}
-                            className="text-sm font-bold text-primary hover:underline mt-1 inline-block"
-                        >
-                            Set up Stripe account →
-                        </button>
-                    </div>
-                    <button onClick={clearError} className="text-amber-600 dark:text-amber-400 hover:text-amber-800">
-                        <MdClose className="text-base" />
-                    </button>
-                </div>
-            ) : actionError ? (
-                <div className="mb-4 flex items-center gap-3 px-4 py-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
-                    <MdWarning className="text-red-600 dark:text-red-400 text-lg shrink-0" />
-                    <p className="text-sm text-red-800 dark:text-red-300 flex-1">{actionError}</p>
-                    <button onClick={clearError} className="text-red-600 dark:text-red-400 hover:text-red-800">
-                        <MdClose className="text-base" />
-                    </button>
-                </div>
-            ) : null}
-
-
             {/* Back button */}
             <button
                 onClick={() => router.push("/therapist/bookings")}
