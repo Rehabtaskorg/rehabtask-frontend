@@ -132,6 +132,16 @@ export default function DashboardLayout({ children }) {
                     return;
                 }
 
+                // Guard: user has no profile (incomplete OAuth onboarding)
+                // Redirect to onboarding to complete role selection + profile setup
+                if (!userData.profile && userData.role !== "admin" && userData.role !== "sub_admin") {
+                    const isOnOnboarding = pathname.startsWith("/oauth/onboarding");
+                    if (!isOnOnboarding) {
+                        router.replace("/oauth/onboarding");
+                        return;
+                    }
+                }
+
                 // Route guard for therapist approval state
                 // NOTE: Backend returns profile data under "profile" key (not "therapistProfile")
                 if (userData.role === "therapist") {
