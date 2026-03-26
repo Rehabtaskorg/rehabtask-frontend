@@ -117,10 +117,7 @@ function TherapistEarningsContent() {
             <PayoutHistoryTable payments={data.payments || []} />
 
             {/* Escrow Info */}
-            <EscrowInfoBanner
-                hasEscrowedPayments={hasEscrowedPayments}
-                onOpenStripeDashboard={handleOpenStripeDashboard}
-            />
+            <EscrowInfoBanner hasEscrowedPayments={hasEscrowedPayments} />
         </div>
     );
 }

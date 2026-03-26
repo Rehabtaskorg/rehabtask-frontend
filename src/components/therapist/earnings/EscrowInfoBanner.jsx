@@ -1,6 +1,6 @@
 import { MdInfo } from "react-icons/md";
 
-export default function EscrowInfoBanner({ hasEscrowedPayments, onOpenStripeDashboard }) {
+export default function EscrowInfoBanner({ hasEscrowedPayments }) {
     if (!hasEscrowedPayments) return null;
 
     return (
@@ -12,10 +12,6 @@ export default function EscrowInfoBanner({ hasEscrowedPayments, onOpenStripeDash
                 <h4 className="text-sm font-bold text-text-main dark:text-white mb-1">About Escrow Protection</h4>
                 <p className="text-sm text-text-muted dark:text-slate-300 leading-relaxed">
                     Payments in escrow are held securely and released after the customer confirms session completion, or automatically after 72 hours.
-                    View detailed payout and transfer info in your{" "}
-                    <button onClick={onOpenStripeDashboard} className="text-primary font-semibold hover:underline">
-                        Stripe Dashboard
-                    </button>.
                 </p>
             </div>
         </div>
