@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { api } from "@/lib/api";
+import Image from "next/image";
 import {
     MdNotifications, MdWarning,
     MdArrowForward, MdNearMe,
@@ -11,8 +12,13 @@ import {
     MdCheckCircle, MdLocationOn,
     MdCalendarToday
 } from "react-icons/md";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function DashboardApprovedView() {
+    const { user } = useAuth();
+    const profilePhotoUrl = user?.profile?.profilePhotoUrl;
+    const fullName = user?.profile?.fullName || "";
+    const initials = fullName.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2) || "?";
     const router = useRouter();
     const fmt$ = (v) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(parseFloat(v) || 0);
     const [stats, setStats] = useState({
@@ -87,9 +93,13 @@ export default function DashboardApprovedView() {
                         </button>
                         <Link
                             href="/therapist/profile"
-                            className="h-10 w-10 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center hover:bg-primary/20 transition-colors"
+                            className="h-10 w-10 rounded-full overflow-hidden border border-primary/20 flex items-center justify-center hover:opacity-90 transition-opacity shrink-0"
                         >
-                            <span className="text-primary font-bold text-sm">PT</span>
+                            {profilePhotoUrl ? (
+                                <Image src={profilePhotoUrl} alt={fullName} width={40} height={40} className="w-full h-full object-cover" />
+                            ) : (
+                                <span className="w-full h-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm">{initials}</span>
+                            )}
                         </Link>
                     </div>
                 </header>
