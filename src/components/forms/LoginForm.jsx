@@ -60,7 +60,7 @@ const LoginForm = () => {
                         <MdLogin className="text-white text-2xl" />
                     </div>
                     <span className="text-2xl font-black text-text-main dark:text-white tracking-tight">
-                        RehabMarket
+                        RehabTask
                     </span>
                 </div>
                 <div className="flex flex-col gap-1">
@@ -107,7 +107,7 @@ const LoginForm = () => {
                 <Input
                     label="Email Address"
                     type="email"
-                    placeholder="e.g. name@rehabmarket.com"
+                    placeholder="e.g. name@rehabtask.com"
                     error={errors.email?.message}
                     {...register("email")}
                     required

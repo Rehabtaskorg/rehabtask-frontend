@@ -31,7 +31,7 @@ export default function ApprovedSuccessPage() {
 
                 {/* Headline */}
                 <h1 className="text-text-main dark:text-white tracking-light text-[36px] font-extrabold leading-tight px-4 text-center pb-3">
-                    Welcome to RehabMarket!
+                    Welcome to RehabTask!
                     <br />
                     Your account is approved
                 </h1>

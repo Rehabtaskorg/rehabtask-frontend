@@ -21,7 +21,7 @@ const VerificationSuccess = ({ userName, onContinue }) => {
             {/* Headlines */}
             <div className="space-y-2 text-center">
                 <h1 className="text-slate-900 dark:text-white tracking-tight text-[32px] md:text-[36px] font-bold leading-tight">
-                    Welcome to RehabMarket{userName ? `, ${userName}` : ""}!
+                    Welcome to RehabTask{userName ? `, ${userName}` : ""}!
                 </h1>
                 <h2 className="text-success tracking-tight text-[22px] md:text-[24px] font-semibold leading-tight">
                     Your account is verified

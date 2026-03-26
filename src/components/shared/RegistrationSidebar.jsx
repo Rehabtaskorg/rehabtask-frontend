@@ -26,7 +26,7 @@ const RegistrationSidebar = () => {
                     <MdMedicalServices className="text-primary text-4xl" />
                 </div>
                 <h1 className="text-2xl font-bold leading-tight dark:text-white">
-                    Join the RehabMarket Network
+                    Join the RehabTask Network
                 </h1>
                 <p className="text-text-muted text-base">
                     Grow your professional practice with our secure healthcare marketplace

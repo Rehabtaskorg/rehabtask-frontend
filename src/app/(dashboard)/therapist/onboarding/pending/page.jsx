@@ -82,7 +82,7 @@ export default function PendingReviewPage() {
                                 </p>
                             </div>
                             <button
-                                onClick={() => window.location.href = "mailto:support@rehabmarket.com"}
+                                onClick={() => window.location.href = "mailto:support@rehabtask.com"}
                                 className="bg-primary text-white px-6 py-3 rounded-lg font-bold hover:brightness-95 transition-all shadow-md"
                             >
                                 Contact Support
@@ -104,7 +104,7 @@ export default function PendingReviewPage() {
                     {/* Footer note */}
                     <div className="text-center py-4">
                         <p className="text-text-muted dark:text-gray-500 text-xs">
-                            © 2024 RehabMarket Professional Services. All credentials are encrypted and stored securely.
+                            © 2024–{new Date().getFullYear()} RehabTask Professional Services. All credentials are encrypted and stored securely.
                         </p>
                     </div>
                 </div>
