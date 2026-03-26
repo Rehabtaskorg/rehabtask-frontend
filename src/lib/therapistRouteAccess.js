@@ -6,7 +6,7 @@ const MARKETPLACE_ROUTES = [
     "/therapist/earnings",
 ];
 
-const ONBOARDING_STEP_ROUTES = {
+export const ONBOARDING_STEP_ROUTES = {
     1: "/therapist/onboarding/profile",
     2: "/therapist/onboarding/credentials",
     3: "/therapist/onboarding/availability",
@@ -14,15 +14,38 @@ const ONBOARDING_STEP_ROUTES = {
     // 5: "/therapist/onboarding/stripe", // intentionally excluded - it's optional
 };
 
+// Pages therapists can access while onboarding is incomplete
+const ALLOWED_DURING_ONBOARDING = [
+    "/therapist/dashboard",
+    "/therapist/profile",
+    "/therapist/account-settings",
+];
+
 export function getTherapistRedirect(pathname, { onboardingComplete, approvalStatus, onboardingStep }) {
     const isOnOnboardingRoute = pathname.startsWith("/therapist/onboarding");
 
-    // Only block dashboard access for steps 1-4 (essential steps)
-    // Step 5 (Stripe) is optional - therapist can explore the app
-    if (!onboardingComplete && !isOnOnboardingRoute && onboardingStep < 5) {
-        return ONBOARDING_STEP_ROUTES[onboardingStep] || "/therapist/onboarding/profile";
+    if (!onboardingComplete && onboardingStep < 5) {
+        // Prevent skipping ahead in onboarding steps via direct URL
+        if (isOnOnboardingRoute) {
+            const stepEntry = Object.entries(ONBOARDING_STEP_ROUTES)
+                .find(([, route]) => pathname.startsWith(route));
+            if (stepEntry) {
+                const targetStep = parseInt(stepEntry[0], 10);
+                if (targetStep > onboardingStep) {
+                    return ONBOARDING_STEP_ROUTES[onboardingStep] || "/therapist/onboarding/profile";
+                }
+            }
+            return null;
+        }
+
+        // Allow dashboard, profile, and account settings during onboarding
+        const isAllowed = ALLOWED_DURING_ONBOARDING.some((r) => pathname.startsWith(r));
+        if (!isAllowed) {
+            return ONBOARDING_STEP_ROUTES[onboardingStep] || "/therapist/onboarding/profile";
+        }
     }
 
+    // Block marketplace routes if not approved (regardless of onboarding state)
     if (approvalStatus === "pending" || approvalStatus === "review" || approvalStatus === "rejected") {
         const isMarketplaceRoute = MARKETPLACE_ROUTES.some((r) => pathname.startsWith(r));
         if (isMarketplaceRoute) {
@@ -30,6 +53,5 @@ export function getTherapistRedirect(pathname, { onboardingComplete, approvalSta
         }
     }
 
-    // approved or no allowed route: no redirect
     return null;
 }

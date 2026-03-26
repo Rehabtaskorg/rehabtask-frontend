@@ -4,6 +4,8 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { authAPi } from "@/lib/auth.api";
 import { useOnboardingSync } from "@/hooks/useOnboardingSync";
+import { ONBOARDING_STEP_ROUTES } from "@/lib/therapistRouteAccess";
+import useOnboardingStore from "@/store/onboardingStore";
 
 export default function OnboardingBanner() {
     const router = useRouter();
@@ -94,8 +96,8 @@ export default function OnboardingBanner() {
     }
 
     const handleResumeSetup = () => {
-        // Redirect based on progress - backend determines this
-        router.push("/therapist/onboarding/profile");
+        const step = useOnboardingStore.getState().currentStep;
+        router.push(ONBOARDING_STEP_ROUTES[step] || "/therapist/onboarding/profile");
     }
 
     // Navigate to dashboard (which shows the pending view)
