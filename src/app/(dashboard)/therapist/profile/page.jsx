@@ -49,7 +49,7 @@ function TherapistProfileContent() {
     const tabFromUrl = searchParams.get("tab");
     const [activeTab, setActiveTab] = useState("profile");
     const { profile, loading, error, refetch } = useTherapistProfile();
-    const { approvalStatus } = useTherapistAccess();
+    const { approvalStatus, onboardingComplete } = useTherapistAccess();
 
     // Sync tab from URL query param (e.g., ?tab=availability)
     useEffect(() => {
@@ -135,7 +135,20 @@ function TherapistProfileContent() {
             </div>
 
             {/* Status Banner — shown for non-approved therapists */}
-            {(approvalStatus === "pending" || approvalStatus === "review") && (
+            {!onboardingComplete && (approvalStatus === "pending" || approvalStatus === "review") && (
+                <div className="flex items-start gap-3 p-4 mb-8 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl">
+                    <MdInfo className="text-blue-600 dark:text-blue-400 text-xl shrink-0 mt-0.5" />
+                    <div>
+                        <p className="text-sm font-semibold text-blue-800 dark:text-blue-200">
+                            Complete your onboarding to unlock all features
+                        </p>
+                        <p className="text-xs text-blue-700 dark:text-blue-300 mt-1">
+                            Your profile is not yet visible to patients. Finish your onboarding setup to submit your application for review.
+                        </p>
+                    </div>
+                </div>
+            )}
+            {onboardingComplete && (approvalStatus === "pending" || approvalStatus === "review") && (
                 <div className="flex items-start gap-3 p-4 mb-8 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-xl">
                     <MdInfo className="text-yellow-600 dark:text-yellow-400 text-xl shrink-0 mt-0.5" />
                     <div>
@@ -185,7 +198,7 @@ function TherapistProfileContent() {
             </div>
 
             {/* Active Tab Content */}
-            {activeTab === "profile" && <ProfileTab profile={profile} approvalStatus={approvalStatus} />}
+            {activeTab === "profile" && <ProfileTab profile={profile} approvalStatus={approvalStatus} onboardingComplete={onboardingComplete} />}
             {activeTab === "work-areas" && <WorkAreasTab profile={profile} />}
             {activeTab === "availability" && <AvailabilityTab profile={profile} />}
         </div>

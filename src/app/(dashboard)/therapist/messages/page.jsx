@@ -5,6 +5,8 @@ import { useMessagesPage } from "@/hooks/useMessagesPage";
 import { ConversationList, ChatHeader, ChatThread, MessageInput } from "@/components/shared/messages";
 import TherapistRightSidebar from "./TherapistRightSidebar";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import { useTherapistAccess } from "@/contexts/TherapistAccessContext";
+import LockedPageOverlay from "@/components/therapist/LockedPageOverlay";
 
 const THERAPIST_FILTERS = [
     { key: 'all', label: 'All' },
@@ -20,6 +22,12 @@ const therapistFilterFn = (conversation, filterKey) => {
 };
 
 export default function TherapistMessagesPage() {
+    const { canAccessMarketplace } = useTherapistAccess();
+    if (!canAccessMarketplace) return <LockedPageOverlay pageType="messages" />;
+    return <TherapistMessagesContent />;
+}
+
+function TherapistMessagesContent() {
     usePageTitle("Messages");
     const {
         user, conversations, messages, selected, selectedConversation,

@@ -7,6 +7,8 @@ import { useTherapistBookings } from "@/hooks/useBookings";
 import BookingStatusBadge from "@/components/bookings/BookingStatusBadge";
 import { formatCurrency } from "@/utils/messages";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import { useTherapistAccess } from "@/contexts/TherapistAccessContext";
+import LockedPageOverlay from "@/components/therapist/LockedPageOverlay";
 import PatientBadge from "@/components/customer/PatientBadge";
 
 const ITEMS_PER_PAGE = 10;
@@ -39,6 +41,12 @@ const formatTime = (dateStr) => {
 };
 
 export default function TherapistBookingsPage() {
+    const { canAccessMarketplace } = useTherapistAccess();
+    if (!canAccessMarketplace) return <LockedPageOverlay pageType="bookings" />;
+    return <TherapistBookingsContent />;
+}
+
+function TherapistBookingsContent() {
     usePageTitle("My Bookings");
     const router = useRouter();
     const { bookings, loading, error, refetch } = useTherapistBookings();

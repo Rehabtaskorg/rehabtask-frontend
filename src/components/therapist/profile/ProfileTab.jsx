@@ -71,11 +71,11 @@ const InfoRow = ({ label, value, icon }) => (
     </div>
 );
 
-const ProfileTab = ({ profile, approvalStatus }) => {
+const ProfileTab = ({ profile, approvalStatus, onboardingComplete }) => {
     const [showEditModal, setShowEditModal] = useState(false);
     const [viewingDoc, setViewingDoc] = useState(null);
 
-    const isCredentialsLocked = approvalStatus === "pending" || approvalStatus === "review";
+    const isCredentialsLocked = onboardingComplete && (approvalStatus === "pending" || approvalStatus === "review");
 
     const initials = profile?.fullName
         ? profile.fullName
@@ -224,7 +224,13 @@ const ProfileTab = ({ profile, approvalStatus }) => {
                         <div className="space-y-3">
                             <div className="flex items-center justify-between">
                                 <span className="text-sm text-text-muted">Approval</span>
-                                <StatusBadge status={profile?.approvalStatus} />
+                                {!onboardingComplete && profile?.approvalStatus === "pending" ? (
+                                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-gray-100 dark:bg-gray-800 text-text-muted dark:text-gray-400">
+                                        Not Submitted
+                                    </span>
+                                ) : (
+                                    <StatusBadge status={profile?.approvalStatus} />
+                                )}
                             </div>
                             <div className="flex items-center justify-between">
                                 <span className="text-sm text-text-muted">Onboarding</span>
@@ -255,12 +261,25 @@ const ProfileTab = ({ profile, approvalStatus }) => {
                         {/* Contextual status message for pending/review */}
                         {(approvalStatus === "pending" || approvalStatus === "review") && (
                             <div className="mt-4 pt-3 border-t border-border-light dark:border-border-dark">
-                                <p className="text-xs text-text-muted dark:text-gray-400">
-                                    Estimated review time: <span className="font-semibold text-text-main dark:text-white">24-48 hours</span>
-                                </p>
-                                <p className="text-xs text-text-muted dark:text-gray-400 mt-1">
-                                    Your profile is hidden from patients until approved.
-                                </p>
+                                {onboardingComplete ? (
+                                    <>
+                                        <p className="text-xs text-text-muted dark:text-gray-400">
+                                            Estimated review time: <span className="font-semibold text-text-main dark:text-white">24-48 hours</span>
+                                        </p>
+                                        <p className="text-xs text-text-muted dark:text-gray-400 mt-1">
+                                            Your profile is hidden from patients until approved.
+                                        </p>
+                                    </>
+                                ) : (
+                                    <>
+                                        <p className="text-xs text-text-muted dark:text-gray-400">
+                                            Complete your onboarding to submit for review.
+                                        </p>
+                                        <p className="text-xs text-text-muted dark:text-gray-400 mt-1">
+                                            Your profile is hidden from patients until approved.
+                                        </p>
+                                    </>
+                                )}
                             </div>
                         )}
 

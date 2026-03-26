@@ -10,6 +10,8 @@ import {
 } from "react-icons/md";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { useAuth } from "@/hooks/useAuth";
+import { useTherapistAccess } from "@/contexts/TherapistAccessContext";
+import LockedPageOverlay from "@/components/therapist/LockedPageOverlay";
 import PatientBadge from "@/components/customer/PatientBadge";
 
 // Helpers
@@ -45,6 +47,12 @@ const SERVICE_TYPE_OPTIONS = [
 ];
 
 export default function TherapistRequestsPage() {
+    const { canAccessMarketplace } = useTherapistAccess();
+    if (!canAccessMarketplace) return <LockedPageOverlay pageType="requests" />;
+    return <TherapistRequestsContent />;
+}
+
+function TherapistRequestsContent() {
     usePageTitle("Browse Requests");
     const router = useRouter();
     const { user } = useAuth();
