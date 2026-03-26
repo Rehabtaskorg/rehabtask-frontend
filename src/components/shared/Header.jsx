@@ -14,7 +14,7 @@ const Header = () => {
                 </div>
                 {/* Added dark:text-white */}
                 <h2 className="text-xl font-bold leading-tight tracking-tight dark:text-white">
-                    RehabMarket
+                    RehabTask
                 </h2>
             </Link>
 

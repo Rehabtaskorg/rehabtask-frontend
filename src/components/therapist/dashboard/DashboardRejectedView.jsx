@@ -14,7 +14,7 @@ import {
 const QUICK_ACTIONS = [
     { label: "Review My Profile", href: "/therapist/profile", icon: MdPerson, description: "Check and update your personal details" },
     { label: "Update Credentials", href: "/therapist/profile", icon: MdDescription, description: "Resubmit your license and documents" },
-    { label: "Contact Support", href: "mailto:support@rehabmarket.com", icon: MdSupportAgent, description: "Get help from our team", external: true },
+    { label: "Contact Support", href: "mailto:support@rehabtask.com", icon: MdSupportAgent, description: "Get help from our team", external: true },
 ];
 
 export default function DashboardRejectedView() {

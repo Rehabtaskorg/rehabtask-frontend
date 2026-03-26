@@ -19,7 +19,7 @@ const CustomerRegistrationSidebar = () => {
                     <div className="bg-primary p-2 rounded-lg">
                         <MdMedicalServices className="text-white text-2xl" />
                     </div>
-                    <span className="text-white font-bold text-xl tracking-tight">RehabMarket</span>
+                    <span className="text-white font-bold text-xl tracking-tight">RehabTask</span>
                 </div>
 
                 {/* Heading */}

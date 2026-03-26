@@ -196,7 +196,7 @@ export default function BackgroundCheckPage() {
                                     This background check will be conducted by a third-party screening
                                     provider. By proceeding, you acknowledge that you have read and
                                     understood your rights under the Fair Credit Reporting Act and
-                                    authorize RehabMarketplace to obtain a consumer report for
+                                    authorize RehabTask to obtain a consumer report for
                                     professional vetting purposes. All personal information is encrypted
                                     and handled in strict accordance with HIPAA and privacy guidelines.
                                 </p>

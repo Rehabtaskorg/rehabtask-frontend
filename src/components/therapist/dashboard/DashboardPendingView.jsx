@@ -237,7 +237,7 @@ export default function DashboardPendingView() {
                             </div>
                         </div>
                         <a
-                            href="mailto:support@rehabmarket.com"
+                            href="mailto:support@rehabtask.com"
                             className="px-5 py-2 rounded-lg text-sm font-semibold bg-primary text-white hover:brightness-95 transition-all shrink-0"
                         >
                             Contact Support
