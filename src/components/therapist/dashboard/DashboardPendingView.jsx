@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useTherapistProfile } from "@/hooks/useTherapistProfile";
+import { useTherapistAccess } from "@/contexts/TherapistAccessContext";
 import {
     MdCheckCircle,
     MdAccessTime,
@@ -15,15 +16,27 @@ import {
 } from "react-icons/md";
 import Image from "next/image";
 
-const TIMELINE_STEPS = [
-    { label: "Profile Created", complete: true },
-    { label: "Credentials Submitted", complete: true },
-    { label: "Background Check", complete: true },
-    { label: "Final Quality Audit", complete: false, inProgress: true, estimate: "Est. 24-48 hours" },
-];
+function buildTimelineSteps(onboardingStep, onboardingComplete) {
+    const profileDone = onboardingStep >= 2;
+    const credentialsDone = onboardingStep >= 3;
+    const backgroundDone = onboardingStep >= 5;
+
+    return [
+        { label: "Profile Created", complete: profileDone },
+        { label: "Credentials Submitted", complete: credentialsDone },
+        { label: "Background Check", complete: backgroundDone },
+        {
+            label: "Final Quality Audit",
+            complete: false,
+            inProgress: onboardingComplete,
+            estimate: onboardingComplete ? "Est. 24-48 hours" : null,
+        },
+    ];
+}
 
 export default function DashboardPendingView() {
     const { profile, loading } = useTherapistProfile();
+    const { onboardingStep, onboardingComplete } = useTherapistAccess();
 
     const firstName = profile?.fullName?.split(" ")[0] || "there";
     const initials = profile?.fullName
@@ -84,7 +97,9 @@ export default function DashboardPendingView() {
                             Welcome, {firstName}
                         </h2>
                         <p className="text-sm text-text-muted dark:text-gray-400 mt-0.5">
-                            Your account is being reviewed
+                            {onboardingComplete
+                                ? "Your account is being reviewed"
+                                : "Complete your onboarding to get started"}
                         </p>
                     </div>
                 </header>
@@ -95,7 +110,7 @@ export default function DashboardPendingView() {
                         Verification Progress
                     </h3>
                     <div className="space-y-4">
-                        {TIMELINE_STEPS.map((step, index) => (
+                        {buildTimelineSteps(onboardingStep, onboardingComplete).map((step, index) => (
                             <div key={index} className="flex items-start gap-3">
                                 {step.complete ? (
                                     <MdCheckCircle className="text-green-500 text-xl shrink-0 mt-0.5" />
@@ -135,7 +150,7 @@ export default function DashboardPendingView() {
                 {/* Quick Actions Grid */}
                 <div>
                     <h3 className="text-lg font-bold text-text-main dark:text-white mb-4">
-                        While You Wait
+                        {onboardingComplete ? "While You Wait" : "Get Started"}
                     </h3>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         {quickActions.map((action) => {
@@ -180,15 +195,28 @@ export default function DashboardPendingView() {
                                 What happens next?
                             </h3>
                             <div className="mt-2 space-y-2 text-sm text-text-muted dark:text-gray-400">
-                                <p>
-                                    Our team is reviewing your credentials and background check. This typically takes 24-48 hours.
-                                </p>
-                                <p>
-                                    While under review, your profile is hidden from patients. Once approved, you&apos;ll be visible in search results and can start receiving session requests.
-                                </p>
-                                <p>
-                                    You&apos;ll receive an email notification as soon as your account is approved.
-                                </p>
+                                {onboardingComplete ? (
+                                    <>
+                                        <p>
+                                            Our team is reviewing your credentials and background check. This typically takes 24-48 hours.
+                                        </p>
+                                        <p>
+                                            While under review, your profile is hidden from patients. Once approved, you&apos;ll be visible in search results and can start receiving session requests.
+                                        </p>
+                                        <p>
+                                            You&apos;ll receive an email notification as soon as your account is approved.
+                                        </p>
+                                    </>
+                                ) : (
+                                    <>
+                                        <p>
+                                            Complete your profile, credentials, availability, and background check to submit your application for review.
+                                        </p>
+                                        <p>
+                                            Once submitted, our team will review your application within 24-48 hours. After approval, you&apos;ll be visible to patients and can start accepting session requests.
+                                        </p>
+                                    </>
+                                )}
                             </div>
                         </div>
                     </div>

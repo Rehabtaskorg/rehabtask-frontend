@@ -15,10 +15,12 @@ export const ONBOARDING_STEP_ROUTES = {
 };
 
 // Pages therapists can access while onboarding is incomplete
+// Marketplace routes are included so they render the LockedPageOverlay instead of redirecting
 const ALLOWED_DURING_ONBOARDING = [
     "/therapist/dashboard",
     "/therapist/profile",
     "/therapist/account-settings",
+    ...MARKETPLACE_ROUTES,
 ];
 
 export function getTherapistRedirect(pathname, { onboardingComplete, approvalStatus, onboardingStep }) {
@@ -45,13 +47,7 @@ export function getTherapistRedirect(pathname, { onboardingComplete, approvalSta
         }
     }
 
-    // Block marketplace routes if not approved (regardless of onboarding state)
-    if (approvalStatus === "pending" || approvalStatus === "review" || approvalStatus === "rejected") {
-        const isMarketplaceRoute = MARKETPLACE_ROUTES.some((r) => pathname.startsWith(r));
-        if (isMarketplaceRoute) {
-            return "/therapist/dashboard";
-        }
-    }
+    // Marketplace routes are no longer redirected — each page renders LockedPageOverlay when not approved
 
     return null;
 }

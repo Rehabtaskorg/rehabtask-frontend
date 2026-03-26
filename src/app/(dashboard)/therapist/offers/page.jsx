@@ -17,6 +17,8 @@ import { useMyOffers } from "@/hooks/useOffers";
 import { offersApi } from "@/lib/offers";
 import { formatCurrency } from "@/utils/messages";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import { useTherapistAccess } from "@/contexts/TherapistAccessContext";
+import LockedPageOverlay from "@/components/therapist/LockedPageOverlay";
 
 // ─── Helpers ────────────────────────────────────────────────
 
@@ -85,6 +87,12 @@ const BADGE_LABELS = {
 // ─── Page Component ─────────────────────────────────────────
 
 export default function MyOffersPage() {
+    const { canAccessMarketplace } = useTherapistAccess();
+    if (!canAccessMarketplace) return <LockedPageOverlay pageType="offers" />;
+    return <MyOffersContent />;
+}
+
+function MyOffersContent() {
     usePageTitle("My Offers");
     const router = useRouter();
     const { offers, loading, error, refetch } = useMyOffers();

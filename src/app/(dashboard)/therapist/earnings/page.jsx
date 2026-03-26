@@ -3,8 +3,16 @@
 import { useState, useEffect } from "react";
 import { api } from "@/lib/api";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import { useTherapistAccess } from "@/contexts/TherapistAccessContext";
+import LockedPageOverlay from "@/components/therapist/LockedPageOverlay";
 
 export default function TherapistEarningsPage() {
+    const { canAccessMarketplace } = useTherapistAccess();
+    if (!canAccessMarketplace) return <LockedPageOverlay pageType="earnings" />;
+    return <TherapistEarningsContent />;
+}
+
+function TherapistEarningsContent() {
     usePageTitle("Earnings");
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);

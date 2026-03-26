@@ -67,12 +67,13 @@ function CustomerMessagesLink({ pathname }) {
     )
 }
 
-function NavLink({ href, icon: Icon, label, pathname, matchStart = true }) {
+function NavLink({ href, icon: Icon, label, pathname, matchStart = true, locked = false }) {
     const isActive = matchStart ? pathname.startsWith(href) : pathname === href;
     return (
         <Link href={href} className={isActive ? 'sidebar-nav-link-active' : 'sidebar-nav-link'}>
             <Icon className="sidebar-icon" />
-            <span>{label}</span>
+            <span className="flex-1">{label}</span>
+            {locked && <MdLock className="text-xs opacity-50" />}
         </Link>
     )
 }
@@ -325,11 +326,11 @@ export default function DashboardLayout({ children }) {
                                     </>
                                 ) : (
                                     <>
-                                        <DisabledNavItem icon={MdSearch} label="Browse Requests" />
-                                        <DisabledNavItem icon={MdSend} label="My Offers" />
-                                        <DisabledNavItem icon={MdCalendarMonth} label="My Bookings" />
-                                        <DisabledNavItem icon={MdChatBubble} label="Messages" />
-                                        <DisabledNavItem icon={MdPayments} label="Earnings" />
+                                        <NavLink href="/therapist/requests" icon={MdSearch} label="Browse Requests" pathname={pathname} locked />
+                                        <NavLink href="/therapist/offers" icon={MdSend} label="My Offers" pathname={pathname} locked />
+                                        <NavLink href="/therapist/bookings" icon={MdCalendarMonth} label="My Bookings" pathname={pathname} locked />
+                                        <NavLink href="/therapist/messages" icon={MdChatBubble} label="Messages" pathname={pathname} locked />
+                                        <NavLink href="/therapist/earnings" icon={MdPayments} label="Earnings" pathname={pathname} locked />
                                     </>
                                 )}
                             </nav>
