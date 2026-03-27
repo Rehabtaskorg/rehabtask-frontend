@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements, PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
+import { getStripeAppearance } from "@/lib/stripe.appearance";
 import { api } from "@/lib/api";
 import { usePageTitle } from "@/hooks/usePageTitle";
 
@@ -172,12 +173,7 @@ export default function PaymentPage() {
 
     const options = {
         clientSecret,
-        appearance: {
-            theme: "stripe",
-            variables: {
-                colorPrimary: "#2563eb",
-            },
-        },
+        appearance: getStripeAppearance(),
     };
 
     return (

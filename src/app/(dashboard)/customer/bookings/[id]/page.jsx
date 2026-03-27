@@ -7,6 +7,7 @@ import Image from "next/image";
 import { useQuery } from "@tanstack/react-query";
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements, PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
+import { getStripeAppearance } from "@/lib/stripe.appearance";
 import {
     MdArrowBack, MdChat, MdCalendarToday, MdAccessTime, MdLocationOn, MdVideocam, MdPerson,
     MdCheckCircle, MdClose, MdWarning, MdInfo, MdRefresh, MdSchedule, MdUpdate,
@@ -293,7 +294,7 @@ function InlinePaymentSection({ booking, onPaymentSuccess }) {
                         )}
                         <Elements
                             stripe={stripePromise}
-                            options={{ clientSecret: newCardClientSecret, appearance: { theme: "stripe" } }}
+                            options={{ clientSecret: newCardClientSecret, appearance: getStripeAppearance() }}
                         >
                             <NewCardCheckoutForm booking={booking} onSuccess={onPaymentSuccess} />
                         </Elements>
