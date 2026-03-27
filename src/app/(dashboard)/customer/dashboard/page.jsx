@@ -62,7 +62,7 @@ export default function CustomerDashboard() {
                             sessionId: s.id,
                             sessionNumber: s.sessionNumber,
                             totalSessions,
-                            completedAt: s.updatedAt || s.completedAt,
+                            completedAt: s.completedAt || s.updatedAt,
                             bookingId: b.id,
                             therapistName: b.therapist?.fullName || "Therapist",
                             serviceType: b.offer?.request?.serviceType || b.serviceType || "Session",
