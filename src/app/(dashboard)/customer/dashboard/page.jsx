@@ -51,8 +51,10 @@ export default function CustomerDashboard() {
             const requests = Array.isArray(requestRes.data.data) ? requestRes.data.data : [];
             const bookings = Array.isArray(bookingRes.data.data) ? bookingRes.data.data : [];
 
+            const upcomingStatuses = ["accepted", "confirmed", "in_progress"];
+
             setRecentRequests(requests.slice(0, 3));
-            setUpcomingBookings(bookings.filter(b => b.status === "confirmed").slice(0, 3));
+            setUpcomingBookings(bookings.filter(b => upcomingStatuses.includes(b.status)).slice(0, 3));
             const pendingSessions = [];
             for (const b of bookings) {
                 const totalSessions = b.sessions?.length || 1;
@@ -75,7 +77,7 @@ export default function CustomerDashboard() {
 
             setStats({
                 activeRequests: requests.filter(r => ["created", "offers_received"].includes(r.status)).length,
-                upcomingBookings: bookings.filter(b => b.status === "confirmed").length,
+                upcomingBookings: bookings.filter(b => upcomingStatuses.includes(b.status)).length,
                 completedSessions: bookings.filter(b => b.status === "completed").length,
             });
         } catch (error) {

@@ -45,7 +45,7 @@ export default function DashboardApprovedView() {
             const bookings = bookingRes.data.data;
             const earnings = earningRes.data.data;
 
-            const upcomingStatuses = ["accepted", "confirmed"];
+            const upcomingStatuses = ["accepted", "confirmed", "in_progress"];
 
             setRecentRequests(requests.slice(0, 3));
             setUpcomingBookings(bookings.filter(b => upcomingStatuses.includes(b.status)).slice(0, 3));
