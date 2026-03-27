@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements, PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
+import { getStripeAppearance } from "@/lib/stripe.appearance";
 import ChangePasswordForm from "@/components/profile/ChangePasswordForm";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { authAPi } from "@/lib/auth.api";
@@ -291,7 +292,7 @@ function PaymentMethodsTab() {
                     </h3>
                     <Elements
                         stripe={stripePromise}
-                        options={{ clientSecret: setupClientSecret, appearance: { theme: "stripe" } }}
+                        options={{ clientSecret: setupClientSecret, appearance: getStripeAppearance() }}
                     >
                         <SetupForm
                             onSuccess={handleSetupSuccess}

@@ -125,11 +125,11 @@ function SubscriptionSidePanel({ subscription, onClose, onCancel, loading, error
                     </div>
                     <div className="flex justify-between gap-3">
                         <dt className="text-text-muted dark:text-slate-400">Therapist Limit</dt>
-                        <dd className="font-medium text-text-main dark:text-white">{subscription.therapistLimit ?? '—'}</dd>
+                        <dd className="font-medium text-text-main dark:text-white">{subscription.therapistLimit >= 999999 ? 'Unlimited' : subscription.therapistLimit ?? '—'}</dd>
                     </div>
                     <div className="flex justify-between gap-3">
                         <dt className="text-text-muted dark:text-slate-400">Request Limit</dt>
-                        <dd className="font-medium text-text-main dark:text-white">{subscription.requestLimit ?? '—'}</dd>
+                        <dd className="font-medium text-text-main dark:text-white">{subscription.requestLimit >= 999999 ? 'Unlimited' : subscription.requestLimit ?? '—'}</dd>
                     </div>
                     {subscription.currentPeriodStart && (
                         <div className="flex justify-between gap-3">
