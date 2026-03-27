@@ -101,8 +101,6 @@ export const oauthOnboardingSchema = z.object({
 
     fullName: fullNameSchema,
 
-    phone: phoneSchema,
-
     // Customer fields - transform empty strings to undefined
     customerType: z
         .string()
@@ -119,17 +117,7 @@ export const oauthOnboardingSchema = z.object({
                 .optional()
         ),
 
-    location: z
-        .string()
-        .transform((val) => val === "" ? undefined : val)
-        .pipe(
-            z.string()
-                .max(500, "Location must not exceed 500 characters")
-                .optional()
-        ),
-
 }).refine(
-    // Customer type is required for customers
     (data) => {
         if (data.role === "customer") {
             return !!data.customerType;
@@ -141,7 +129,6 @@ export const oauthOnboardingSchema = z.object({
         path: ["customerType"]
     }
 ).refine(
-    // Agency name is required for agency customers
     (data) => {
         if (data.role === "customer" && data.customerType === "agency") {
             return !!data.agencyName?.trim();
