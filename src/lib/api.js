@@ -55,10 +55,9 @@ api.interceptors.response.use(
 
         const url = originalRequest?.url || "";
 
-        // Don't attempt to refresh for auth endpoints (prevents loops)
+        // Don't attempt to refresh for login/refresh endpoints (prevents loops)
         const isAuthEndpoint =
             url.includes("/auth/login") ||
-            url.includes("/auth/me") ||
             url.includes("/auth/token/refresh");
 
         if (isAuthEndpoint || originalRequest._retry) {
