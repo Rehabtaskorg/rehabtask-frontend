@@ -9,7 +9,6 @@ import { FaUserMd } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
 
 import Input from "@/components/ui/Input";
-import PhoneInput from "@/components/ui/PhoneInput";
 import Button from "@/components/ui/Button";
 import Alert from "@/components/ui/Alert";
 import { oauthOnboardingSchema } from "@/lib/validationSchema";
@@ -24,14 +23,13 @@ function OAuthOnboardingContent() {
 
     const [selectedRole, setSelectedRole] = useState(null);
 
-    const { register, handleSubmit, watch, reset, formState: { errors }, setValue, control } = useForm({
+    const { register, handleSubmit, watch, reset, formState: { errors }, setValue } = useForm({
         resolver: zodResolver(oauthOnboardingSchema),
         mode: "onChange",
         reValidateMode: "onChange",
         defaultValues: {
             role: "",
             fullName: "",
-            phone: "",
             customerType: "",
             agencyName: "",
         }
@@ -152,14 +150,6 @@ function OAuthOnboardingContent() {
                                     required
                                 />
 
-                                <PhoneInput
-                                    label="Phone Number"
-                                    control={control}
-                                    name="phone"
-                                    error={errors.phone?.message}
-                                    required
-                                />
-
                                 {selectedRole === "customer" && (
                                     <>
                                         <div>
@@ -194,13 +184,6 @@ function OAuthOnboardingContent() {
                                                 required
                                             />
                                         )}
-                                        <Input
-                                            label="Location"
-                                            type="text"
-                                            placeholder="e.g. New York, NY"
-                                            error={errors.location?.message}
-                                            {...register("location")}
-                                        />
                                     </>
                                 )}
 
