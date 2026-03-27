@@ -53,7 +53,7 @@ export default function CustomerDashboard() {
 
             setRecentRequests(requests.slice(0, 3));
             setUpcomingBookings(bookings.filter(b => b.status === "confirmed").slice(0, 3));
-            setPendingConfirmations(bookings.filter(b => b.status === "pending_confirmation").slice(0, 3));
+            setPendingConfirmations(bookings.filter(b => b.sessions?.some(s => s.status === "completed_by_therapist")).slice(0, 3));
 
             setStats({
                 activeRequests: requests.filter(r => ["created", "offers_received"].includes(r.status)).length,
@@ -262,17 +262,20 @@ export default function CustomerDashboard() {
                                         <div key={booking.id} className="p-4 rounded-xl border border-slate-200 dark:border-border-dark space-y-4">
                                             <div>
                                                 <p className="font-bold text-slate-900 dark:text-slate-100">{booking.therapist?.fullName || 'Therapist'}</p>
-                                                <p className="text-xs text-slate-500">{booking.serviceType} • {booking.scheduledDate ? new Date(booking.scheduledDate).toLocaleDateString() : '—'}</p>
+                                                <p className="text-xs text-slate-500">{booking.offer?.request?.serviceType || booking.serviceType || '—'} • {booking.scheduledDate ? new Date(booking.scheduledDate).toLocaleDateString() : '—'}</p>
                                             </div>
                                             <div className="grid grid-cols-2 gap-3">
-                                                <button className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs py-2.5 rounded-lg transition-colors">
-                                                    Confirm Completion
+                                                <button
+                                                    onClick={() => router.push(`/customer/bookings/${booking.id}`)}
+                                                    className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs py-2.5 rounded-lg transition-colors"
+                                                >
+                                                    Review &amp; Confirm
                                                 </button>
                                                 <button
-                                                    onClick={() => router.push(`/customer/disputes/new?bookingId=${booking.id}`)}
-                                                    className="w-full border border-red-500 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 font-bold text-xs py-2.5 rounded-lg transition-colors"
+                                                    onClick={() => router.push(`/customer/bookings/${booking.id}`)}
+                                                    className="w-full border border-slate-300 dark:border-border-dark text-text-muted hover:bg-slate-50 dark:hover:bg-slate-800 font-bold text-xs py-2.5 rounded-lg transition-colors"
                                                 >
-                                                    Dispute
+                                                    View Details
                                                 </button>
                                             </div>
                                         </div>
