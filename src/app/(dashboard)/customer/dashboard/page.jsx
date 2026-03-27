@@ -53,7 +53,25 @@ export default function CustomerDashboard() {
 
             setRecentRequests(requests.slice(0, 3));
             setUpcomingBookings(bookings.filter(b => b.status === "confirmed").slice(0, 3));
-            setPendingConfirmations(bookings.filter(b => b.sessions?.some(s => s.status === "completed_by_therapist")).slice(0, 3));
+            const pendingSessions = [];
+            for (const b of bookings) {
+                const totalSessions = b.sessions?.length || 1;
+                for (const s of (b.sessions || [])) {
+                    if (s.status === "completed_by_therapist") {
+                        pendingSessions.push({
+                            sessionId: s.id,
+                            sessionNumber: s.sessionNumber,
+                            totalSessions,
+                            completedAt: s.updatedAt || s.completedAt,
+                            bookingId: b.id,
+                            therapistName: b.therapist?.fullName || "Therapist",
+                            serviceType: b.offer?.request?.serviceType || b.serviceType || "Session",
+                            scheduledDate: b.scheduledDate,
+                        });
+                    }
+                }
+            }
+            setPendingConfirmations(pendingSessions);
 
             setStats({
                 activeRequests: requests.filter(r => ["created", "offers_received"].includes(r.status)).length,
@@ -248,44 +266,70 @@ export default function CustomerDashboard() {
                     {/* Pending Session Confirmations */}
                     <div className="bg-white dark:bg-card-dark border border-amber-500/30 rounded-xl shadow-sm overflow-hidden">
                         <div className="p-5 bg-amber-50 dark:bg-amber-900/10 border-b border-amber-500/30">
-                            <div className="flex items-center gap-2">
-                                <MdWarning className="text-amber-600 text-lg" />
-                                <h4 className="font-bold text-amber-900 dark:text-amber-200 uppercase tracking-wider text-xs">Pending Confirmation</h4>
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                    <MdWarning className="text-amber-600 text-lg" />
+                                    <h4 className="font-bold text-amber-900 dark:text-amber-200 uppercase tracking-wider text-xs">Pending Confirmation</h4>
+                                </div>
+                                {pendingConfirmations.length > 0 && (
+                                    <span className="text-[10px] font-bold bg-amber-600 text-white px-2 py-0.5 rounded-full">
+                                        {pendingConfirmations.length}
+                                    </span>
+                                )}
                             </div>
                         </div>
-                        <div className="p-6">
+                        <div className="p-4">
                             {pendingConfirmations.length === 0 ? (
                                 <p className="text-sm text-slate-500 dark:text-slate-400 text-center py-4">No sessions pending confirmation</p>
                             ) : (
-                                <div className="space-y-4">
-                                    {pendingConfirmations.map(booking => (
-                                        <div key={booking.id} className="p-4 rounded-xl border border-slate-200 dark:border-border-dark space-y-4">
-                                            <div>
-                                                <p className="font-bold text-slate-900 dark:text-slate-100">{booking.therapist?.fullName || 'Therapist'}</p>
-                                                <p className="text-xs text-slate-500">{booking.offer?.request?.serviceType || booking.serviceType || '—'} • {booking.scheduledDate ? new Date(booking.scheduledDate).toLocaleDateString() : '—'}</p>
-                                            </div>
-                                            <div className="grid grid-cols-2 gap-3">
-                                                <button
-                                                    onClick={() => router.push(`/customer/bookings/${booking.id}`)}
-                                                    className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs py-2.5 rounded-lg transition-colors"
-                                                >
-                                                    Review &amp; Confirm
-                                                </button>
-                                                <button
-                                                    onClick={() => router.push(`/customer/bookings/${booking.id}`)}
-                                                    className="w-full border border-slate-300 dark:border-border-dark text-text-muted hover:bg-slate-50 dark:hover:bg-slate-800 font-bold text-xs py-2.5 rounded-lg transition-colors"
-                                                >
-                                                    View Details
-                                                </button>
-                                            </div>
-                                        </div>
-                                    ))}
+                                <div className="space-y-3">
+                                    {pendingConfirmations.slice(0, 5).map((item) => {
+                                        const hoursAgo = item.completedAt
+                                            ? Math.floor((Date.now() - new Date(item.completedAt).getTime()) / (1000 * 60 * 60))
+                                            : null;
+                                        const hoursLeft = hoursAgo !== null ? Math.max(0, 72 - hoursAgo) : null;
+
+                                        return (
+                                            <button
+                                                key={item.sessionId}
+                                                onClick={() => router.push(`/customer/bookings/${item.bookingId}`)}
+                                                className="w-full p-3 rounded-xl border border-slate-200 dark:border-border-dark hover:border-amber-400 dark:hover:border-amber-600 hover:bg-amber-50/50 dark:hover:bg-amber-900/10 transition-all text-left"
+                                            >
+                                                <div className="flex items-start justify-between gap-2 mb-1">
+                                                    <p className="font-bold text-sm text-slate-900 dark:text-slate-100 truncate">{item.therapistName}</p>
+                                                    {hoursLeft !== null && (
+                                                        <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded shrink-0 ${
+                                                            hoursLeft <= 24
+                                                                ? "bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-400"
+                                                                : "bg-amber-100 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400"
+                                                        }`}>
+                                                            {hoursLeft}h left
+                                                        </span>
+                                                    )}
+                                                </div>
+                                                <p className="text-xs text-slate-500 dark:text-slate-400">
+                                                    {item.totalSessions > 1
+                                                        ? `Session ${item.sessionNumber} of ${item.totalSessions} • `
+                                                        : ""}
+                                                    {item.serviceType}
+                                                </p>
+                                            </button>
+                                        );
+                                    })}
+                                    {pendingConfirmations.length > 5 && (
+                                        <Link
+                                            href="/customer/bookings"
+                                            className="block text-center text-xs font-semibold text-primary hover:underline py-2"
+                                        >
+                                            View all {pendingConfirmations.length} pending sessions
+                                        </Link>
+                                    )}
                                 </div>
                             )}
-                            <div className="mt-4 bg-slate-50 dark:bg-slate-800/40 p-4 rounded-xl flex items-start gap-3">
-                                <MdInfo className="text-slate-400 text-lg shrink-0" />
-                                <p className="text-xs text-slate-500 leading-relaxed">
-                                    If no action is taken within 48 hours, the session will be automatically confirmed and payment released.
+                            <div className="mt-3 bg-slate-50 dark:bg-slate-800/40 p-3 rounded-xl flex items-start gap-2">
+                                <MdInfo className="text-slate-400 text-sm shrink-0 mt-0.5" />
+                                <p className="text-[11px] text-slate-500 leading-relaxed">
+                                    Sessions auto-confirm after 72 hours and payment is released to the therapist.
                                 </p>
                             </div>
                         </div>
