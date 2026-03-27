@@ -326,7 +326,7 @@ function DisputeSidePanel({ dispute, admins, onClose, onUpdate, onAssign, onReop
                                     disabled={loading}
                                     className="flex-1 py-2.5 rounded-xl bg-amber-600 text-white text-sm font-medium hover:bg-amber-700 disabled:opacity-50 transition-colors"
                                 >
-                                    {loading ? 'Processing\u2026' : 'Confirm Reopen'}
+                                    {loading ? 'Processing…' : 'Confirm Reopen'}
                                 </button>
                                 <button
                                     onClick={() => setActiveSection(null)}

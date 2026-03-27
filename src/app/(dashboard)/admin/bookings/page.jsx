@@ -291,7 +291,7 @@ function BookingSidePanel({ booking, onClose, onCancel, onApproveReschedule, onD
                                             disabled={loading}
                                             className="flex-1 py-2.5 rounded-xl bg-emerald-600 text-white text-sm font-medium hover:bg-emerald-700 disabled:opacity-50 transition-colors"
                                         >
-                                            {loading ? '\u2026' : 'Confirm Approve'}
+                                            {loading ? '…' : 'Confirm Approve'}
                                         </button>
                                         <button
                                             onClick={() => setConfirmApproveReschedule(false)}
