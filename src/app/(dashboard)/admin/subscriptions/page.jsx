@@ -347,7 +347,9 @@ function CustomerSubscriptionsTab() {
                                             <th className="px-5 py-3 text-left text-xs font-semibold text-text-muted dark:text-slate-400 uppercase tracking-wide">Customer</th>
                                             <th className="px-5 py-3 text-left text-xs font-semibold text-text-muted dark:text-slate-400 uppercase tracking-wide">Plan</th>
                                             <th className="px-5 py-3 text-left text-xs font-semibold text-text-muted dark:text-slate-400 uppercase tracking-wide">Status</th>
-                                            <th className="px-5 py-3 text-left text-xs font-semibold text-text-muted dark:text-slate-400 uppercase tracking-wide hidden md:table-cell">Started</th>
+                                            <th className="px-5 py-3 text-left text-xs font-semibold text-text-muted dark:text-slate-400 uppercase tracking-wide hidden md:table-cell">
+                                                {sortBy === 'currentPeriodStart' ? 'Period Start' : sortBy === 'currentPeriodEnd' ? 'Period End' : 'Created'}
+                                            </th>
                                             <th className="px-5 py-3 text-left text-xs font-semibold text-text-muted dark:text-slate-400 uppercase tracking-wide hidden lg:table-cell">Renews / Ends</th>
                                         </tr>
                                     </thead>
@@ -362,7 +364,9 @@ function CustomerSubscriptionsTab() {
                                                 </td>
                                                 <td className="px-5 py-3.5"><StatusBadge status={sub.planType} styleMap={PLAN_STYLES} /></td>
                                                 <td className="px-5 py-3.5"><StatusBadge status={sub.status} styleMap={SUB_STATUS_STYLES} /></td>
-                                                <td className="px-5 py-3.5 text-text-muted dark:text-slate-400 hidden md:table-cell">{fmtDate(sub.currentPeriodStart || sub.createdAt)}</td>
+                                                <td className="px-5 py-3.5 text-text-muted dark:text-slate-400 hidden md:table-cell">
+                                                    {fmtDate(sortBy === 'currentPeriodStart' ? sub.currentPeriodStart : sortBy === 'currentPeriodEnd' ? sub.currentPeriodEnd : sub.createdAt)}
+                                                </td>
                                                 <td className="px-5 py-3.5 text-text-muted dark:text-slate-400 hidden lg:table-cell">
                                                     {fmtDate(sub.currentPeriodEnd || (sub.status === 'trialing' ? sub.trialEndsAt : sub.gracePeriodEndsAt))}
                                                 </td>
