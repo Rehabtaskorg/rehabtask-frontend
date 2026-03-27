@@ -177,7 +177,7 @@ function SubscriptionSidePanel({ subscription, onClose, onCancel, loading, error
                                 <p className="text-xs text-text-muted dark:text-slate-400">{cancelDescription}</p>
                                 <div className="flex gap-2">
                                     <button onClick={() => onCancel(subscription.id)} disabled={loading} className="flex-1 py-2.5 rounded-xl bg-red-600 text-white text-sm font-medium hover:bg-red-700 disabled:opacity-50 transition-colors">
-                                        {loading ? 'Cancelling\u2026' : 'Confirm Cancellation'}
+                                        {loading ? 'Cancelling…' : 'Confirm Cancellation'}
                                     </button>
                                     <button onClick={() => setConfirmCancel(false)} disabled={loading} className="px-4 py-2.5 rounded-xl border border-border-light dark:border-border-dark text-sm text-text-main dark:text-white hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
                                         Back
@@ -279,7 +279,7 @@ function CustomerSubscriptionsTab() {
                     <div className="flex flex-wrap gap-3 items-center">
                         <div className="relative flex-1 min-w-48">
                             <MdSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted dark:text-slate-400 text-lg pointer-events-none" />
-                            <input type="text" placeholder="Search customer name or email\u2026" value={searchInput}
+                            <input type="text" placeholder="Search customer name or email…" value={searchInput}
                                 onChange={e => setSearchInput(e.target.value)}
                                 onKeyDown={e => { if (e.key === 'Enter') commitSearch(e.target.value); }}
                                 onBlur={e => commitSearch(e.target.value)}
