@@ -45,13 +45,15 @@ export default function DashboardApprovedView() {
             const bookings = bookingRes.data.data;
             const earnings = earningRes.data.data;
 
+            const upcomingStatuses = ["pending", "accepted", "confirmed", "in_progress", "reschedule_requested"];
+
             setRecentRequests(requests.slice(0, 3));
-            setUpcomingBookings(bookings.filter(b => b.status === "confirmed").slice(0, 3));
+            setUpcomingBookings(bookings.filter(b => upcomingStatuses.includes(b.status)).slice(0, 3));
             setStripeStatus(stripeRes.data.data);
 
             setStats({
                 availableRequests: requests.filter(r => ["created", "offers_received"].includes(r.status)).length,
-                upcomingBookings: bookings.filter(b => b.status === "confirmed").length,
+                upcomingBookings: bookings.filter(b => upcomingStatuses.includes(b.status)).length,
                 completedSessions: bookings.filter(b => b.status === "completed").length,
                 totalEarnings: earnings.totalEarnings || 0,
             });
