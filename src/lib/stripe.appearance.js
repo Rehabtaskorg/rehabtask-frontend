@@ -1,6 +1,6 @@
 export function getStripeAppearance() {
-    const isDark = typeof document !== "undefined"
-        && document.documentElement.classList.contains("dark");
+    const isDark = typeof window !== "undefined"
+        && window.matchMedia?.("(prefers-color-scheme: dark)").matches;
 
     return {
         theme: isDark ? "night" : "stripe",
