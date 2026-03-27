@@ -336,6 +336,7 @@ export default function CustomerBookingDetailPage() {
     const [showPaymentBanner, setShowPaymentBanner] = useState(false);
     const [rescheduleResponding, setRescheduleResponding] = useState(null);
     const [actionError, setActionError] = useState(null);
+    const [awaitingPaymentUpdate, setAwaitingPaymentUpdate] = useState(false);
 
     // Auto-refresh when waiting for therapist actions (mark complete, schedule sessions)
     useEffect(() => {
@@ -345,10 +346,26 @@ export default function CustomerBookingDetailPage() {
         }
     }, [booking?.status, refetch]);
 
+    // Poll after payment success until webhook updates the booking status
+    useEffect(() => {
+        if (!awaitingPaymentUpdate) return;
+        const interval = setInterval(() => { refetch(); }, 2000);
+        const timeout = setTimeout(() => { setAwaitingPaymentUpdate(false); }, 30000);
+        return () => { clearInterval(interval); clearTimeout(timeout); };
+    }, [awaitingPaymentUpdate, refetch]);
+
+    // Stop polling once booking status changes from accepted/pending
+    useEffect(() => {
+        if (awaitingPaymentUpdate && booking && !["pending", "accepted"].includes(booking.status)) {
+            setAwaitingPaymentUpdate(false);
+        }
+    }, [awaitingPaymentUpdate, booking?.status]);
+
     // Payment success banner from redirect
     useEffect(() => {
         if (searchParams.get("payment") === "success") {
             setShowPaymentBanner(true);
+            setAwaitingPaymentUpdate(true);
             window.history.replaceState({}, "", `/customer/bookings/${params.id}`);
             const timer = setTimeout(() => setShowPaymentBanner(false), 6000);
             return () => clearTimeout(timer);
@@ -678,6 +695,7 @@ export default function CustomerBookingDetailPage() {
                                     booking={booking}
                                     onPaymentSuccess={() => {
                                         setShowPaymentBanner(true);
+                                        setAwaitingPaymentUpdate(true);
                                         refetch();
                                         const timer = setTimeout(() => setShowPaymentBanner(false), 6000);
                                     }}
