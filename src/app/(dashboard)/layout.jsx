@@ -23,7 +23,7 @@ import {
     MdManageAccounts, MdVerifiedUser,
     MdCardMembership, MdAttachMoney, MdAdminPanelSettings,
     MdHistory, MdAssessment, MdMedicalServices,
-    MdChevronLeft, MdChevronRight,
+    MdKeyboardDoubleArrowLeft, MdKeyboardDoubleArrowRight,
 } from "react-icons/md";
 
 function TherapistMessagesLink({ pathname, collapsed = false }) {
@@ -336,15 +336,15 @@ export default function DashboardLayout({ children }) {
     );
 }
 
-function CollapseToggle() {
-    const { isCollapsed, toggleSidebar } = useSidebar();
+function CollapseToggle({ collapsed }) {
+    const { toggleSidebar } = useSidebar();
     return (
         <button
             onClick={toggleSidebar}
-            className="hidden lg:flex w-full items-center justify-center py-2 text-slate-400 hover:text-primary hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors rounded-lg"
-            title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+            className="hidden lg:flex p-1.5 rounded-lg text-slate-400 hover:text-primary hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
         >
-            {isCollapsed ? <MdChevronRight className="text-lg" /> : <MdChevronLeft className="text-lg" />}
+            {collapsed ? <MdKeyboardDoubleArrowRight className="text-lg" /> : <MdKeyboardDoubleArrowLeft className="text-lg" />}
         </button>
     );
 }
@@ -377,11 +377,15 @@ function DashboardInner({ user, pathname, sidebarOpen, setSidebarOpen, handleLog
                         <button onClick={() => setSidebarOpen(false)} className="lg:hidden absolute top-3 right-3 p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400" aria-label="Close navigation">
                             <MdClose className="text-xl" />
                         </button>
-                        <div className={`${c ? 'p-3 items-center' : 'p-6'} flex flex-col`}>
-                            <div className={`flex flex-col ${c ? 'items-center mb-4' : 'mb-8'}`}>
-                                <h1 className={`text-primary font-bold leading-none ${c ? 'text-sm' : 'text-xl'}`}>{c ? 'RT' : 'RehabTask'}</h1>
-                                {!c && <p className="text-slate-500 dark:text-slate-400 text-xs mt-1 font-medium">Therapist Portal</p>}
+                        <div className={`${c ? 'p-3' : 'p-6'} flex flex-col`}>
+                            <div className={`flex items-center ${c ? 'justify-center mb-4' : 'justify-between mb-8'}`}>
+                                <div>
+                                    <h1 className={`text-primary font-bold leading-none ${c ? 'text-sm' : 'text-xl'}`}>{c ? 'RT' : 'RehabTask'}</h1>
+                                    {!c && <p className="text-slate-500 dark:text-slate-400 text-xs mt-1 font-medium">Therapist Portal</p>}
+                                </div>
+                                {!c && <CollapseToggle collapsed={c} />}
                             </div>
+                            {c && <div className="flex justify-center mb-3"><CollapseToggle collapsed={c} /></div>}
                             <nav className={`space-y-1 ${c ? 'w-full' : ''}`}>
                                 <NavLink href="/therapist/dashboard" icon={MdDashboard} label="Dashboard" pathname={pathname} matchStart={false} collapsed={c} />
                                 {therapistAccess?.canAccessMarketplace ? (
@@ -411,7 +415,6 @@ function DashboardInner({ user, pathname, sidebarOpen, setSidebarOpen, handleLog
                                 <MdLogout className="sidebar-icon shrink-0" />
                                 {!c && <span>Logout</span>}
                             </button>
-                            <CollapseToggle />
                         </div>
                     </aside>
                     {sidebarOpen && <div className="fixed inset-0 z-40 bg-black/50 lg:hidden" onClick={() => setSidebarOpen(false)} />}
@@ -425,8 +428,9 @@ function DashboardInner({ user, pathname, sidebarOpen, setSidebarOpen, handleLog
                         <button onClick={() => setSidebarOpen(false)} className="lg:hidden absolute top-3 right-3 p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400" aria-label="Close navigation">
                             <MdClose className="text-xl" />
                         </button>
-                        <div className={`${c ? 'p-3 items-center' : 'p-6'} flex flex-col`}>
+                        <div className={`${c ? 'p-3' : 'p-6'} flex ${c ? 'flex-col items-center gap-2' : 'items-center justify-between'}`}>
                             <h1 className={`text-primary font-bold leading-none ${c ? 'text-sm' : 'text-xl'}`}>{c ? 'RT' : 'RehabTask'}</h1>
+                            <CollapseToggle collapsed={c} />
                         </div>
                         <nav className={`flex-1 ${c ? 'px-2' : 'px-4'} space-y-1 overflow-y-auto`}>
                             <NavLink href="/customer/dashboard" icon={MdDashboard} label="Dashboard" pathname={pathname} matchStart={false} collapsed={c} />
@@ -467,7 +471,6 @@ function DashboardInner({ user, pathname, sidebarOpen, setSidebarOpen, handleLog
                                     </div>
                                 </div>
                             )}
-                            <CollapseToggle />
                         </div>
                     </aside>
                     {sidebarOpen && <div className="fixed inset-0 z-40 bg-black/50 lg:hidden" onClick={() => setSidebarOpen(false)} />}
@@ -497,14 +500,17 @@ function DashboardInner({ user, pathname, sidebarOpen, setSidebarOpen, handleLog
                         <button onClick={() => setSidebarOpen(false)} className="lg:hidden absolute top-3 right-3 p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400" aria-label="Close navigation">
                             <MdClose className="text-xl" />
                         </button>
-                        <div className={`${c ? 'p-3 items-center' : 'p-5'} flex flex-col border-b border-slate-100 dark:border-slate-800`}>
-                            <h1 className={`text-primary font-bold leading-none ${c ? 'text-sm' : 'text-xl'}`}>{c ? 'RT' : 'RehabTask'}</h1>
-                            {!c && (
-                                <p className="text-slate-500 dark:text-slate-400 text-xs mt-1 font-medium flex items-center gap-1">
-                                    <MdAdminPanelSettings className="text-sm" />
-                                    {user.role === 'sub_admin' ? 'Sub-Admin Portal' : 'Admin Portal'}
-                                </p>
-                            )}
+                        <div className={`${c ? 'p-3' : 'p-5'} flex ${c ? 'flex-col items-center gap-2' : 'items-start justify-between'} border-b border-slate-100 dark:border-slate-800`}>
+                            <div>
+                                <h1 className={`text-primary font-bold leading-none ${c ? 'text-sm' : 'text-xl'}`}>{c ? 'RT' : 'RehabTask'}</h1>
+                                {!c && (
+                                    <p className="text-slate-500 dark:text-slate-400 text-xs mt-1 font-medium flex items-center gap-1">
+                                        <MdAdminPanelSettings className="text-sm" />
+                                        {user.role === 'sub_admin' ? 'Sub-Admin Portal' : 'Admin Portal'}
+                                    </p>
+                                )}
+                            </div>
+                            <CollapseToggle collapsed={c} />
                         </div>
                         <nav className={`flex-1 ${c ? 'px-2' : 'px-3'} py-4 space-y-0.5 overflow-y-auto`}>
                             <NavLink href="/admin/dashboard" icon={MdDashboard} label="Dashboard" pathname={pathname} matchStart={false} collapsed={c} />
@@ -543,7 +549,6 @@ function DashboardInner({ user, pathname, sidebarOpen, setSidebarOpen, handleLog
                                     </div>
                                 </div>
                             )}
-                            <CollapseToggle />
                         </div>
                     </aside>
                     {sidebarOpen && <div className="fixed inset-0 z-40 bg-black/50 lg:hidden" onClick={() => setSidebarOpen(false)} />}
