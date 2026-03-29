@@ -650,7 +650,7 @@ export default function AdminSubAdminsPage() {
         <div
             className={`flex-1 transition-all duration-300 ${selectedSubAdmin ? "lg:mr-95" : ""}`}
         >
-            <div className="p-4 lg:p-6 space-y-6">
+            <div className="p-4 lg:p-6 space-y-6 max-w-7xl mx-auto w-full">
                 {/* Header */}
                 <div className="flex items-center justify-between">
                     <div>

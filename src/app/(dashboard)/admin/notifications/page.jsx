@@ -598,7 +598,7 @@ export default function AdminNotificationsPage() {
     const [activeTab, setActiveTab] = useState("all");
 
     return (
-        <div className="flex-1 p-4 lg:p-6 space-y-6">
+        <div className="flex-1 p-4 lg:p-6 space-y-6 max-w-7xl mx-auto w-full">
             {/* Header */}
             <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
