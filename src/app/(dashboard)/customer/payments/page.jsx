@@ -60,7 +60,7 @@ export default function CustomerPaymentsPage() {
     }
 
     return (
-        <div className="p-4 md:p-6">
+        <div className="p-4 md:p-6 max-w-7xl mx-auto w-full">
             <h1 className="text-2xl font-bold text-text-main dark:text-white mb-6">Payment History</h1>
 
             {payments.length === 0 ? (
