@@ -127,7 +127,7 @@ export default function CustomerMessagesPage() {
     ) : null;
 
     return (
-        <div className="flex h-[calc(100vh-112px)] min-h-125 rounded-xl border border-border-light dark:border-border-dark overflow-hidden shadow-sm">
+        <div className="flex h-[calc(100vh-4rem)] lg:h-[calc(100vh-2rem)] min-h-125 rounded-xl border border-border-light dark:border-border-dark overflow-hidden shadow-sm">
             {/* Left Panel */}
             <aside className={`w-full md:w-80 shrink-0 flex flex-col border-r border-border-light dark:border-border-dark bg-background-light/30 dark:bg-background-dark/50 ${mobileView === 'chat' ? 'hidden md:flex' : 'flex'}`}>
                 <ConversationList

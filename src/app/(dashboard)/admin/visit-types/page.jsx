@@ -86,7 +86,7 @@ export default function AdminVisitTypesPage() {
     if (loading) return <div className="p-4 md:p-6"><p className="text-text-muted">Loading...</p></div>;
 
     return (
-        <div className="p-4 md:p-6 space-y-6">
+        <div className="p-4 md:p-6 space-y-6 max-w-7xl mx-auto w-full">
             <div className="flex items-center justify-between">
                 <div>
                     <h1 className="text-2xl font-bold text-text-main dark:text-white">Visit Types</h1>

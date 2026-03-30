@@ -96,7 +96,7 @@ function TherapistProfileContent() {
     };
 
     return (
-        <div className="p-4 md:p-6">
+        <div className="p-4 md:p-6 max-w-7xl mx-auto w-full">
             {/* Page Header */}
             <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-8">
                 {profile.profilePhotoUrl ? (

@@ -69,6 +69,20 @@ export function useCancelSubscription() {
     return mutation;
 }
 
+export function useResumeSubscription() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: async () => {
+            const res = await subscriptionApi.resume();
+            return res.data.data;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["subscription"] });
+        },
+    });
+}
+
 export function useUpgradeSubscription() {
     const queryClient = useQueryClient();
 

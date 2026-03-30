@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { MdStars, MdCheckCircle, MdRocketLaunch, MdCreditCard, MdCancel, MdWarning, MdAccessTime, MdArrowUpward, MdArrowDownward } from "react-icons/md";
-import { useSubscription, useCreateCheckout, useCreateBillingPortal, useCancelSubscription, useUpgradeSubscription, useDowngradeSubscription } from "@/hooks/useSubscription";
+import { useSubscription, useCreateCheckout, useCreateBillingPortal, useCancelSubscription, useResumeSubscription, useUpgradeSubscription, useDowngradeSubscription } from "@/hooks/useSubscription";
 import { subscriptionApi } from "@/lib/subscription.api";
 import { usePageTitle } from "@/hooks/usePageTitle";
 
@@ -82,6 +82,7 @@ export default function SubscriptionPage() {
     const cancelSub = useCancelSubscription();
     const upgradeMutation = useUpgradeSubscription();
     const downgradeMutation = useDowngradeSubscription();
+    const resumeMutation = useResumeSubscription();
     const [billingInterval, setBillingInterval] = useState("monthly");
     const [showCancelModal, setShowCancelModal] = useState(false);
     const [showUpgradeModal, setShowUpgradeModal] = useState(null);
@@ -105,6 +106,8 @@ export default function SubscriptionPage() {
     const isPaid = subscription?.stripeSubscriptionId != null;
     const isTrial = status === "trialing";
     const isGracePeriod = status === "grace_period";
+
+    const isCancelledButActive = status === "active" && !!subscription?.cancelledAt;
 
     const trialDaysLeft = isTrial && subscription?.trialEndsAt
         ? Math.max(0, Math.ceil((new Date(subscription.trialEndsAt) - Date.now()) / (1000 * 60 * 60 * 24)))
@@ -184,7 +187,7 @@ export default function SubscriptionPage() {
     };
 
     return (
-        <div className="p-4 md:p-6 space-y-8">
+        <div className="p-4 md:p-6 space-y-8 max-w-7xl mx-auto w-full">
             <div>
                 <h1 className="text-2xl font-bold text-text-main dark:text-white">Subscription</h1>
                 <p className="text-text-muted dark:text-slate-400 mt-1">Manage your plan and billing</p>
@@ -225,6 +228,27 @@ export default function SubscriptionPage() {
                 </div>
             )}
 
+            {isCancelledButActive && (
+                <div className="flex items-center justify-between gap-3 p-4 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
+                    <div className="flex items-center gap-3">
+                        <MdCancel className="w-6 h-6 text-red-500 shrink-0" />
+                        <div>
+                            <p className="font-semibold text-red-700 dark:text-red-400">Cancellation Scheduled</p>
+                            <p className="text-sm text-red-600 dark:text-red-300">
+                                Your plan will end on {subscription?.currentPeriodEnd ? new Date(subscription.currentPeriodEnd).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" }) : "the end of your billing period"}. You&apos;ll keep full access until then.
+                            </p>
+                        </div>
+                    </div>
+                    <button
+                        onClick={() => resumeMutation.mutate()}
+                        disabled={resumeMutation.isPending}
+                        className="px-4 py-2 rounded-lg bg-primary text-white font-medium hover:bg-primary/90 transition-colors text-sm whitespace-nowrap disabled:opacity-50"
+                    >
+                        {resumeMutation.isPending ? "Resuming..." : "Resume Plan"}
+                    </button>
+                </div>
+            )}
+
             {/* Current Plan Card */}
             <div className="bg-card-light dark:bg-card-dark rounded-xl border border-border-light dark:border-border-dark p-6 shadow-sm">
                 <div className="flex items-center justify-between mb-6">
@@ -239,10 +263,10 @@ export default function SubscriptionPage() {
                             </span>
                         </div>
                     </div>
-                    {isPaid && !isGracePeriod && !subscription?.cancelledAt && subscription?.currentPeriodEnd && (
+                    {isPaid && !isGracePeriod && subscription?.currentPeriodEnd && (
                         <div className="text-right text-sm text-text-muted dark:text-slate-400">
-                            <p>Next billing date</p>
-                            <p className="font-semibold text-text-main dark:text-white">
+                            <p>{isCancelledButActive ? "Plan ends on" : "Next billing date"}</p>
+                            <p className={`font-semibold ${isCancelledButActive ? "text-red-500" : "text-text-main dark:text-white"}`}>
                                 {new Date(subscription.currentPeriodEnd).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
                             </p>
                         </div>
