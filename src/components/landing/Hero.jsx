@@ -22,13 +22,13 @@ export default function Hero() {
                         </p>
                         <div className="mt-8 flex flex-wrap gap-3">
                             <Link
-                                href="/register/customer"
+                                href="/therapists"
                                 className="px-6 py-3 text-sm font-semibold text-white bg-primary rounded-lg hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20"
                             >
                                 Search therapists
                             </Link>
                             <Link
-                                href="/register/therapist"
+                                href="/requests"
                                 className="px-6 py-3 text-sm font-semibold text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
                             >
                                 Browse requests
