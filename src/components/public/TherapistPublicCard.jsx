@@ -72,12 +72,12 @@ export default function TherapistPublicCard({ therapist, index = 0, onAuthGate }
 
             {/* Actions */}
             <div className="grid grid-cols-2 gap-3">
-                <button
-                    onClick={() => onAuthGate("profile")}
-                    className="py-2.5 rounded-lg border border-gray-200 font-semibold text-xs text-gray-700 hover:bg-gray-50 transition-colors"
+                <a
+                    href={`/therapists/${therapist.id}`}
+                    className="py-2.5 rounded-lg border border-gray-200 font-semibold text-xs text-gray-700 hover:bg-gray-50 transition-colors text-center"
                 >
                     View Profile
-                </button>
+                </a>
                 <button
                     onClick={() => onAuthGate("message")}
                     className="py-2.5 rounded-lg bg-[#137fec] text-white font-semibold text-xs flex items-center justify-center gap-1.5 hover:bg-[#137fec]/90 transition-colors"
