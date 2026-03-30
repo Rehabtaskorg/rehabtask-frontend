@@ -205,16 +205,14 @@ export default function DashboardLayout({ children }) {
 
     const handleLogout = async () => {
         try {
-            // Clear backend session (invalidate tokens, clears httpOnly cookies)
             await authAPi.logout();
-            router.push("/login");
+            router.push("/");
         } catch (error) {
             console.error("Logout error:", error);
         } finally {
-            // Clear all frontend state
             useOnboardingStore.getState().reset();
             await supabase.auth.signOut();
-            router.push("/login");
+            router.push("/");
         }
     };
 
