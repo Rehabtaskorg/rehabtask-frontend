@@ -7,6 +7,10 @@ import TherapistSearchHeader from "@/components/public/TherapistSearchHeader";
 import TherapistFilterSidebar, { FilterToggleButton } from "@/components/public/TherapistFilterSidebar";
 import TherapistPublicCard from "@/components/public/TherapistPublicCard";
 import AuthGateModal from "@/components/public/AuthGateModal";
+import WhyChooseUs from "@/components/public/WhyChooseUs";
+import PublicStats from "@/components/public/PublicStats";
+import Testimonials from "@/components/public/Testimonials";
+import CTABanner from "@/components/public/CTABanner";
 
 const SAMPLE_THERAPISTS = [
     { id: "1", name: "Dr. Sarah Jenkins, DPT", specialization: "Orthopedic Rehabilitation", licenseType: "Licensed PT", experience: 8, location: "Los Angeles, CA", rating: 4.9, reviewCount: 124, rate: 125, photo: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=200&h=200&fit=crop&crop=face" },
@@ -145,6 +149,11 @@ export default function FindTherapistsPage() {
                         </div>
                     </div>
                 </section>
+
+                <WhyChooseUs />
+                <PublicStats />
+                <Testimonials />
+                <CTABanner />
             </div>
 
             <AuthGateModal
