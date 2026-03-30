@@ -79,7 +79,8 @@ function SubscriptionSidePanel({ subscription, onClose, onCancel, loading, error
     const [confirmCancel, setConfirmCancel] = useState(false);
     const isActive = subscription.status === 'active';
     const isTrialing = subscription.status === 'trialing';
-    const isCancellable = (isActive && subscription.stripeSubscriptionId) || isTrialing;
+    const isCancelledButActive = isActive && !!subscription.cancelledAt;
+    const isCancellable = ((isActive && !isCancelledButActive && subscription.stripeSubscriptionId) || isTrialing) && !success;
     const cancelLabel = isTrialing ? 'End Trial' : 'Cancel Subscription';
     const cancelDescription = isTrialing
         ? 'This will end the trial immediately and downgrade the customer to the Free plan.'
@@ -106,6 +107,17 @@ function SubscriptionSidePanel({ subscription, onClose, onCancel, loading, error
                 {success && (
                     <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 text-sm">
                         <MdCheckCircle className="shrink-0 text-base" /> {success}
+                    </div>
+                )}
+                {isCancelledButActive && (
+                    <div className="flex items-start gap-2 px-3 py-2.5 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
+                        <MdWarning className="shrink-0 text-red-500 mt-0.5" />
+                        <div>
+                            <p className="text-sm font-medium text-red-700 dark:text-red-400">Cancellation Scheduled</p>
+                            <p className="text-xs text-red-600 dark:text-red-300 mt-0.5">
+                                Customer cancelled — plan ends {subscription.currentPeriodEnd ? fmtDate(subscription.currentPeriodEnd) : 'at period end'}
+                            </p>
+                        </div>
                     </div>
                 )}
                 <dl className="space-y-3 text-sm">
@@ -139,8 +151,8 @@ function SubscriptionSidePanel({ subscription, onClose, onCancel, loading, error
                     )}
                     {subscription.currentPeriodEnd && (
                         <div className="flex justify-between gap-3">
-                            <dt className="text-text-muted dark:text-slate-400">{isActive ? 'Renews' : 'Ended'}</dt>
-                            <dd className="font-medium text-text-main dark:text-white">{fmtDate(subscription.currentPeriodEnd)}</dd>
+                            <dt className="text-text-muted dark:text-slate-400">{isCancelledButActive ? 'Ends' : isActive ? 'Renews' : 'Ended'}</dt>
+                            <dd className={`font-medium ${isCancelledButActive ? 'text-red-500' : 'text-text-main dark:text-white'}`}>{fmtDate(subscription.currentPeriodEnd)}</dd>
                         </div>
                     )}
                     {subscription.trialEndsAt && (
@@ -166,7 +178,7 @@ function SubscriptionSidePanel({ subscription, onClose, onCancel, loading, error
                         </div>
                     )}
                 </dl>
-                {isCancellable && !success && (
+                {isCancellable && (
                     <div className="border border-border-light dark:border-border-dark rounded-xl overflow-hidden">
                         <button onClick={() => setConfirmCancel(v => !v)} className="w-full flex items-center justify-between px-4 py-3 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors">
                             {cancelLabel}
@@ -178,6 +190,29 @@ function SubscriptionSidePanel({ subscription, onClose, onCancel, loading, error
                                 <div className="flex gap-2">
                                     <button onClick={() => onCancel(subscription.id)} disabled={loading} className="flex-1 py-2.5 rounded-xl bg-red-600 text-white text-sm font-medium hover:bg-red-700 disabled:opacity-50 transition-colors">
                                         {loading ? 'Cancelling…' : 'Confirm Cancellation'}
+                                    </button>
+                                    <button onClick={() => setConfirmCancel(false)} disabled={loading} className="px-4 py-2.5 rounded-xl border border-border-light dark:border-border-dark text-sm text-text-main dark:text-white hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+                                        Back
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                )}
+                {isCancelledButActive && !success && (
+                    <div className="border border-border-light dark:border-border-dark rounded-xl overflow-hidden">
+                        <button onClick={() => setConfirmCancel(v => !v)} className="w-full flex items-center justify-between px-4 py-3 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors">
+                            Force Cancel Now
+                            <span className="text-text-muted text-xs">{confirmCancel ? '▲' : '▼'}</span>
+                        </button>
+                        {confirmCancel && (
+                            <div className="px-4 pb-4 space-y-3 border-t border-border-light dark:border-border-dark pt-3">
+                                <p className="text-xs text-text-muted dark:text-slate-400">
+                                    Customer has already scheduled cancellation at period end. This will cancel immediately in Stripe and enter grace period.
+                                </p>
+                                <div className="flex gap-2">
+                                    <button onClick={() => onCancel(subscription.id)} disabled={loading} className="flex-1 py-2.5 rounded-xl bg-red-600 text-white text-sm font-medium hover:bg-red-700 disabled:opacity-50 transition-colors">
+                                        {loading ? 'Cancelling…' : 'Force Cancel'}
                                     </button>
                                     <button onClick={() => setConfirmCancel(false)} disabled={loading} className="px-4 py-2.5 rounded-xl border border-border-light dark:border-border-dark text-sm text-text-main dark:text-white hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
                                         Back
@@ -363,7 +398,14 @@ function CustomerSubscriptionsTab() {
                                                     <p className="text-xs text-text-muted dark:text-slate-400 hidden sm:block">{sub.customer?.user?.email}</p>
                                                 </td>
                                                 <td className="px-5 py-3.5"><StatusBadge status={sub.planType} styleMap={PLAN_STYLES} /></td>
-                                                <td className="px-5 py-3.5"><StatusBadge status={sub.status} styleMap={SUB_STATUS_STYLES} /></td>
+                                                <td className="px-5 py-3.5">
+                                                    <div className="flex items-center gap-1.5">
+                                                        <StatusBadge status={sub.status} styleMap={SUB_STATUS_STYLES} />
+                                                        {sub.status === 'active' && sub.cancelledAt && (
+                                                            <span className="text-[10px] font-semibold text-red-500" title="Cancellation scheduled">Cancelling</span>
+                                                        )}
+                                                    </div>
+                                                </td>
                                                 <td className="px-5 py-3.5 text-text-muted dark:text-slate-400 hidden md:table-cell">
                                                     {fmtDate(sortBy === 'currentPeriodStart' ? sub.currentPeriodStart : sortBy === 'currentPeriodEnd' ? sub.currentPeriodEnd : sub.createdAt)}
                                                 </td>
