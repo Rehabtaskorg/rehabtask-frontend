@@ -104,7 +104,7 @@ export default function PendingReviewPage() {
                     {/* Footer note */}
                     <div className="text-center py-4">
                         <p className="text-text-muted dark:text-gray-500 text-xs">
-                            © 2024–{new Date().getFullYear()} RehabTask Professional Services. All credentials are encrypted and stored securely.
+                            © {new Date().getFullYear()} RehabTask Professional Services. All credentials are encrypted and stored securely.
                         </p>
                     </div>
                 </div>

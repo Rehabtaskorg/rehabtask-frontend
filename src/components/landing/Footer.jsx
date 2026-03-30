@@ -45,7 +45,7 @@ export default function Footer() {
                         <Link href="#" className="hover:text-white transition-colors">Privacy Policy</Link>
                         <Link href="#" className="hover:text-white transition-colors">Terms of Service</Link>
                     </div>
-                    <p className="text-xs">&copy; 2024&ndash;{new Date().getFullYear()} RehabTask Inc. All rights reserved.</p>
+                    <p className="text-xs">&copy; {new Date().getFullYear()} RehabTask Inc. All rights reserved.</p>
                 </div>
             </div>
         </footer>
