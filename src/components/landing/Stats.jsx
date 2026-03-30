@@ -2,15 +2,22 @@
 
 import { motion } from "framer-motion";
 import { MdStar } from "react-icons/md";
+import { usePlatformStats } from "@/hooks/usePublic";
 
-const STATS = [
-    { value: "500+", label: "Licensed therapists", sublabel: "Available across the platform" },
-    { value: "2,000+", label: "Sessions completed", sublabel: "Connecting patients with care" },
-    { value: "4.8", label: "Average rating", sublabel: "From verified patient reviews", icon: MdStar },
-    { value: "50", label: "States covered", sublabel: "Growing network nationwide" },
-];
+function formatStat(n) {
+    if (n >= 1000) return `${(n / 1000).toFixed(n >= 10000 ? 0 : 1)}k+`;
+    return `${n}+`;
+}
 
 export default function Stats() {
+    const { data } = usePlatformStats();
+
+    const STATS = [
+        { value: data ? formatStat(data.therapists) : "500+", label: "Licensed therapists", sublabel: "Available across the platform" },
+        { value: data ? formatStat(data.sessionsCompleted) : "2,000+", label: "Sessions completed", sublabel: "Connecting patients with care" },
+        { value: data ? String(data.averageRating) : "4.8", label: "Average rating", sublabel: "From verified patient reviews", icon: MdStar },
+        { value: data ? String(data.statesCovered) : "50", label: "States covered", sublabel: "Growing network nationwide" },
+    ];
     return (
         <section className="py-20 bg-white">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
