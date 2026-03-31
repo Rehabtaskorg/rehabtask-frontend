@@ -47,7 +47,7 @@ export default function RequestPublicCard({ request, index = 0, onAuthGate }) {
                 </div>
                 {request.visitType && (
                     <span className="bg-emerald-50 text-emerald-700 text-[10px] font-bold px-2 py-1 rounded-md uppercase">
-                        {request.visitType === "virtual" ? "Telehealth" : "In-Person"}
+                        {request.visitType}
                     </span>
                 )}
             </div>

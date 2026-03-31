@@ -47,5 +47,6 @@ export function usePublicRequests(params) {
     return useQuery({
         queryKey: ["public", "requests", params],
         queryFn: () => publicApi.browseRequests(params).then((r) => r.data.data),
+        placeholderData: keepPreviousData,
     });
 }
