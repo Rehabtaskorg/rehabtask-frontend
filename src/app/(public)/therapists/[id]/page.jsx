@@ -6,21 +6,11 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import {
     MdStar, MdLocationOn, MdVerified, MdLock,
-    MdCall, MdEmail, MdInfo, MdHealing, MdFitnessCenter,
-    MdAccessibilityNew, MdSpa, MdArrowBack,
+    MdCall, MdEmail, MdInfo, MdArrowBack,
 } from "react-icons/md";
 import { useTherapistPublicProfile } from "@/hooks/usePublic";
 import AuthGateModal from "@/components/public/AuthGateModal";
 import UserAvatar from "@/components/ui/UserAvatar";
-
-const SPECIALIZATIONS = [
-    { label: "Post-Surgical Recovery", icon: MdHealing },
-    { label: "Sports Rehabilitation", icon: MdFitnessCenter },
-    { label: "Joint Replacement", icon: MdAccessibilityNew },
-    { label: "Geriatric Rehab", icon: MdHealing },
-    { label: "Chronic Pain Management", icon: MdSpa },
-    { label: "Fall Prevention", icon: MdAccessibilityNew },
-];
 
 const TIER_LABELS = { basic: "Basic", pro: "Verified Pro", elite: "Elite" };
 
@@ -41,7 +31,7 @@ function ProfileSkeleton() {
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
                     <div className="lg:col-span-8 space-y-8">
                         <div className="bg-gray-50 rounded-2xl p-8 flex gap-6">
-                            <div className="w-[120px] h-[120px] rounded-full bg-gray-200 shrink-0" />
+                            <div className="w-30 h-30 rounded-full bg-gray-200 shrink-0" />
                             <div className="flex-1 space-y-3">
                                 <div className="h-7 w-64 bg-gray-200 rounded" />
                                 <div className="h-5 w-48 bg-gray-200 rounded" />
@@ -79,7 +69,7 @@ export default function TherapistPublicProfilePage() {
             <div className="pt-16 min-h-screen bg-white flex items-center justify-center">
                 <div className="text-center">
                     <p className="text-gray-500">Therapist profile not found.</p>
-                    <Link href="/therapists" className="text-[#137fec] font-semibold text-sm mt-2 inline-block hover:underline">
+                    <Link href="/therapists" className="text-primary font-semibold text-sm mt-2 inline-block hover:underline">
                         Back to search
                     </Link>
                 </div>
@@ -95,7 +85,7 @@ export default function TherapistPublicProfilePage() {
         <>
             <div className="pt-16 min-h-screen bg-white">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                    <Link href="/therapists" className="inline-flex items-center gap-1 text-sm font-medium text-gray-500 hover:text-[#137fec] transition-colors mb-6">
+                    <Link href="/therapists" className="inline-flex items-center gap-1 text-sm font-medium text-gray-500 hover:text-primary transition-colors mb-6">
                         <MdArrowBack className="text-base" /> Back to search
                     </Link>
 
@@ -135,7 +125,7 @@ export default function TherapistPublicProfilePage() {
                                                 <span className="ml-1 text-xs text-gray-500">({reviewTotal} Reviews)</span>
                                             </div>
                                         </div>
-                                        <p className="text-[#137fec] text-lg font-medium mb-4">
+                                        <p className="text-primary text-lg font-medium mb-4">
                                             {profile.primaryLicenseType}{profile.specialization ? ` · ${profile.specialization}` : ""}
                                         </p>
                                         <div className="flex flex-wrap gap-2">
@@ -185,25 +175,31 @@ export default function TherapistPublicProfilePage() {
                                 </motion.section>
                             )}
 
-                            {/* Specializations */}
-                            <motion.section initial={{ opacity: 0, y: 15 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }} className="space-y-3">
-                                <h2 className="text-xl font-bold text-gray-900">Specializations</h2>
-                                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                                    {SPECIALIZATIONS.map((s) => (
-                                        <div key={s.label} className="bg-gray-50 border border-gray-100 p-4 rounded-xl flex items-center gap-3">
-                                            <s.icon className="text-[#137fec] text-xl" />
-                                            <span className="text-sm font-medium text-gray-700">{s.label}</span>
+                            {/* Specialization */}
+                            {profile.specialization && (
+                                <motion.section initial={{ opacity: 0, y: 15 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }} className="space-y-3">
+                                    <h2 className="text-xl font-bold text-gray-900">Specialization</h2>
+                                    <div className="bg-gray-50 rounded-2xl p-6">
+                                        <div className="flex flex-wrap gap-3">
+                                            <span className="bg-primary/10 text-primary border border-primary/20 text-sm font-semibold px-4 py-2 rounded-lg">
+                                                {profile.specialization}
+                                            </span>
+                                            {profile.primaryLicenseType && (
+                                                <span className="bg-white border border-gray-200 text-gray-700 text-sm font-semibold px-4 py-2 rounded-lg">
+                                                    {profile.primaryLicenseType}
+                                                </span>
+                                            )}
                                         </div>
-                                    ))}
-                                </div>
-                            </motion.section>
+                                    </div>
+                                </motion.section>
+                            )}
 
                             {/* Availability */}
                             {profile.availability?.length > 0 && (
                                 <motion.section initial={{ opacity: 0, y: 15 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }} className="space-y-3">
                                     <h2 className="text-xl font-bold text-gray-900">Availability</h2>
                                     <div className="bg-gray-50 rounded-2xl p-6 overflow-x-auto">
-                                        <div className="flex gap-3 min-w-[500px]">
+                                        <div className="flex gap-3 min-w-125">
                                             {profile.availability.map((day) => (
                                                 <div key={day.dayOfWeek || day.day} className="flex-1 space-y-2">
                                                     <div className="text-center pb-2 border-b border-gray-200">
@@ -302,30 +298,30 @@ export default function TherapistPublicProfilePage() {
                                     </div>
                                     <div className="space-y-3 mb-6">
                                         <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl cursor-pointer hover:bg-gray-100 transition-colors" onClick={() => handleAuthGate("contact")}>
-                                            <div className="w-10 h-10 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-[#137fec]"><MdCall className="text-lg" /></div>
+                                            <div className="w-10 h-10 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-primary"><MdCall className="text-lg" /></div>
                                             <div className="flex-1">
                                                 <p className="text-[10px] text-gray-500 font-bold uppercase">Phone</p>
-                                                <p className="text-sm font-medium text-gray-400 blur-[4px] select-none">(555) 123-4567</p>
+                                                <p className="text-sm font-medium text-gray-400 blur-xs select-none">(555) 123-4567</p>
                                             </div>
                                             <MdLock className="text-gray-400 text-sm" />
                                         </div>
                                         <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl cursor-pointer hover:bg-gray-100 transition-colors" onClick={() => handleAuthGate("contact")}>
-                                            <div className="w-10 h-10 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-[#137fec]"><MdEmail className="text-lg" /></div>
+                                            <div className="w-10 h-10 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-primary"><MdEmail className="text-lg" /></div>
                                             <div className="flex-1">
                                                 <p className="text-[10px] text-gray-500 font-bold uppercase">Email</p>
-                                                <p className="text-sm font-medium text-gray-400 blur-[4px] select-none">therapist@clinic.com</p>
+                                                <p className="text-sm font-medium text-gray-400 blur-xs select-none">therapist@clinic.com</p>
                                             </div>
                                             <MdLock className="text-gray-400 text-sm" />
                                         </div>
                                     </div>
                                     <div className="space-y-3">
-                                        <button onClick={() => handleAuthGate("offer")} className="w-full bg-[#137fec] text-white font-bold py-3.5 rounded-xl hover:bg-[#137fec]/90 transition-colors shadow-lg shadow-[#137fec]/20">Send Offer</button>
+                                        <button onClick={() => handleAuthGate("offer")} className="w-full bg-primary text-white font-bold py-3.5 rounded-xl hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20">Send Offer</button>
                                         <button onClick={() => handleAuthGate("message")} className="w-full bg-gray-50 text-gray-700 font-bold py-3.5 rounded-xl border border-gray-200 hover:bg-gray-100 transition-colors">Message Therapist</button>
                                     </div>
                                 </motion.div>
 
                                 <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.4 }} className="bg-white rounded-2xl p-6 border border-gray-200">
-                                    <h4 className="text-sm font-bold text-gray-900 mb-5 flex items-center gap-2"><MdInfo className="text-[#137fec] text-lg" /> Quick Facts</h4>
+                                    <h4 className="text-sm font-bold text-gray-900 mb-5 flex items-center gap-2"><MdInfo className="text-primary text-lg" /> Quick Facts</h4>
                                     <div className="space-y-3">
                                         {[
                                             { label: "License Type", value: profile.primaryLicenseType },
