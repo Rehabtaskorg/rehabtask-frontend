@@ -1,33 +1,23 @@
-"use client";
-
 import Link from "next/link";
 import Image from "next/image";
-import { motion } from "framer-motion";
+import FadeIn from "@/components/ui/FadeIn";
 import { MdArrowForward } from "react-icons/md";
 
 export default function ForTherapists() {
     return (
         <section className="py-20 bg-gray-50">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <motion.div
-                    initial={{ opacity: 0, y: 15 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.5 }}
-                    className="text-center mb-10"
-                >
+                <FadeIn className="text-center mb-10">
                     <p className="text-sm font-semibold text-primary uppercase tracking-wider">Opportunity</p>
                     <h2 className="mt-2 text-3xl md:text-4xl font-bold text-gray-900">Build your practice on your terms</h2>
                     <p className="mt-3 text-gray-500 max-w-2xl mx-auto">
                         Set your own rates, control your schedule, and work with agencies that value your expertise. Join a network of rehabilitation professionals who are making a real difference in home health care.
                     </p>
-                </motion.div>
+                </FadeIn>
 
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.6, delay: 0.2 }}
+                <FadeIn
+                    delay={0.2}
+                    duration={0.6}
                     className="grid grid-cols-1 lg:grid-cols-2 gap-0 rounded-2xl overflow-hidden border border-gray-200 bg-white"
                 >
                     <div className="relative min-h-75 lg:min-h-100">
@@ -59,7 +49,7 @@ export default function ForTherapists() {
                             </Link>
                         </div>
                     </div>
-                </motion.div>
+                </FadeIn>
             </div>
         </section>
     );

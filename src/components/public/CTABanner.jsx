@@ -1,16 +1,11 @@
-"use client";
-
 import Link from "next/link";
-import { motion } from "framer-motion";
+import FadeIn from "@/components/ui/FadeIn";
 
 export default function CTABanner() {
     return (
         <section className="py-16 px-4 sm:px-6 lg:px-8">
-            <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6 }}
+            <FadeIn
+                duration={0.6}
                 className="max-w-7xl mx-auto relative rounded-2xl overflow-hidden min-h-75 flex items-center justify-center"
             >
                 <div
@@ -26,7 +21,7 @@ export default function CTABanner() {
                     <div className="mt-8 flex flex-wrap justify-center gap-3">
                         <Link
                             href="/register/customer"
-                            className="px-7 py-3 text-sm font-semibold text-white bg-primary rounded-lg hover:bg-primary/90 transition-colors shadow-lg shadow-[#137fec]/20"
+                            className="px-7 py-3 text-sm font-semibold text-white bg-primary rounded-lg hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20"
                         >
                             Find therapist
                         </Link>
@@ -38,7 +33,7 @@ export default function CTABanner() {
                         </Link>
                     </div>
                 </div>
-            </motion.div>
+            </FadeIn>
         </section>
     );
 }
