@@ -3,15 +3,23 @@
 import { motion } from "framer-motion";
 import { MdStar } from "react-icons/md";
 import Link from "next/link";
+import { usePlatformStats } from "@/hooks/usePublic";
 
-const STATS = [
-    { value: "2,847", label: "Licensed therapists", sublabel: "Verified professionals ready to help" },
-    { value: "156", label: "Cities covered", sublabel: "Available across the country and growing" },
-    { value: "4.8", label: "Average rating", sublabel: "Stars from over 18,000 patient reviews", icon: MdStar },
-    { value: "94k", label: "Sessions booked", sublabel: "Successful appointments completed this year" },
-];
+function formatStat(n) {
+    if (n >= 1000) return `${(n / 1000).toFixed(n >= 10000 ? 0 : 1)}k+`;
+    return `${n}+`;
+}
 
 export default function PublicStats() {
+    const { data } = usePlatformStats();
+
+    const STATS = [
+        { value: data ? formatStat(data.therapists) : "—", label: "Licensed therapists", sublabel: "Verified professionals ready to help" },
+        { value: data ? `${data.citiesCovered}+` : "—", label: "Cities covered", sublabel: "Available across the country and growing" },
+        { value: data ? String(data.averageRating) : "—", label: "Average rating", sublabel: `From verified patient reviews`, icon: MdStar },
+        { value: data ? formatStat(data.sessionsCompleted) : "—", label: "Sessions booked", sublabel: "Successful appointments completed" },
+    ];
+
     return (
         <section className="py-20 bg-gray-950 text-white">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -30,7 +38,7 @@ export default function PublicStats() {
                             Our platform connects patients with licensed therapists across the country. Here&apos;s what our community has achieved.
                         </p>
                         <div className="mt-6 flex items-center gap-4">
-                            <Link href="/register/customer" className="text-sm font-semibold text-white hover:text-[#137fec] transition-colors">
+                            <Link href="/register/customer" className="text-sm font-semibold text-white hover:text-primary transition-colors">
                                 Get started
                             </Link>
                             <Link href="/register/customer" className="text-sm font-medium text-gray-400 hover:text-white transition-colors flex items-center gap-1">
