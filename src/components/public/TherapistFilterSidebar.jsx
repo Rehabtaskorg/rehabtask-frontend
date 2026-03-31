@@ -3,12 +3,12 @@
 import { MdFilterList, MdClose } from "react-icons/md";
 
 const SPECIALIZATIONS = [
-    "Orthopedic Rehabilitation",
-    "Neurological Recovery",
-    "Pediatric Therapy",
-    "Geriatric Care",
-    "Sports Rehabilitation",
-    "Post-Surgical Recovery",
+    "Orthopedics",
+    "Neurology",
+    "Geriatrics",
+    "Sports Medicine",
+    "Aquatic Therapy",
+    "Pediatrics",
 ];
 
 export default function TherapistFilterSidebar({
