@@ -9,7 +9,7 @@ import {
     MdCall, MdEmail, MdInfo, MdHealing, MdFitnessCenter,
     MdAccessibilityNew, MdSpa, MdArrowBack,
 } from "react-icons/md";
-import { useTherapistPublicProfile, useTherapistReviews } from "@/hooks/usePublic";
+import { useTherapistPublicProfile } from "@/hooks/usePublic";
 import AuthGateModal from "@/components/public/AuthGateModal";
 import UserAvatar from "@/components/ui/UserAvatar";
 
@@ -64,7 +64,6 @@ function ProfileSkeleton() {
 export default function TherapistPublicProfilePage() {
     const params = useParams();
     const { data: profile, isLoading, error } = useTherapistPublicProfile(params.id);
-    const { data: reviewsData } = useTherapistReviews(params.id);
     const [gateOpen, setGateOpen] = useState(false);
     const [gateTrigger, setGateTrigger] = useState("default");
 
@@ -88,8 +87,7 @@ export default function TherapistPublicProfilePage() {
         );
     }
 
-    const reviews = reviewsData?.reviews || [];
-    const reviewTotal = reviewsData?.pagination?.total || profile.reviewCount || 0;
+    const reviewTotal = profile.reviewCount || 0;
     const primaryArea = profile.workAreas?.[0];
     const rate = profile.ratePerVisit ? parseFloat(profile.ratePerVisit) : null;
 
@@ -245,53 +243,47 @@ export default function TherapistPublicProfilePage() {
                                 </motion.section>
                             )}
 
-                            {/* Reviews */}
+                            {/* Reviews — all gated behind sign-up */}
                             <motion.section initial={{ opacity: 0, y: 15 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }} className="space-y-4">
                                 <h2 className="text-xl font-bold text-gray-900">Reviews ({reviewTotal})</h2>
 
-                                {reviews.slice(0, 2).map((review) => {
-                                    const initial = review.customer?.fullName?.charAt(0)?.toUpperCase() || "?";
-                                    const displayName = review.customer?.fullName
-                                        ? `${review.customer.fullName.split(" ")[0]} ${review.customer.fullName.split(" ").pop()?.charAt(0) || ""}.`
-                                        : "Anonymous";
-                                    return (
-                                        <div key={review.id} className="bg-gray-50 p-6 rounded-2xl">
-                                            <div className="flex justify-between items-start mb-3">
-                                                <div className="flex items-center gap-3">
-                                                    <div className="w-10 h-10 rounded-full bg-[#137fec]/10 flex items-center justify-center font-bold text-[#137fec] text-sm">{initial}</div>
-                                                    <div>
-                                                        <p className="font-bold text-sm text-gray-900">{displayName}</p>
-                                                        <p className="text-[10px] text-gray-500">{new Date(review.createdAt).toLocaleDateString()}</p>
+                                <div className="relative rounded-2xl overflow-hidden">
+                                    <div className="blur-sm select-none pointer-events-none space-y-4">
+                                        {[1, 2, 3].map((i) => (
+                                            <div key={i} className="bg-gray-50 p-6 rounded-2xl">
+                                                <div className="flex justify-between items-start mb-3">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="w-10 h-10 rounded-full bg-gray-200" />
+                                                        <div className="space-y-1.5">
+                                                            <div className="h-4 w-28 bg-gray-200 rounded" />
+                                                            <div className="h-3 w-16 bg-gray-200 rounded" />
+                                                        </div>
+                                                    </div>
+                                                    <div className="flex gap-0.5">
+                                                        {Array.from({ length: 5 }).map((_, j) => (
+                                                            <MdStar key={j} className="text-gray-300 text-sm" />
+                                                        ))}
                                                     </div>
                                                 </div>
-                                                <div className="flex gap-0.5">
-                                                    {Array.from({ length: review.rating }).map((_, j) => (
-                                                        <MdStar key={j} className="text-amber-500 text-sm" />
-                                                    ))}
+                                                <div className="space-y-2">
+                                                    <div className="h-3 w-full bg-gray-200 rounded" />
+                                                    <div className="h-3 w-4/5 bg-gray-200 rounded" />
+                                                    <div className="h-3 w-2/3 bg-gray-200 rounded" />
                                                 </div>
                                             </div>
-                                            {review.comment && <p className="text-gray-600 text-sm italic leading-relaxed">&ldquo;{review.comment}&rdquo;</p>}
-                                        </div>
-                                    );
-                                })}
-
-                                {reviewTotal > 2 && (
-                                    <div className="relative">
-                                        <div className="bg-gray-50 p-6 rounded-2xl blur-sm select-none">
-                                            <div className="flex gap-3 mb-3"><div className="w-10 h-10 rounded-full bg-gray-200" /><div className="w-24 h-4 bg-gray-200 rounded" /></div>
-                                            <div className="space-y-2"><div className="w-full h-3 bg-gray-200 rounded" /><div className="w-2/3 h-3 bg-gray-200 rounded" /></div>
-                                        </div>
-                                        <div className="absolute inset-0 flex items-center justify-center">
-                                            <div className="text-center bg-white border border-gray-200 shadow-xl rounded-xl p-6">
-                                                <MdLock className="text-[#137fec] text-2xl mx-auto mb-2" />
-                                                <p className="font-bold text-gray-900 text-sm mb-3">Sign up to read all {reviewTotal} reviews</p>
-                                                <button onClick={() => handleAuthGate("profile")} className="bg-[#137fec] text-white text-xs font-bold px-6 py-2.5 rounded-lg hover:bg-[#137fec]/90 transition-colors">
-                                                    Create Free Account
-                                                </button>
-                                            </div>
+                                        ))}
+                                    </div>
+                                    <div className="absolute inset-0 flex items-center justify-center">
+                                        <div className="text-center bg-white border border-gray-200 shadow-xl rounded-xl p-6">
+                                            <MdLock className="text-primary text-2xl mx-auto mb-2" />
+                                            <p className="font-bold text-gray-900 text-sm mb-1">Reviews are hidden</p>
+                                            <p className="text-xs text-gray-500 mb-3">Sign up to read {reviewTotal > 0 ? `all ${reviewTotal}` : ""} reviews</p>
+                                            <button onClick={() => handleAuthGate("profile")} className="bg-primary text-white text-xs font-bold px-6 py-2.5 rounded-lg hover:bg-primary/90 transition-colors">
+                                                Create Free Account
+                                            </button>
                                         </div>
                                     </div>
-                                )}
+                                </div>
                             </motion.section>
                         </div>
 
