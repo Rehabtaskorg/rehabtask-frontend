@@ -121,10 +121,8 @@ export default function AdminDashboardPage() {
     const { data: bookingsData, isLoading: bookLoading } = useAdminBookings({ limit: 6, enabled: can('bookings') });
 
     const activeSubscriptions = useMemo(() => {
-        if (!subStats?.stats) return 0;
-        return subStats.stats
-            .filter(s => s.status === 'active')
-            .reduce((sum, s) => sum + (s._count?.id ?? 0), 0);
+        if (!subStats) return 0;
+        return subStats.active ?? 0;
     }, [subStats]);
 
     const totalUsers = usersData?.pagination?.total ?? 0;
