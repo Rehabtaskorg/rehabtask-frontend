@@ -1,8 +1,8 @@
 "use client";
 
-import Image from "next/image";
 import { motion } from "framer-motion";
 import { MdStar, MdLocationOn, MdWorkHistory, MdLock, MdVerified } from "react-icons/md";
+import UserAvatar from "@/components/ui/UserAvatar";
 
 export default function TherapistPublicCard({ therapist, index = 0, onAuthGate }) {
     return (
@@ -15,12 +15,10 @@ export default function TherapistPublicCard({ therapist, index = 0, onAuthGate }
         >
             {/* Header */}
             <div className="flex items-start justify-between mb-4">
-                <Image
-                    src={therapist.photo}
-                    alt="Licensed therapist"
-                    width={80}
-                    height={80}
-                    className="w-20 h-20 rounded-full object-cover border-2 border-gray-100"
+                <UserAvatar
+                    name={therapist.licenseType || "Therapist"}
+                    photoUrl={therapist.photoUrl}
+                    size="2xl"
                 />
                 <span className="bg-emerald-50 text-emerald-700 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider flex items-center gap-1">
                     <MdVerified className="text-xs" />

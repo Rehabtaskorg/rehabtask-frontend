@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useParams } from "next/navigation";
-import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import {
@@ -12,6 +11,7 @@ import {
 } from "react-icons/md";
 import { useTherapistPublicProfile, useTherapistReviews } from "@/hooks/usePublic";
 import AuthGateModal from "@/components/public/AuthGateModal";
+import UserAvatar from "@/components/ui/UserAvatar";
 
 const SPECIALIZATIONS = [
     { label: "Post-Surgical Recovery", icon: MdHealing },
@@ -23,7 +23,6 @@ const SPECIALIZATIONS = [
 ];
 
 const TIER_LABELS = { basic: "Basic", pro: "Verified Pro", elite: "Elite" };
-const LICENSE_INITIALS = { "Physical Therapist": "PT", "Occupational Therapist": "OT", "Speech-Language Pathologist": "SLP" };
 
 function formatTime(t) {
     if (!t) return "";
@@ -91,8 +90,6 @@ export default function TherapistPublicProfilePage() {
 
     const reviews = reviewsData?.reviews || [];
     const reviewTotal = reviewsData?.pagination?.total || profile.reviewCount || 0;
-    const initials = LICENSE_INITIALS[profile.primaryLicenseType] || "TH";
-    const photoUrl = profile.profilePhotoUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(initials)}&background=137fec&color=fff&size=240`;
     const primaryArea = profile.workAreas?.[0];
     const rate = profile.ratePerVisit ? parseFloat(profile.ratePerVisit) : null;
 
@@ -111,7 +108,12 @@ export default function TherapistPublicProfilePage() {
                             <motion.section initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="bg-gray-50 rounded-2xl p-8">
                                 <div className="flex flex-col md:flex-row gap-6 items-start md:items-center">
                                     <div className="relative shrink-0">
-                                        <Image src={photoUrl} alt="Licensed therapist" width={120} height={120} className="w-[120px] h-[120px] rounded-full object-cover border-4 border-white shadow-md" />
+                                        <UserAvatar
+                                            name={profile.primaryLicenseType || "Therapist"}
+                                            photoUrl={profile.profilePhotoUrl}
+                                            size="3xl"
+                                            className="border-4 border-white shadow-md"
+                                        />
                                         <div className="absolute bottom-1 right-1 bg-emerald-500 p-1 rounded-full border-2 border-white">
                                             <MdVerified className="text-white text-xs" />
                                         </div>

@@ -31,6 +31,8 @@ export default function UserAvatar({ name, photoUrl, size = "md", className = ""
         md: { container: "h-10 w-10", text: "text-sm" },
         lg: { container: "h-12 w-12", text: "text-sm" },
         xl: { container: "h-24 w-24", text: "text-2xl" },
+        "2xl": { container: "h-20 w-20", text: "text-2xl" },
+        "3xl": { container: "h-[120px] w-[120px]", text: "text-4xl" },
     };
 
     const indicatorSizeMap = {
@@ -39,6 +41,8 @@ export default function UserAvatar({ name, photoUrl, size = "md", className = ""
         md: "h-3 w-3 border-2",
         lg: "h-3 w-3 border-2",
         xl: "h-4 w-4 border-2",
+        "2xl": "h-4 w-4 border-2",
+        "3xl": "h-5 w-5 border-2",
     };
 
     const { container: containerClasses, text: textClasses } = sizeMap[size] || sizeMap.md;

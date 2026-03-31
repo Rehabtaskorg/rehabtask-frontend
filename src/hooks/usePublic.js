@@ -1,6 +1,6 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import { publicApi } from "@/lib/public.api";
 
 export function usePlatformStats() {
@@ -15,6 +15,7 @@ export function useSearchTherapists(params) {
     return useQuery({
         queryKey: ["public", "therapists", params],
         queryFn: () => publicApi.searchTherapists(params).then((r) => r.data.data),
+        placeholderData: keepPreviousData,
     });
 }
 
