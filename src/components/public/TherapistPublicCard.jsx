@@ -11,13 +11,13 @@ export default function TherapistPublicCard({ therapist, index = 0, onAuthGate }
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.4, delay: index * 0.05 }}
-            className="bg-white border border-gray-200 rounded-xl p-6 hover:shadow-lg hover:border-[#137fec]/20 transition-all group"
+            className="bg-white border border-gray-200 rounded-xl p-6 hover:shadow-lg hover:border-primary/20 transition-all group"
         >
             {/* Header */}
             <div className="flex items-start justify-between mb-4">
                 <Image
                     src={therapist.photo}
-                    alt={therapist.name}
+                    alt="Licensed therapist"
                     width={80}
                     height={80}
                     className="w-20 h-20 rounded-full object-cover border-2 border-gray-100"
@@ -28,8 +28,18 @@ export default function TherapistPublicCard({ therapist, index = 0, onAuthGate }
                 </span>
             </div>
 
-            {/* Info */}
-            <h4 className="text-lg font-bold text-gray-900">{therapist.name}</h4>
+            {/* Info — name is blurred for unauthenticated users */}
+            <div
+                className="relative rounded-md overflow-hidden mb-1 cursor-pointer"
+                onClick={() => onAuthGate("profile")}
+            >
+                <p className="text-lg font-bold text-gray-400 blur-[5px] select-none" aria-hidden="true">Therapist Name</p>
+                <div className="absolute inset-0 flex items-center">
+                    <span className="flex items-center gap-1 text-[11px] font-semibold text-primary">
+                        <MdLock className="text-xs" /> Sign up to see name
+                    </span>
+                </div>
+            </div>
             <p className="text-sm text-gray-500 mt-0.5">{therapist.specialization}</p>
 
             <div className="mt-4 space-y-2">
@@ -64,7 +74,7 @@ export default function TherapistPublicCard({ therapist, index = 0, onAuthGate }
                     <p className="text-[10px] text-gray-600">****@****.com</p>
                 </div>
                 <div className="absolute inset-0 flex items-center justify-center">
-                    <span className="flex items-center gap-1.5 text-[11px] font-semibold text-[#137fec]">
+                    <span className="flex items-center gap-1.5 text-[11px] font-semibold text-primary">
                         <MdLock className="text-xs" /> Sign up to see contact details
                     </span>
                 </div>
@@ -80,7 +90,7 @@ export default function TherapistPublicCard({ therapist, index = 0, onAuthGate }
                 </a>
                 <button
                     onClick={() => onAuthGate("message")}
-                    className="py-2.5 rounded-lg bg-[#137fec] text-white font-semibold text-xs flex items-center justify-center gap-1.5 hover:bg-[#137fec]/90 transition-colors"
+                    className="py-2.5 rounded-lg bg-primary text-white font-semibold text-xs flex items-center justify-center gap-1.5 hover:bg-primary/90 transition-colors"
                 >
                     <MdLock className="text-xs" /> Message
                 </button>

@@ -15,13 +15,15 @@ import CTABanner from "@/components/public/CTABanner";
 
 const DISCIPLINE_MAP = { pt: "Physical Therapist", ot: "Occupational Therapist", slp: "Speech-Language Pathologist" };
 
+const LICENSE_INITIALS = { "Physical Therapist": "PT", "Occupational Therapist": "OT", "Speech-Language Pathologist": "SLP" };
+
 function mapTherapist(t) {
     const location = t.workAreas?.length > 0
         ? `${t.workAreas[0].city}, ${t.workAreas[0].state}`
         : "Location not specified";
+    const initials = LICENSE_INITIALS[t.primaryLicenseType] || "TH";
     return {
         id: t.id,
-        name: t.fullName,
         specialization: t.specialization || t.primaryLicenseType || "",
         licenseType: t.primaryLicenseType || "",
         experience: t.yearsOfExperience || 0,
@@ -29,7 +31,7 @@ function mapTherapist(t) {
         rating: t.averageRating || 0,
         reviewCount: t.reviewCount || 0,
         rate: t.ratePerVisit ? parseFloat(t.ratePerVisit) : 0,
-        photo: t.profilePhotoUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(t.fullName)}&background=137fec&color=fff&size=200`,
+        photo: t.profilePhotoUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(initials)}&background=137fec&color=fff&size=200`,
     };
 }
 

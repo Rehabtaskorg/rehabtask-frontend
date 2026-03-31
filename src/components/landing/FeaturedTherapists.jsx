@@ -12,10 +12,10 @@ const ICON_MAP = {
 };
 
 const FALLBACK_THERAPISTS = [
-    { id: "f1", fullName: "Sarah Mitchell", primaryLicenseType: "Physical Therapist", yearsOfExperience: 8 },
-    { id: "f2", fullName: "James Chen", primaryLicenseType: "Occupational Therapist", yearsOfExperience: 6 },
-    { id: "f3", fullName: "Emily Rodriguez", primaryLicenseType: "Speech-Language Pathologist", yearsOfExperience: 7 },
-    { id: "f4", fullName: "Michael Thompson", primaryLicenseType: "Physical Therapist", yearsOfExperience: 10 },
+    { id: "f1", primaryLicenseType: "Physical Therapist", yearsOfExperience: 8 },
+    { id: "f2", primaryLicenseType: "Occupational Therapist", yearsOfExperience: 6 },
+    { id: "f3", primaryLicenseType: "Speech-Language Pathologist", yearsOfExperience: 7 },
+    { id: "f4", primaryLicenseType: "Physical Therapist", yearsOfExperience: 10 },
 ];
 
 const FEATURED_IMAGE = {
@@ -58,9 +58,9 @@ export default function FeaturedTherapists() {
                                     className="bg-white border border-gray-200 rounded-xl p-6 hover:border-primary/30 hover:shadow-md transition-all group"
                                 >
                                     <Icon className="text-2xl text-gray-400 mb-4" />
-                                    <h3 className="text-lg font-bold text-gray-900">{t.fullName}</h3>
+                                    <h3 className="text-lg font-bold text-gray-900">Licensed {t.primaryLicenseType}</h3>
                                     <p className="text-sm text-gray-500 mt-0.5">
-                                        {t.primaryLicenseType} &middot; {t.yearsOfExperience} years experience
+                                        {t.yearsOfExperience} years experience
                                     </p>
                                     <Link
                                         href={`/therapists/${t.id}`}
@@ -89,7 +89,7 @@ export default function FeaturedTherapists() {
                         <div className="absolute bottom-0 left-0 right-0 p-6">
                             {featured && (
                                 <>
-                                    <p className="text-white/70 text-sm">{featured.fullName}</p>
+                                    <p className="text-white/70 text-sm">Featured Therapist</p>
                                     <h3 className="text-2xl font-bold text-white mt-1">
                                         {featured.primaryLicenseType} &middot; {featured.yearsOfExperience} years experience
                                     </h3>
@@ -104,9 +104,9 @@ export default function FeaturedTherapists() {
 
                             {bottom && (
                                 <div className="mt-4 pt-4 border-t border-white/20">
-                                    <p className="text-white text-sm font-medium">{bottom.fullName}</p>
+                                    <p className="text-white text-sm font-medium">Licensed {bottom.primaryLicenseType}</p>
                                     <p className="text-white/60 text-xs">
-                                        {bottom.primaryLicenseType} &middot; {bottom.yearsOfExperience} years experience
+                                        {bottom.yearsOfExperience} years experience
                                         <MdArrowForward className="inline ml-1 text-xs" />
                                     </p>
                                 </div>

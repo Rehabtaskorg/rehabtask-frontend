@@ -23,6 +23,7 @@ const SPECIALIZATIONS = [
 ];
 
 const TIER_LABELS = { basic: "Basic", pro: "Verified Pro", elite: "Elite" };
+const LICENSE_INITIALS = { "Physical Therapist": "PT", "Occupational Therapist": "OT", "Speech-Language Pathologist": "SLP" };
 
 function formatTime(t) {
     if (!t) return "";
@@ -90,7 +91,8 @@ export default function TherapistPublicProfilePage() {
 
     const reviews = reviewsData?.reviews || [];
     const reviewTotal = reviewsData?.pagination?.total || profile.reviewCount || 0;
-    const photoUrl = profile.profilePhotoUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(profile.fullName)}&background=137fec&color=fff&size=240`;
+    const initials = LICENSE_INITIALS[profile.primaryLicenseType] || "TH";
+    const photoUrl = profile.profilePhotoUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(initials)}&background=137fec&color=fff&size=240`;
     const primaryArea = profile.workAreas?.[0];
     const rate = profile.ratePerVisit ? parseFloat(profile.ratePerVisit) : null;
 
@@ -109,14 +111,24 @@ export default function TherapistPublicProfilePage() {
                             <motion.section initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="bg-gray-50 rounded-2xl p-8">
                                 <div className="flex flex-col md:flex-row gap-6 items-start md:items-center">
                                     <div className="relative shrink-0">
-                                        <Image src={photoUrl} alt={profile.fullName} width={120} height={120} className="w-[120px] h-[120px] rounded-full object-cover border-4 border-white shadow-md" />
+                                        <Image src={photoUrl} alt="Licensed therapist" width={120} height={120} className="w-[120px] h-[120px] rounded-full object-cover border-4 border-white shadow-md" />
                                         <div className="absolute bottom-1 right-1 bg-emerald-500 p-1 rounded-full border-2 border-white">
                                             <MdVerified className="text-white text-xs" />
                                         </div>
                                     </div>
                                     <div className="flex-1">
                                         <div className="flex flex-wrap items-center gap-3 mb-2">
-                                            <h1 className="text-2xl md:text-3xl font-extrabold text-gray-900 tracking-tight">{profile.fullName}</h1>
+                                            <div
+                                                className="relative rounded-lg overflow-hidden cursor-pointer"
+                                                onClick={() => handleAuthGate("profile")}
+                                            >
+                                                <h1 className="text-2xl md:text-3xl font-extrabold text-gray-400 blur-[6px] select-none" aria-hidden="true">Therapist Name</h1>
+                                                <div className="absolute inset-0 flex items-center">
+                                                    <span className="flex items-center gap-1.5 text-xs font-semibold text-primary">
+                                                        <MdLock className="text-sm" /> Sign up to see name
+                                                    </span>
+                                                </div>
+                                            </div>
                                             <div className="flex items-center bg-white border border-gray-200 px-3 py-1 rounded-full">
                                                 <MdStar className="text-amber-500 text-sm" />
                                                 <span className="ml-1 text-sm font-bold text-gray-900">{profile.averageRating || "—"}</span>
@@ -149,12 +161,26 @@ export default function TherapistPublicProfilePage() {
                                 </div>
                             </motion.section>
 
-                            {/* About */}
+                            {/* About — blurred for unauthenticated users */}
                             {profile.professionalSummary && (
                                 <motion.section initial={{ opacity: 0, y: 15 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }} className="space-y-3">
                                     <h2 className="text-xl font-bold text-gray-900">About</h2>
-                                    <div className="bg-gray-50 rounded-2xl p-8">
-                                        <p className="text-gray-600 leading-relaxed text-lg">{profile.professionalSummary}</p>
+                                    <div className="relative rounded-2xl overflow-hidden">
+                                        <div className="bg-gray-50 rounded-2xl p-8 blur-sm select-none">
+                                            <p className="text-gray-600 leading-relaxed text-lg">
+                                                A dedicated rehabilitation professional with years of clinical experience providing compassionate, evidence-based care to patients in their homes and communities.
+                                            </p>
+                                        </div>
+                                        <div className="absolute inset-0 flex items-center justify-center">
+                                            <div className="text-center bg-white border border-gray-200 shadow-xl rounded-xl p-6">
+                                                <MdLock className="text-primary text-2xl mx-auto mb-2" />
+                                                <p className="font-bold text-gray-900 text-sm mb-1">Professional summary is hidden</p>
+                                                <p className="text-xs text-gray-500 mb-3">Sign up to learn more about this therapist</p>
+                                                <button onClick={() => handleAuthGate("profile")} className="bg-primary text-white text-xs font-bold px-6 py-2.5 rounded-lg hover:bg-primary/90 transition-colors">
+                                                    Create Free Account
+                                                </button>
+                                            </div>
+                                        </div>
                                     </div>
                                 </motion.section>
                             )}

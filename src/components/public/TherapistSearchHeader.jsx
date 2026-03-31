@@ -22,7 +22,7 @@ export default function TherapistSearchHeader({ searchQuery, setSearchQuery, loc
                             type="text"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            placeholder="Name or specialization"
+                            placeholder="Specialization or discipline"
                             className="bg-transparent border-none focus:ring-0 focus:outline-none text-gray-900 w-full placeholder:text-gray-400 text-sm"
                         />
                     </div>
