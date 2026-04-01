@@ -16,13 +16,13 @@ export default function TherapistPublicCard({ therapist, index = 0, onAuthGate }
             {/* Header */}
             <div className="flex items-start justify-between mb-4">
                 <UserAvatar
-                    name={therapist.licenseType || "Therapist"}
-                    photoUrl={therapist.photoUrl}
+                    name={therapist.primaryLicenseType || "Therapist"}
+                    photoUrl={therapist.profilePhotoUrl}
                     size="2xl"
                 />
                 <span className="bg-emerald-50 text-emerald-700 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider flex items-center gap-1">
                     <MdVerified className="text-xs" />
-                    {therapist.licenseType}
+                    {therapist.primaryLicenseType}
                 </span>
             </div>
 
@@ -35,23 +35,23 @@ export default function TherapistPublicCard({ therapist, index = 0, onAuthGate }
             <div className="mt-4 space-y-2">
                 <div className="flex items-center gap-2 text-xs text-gray-500">
                     <MdWorkHistory className="text-sm text-gray-400" />
-                    <span>{therapist.experience} years experience</span>
+                    <span>{therapist.yearsOfExperience} years experience</span>
                 </div>
                 <div className="flex items-center gap-2 text-xs text-gray-500">
                     <MdLocationOn className="text-sm text-gray-400" />
-                    <span>{therapist.location}</span>
+                    <span>{therapist.workAreas?.[0] ? `${therapist.workAreas[0].city}, ${therapist.workAreas[0].state}` : ""}</span>
                 </div>
                 <div className="flex items-center gap-1.5 text-xs font-medium">
                     <MdStar className="text-sm text-amber-500" />
-                    <span className="text-gray-900">{therapist.rating}</span>
+                    <span className="text-gray-900">{therapist.averageRating ?? 0}</span>
                     <span className="text-gray-400">({therapist.reviewCount} reviews)</span>
                 </div>
             </div>
 
             {/* Rate */}
             <div className="mt-4 mb-5">
-                <span className="text-xl font-extrabold text-gray-900">${therapist.rate}</span>
-                <span className="text-sm text-gray-500">/visit</span>
+                <span className="text-xl font-extrabold text-gray-900">${therapist.ratePerVisit ? parseFloat(therapist.ratePerVisit) : "—"}</span>
+                {therapist.ratePerVisit && <span className="text-sm text-gray-500">/visit</span>}
             </div>
 
             {/* Blurred contact */}
