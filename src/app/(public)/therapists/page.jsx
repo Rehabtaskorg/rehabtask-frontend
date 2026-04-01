@@ -22,6 +22,7 @@ function mapTherapist(t) {
         : "Location not specified";
     return {
         id: t.id,
+        fullName: t.fullName || "",
         licenseType: t.primaryLicenseType || "",
         specialization: t.specialization || t.primaryLicenseType || "",
         experience: t.yearsOfExperience || 0,

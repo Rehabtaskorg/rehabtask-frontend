@@ -1,10 +1,11 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 "use client";
 
 import { createContext, useContext, useState, useEffect, useCallback } from "react";
 
 const SidebarContext = createContext({
     isCollapsed: false,
-    toggleSidebar: () => {},
+    toggleSidebar: () => { },
 });
 
 const STORAGE_KEY = "sidebar_collapsed";

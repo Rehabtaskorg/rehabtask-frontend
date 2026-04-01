@@ -26,17 +26,9 @@ export default function TherapistPublicCard({ therapist, index = 0, onAuthGate }
                 </span>
             </div>
 
-            {/* Info — name is blurred for unauthenticated users */}
-            <div
-                className="relative rounded-md overflow-hidden mb-1 cursor-pointer"
-                onClick={() => onAuthGate("profile")}
-            >
-                <p className="text-lg font-bold text-gray-400 blur-[5px] select-none" aria-hidden="true">Therapist Name</p>
-                <div className="absolute inset-0 flex items-center">
-                    <span className="flex items-center gap-1 text-[11px] font-semibold text-primary">
-                        <MdLock className="text-xs" /> Sign up to see name
-                    </span>
-                </div>
+            {/* Info — name is public */}
+            <div className="mb-1">
+                <p className="text-lg font-bold text-gray-900">{therapist.fullName}</p>
             </div>
             <p className="text-sm text-gray-500 mt-0.5">{therapist.specialization}</p>
 
@@ -58,8 +50,8 @@ export default function TherapistPublicCard({ therapist, index = 0, onAuthGate }
 
             {/* Rate */}
             <div className="mt-4 mb-5">
-                <span className="text-xl font-extrabold text-gray-900">${therapist.rate}</span>
-                <span className="text-sm text-gray-500">/visit</span>
+                <span className="text-xl font-extrabold text-gray-900">{therapist.rate ? `$${therapist.rate}` : "—"}</span>
+                {therapist.rate > 0 && <span className="text-sm text-gray-500">/visit</span>}
             </div>
 
             {/* Blurred contact */}
