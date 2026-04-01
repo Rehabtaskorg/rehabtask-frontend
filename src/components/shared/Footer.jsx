@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { MdCopyright } from "react-icons/md";
 
 const Footer = () => {
@@ -9,18 +8,12 @@ const Footer = () => {
                 <span>{new Date().getFullYear()} RehabTask Inc.</span>
             </div>
             <div className="flex gap-4">
-                <Link
-                    href="/help"
-                    className="hover:text-primary transition-colors focus:outline-none focus:underline"
-                >
-                    Help Center
-                </Link>
-                <Link
-                    href="/contact"
+                <a
+                    href="mailto:support@rehabtask.com"
                     className="hover:text-primary transition-colors focus:outline-none focus:underline"
                 >
                     Contact Support
-                </Link>
+                </a>
             </div>
         </footer>
     )
