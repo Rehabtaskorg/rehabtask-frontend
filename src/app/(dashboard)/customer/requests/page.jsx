@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { MdAdd, MdSchedule } from "react-icons/md";
+import { MdAdd, MdSchedule, MdChevronLeft, MdChevronRight } from "react-icons/md";
 import { api } from "@/lib/api";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import ExpandableRequestCard from "@/components/customer/ExpandableRequestCard";
@@ -10,18 +10,22 @@ import ExpandableRequestCard from "@/components/customer/ExpandableRequestCard";
 const FILTER_TABS = [
     { key: "all", label: "All" },
     { key: "open", label: "Open", status: "created" },
-    { key: "offers_received", label: "Offers Received", status: "offers_received", showCount: true },
+    { key: "offers_received", label: "Offers Received", status: "offers_received" },
     { key: "accepted", label: "Accepted", status: "offers_accepted" },
     { key: "completed", label: "Completed", status: "completed" },
 ];
+
+const PAGE_LIMIT = 15;
 
 export default function MyRequestsPage() {
     usePageTitle("My Requests");
     const router = useRouter();
 
     const [requests, setRequests] = useState([]);
+    const [pagination, setPagination] = useState({ page: 1, totalPages: 1, total: 0 });
     const [loading, setLoading] = useState(true);
     const [activeFilter, setActiveFilter] = useState("all");
+    const [currentPage, setCurrentPage] = useState(1);
     const [expandedId, setExpandedId] = useState(null);
     const [accepting, setAccepting] = useState(null);
     const [declining, setDeclining] = useState(null);
@@ -33,13 +37,19 @@ export default function MyRequestsPage() {
     const [cancelling, setCancelling] = useState(false);
     const [acceptedBooking, setAcceptedBooking] = useState(null);
 
-    // ─── Data Fetching ──────────────────────────────────────
+    // ─── Data Fetching (server-side filtered + paginated) ───
 
-    const fetchRequests = useCallback(async () => {
+    const fetchRequests = useCallback(async (filter, page) => {
         setLoading(true);
         try {
-            const res = await api.get("/requests/my-requests");
-            setRequests(Array.isArray(res.data.data) ? res.data.data : []);
+            const tab = FILTER_TABS.find((t) => t.key === filter);
+            const params = { page, limit: PAGE_LIMIT };
+            if (tab?.status) params.status = tab.status;
+
+            const res = await api.get("/requests/my-requests", { params });
+            const data = res.data.data;
+            setRequests(data.requests || []);
+            setPagination(data.pagination || { page: 1, totalPages: 1, total: 0 });
         } catch (err) {
             console.error("Failed to fetch requests:", err);
         } finally {
@@ -47,7 +57,9 @@ export default function MyRequestsPage() {
         }
     }, []);
 
-    useEffect(() => { fetchRequests(); }, [fetchRequests]);
+    useEffect(() => {
+        fetchRequests(activeFilter, currentPage);
+    }, [activeFilter, currentPage, fetchRequests]);
 
     const refreshExpandedRequest = useCallback(async (id) => {
         try {
@@ -59,12 +71,17 @@ export default function MyRequestsPage() {
         }
     }, []);
 
+    const handleFilterChange = (filterKey) => {
+        setActiveFilter(filterKey);
+        setCurrentPage(1);
+        setExpandedId(null);
+    };
+
     // ─── Expand / Collapse ──────────────────────────────────
 
     const handleToggle = useCallback((reqId) => {
         setExpandedId((prev) => {
             const next = prev === reqId ? null : reqId;
-            // Reset action state when switching cards
             if (next !== prev) {
                 setChangeOfferId(null);
                 setChangeNote("");
@@ -75,20 +92,6 @@ export default function MyRequestsPage() {
             return next;
         });
     }, []);
-
-    // ─── Filtering ──────────────────────────────────────────
-
-    const offersReceivedCount = useMemo(
-        () => requests.filter((r) => r.status === "offers_received").length,
-        [requests]
-    );
-
-    const filteredRequests = useMemo(() => {
-        if (activeFilter === "all") return requests;
-        const tab = FILTER_TABS.find((t) => t.key === activeFilter);
-        if (!tab || !tab.status) return requests;
-        return requests.filter((r) => r.status === tab.status);
-    }, [requests, activeFilter]);
 
     // ─── Offer Actions ──────────────────────────────────────
 
@@ -150,7 +153,7 @@ export default function MyRequestsPage() {
             setShowCancelConfirm(false);
             setExpandedId(null);
             setCancellingRequestId(null);
-            await fetchRequests();
+            await fetchRequests(activeFilter, currentPage);
         } catch (err) {
             alert("Error: " + (err.response?.data?.message || "Failed to cancel request"));
         } finally {
@@ -178,24 +181,29 @@ export default function MyRequestsPage() {
 
             {/* Sticky Filter Bar */}
             <div className="sticky top-16 z-[9] bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-border-light dark:border-border-dark px-4 sm:px-8 py-3 shrink-0">
-                <div className="flex flex-wrap gap-2 max-w-[900px] mx-auto">
-                    {FILTER_TABS.map((tab) => {
-                        const isActive = activeFilter === tab.key;
-                        const count = tab.showCount ? offersReceivedCount : null;
-                        return (
-                            <button
-                                key={tab.key}
-                                onClick={() => { setActiveFilter(tab.key); setExpandedId(null); }}
-                                className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-colors ${isActive
-                                    ? "bg-primary text-white shadow-sm"
-                                    : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700"
-                                }`}
-                            >
-                                {tab.label}
-                                {count !== null ? ` (${count})` : ""}
-                            </button>
-                        );
-                    })}
+                <div className="flex flex-wrap items-center justify-between gap-2 max-w-[900px] mx-auto">
+                    <div className="flex flex-wrap gap-2">
+                        {FILTER_TABS.map((tab) => {
+                            const isActive = activeFilter === tab.key;
+                            return (
+                                <button
+                                    key={tab.key}
+                                    onClick={() => handleFilterChange(tab.key)}
+                                    className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-colors ${isActive
+                                        ? "bg-primary text-white shadow-sm"
+                                        : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700"
+                                    }`}
+                                >
+                                    {tab.label}
+                                </button>
+                            );
+                        })}
+                    </div>
+                    {!loading && pagination.total > 0 && (
+                        <span className="text-xs font-medium text-text-muted dark:text-gray-400">
+                            {pagination.total} request{pagination.total !== 1 ? "s" : ""}
+                        </span>
+                    )}
                 </div>
             </div>
 
@@ -208,14 +216,14 @@ export default function MyRequestsPage() {
                                 <div key={i} className="h-32 bg-white dark:bg-card-dark rounded-xl border border-border-light dark:border-border-dark animate-pulse" />
                             ))}
                         </div>
-                    ) : filteredRequests.length === 0 ? (
+                    ) : requests.length === 0 ? (
                         <div className="flex items-center justify-center py-20">
                             <div className="text-center space-y-3">
                                 <MdSchedule className="text-5xl text-slate-200 dark:text-slate-700 mx-auto" />
                                 <p className="text-text-muted dark:text-gray-400 text-sm">
-                                    {requests.length === 0 ? "No requests yet." : "No requests match this filter."}
+                                    {activeFilter === "all" ? "No requests yet." : "No requests match this filter."}
                                 </p>
-                                {requests.length === 0 && (
+                                {activeFilter === "all" && (
                                     <button
                                         onClick={() => router.push("/customer/requests/new")}
                                         className="text-primary hover:underline text-sm font-bold"
@@ -227,7 +235,6 @@ export default function MyRequestsPage() {
                         </div>
                     ) : (
                         <div className="space-y-4">
-                            {/* Accepted booking banner */}
                             {acceptedBooking && (
                                 <div className="flex items-start gap-3 p-4 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800">
                                     <svg className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -236,22 +243,15 @@ export default function MyRequestsPage() {
                                     <div className="flex-1 min-w-0">
                                         <p className="text-sm font-bold text-emerald-800 dark:text-emerald-200">Offer accepted — Booking created!</p>
                                         <p className="text-xs text-emerald-700 dark:text-emerald-300 mt-0.5">You can pay when you&apos;re ready from the booking page.</p>
-                                        <button
-                                            onClick={() => router.push(`/customer/bookings/${acceptedBooking.id}`)}
-                                            className="mt-2 text-xs font-bold text-primary hover:underline inline-flex items-center gap-1"
-                                        >
-                                            View Booking →
-                                        </button>
+                                        <button onClick={() => router.push(`/customer/bookings/${acceptedBooking.id}`)} className="mt-2 text-xs font-bold text-primary hover:underline inline-flex items-center gap-1">View Booking →</button>
                                     </div>
                                     <button onClick={() => setAcceptedBooking(null)} className="text-emerald-400 hover:text-emerald-600 dark:hover:text-emerald-300 shrink-0">
-                                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                                        </svg>
+                                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
                                     </button>
                                 </div>
                             )}
 
-                            {filteredRequests.map((req) => (
+                            {requests.map((req) => (
                                 <ExpandableRequestCard
                                     key={req.id}
                                     request={req}
@@ -275,6 +275,29 @@ export default function MyRequestsPage() {
                                     onCloseCancel={() => { setShowCancelConfirm(false); setCancellingRequestId(null); }}
                                 />
                             ))}
+
+                            {/* Pagination */}
+                            {pagination.totalPages > 1 && (
+                                <div className="flex items-center justify-between pt-6 border-t border-border-light dark:border-border-dark">
+                                    <button
+                                        onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                                        disabled={currentPage === 1}
+                                        className="flex items-center gap-1 text-sm font-medium text-text-muted hover:text-primary disabled:opacity-30 transition-colors"
+                                    >
+                                        <MdChevronLeft className="text-lg" /> Previous
+                                    </button>
+                                    <span className="text-xs font-medium text-text-muted dark:text-gray-400">
+                                        Page {currentPage} of {pagination.totalPages}
+                                    </span>
+                                    <button
+                                        onClick={() => setCurrentPage((p) => Math.min(pagination.totalPages, p + 1))}
+                                        disabled={currentPage === pagination.totalPages}
+                                        className="flex items-center gap-1 text-sm font-medium text-text-muted hover:text-primary disabled:opacity-30 transition-colors"
+                                    >
+                                        Next <MdChevronRight className="text-lg" />
+                                    </button>
+                                </div>
+                            )}
                         </div>
                     )}
                 </div>

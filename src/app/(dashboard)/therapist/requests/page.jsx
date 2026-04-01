@@ -6,6 +6,7 @@ import { api } from "@/lib/api";
 import {
     MdLocationOn, MdCalendarToday, MdSend,
     MdCheckCircle, MdRefresh, MdSchedule,
+    MdChevronLeft, MdChevronRight,
 } from "react-icons/md";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { useAuth } from "@/hooks/useAuth";
@@ -39,7 +40,8 @@ const timeAgo = (dateStr) => {
 };
 
 const getMyOffer = (req) => req?.offers?.[0] ?? null;
-const hasMyOffer = (req) => Boolean(req?.offers?.length);
+
+const PAGE_LIMIT = 15;
 
 export default function TherapistRequestsPage() {
     const { canAccessMarketplace } = useTherapistAccess();
@@ -55,11 +57,13 @@ function TherapistRequestsContent() {
 
     // ─── State ──────────────────────────────────────────────
     const [requests, setRequests] = useState([]);
-    const [filtered, setFiltered] = useState([]);
+    const [pagination, setPagination] = useState({ page: 1, totalPages: 1, total: 0 });
     const [selectedRequest, setSelectedRequest] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [currentPage, setCurrentPage] = useState(1);
     const [sortBy, setSortBy] = useState("newest");
     const [filters, setFilters] = useState({ serviceTypes: [], distance: "10", show: "all" });
+    const [committedFilters, setCommittedFilters] = useState({ serviceTypes: [], distance: "10", show: "all" });
     const [showFilters, setShowFilters] = useState(false);
     const [offerData, setOfferData] = useState({ rate: "", sessionType: "in-person", proposedDate: "", description: "", visitTypeId: "" });
     const [visitTypes, setVisitTypes] = useState([]);
@@ -68,23 +72,36 @@ function TherapistRequestsContent() {
     const [offerError, setOfferError] = useState("");
     const [commissionRate, setCommissionRate] = useState(null);
 
-    // ─── Data Fetching ──────────────────────────────────────
+    // ─── Data Fetching (server-side filtered + paginated) ───
 
-    const fetchRequests = async () => {
+    const fetchRequests = useCallback(async (appliedFilters, page) => {
+        setLoading(true);
         try {
-            const res = await api.get("/requests/available");
-            const data = Array.isArray(res.data.data) ? res.data.data : [];
-            setRequests(data);
-            setFiltered(data);
+            const params = { page, limit: PAGE_LIMIT };
+            // Send service type as comma-separated for backend contains match
+            if (appliedFilters.serviceTypes.length > 0) {
+                params.serviceType = appliedFilters.serviceTypes.join(",");
+            }
+            if (appliedFilters.show !== "all") {
+                params.show = appliedFilters.show;
+            }
+
+            const res = await api.get("/requests/available", { params });
+            const data = res.data.data;
+            setRequests(data.requests || []);
+            setPagination(data.pagination || { page: 1, totalPages: 1, total: 0 });
         } catch (error) {
             console.error("Error fetching requests:", error);
         } finally {
             setLoading(false);
         }
-    };
+    }, []);
 
     useEffect(() => {
-        fetchRequests();
+        fetchRequests(committedFilters, currentPage);
+    }, [committedFilters, currentPage, fetchRequests]);
+
+    useEffect(() => {
         api.get("/payments/commission-rate").then((res) => setCommissionRate(res.data.data.rate)).catch(() => {});
         api.get("/visit-types").then((res) => setVisitTypes(res.data.data || [])).catch(() => {});
     }, []);
@@ -93,26 +110,7 @@ function TherapistRequestsContent() {
         if (profileRate) setOfferData((prev) => ({ ...prev, rate: profileRate }));
     }, [profileRate]);
 
-    // ─── Filter + Sort ──────────────────────────────────────
-
-    const applyFilters = useCallback(() => {
-        let result = [...requests];
-        if (filters.serviceTypes.length > 0) {
-            result = result.filter((r) => filters.serviceTypes.some((t) => r.serviceType?.toLowerCase().includes(t)));
-        }
-        if (filters.show === "new") {
-            const cutoff = new Date(Date.now() - 24 * 60 * 60 * 1000);
-            result = result.filter((r) => new Date(r.createdAt) > cutoff);
-        } else if (filters.show === "my_offers") {
-            result = result.filter((r) => hasMyOffer(r));
-        }
-        if (sortBy === "newest") {
-            result.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-        }
-        setFiltered(result);
-    }, [requests, filters, sortBy]);
-
-    useEffect(() => { applyFilters(); }, [applyFilters]);
+    // ─── Filter Actions ─────────────────────────────────────
 
     const toggleServiceType = (val) => {
         setFilters((prev) => ({
@@ -123,7 +121,21 @@ function TherapistRequestsContent() {
         }));
     };
 
-    const resetFilters = () => setFilters({ serviceTypes: [], distance: "10", show: "all" });
+    const applyFilters = () => {
+        setCommittedFilters({ ...filters });
+        setCurrentPage(1);
+        setSelectedRequest(null);
+    };
+
+    const resetFilters = () => {
+        const reset = { serviceTypes: [], distance: "10", show: "all" };
+        setFilters(reset);
+        setCommittedFilters(reset);
+        setCurrentPage(1);
+        setSelectedRequest(null);
+    };
+
+    const activeFilterCount = committedFilters.serviceTypes.length + (committedFilters.show !== "all" ? 1 : 0);
 
     // ─── Select Request ─────────────────────────────────────
 
@@ -154,11 +166,10 @@ function TherapistRequestsContent() {
                 ...(offerData.visitTypeId && { visitTypeId: offerData.visitTypeId }),
             });
             setOfferSuccess(true);
-            const res = await api.get("/requests/available");
-            const updated = Array.isArray(res.data.data) ? res.data.data : [];
-            setRequests(updated);
-            const fresh = updated.find((r) => r.id === selectedRequest.id);
-            if (fresh) setSelectedRequest(fresh);
+            // Refresh list and update selected
+            await fetchRequests(committedFilters, currentPage);
+            const res = await api.get(`/requests/${selectedRequest.id}`);
+            setSelectedRequest(res.data.data);
         } catch (error) {
             setOfferError(error.response?.data?.message || "Failed to send offer. Please try again.");
         } finally {
@@ -183,11 +194,9 @@ function TherapistRequestsContent() {
                 ...(offerData.visitTypeId && { visitTypeId: offerData.visitTypeId }),
             });
             setOfferSuccess(true);
-            const res = await api.get("/requests/available");
-            const updated = Array.isArray(res.data.data) ? res.data.data : [];
-            setRequests(updated);
-            const fresh = updated.find((r) => r.id === selectedRequest.id);
-            if (fresh) setSelectedRequest(fresh);
+            await fetchRequests(committedFilters, currentPage);
+            const res = await api.get(`/requests/${selectedRequest.id}`);
+            setSelectedRequest(res.data.data);
         } catch (error) {
             setOfferError(error.response?.data?.message || "Failed to update offer. Please try again.");
         } finally {
@@ -195,19 +204,12 @@ function TherapistRequestsContent() {
         }
     };
 
-    const handleMessageCustomer = (offerId) => {
-        router.push(`/therapist/messages?c=offer:${offerId}`);
-    };
-
-    const handleSendNewOffer = () => {
-        setSelectedRequest({ ...selectedRequest, offers: [] });
-    };
-
-    const activeFilterCount = filters.serviceTypes.length + (filters.show !== "all" ? 1 : 0);
+    const handleMessageCustomer = (offerId) => router.push(`/therapist/messages?c=offer:${offerId}`);
+    const handleSendNewOffer = () => setSelectedRequest({ ...selectedRequest, offers: [] });
 
     // ─── Loading ────────────────────────────────────────────
 
-    if (loading) {
+    if (loading && requests.length === 0) {
         return (
             <div className="flex h-full overflow-hidden">
                 <div className="w-full lg:w-[45%] bg-slate-50 dark:bg-background-dark p-4 space-y-3 border-r border-border-light dark:border-border-dark">
@@ -247,7 +249,7 @@ function TherapistRequestsContent() {
                     <div className="flex items-center gap-3">
                         <h2 className="text-lg font-bold text-text-main dark:text-white">Browse Requests</h2>
                         <span className="bg-slate-100 dark:bg-slate-800 px-2.5 py-0.5 rounded-full text-xs font-bold text-text-muted dark:text-gray-400">
-                            {filtered.length} found
+                            {pagination.total} found
                         </span>
                     </div>
                     <div className="flex items-center gap-3">
@@ -267,82 +269,95 @@ function TherapistRequestsContent() {
                 <div className="flex-1 flex overflow-hidden">
                     {/* ── LEFT PANEL: Request List ── */}
                     <section className="w-full lg:w-[45%] flex flex-col overflow-hidden border-r-0 lg:border-r border-border-light dark:border-border-dark bg-slate-50/50 dark:bg-background-dark">
-                        <div className="flex-1 overflow-y-auto panel-scroll p-4 space-y-3">
-                            {filtered.length === 0 ? (
+                        <div className={`flex-1 overflow-y-auto panel-scroll p-4 space-y-3 ${loading ? "opacity-60 pointer-events-none" : ""}`}>
+                            {requests.length === 0 && !loading ? (
                                 <div className="flex flex-col items-center justify-center h-48 text-center">
                                     <MdSchedule className="text-4xl text-slate-300 dark:text-slate-600 mb-3" />
                                     <p className="text-text-muted dark:text-gray-400 font-medium">No requests match your filters</p>
-                                    <button onClick={resetFilters} className="mt-2 text-sm text-primary font-semibold hover:underline">
-                                        Reset filters
-                                    </button>
+                                    <button onClick={resetFilters} className="mt-2 text-sm text-primary font-semibold hover:underline">Reset filters</button>
                                 </div>
-                            ) : filtered.map((req) => {
-                                const isSelected = selectedRequest?.id === req.id;
-                                const myOffer = getMyOffer(req);
-                                const offerCount = req.offers?.length || 0;
+                            ) : (
+                                <>
+                                    {requests.map((req) => {
+                                        const isSelected = selectedRequest?.id === req.id;
+                                        const myOffer = getMyOffer(req);
+                                        const offerCount = req.offers?.length || 0;
+                                        return (
+                                            <button
+                                                key={req.id}
+                                                onClick={() => {
+                                                    if (window.innerWidth < 1024) {
+                                                        router.push(`/therapist/requests/${req.id}`);
+                                                    } else {
+                                                        handleSelectRequest(req);
+                                                    }
+                                                }}
+                                                className={`w-full text-left p-4 rounded-xl transition-all ${isSelected
+                                                    ? "border-l-4 border-l-primary border border-primary/20 bg-primary/5 dark:bg-primary/10 shadow-md"
+                                                    : "bg-white dark:bg-card-dark border border-border-light dark:border-border-dark hover:shadow-sm hover:border-slate-300 dark:hover:border-slate-600"
+                                                }`}
+                                            >
+                                                <div className="flex justify-between items-start mb-2">
+                                                    <span className={`px-2.5 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider ${getServiceTypeStyle(req.serviceType)}`}>{req.serviceType}</span>
+                                                    <span className="text-[11px] text-text-muted dark:text-gray-400 font-medium shrink-0 ml-2">{timeAgo(req.createdAt)}</span>
+                                                </div>
+                                                <h4 className="font-bold text-text-main dark:text-white mb-1 leading-tight line-clamp-1">{req.description?.split("\n")[0] || req.serviceType}</h4>
+                                                <p className="text-sm text-text-muted dark:text-gray-400 line-clamp-2 mb-3 leading-relaxed">{req.description}</p>
+                                                <PatientBadge patient={req.patient} />
+                                                {req.visitsPerWeek && req.numberOfWeeks && (
+                                                    <div className="flex items-center gap-1 text-xs font-semibold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/20 px-2 py-1 rounded-md mb-2 w-fit">
+                                                        <MdRefresh className="text-[13px]" />
+                                                        {req.visitsPerWeek}x/week · {req.numberOfWeeks} weeks ({req.visitsPerWeek * req.numberOfWeeks} visits)
+                                                    </div>
+                                                )}
+                                                <div className="flex items-center justify-between">
+                                                    <div className="flex items-center gap-3">
+                                                        <span className="flex items-center gap-1 text-xs text-text-muted dark:text-gray-400">
+                                                            <MdLocationOn className="text-[15px]" /> {req.location ? "Nearby" : "—"}
+                                                        </span>
+                                                        <span className="flex items-center gap-1 text-xs text-text-muted dark:text-gray-400">
+                                                            <MdCalendarToday className="text-[14px]" />
+                                                            {req.preferredDate ? new Date(req.preferredDate).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "Flexible"}
+                                                        </span>
+                                                    </div>
+                                                    {myOffer ? (
+                                                        <span className="text-xs font-bold text-primary bg-primary/10 px-2 py-1 rounded flex items-center gap-1">
+                                                            <MdCheckCircle className="text-[13px]" /> My Offer Sent
+                                                        </span>
+                                                    ) : offerCount > 0 ? (
+                                                        <span className="text-xs font-bold text-amber-600 bg-amber-50 dark:bg-amber-900/20 px-2 py-1 rounded">{offerCount} Offer{offerCount > 1 ? "s" : ""}</span>
+                                                    ) : (
+                                                        <span className="text-xs text-text-muted dark:text-gray-400 italic">No offers yet</span>
+                                                    )}
+                                                </div>
+                                            </button>
+                                        );
+                                    })}
 
-                                return (
-                                    <button
-                                        key={req.id}
-                                        onClick={() => {
-                                            if (window.innerWidth < 1024) {
-                                                router.push(`/therapist/requests/${req.id}`);
-                                            } else {
-                                                handleSelectRequest(req);
-                                            }
-                                        }}
-                                        className={`w-full text-left p-4 rounded-xl transition-all ${isSelected
-                                            ? "border-l-4 border-l-primary border border-primary/20 bg-primary/5 dark:bg-primary/10 shadow-md"
-                                            : "bg-white dark:bg-card-dark border border-border-light dark:border-border-dark hover:shadow-sm hover:border-slate-300 dark:hover:border-slate-600"
-                                        }`}
-                                    >
-                                        <div className="flex justify-between items-start mb-2">
-                                            <span className={`px-2.5 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider ${getServiceTypeStyle(req.serviceType)}`}>
-                                                {req.serviceType}
+                                    {/* Pagination */}
+                                    {pagination.totalPages > 1 && (
+                                        <div className="flex items-center justify-between pt-4 border-t border-border-light dark:border-border-dark">
+                                            <button
+                                                onClick={() => { setCurrentPage((p) => Math.max(1, p - 1)); setSelectedRequest(null); }}
+                                                disabled={currentPage === 1}
+                                                className="flex items-center gap-1 text-sm font-medium text-text-muted hover:text-primary disabled:opacity-30 transition-colors"
+                                            >
+                                                <MdChevronLeft className="text-lg" /> Prev
+                                            </button>
+                                            <span className="text-xs font-medium text-text-muted dark:text-gray-400">
+                                                {currentPage} / {pagination.totalPages}
                                             </span>
-                                            <span className="text-[11px] text-text-muted dark:text-gray-400 font-medium shrink-0 ml-2">
-                                                {timeAgo(req.createdAt)}
-                                            </span>
+                                            <button
+                                                onClick={() => { setCurrentPage((p) => Math.min(pagination.totalPages, p + 1)); setSelectedRequest(null); }}
+                                                disabled={currentPage === pagination.totalPages}
+                                                className="flex items-center gap-1 text-sm font-medium text-text-muted hover:text-primary disabled:opacity-30 transition-colors"
+                                            >
+                                                Next <MdChevronRight className="text-lg" />
+                                            </button>
                                         </div>
-                                        <h4 className="font-bold text-text-main dark:text-white mb-1 leading-tight line-clamp-1">
-                                            {req.description?.split("\n")[0] || req.serviceType}
-                                        </h4>
-                                        <p className="text-sm text-text-muted dark:text-gray-400 line-clamp-2 mb-3 leading-relaxed">
-                                            {req.description}
-                                        </p>
-                                        <PatientBadge patient={req.patient} />
-                                        {req.visitsPerWeek && req.numberOfWeeks && (
-                                            <div className="flex items-center gap-1 text-xs font-semibold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/20 px-2 py-1 rounded-md mb-2 w-fit">
-                                                <MdRefresh className="text-[13px]" />
-                                                {req.visitsPerWeek}x/week · {req.numberOfWeeks} weeks ({req.visitsPerWeek * req.numberOfWeeks} visits)
-                                            </div>
-                                        )}
-                                        <div className="flex items-center justify-between">
-                                            <div className="flex items-center gap-3">
-                                                <span className="flex items-center gap-1 text-xs text-text-muted dark:text-gray-400">
-                                                    <MdLocationOn className="text-[15px]" />
-                                                    {req.location ? "Nearby" : "—"}
-                                                </span>
-                                                <span className="flex items-center gap-1 text-xs text-text-muted dark:text-gray-400">
-                                                    <MdCalendarToday className="text-[14px]" />
-                                                    {req.preferredDate ? new Date(req.preferredDate).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "Flexible"}
-                                                </span>
-                                            </div>
-                                            {myOffer ? (
-                                                <span className="text-xs font-bold text-primary bg-primary/10 px-2 py-1 rounded flex items-center gap-1">
-                                                    <MdCheckCircle className="text-[13px]" /> My Offer Sent
-                                                </span>
-                                            ) : offerCount > 0 ? (
-                                                <span className="text-xs font-bold text-amber-600 bg-amber-50 dark:bg-amber-900/20 px-2 py-1 rounded">
-                                                    {offerCount} Offer{offerCount > 1 ? "s" : ""}
-                                                </span>
-                                            ) : (
-                                                <span className="text-xs text-text-muted dark:text-gray-400 italic">No offers yet</span>
-                                            )}
-                                        </div>
-                                    </button>
-                                );
-                            })}
+                                    )}
+                                </>
+                            )}
                         </div>
                     </section>
 
@@ -354,9 +369,7 @@ function TherapistRequestsContent() {
                                     <MdSend className="text-3xl text-primary/40" />
                                 </div>
                                 <p className="font-semibold text-text-main dark:text-white">Select a request</p>
-                                <p className="text-sm text-text-muted dark:text-gray-400 mt-1">
-                                    Click any request to view details and send an offer
-                                </p>
+                                <p className="text-sm text-text-muted dark:text-gray-400 mt-1">Click any request to view details and send an offer</p>
                             </div>
                         ) : (
                             <TherapistRequestDetailPanel
