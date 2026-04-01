@@ -56,6 +56,64 @@ export async function generateMetadata({ params }) {
     };
 }
 
-export default function TherapistProfileLayout({ children }) {
-    return children;
+function buildJsonLd(therapist) {
+    if (!therapist) return null;
+
+    const city = therapist.workAreas?.[0]?.city;
+    const state = therapist.workAreas?.[0]?.state;
+    const rate = therapist.ratePerVisit ? parseFloat(therapist.ratePerVisit) : null;
+
+    const jsonLd = {
+        "@context": "https://schema.org",
+        "@type": "MedicalBusiness",
+        name: therapist.primaryLicenseType || "Rehabilitation Therapist",
+        url: `${SITE_URL}/therapists/${therapist.id}`,
+        description: therapist.specialization
+            ? `Licensed ${therapist.primaryLicenseType} specializing in ${therapist.specialization}`
+            : `Licensed ${therapist.primaryLicenseType} providing home health rehabilitation services`,
+        medicalSpecialty: therapist.specialization || therapist.primaryLicenseType,
+        ...(therapist.profilePhotoUrl && { image: therapist.profilePhotoUrl }),
+        ...(city && state && {
+            address: {
+                "@type": "PostalAddress",
+                addressLocality: city,
+                addressRegion: state,
+                addressCountry: "US",
+            },
+            areaServed: therapist.workAreas.map((wa) => ({
+                "@type": "City",
+                name: `${wa.city}, ${wa.state}`,
+            })),
+        }),
+        ...(rate && { priceRange: `$${rate}/visit` }),
+        ...(therapist.averageRating && therapist.reviewCount > 0 && {
+            aggregateRating: {
+                "@type": "AggregateRating",
+                ratingValue: therapist.averageRating,
+                reviewCount: therapist.reviewCount,
+                bestRating: 5,
+                worstRating: 1,
+            },
+        }),
+    };
+
+    return jsonLd;
+}
+
+export default async function TherapistProfileLayout({ children, params }) {
+    const { id } = await params;
+    const therapist = await fetchTherapist(id);
+    const jsonLd = buildJsonLd(therapist);
+
+    return (
+        <>
+            {jsonLd && (
+                <script
+                    type="application/ld+json"
+                    dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+                />
+            )}
+            {children}
+        </>
+    );
 }

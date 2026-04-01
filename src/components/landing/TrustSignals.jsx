@@ -1,6 +1,4 @@
-"use client";
-
-import { motion } from "framer-motion";
+import FadeIn from "@/components/ui/FadeIn";
 import { MdShield, MdVerified, MdLock, MdHealthAndSafety, MdGppGood, MdSecurity } from "react-icons/md";
 
 const BADGES = [
@@ -16,27 +14,20 @@ export default function TrustSignals() {
     return (
         <section className="py-12 bg-white border-t border-gray-100">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <motion.p
-                    initial={{ opacity: 0 }}
-                    whileInView={{ opacity: 1 }}
-                    viewport={{ once: true }}
-                    className="text-center text-sm font-semibold text-gray-900 mb-8"
-                >
+                <FadeIn direction="none" className="text-center text-sm font-semibold text-gray-900 mb-8" as="p">
                     Security and trust built into every interaction
-                </motion.p>
+                </FadeIn>
                 <div className="flex flex-wrap justify-center gap-x-10 gap-y-4">
                     {BADGES.map((badge, i) => (
-                        <motion.div
+                        <FadeIn
                             key={badge.label}
-                            initial={{ opacity: 0, y: 10 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true }}
-                            transition={{ duration: 0.3, delay: i * 0.05 }}
+                            delay={i * 0.05}
+                            duration={0.3}
                             className="flex items-center gap-2 text-gray-500"
                         >
                             <badge.icon className="text-lg text-primary" />
                             <span className="text-sm font-medium">{badge.label}</span>
-                        </motion.div>
+                        </FadeIn>
                     ))}
                 </div>
             </div>

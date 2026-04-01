@@ -1,7 +1,5 @@
-"use client";
-
 import Image from "next/image";
-import { motion } from "framer-motion";
+import FadeIn from "@/components/ui/FadeIn";
 import { MdStar } from "react-icons/md";
 
 const REVIEWS = [
@@ -32,25 +30,16 @@ export default function Testimonials() {
     return (
         <section className="py-20 bg-gray-50">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <motion.div
-                    initial={{ opacity: 0, y: 15 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.5 }}
-                    className="text-center mb-14"
-                >
+                <FadeIn className="text-center mb-14">
                     <h2 className="text-3xl md:text-4xl font-bold text-gray-900">Real stories</h2>
                     <p className="mt-3 text-gray-500">Hear from patients who found the right therapist</p>
-                </motion.div>
+                </FadeIn>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     {REVIEWS.map((review, i) => (
-                        <motion.div
+                        <FadeIn
                             key={review.name}
-                            initial={{ opacity: 0, y: 20 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true }}
-                            transition={{ duration: 0.5, delay: i * 0.12 }}
+                            delay={i * 0.12}
                             className="bg-white border border-gray-200 rounded-xl p-6 hover:shadow-md transition-shadow"
                         >
                             <div className="flex gap-0.5 mb-4">
@@ -74,7 +63,7 @@ export default function Testimonials() {
                                     <p className="text-xs text-gray-500">{review.role}</p>
                                 </div>
                             </div>
-                        </motion.div>
+                        </FadeIn>
                     ))}
                 </div>
             </div>
