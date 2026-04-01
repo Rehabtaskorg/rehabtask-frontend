@@ -35,8 +35,8 @@ const PLAN_STYLES = {
 
 const SORT_OPTIONS = [
     { value: 'createdAt',          label: 'Date Created' },
-    { value: 'currentPeriodStart', label: 'Period Start' },
-    { value: 'currentPeriodEnd',   label: 'Period End' },
+    { value: 'currentPeriodStart', label: 'Billing Cycle Start' },
+    { value: 'currentPeriodEnd',   label: 'Billing Cycle End' },
 ];
 
 function StatusBadge({ status, styleMap }) {
@@ -383,7 +383,7 @@ function CustomerSubscriptionsTab() {
                                             <th className="px-5 py-3 text-left text-xs font-semibold text-text-muted dark:text-slate-400 uppercase tracking-wide">Plan</th>
                                             <th className="px-5 py-3 text-left text-xs font-semibold text-text-muted dark:text-slate-400 uppercase tracking-wide">Status</th>
                                             <th className="px-5 py-3 text-left text-xs font-semibold text-text-muted dark:text-slate-400 uppercase tracking-wide hidden md:table-cell">
-                                                {sortBy === 'currentPeriodStart' ? 'Period Start' : sortBy === 'currentPeriodEnd' ? 'Period End' : 'Created'}
+                                                {sortBy === 'currentPeriodStart' ? 'Billing Cycle Start' : sortBy === 'currentPeriodEnd' ? 'Billing Cycle End' : 'Created'}
                                             </th>
                                             <th className="px-5 py-3 text-left text-xs font-semibold text-text-muted dark:text-slate-400 uppercase tracking-wide hidden lg:table-cell">Renews / Ends</th>
                                         </tr>
