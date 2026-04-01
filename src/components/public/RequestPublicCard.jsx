@@ -78,16 +78,14 @@ export default function RequestPublicCard({ request, index = 0, onAuthGate }) {
                 </div>
             </div>
 
-            {/* Blurred customer identity */}
-            <div
-                className="flex items-center gap-3 mb-5 bg-gray-50 p-3 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors"
-                onClick={() => onAuthGate("contact")}
-            >
-                <div className="flex items-center gap-2 blur-[4px] select-none flex-1">
-                    <div className="w-8 h-8 rounded-full bg-gray-200" />
-                    <span className="text-sm font-medium text-gray-400">Customer Name</span>
+            {/* Customer identity — public */}
+            <div className="flex items-center gap-3 mb-5 bg-gray-50 p-3 rounded-lg">
+                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs shrink-0">
+                    {request.customerName ? request.customerName.charAt(0).toUpperCase() : "?"}
                 </div>
-                <MdLock className="text-gray-400 text-sm" />
+                <span className="text-sm font-medium text-gray-700">
+                    {request.customerName || "Agency"}
+                </span>
             </div>
 
             {/* Bottom actions */}

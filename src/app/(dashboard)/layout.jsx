@@ -33,7 +33,7 @@ function TherapistMessagesLink({ pathname, collapsed = false }) {
     return (
         <Link
             href="/therapist/messages"
-            className={`${isActive ? 'sidebar-nav-link-active' : 'sidebar-nav-link'} ${collapsed ? 'justify-center !px-0 !gap-0' : ''} group/nav relative`}
+            className={`${isActive ? 'sidebar-nav-link-active' : 'sidebar-nav-link'} ${collapsed ? 'justify-center px-0! gap-0!' : ''} group/nav relative`}
             title={collapsed ? "Messages" : undefined}
         >
             <div className="relative shrink-0">
@@ -51,7 +51,7 @@ function TherapistMessagesLink({ pathname, collapsed = false }) {
                 </span>
             )}
             {collapsed && (
-                <span className="absolute left-full ml-2 px-2 py-1 bg-slate-800 dark:bg-slate-700 text-white text-xs font-medium rounded-md whitespace-nowrap opacity-0 pointer-events-none group-hover/nav:opacity-100 transition-opacity z-[60]">
+                <span className="absolute left-full ml-2 px-2 py-1 bg-slate-800 dark:bg-slate-700 text-white text-xs font-medium rounded-md whitespace-nowrap opacity-0 pointer-events-none group-hover/nav:opacity-100 transition-opacity z-60">
                     Messages {unreadCount > 0 ? `(${unreadCount})` : ""}
                 </span>
             )}
@@ -66,7 +66,7 @@ function CustomerMessagesLink({ pathname, collapsed = false }) {
     return (
         <Link
             href="/customer/messages"
-            className={`${isActive ? 'sidebar-nav-link-active' : 'sidebar-nav-link'} ${collapsed ? 'justify-center !px-0 !gap-0' : ''} group/nav relative`}
+            className={`${isActive ? 'sidebar-nav-link-active' : 'sidebar-nav-link'} ${collapsed ? 'justify-center px-0! gap-0!' : ''} group/nav relative`}
             title={collapsed ? "Messages" : undefined}
         >
             <div className="relative shrink-0">
@@ -84,7 +84,7 @@ function CustomerMessagesLink({ pathname, collapsed = false }) {
                 </span>
             )}
             {collapsed && (
-                <span className="absolute left-full ml-2 px-2 py-1 bg-slate-800 dark:bg-slate-700 text-white text-xs font-medium rounded-md whitespace-nowrap opacity-0 pointer-events-none group-hover/nav:opacity-100 transition-opacity z-[60]">
+                <span className="absolute left-full ml-2 px-2 py-1 bg-slate-800 dark:bg-slate-700 text-white text-xs font-medium rounded-md whitespace-nowrap opacity-0 pointer-events-none group-hover/nav:opacity-100 transition-opacity z-60">
                     Messages {unreadCount > 0 ? `(${unreadCount})` : ""}
                 </span>
             )}
@@ -95,12 +95,12 @@ function CustomerMessagesLink({ pathname, collapsed = false }) {
 function NavLink({ href, icon: Icon, label, pathname, matchStart = true, locked = false, collapsed = false }) {
     const isActive = matchStart ? pathname.startsWith(href) : pathname === href;
     return (
-        <Link href={href} className={`${isActive ? 'sidebar-nav-link-active' : 'sidebar-nav-link'} ${collapsed ? 'justify-center !px-0 !gap-0' : ''} group/nav relative`} title={collapsed ? label : undefined}>
+        <Link href={href} className={`${isActive ? 'sidebar-nav-link-active' : 'sidebar-nav-link'} ${collapsed ? 'justify-center px-0! gap-0!' : ''} group/nav relative`} title={collapsed ? label : undefined}>
             <Icon className="sidebar-icon shrink-0" />
             {!collapsed && <span className="flex-1">{label}</span>}
             {!collapsed && locked && <MdLock className="text-xs opacity-50" />}
             {collapsed && (
-                <span className="absolute left-full ml-2 px-2 py-1 bg-slate-800 dark:bg-slate-700 text-white text-xs font-medium rounded-md whitespace-nowrap opacity-0 pointer-events-none group-hover/nav:opacity-100 transition-opacity z-[60]">
+                <span className="absolute left-full ml-2 px-2 py-1 bg-slate-800 dark:bg-slate-700 text-white text-xs font-medium rounded-md whitespace-nowrap opacity-0 pointer-events-none group-hover/nav:opacity-100 transition-opacity z-60">
                     {label}
                 </span>
             )}
@@ -312,24 +312,24 @@ export default function DashboardLayout({ children }) {
 
     return (
         <SocketProvider userId={user.id}>
-        <SidebarProvider>
-        <DashboardInner
-            user={user}
-            pathname={pathname}
-            sidebarOpen={sidebarOpen}
-            setSidebarOpen={setSidebarOpen}
-            handleLogout={handleLogout}
-            isOnOnboardingRoute={isOnOnboardingRoute}
-            profileName={profileName}
-            initials={initials}
-            therapistAccess={therapistAccess}
-            adminNavItems={adminNavItems}
-            hasAdminPermission={hasAdminPermission}
-            subAdminPermissions={subAdminPermissions}
-        >
-            {children}
-        </DashboardInner>
-        </SidebarProvider>
+            <SidebarProvider>
+                <DashboardInner
+                    user={user}
+                    pathname={pathname}
+                    sidebarOpen={sidebarOpen}
+                    setSidebarOpen={setSidebarOpen}
+                    handleLogout={handleLogout}
+                    isOnOnboardingRoute={isOnOnboardingRoute}
+                    profileName={profileName}
+                    initials={initials}
+                    therapistAccess={therapistAccess}
+                    adminNavItems={adminNavItems}
+                    hasAdminPermission={hasAdminPermission}
+                    subAdminPermissions={subAdminPermissions}
+                >
+                    {children}
+                </DashboardInner>
+            </SidebarProvider>
         </SocketProvider>
     );
 }
@@ -409,7 +409,7 @@ function DashboardInner({ user, pathname, sidebarOpen, setSidebarOpen, handleLog
                         <div className={`mt-auto ${c ? 'p-2' : 'p-6'} space-y-1 border-t border-slate-100 dark:border-slate-800`}>
                             <NavLink href="/therapist/profile" icon={MdPerson} label="My Profile" pathname={pathname} collapsed={c} />
                             <NavLink href="/therapist/account-settings" icon={MdSettings} label="Account Settings" pathname={pathname} collapsed={c} />
-                            <button onClick={handleLogout} className={`sidebar-nav-link w-full text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 ${c ? 'justify-center !px-0 !gap-0' : 'text-left'}`} title={c ? "Logout" : undefined}>
+                            <button onClick={handleLogout} className={`sidebar-nav-link w-full text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 ${c ? 'justify-center px-0! gap-0!' : 'text-left'}`} title={c ? "Logout" : undefined}>
                                 <MdLogout className="sidebar-icon shrink-0" />
                                 {!c && <span>Logout</span>}
                             </button>
@@ -444,7 +444,7 @@ function DashboardInner({ user, pathname, sidebarOpen, setSidebarOpen, handleLog
                             <NavLink href="/customer/subscription" icon={MdStars} label="Subscription" pathname={pathname} collapsed={c} />
                             <NavLink href="/customer/faqs" icon={MdQuestionAnswer} label="FAQs" pathname={pathname} collapsed={c} />
                             <NavLink href="/customer/profile" icon={MdSettings} label="Account Settings" pathname={pathname} collapsed={c} />
-                            <button onClick={handleLogout} className={`sidebar-nav-link w-full text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 ${c ? 'justify-center !px-0 !gap-0' : 'text-left'}`} title={c ? "Logout" : undefined}>
+                            <button onClick={handleLogout} className={`sidebar-nav-link w-full text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 ${c ? 'justify-center px-0! gap-0!' : 'text-left'}`} title={c ? "Logout" : undefined}>
                                 <MdLogout className="sidebar-icon shrink-0" />
                                 {!c && <span>Logout</span>}
                             </button>
@@ -526,7 +526,7 @@ function DashboardInner({ user, pathname, sidebarOpen, setSidebarOpen, handleLog
                         </nav>
                         <div className={`${c ? 'p-2' : 'p-4'} border-t border-slate-100 dark:border-slate-800 space-y-1`}>
                             <NavLink href="/admin/settings" icon={MdSettings} label="Settings" pathname={pathname} collapsed={c} />
-                            <button onClick={handleLogout} className={`sidebar-nav-link w-full text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 ${c ? 'justify-center !px-0 !gap-0' : 'text-left'}`} title={c ? "Logout" : undefined}>
+                            <button onClick={handleLogout} className={`sidebar-nav-link w-full text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 ${c ? 'justify-center px-0! gap-0!' : 'text-left'}`} title={c ? "Logout" : undefined}>
                                 <MdLogout className="sidebar-icon shrink-0" />
                                 {!c && <span>Logout</span>}
                             </button>
@@ -554,20 +554,20 @@ function DashboardInner({ user, pathname, sidebarOpen, setSidebarOpen, handleLog
             )}
 
             {/* ── MAIN CONTENT ── */}
-                <main className={`ml-0 ${mainMargin} flex-1 min-h-screen pt-14 lg:pt-0 transition-all duration-300`}>
-                    {user.role === 'therapist' && !isOnOnboardingRoute && <OnboardingBanner />}
-                    {user.role === 'therapist' && therapistAccess ? (
-                        <TherapistAccessProvider value={therapistAccess}>
-                            {children}
-                        </TherapistAccessProvider>
-                    ) : (user.role === 'admin' || user.role === 'sub_admin') ? (
-                        <AdminUserProvider value={{ id: user.id, email: user.email, role: user.role, permissions: subAdminPermissions }}>
-                            {children}
-                        </AdminUserProvider>
-                    ) : (
-                        children
-                    )}
-                </main>
+            <main className={`ml-0 ${mainMargin} flex-1 min-h-screen pt-14 lg:pt-0 transition-all duration-300`}>
+                {user.role === 'therapist' && !isOnOnboardingRoute && <OnboardingBanner />}
+                {user.role === 'therapist' && therapistAccess ? (
+                    <TherapistAccessProvider value={therapistAccess}>
+                        {children}
+                    </TherapistAccessProvider>
+                ) : (user.role === 'admin' || user.role === 'sub_admin') ? (
+                    <AdminUserProvider value={{ id: user.id, email: user.email, role: user.role, permissions: subAdminPermissions }}>
+                        {children}
+                    </AdminUserProvider>
+                ) : (
+                    children
+                )}
+            </main>
         </div>
     );
 }

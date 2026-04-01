@@ -8,7 +8,7 @@ import {
     MdStar, MdLocationOn, MdVerified, MdLock,
     MdCall, MdEmail, MdInfo, MdArrowBack,
 } from "react-icons/md";
-import { useTherapistPublicProfile } from "@/hooks/usePublic";
+import { useTherapistPublicProfile, useTherapistReviews } from "@/hooks/usePublic";
 import AuthGateModal from "@/components/public/AuthGateModal";
 import UserAvatar from "@/components/ui/UserAvatar";
 
@@ -54,6 +54,7 @@ function ProfileSkeleton() {
 export default function TherapistPublicProfilePage() {
     const params = useParams();
     const { data: profile, isLoading, error } = useTherapistPublicProfile(params.id);
+    const { data: reviewsData } = useTherapistReviews(params.id, 1);
     const [gateOpen, setGateOpen] = useState(false);
     const [gateTrigger, setGateTrigger] = useState("default");
 
@@ -108,17 +109,7 @@ export default function TherapistPublicProfilePage() {
                                     </div>
                                     <div className="flex-1">
                                         <div className="flex flex-wrap items-center gap-3 mb-2">
-                                            <div
-                                                className="relative rounded-lg overflow-hidden cursor-pointer"
-                                                onClick={() => handleAuthGate("profile")}
-                                            >
-                                                <h1 className="text-2xl md:text-3xl font-extrabold text-gray-400 blur-[6px] select-none" aria-hidden="true">Therapist Name</h1>
-                                                <div className="absolute inset-0 flex items-center">
-                                                    <span className="flex items-center gap-1.5 text-xs font-semibold text-primary">
-                                                        <MdLock className="text-sm" /> Sign up to see name
-                                                    </span>
-                                                </div>
-                                            </div>
+                                            <h1 className="text-2xl md:text-3xl font-extrabold text-gray-900">{profile.fullName}</h1>
                                             <div className="flex items-center bg-white border border-gray-200 px-3 py-1 rounded-full">
                                                 <MdStar className="text-amber-500 text-sm" />
                                                 <span className="ml-1 text-sm font-bold text-gray-900">{profile.averageRating || "—"}</span>
@@ -151,26 +142,12 @@ export default function TherapistPublicProfilePage() {
                                 </div>
                             </motion.section>
 
-                            {/* About — blurred for unauthenticated users */}
+                            {/* About — public */}
                             {profile.professionalSummary && (
                                 <motion.section initial={{ opacity: 0, y: 15 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }} className="space-y-3">
                                     <h2 className="text-xl font-bold text-gray-900">About</h2>
-                                    <div className="relative rounded-2xl overflow-hidden">
-                                        <div className="bg-gray-50 rounded-2xl p-8 blur-sm select-none">
-                                            <p className="text-gray-600 leading-relaxed text-lg">
-                                                A dedicated rehabilitation professional with years of clinical experience providing compassionate, evidence-based care to patients in their homes and communities.
-                                            </p>
-                                        </div>
-                                        <div className="absolute inset-0 flex items-center justify-center">
-                                            <div className="text-center bg-white border border-gray-200 shadow-xl rounded-xl p-6">
-                                                <MdLock className="text-primary text-2xl mx-auto mb-2" />
-                                                <p className="font-bold text-gray-900 text-sm mb-1">Professional summary is hidden</p>
-                                                <p className="text-xs text-gray-500 mb-3">Sign up to learn more about this therapist</p>
-                                                <button onClick={() => handleAuthGate("profile")} className="bg-primary text-white text-xs font-bold px-6 py-2.5 rounded-lg hover:bg-primary/90 transition-colors">
-                                                    Create Free Account
-                                                </button>
-                                            </div>
-                                        </div>
+                                    <div className="bg-gray-50 rounded-2xl p-8">
+                                        <p className="text-gray-600 leading-relaxed text-lg">{profile.professionalSummary}</p>
                                     </div>
                                 </motion.section>
                             )}
@@ -239,47 +216,58 @@ export default function TherapistPublicProfilePage() {
                                 </motion.section>
                             )}
 
-                            {/* Reviews — all gated behind sign-up */}
+                            {/* Reviews — first 3 public, rest gated */}
                             <motion.section initial={{ opacity: 0, y: 15 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }} className="space-y-4">
                                 <h2 className="text-xl font-bold text-gray-900">Reviews ({reviewTotal})</h2>
 
-                                <div className="relative rounded-2xl overflow-hidden">
-                                    <div className="blur-sm select-none pointer-events-none space-y-4">
-                                        {[1, 2, 3].map((i) => (
-                                            <div key={i} className="bg-gray-50 p-6 rounded-2xl">
-                                                <div className="flex justify-between items-start mb-3">
-                                                    <div className="flex items-center gap-3">
-                                                        <div className="w-10 h-10 rounded-full bg-gray-200" />
-                                                        <div className="space-y-1.5">
-                                                            <div className="h-4 w-28 bg-gray-200 rounded" />
-                                                            <div className="h-3 w-16 bg-gray-200 rounded" />
+                                {reviewTotal === 0 ? (
+                                    <div className="bg-gray-50 rounded-2xl p-8 text-center">
+                                        <p className="text-gray-500 text-sm">No reviews yet.</p>
+                                    </div>
+                                ) : (
+                                    <>
+                                        <div className="space-y-4">
+                                            {(reviewsData?.reviews || []).slice(0, 3).map((review) => (
+                                                <div key={review.id} className="bg-gray-50 p-6 rounded-2xl">
+                                                    <div className="flex justify-between items-start mb-3">
+                                                        <div className="flex items-center gap-3">
+                                                            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm shrink-0">
+                                                                {review.customer?.fullName?.charAt(0)?.toUpperCase() || "?"}
+                                                            </div>
+                                                            <div>
+                                                                <p className="text-sm font-semibold text-gray-900">{review.customer?.fullName || "Agency"}</p>
+                                                                <p className="text-xs text-gray-400">{new Date(review.createdAt).toLocaleDateString("en-US", { month: "short", year: "numeric" })}</p>
+                                                            </div>
+                                                        </div>
+                                                        <div className="flex gap-0.5">
+                                                            {Array.from({ length: 5 }).map((_, j) => (
+                                                                <MdStar key={j} className={`text-sm ${j < review.rating ? "text-amber-400" : "text-gray-300"}`} />
+                                                            ))}
                                                         </div>
                                                     </div>
-                                                    <div className="flex gap-0.5">
-                                                        {Array.from({ length: 5 }).map((_, j) => (
-                                                            <MdStar key={j} className="text-gray-300 text-sm" />
-                                                        ))}
-                                                    </div>
+                                                    {review.comment && (
+                                                        <p className="text-sm text-gray-600 leading-relaxed">{review.comment}</p>
+                                                    )}
                                                 </div>
-                                                <div className="space-y-2">
-                                                    <div className="h-3 w-full bg-gray-200 rounded" />
-                                                    <div className="h-3 w-4/5 bg-gray-200 rounded" />
-                                                    <div className="h-3 w-2/3 bg-gray-200 rounded" />
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                    <div className="absolute inset-0 flex items-center justify-center">
-                                        <div className="text-center bg-white border border-gray-200 shadow-xl rounded-xl p-6">
-                                            <MdLock className="text-primary text-2xl mx-auto mb-2" />
-                                            <p className="font-bold text-gray-900 text-sm mb-1">Reviews are hidden</p>
-                                            <p className="text-xs text-gray-500 mb-3">Sign up to read {reviewTotal > 0 ? `all ${reviewTotal}` : ""} reviews</p>
-                                            <button onClick={() => handleAuthGate("profile")} className="bg-primary text-white text-xs font-bold px-6 py-2.5 rounded-lg hover:bg-primary/90 transition-colors">
-                                                Create Free Account
-                                            </button>
+                                            ))}
                                         </div>
-                                    </div>
-                                </div>
+
+                                        {reviewTotal > 3 && (
+                                            <div className="text-center bg-gray-50 border border-gray-200 rounded-2xl p-6">
+                                                <p className="text-sm font-semibold text-gray-900 mb-1">
+                                                    {reviewTotal - 3} more review{reviewTotal - 3 !== 1 ? "s" : ""}
+                                                </p>
+                                                <p className="text-xs text-gray-500 mb-3">Sign up to read all {reviewTotal} reviews</p>
+                                                <button
+                                                    onClick={() => handleAuthGate("profile")}
+                                                    className="bg-primary text-white text-xs font-bold px-6 py-2.5 rounded-lg hover:bg-primary/90 transition-colors"
+                                                >
+                                                    Create Free Account
+                                                </button>
+                                            </div>
+                                        )}
+                                    </>
+                                )}
                             </motion.section>
                         </div>
 
