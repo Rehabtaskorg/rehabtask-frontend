@@ -66,11 +66,32 @@ export function useMessagesPage(basePath) {
     const [directSendError, setDirectSendError] = useState(null);
     const directSendingRef = useRef(false);
 
-    // Parse URL param — either a conversationId UUID or "new:{userId}" for pending direct
+    // Parse URL param — supports multiple formats:
+    //   ?c={conversationId}           — direct UUID (Phase 3)
+    //   ?c=new:{userId}               — new direct conversation
+    //   ?c=direct:{userId}            — legacy direct conversation link
+    //   ?c=offer:{offerId}            — legacy offer context link
+    //   ?c=booking:{bookingId}        — legacy booking context link
     const urlParam = searchParams.get("c") ?? null;
-    const isPendingNewDirect = urlParam?.startsWith("new:");
-    const urlConversationId = isPendingNewDirect ? null : urlParam;
-    const pendingUserId = isPendingNewDirect ? urlParam.slice(4) : null;
+    const colonIdx = urlParam?.indexOf(":") ?? -1;
+    const urlPrefix = colonIdx > 0 ? urlParam.slice(0, colonIdx) : null;
+    const urlSuffix = colonIdx > 0 ? urlParam.slice(colonIdx + 1) : null;
+
+    const isPendingNewDirect = urlPrefix === "new" || urlPrefix === "direct";
+    const isLegacyContext = urlPrefix === "offer" || urlPrefix === "booking";
+
+    // For legacy context URLs, resolve to conversationId from the conversations list
+    const legacyMatch = isLegacyContext
+        ? conversations.find(c => c.currentContext?.type === urlPrefix && c.currentContext?.id === urlSuffix)
+        : null;
+
+    const urlConversationId = isPendingNewDirect
+        ? null
+        : isLegacyContext
+            ? legacyMatch?.conversationId ?? null
+            : urlParam; // bare UUID
+
+    const pendingUserId = isPendingNewDirect ? urlSuffix : null;
 
     // For pending direct messages, fetch the recipient's info for sidebar/header display
     const { otherUser: pendingOtherUser } = useConversationContext(
@@ -136,7 +157,7 @@ export function useMessagesPage(basePath) {
             return;
         }
 
-        // Standard conversationId from URL
+        // Standard conversationId from URL (or resolved from legacy offer:/booking: URL)
         if (!urlConversationId) return;
 
         const match = conversations.find(c => c.conversationId === urlConversationId);
@@ -146,6 +167,11 @@ export function useMessagesPage(basePath) {
                 setSelectedConversation(match);
                 setPendingDirectRecipientId(null);
                 setMobileView("chat");
+
+                // If this was a legacy URL, upgrade to conversationId format
+                if (isLegacyContext) {
+                    updateUrlParam(match.conversationId);
+                }
             }
         }
     }, [convLoading, conversations, urlConversationId, pendingUserId, pendingOtherUser]); // eslint-disable-line react-hooks/exhaustive-deps
