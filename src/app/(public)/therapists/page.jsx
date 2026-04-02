@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { APIProvider } from "@vis.gl/react-google-maps";
 import { motion } from "framer-motion";
 import { MdChevronLeft, MdChevronRight } from "react-icons/md";
@@ -34,7 +35,15 @@ function mapTherapist(t) {
     };
 }
 
+function getAppRole() {
+    if (typeof document === "undefined") return null;
+    const match = document.cookie.match(/(?:^|;\s*)app_role=([^;]+)/);
+    return match ? match[1] : null;
+}
+
 function FindTherapistsContent() {
+    const router = useRouter();
+
     // --- Search header inputs (draft state, not sent until submit) ---
     const [searchInput, setSearchInput] = useState("");
     const [locationInput, setLocationInput] = useState("");
@@ -114,6 +123,19 @@ function FindTherapistsContent() {
     const pagination = data?.pagination || { page: 1, totalPages: 1, total: 0 };
 
     const handleAuthGate = (trigger) => {
+        const role = getAppRole();
+        if (role === "customer") {
+            router.push("/customer/find-therapists");
+            return;
+        }
+        if (role === "therapist") {
+            router.push("/therapist/dashboard");
+            return;
+        }
+        if (role === "admin" || role === "sub_admin") {
+            router.push("/admin/dashboard");
+            return;
+        }
         setGateTrigger(trigger);
         setGateOpen(true);
     };

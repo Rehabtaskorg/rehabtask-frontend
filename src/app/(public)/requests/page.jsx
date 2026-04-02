@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { APIProvider } from "@vis.gl/react-google-maps";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -17,7 +18,15 @@ const DISCIPLINE_MAP = {
     slp: "Speech Language Pathology (SLP)",
 };
 
+function getAppRole() {
+    if (typeof document === "undefined") return null;
+    const match = document.cookie.match(/(?:^|;\s*)app_role=([^;]+)/);
+    return match ? match[1] : null;
+}
+
 function BrowseRequestsContent() {
+    const router = useRouter();
+
     // --- Draft inputs (not sent until Find Jobs click) ---
     const [searchInput, setSearchInput] = useState("");
     const [locationInput, setLocationInput] = useState("");
@@ -78,6 +87,19 @@ function BrowseRequestsContent() {
     const pagination = data?.pagination || { page: 1, totalPages: 1, total: 0 };
 
     const handleAuthGate = (trigger) => {
+        const role = getAppRole();
+        if (role === "therapist") {
+            router.push("/therapist/requests");
+            return;
+        }
+        if (role === "customer") {
+            // Customers can't send offers — close the gate, they're already in
+            return;
+        }
+        if (role === "admin" || role === "sub_admin") {
+            router.push("/admin/dashboard");
+            return;
+        }
         setGateTrigger(trigger);
         setGateOpen(true);
     };
