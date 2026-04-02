@@ -36,7 +36,8 @@ export function middleware(request) {
     }
 
     // --- Protected: /customer/* ---
-    if (pathname.startsWith("/customer")) {
+    // NOTE: trailing slash prevents /customers from matching
+    if (pathname.startsWith("/customer/") || pathname === "/customer") {
         if (!role) {
             const loginUrl = new URL("/login", request.url);
             loginUrl.searchParams.set("next", pathname);
@@ -51,7 +52,8 @@ export function middleware(request) {
     }
 
     // --- Protected: /therapist/* ---
-    if (pathname.startsWith("/therapist")) {
+    // NOTE: trailing slash prevents /therapists (public page) from matching
+    if (pathname.startsWith("/therapist/") || pathname === "/therapist") {
         if (!role) {
             const loginUrl = new URL("/login", request.url);
             loginUrl.searchParams.set("next", pathname);
@@ -66,7 +68,8 @@ export function middleware(request) {
     }
 
     // --- Protected: /admin/* ---
-    if (pathname.startsWith("/admin")) {
+    // NOTE: trailing slash prevents hypothetical /admins from matching
+    if (pathname.startsWith("/admin/") || pathname === "/admin") {
         if (!role) {
             const loginUrl = new URL("/login", request.url);
             loginUrl.searchParams.set("next", pathname);
