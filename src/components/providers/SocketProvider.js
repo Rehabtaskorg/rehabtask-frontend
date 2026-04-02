@@ -12,39 +12,33 @@ export function useSocketContext() {
 
 /**
  * SocketProvider manages the Socket.io client lifecycle.
- * - Connects when a user is authenticated (userId provided)
- * - Listens for message events and invalidates React Query caches
- * - Exposes connection status for smart polling (fast when disconnected, slow when connected)
+ * Phase 3: rooms use conversation:{conversationId} format.
  */
 export function SocketProvider({ children, userId }) {
     const queryClient = useQueryClient();
     const [connected, setConnected] = useState(false);
 
-    // Track the current conversation the user is viewing (for join/leave)
+    // Track the current conversation the user is viewing
     const currentRoomRef = useRef(null);
 
-    const joinConversation = useCallback((contextType, contextId) => {
+    const joinConversation = useCallback((conversationId) => {
         const socket = getSocket();
-        if (!socket?.connected || !contextType || !contextId) return;
+        if (!socket?.connected || !conversationId) return;
 
         // Leave previous room if different
-        if (currentRoomRef.current) {
-            const { contextType: prevType, contextId: prevId } = currentRoomRef.current;
-            if (prevType !== contextType || prevId !== contextId) {
-                socket.emit("leave:conversation", { contextType: prevType, contextId: prevId });
-            }
+        if (currentRoomRef.current && currentRoomRef.current !== conversationId) {
+            socket.emit("leave:conversation", { conversationId: currentRoomRef.current });
         }
 
-        socket.emit("join:conversation", { contextType, contextId });
-        currentRoomRef.current = { contextType, contextId };
+        socket.emit("join:conversation", { conversationId });
+        currentRoomRef.current = conversationId;
     }, []);
 
     const leaveConversation = useCallback(() => {
         const socket = getSocket();
         if (!socket?.connected || !currentRoomRef.current) return;
 
-        const { contextType, contextId } = currentRoomRef.current;
-        socket.emit("leave:conversation", { contextType, contextId });
+        socket.emit("leave:conversation", { conversationId: currentRoomRef.current });
         currentRoomRef.current = null;
     }, []);
 
@@ -61,8 +55,7 @@ export function SocketProvider({ children, userId }) {
             console.log("[Socket] Connected:", socket.id);
             setConnected(true);
             if (currentRoomRef.current) {
-                const { contextType, contextId } = currentRoomRef.current;
-                socket.emit("join:conversation", { contextType, contextId });
+                socket.emit("join:conversation", { conversationId: currentRoomRef.current });
             }
         };
 
@@ -78,15 +71,11 @@ export function SocketProvider({ children, userId }) {
         // ─── Message Events ─────────────────────────────────────────────
         const onNewMessage = (data) => {
             console.log("[Socket] message:new received", data?.id);
-            // Targeted: invalidate only the affected conversation's messages
-            if (data?._contextType && data?._contextId) {
-                queryClient.invalidateQueries({ queryKey: ["messages", data._contextType, data._contextId] });
-            }
-            // Also invalidate if viewing via direct thread (messages merge across contexts)
+            // Invalidate the conversation's messages cache
             if (data?.conversationId) {
-                queryClient.invalidateQueries({ queryKey: ["messages", "direct", data.conversationId] });
+                queryClient.invalidateQueries({ queryKey: ["messages", data.conversationId] });
             }
-            // Always refresh conversation list (last message preview, unread count, ordering)
+            // Always refresh conversation list and unread count
             queryClient.invalidateQueries({ queryKey: ["conversations"] });
             queryClient.invalidateQueries({ queryKey: ["unreadCount"] });
         };
@@ -102,8 +91,8 @@ export function SocketProvider({ children, userId }) {
             queryClient.invalidateQueries({ queryKey: ["conversations"] });
             queryClient.invalidateQueries({ queryKey: ["unreadCount"] });
             // Refresh message thread to show read receipts
-            if (data?.contextType && data?.contextId) {
-                queryClient.invalidateQueries({ queryKey: ["messages", data.contextType, data.contextId] });
+            if (data?.conversationId) {
+                queryClient.invalidateQueries({ queryKey: ["messages", data.conversationId] });
             }
         };
 

@@ -85,7 +85,7 @@ function TherapistMessagesContent() {
                             error={msgError}
                             currentUser={user}
                             retryMessage={retryMessage}
-                            threadId={selected?.id}
+                            threadId={selected?.conversationId}
                             hasMore={hasMore}
                             loadOlderMessages={loadOlderMessages}
                             loadingMore={loadingMore}

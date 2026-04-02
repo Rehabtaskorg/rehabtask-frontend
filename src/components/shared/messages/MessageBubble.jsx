@@ -50,19 +50,23 @@ function MessageStatus({ isFailed, isSending, isSender, readAt, createdAt, onRet
 
 export default function MessageBubble({ msg, messages, index, currentUser, onRetry }) {
     if (msg.type === 'system') {
-        // Render rich offer widget for offer-sent dividers
-        if (msg.id?.startsWith('system:offer-sent:')) {
-            const offerId = msg.id.replace('system:offer-sent:', '');
-            return (
-                <div>
-                    <div className="flex items-center justify-center my-3">
-                        <div className="h-px bg-border-light dark:bg-border-dark flex-1" />
-                        <span className="mx-3 text-[10px] font-semibold text-text-muted dark:text-gray-500 uppercase tracking-widest">Offer</span>
-                        <div className="h-px bg-border-light dark:bg-border-dark flex-1" />
+        // Render rich offer widget for offer-sent messages
+        // Phase 3: check systemType field; legacy: check id prefix
+        const isOfferSent = msg.systemType === 'offer_sent' || msg.id?.startsWith('system:offer-sent:');
+        if (isOfferSent) {
+            const offerId = msg.offerId || msg.id?.replace('system:offer-sent:', '');
+            if (offerId) {
+                return (
+                    <div>
+                        <div className="flex items-center justify-center my-3">
+                            <div className="h-px bg-border-light dark:bg-border-dark flex-1" />
+                            <span className="mx-3 text-[10px] font-semibold text-text-muted dark:text-gray-500 uppercase tracking-widest">Offer</span>
+                            <div className="h-px bg-border-light dark:bg-border-dark flex-1" />
+                        </div>
+                        <SessionOfferWidget offerId={offerId} />
                     </div>
-                    <SessionOfferWidget offerId={offerId} />
-                </div>
-            );
+                );
+            }
         }
         return <SystemMessage key={msg.id} content={msg.content} />;
     }

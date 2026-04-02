@@ -7,18 +7,17 @@ import { RightSidebarSkeleton } from "@/components/shared/messages";
 import UserAvatar from "@/components/ui/UserAvatar";
 
 export default function TherapistRightSidebar({ selectedConversation }) {
-    // API call type: use directConversationId when available (for merged thread context resolution)
-    const apiContextType = selectedConversation?.directConversationId
-        ? 'direct'
-        : selectedConversation?.currentContext?.type;
-    const apiContextId = selectedConversation?.directConversationId
-        || selectedConversation?.currentContext?.id;
+    // Use the conversationId (always a DirectConversation) for API context resolution
+    const convId = selectedConversation?.conversationId || selectedConversation?.directConversationId;
 
     // Display type: actual conversation context (booking/offer/direct) for UI labels and links
     const displayContextType = selectedConversation?.currentContext?.type ?? 'direct';
     const displayContextId = selectedConversation?.currentContext?.id;
 
-    const { otherUser: contextOtherUser, patient: contextPatient, loading: contextLoading } = useConversationContext(apiContextType, apiContextId);
+    const { otherUser: contextOtherUser, patient: contextPatient, loading: contextLoading } = useConversationContext(
+        convId ? 'direct' : null,
+        convId
+    );
 
     const otherUser = selectedConversation?.otherUser || contextOtherUser;
     // Prefer contextPatient (from API, has full details like email) over conversation list patient

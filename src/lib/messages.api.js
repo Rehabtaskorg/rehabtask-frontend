@@ -1,36 +1,36 @@
 import { api } from "./api.js"
 
 /**
- * Centralized messaging API calls
+ * Centralized messaging API calls — Phase 3: conversationId-based endpoints
  */
 export const messagesApi = {
     /**
      * Get all conversations for the current user
-     * Returns relationship-based grouped conversations
      */
     getConversations: async () => {
         return api.get("/messages/conversations");
     },
 
     /**
-     * Get messages for a specific conversation context
-     * @param {string} contextType - "offer" | "booking"
-     * @param {string} contextId - UUID of the context
+     * Get messages for a conversation by conversationId
+     * @param {string} conversationId - UUID of the DirectConversation
      * @param {object} options - { limit, cursor, order }
      */
-    getMessages: async (contextType, contextId, options = {}) => {
+    getMessages: async (conversationId, options = {}) => {
         const params = new URLSearchParams();
         if (options.limit) params.append("limit", options.limit);
         if (options.cursor) params.append("cursor", options.cursor);
         if (options.order) params.append("order", options.order);
 
         const query = params.toString() ? `?${params.toString()}` : "";
-        return api.get(`/messages/${contextType}/${contextId}${query}`);
+        return api.get(`/messages/c/${conversationId}${query}`);
     },
 
     /**
-     * Send a new message
+     * Send a new message in a conversation
      * @param {object} data - { content, contextType, contextId }
+     * contextType/contextId still used for the legacy createMessage path
+     * which dual-writes to the DirectConversation automatically
      */
     sendMessage: async ({ content, contextType, contextId }) => {
         return api.post("/messages", { content, contextType, contextId });
@@ -38,11 +38,10 @@ export const messagesApi = {
 
     /**
      * Mark all messages as read in a conversation
-     * @param {string} contextType - "offer" | "booking"
-     * @param {string} contextId - UUID of the context
+     * @param {string} conversationId - UUID of the DirectConversation
      */
-    markAsRead: async (contextType, contextId) => {
-        return api.put(`/messages/${contextType}/${contextId}/read`);
+    markAsRead: async (conversationId) => {
+        return api.put(`/messages/c/${conversationId}/read`);
     },
 
     /**

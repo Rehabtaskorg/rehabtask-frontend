@@ -10,19 +10,15 @@ import UserAvatar from "@/components/ui/UserAvatar";
 import { usePageTitle } from "@/hooks/usePageTitle";
 
 function CustomerRightSidebar({ selectedConversation }) {
-    // API call type: use directConversationId when available (for merged thread context resolution)
-    const apiContextType = selectedConversation?.directConversationId
-        ? 'direct'
-        : selectedConversation?.currentContext?.type;
-    const apiContextId = selectedConversation?.directConversationId
-        || selectedConversation?.currentContext?.id;
+    // Use the conversationId (always a DirectConversation) for API context resolution
+    const convId = selectedConversation?.conversationId || selectedConversation?.directConversationId;
 
     // Display type: actual conversation context (booking/offer/direct) for UI labels and links
     const displayContextType = selectedConversation?.currentContext?.type ?? 'direct';
     const displayContextId = selectedConversation?.currentContext?.id;
 
     const { otherUser: contextOtherUser, patient: contextPatient, loading: contextLoading } =
-        useConversationContext(apiContextType, apiContextId);
+        useConversationContext(convId ? 'direct' : null, convId);
 
     const otherUser = selectedConversation?.otherUser || contextOtherUser;
     // Prefer contextPatient (from API, has full details like email) over conversation list patient
@@ -149,7 +145,7 @@ export default function CustomerMessagesPage() {
                 ) : (
                     <>
                         <ChatHeader selected={selected} selectedConversation={selectedConversation} onBack={handleBackToList} headerActions={headerActions} />
-                        <ChatThread messages={messages} loading={msgLoading} error={msgError} currentUser={user} retryMessage={retryMessage} threadId={selected?.id} hasMore={hasMore} loadOlderMessages={loadOlderMessages} loadingMore={loadingMore} />
+                        <ChatThread messages={messages} loading={msgLoading} error={msgError} currentUser={user} retryMessage={retryMessage} threadId={selected?.conversationId} hasMore={hasMore} loadOlderMessages={loadOlderMessages} loadingMore={loadingMore} />
                         <MessageInput inputValue={inputValue} setInputValue={setInputValue} onSend={handleSendMessage} />
                     </>
                 )}
