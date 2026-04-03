@@ -6,3 +6,4 @@ export { default as MessageInput } from "./MessageInput";
 export { default as ConversationList } from "./ConversationList";
 export { default as ChatThread } from "./ChatThread";
 export { default as SessionOfferWidget } from "./SessionOfferWidget";
+export { default as MessageAttachments } from "./MessageAttachments";

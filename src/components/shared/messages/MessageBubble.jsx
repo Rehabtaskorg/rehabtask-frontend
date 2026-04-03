@@ -1,5 +1,6 @@
 import UserAvatar from "../../ui/UserAvatar";
 import SessionOfferWidget from "./SessionOfferWidget";
+import MessageAttachments from "./MessageAttachments";
 import { getDisplayName, getPhotoUrl, formatMessageTime, formatDateSeparator, shouldShowDateSeparator } from "@/utils/messages";
 
 function DateSeparator({ label }) {
@@ -89,7 +90,13 @@ export default function MessageBubble({ msg, messages, index, currentUser, onRet
                 />
                 <div className={`flex flex-col gap-0.5 max-w-[70%] ${isSender ? 'items-end' : 'items-start'}`}>
                     <div className={`px-3.5 py-2.5 rounded-2xl text-sm leading-relaxed shadow-sm transition-opacity ${isSender ? (isFailed ? 'bg-primary text-white rounded-br-sm border-2 border-red-400' : 'bg-primary text-white rounded-br-sm') : 'bg-card-light dark:bg-card-dark text-text-main dark:text-white border border-border-light dark:border-border-dark rounded-bl-sm'} ${isSending ? 'opacity-60' : ''}`}>
-                        {msg.content}
+                        {msg.content && <span>{msg.content}</span>}
+                        {msg.attachments?.length > 0 && (
+                            <MessageAttachments attachments={msg.attachments} isSender={isSender} />
+                        )}
+                        {!msg.content && (!msg.attachments || msg.attachments.length === 0) && (
+                            <span className="italic opacity-60">Empty message</span>
+                        )}
                     </div>
                     <div className="flex items-center gap-1.5 px-1">
                         <MessageStatus
