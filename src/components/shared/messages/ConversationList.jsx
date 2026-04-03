@@ -121,12 +121,9 @@ export default function ConversationList({
                     <ul>
                         {filtered.map((conversation, idx) => (
                             <ConversationListItem
-                                key={`${conversation.currentContext?.type}-${conversation.currentContext?.id}-${idx}`}
+                                key={conversation.conversationId || `conv-${idx}`}
                                 conversation={conversation}
-                                isSelected={
-                                    (selected?.id === conversation.currentContext?.id && selected?.type === conversation.currentContext?.type) ||
-                                    (selected?.type === 'direct' && !!conversation.directConversationId && selected?.id === conversation.directConversationId)
-                                }
+                                isSelected={selected?.conversationId === conversation.conversationId}
                                 onSelect={onSelect}
                             />
                         ))}

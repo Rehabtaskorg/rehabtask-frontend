@@ -167,7 +167,9 @@ export default function TherapistRequestDetailPage() {
     }
 
     const myOffer = getMyOffer();
-    const canSendOffer = request.status !== "offers_accepted" && !myOffer && !offerSuccess;
+    // Allow resubmit if the previous offer was rejected, withdrawn, or expired
+    const offerIsTerminal = myOffer && ["rejected", "withdrawn", "expired"].includes(myOffer.status);
+    const canSendOffer = request.status !== "offers_accepted" && (!myOffer || offerIsTerminal) && !offerSuccess;
     const isOpen = ["created", "offers_received"].includes(request.status);
 
     return (
@@ -423,9 +425,53 @@ export default function TherapistRequestDetailPage() {
                         </section>
                     )}
 
-                    {/* Offer Sent Confirmation */}
-                    {(myOffer || offerSuccess) && (
+                    {/* Offer Status — shows current state of the therapist's offer */}
+                    {(myOffer && !offerIsTerminal) && (
                         <section className="bg-card-light dark:bg-card-dark rounded-xl p-6 shadow-sm border border-border-light dark:border-border-dark space-y-4">
+                            {myOffer.status === "pending" && (
+                                <div className="flex items-center gap-3 p-4 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-lg">
+                                    <MdCheckCircle className="text-emerald-600 dark:text-emerald-400 text-xl shrink-0" />
+                                    <div>
+                                        <p className="text-sm font-bold text-emerald-800 dark:text-emerald-200">Offer sent successfully!</p>
+                                        <p className="text-xs text-emerald-700 dark:text-emerald-300 mt-0.5">The customer will be notified and can accept within 48 hours.</p>
+                                    </div>
+                                </div>
+                            )}
+                            {myOffer.status === "accepted" && (
+                                <div className="flex items-center gap-3 p-4 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-lg">
+                                    <MdCheckCircle className="text-emerald-600 dark:text-emerald-400 text-xl shrink-0" />
+                                    <div>
+                                        <p className="text-sm font-bold text-emerald-800 dark:text-emerald-200">Offer accepted!</p>
+                                        <p className="text-xs text-emerald-700 dark:text-emerald-300 mt-0.5">A booking has been created.</p>
+                                    </div>
+                                </div>
+                            )}
+                            {myOffer.status === "change_requested" && (
+                                <div className="flex items-center gap-3 p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg">
+                                    <MdWarning className="text-amber-600 dark:text-amber-400 text-xl shrink-0" />
+                                    <div>
+                                        <p className="text-sm font-bold text-amber-800 dark:text-amber-200">Changes requested</p>
+                                        <p className="text-xs text-amber-700 dark:text-amber-300 mt-0.5">{myOffer.changeRequestNote || "The customer has requested changes to your offer."}</p>
+                                    </div>
+                                </div>
+                            )}
+
+                            <div className="space-y-2 text-sm">
+                                <div className="flex justify-between">
+                                    <span className="text-text-muted dark:text-gray-400">Your Rate</span>
+                                    <span className="font-bold text-text-main dark:text-white">${parseFloat(myOffer.rate).toFixed(2)}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-text-muted dark:text-gray-400">Status</span>
+                                    <span className="font-bold text-amber-600 dark:text-amber-400 uppercase text-xs">{myOffer.status?.replace(/_/g, " ")}</span>
+                                </div>
+                            </div>
+                        </section>
+                    )}
+
+                    {/* Just-submitted success (before myOffer refreshes) */}
+                    {offerSuccess && !myOffer && (
+                        <section className="bg-card-light dark:bg-card-dark rounded-xl p-6 shadow-sm border border-border-light dark:border-border-dark">
                             <div className="flex items-center gap-3 p-4 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-lg">
                                 <MdCheckCircle className="text-emerald-600 dark:text-emerald-400 text-xl shrink-0" />
                                 <div>
@@ -433,21 +479,23 @@ export default function TherapistRequestDetailPage() {
                                     <p className="text-xs text-emerald-700 dark:text-emerald-300 mt-0.5">The customer will be notified and can accept within 48 hours.</p>
                                 </div>
                             </div>
+                        </section>
+                    )}
 
-                            {myOffer && (
-                                <>
-                                    <div className="space-y-2 text-sm">
-                                        <div className="flex justify-between">
-                                            <span className="text-text-muted dark:text-gray-400">Your Rate</span>
-                                            <span className="font-bold text-text-main dark:text-white">${parseFloat(myOffer.rate).toFixed(2)}</span>
-                                        </div>
-                                        <div className="flex justify-between">
-                                            <span className="text-text-muted dark:text-gray-400">Status</span>
-                                            <span className="font-bold text-amber-600 dark:text-amber-400 uppercase text-xs">{myOffer.status?.replace(/_/g, " ")}</span>
-                                        </div>
-                                    </div>
-                                </>
-                            )}
+                    {/* Previous offer was rejected/withdrawn/expired — show info and allow resubmit */}
+                    {offerIsTerminal && (
+                        <section className="bg-card-light dark:bg-card-dark rounded-xl p-6 shadow-sm border border-border-light dark:border-border-dark space-y-3">
+                            <div className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-800 rounded-lg">
+                                <MdInfo className="text-slate-500 text-lg shrink-0" />
+                                <div>
+                                    <p className="text-xs font-bold text-slate-600 dark:text-slate-300">
+                                        Previous offer: <span className="uppercase">{myOffer.status?.replace(/_/g, " ")}</span>
+                                    </p>
+                                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                                        You can submit a new offer below.
+                                    </p>
+                                </div>
+                            </div>
                         </section>
                     )}
 

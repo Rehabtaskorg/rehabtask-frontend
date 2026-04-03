@@ -1,7 +1,13 @@
 "use client";
 
+import { useState } from "react";
+import Link from "next/link";
+import { useQueryClient } from "@tanstack/react-query";
 import { useOfferDetails } from "@/hooks/useOffers";
+import { offersApi } from "@/lib/offers";
+import { useAuth } from "@/hooks/useAuth";
 import { formatCurrency, formatMessageTime } from "@/utils/messages";
+import { MdCheck, MdClose, MdEdit } from "react-icons/md";
 
 const getOfferStatusBadge = (status) => {
     switch (status) {
@@ -34,8 +40,24 @@ const formatOfferTime = (dateString) => {
     return `${start} - ${end}`;
 };
 
+const STATUS_TEXT = {
+    pending: 'Awaiting patient response',
+    accepted: 'Offer accepted by patient',
+    rejected: 'Offer declined by patient',
+    change_requested: 'Patient requested changes to this offer',
+    withdrawn: 'Offer was withdrawn by therapist',
+    expired: 'Offer expired',
+};
+
 export default function SessionOfferWidget({ offerId }) {
+    const queryClient = useQueryClient();
+    const { user } = useAuth();
     const { offer, loading, error } = useOfferDetails(offerId);
+
+    const [actionLoading, setActionLoading] = useState(null); // 'accept' | 'decline' | 'change' | null
+    const [actionError, setActionError] = useState(null);
+    const [showChangeInput, setShowChangeInput] = useState(false);
+    const [changeNote, setChangeNote] = useState("");
 
     if (loading) {
         return (
@@ -49,11 +71,71 @@ export default function SessionOfferWidget({ offerId }) {
         );
     }
 
-    if (error || !offer) {
-        return null;
-    }
+    if (error || !offer) return null;
 
     const statusBadge = getOfferStatusBadge(offer.status);
+    const isCustomer = user?.role === "customer" && offer.request?.customer?.userId === user?.id;
+    const isTherapist = user?.role === "therapist";
+    const isPending = offer.status === "pending";
+    const showActions = isCustomer && isPending;
+
+    const invalidateAfterAction = () => {
+        queryClient.invalidateQueries({ queryKey: ["offer", offerId] });
+        queryClient.invalidateQueries({ queryKey: ["conversations"] });
+        queryClient.invalidateQueries({ queryKey: ["unreadCount"] });
+        // Invalidate messages to pick up system messages (offer_accepted, booking_created)
+        queryClient.invalidateQueries({ queryKey: ["messages"] });
+    };
+
+    const handleAccept = async () => {
+        if (!confirm("Accept this offer? A booking will be created and you can pay when ready.")) return;
+        setActionLoading("accept");
+        setActionError(null);
+        try {
+            await offersApi.acceptOffer(offerId);
+            invalidateAfterAction();
+        } catch (err) {
+            const code = err.response?.data?.code;
+            if (code === "THERAPIST_LIMIT_REACHED" || code === "REQUEST_LIMIT_REACHED") {
+                setActionError(err.response.data.message);
+            } else {
+                setActionError(err.response?.data?.message || "Failed to accept offer");
+            }
+        } finally {
+            setActionLoading(null);
+        }
+    };
+
+    const handleDecline = async () => {
+        if (!confirm("Decline this offer? The therapist will be notified.")) return;
+        setActionLoading("decline");
+        setActionError(null);
+        try {
+            await offersApi.declineOffer(offerId);
+            invalidateAfterAction();
+        } catch (err) {
+            setActionError(err.response?.data?.message || "Failed to decline offer");
+        } finally {
+            setActionLoading(null);
+        }
+    };
+
+    const handleRequestChange = async () => {
+        if (!changeNote.trim()) return;
+        setActionLoading("change");
+        setActionError(null);
+        try {
+            await offersApi.requestChange(offerId, changeNote.trim());
+            setShowChangeInput(false);
+            setChangeNote("");
+            invalidateAfterAction();
+        } catch (err) {
+            const errors = err.response?.data?.errors;
+            setActionError(errors?.[0]?.message || err.response?.data?.message || "Failed to send change request");
+        } finally {
+            setActionLoading(null);
+        }
+    };
 
     return (
         <div className="flex flex-col items-center py-2">
@@ -109,19 +191,94 @@ export default function SessionOfferWidget({ offerId }) {
                         </div>
                     )}
 
+                    {/* Status text */}
                     <p className="text-center text-[10px] text-text-muted dark:text-gray-500 italic">
-                        {offer.status === 'pending'
-                            ? 'Awaiting patient response'
-                            : offer.status === 'accepted'
-                                ? 'Offer accepted by patient'
-                                : offer.status === 'rejected'
-                                    ? 'Offer declined by patient'
-                                    : offer.status === 'change_requested'
-                                        ? 'Patient requested changes to this offer'
-                                        : offer.status === 'withdrawn'
-                                            ? 'Offer was withdrawn by therapist'
-                                            : 'Offer expired'}
+                        {STATUS_TEXT[offer.status] ?? 'Offer expired'}
                     </p>
+
+                    {/* Error message */}
+                    {actionError && (
+                        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg px-3 py-2">
+                            <p className="text-xs text-red-700 dark:text-red-300">{actionError}</p>
+                        </div>
+                    )}
+
+                    {/* Customer action buttons — only shown for pending offers owned by this customer */}
+                    {showActions && (
+                        <div className="space-y-2 pt-1">
+                            <div className="flex gap-2">
+                                <button
+                                    onClick={handleAccept}
+                                    disabled={!!actionLoading}
+                                    className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-lg bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    {actionLoading === "accept" ? (
+                                        <span className="animate-pulse">Accepting...</span>
+                                    ) : (
+                                        <><MdCheck className="text-sm" /> Accept Offer</>
+                                    )}
+                                </button>
+                                <button
+                                    onClick={handleDecline}
+                                    disabled={!!actionLoading}
+                                    className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-lg border border-red-300 dark:border-red-700 text-red-600 dark:text-red-400 text-xs font-bold hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    {actionLoading === "decline" ? (
+                                        <span className="animate-pulse">Declining...</span>
+                                    ) : (
+                                        <><MdClose className="text-sm" /> Decline</>
+                                    )}
+                                </button>
+                            </div>
+
+                            {!showChangeInput ? (
+                                <button
+                                    onClick={() => setShowChangeInput(true)}
+                                    disabled={!!actionLoading}
+                                    className="w-full flex items-center justify-center gap-1.5 py-2 text-xs font-semibold text-text-muted dark:text-gray-400 hover:text-primary dark:hover:text-primary transition-colors disabled:opacity-50"
+                                >
+                                    <MdEdit className="text-sm" /> Request Changes
+                                </button>
+                            ) : (
+                                <div className="space-y-2">
+                                    <textarea
+                                        value={changeNote}
+                                        onChange={(e) => setChangeNote(e.target.value)}
+                                        placeholder="Describe the changes you'd like..."
+                                        maxLength={500}
+                                        rows={2}
+                                        className="w-full text-xs bg-background-light dark:bg-background-dark border border-border-light dark:border-border-dark rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none resize-none text-text-main dark:text-white placeholder:text-text-muted"
+                                    />
+                                    <div className="flex gap-2">
+                                        <button
+                                            onClick={handleRequestChange}
+                                            disabled={!changeNote.trim() || !!actionLoading}
+                                            className="flex-1 py-2 rounded-lg bg-amber-500 text-white text-xs font-bold hover:bg-amber-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                        >
+                                            {actionLoading === "change" ? "Sending..." : "Send Request"}
+                                        </button>
+                                        <button
+                                            onClick={() => { setShowChangeInput(false); setChangeNote(""); }}
+                                            disabled={!!actionLoading}
+                                            className="px-3 py-2 rounded-lg text-xs font-medium text-text-muted hover:text-text-main dark:hover:text-white transition-colors"
+                                        >
+                                            Cancel
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    )}
+
+                    {/* Therapist: link to offer detail in My Offers */}
+                    {isTherapist && (
+                        <Link
+                            href="/therapist/offers"
+                            className="block w-full text-center text-[11px] font-semibold text-primary hover:underline pt-1"
+                        >
+                            View in My Offers →
+                        </Link>
+                    )}
                 </div>
             </div>
             {offer.createdAt && (

@@ -41,9 +41,9 @@ export default function DashboardApprovedView() {
                 api.get("/payments/connect/status").catch(() => ({ data: { data: { connected: false } } })),
             ]);
 
-            const requests = requestRes.data.data;
-            const bookings = bookingRes.data.data;
-            const earnings = earningRes.data.data;
+            const requests = requestRes.data.data.requests || [];
+            const bookings = bookingRes.data.data || [];
+            const earnings = earningRes.data.data || {};
 
             const upcomingStatuses = ["accepted", "confirmed", "in_progress"];
 

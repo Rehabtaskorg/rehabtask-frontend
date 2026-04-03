@@ -6,6 +6,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { MdSearch, MdChevronLeft, MdChevronRight, MdWork, MdInfo, MdArrowForward } from "react-icons/md";
 import { usePublicRequests } from "@/hooks/usePublic";
+import { useAppRole } from "@/hooks/useAppRole";
 import RequestPublicCard from "@/components/public/RequestPublicCard";
 import LocationAutocomplete from "@/components/public/LocationAutocomplete";
 import AuthGateModal from "@/components/public/AuthGateModal";
@@ -18,6 +19,8 @@ const DISCIPLINE_MAP = {
 };
 
 function BrowseRequestsContent() {
+    const userRole = useAppRole();
+
     // --- Draft inputs (not sent until Find Jobs click) ---
     const [searchInput, setSearchInput] = useState("");
     const [locationInput, setLocationInput] = useState("");
@@ -215,7 +218,7 @@ function BrowseRequestsContent() {
                 <CTABanner />
             </div>
 
-            <AuthGateModal isOpen={gateOpen} onClose={() => setGateOpen(false)} trigger={gateTrigger} redirectPath="/requests" />
+            <AuthGateModal isOpen={gateOpen} onClose={() => setGateOpen(false)} trigger={gateTrigger} redirectPath="/requests" userRole={userRole} />
         </>
     );
 }

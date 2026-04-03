@@ -54,10 +54,13 @@ export function useConversations(pollInterval) {
 
 /**
  * Hook to manage messages in an active conversation thread
- * @param {string} contextType - "offer" | "booking"
- * @param {string} contextId - UUID
+ * Phase 3: takes conversationId only. sendContext is used for the legacy send path.
+ *
+ * @param {string} conversationId - UUID of the DirectConversation
+ * @param {object} sendContext - { contextType, contextId } for the legacy POST /messages endpoint
+ * @param {number} pollInterval - optional poll interval in ms
  */
-export function useMessages(contextType, contextId, pollInterval) {
+export function useMessages(conversationId, sendContext = {}, pollInterval) {
     const queryClient = useQueryClient();
     const { user } = useAuth();
     const { connected } = useSocketContext();
@@ -66,21 +69,21 @@ export function useMessages(contextType, contextId, pollInterval) {
     const [loadingMore, setLoadingMore] = useState(false);
 
     const messagesQueryKey = useMemo(
-        () => ["messages", contextType, contextId],
-        [contextType, contextId]
+        () => ["messages", conversationId],
+        [conversationId]
     );
 
     const { data, isLoading, error, refetch } = useQuery({
         queryKey: messagesQueryKey,
         queryFn: async () => {
-            const res = await messagesApi.getMessages(contextType, contextId, {
+            const res = await messagesApi.getMessages(conversationId, {
                 limit: 50,
                 order: "asc"
             });
             setHasMore(res.data.data.hasMore ?? false);
             return res.data.data.messages;
         },
-        enabled: !!contextType && !!contextId,
+        enabled: !!conversationId,
         refetchInterval: resolvedPollInterval,
         refetchIntervalInBackground: false,
         ...pollingRetryConfig,
@@ -89,37 +92,30 @@ export function useMessages(contextType, contextId, pollInterval) {
     // Reset hasMore when switching conversations
     useEffect(() => {
         setHasMore(false);
-    }, [contextType, contextId]);
+    }, [conversationId]);
 
     const isSessionExpired = error?.response?.status === 401;
 
     // Mark messages as read — fires on open AND when new messages arrive while viewing
     const lastReadCountRef = useRef(0);
     useEffect(() => {
-        if (!contextType || !contextId || !data) return;
+        if (!conversationId || !data) return;
 
-        // Check if there are messages from others that are unread
         const unreadFromOthers = data.filter(
             m => m.senderId !== user?.id && !m.readAt && m.type !== "system" && !m.id?.startsWith("optimistic")
         ).length;
 
-        // Skip if no unread messages from others, or if count hasn't changed
         if (unreadFromOthers === 0 || unreadFromOthers === lastReadCountRef.current) return;
         lastReadCountRef.current = unreadFromOthers;
 
-        messagesApi.markAsRead(contextType, contextId)
+        messagesApi.markAsRead(conversationId)
             .then(() => {
                 queryClient.setQueryData(["conversations"], (old) =>
-                    old?.map((conv) => {
-                        const matchesCurrent = conv.currentContext?.type === contextType &&
-                            conv.currentContext?.id === contextId;
-                        const matchesDirect = contextType === "direct" &&
-                            conv.directConversationId === contextId;
-
-                        return (matchesCurrent || matchesDirect)
+                    old?.map((conv) =>
+                        conv.conversationId === conversationId
                             ? { ...conv, unreadCount: 0 }
-                            : conv;
-                    }) ?? []
+                            : conv
+                    ) ?? []
                 );
                 queryClient.invalidateQueries({ queryKey: ["unreadCount"] });
                 queryClient.invalidateQueries({ queryKey: ["conversations"] });
@@ -127,24 +123,24 @@ export function useMessages(contextType, contextId, pollInterval) {
             .catch(() => { });
 
         return () => { lastReadCountRef.current = 0; };
-    }, [contextType, contextId, data, user?.id, queryClient]);
+    }, [conversationId, data, user?.id, queryClient]);
+
+    // Send message — uses the legacy POST /messages with contextType/contextId
+    // which dual-writes to the DirectConversation automatically
+    const { contextType, contextId } = sendContext;
 
     const { mutateAsync: sendMessageMutation } = useMutation({
         mutationFn: (content) =>
             messagesApi.sendMessage({
                 content: content.trim(),
-                contextType,
-                contextId,
+                contextType: contextType || "direct",
+                contextId: contextId || conversationId,
             }),
 
         onMutate: async (content) => {
-            // Cancel-in flight polls so they don't overwrite the optimistic message
             await queryClient.cancelQueries({ queryKey: messagesQueryKey });
-
-            // Snapshot current cache for potential rollback
             const previousMessages = queryClient.getQueryData(messagesQueryKey);
 
-            // Build optimistic message
             const optimisticId = `optimistic-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
             const optimisticMessage = {
                 id: optimisticId,
@@ -157,7 +153,6 @@ export function useMessages(contextType, contextId, pollInterval) {
                 status: "sending",
             };
 
-            // Append optimistic message to cache
             queryClient.setQueryData(messagesQueryKey, (old) =>
                 old ? [...old, optimisticMessage] : [optimisticMessage]
             );
@@ -167,7 +162,6 @@ export function useMessages(contextType, contextId, pollInterval) {
 
         onSuccess: (res, _content, context) => {
             const serverMessage = res.data.data.message;
-            // Replace optimistic entry with real server message
             queryClient.setQueryData(messagesQueryKey, (old) =>
                 old
                     ? old.map((m) =>
@@ -175,14 +169,11 @@ export function useMessages(contextType, contextId, pollInterval) {
                     )
                     : [serverMessage]
             );
-
-            // Refresh sidebar and badge
             queryClient.invalidateQueries({ queryKey: ["conversations"] });
             queryClient.invalidateQueries({ queryKey: ["unreadCount"] });
         },
 
         onError: (_error, _content, context) => {
-            // Don't rollback - mark the optimistic message as failed so user can retry
             queryClient.setQueryData(messagesQueryKey, (old) =>
                 old
                     ? old.map((m) =>
@@ -195,8 +186,6 @@ export function useMessages(contextType, contextId, pollInterval) {
         },
 
         onSettled: (_data, error) => {
-            // Only refetch on success — on error, keep the failed optimistic message visible
-            // so the user can see the failure state and retry
             if (!error) {
                 queryClient.invalidateQueries({ queryKey: messagesQueryKey });
             }
@@ -212,15 +201,14 @@ export function useMessages(contextType, contextId, pollInterval) {
     );
 
     const loadOlderMessages = useCallback(async () => {
-        if (!hasMore || loadingMore || !contextType || !contextId) return;
+        if (!hasMore || loadingMore || !conversationId) return;
         const current = queryClient.getQueryData(messagesQueryKey);
-        // Find the oldest real message (not system divider) to use as cursor
         const oldestReal = current?.findLast(m => m.type !== "system" && !m.id?.startsWith("optimistic"));
         if (!oldestReal) return;
 
         setLoadingMore(true);
         try {
-            const res = await messagesApi.getMessages(contextType, contextId, {
+            const res = await messagesApi.getMessages(conversationId, {
                 limit: 50,
                 order: "asc",
                 cursor: oldestReal.id,
@@ -238,7 +226,7 @@ export function useMessages(contextType, contextId, pollInterval) {
         } finally {
             setLoadingMore(false);
         }
-    }, [hasMore, loadingMore, contextType, contextId, queryClient, messagesQueryKey]);
+    }, [hasMore, loadingMore, conversationId, queryClient, messagesQueryKey]);
 
     const retryMessage = useCallback(
         (tempId) => {
@@ -246,7 +234,6 @@ export function useMessages(contextType, contextId, pollInterval) {
             const failedMsg = current?.find((m) => m.id === tempId);
             if (!failedMsg) return;
 
-            // Remove the failed entry - onMutate will insert a fresh optimistic one
             queryClient.setQueryData(messagesQueryKey, (old) =>
                 old ? old.filter((m) => m.id !== tempId) : []
             );
@@ -273,7 +260,7 @@ export function useMessages(contextType, contextId, pollInterval) {
 /**
  * Hook to get the other party's info for a conversation
  * Fetches directly from offer/booking record — works even when no messages exist yet
- * @param {string} contextType - "offer" | "booking"
+ * @param {string} contextType - "offer" | "booking" | "direct"
  * @param {string} contextId - UUID
  */
 export function useConversationContext(contextType, contextId) {

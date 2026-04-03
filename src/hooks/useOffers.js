@@ -11,7 +11,7 @@ export function useOfferDetails(offerId) {
             return res.data.data.offer;
         },
         enabled: !!offerId,
-        staleTime: 60 * 1000,
+        staleTime: 5 * 1000, // 5s — keep responsive for real-time status updates
     });
 
     return { offer: data ?? null, loading: isLoading, error: !!error };

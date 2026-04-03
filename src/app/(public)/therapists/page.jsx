@@ -5,6 +5,7 @@ import { APIProvider } from "@vis.gl/react-google-maps";
 import { motion } from "framer-motion";
 import { MdChevronLeft, MdChevronRight } from "react-icons/md";
 import { useSearchTherapists } from "@/hooks/usePublic";
+import { useAppRole } from "@/hooks/useAppRole";
 import TherapistSearchHeader from "@/components/public/TherapistSearchHeader";
 import TherapistFilterSidebar, { FilterToggleButton } from "@/components/public/TherapistFilterSidebar";
 import TherapistPublicCard from "@/components/public/TherapistPublicCard";
@@ -35,6 +36,8 @@ function mapTherapist(t) {
 }
 
 function FindTherapistsContent() {
+    const userRole = useAppRole();
+
     // --- Search header inputs (draft state, not sent until submit) ---
     const [searchInput, setSearchInput] = useState("");
     const [locationInput, setLocationInput] = useState("");
@@ -260,6 +263,7 @@ function FindTherapistsContent() {
                 onClose={() => setGateOpen(false)}
                 trigger={gateTrigger}
                 redirectPath="/therapists"
+                userRole={userRole}
             />
         </>
     );
