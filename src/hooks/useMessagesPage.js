@@ -258,22 +258,60 @@ export function useMessagesPage(basePath) {
             return;
         }
 
-        // Attachment upload path
+        // Attachment upload path — with optimistic message
         if (hasFiles && selected?.conversationId) {
             setUploading(true);
+            const convId = selected.conversationId;
+            const messagesKey = ["messages", convId];
+
+            // Build optimistic message with local file previews
+            const optimisticId = `optimistic-upload-${Date.now()}`;
+            const optimisticAttachments = files.map((file, i) => ({
+                id: `${optimisticId}-att-${i}`,
+                fileName: file.name,
+                fileSize: file.size,
+                mimeType: file.type,
+                _localPreviewUrl: file.type.startsWith("image/") ? URL.createObjectURL(file) : null,
+            }));
+            const optimisticMsg = {
+                id: optimisticId,
+                content: content?.trim() || "",
+                senderId: user?.id,
+                sender: { id: user?.id },
+                createdAt: new Date().toISOString(),
+                readAt: null,
+                type: "message",
+                status: "sending",
+                attachments: optimisticAttachments,
+            };
+
+            // Insert optimistic message into cache immediately
+            queryClient.setQueryData(messagesKey, (old) =>
+                old ? [...old, optimisticMsg] : [optimisticMsg]
+            );
+
             try {
-                await messagesApi.uploadAttachments(
-                    selected.conversationId,
-                    files,
-                    content?.trim() || ""
-                );
-                // Refresh message list and conversations
-                queryClient.invalidateQueries({ queryKey: ["messages", selected.conversationId] });
+                await messagesApi.uploadAttachments(convId, files, content?.trim() || "");
+
+                // Clean up local blob URLs
+                optimisticAttachments.forEach(a => {
+                    if (a._localPreviewUrl) URL.revokeObjectURL(a._localPreviewUrl);
+                });
+
+                // Replace optimistic with real data from server
+                queryClient.invalidateQueries({ queryKey: messagesKey });
                 queryClient.invalidateQueries({ queryKey: ["conversations"] });
                 queryClient.invalidateQueries({ queryKey: ["unreadCount"] });
-                queryClient.invalidateQueries({ queryKey: ["conversation-attachments", selected.conversationId] });
+                queryClient.invalidateQueries({ queryKey: ["conversation-attachments", convId] });
             } catch (err) {
                 console.error("Failed to upload attachments:", err);
+                // Mark optimistic message as failed
+                queryClient.setQueryData(messagesKey, (old) =>
+                    old?.map(m => m.id === optimisticId ? { ...m, status: "failed" } : m) ?? []
+                );
+                optimisticAttachments.forEach(a => {
+                    if (a._localPreviewUrl) URL.revokeObjectURL(a._localPreviewUrl);
+                });
                 setDirectSendError(err.response?.data?.message || "Failed to upload files. Please try again.");
             } finally {
                 setUploading(false);

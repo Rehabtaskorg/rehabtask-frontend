@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { messagesApi } from "@/lib/messages.api";
 import { MdDownload, MdDescription, MdInsertDriveFile, MdImage, MdOpenInNew } from "react-icons/md";
 
@@ -64,28 +64,28 @@ function useAttachmentUrl() {
 }
 
 /**
- * Image thumbnail that opens the full-size image on click
+ * Image thumbnail that opens the full-size image on click.
+ * Supports two modes:
+ * - localPreviewUrl: used for optimistic messages (sender sees local file immediately)
+ * - attachment.id: fetches signed URL on mount (receiver/normal load)
  */
 function ImageThumbnail({ attachment, openAttachment, isLoading }) {
-    const [imgSrc, setImgSrc] = useState(null);
+    const [imgSrc, setImgSrc] = useState(attachment._localPreviewUrl || null);
     const [imgError, setImgError] = useState(false);
 
-    // Lazy-load the signed URL for the thumbnail preview
-    const loadPreview = useCallback(async () => {
-        if (imgSrc || imgError) return;
-        try {
-            const res = await messagesApi.getAttachmentUrl(attachment.id);
-            setImgSrc(res.data.data.signedUrl);
-        } catch {
-            setImgError(true);
-        }
-    }, [attachment.id, imgSrc, imgError]);
+    // Auto-fetch signed URL on mount (skip if we already have a local preview)
+    useEffect(() => {
+        if (imgSrc || imgError || !attachment.id) return;
+        let cancelled = false;
+        messagesApi.getAttachmentUrl(attachment.id)
+            .then((res) => { if (!cancelled) setImgSrc(res.data.data.signedUrl); })
+            .catch(() => { if (!cancelled) setImgError(true); });
+        return () => { cancelled = true; };
+    }, [attachment.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
     return (
         <button
             onClick={() => openAttachment(attachment.id)}
-            onMouseEnter={loadPreview}
-            onFocus={loadPreview}
             disabled={isLoading}
             className="relative aspect-square rounded-lg overflow-hidden bg-slate-100 dark:bg-slate-800 hover:opacity-90 transition-opacity cursor-pointer group"
             title={attachment.fileName}
