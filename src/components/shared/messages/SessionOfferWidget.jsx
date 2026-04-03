@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useQueryClient } from "@tanstack/react-query";
 import { useOfferDetails } from "@/hooks/useOffers";
 import { offersApi } from "@/lib/offers";
@@ -74,6 +75,7 @@ export default function SessionOfferWidget({ offerId }) {
 
     const statusBadge = getOfferStatusBadge(offer.status);
     const isCustomer = user?.role === "customer" && offer.request?.customer?.userId === user?.id;
+    const isTherapist = user?.role === "therapist";
     const isPending = offer.status === "pending";
     const showActions = isCustomer && isPending;
 
@@ -266,6 +268,16 @@ export default function SessionOfferWidget({ offerId }) {
                                 </div>
                             )}
                         </div>
+                    )}
+
+                    {/* Therapist: link to offer detail in My Offers */}
+                    {isTherapist && (
+                        <Link
+                            href="/therapist/offers"
+                            className="block w-full text-center text-[11px] font-semibold text-primary hover:underline pt-1"
+                        >
+                            View in My Offers →
+                        </Link>
                     )}
                 </div>
             </div>
