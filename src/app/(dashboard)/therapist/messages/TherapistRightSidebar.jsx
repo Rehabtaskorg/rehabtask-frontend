@@ -111,22 +111,40 @@ export default function TherapistRightSidebar({ selectedConversation }) {
                 )}
             </div>
 
-            {/* Upcoming Session (for bookings) */}
-            {displayContextType === 'booking' && (
-                <div className="mt-4 space-y-2">
-                    <p className="text-text-muted dark:text-gray-400 text-[10px] font-bold uppercase tracking-widest">Upcoming Session</p>
-                    <div className="p-3 rounded-lg bg-primary/5 dark:bg-primary/10 border border-primary/20">
-                        <p className="text-[10px] text-primary font-bold">NEXT SESSION</p>
-                        <p className="text-xs text-text-main dark:text-white font-bold mt-1">View booking for details</p>
-                        <Link
-                            href={`/therapist/bookings/${displayContextId}`}
-                            className="text-[10px] text-primary font-medium hover:underline mt-1 inline-block"
-                        >
-                            Go to booking →
-                        </Link>
+            {/* Session status (for bookings — context-aware) */}
+            {displayContextType === 'booking' && (() => {
+                const bookingStatus = selectedConversation?.currentContext?.data?.status;
+                const isUpcoming = ["accepted", "confirmed", "in_progress"].includes(bookingStatus);
+                const isCompleted = bookingStatus === "completed";
+                const isCancelled = bookingStatus === "cancelled";
+
+                if (isCancelled) return null; // Don't show anything for cancelled bookings
+
+                return (
+                    <div className="mt-4 space-y-2">
+                        <p className="text-text-muted dark:text-gray-400 text-[10px] font-bold uppercase tracking-widest">
+                            {isCompleted ? "Session Complete" : "Upcoming Session"}
+                        </p>
+                        <div className={`p-3 rounded-lg border ${isCompleted
+                            ? "bg-emerald-50 dark:bg-emerald-900/10 border-emerald-200 dark:border-emerald-800"
+                            : "bg-primary/5 dark:bg-primary/10 border-primary/20"
+                        }`}>
+                            <p className={`text-[10px] font-bold ${isCompleted ? "text-emerald-600 dark:text-emerald-400" : "text-primary"}`}>
+                                {isCompleted ? "COMPLETED" : isUpcoming ? "NEXT SESSION" : "PENDING"}
+                            </p>
+                            <p className="text-xs text-text-main dark:text-white font-bold mt-1">
+                                {isCompleted ? "Session completed successfully" : "View booking for details"}
+                            </p>
+                            <Link
+                                href={`/therapist/bookings/${displayContextId}`}
+                                className="text-[10px] text-primary font-medium hover:underline mt-1 inline-block"
+                            >
+                                Go to booking →
+                            </Link>
+                        </div>
                     </div>
-                </div>
-            )}
+                );
+            })()}
 
             {/* Customer's open requests — shown when chatting with a customer */}
             {isCustomerConversation && (
