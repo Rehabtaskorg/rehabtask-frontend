@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useMessagesPage } from "@/hooks/useMessagesPage";
 import { ConversationList, ChatHeader, ChatThread, MessageInput } from "@/components/shared/messages";
 import TherapistRightSidebar from "./TherapistRightSidebar";
+import TherapistInputActions from "./TherapistInputActions";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { useTherapistAccess } from "@/contexts/TherapistAccessContext";
 import LockedPageOverlay from "@/components/therapist/LockedPageOverlay";
@@ -95,6 +96,11 @@ function TherapistMessagesContent() {
                             setInputValue={setInputValue}
                             onSend={handleSendMessage}
                             placeholder="Type a message..."
+                            actions={
+                                selectedConversation?.otherUser?.role === "customer"
+                                    ? <TherapistInputActions customerUserId={selectedConversation.otherUser.id} />
+                                    : null
+                            }
                         />
                     </>
                 )}
