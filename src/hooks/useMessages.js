@@ -130,14 +130,15 @@ export function useMessages(conversationId, sendContext = {}, pollInterval) {
     const { contextType, contextId } = sendContext;
 
     const { mutateAsync: sendMessageMutation } = useMutation({
-        mutationFn: (content) =>
+        mutationFn: ({ content, replyToId }) =>
             messagesApi.sendMessage({
                 content: content.trim(),
                 contextType: contextType || "direct",
                 contextId: contextId || conversationId,
+                replyToId: replyToId || undefined,
             }),
 
-        onMutate: async (content) => {
+        onMutate: async ({ content, replyToId, _replyPreview }) => {
             await queryClient.cancelQueries({ queryKey: messagesQueryKey });
             const previousMessages = queryClient.getQueryData(messagesQueryKey);
 
@@ -151,6 +152,8 @@ export function useMessages(conversationId, sendContext = {}, pollInterval) {
                 readAt: null,
                 type: "text",
                 status: "sending",
+                replyToId: replyToId || null,
+                replyTo: _replyPreview || null,
             };
 
             queryClient.setQueryData(messagesQueryKey, (old) =>
@@ -193,9 +196,9 @@ export function useMessages(conversationId, sendContext = {}, pollInterval) {
     });
 
     const sendMessage = useCallback(
-        (content) => {
+        (content, replyToId, replyPreview) => {
             if (!content.trim() || !user) return;
-            sendMessageMutation(content);
+            sendMessageMutation({ content, replyToId, _replyPreview: replyPreview });
         },
         [user, sendMessageMutation]
     );
@@ -238,7 +241,7 @@ export function useMessages(conversationId, sendContext = {}, pollInterval) {
                 old ? old.filter((m) => m.id !== tempId) : []
             );
 
-            sendMessageMutation(failedMsg.content);
+            sendMessageMutation({ content: failedMsg.content, replyToId: failedMsg.replyToId });
         },
         [queryClient, messagesQueryKey, sendMessageMutation]
     )

@@ -32,7 +32,7 @@ function TherapistMessagesContent() {
     const {
         user, conversations, messages, selected, selectedConversation,
         convLoading, convError, convSessionExpired, msgLoading, msgError,
-        mobileView, inputValue, setInputValue, uploading,
+        mobileView, inputValue, setInputValue, uploading, replyingTo, setReplyingTo,
         hasMore, loadOlderMessages, loadingMore,
         handleSelectConversation, handleBackToList, handleSendMessage, retryMessage
     } = useMessagesPage("/therapist/messages");
@@ -85,6 +85,7 @@ function TherapistMessagesContent() {
                             error={msgError}
                             currentUser={user}
                             retryMessage={retryMessage}
+                            onReply={setReplyingTo}
                             threadId={selected?.conversationId}
                             hasMore={hasMore}
                             loadOlderMessages={loadOlderMessages}
@@ -96,6 +97,8 @@ function TherapistMessagesContent() {
                             onSend={handleSendMessage}
                             placeholder="Type a message..."
                             uploading={uploading}
+                            replyingTo={replyingTo}
+                            onCancelReply={() => setReplyingTo(null)}
                         />
                     </>
                 )}

@@ -2,6 +2,7 @@
 
 import { useRef, useState, useCallback } from "react";
 import UploadPreview from "./UploadPreview";
+import ReplyPreview from "./ReplyPreview";
 
 const MAX_FILES = 5;
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
@@ -18,7 +19,7 @@ const ALLOWED_TYPES = [
  * - When files are present, the parent handles the upload API call
  * - When no files, the parent uses the standard text-only send path
  */
-export default function MessageInput({ inputValue, setInputValue, onSend, placeholder = "Type a message...", uploading = false }) {
+export default function MessageInput({ inputValue, setInputValue, onSend, placeholder = "Type a message...", uploading = false, replyingTo = null, onCancelReply }) {
     const inputRef = useRef(null);
     const fileInputRef = useRef(null);
     const [stagedFiles, setStagedFiles] = useState([]);
@@ -136,6 +137,9 @@ export default function MessageInput({ inputValue, setInputValue, onSend, placeh
                 onChange={handleFileChange}
                 className="hidden"
             />
+
+            {/* Reply preview bar */}
+            <ReplyPreview message={replyingTo} onCancel={onCancelReply} />
 
             {/* Upload preview bar */}
             <UploadPreview

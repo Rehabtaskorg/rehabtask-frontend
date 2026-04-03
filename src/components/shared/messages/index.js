@@ -10,3 +10,4 @@ export { default as MessageAttachments } from "./MessageAttachments";
 export { default as UploadPreview } from "./UploadPreview";
 export { default as SharedFiles } from "./SharedFiles";
 export { default as AttachmentsModal } from "./AttachmentsModal";
+export { default as ReplyPreview } from "./ReplyPreview";

@@ -47,7 +47,7 @@ function NoConversationSelected() {
  * @param {React.ReactNode} [props.emptyStateExtra] - content above the empty state (e.g. SessionOfferWidget)
  * @param {React.ReactNode} [props.beforeMessages] - content before the messages list (e.g. SessionOfferWidget for non-empty)
  */
-export default function ChatThread({ messages, loading, error, currentUser, retryMessage, emptyStateExtra, beforeMessages, threadId, hasMore, loadOlderMessages, loadingMore }) {
+export default function ChatThread({ messages, loading, error, currentUser, retryMessage, onReply, emptyStateExtra, beforeMessages, threadId, hasMore, loadOlderMessages, loadingMore }) {
     const messagesEndRef = useRef(null);
     const isFirstLoad = useRef(true);
     const prevThreadId = useRef(null);
@@ -107,6 +107,7 @@ export default function ChatThread({ messages, loading, error, currentUser, retr
                                 index={idx}
                                 currentUser={currentUser}
                                 onRetry={retryMessage}
+                                onReply={onReply}
                             />
                         ))}
                         <div ref={messagesEndRef} />

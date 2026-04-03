@@ -60,6 +60,9 @@ export function useMessagesPage(basePath) {
     const [mobileView, setMobileView] = useState("list");
     const [inputValue, setInputValue] = useState("");
 
+    // Reply-to state: the message being replied to (null = not replying)
+    const [replyingTo, setReplyingTo] = useState(null);
+
     // Track new direct conversation (no DirectConversation exists yet)
     // URL will be ?c=new:{therapistUserId}
     const [pendingDirectRecipientId, setPendingDirectRecipientId] = useState(null);
@@ -198,10 +201,11 @@ export function useMessagesPage(basePath) {
         }
     }, [conversations, selectedConversation, pendingDirectRecipientId]);
 
-    // Reset input when switching conversations
+    // Reset input and reply state when switching conversations
     useEffect(() => {
         if (selected?.conversationId) {
             setInputValue("");
+            setReplyingTo(null);
         }
     }, [selected?.conversationId]);
 
@@ -283,6 +287,13 @@ export function useMessagesPage(basePath) {
                 type: "message",
                 status: "sending",
                 attachments: optimisticAttachments,
+                replyToId: replyingTo?.id || null,
+                replyTo: replyingTo ? {
+                    id: replyingTo.id,
+                    content: replyingTo.content,
+                    senderId: replyingTo.senderId,
+                    sender: replyingTo.sender,
+                } : null,
             };
 
             // Insert optimistic message into cache immediately
@@ -291,7 +302,8 @@ export function useMessagesPage(basePath) {
             );
 
             try {
-                await messagesApi.uploadAttachments(convId, files, content?.trim() || "");
+                await messagesApi.uploadAttachments(convId, files, content?.trim() || "", replyingTo?.id);
+                setReplyingTo(null);
 
                 // Clean up local blob URLs
                 optimisticAttachments.forEach(a => {
@@ -321,9 +333,18 @@ export function useMessagesPage(basePath) {
 
         // Standard text-only send
         if (hasText) {
-            sendMessage(content);
+            // Build reply preview for optimistic rendering
+            const replyPreview = replyingTo ? {
+                id: replyingTo.id,
+                content: replyingTo.content,
+                senderId: replyingTo.senderId,
+                sender: replyingTo.sender,
+                attachments: replyingTo.attachments,
+            } : null;
+            sendMessage(content, replyingTo?.id, replyPreview);
+            setReplyingTo(null);
         }
-    }, [pendingDirectRecipientId, sendMessage, selected?.conversationId, refetchConversations, updateUrlParam, queryClient]);
+    }, [pendingDirectRecipientId, sendMessage, replyingTo, selected?.conversationId, refetchConversations, updateUrlParam, queryClient]);
 
     return {
         // Data
@@ -345,6 +366,8 @@ export function useMessagesPage(basePath) {
         inputValue,
         setInputValue,
         uploading,
+        replyingTo,
+        setReplyingTo,
 
         // Pagination
         hasMore,

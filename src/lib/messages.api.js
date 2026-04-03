@@ -32,8 +32,8 @@ export const messagesApi = {
      * contextType/contextId still used for the legacy createMessage path
      * which dual-writes to the DirectConversation automatically
      */
-    sendMessage: async ({ content, contextType, contextId }) => {
-        return api.post("/messages", { content, contextType, contextId });
+    sendMessage: async ({ content, contextType, contextId, replyToId }) => {
+        return api.post("/messages", { content, contextType, contextId, ...(replyToId && { replyToId }) });
     },
 
     /**
@@ -78,10 +78,11 @@ export const messagesApi = {
      * @param {File[]} files - Array of File objects
      * @param {string} content - Optional text content
      */
-    uploadAttachments: async (conversationId, files, content = "") => {
+    uploadAttachments: async (conversationId, files, content = "", replyToId = null) => {
         const formData = new FormData();
         files.forEach((file) => formData.append("files", file));
         if (content.trim()) formData.append("content", content.trim());
+        if (replyToId) formData.append("replyToId", replyToId);
 
         return api.post(`/messages/c/${conversationId}/attachments`, formData, {
             headers: { "Content-Type": "multipart/form-data" },

@@ -144,7 +144,7 @@ export default function CustomerMessagesPage() {
     const {
         user, conversations, messages, selected, selectedConversation,
         convLoading, convError, convSessionExpired, msgLoading, msgError,
-        mobileView, inputValue, setInputValue, uploading,
+        mobileView, inputValue, setInputValue, uploading, replyingTo, setReplyingTo,
         hasMore, loadOlderMessages, loadingMore,
         handleSelectConversation, handleBackToList, handleSendMessage, retryMessage,
     } = useMessagesPage("/customer/messages");
@@ -179,8 +179,8 @@ export default function CustomerMessagesPage() {
                 ) : (
                     <>
                         <ChatHeader selected={selected} selectedConversation={selectedConversation} onBack={handleBackToList} headerActions={headerActions} />
-                        <ChatThread messages={messages} loading={msgLoading} error={msgError} currentUser={user} retryMessage={retryMessage} threadId={selected?.conversationId} hasMore={hasMore} loadOlderMessages={loadOlderMessages} loadingMore={loadingMore} />
-                        <MessageInput inputValue={inputValue} setInputValue={setInputValue} onSend={handleSendMessage} uploading={uploading} />
+                        <ChatThread messages={messages} loading={msgLoading} error={msgError} currentUser={user} retryMessage={retryMessage} onReply={setReplyingTo} threadId={selected?.conversationId} hasMore={hasMore} loadOlderMessages={loadOlderMessages} loadingMore={loadingMore} />
+                        <MessageInput inputValue={inputValue} setInputValue={setInputValue} onSend={handleSendMessage} uploading={uploading} replyingTo={replyingTo} onCancelReply={() => setReplyingTo(null)} />
                     </>
                 )}
             </section>
