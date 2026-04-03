@@ -7,12 +7,14 @@ import { useConversationContext } from "@/hooks/useMessages";
 import { getDisplayName, getPhotoUrl, getContextBadge } from "@/utils/messages";
 import { RightSidebarSkeleton } from "@/components/shared/messages";
 import SharedFiles from "@/components/shared/messages/SharedFiles";
+import AttachmentsModal from "@/components/shared/messages/AttachmentsModal";
 import UserAvatar from "@/components/ui/UserAvatar";
 import { MdDescription, MdLocationOn, MdCalendarToday, MdArrowForward, MdCheckCircle } from "react-icons/md";
 
 export default function TherapistRightSidebar({ selectedConversation }) {
     // Use the conversationId (always a DirectConversation) for API context resolution
     const convId = selectedConversation?.conversationId || selectedConversation?.directConversationId;
+    const [showAttachmentsModal, setShowAttachmentsModal] = useState(false);
 
     // Display type: actual conversation context (booking/offer/direct) for UI labels and links
     const displayContextType = selectedConversation?.currentContext?.type ?? 'direct';
@@ -221,7 +223,14 @@ export default function TherapistRightSidebar({ selectedConversation }) {
             )}
 
             {/* Shared files */}
-            {convId && <SharedFiles conversationId={convId} />}
+            {convId && <SharedFiles conversationId={convId} onViewAll={() => setShowAttachmentsModal(true)} />}
+
+            {/* Attachments modal */}
+            <AttachmentsModal
+                isOpen={showAttachmentsModal}
+                onClose={() => setShowAttachmentsModal(false)}
+                conversationId={convId}
+            />
         </div>
     )
 }
