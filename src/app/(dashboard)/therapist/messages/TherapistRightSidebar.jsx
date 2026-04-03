@@ -6,6 +6,7 @@ import { api } from "@/lib/api";
 import { useConversationContext } from "@/hooks/useMessages";
 import { getDisplayName, getPhotoUrl, getContextBadge } from "@/utils/messages";
 import { RightSidebarSkeleton } from "@/components/shared/messages";
+import SharedFiles from "@/components/shared/messages/SharedFiles";
 import UserAvatar from "@/components/ui/UserAvatar";
 import { MdDescription, MdLocationOn, MdCalendarToday, MdArrowForward, MdCheckCircle } from "react-icons/md";
 
@@ -218,6 +219,9 @@ export default function TherapistRightSidebar({ selectedConversation }) {
                     )}
                 </div>
             )}
+
+            {/* Shared files */}
+            {convId && <SharedFiles conversationId={convId} />}
         </div>
     )
 }

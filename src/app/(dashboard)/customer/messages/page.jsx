@@ -6,6 +6,7 @@ import { useMessagesPage } from "@/hooks/useMessagesPage";
 import { getDisplayName, getPhotoUrl, getContextBadge } from "@/utils/messages";
 import { RightSidebarSkeleton } from "@/components/shared/messages";
 import { ConversationList, ChatHeader, ChatThread, MessageInput } from "@/components/shared/messages";
+import SharedFiles from "@/components/shared/messages/SharedFiles";
 import UserAvatar from "@/components/ui/UserAvatar";
 import { usePageTitle } from "@/hooks/usePageTitle";
 
@@ -121,6 +122,9 @@ function CustomerRightSidebar({ selectedConversation }) {
                     </div>
                 );
             })()}
+
+            {/* Shared files */}
+            {convId && <SharedFiles conversationId={convId} />}
         </div>
     );
 }
