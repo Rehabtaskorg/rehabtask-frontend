@@ -48,12 +48,16 @@ function NoConversationSelected() {
  * @param {React.ReactNode} [props.emptyStateExtra] - content above the empty state (e.g. SessionOfferWidget)
  * @param {React.ReactNode} [props.beforeMessages] - content before the messages list (e.g. SessionOfferWidget for non-empty)
  */
-export default function ChatThread({ messages, loading, error, currentUser, retryMessage, onReply, emptyStateExtra, beforeMessages, threadId, hasMore, loadOlderMessages, loadingMore }) {
+export default function ChatThread({ messages, loading, error, currentUser, retryMessage, onReply, emptyStateExtra, beforeMessages, threadId, hasMore, loadOlderMessages, loadingMore, scrollTrigger }) {
     const messagesEndRef = useRef(null);
     const scrollContainerRef = useRef(null);
     const isFirstLoad = useRef(true);
     const prevThreadId = useRef(null);
     const [showScrollButton, setShowScrollButton] = useState(false);
+
+    const scrollToBottom = useCallback((behavior = "smooth") => {
+        messagesEndRef.current?.scrollIntoView({ behavior });
+    }, []);
 
     // Reset scroll flag when the conversation thread changes
     useEffect(() => {
@@ -64,17 +68,23 @@ export default function ChatThread({ messages, loading, error, currentUser, retr
         }
     }, [threadId]);
 
+    // Auto-scroll on new messages
     useEffect(() => {
         if (messages.length === 0) return;
-        // Only auto-scroll if user is near the bottom (or first load)
         if (isFirstLoad.current) {
-            messagesEndRef.current?.scrollIntoView({ behavior: 'instant' });
+            scrollToBottom("instant");
             isFirstLoad.current = false;
         } else if (!showScrollButton) {
-            // User is at the bottom — keep them there
-            messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+            scrollToBottom("smooth");
         }
     }, [messages]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    // External scroll trigger — used when parent sends a message while scrolled up
+    useEffect(() => {
+        if (scrollTrigger) {
+            scrollToBottom("smooth");
+        }
+    }, [scrollTrigger, scrollToBottom]);
 
     // Track scroll position to show/hide the scroll-to-bottom button
     const handleScroll = useCallback(() => {
@@ -84,72 +94,67 @@ export default function ChatThread({ messages, loading, error, currentUser, retr
         setShowScrollButton(distanceFromBottom > 200);
     }, []);
 
-    const scrollToBottom = useCallback(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }, []);
-
     return (
         <>
-            <div
-                ref={scrollContainerRef}
-                onScroll={handleScroll}
-                className="flex-1 overflow-y-auto p-4 md:p-6 space-y-1 bg-background-light dark:bg-background-dark relative"
-            >
-                {loading ? (
-                    <MessageSkeleton />
-                ) : error ? (
-                    <div className="flex items-center justify-center h-full">
-                        <p className="text-sm text-text-muted dark:text-gray-400">{error}</p>
-                    </div>
-                ) : messages.length === 0 ? (
-                    <>
-                        {emptyStateExtra}
-                        <EmptyConversation />
-                    </>
-                ) : (
-                    <>
-                        {hasMore && (
-                            <div className="flex justify-center py-2">
-                                <button
-                                    type="button"
-                                    onClick={loadOlderMessages}
-                                    disabled={loadingMore}
-                                    className="px-4 py-1.5 rounded-full text-xs font-bold text-primary bg-primary/10 hover:bg-primary/20 disabled:opacity-50 transition-colors"
-                                >
-                                    {loadingMore ? 'Loading...' : 'Load older messages'}
-                                </button>
-                            </div>
-                        )}
-                        {beforeMessages}
-                        {messages.map((msg, idx) => (
-                            <MessageBubble
-                                key={msg.id}
-                                msg={msg}
-                                messages={messages}
-                                index={idx}
-                                currentUser={currentUser}
-                                onRetry={retryMessage}
-                                onReply={onReply}
-                            />
-                        ))}
-                        <div ref={messagesEndRef} />
-                    </>
-                )}
-            </div>
+            <div className="flex-1 relative overflow-hidden">
+                <div
+                    ref={scrollContainerRef}
+                    onScroll={handleScroll}
+                    className="absolute inset-0 overflow-y-auto p-4 md:p-6 space-y-1 bg-background-light dark:bg-background-dark"
+                >
+                    {loading ? (
+                        <MessageSkeleton />
+                    ) : error ? (
+                        <div className="flex items-center justify-center h-full">
+                            <p className="text-sm text-text-muted dark:text-gray-400">{error}</p>
+                        </div>
+                    ) : messages.length === 0 ? (
+                        <>
+                            {emptyStateExtra}
+                            <EmptyConversation />
+                        </>
+                    ) : (
+                        <>
+                            {hasMore && (
+                                <div className="flex justify-center py-2">
+                                    <button
+                                        type="button"
+                                        onClick={loadOlderMessages}
+                                        disabled={loadingMore}
+                                        className="px-4 py-1.5 rounded-full text-xs font-bold text-primary bg-primary/10 hover:bg-primary/20 disabled:opacity-50 transition-colors"
+                                    >
+                                        {loadingMore ? 'Loading...' : 'Load older messages'}
+                                    </button>
+                                </div>
+                            )}
+                            {beforeMessages}
+                            {messages.map((msg, idx) => (
+                                <MessageBubble
+                                    key={msg.id}
+                                    msg={msg}
+                                    messages={messages}
+                                    index={idx}
+                                    currentUser={currentUser}
+                                    onRetry={retryMessage}
+                                    onReply={onReply}
+                                />
+                            ))}
+                            <div ref={messagesEndRef} />
+                        </>
+                    )}
+                </div>
 
-            {/* Scroll-to-bottom floating button */}
-            {showScrollButton && (
-                <div className="absolute bottom-16 right-8 z-10">
+                {/* Scroll-to-bottom floating button — inside the relative container */}
+                {showScrollButton && (
                     <button
-                        onClick={scrollToBottom}
-                        className="w-10 h-10 rounded-full bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark shadow-lg flex items-center justify-center text-text-muted dark:text-gray-400 hover:text-primary hover:border-primary/30 transition-all"
+                        onClick={() => scrollToBottom("smooth")}
+                        className="absolute bottom-4 right-4 z-10 w-10 h-10 rounded-full bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark shadow-lg flex items-center justify-center text-text-muted dark:text-gray-400 hover:text-primary hover:border-primary/30 transition-all"
                         aria-label="Scroll to bottom"
                     >
                         <MdKeyboardArrowDown className="text-xl" />
                     </button>
-                </div>
-            )}
-
+                )}
+            </div>
             <HipaaNotice />
         </>
     );

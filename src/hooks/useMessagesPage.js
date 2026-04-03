@@ -63,6 +63,9 @@ export function useMessagesPage(basePath) {
     // Reply-to state: the message being replied to (null = not replying)
     const [replyingTo, setReplyingTo] = useState(null);
 
+    // Scroll trigger — increments on send to force ChatThread to scroll to bottom
+    const [scrollTrigger, setScrollTrigger] = useState(0);
+
     // Track new direct conversation (no DirectConversation exists yet)
     // URL will be ?c=new:{therapistUserId}
     const [pendingDirectRecipientId, setPendingDirectRecipientId] = useState(null);
@@ -253,6 +256,7 @@ export function useMessagesPage(basePath) {
                 updateUrlParam(conversationId);
                 refetchConversations();
                 queryClient.invalidateQueries({ queryKey: ["unreadCount"] });
+                setScrollTrigger(t => t + 1);
             } catch (err) {
                 console.error("Failed to send direct message:", err);
                 setDirectSendError("Failed to send message. Please try again.");
@@ -304,6 +308,7 @@ export function useMessagesPage(basePath) {
             try {
                 await messagesApi.uploadAttachments(convId, files, content?.trim() || "", replyingTo?.id);
                 setReplyingTo(null);
+                setScrollTrigger(t => t + 1);
 
                 // Clean up local blob URLs
                 optimisticAttachments.forEach(a => {
@@ -343,6 +348,7 @@ export function useMessagesPage(basePath) {
             } : null;
             sendMessage(content, replyingTo?.id, replyPreview);
             setReplyingTo(null);
+            setScrollTrigger(t => t + 1);
         }
     }, [pendingDirectRecipientId, sendMessage, replyingTo, selected?.conversationId, refetchConversations, updateUrlParam, queryClient]);
 
@@ -368,6 +374,7 @@ export function useMessagesPage(basePath) {
         uploading,
         replyingTo,
         setReplyingTo,
+        scrollTrigger,
 
         // Pagination
         hasMore,

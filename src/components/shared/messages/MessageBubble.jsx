@@ -113,11 +113,7 @@ export default function MessageBubble({ msg, messages, index, currentUser, onRet
                     {replyToData && replyToPreview && (
                         <button
                             onClick={handleScrollToOriginal}
-                            className={`px-3 py-1.5 rounded-lg text-[11px] border-l-2 border-primary max-w-full text-left cursor-pointer hover:opacity-80 transition-opacity ${
-                                isSender
-                                    ? 'bg-white/15 text-white/90'
-                                    : 'bg-slate-100 dark:bg-slate-800 text-text-main dark:text-gray-300'
-                            }`}
+                            className="px-3 py-1.5 rounded-lg text-[11px] border-l-2 border-primary max-w-full text-left cursor-pointer hover:opacity-80 transition-opacity bg-slate-100 dark:bg-slate-800 text-text-main dark:text-gray-300"
                         >
                             <p className="font-bold text-primary text-[10px]">{replyToSenderName}</p>
                             <p className="truncate">
