@@ -32,7 +32,7 @@ function TherapistMessagesContent() {
     const {
         user, conversations, messages, selected, selectedConversation,
         convLoading, convError, convSessionExpired, msgLoading, msgError,
-        mobileView, inputValue, setInputValue,
+        mobileView, inputValue, setInputValue, uploading,
         hasMore, loadOlderMessages, loadingMore,
         handleSelectConversation, handleBackToList, handleSendMessage, retryMessage
     } = useMessagesPage("/therapist/messages");
@@ -95,6 +95,7 @@ function TherapistMessagesContent() {
                             setInputValue={setInputValue}
                             onSend={handleSendMessage}
                             placeholder="Type a message..."
+                            uploading={uploading}
                         />
                     </>
                 )}

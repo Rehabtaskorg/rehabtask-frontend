@@ -216,11 +216,17 @@ export function useMessagesPage(basePath) {
         setMobileView("list");
     }, []);
 
-    const handleSendMessage = useCallback(async (content) => {
-        if (!content.trim()) return;
+    // Track upload state for the MessageInput spinner
+    const [uploading, setUploading] = useState(false);
 
-        // New direct conversation — use the direct API
+    const handleSendMessage = useCallback(async (content, files) => {
+        const hasText = content?.trim()?.length > 0;
+        const hasFiles = files?.length > 0;
+        if (!hasText && !hasFiles) return;
+
+        // New direct conversation — use the direct API (text-only, no attachments for first msg)
         if (pendingDirectRecipientId) {
+            if (!hasText) return; // First message must have text
             if (directSendingRef.current) return;
             directSendingRef.current = true;
 
@@ -230,10 +236,8 @@ export function useMessagesPage(basePath) {
                 const message = res.data.data.message;
                 const conversationId = message.conversationId;
 
-                // Seed the messages cache so it appears immediately
                 queryClient.setQueryData(["messages", conversationId], [message]);
 
-                // Clear pending state and update to the real conversation
                 setPendingDirectRecipientId(null);
                 setSelectedConversation(prev => prev ? {
                     ...prev,
@@ -254,9 +258,34 @@ export function useMessagesPage(basePath) {
             return;
         }
 
-        // Standard send
-        sendMessage(content);
-    }, [pendingDirectRecipientId, sendMessage, refetchConversations, updateUrlParam, queryClient]);
+        // Attachment upload path
+        if (hasFiles && selected?.conversationId) {
+            setUploading(true);
+            try {
+                await messagesApi.uploadAttachments(
+                    selected.conversationId,
+                    files,
+                    content?.trim() || ""
+                );
+                // Refresh message list and conversations
+                queryClient.invalidateQueries({ queryKey: ["messages", selected.conversationId] });
+                queryClient.invalidateQueries({ queryKey: ["conversations"] });
+                queryClient.invalidateQueries({ queryKey: ["unreadCount"] });
+                queryClient.invalidateQueries({ queryKey: ["conversation-attachments", selected.conversationId] });
+            } catch (err) {
+                console.error("Failed to upload attachments:", err);
+                setDirectSendError(err.response?.data?.message || "Failed to upload files. Please try again.");
+            } finally {
+                setUploading(false);
+            }
+            return;
+        }
+
+        // Standard text-only send
+        if (hasText) {
+            sendMessage(content);
+        }
+    }, [pendingDirectRecipientId, sendMessage, selected?.conversationId, refetchConversations, updateUrlParam, queryClient]);
 
     return {
         // Data
@@ -277,6 +306,7 @@ export function useMessagesPage(basePath) {
         mobileView,
         inputValue,
         setInputValue,
+        uploading,
 
         // Pagination
         hasMore,

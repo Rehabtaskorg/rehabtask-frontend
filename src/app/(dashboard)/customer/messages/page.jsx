@@ -130,7 +130,7 @@ export default function CustomerMessagesPage() {
     const {
         user, conversations, messages, selected, selectedConversation,
         convLoading, convError, convSessionExpired, msgLoading, msgError,
-        mobileView, inputValue, setInputValue,
+        mobileView, inputValue, setInputValue, uploading,
         hasMore, loadOlderMessages, loadingMore,
         handleSelectConversation, handleBackToList, handleSendMessage, retryMessage,
     } = useMessagesPage("/customer/messages");
@@ -166,7 +166,7 @@ export default function CustomerMessagesPage() {
                     <>
                         <ChatHeader selected={selected} selectedConversation={selectedConversation} onBack={handleBackToList} headerActions={headerActions} />
                         <ChatThread messages={messages} loading={msgLoading} error={msgError} currentUser={user} retryMessage={retryMessage} threadId={selected?.conversationId} hasMore={hasMore} loadOlderMessages={loadOlderMessages} loadingMore={loadingMore} />
-                        <MessageInput inputValue={inputValue} setInputValue={setInputValue} onSend={handleSendMessage} />
+                        <MessageInput inputValue={inputValue} setInputValue={setInputValue} onSend={handleSendMessage} uploading={uploading} />
                     </>
                 )}
             </section>
