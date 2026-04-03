@@ -61,8 +61,8 @@ export default function MessageInput({ inputValue, setInputValue, onSend, placeh
                     className="flex items-center justify-center h-11 w-11 rounded-full bg-primary text-white hover:bg-primary/90 disabled:opacity-40 disabled:cursor-not-allowed transition-all shrink-0 shadow-lg"
                     aria-label="Send message"
                 >
-                    <svg className="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                    <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
                     </svg>
                 </button>
             </div>
