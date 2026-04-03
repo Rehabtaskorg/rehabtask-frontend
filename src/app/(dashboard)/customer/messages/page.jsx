@@ -1,17 +1,21 @@
 'use client';
 
+import { useState } from "react";
 import Link from "next/link";
 import { useConversationContext } from "@/hooks/useMessages";
 import { useMessagesPage } from "@/hooks/useMessagesPage";
 import { getDisplayName, getPhotoUrl, getContextBadge } from "@/utils/messages";
 import { RightSidebarSkeleton } from "@/components/shared/messages";
 import { ConversationList, ChatHeader, ChatThread, MessageInput } from "@/components/shared/messages";
+import SharedFiles from "@/components/shared/messages/SharedFiles";
+import AttachmentsModal from "@/components/shared/messages/AttachmentsModal";
 import UserAvatar from "@/components/ui/UserAvatar";
 import { usePageTitle } from "@/hooks/usePageTitle";
 
 function CustomerRightSidebar({ selectedConversation }) {
     // Use the conversationId (always a DirectConversation) for API context resolution
     const convId = selectedConversation?.conversationId || selectedConversation?.directConversationId;
+    const [showAttachmentsModal, setShowAttachmentsModal] = useState(false);
 
     // Display type: actual conversation context (booking/offer/direct) for UI labels and links
     const displayContextType = selectedConversation?.currentContext?.type ?? 'direct';
@@ -121,6 +125,16 @@ function CustomerRightSidebar({ selectedConversation }) {
                     </div>
                 );
             })()}
+
+            {/* Shared files */}
+            {convId && <SharedFiles conversationId={convId} onViewAll={() => setShowAttachmentsModal(true)} />}
+
+            {/* Attachments modal */}
+            <AttachmentsModal
+                isOpen={showAttachmentsModal}
+                onClose={() => setShowAttachmentsModal(false)}
+                conversationId={convId}
+            />
         </div>
     );
 }
@@ -130,7 +144,7 @@ export default function CustomerMessagesPage() {
     const {
         user, conversations, messages, selected, selectedConversation,
         convLoading, convError, convSessionExpired, msgLoading, msgError,
-        mobileView, inputValue, setInputValue,
+        mobileView, inputValue, setInputValue, uploading, replyingTo, setReplyingTo, scrollTrigger,
         hasMore, loadOlderMessages, loadingMore,
         handleSelectConversation, handleBackToList, handleSendMessage, retryMessage,
     } = useMessagesPage("/customer/messages");
@@ -165,8 +179,8 @@ export default function CustomerMessagesPage() {
                 ) : (
                     <>
                         <ChatHeader selected={selected} selectedConversation={selectedConversation} onBack={handleBackToList} headerActions={headerActions} />
-                        <ChatThread messages={messages} loading={msgLoading} error={msgError} currentUser={user} retryMessage={retryMessage} threadId={selected?.conversationId} hasMore={hasMore} loadOlderMessages={loadOlderMessages} loadingMore={loadingMore} />
-                        <MessageInput inputValue={inputValue} setInputValue={setInputValue} onSend={handleSendMessage} />
+                        <ChatThread messages={messages} loading={msgLoading} error={msgError} currentUser={user} retryMessage={retryMessage} onReply={setReplyingTo} threadId={selected?.conversationId} hasMore={hasMore} loadOlderMessages={loadOlderMessages} loadingMore={loadingMore} scrollTrigger={scrollTrigger} />
+                        <MessageInput inputValue={inputValue} setInputValue={setInputValue} onSend={handleSendMessage} uploading={uploading} replyingTo={replyingTo} onCancelReply={() => setReplyingTo(null)} />
                     </>
                 )}
             </section>

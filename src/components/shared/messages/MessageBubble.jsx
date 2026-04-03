@@ -1,5 +1,7 @@
 import UserAvatar from "../../ui/UserAvatar";
 import SessionOfferWidget from "./SessionOfferWidget";
+import MessageAttachments from "./MessageAttachments";
+import { MdReply, MdAttachFile } from "react-icons/md";
 import { getDisplayName, getPhotoUrl, formatMessageTime, formatDateSeparator, shouldShowDateSeparator } from "@/utils/messages";
 
 function DateSeparator({ label }) {
@@ -48,7 +50,7 @@ function MessageStatus({ isFailed, isSending, isSender, readAt, createdAt, onRet
     );
 }
 
-export default function MessageBubble({ msg, messages, index, currentUser, onRetry }) {
+export default function MessageBubble({ msg, messages, index, currentUser, onRetry, onReply }) {
     if (msg.type === 'system') {
         // Render rich offer widget for offer-sent messages
         // Phase 3: check systemType field; legacy: check id prefix
@@ -77,10 +79,29 @@ export default function MessageBubble({ msg, messages, index, currentUser, onRet
     const isSending = msg.status === 'sending';
     const isFailed = msg.status === 'failed';
 
+    const canReply = !isSending && !isFailed && msg.type !== 'system' && onReply;
+    const replyToData = msg.replyTo;
+    const replyToSenderName = replyToData ? getDisplayName(replyToData.sender) : null;
+    const replyToPreview = replyToData?.content
+        ? replyToData.content.slice(0, 80) + (replyToData.content.length > 80 ? "..." : "")
+        : replyToData?.attachments?.length > 0
+            ? replyToData.attachments[0].fileName
+            : null;
+
+    const handleScrollToOriginal = () => {
+        if (!replyToData?.id) return;
+        const el = document.getElementById(`msg-${replyToData.id}`);
+        if (!el) return;
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
+        // Add highlight animation
+        el.classList.add("msg-highlight");
+        setTimeout(() => el.classList.remove("msg-highlight"), 1600);
+    };
+
     return (
-        <div>
+        <div id={`msg-${msg.id}`}>
             {showDateSep && <DateSeparator label={formatDateSeparator(msg.createdAt)} />}
-            <div className={`flex items-end gap-2 mb-2 ${isSender ? 'flex-row-reverse' : ''}`}>
+            <div className={`flex items-end gap-2 mb-2 group/msg ${isSender ? 'flex-row-reverse' : ''}`}>
                 <UserAvatar
                     name={isSender ? (currentUser?.profile?.fullName || 'You') : senderName}
                     photoUrl={isSender ? getPhotoUrl(currentUser) : getPhotoUrl(msg.sender)}
@@ -88,9 +109,48 @@ export default function MessageBubble({ msg, messages, index, currentUser, onRet
                     className="mb-0.5"
                 />
                 <div className={`flex flex-col gap-0.5 max-w-[70%] ${isSender ? 'items-end' : 'items-start'}`}>
-                    <div className={`px-3.5 py-2.5 rounded-2xl text-sm leading-relaxed shadow-sm transition-opacity ${isSender ? (isFailed ? 'bg-primary text-white rounded-br-sm border-2 border-red-400' : 'bg-primary text-white rounded-br-sm') : 'bg-card-light dark:bg-card-dark text-text-main dark:text-white border border-border-light dark:border-border-dark rounded-bl-sm'} ${isSending ? 'opacity-60' : ''}`}>
-                        {msg.content}
+                    {/* Quoted reply block — clickable to scroll to original */}
+                    {replyToData && replyToPreview && (
+                        <button
+                            onClick={handleScrollToOriginal}
+                            className="px-3 py-1.5 rounded-lg text-[11px] border-l-2 border-primary max-w-full text-left cursor-pointer hover:opacity-80 transition-opacity bg-slate-100 dark:bg-slate-800 text-text-main dark:text-gray-300"
+                        >
+                            <p className="font-bold text-primary text-[10px]">{replyToSenderName}</p>
+                            <p className="truncate">
+                                {replyToData.attachments?.length > 0 && !replyToData.content && (
+                                    <MdAttachFile className="inline text-[10px] mr-0.5 -mt-0.5" />
+                                )}
+                                {replyToPreview}
+                            </p>
+                        </button>
+                    )}
+
+                    {/* Message bubble */}
+                    <div className="relative">
+                        <div className={`px-3.5 py-2.5 rounded-2xl text-sm leading-relaxed shadow-sm transition-opacity ${isSender ? (isFailed ? 'bg-primary text-white rounded-br-sm border-2 border-red-400' : 'bg-primary text-white rounded-br-sm') : 'bg-card-light dark:bg-card-dark text-text-main dark:text-white border border-border-light dark:border-border-dark rounded-bl-sm'} ${isSending ? 'opacity-60' : ''}`}>
+                            {msg.content && <span>{msg.content}</span>}
+                            {msg.attachments?.length > 0 && (
+                                <MessageAttachments attachments={msg.attachments} isSender={isSender} />
+                            )}
+                            {!msg.content && (!msg.attachments || msg.attachments.length === 0) && (
+                                <span className="italic opacity-60">Empty message</span>
+                            )}
+                        </div>
+
+                        {/* Reply action — appears on hover */}
+                        {canReply && (
+                            <button
+                                onClick={() => onReply(msg)}
+                                className={`absolute top-1/2 -translate-y-1/2 opacity-0 group-hover/msg:opacity-100 transition-opacity p-1.5 rounded-full bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark shadow-sm hover:bg-slate-100 dark:hover:bg-slate-700 text-text-muted dark:text-gray-400 hover:text-primary ${
+                                    isSender ? '-left-9' : '-right-9'
+                                }`}
+                                title="Reply"
+                            >
+                                <MdReply className="text-sm" />
+                            </button>
+                        )}
                     </div>
+
                     <div className="flex items-center gap-1.5 px-1">
                         <MessageStatus
                             isFailed={isFailed}

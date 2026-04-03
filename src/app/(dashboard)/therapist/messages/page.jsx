@@ -32,7 +32,7 @@ function TherapistMessagesContent() {
     const {
         user, conversations, messages, selected, selectedConversation,
         convLoading, convError, convSessionExpired, msgLoading, msgError,
-        mobileView, inputValue, setInputValue,
+        mobileView, inputValue, setInputValue, uploading, replyingTo, setReplyingTo, scrollTrigger,
         hasMore, loadOlderMessages, loadingMore,
         handleSelectConversation, handleBackToList, handleSendMessage, retryMessage
     } = useMessagesPage("/therapist/messages");
@@ -85,16 +85,21 @@ function TherapistMessagesContent() {
                             error={msgError}
                             currentUser={user}
                             retryMessage={retryMessage}
+                            onReply={setReplyingTo}
                             threadId={selected?.conversationId}
                             hasMore={hasMore}
                             loadOlderMessages={loadOlderMessages}
                             loadingMore={loadingMore}
+                            scrollTrigger={scrollTrigger}
                         />
                         <MessageInput
                             inputValue={inputValue}
                             setInputValue={setInputValue}
                             onSend={handleSendMessage}
                             placeholder="Type a message..."
+                            uploading={uploading}
+                            replyingTo={replyingTo}
+                            onCancelReply={() => setReplyingTo(null)}
                         />
                     </>
                 )}
