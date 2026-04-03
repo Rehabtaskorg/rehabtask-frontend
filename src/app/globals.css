@@ -84,3 +84,13 @@
 .request-card-active {
     @apply border-l-4 border-l-primary bg-primary/5 border border-slate-200 dark:border-border-dark;
 }
+
+/* Message highlight flash — used when scrolling to a replied message */
+@keyframes msg-highlight {
+    0% { background-color: var(--color-primary); opacity: 0.15; }
+    100% { background-color: transparent; opacity: 0; }
+}
+.msg-highlight {
+    animation: msg-highlight 1.5s ease-out forwards;
+    border-radius: 1rem;
+}

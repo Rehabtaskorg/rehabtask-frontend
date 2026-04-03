@@ -1,6 +1,7 @@
 "use client";
 
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState, useCallback } from "react";
+import { MdKeyboardArrowDown } from "react-icons/md";
 import { MessageSkeleton } from "./Skeletons";
 import MessageBubble from "./MessageBubble";
 
@@ -49,30 +50,51 @@ function NoConversationSelected() {
  */
 export default function ChatThread({ messages, loading, error, currentUser, retryMessage, onReply, emptyStateExtra, beforeMessages, threadId, hasMore, loadOlderMessages, loadingMore }) {
     const messagesEndRef = useRef(null);
+    const scrollContainerRef = useRef(null);
     const isFirstLoad = useRef(true);
     const prevThreadId = useRef(null);
+    const [showScrollButton, setShowScrollButton] = useState(false);
 
     // Reset scroll flag when the conversation thread changes
     useEffect(() => {
         if (threadId !== prevThreadId.current) {
             isFirstLoad.current = true;
             prevThreadId.current = threadId;
+            setShowScrollButton(false);
         }
     }, [threadId]);
 
     useEffect(() => {
         if (messages.length === 0) return;
+        // Only auto-scroll if user is near the bottom (or first load)
         if (isFirstLoad.current) {
             messagesEndRef.current?.scrollIntoView({ behavior: 'instant' });
             isFirstLoad.current = false;
-        } else {
+        } else if (!showScrollButton) {
+            // User is at the bottom — keep them there
             messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
         }
-    }, [messages]);
+    }, [messages]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    // Track scroll position to show/hide the scroll-to-bottom button
+    const handleScroll = useCallback(() => {
+        const el = scrollContainerRef.current;
+        if (!el) return;
+        const distanceFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
+        setShowScrollButton(distanceFromBottom > 200);
+    }, []);
+
+    const scrollToBottom = useCallback(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, []);
 
     return (
         <>
-            <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-1 bg-background-light dark:bg-background-dark">
+            <div
+                ref={scrollContainerRef}
+                onScroll={handleScroll}
+                className="flex-1 overflow-y-auto p-4 md:p-6 space-y-1 bg-background-light dark:bg-background-dark relative"
+            >
                 {loading ? (
                     <MessageSkeleton />
                 ) : error ? (
@@ -114,6 +136,20 @@ export default function ChatThread({ messages, loading, error, currentUser, retr
                     </>
                 )}
             </div>
+
+            {/* Scroll-to-bottom floating button */}
+            {showScrollButton && (
+                <div className="absolute bottom-16 right-8 z-10">
+                    <button
+                        onClick={scrollToBottom}
+                        className="w-10 h-10 rounded-full bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark shadow-lg flex items-center justify-center text-text-muted dark:text-gray-400 hover:text-primary hover:border-primary/30 transition-all"
+                        aria-label="Scroll to bottom"
+                    >
+                        <MdKeyboardArrowDown className="text-xl" />
+                    </button>
+                </div>
+            )}
+
             <HipaaNotice />
         </>
     );

@@ -88,8 +88,18 @@ export default function MessageBubble({ msg, messages, index, currentUser, onRet
             ? replyToData.attachments[0].fileName
             : null;
 
+    const handleScrollToOriginal = () => {
+        if (!replyToData?.id) return;
+        const el = document.getElementById(`msg-${replyToData.id}`);
+        if (!el) return;
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
+        // Add highlight animation
+        el.classList.add("msg-highlight");
+        setTimeout(() => el.classList.remove("msg-highlight"), 1600);
+    };
+
     return (
-        <div>
+        <div id={`msg-${msg.id}`}>
             {showDateSep && <DateSeparator label={formatDateSeparator(msg.createdAt)} />}
             <div className={`flex items-end gap-2 mb-2 group/msg ${isSender ? 'flex-row-reverse' : ''}`}>
                 <UserAvatar
@@ -99,13 +109,16 @@ export default function MessageBubble({ msg, messages, index, currentUser, onRet
                     className="mb-0.5"
                 />
                 <div className={`flex flex-col gap-0.5 max-w-[70%] ${isSender ? 'items-end' : 'items-start'}`}>
-                    {/* Quoted reply block */}
+                    {/* Quoted reply block — clickable to scroll to original */}
                     {replyToData && replyToPreview && (
-                        <div className={`px-3 py-1.5 rounded-lg text-[11px] border-l-2 border-primary/60 max-w-full ${
-                            isSender
-                                ? 'bg-white/10 text-white/80'
-                                : 'bg-primary/5 dark:bg-primary/10 text-text-muted dark:text-gray-400'
-                        }`}>
+                        <button
+                            onClick={handleScrollToOriginal}
+                            className={`px-3 py-1.5 rounded-lg text-[11px] border-l-2 border-primary max-w-full text-left cursor-pointer hover:opacity-80 transition-opacity ${
+                                isSender
+                                    ? 'bg-white/15 text-white/90'
+                                    : 'bg-slate-100 dark:bg-slate-800 text-text-main dark:text-gray-300'
+                            }`}
+                        >
                             <p className="font-bold text-primary text-[10px]">{replyToSenderName}</p>
                             <p className="truncate">
                                 {replyToData.attachments?.length > 0 && !replyToData.content && (
@@ -113,7 +126,7 @@ export default function MessageBubble({ msg, messages, index, currentUser, onRet
                                 )}
                                 {replyToPreview}
                             </p>
-                        </div>
+                        </button>
                     )}
 
                     {/* Message bubble */}
