@@ -52,43 +52,37 @@ export default function StripeConnectProvider({ children }) {
                 return res.data.data.clientSecret;
             },
 
+            // Stripe Connect embedded components only accept a strict subset
+            // of appearance variables. See:
+            // https://docs.stripe.com/connect/embedded-appearance-options
+            // Invalid keys produce console warnings but don't break rendering.
             appearance: {
-                // Overlay: match the card background so components blend in
-                overlayZIndex: 1000,
                 variables: {
                     // Brand color from globals.css: --color-primary: #137fec
                     colorPrimary: "#137fec",
 
-                    // Typography: inherit the app's font stack
+                    // Typography
                     fontFamily: "inherit",
                     fontSizeBase: "14px",
-                    fontWeightNormal: "500",
-                    fontWeightBold: "700",
 
                     // Border radius matching rounded-xl (app standard)
                     borderRadius: "12px",
-                    buttonBorderRadius: "8px",
-                    badgeBorderRadius: "6px",
 
                     // Spacing
                     spacingUnit: "10px",
 
                     // Light / dark surface colours
-                    // These values must match the CSS custom properties in globals.css
                     colorBackground: isDark ? "#0f1923" : "#ffffff",
                     colorText: isDark ? "#f1f5f9" : "#0f172a",
-                    colorTextSecondary: isDark ? "#94a3b8" : "#64748b",
+                    // Note: Stripe uses `colorSecondaryText`, not `colorTextSecondary`
+                    colorSecondaryText: isDark ? "#94a3b8" : "#64748b",
                     colorBorder: isDark ? "#1e2d3d" : "#e2e8f0",
 
-                    // Component surface (cards inside the embedded UI)
-                    colorComponentBackground: isDark ? "#162232" : "#f8fafc",
+                    // Form surface (inputs / cards inside the embedded UI)
+                    formBackgroundColor: isDark ? "#162232" : "#f8fafc",
 
-                    // Action colours
+                    // Danger color (success has no top-level variable; use badge variants if needed)
                     colorDanger: "#ef4444",
-                    colorSuccess: "#10b981",
-
-                    // Button text is always white regardless of theme
-                    buttonPrimaryColorText: "#ffffff",
                 },
             },
         });
