@@ -15,60 +15,76 @@ import { api } from "@/lib/api";
  * Theme detection
  * ───────────────
  * This app uses Tailwind v4 with the default `dark:` variant, which resolves
- * via the `prefers-color-scheme: dark` media query (there is no `class="dark"`
- * on the <html> element). So we detect dark mode through matchMedia, NOT
- * through document.documentElement.classList.
+ * via `prefers-color-scheme: dark` (there is no `class="dark"` on <html>).
+ * So we detect dark mode through matchMedia, NOT classList.
  *
  * Stripe captures appearance at `loadConnectAndInitialize` time and does NOT
- * dynamically re-theme. To switch themes, the Stripe instance must be
- * re-created. We do this by keying the ConnectComponentsProvider with the
- * current theme and recreating the memoized instance whenever the media
- * query changes — this unmounts and remounts all embedded components.
- * Remounting will trigger a fresh account-session fetch, which is fine: the
- * backend is idempotent and sessions are single-use by design.
+ * dynamically re-theme. To switch themes we re-create the instance and
+ * remount the provider via a key, unmounting all embedded components.
+ *
+ * Typography alignment with app onboarding pages
+ * ──────────────────────────────────────────────
+ * The rest of the onboarding flow uses:
+ *   h1  → text-4xl font-black (36px / 900) — but Stripe renders inside a card,
+ *          not as the page h1, so we map this to Stripe's headingXl instead.
+ *   h3  → text-xl font-bold (20px / 700)   → headingLg
+ *   label → text-base font-semibold (16px / 600)
+ *   body  → text-base (16px / 400)
+ *   hint  → text-sm   (14px / 400)
+ *   tiny  → text-xs   (12px / 400)
+ *
+ * Stripe's `fontSizeBase` is the root em-equivalent — all other font-sizes
+ * scale relative to it. We set it to 16px to match the app's body text.
+ *
+ * Valid appearance variables (verified from Stripe docs):
+ * https://docs.stripe.com/connect/embedded-appearance-options
  *
  * Colour source
  * ─────────────
- * All colour values below mirror the CSS custom properties in globals.css.
- * Do NOT hardcode values that drift from those definitions — if the theme
- * changes in globals.css, update them here too. Stripe's appearance API only
- * accepts literal strings, not CSS variables, so direct duplication is
- * unavoidable.
- *
- * Valid appearance variables
- * ──────────────────────────
- * Stripe Connect embedded components only accept a strict subset of
- * appearance variables. Invalid keys emit console warnings. See:
- * https://docs.stripe.com/connect/embedded-appearance-options
+ * All colour values mirror the CSS custom properties in src/app/globals.css.
+ * Update both places if the theme ever changes.
  */
 
-// globals.css: --color-card-light / --color-card-dark — surface for content
+/* ─── Colour tokens (mirror globals.css) ───────────────────────────────── */
+
+// Card surfaces — --color-card-light / --color-card-dark
 const BG_LIGHT = "#ffffff";
 const BG_DARK = "#1a2633";
 
-// globals.css: --color-text-main (light) / white (dark)
+// Body text — --color-text-main / white
 const TEXT_LIGHT = "#111418";
 const TEXT_DARK = "#ffffff";
 
-// globals.css: --color-text-muted (light) / slate-400 (dark, matches app)
+// Muted / secondary text — --color-text-muted / slate-400 (matches dark mode in app)
 const SECONDARY_LIGHT = "#617589";
 const SECONDARY_DARK = "#94a3b8";
 
-// globals.css: --color-border-light / --color-border-dark
+// Borders — --color-border-light / --color-border-dark
 const BORDER_LIGHT = "#e5e7eb";
 const BORDER_DARK = "#2d3748";
 
-// globals.css: --color-muted-light / slightly lighter surface in dark
-// Used for input fields / form wells inside embedded components
-const FORM_BG_LIGHT = "#f9fafb";
-const FORM_BG_DARK = "#0f1923";
+// Input / form field backgrounds — --color-input-light / slightly darker
+// surface in dark mode (matches how app inputs look against card-dark)
+const INPUT_BG_LIGHT = "#ffffff";
+const INPUT_BG_DARK = "#0f1923";
 
-// globals.css: --color-primary (brand)
+// Hover / highlight row — --color-muted-light in light, slightly lighter
+// than card-dark in dark mode for contrast on hover states
+const OFFSET_BG_LIGHT = "#f9fafb";
+const OFFSET_BG_DARK = "#162232";
+
+// Brand — --color-primary
 const PRIMARY = "#137fec";
+// Hover variant of primary (matches Tailwind's primary/90)
+const PRIMARY_BORDER = "#137fec";
+
+// Status colours (match badges used elsewhere in the app)
+const DANGER = "#ef4444";
+
+/* ─── Theme helpers ─────────────────────────────────────────────────────── */
 
 /**
- * Detect the current theme preference from the OS/browser.
- * Returns "dark" or "light". Safe to call server-side (returns "light").
+ * Detect OS/browser dark mode preference. Safe to call server-side.
  */
 function getInitialTheme() {
     if (typeof window === "undefined") return "light";
@@ -77,76 +93,107 @@ function getInitialTheme() {
         : "light";
 }
 
+/**
+ * Build the full appearance object for a given theme. The object mirrors
+ * the app's design tokens from globals.css and the onboarding pages'
+ * typography scale exactly.
+ */
 function buildAppearance(theme) {
     const isDark = theme === "dark";
+
     return {
         variables: {
-            // Brand
+            /* ─── Brand ─── */
             colorPrimary: PRIMARY,
 
-            // Surfaces
+            /* ─── Surfaces ─── */
             colorBackground: isDark ? BG_DARK : BG_LIGHT,
-            formBackgroundColor: isDark ? FORM_BG_DARK : FORM_BG_LIGHT,
+            formBackgroundColor: isDark ? INPUT_BG_DARK : INPUT_BG_LIGHT,
+            offsetBackgroundColor: isDark ? OFFSET_BG_DARK : OFFSET_BG_LIGHT,
 
-            // Text
+            /* ─── Text ─── */
             colorText: isDark ? TEXT_DARK : TEXT_LIGHT,
             colorSecondaryText: isDark ? SECONDARY_DARK : SECONDARY_LIGHT,
 
-            // Borders
+            /* ─── Borders ─── */
             colorBorder: isDark ? BORDER_DARK : BORDER_LIGHT,
+            formHighlightColorBorder: PRIMARY,
+            formAccentColor: PRIMARY,
 
-            // Feedback
-            colorDanger: "#ef4444",
+            /* ─── Feedback ─── */
+            colorDanger: DANGER,
 
-            // Typography — inherit app fonts, tune for density
+            /* ─── Typography ───────────────────────────────────────────
+             * Base scale matches the app: body = 16px, label = 16px,
+             * hint = 14px, tiny = 12px. Stripe's font-size variables
+             * scale relative to fontSizeBase. */
             fontFamily: "inherit",
-            fontSizeBase: "14px",
+            fontSizeBase: "16px",
 
-            // Headings (valid Stripe variables — drive H1/H2 sizes inside components)
-            headingXlFontSize: "20px",
+            /* Headings — match app's onboarding step headings (h3 = 20px/700) */
+            headingXlFontSize: "24px",
             headingXlFontWeight: "700",
-            headingLgFontSize: "16px",
+            headingLgFontSize: "20px",
             headingLgFontWeight: "700",
-            headingMdFontSize: "14px",
+            headingMdFontSize: "18px",
             headingMdFontWeight: "600",
-            headingSmFontSize: "13px",
+            headingSmFontSize: "16px",
             headingSmFontWeight: "600",
+            headingXsFontSize: "14px",
+            headingXsFontWeight: "600",
 
-            // Body
-            bodyMdFontSize: "14px",
+            /* Body — matches text-base (16px) and text-sm (14px) */
+            bodyMdFontSize: "16px",
             bodyMdFontWeight: "400",
-            bodySmFontSize: "13px",
+            bodySmFontSize: "14px",
             bodySmFontWeight: "400",
 
-            // Labels
-            labelMdFontSize: "13px",
-            labelMdFontWeight: "500",
-            labelSmFontSize: "12px",
+            /* Labels — matches text-base font-semibold (16px/600) used on
+             * form field labels throughout the onboarding pages */
+            labelMdFontSize: "14px",
+            labelMdFontWeight: "600",
+            labelSmFontSize: "13px",
             labelSmFontWeight: "500",
 
-            // Buttons — match app button density
+            /* ─── Buttons — match the app's primary button style
+             * (bg-primary hover:brightness-95 text-white px-8 py-3
+             *  rounded-lg font-bold) ─── */
+            buttonPrimaryColorBackground: PRIMARY,
+            buttonPrimaryColorBorder: PRIMARY_BORDER,
+            buttonPrimaryColorText: "#ffffff",
+            buttonSecondaryColorBackground: isDark ? BG_DARK : BG_LIGHT,
+            buttonSecondaryColorBorder: isDark ? BORDER_DARK : BORDER_LIGHT,
+            buttonSecondaryColorText: isDark ? TEXT_DARK : TEXT_LIGHT,
             buttonLabelFontSize: "14px",
             buttonLabelFontWeight: "600",
+            buttonBorderRadius: "8px", // matches rounded-lg in the app
+            buttonPaddingX: "16px",
+            buttonPaddingY: "10px",
 
-            // Radius — matches app rounded-xl
+            /* ─── Inputs — denser to match form inputs in other steps ─── */
+            formBorderRadius: "8px",
+            inputFieldPaddingX: "14px",
+            inputFieldPaddingY: "10px",
+
+            /* ─── Radii — matches app card (rounded-xl = 12px) ─── */
             borderRadius: "12px",
+            overlayBorderRadius: "12px",
 
-            // Spacing — app-level rhythm (globals uses Tailwind's 4px scale;
-            // 6px gives Stripe components a slightly denser feel that matches
-            // our card padding without feeling cramped)
-            spacingUnit: "6px",
+            /* ─── Spacing — tightened so sections feel as dense as the
+             * rest of the onboarding cards ─── */
+            spacingUnit: "4px",
         },
     };
 }
 
+/* ─── Component ─────────────────────────────────────────────────────────── */
+
 export default function StripeConnectProvider({ children }) {
-    // Track theme in state so we can re-create the Stripe instance when it
-    // changes. Initial value is computed synchronously to avoid a flash.
     const [theme, setTheme] = useState(getInitialTheme);
 
-    // Subscribe to OS/browser theme changes. When the user toggles dark mode
-    // at the OS level, we flip `theme` which triggers a new memo computation
-    // below, which remounts all embedded components with fresh appearance.
+    // Subscribe to OS theme changes. Flipping `theme` triggers a new memo
+    // and a new key on the provider, which unmounts + remounts the embedded
+    // components with fresh appearance.
     useEffect(() => {
         if (typeof window === "undefined") return;
         const mq = window.matchMedia("(prefers-color-scheme: dark)");
@@ -160,8 +207,8 @@ export default function StripeConnectProvider({ children }) {
             publishableKey: process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
 
             /**
-             * fetchClientSecret — called by Stripe on mount and on session expiry.
-             * Must return a raw client_secret string, not the full response.
+             * fetchClientSecret — called by Stripe on mount and on session
+             * expiry. Must return a raw client_secret string.
              */
             fetchClientSecret: async () => {
                 const res = await api.post("/payments/account-session");
@@ -172,9 +219,6 @@ export default function StripeConnectProvider({ children }) {
         });
     }, [theme]);
 
-    // Keying the provider by theme forces a full unmount/remount of the
-    // embedded components when the theme changes. This is necessary because
-    // Stripe captures appearance at init time and won't re-theme in place.
     return (
         <ConnectComponentsProvider
             key={theme}
