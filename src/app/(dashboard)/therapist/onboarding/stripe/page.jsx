@@ -183,6 +183,13 @@ export default function StripeOnboardingPage() {
         setStatus(hasExistingAccount ? STATUS.ONBOARDING : STATUS.IDLE);
     };
 
+    // The embedded Stripe form (ONBOARDING state) is most comfortable at the
+    // full page width (max-w-4xl, matching the progress bar and page header).
+    // All other states are narrow "card" layouts and look better centred at
+    // max-w-2xl. We branch the container width on status so each state gets
+    // the right amount of horizontal room.
+    const isOnboardingStep = status === STATUS.ONBOARDING;
+
     return (
         <div className="min-h-screen bg-background-light dark:bg-background-dark py-10 px-4">
             <div className="max-w-4xl mx-auto">
@@ -197,7 +204,7 @@ export default function StripeOnboardingPage() {
                     </p>
                 </header>
 
-                <div className="max-w-2xl mx-auto">
+                <div className={isOnboardingStep ? "w-full" : "max-w-2xl mx-auto"}>
                     {/* ── INITIALIZING: Mount status check in flight ──────────────── */}
                     {status === STATUS.INITIALIZING && (
                         <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl p-12 shadow-sm flex flex-col items-center gap-4">
@@ -306,13 +313,11 @@ export default function StripeOnboardingPage() {
                             ) : (
                                 <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl overflow-hidden shadow-sm">
                                     <StripeConnectProvider>
-                                        <div className="p-1">
-                                            {/* onLoadError passed directly — ConnectComponentsProvider does not support it */}
-                                            <ConnectAccountOnboarding
-                                                onExit={handleOnboardingExit}
-                                                onLoadError={handleStripeLoadError}
-                                            />
-                                        </div>
+                                        {/* onLoadError passed directly — ConnectComponentsProvider does not support it */}
+                                        <ConnectAccountOnboarding
+                                            onExit={handleOnboardingExit}
+                                            onLoadError={handleStripeLoadError}
+                                        />
                                     </StripeConnectProvider>
                                 </div>
                             )}
