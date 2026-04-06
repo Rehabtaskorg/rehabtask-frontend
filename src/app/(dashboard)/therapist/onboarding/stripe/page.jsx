@@ -311,7 +311,12 @@ export default function StripeOnboardingPage() {
                                     </button>
                                 </div>
                             ) : (
-                                <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl overflow-hidden shadow-sm">
+                                // Card wrapper matches the other onboarding steps
+                                // (credentials/profile use p-6 md:p-8 + rounded-xl
+                                // + shadow-sm on bg-card-light/dark). This gives
+                                // the embedded Stripe form proper breathing room
+                                // against the card edge.
+                                <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl shadow-sm p-6 md:p-8">
                                     <StripeConnectProvider>
                                         {/* onLoadError passed directly — ConnectComponentsProvider does not support it */}
                                         <ConnectAccountOnboarding
