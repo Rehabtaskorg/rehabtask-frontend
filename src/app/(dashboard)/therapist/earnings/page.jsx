@@ -206,11 +206,12 @@ function StripeBalancePanel({
         );
     }
 
-    // State 3 — account exists + details submitted, but charges not yet enabled
-    // (Stripe review is async; account.updated webhook will flip stripeOnboardingComplete)
+    // State 3 — account exists + details submitted, but charges not yet enabled.
+    // The review is async on the provider side and the account.updated webhook
+    // will flip stripeOnboardingComplete when it completes.
     if (stripeStatus?.connected && stripeStatus?.detailsSubmitted && !stripeStatus?.chargesEnabled) {
         return (
-            <div className="bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-500/30 rounded-xl p-6">
+            <div className="bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-500/30 rounded-xl shadow-sm p-6">
                 <div className="flex items-start gap-4">
                     <div className="w-11 h-11 bg-amber-500/10 rounded-full flex items-center justify-center shrink-0">
                         <MdAccountBalanceWallet className="text-xl text-amber-500" />
@@ -218,7 +219,7 @@ function StripeBalancePanel({
                     <div>
                         <p className="font-bold text-text-main dark:text-white">Payout account under review</p>
                         <p className="text-sm text-text-muted dark:text-slate-400 mt-0.5">
-                            Your details have been submitted and Stripe is reviewing your account. This usually takes a few minutes. You&apos;ll be notified once it&apos;s active.
+                            Your details have been submitted and we&apos;re verifying your account. This usually takes a few minutes. You&apos;ll be notified once it&apos;s active.
                         </p>
                     </div>
                 </div>
@@ -226,14 +227,18 @@ function StripeBalancePanel({
         );
     }
 
-    // State 4 — fully active: render embedded ConnectBalances + ConnectPayments
-    // ConnectBalances provides: balance, pending payouts, instant payout ("Cash Out"),
-    // bank account management — all in-app, fully white-labeled.
-    // ConnectPayments provides: transaction history + dispute management.
+    // State 4 — fully active.
+    // ConnectBalances renders the available/pending balance, instant payout
+    // ("Cash Out"), and bank account management UI. It ships with its own
+    // section heading so we don't add one on top.
+    // ConnectPayments renders the transfer history and dispute workflow.
+    // Both are wrapped in cards that match the visual language of the rest
+    // of the earnings page (p-6 md:p-8, shadow-sm, rounded-xl). onLoadError
+    // is passed per-component so a failure in one does not blank the other.
     if (isStripeReady) {
         if (stripeLoadError) {
             return (
-                <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl p-6">
+                <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl shadow-sm p-6">
                     <div className="flex items-start gap-3 text-red-600 dark:text-red-400">
                         <MdError className="text-xl shrink-0 mt-0.5" />
                         <div>
@@ -247,33 +252,21 @@ function StripeBalancePanel({
 
         return (
             <StripeConnectProvider>
-                <div className="space-y-4">
-                    {/* Balance + Cash Out + bank account management */}
-                    <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl overflow-hidden">
-                        <div className="px-6 pt-5 pb-1">
-                            <h2 className="text-lg font-bold text-text-main dark:text-white">Balance & Payouts</h2>
-                            <p className="text-xs text-text-muted dark:text-slate-400 mt-0.5">
-                                Your available balance and instant cash-out. Manage your bank account below.
-                            </p>
-                        </div>
-                        <div className="p-2">
-                            {/* onLoadError passed directly — ConnectComponentsProvider does not support it */}
-                            <ConnectBalances onLoadError={onLoadError} />
-                        </div>
-                    </div>
+                <div className="space-y-6">
+                    <section
+                        aria-label="Balance and payouts"
+                        className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl shadow-sm p-6 md:p-8"
+                    >
+                        {/* onLoadError passed directly — ConnectComponentsProvider does not support it */}
+                        <ConnectBalances onLoadError={onLoadError} />
+                    </section>
 
-                    {/* Transaction history + disputes */}
-                    <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl overflow-hidden">
-                        <div className="px-6 pt-5 pb-1">
-                            <h2 className="text-lg font-bold text-text-main dark:text-white">Stripe Transactions</h2>
-                            <p className="text-xs text-text-muted dark:text-slate-400 mt-0.5">
-                                All transfers received from RehabTask, including dispute management.
-                            </p>
-                        </div>
-                        <div className="p-2">
-                            <ConnectPayments onLoadError={onLoadError} />
-                        </div>
-                    </div>
+                    <section
+                        aria-label="Transaction history"
+                        className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl shadow-sm p-6 md:p-8"
+                    >
+                        <ConnectPayments onLoadError={onLoadError} />
+                    </section>
                 </div>
             </StripeConnectProvider>
         );

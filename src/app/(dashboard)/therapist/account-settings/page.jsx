@@ -92,7 +92,7 @@ function AccountSettingsContent() {
                             Set Up Payouts
                         </button>
                         <p className="text-xs text-text-muted dark:text-slate-400">
-                            Your bank details are encrypted and handled by Stripe — RehabTask never stores them.
+                            Your bank details are encrypted by our trusted payments processor — RehabTask never stores them.
                         </p>
                     </div>
                 )}
@@ -117,14 +117,14 @@ function AccountSettingsContent() {
                     </div>
                 )}
 
-                {/* State: Submitted, pending Stripe review */}
+                {/* State: Submitted, pending verification */}
                 {isPendingReview && (
                     <div className="bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-500/30 rounded-lg p-4">
                         <h3 className="font-semibold text-text-main dark:text-white mb-1">
                             Payout account under review
                         </h3>
                         <p className="text-sm text-text-muted dark:text-slate-400">
-                            Your details have been submitted and Stripe is reviewing your account. This usually takes a few minutes. You&apos;ll be notified once it&apos;s active.
+                            Your details have been submitted and we&apos;re verifying your account. This usually takes a few minutes. You&apos;ll be notified once it&apos;s active.
                         </p>
                     </div>
                 )}

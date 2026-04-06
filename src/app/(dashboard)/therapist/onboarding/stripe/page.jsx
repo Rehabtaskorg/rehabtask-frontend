@@ -131,7 +131,7 @@ export default function StripeOnboardingPage() {
                 // immediately after submission — verification is async on Stripe's side).
                 // Show a success-ish state and redirect; webhook will update DB when ready.
                 showToast.info(
-                    "Your details have been submitted. Stripe is reviewing your account — this usually takes a few minutes."
+                    "Your details have been submitted. We're verifying your account — this usually takes a few minutes."
                 );
                 markStepComplete(5);
                 if (accountId) markStripeConnected(accountId);
@@ -148,7 +148,7 @@ export default function StripeOnboardingPage() {
                 // the therapist can finish the remaining fields
                 setStatus(STATUS.ONBOARDING);
                 setError(
-                    "Your Stripe setup is incomplete. Please fill in all required fields to continue."
+                    "Your payout setup is incomplete. Please fill in all required fields to continue."
                 );
             }
         } catch (err) {
@@ -228,7 +228,7 @@ export default function StripeOnboardingPage() {
                                         Secure Payout Setup
                                     </h2>
                                     <p className="text-text-muted dark:text-gray-400 text-sm max-w-md">
-                                        Set up your bank account directly in RehabTask. Your financial details are encrypted and handled by Stripe — never stored on our servers.
+                                        Set up your bank account directly in RehabTask. Your financial details are encrypted by our trusted payments processor — never stored on our servers.
                                     </p>
                                 </div>
 
@@ -273,7 +273,7 @@ export default function StripeOnboardingPage() {
 
                                 <div className="flex items-center gap-2 text-text-muted dark:text-gray-500 text-xs">
                                     <MdLock className="text-sm shrink-0" />
-                                    <span>All financial data is encrypted and processed by Stripe. RehabTask never stores your bank details.</span>
+                                    <span>All financial data is encrypted and processed securely. RehabTask never stores your bank details.</span>
                                 </div>
                             </div>
                         </div>

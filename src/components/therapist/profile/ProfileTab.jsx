@@ -245,7 +245,7 @@ const ProfileTab = ({ profile, approvalStatus, onboardingComplete }) => {
                                 </span>
                             </div>
                             <div className="flex items-center justify-between">
-                                <span className="text-sm text-text-muted">Stripe</span>
+                                <span className="text-sm text-text-muted">Payouts</span>
                                 <span
                                     className={`inline-flex items-center gap-1 text-xs font-semibold ${profile?.stripeOnboardingComplete
                                         ? "text-green-600 dark:text-green-400"
@@ -253,7 +253,7 @@ const ProfileTab = ({ profile, approvalStatus, onboardingComplete }) => {
                                         }`}
                                 >
                                     <MdCheckCircle className="text-sm" />
-                                    {profile?.stripeOnboardingComplete ? "Connected" : "Not Connected"}
+                                    {profile?.stripeOnboardingComplete ? "Active" : "Not set up"}
                                 </span>
                             </div>
                         </div>
