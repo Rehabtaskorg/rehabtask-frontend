@@ -48,14 +48,20 @@ export const onboardingAPI = {
     },
 
     /**
-    * Get Stripe onboarding link
-    */
-    getStripeOnboardingLink: async () => {
+     * Create or retrieve a Stripe Custom Connect account for the therapist.
+     * Returns { accountId } — no redirect URL. The embedded onboarding form
+     * is rendered client-side via ConnectAccountOnboarding using a separate
+     * Account Session (fetchClientSecret in StripeConnectProvider).
+     */
+    createStripeAccount: async () => {
         return api.post("/payments/connect/create");
     },
 
     /**
-     * Check Stripe connection status
+     * Check Stripe Connect account status.
+     * Returns { connected, detailsSubmitted, chargesEnabled, payoutsEnabled, accountId? }
+     * Used server-side in the onboarding stripe page's onExit handler to verify
+     * completion before calling completeOnboarding — never trust onExit alone.
      */
     checkStripeStatus: async () => {
         return api.get("/payments/connect/status");

@@ -106,21 +106,21 @@ export default function DashboardApprovedView() {
                     </div>
                 </header>
 
-                {/* Stripe Connect Banner */}
+                {/* Payout account setup banner */}
                 {!stripeStatus?.connected && (
                     <div className="rounded-xl border border-amber-200 bg-amber-50 dark:bg-amber-900/20 dark:border-amber-900/50 p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                         <div className="flex gap-3">
                             <MdWarning className="text-amber-600 dark:text-amber-500 text-xl shrink-0" />
                             <div>
-                                <p className="text-slate-900 dark:text-amber-50 font-bold text-sm sm:text-base leading-tight">Connect your Stripe account to receive payouts.</p>
+                                <p className="text-slate-900 dark:text-amber-50 font-bold text-sm sm:text-base leading-tight">Set up your payout account to receive earnings.</p>
                                 <p className="text-amber-800 dark:text-amber-200/70 text-xs sm:text-sm mt-1">Action required to enable automated earnings transfers to your bank.</p>
                             </div>
                         </div>
                         <button
-                            onClick={() => router.push('/therapist/profile')}
+                            onClick={() => router.push('/therapist/onboarding/stripe')}
                             className="bg-primary hover:bg-primary/90 text-white px-5 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 transition-all shrink-0 w-full sm:w-auto justify-center"
                         >
-                            Connect Stripe <MdArrowForward className="text-lg" />
+                            Set Up Payouts <MdArrowForward className="text-lg" />
                         </button>
                     </div>
                 )}

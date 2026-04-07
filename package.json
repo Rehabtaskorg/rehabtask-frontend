@@ -10,6 +10,8 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
+    "@stripe/connect-js": "^3.3.35",
+    "@stripe/react-connect-js": "^3.3.34",
     "@stripe/react-stripe-js": "^5.4.1",
     "@stripe/stripe-js": "^8.6.4",
     "@supabase/supabase-js": "^2.95.2",

@@ -65,7 +65,7 @@ export default function TherapistBookingDetailPage() {
             if (errorCode === "STRIPE_NOT_CONNECTED") {
                 setShowCompleteDialog(false);
                 showToast.warning(
-                    "You must connect and complete your Stripe account setup before marking a session as complete. Go to Account Settings to set up Stripe.",
+                    "You must finish setting up your payout account before marking a session as complete. Go to Account Settings to set up payouts.",
                     { autoClose: 10000 }
                 );
             } else {
@@ -301,7 +301,7 @@ export default function TherapistBookingDetailPage() {
                                     const errorCode = err.response?.data?.code;
                                     if (errorCode === "STRIPE_NOT_CONNECTED") {
                                         showToast.warning(
-                                            "You must connect and complete your Stripe account setup before marking a session as complete. Go to Account Settings to set up Stripe.",
+                                            "You must finish setting up your payout account before marking a session as complete. Go to Account Settings to set up payouts.",
                                             { autoClose: 10000 }
                                         );
                                     } else {
@@ -483,7 +483,7 @@ export default function TherapistBookingDetailPage() {
                                     <div>
                                         <p className="text-sm font-bold text-emerald-900 dark:text-emerald-200">Payment Released</p>
                                         <p className="text-xs text-emerald-700 dark:text-emerald-300 mt-0.5">
-                                            {formatCurrency(earnings)} has been transferred to your Stripe account.
+                                            {formatCurrency(earnings)} has been transferred to your payout account.
                                         </p>
                                         {payment.platformFee && (
                                             <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-1">

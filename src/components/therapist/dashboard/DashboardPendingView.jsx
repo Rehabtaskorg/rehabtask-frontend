@@ -50,8 +50,8 @@ export default function DashboardPendingView() {
             href: "/therapist/account-settings",
             icon: MdPayments,
             description: profile?.stripeOnboardingComplete
-                ? "Manage your Stripe payout settings"
-                : "Connect Stripe to receive payments",
+                ? "Manage your payout account settings"
+                : "Set up your payout account to receive earnings",
             badge: !profile?.stripeOnboardingComplete ? "Action needed" : null,
         },
         { label: "Update Availability", href: "/therapist/profile?tab=availability", icon: MdSchedule, description: "Adjust your weekly schedule" },
