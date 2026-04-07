@@ -150,6 +150,36 @@ function TherapistEarningsContent() {
 }
 
 /**
+ * EmbeddedComponentSkeleton
+ *
+ * Placeholder rendered inside a card wrapper while a Stripe embedded
+ * component is mounting but has not yet rendered any of its own UI.
+ * Stays mounted until the component fires its first onLoaderStart
+ * callback, at which point the real Stripe iframe (with its own
+ * internal loader) takes over visually.
+ *
+ * Sized to roughly match the embedded balances/payments components so
+ * the layout doesn't shift when the real content arrives.
+ */
+function EmbeddedComponentSkeleton({ rows = 3 }) {
+    return (
+        <div className="animate-pulse space-y-4">
+            {/* Section title placeholder */}
+            <div className="h-5 w-40 bg-slate-200 dark:bg-slate-700 rounded" />
+            {/* Body row placeholders */}
+            <div className="space-y-3 pt-2">
+                {Array.from({ length: rows }).map((_, i) => (
+                    <div
+                        key={i}
+                        className="h-12 w-full bg-slate-100 dark:bg-slate-800 rounded-lg"
+                    />
+                ))}
+            </div>
+        </div>
+    );
+}
+
+/**
  * StripeBalancePanel
  *
  * Handles all four Stripe status states in a single isolated component.
@@ -164,6 +194,13 @@ function StripeBalancePanel({
     onLoadError,
 }) {
     const router = useRouter();
+
+    
+    const [balancesLoaded, setBalancesLoaded] = useState(false);
+    const [paymentsLoaded, setPaymentsLoaded] = useState(false);
+
+    const handleBalancesStart = useCallback(() => setBalancesLoaded(true), []);
+    const handlePaymentsStart = useCallback(() => setPaymentsLoaded(true), []);
 
     // State 1 — still fetching status
     if (statusLoading) {
@@ -257,15 +294,33 @@ function StripeBalancePanel({
                         aria-label="Balance and payouts"
                         className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl shadow-sm p-6 md:p-8"
                     >
-                        {/* onLoadError passed directly — ConnectComponentsProvider does not support it */}
-                        <ConnectBalances onLoadError={onLoadError} />
+                        {/* Skeleton is shown until Stripe's iframe paints its
+                            first UI. The component itself is always mounted
+                            (even when hidden) so the iframe starts loading
+                            immediately — delaying the mount would just make
+                            the perceived wait longer. */}
+                        {!balancesLoaded && <EmbeddedComponentSkeleton rows={3} />}
+                        <div className={balancesLoaded ? "" : "hidden"}>
+                            {/* onLoadError + onLoaderStart passed directly —
+                                ConnectComponentsProvider does not accept them */}
+                            <ConnectBalances
+                                onLoadError={onLoadError}
+                                onLoaderStart={handleBalancesStart}
+                            />
+                        </div>
                     </section>
 
                     <section
                         aria-label="Transaction history"
                         className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl shadow-sm p-6 md:p-8"
                     >
-                        <ConnectPayments onLoadError={onLoadError} />
+                        {!paymentsLoaded && <EmbeddedComponentSkeleton rows={4} />}
+                        <div className={paymentsLoaded ? "" : "hidden"}>
+                            <ConnectPayments
+                                onLoadError={onLoadError}
+                                onLoaderStart={handlePaymentsStart}
+                            />
+                        </div>
                     </section>
                 </div>
             </StripeConnectProvider>
