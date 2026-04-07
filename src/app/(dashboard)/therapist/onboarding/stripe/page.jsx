@@ -50,6 +50,13 @@ export default function StripeOnboardingPage() {
     const [error, setError] = useState(null);
     const [stripeLoadError, setStripeLoadError] = useState(null);
     const [hasExistingAccount, setHasExistingAccount] = useState(false);
+    // Tracks whether the embedded ConnectAccountOnboarding component has
+    // started rendering its own UI. While false, we render a skeleton in
+    // place of the (still-mounting) iframe so the user has visual feedback
+    // during the 1-3s Stripe SDK initialization window. Reset whenever
+    // the component is unmounted (status leaves ONBOARDING) so a retry
+    // shows the skeleton again.
+    const [embeddedFormLoaded, setEmbeddedFormLoaded] = useState(false);
 
     // On mount: check if the therapist already has a Stripe account from a
     // previous session or partial completion. If so, skip straight to rendering
@@ -177,9 +184,17 @@ export default function StripeOnboardingPage() {
         );
     }, []);
 
+    // onLoaderStart fires when the embedded form first paints any UI
+    // (including its own internal spinner). At that point we can hide our
+    // skeleton — the user will see Stripe's iframe loader, then the form.
+    const handleEmbeddedFormStart = useCallback(() => {
+        setEmbeddedFormLoaded(true);
+    }, []);
+
     const handleRetry = () => {
         setError(null);
         setStripeLoadError(null);
+        setEmbeddedFormLoaded(false);
         setStatus(hasExistingAccount ? STATUS.ONBOARDING : STATUS.IDLE);
     };
 
@@ -317,13 +332,44 @@ export default function StripeOnboardingPage() {
                                 // the embedded Stripe form proper breathing room
                                 // against the card edge.
                                 <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl shadow-sm p-6 md:p-8">
-                                    <StripeConnectProvider>
-                                        {/* onLoadError passed directly — ConnectComponentsProvider does not support it */}
-                                        <ConnectAccountOnboarding
-                                            onExit={handleOnboardingExit}
-                                            onLoadError={handleStripeLoadError}
-                                        />
-                                    </StripeConnectProvider>
+                                    {/* Skeleton sits in place of the embedded
+                                        form during the 1-3s SDK init window.
+                                        The form itself is always mounted (even
+                                        when hidden) so the iframe begins loading
+                                        immediately — onLoaderStart will flip
+                                        embeddedFormLoaded once Stripe paints
+                                        its first UI inside the iframe. */}
+                                    {!embeddedFormLoaded && (
+                                        <div className="animate-pulse space-y-5">
+                                            <div className="h-6 w-48 bg-slate-200 dark:bg-slate-700 rounded" />
+                                            <div className="space-y-3 pt-2">
+                                                <div className="h-4 w-32 bg-slate-200 dark:bg-slate-700 rounded" />
+                                                <div className="h-11 w-full bg-slate-100 dark:bg-slate-800 rounded-lg" />
+                                            </div>
+                                            <div className="space-y-3">
+                                                <div className="h-4 w-40 bg-slate-200 dark:bg-slate-700 rounded" />
+                                                <div className="h-11 w-full bg-slate-100 dark:bg-slate-800 rounded-lg" />
+                                            </div>
+                                            <div className="space-y-3">
+                                                <div className="h-4 w-36 bg-slate-200 dark:bg-slate-700 rounded" />
+                                                <div className="h-11 w-full bg-slate-100 dark:bg-slate-800 rounded-lg" />
+                                            </div>
+                                            <div className="flex justify-end pt-2">
+                                                <div className="h-10 w-28 bg-slate-200 dark:bg-slate-700 rounded-lg" />
+                                            </div>
+                                        </div>
+                                    )}
+                                    <div className={embeddedFormLoaded ? "" : "hidden"}>
+                                        <StripeConnectProvider>
+                                            {/* onLoadError + onLoaderStart passed directly —
+                                                ConnectComponentsProvider does not accept them */}
+                                            <ConnectAccountOnboarding
+                                                onExit={handleOnboardingExit}
+                                                onLoadError={handleStripeLoadError}
+                                                onLoaderStart={handleEmbeddedFormStart}
+                                            />
+                                        </StripeConnectProvider>
+                                    </div>
                                 </div>
                             )}
 
