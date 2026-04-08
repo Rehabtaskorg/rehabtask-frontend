@@ -10,6 +10,7 @@ const STATUS_CONFIG = {
     pending_schedule: { icon: MdSchedule, color: "text-slate-400", bg: "bg-slate-100 dark:bg-slate-800", label: "Pending Schedule" },
     scheduled: { icon: MdCalendarToday, color: "text-blue-500", bg: "bg-blue-50 dark:bg-blue-900/20", label: "Scheduled" },
     completed_by_therapist: { icon: MdTimer, color: "text-amber-500", bg: "bg-amber-50 dark:bg-amber-900/20", label: "Awaiting Confirmation" },
+    in_revision: { icon: MdEdit, color: "text-amber-600", bg: "bg-amber-50 dark:bg-amber-900/20", label: "In Revision" },
     confirmed_by_customer: { icon: MdCheckCircle, color: "text-emerald-500", bg: "bg-emerald-50 dark:bg-emerald-900/20", label: "Confirmed" },
     cancelled: { icon: MdCancel, color: "text-red-500", bg: "bg-red-50 dark:bg-red-900/20", label: "Cancelled" },
 };
