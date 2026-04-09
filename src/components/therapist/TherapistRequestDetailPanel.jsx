@@ -182,6 +182,7 @@ function renderOfferState({
                 </div>
             )}
             <OfferForm
+                request={request}
                 offerData={offerData}
                 setOfferData={setOfferData}
                 visitTypes={visitTypes}
@@ -213,10 +214,10 @@ function renderOfferState({
                         <p className="text-sm font-semibold text-text-main dark:text-white mt-0.5 capitalize">{myOffer.sessionType}</p>
                     </div>
                 </div>
-                {myOffer.visitType && (
+                {myOffer.visitTypeRef && (
                     <div>
                         <p className="text-[10px] font-bold text-text-muted dark:text-gray-400 uppercase">Visit Type</p>
-                        <p className="text-sm font-semibold text-text-main dark:text-white mt-0.5">{myOffer.visitType.name} ({myOffer.visitType.code})</p>
+                        <p className="text-sm font-semibold text-text-main dark:text-white mt-0.5">{myOffer.visitTypeRef.name} ({myOffer.visitTypeRef.code})</p>
                     </div>
                 )}
                 <div>
@@ -261,6 +262,7 @@ function renderOfferState({
             <div className="pt-4 border-t border-border-light dark:border-border-dark">
                 <p className="text-xs font-bold text-text-muted dark:text-gray-400 uppercase mb-3">Update Your Offer</p>
                 <OfferForm
+                    request={request}
                     offerData={offerData}
                     setOfferData={setOfferData}
                     visitTypes={visitTypes}
@@ -327,7 +329,7 @@ function renderOfferState({
 
 // ─── Shared Offer Form ──────────────────────────────────────
 
-function OfferForm({ offerData, setOfferData, visitTypes, submitting, onSubmit, submitLabel, submitClassName, error }) {
+function OfferForm({ request, offerData, setOfferData, visitTypes, submitting, onSubmit, submitLabel, submitClassName, error }) {
     return (
         <form onSubmit={onSubmit} className="p-5 rounded-xl border-2 border-primary/20 bg-primary/5 dark:bg-primary/5 space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -395,6 +397,81 @@ function OfferForm({ offerData, setOfferData, visitTypes, submitting, onSubmit, 
                     className="w-full rounded-lg border border-border-light dark:border-border-dark bg-white dark:bg-card-dark text-text-main dark:text-white text-sm px-3 py-2 resize-none focus:outline-none focus:ring-2 focus:ring-primary"
                 />
             </div>
+
+            {/* Visit Plan Override — optional counter-proposal to the customer's plan */}
+            <div className="rounded-lg border border-border-light dark:border-border-dark p-3 space-y-3 bg-white dark:bg-card-dark">
+                <label className="flex items-start gap-2 cursor-pointer select-none">
+                    <input
+                        type="checkbox"
+                        checked={!!offerData.planOverrideEnabled}
+                        onChange={(e) => setOfferData((prev) => ({ ...prev, planOverrideEnabled: e.target.checked }))}
+                        className="mt-0.5 accent-primary"
+                    />
+                    <span className="text-xs font-bold text-text-main dark:text-white">
+                        Propose a different treatment plan
+                        <span className="block text-[10px] font-normal text-text-muted dark:text-gray-400 mt-0.5">
+                            Leave unchecked to accept the customer&apos;s plan as-is.
+                        </span>
+                    </span>
+                </label>
+
+                {offerData.planOverrideEnabled && (
+                    <div className="space-y-3 pl-6 pt-1">
+                        {request && (request.visitType || (request.visitsPerWeek && request.numberOfWeeks)) && (
+                            <p className="text-[10px] text-text-muted dark:text-gray-400 italic">
+                                Customer requested: {request.visitType || "—"}
+                                {request.visitsPerWeek && request.numberOfWeeks && (
+                                    <> · {request.visitsPerWeek}×/week × {request.numberOfWeeks}wk ({request.visitsPerWeek * request.numberOfWeeks} visits)</>
+                                )}
+                            </p>
+                        )}
+
+                        <div>
+                            <label className="block text-[10px] font-bold text-text-muted dark:text-gray-400 uppercase tracking-widest mb-1">Visit Type (optional)</label>
+                            <input
+                                type="text"
+                                maxLength={100}
+                                placeholder="e.g. Re-Evaluation"
+                                value={offerData.visitType || ""}
+                                onChange={(e) => setOfferData((prev) => ({ ...prev, visitType: e.target.value }))}
+                                className="w-full px-3 py-2 rounded-lg bg-white dark:bg-card-dark border border-border-light dark:border-border-dark focus:ring-2 focus:ring-primary/20 focus:border-primary text-text-main dark:text-white text-sm outline-none"
+                            />
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-2">
+                            <div>
+                                <label className="block text-[10px] font-bold text-text-muted dark:text-gray-400 uppercase tracking-widest mb-1">Visits/Week</label>
+                                <select
+                                    value={offerData.visitsPerWeek || ""}
+                                    onChange={(e) => setOfferData((prev) => ({ ...prev, visitsPerWeek: e.target.value }))}
+                                    className="w-full px-3 py-2 rounded-lg bg-white dark:bg-card-dark border border-border-light dark:border-border-dark text-text-main dark:text-white text-sm outline-none"
+                                >
+                                    <option value="">—</option>
+                                    {[1, 2, 3, 4, 5, 6, 7].map(n => <option key={n} value={n}>{n}</option>)}
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block text-[10px] font-bold text-text-muted dark:text-gray-400 uppercase tracking-widest mb-1">Weeks</label>
+                                <select
+                                    value={offerData.numberOfWeeks || ""}
+                                    onChange={(e) => setOfferData((prev) => ({ ...prev, numberOfWeeks: e.target.value }))}
+                                    className="w-full px-3 py-2 rounded-lg bg-white dark:bg-card-dark border border-border-light dark:border-border-dark text-text-main dark:text-white text-sm outline-none"
+                                >
+                                    <option value="">—</option>
+                                    {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(n => <option key={n} value={n}>{n}</option>)}
+                                </select>
+                            </div>
+                        </div>
+
+                        {offerData.visitsPerWeek && offerData.numberOfWeeks && (
+                            <p className="text-[11px] font-bold text-primary">
+                                You propose: {offerData.visitsPerWeek}×/week × {offerData.numberOfWeeks} weeks ({parseInt(offerData.visitsPerWeek, 10) * parseInt(offerData.numberOfWeeks, 10)} visits total)
+                            </p>
+                        )}
+                    </div>
+                )}
+            </div>
+
             {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}
             <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-900/50 rounded-lg p-3">
                 <p className="text-xs text-blue-800 dark:text-blue-300">Your offer will be valid for 48 hours. The customer will be notified and can accept within this period.</p>

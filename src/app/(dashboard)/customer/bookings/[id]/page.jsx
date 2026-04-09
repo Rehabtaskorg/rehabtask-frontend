@@ -17,6 +17,7 @@ import { useBookingDetail } from "@/hooks/useBookings";
 import { bookingsApi } from "@/lib/bookings.api";
 import { api } from "@/lib/api";
 import { paymentsApi } from "@/lib/payments.api";
+import { resolveVisitPlan, computeTotalVisits } from "@/lib/visitPlan";
 import BookingStatusBadge from "@/components/bookings/BookingStatusBadge";
 import BookingTimeline from "@/components/bookings/BookingTimeline";
 import SessionList from "@/components/bookings/SessionList";
@@ -169,10 +170,9 @@ function InlinePaymentSection({ booking, onPaymentSuccess }) {
     };
 
     const perSessionRate = parseFloat(booking.rate);
-    const request = booking.offer?.request;
-    const totalSessionsFromFreq = (request?.visitsPerWeek && request?.numberOfWeeks)
-        ? request.visitsPerWeek * request.numberOfWeeks
-        : 1;
+    // Effective plan: booking (authoritative post-acceptance) > offer override > request (legacy).
+    const plan = resolveVisitPlan({ booking, offer: booking.offer, request: booking.offer?.request });
+    const totalSessionsFromFreq = computeTotalVisits(plan) ?? 1;
     const sessionsCount = booking.sessions?.length > 1 ? booking.sessions.length : totalSessionsFromFreq;
     const isMultiSession = sessionsCount > 1;
     const totalAmount = perSessionRate * sessionsCount;
@@ -481,10 +481,9 @@ export default function CustomerBookingDetailPage() {
     const therapistInitial = therapist?.fullName?.charAt(0) || "?";
     const sessionType = offer?.sessionType;
 
-    // Calculate total sessions from request frequency (available before payment/sessions created)
-    const totalSessionsFromFrequency = (request?.visitsPerWeek && request?.numberOfWeeks)
-        ? request.visitsPerWeek * request.numberOfWeeks
-        : 1;
+    // Effective plan: booking (authoritative post-acceptance) > offer override > request (legacy).
+    const plan = resolveVisitPlan({ booking, offer, request });
+    const totalSessionsFromFrequency = computeTotalVisits(plan) ?? 1;
     const totalSessions = sessions.length > 1 ? sessions.length : totalSessionsFromFrequency;
     const isMultiSession = totalSessions > 1;
     const perSessionRate = parseFloat(booking.rate);
