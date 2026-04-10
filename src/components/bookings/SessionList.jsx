@@ -34,6 +34,8 @@ export default function SessionList({
     onMarkComplete,
     onConfirm,
     onSchedule,
+    onRequestRevision,
+    onSubmitRevision,
 }) {
     const [scheduleSessionId, setScheduleSessionId] = useState(null);
     const [scheduleDate, setScheduleDate] = useState("");
@@ -125,6 +127,9 @@ export default function SessionList({
                     const isSchedulable = role === "therapist" && (session.status === "pending_schedule" || session.status === "scheduled");
                     const isCompletable = role === "therapist" && session.status === "scheduled";
                     const isConfirmable = role === "customer" && session.status === "completed_by_therapist";
+                    const canRequestRevision = role === "customer" && session.status === "completed_by_therapist" && onRequestRevision;
+                    const canSubmitRevision = role === "therapist" && session.status === "in_revision" && onSubmitRevision;
+                    const isInRevision = session.status === "in_revision";
                     const isThisLoading = loadingSessionId === session.id;
                     const isAnyLoading = loadingSessionId !== null;
 
@@ -177,12 +182,35 @@ export default function SessionList({
                                     )}
 
                                     {isConfirmable && (
+                                        <>
+                                            <button
+                                                onClick={() => handleConfirm(session.id)}
+                                                disabled={isAnyLoading}
+                                                className="text-xs font-bold text-white bg-emerald-600 px-3 py-1.5 rounded-lg hover:bg-emerald-700 disabled:opacity-50"
+                                            >
+                                                {isThisLoading && loadingAction === "confirm" ? "Confirming..." : "Confirm"}
+                                            </button>
+                                            {canRequestRevision && (
+                                                <button
+                                                    onClick={() => onRequestRevision(session.id)}
+                                                    disabled={isAnyLoading}
+                                                    className="text-xs font-bold text-amber-600 dark:text-amber-400 hover:underline disabled:opacity-50"
+                                                >
+                                                    Revision
+                                                </button>
+                                            )}
+                                        </>
+                                    )}
+                                    {isInRevision && role === "customer" && (
+                                        <span className="text-[10px] font-bold text-amber-600 dark:text-amber-400 italic">Awaiting therapist</span>
+                                    )}
+                                    {canSubmitRevision && (
                                         <button
-                                            onClick={() => handleConfirm(session.id)}
+                                            onClick={() => onSubmitRevision(session.id)}
                                             disabled={isAnyLoading}
-                                            className="text-xs font-bold text-white bg-emerald-600 px-3 py-1.5 rounded-lg hover:bg-emerald-700 disabled:opacity-50"
+                                            className="text-xs font-bold text-amber-600 dark:text-amber-400 border border-amber-300 dark:border-amber-700 px-3 py-1.5 rounded-lg hover:bg-amber-50 dark:hover:bg-amber-900/20 disabled:opacity-50"
                                         >
-                                            {isThisLoading && loadingAction === "confirm" ? "Confirming..." : "Confirm"}
+                                            Respond
                                         </button>
                                     )}
                                 </div>

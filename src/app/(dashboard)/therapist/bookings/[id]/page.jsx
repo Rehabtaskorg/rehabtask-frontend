@@ -39,6 +39,7 @@ export default function TherapistBookingDetailPage() {
     const [completing, setCompleting] = useState(false);
     const [showCompleteDialog, setShowCompleteDialog] = useState(false);
     const [showSubmitRevisionModal, setShowSubmitRevisionModal] = useState(false);
+    const [revisionSessionId, setRevisionSessionId] = useState(null);
 
     // Finalize states
     const [showFinalizeConfirm, setShowFinalizeConfirm] = useState(false);
@@ -343,6 +344,10 @@ export default function TherapistBookingDetailPage() {
                                 await bookingsApi.scheduleSession(sessionId, scheduledDate);
                                 await refetch();
                             }}
+                            onSubmitRevision={(sessionId) => {
+                                setRevisionSessionId(sessionId);
+                                setShowSubmitRevisionModal(true);
+                            }}
                         />
                     )}
 
@@ -497,7 +502,7 @@ export default function TherapistBookingDetailPage() {
                                 />
                                 <div className="flex justify-end">
                                     <button
-                                        onClick={() => setShowSubmitRevisionModal(true)}
+                                        onClick={() => { setRevisionSessionId(session?.id); setShowSubmitRevisionModal(true); }}
                                         className="bg-primary hover:brightness-95 text-white px-5 py-2.5 rounded-lg text-sm font-bold transition-colors"
                                     >
                                         Respond & Resubmit
@@ -683,9 +688,9 @@ export default function TherapistBookingDetailPage() {
             {/* Submit Revision modal — mounted at root */}
             <SubmitRevisionModal
                 isOpen={showSubmitRevisionModal}
-                onClose={() => setShowSubmitRevisionModal(false)}
-                sessionId={session?.id}
-                revisionReason={session?.revisionReason}
+                onClose={() => { setShowSubmitRevisionModal(false); setRevisionSessionId(null); }}
+                sessionId={revisionSessionId || session?.id}
+                revisionReason={revisionSessionId ? sessions.find(s => s.id === revisionSessionId)?.revisionReason : session?.revisionReason}
                 onSuccess={refetch}
             />
         </div>

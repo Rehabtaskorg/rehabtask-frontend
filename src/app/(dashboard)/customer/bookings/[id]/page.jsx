@@ -333,6 +333,7 @@ export default function CustomerBookingDetailPage() {
     const [confirming, setConfirming] = useState(false);
     const [showConfirmDialog, setShowConfirmDialog] = useState(false);
     const [showRevisionModal, setShowRevisionModal] = useState(false);
+    const [revisionSessionId, setRevisionSessionId] = useState(null);
     const [showRefundForm, setShowRefundForm] = useState(false);
     const [refundReason, setRefundReason] = useState("");
     const [refunding, setRefunding] = useState(false);
@@ -654,6 +655,10 @@ export default function CustomerBookingDetailPage() {
                                 await bookingsApi.confirmSession(sessionId);
                                 await refetch();
                             }}
+                            onRequestRevision={(sessionId) => {
+                                setRevisionSessionId(sessionId);
+                                setShowRevisionModal(true);
+                            }}
                         />
                     )}
 
@@ -797,7 +802,7 @@ export default function CustomerBookingDetailPage() {
                                         Confirm Completion
                                     </button>
                                     <button
-                                        onClick={() => setShowRevisionModal(true)}
+                                        onClick={() => { setRevisionSessionId(session?.id); setShowRevisionModal(true); }}
                                         className="border border-amber-300 dark:border-amber-700 text-amber-700 dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-900/30 px-5 py-2 rounded-lg text-sm font-bold transition-colors"
                                     >
                                         Request Revision
@@ -924,8 +929,8 @@ export default function CustomerBookingDetailPage() {
                 by parent overflow/layout */}
             <RequestRevisionModal
                 isOpen={showRevisionModal}
-                onClose={() => setShowRevisionModal(false)}
-                sessionId={session?.id}
+                onClose={() => { setShowRevisionModal(false); setRevisionSessionId(null); }}
+                sessionId={revisionSessionId || session?.id}
                 onSuccess={refetch}
             />
         </div>
