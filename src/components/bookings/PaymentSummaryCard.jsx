@@ -60,10 +60,19 @@ export default function PaymentSummaryCard({ booking, role, onAction }) {
     const isCustomer = role === "customer";
     const isTherapist = role === "therapist";
 
-    const platformFee = payment ? parseFloat(payment.platformFee) : null;
-    const payout = payment ? parseFloat(payment.therapistPayout) : null;
+    const isFinalized = booking.status === "finalized";
+    const fullPlatformFee = payment ? parseFloat(payment.platformFee) : null;
+    const fullPayout = payment ? parseFloat(payment.therapistPayout) : null;
     const releasedAmount = payment?.releasedAmount ? parseFloat(payment.releasedAmount) : null;
     const isPartialRelease = payment?.status === "partially_released";
+
+    // For finalized bookings, show actual released amounts (not the full plan totals)
+    const platformFee = isFinalized && releasedAmount !== null && fullPayout > 0
+        ? parseFloat((fullPlatformFee * (releasedAmount / fullPayout)).toFixed(2))
+        : fullPlatformFee;
+    const payout = isFinalized && releasedAmount !== null
+        ? releasedAmount
+        : fullPayout;
 
     const paymentConfig = payment ? PAYMENT_STATUS_CONFIG[payment.status] : null;
     const PaymentIcon = paymentConfig?.icon || MdPayments;
@@ -140,7 +149,7 @@ export default function PaymentSummaryCard({ booking, role, onAction }) {
                                         Released so far: {formatCurrency(releasedAmount)} of {formatCurrency(payout)}
                                     </p>
                                     <p className="text-xs text-orange-600 dark:text-orange-400 mt-0.5">
-                                        Remaining {formatCurrency(payout - releasedAmount)} held by admin
+                                        Remaining {formatCurrency(payout - releasedAmount)} held in escrow
                                     </p>
                                 </div>
                             )}

@@ -333,6 +333,7 @@ export default function CustomerBookingDetailPage() {
     const [confirming, setConfirming] = useState(false);
     const [showConfirmDialog, setShowConfirmDialog] = useState(false);
     const [showRevisionModal, setShowRevisionModal] = useState(false);
+    const [revisionSessionId, setRevisionSessionId] = useState(null);
     const [showRefundForm, setShowRefundForm] = useState(false);
     const [refundReason, setRefundReason] = useState("");
     const [refunding, setRefunding] = useState(false);
@@ -654,6 +655,10 @@ export default function CustomerBookingDetailPage() {
                                 await bookingsApi.confirmSession(sessionId);
                                 await refetch();
                             }}
+                            onRequestRevision={(sessionId) => {
+                                setRevisionSessionId(sessionId);
+                                setShowRevisionModal(true);
+                            }}
                         />
                     )}
 
@@ -797,7 +802,7 @@ export default function CustomerBookingDetailPage() {
                                         Confirm Completion
                                     </button>
                                     <button
-                                        onClick={() => setShowRevisionModal(true)}
+                                        onClick={() => { setRevisionSessionId(session?.id); setShowRevisionModal(true); }}
                                         className="border border-amber-300 dark:border-amber-700 text-amber-700 dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-900/30 px-5 py-2 rounded-lg text-sm font-bold transition-colors"
                                     >
                                         Request Revision
@@ -831,8 +836,8 @@ export default function CustomerBookingDetailPage() {
                             </div>
                         )}
 
-                        {/* Confirmed by customer — success */}
-                        {(() => {
+                        {/* Confirmed by customer — success (not shown for finalized bookings) */}
+                        {booking.status !== "finalized" && (() => {
                             const allConfirmed = isMultiSession
                                 ? sessions.length > 0 && sessions.every(s => s.status === "confirmed_by_customer")
                                 : session?.status === "confirmed_by_customer";
@@ -887,12 +892,32 @@ export default function CustomerBookingDetailPage() {
                     />
 
                     {/* Payment status info */}
-                    {payment && ["escrowed", "partially_released"].includes(payment.status) && (
+                    {payment?.status === "escrowed" && (
                         <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4">
                             <div className="flex items-start gap-2">
                                 <MdInfo className="text-blue-600 dark:text-blue-400 text-sm mt-0.5 shrink-0" />
                                 <p className="text-xs text-blue-700 dark:text-blue-300">
-                                    Your payment is held securely in escrow and will be released after you confirm session completion.
+                                    Your payment is held securely in escrow. The therapist receives their share as you confirm each session.
+                                </p>
+                            </div>
+                        </div>
+                    )}
+                    {payment?.status === "partially_released" && (
+                        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4">
+                            <div className="flex items-start gap-2">
+                                <MdInfo className="text-blue-600 dark:text-blue-400 text-sm mt-0.5 shrink-0" />
+                                <p className="text-xs text-blue-700 dark:text-blue-300">
+                                    {formatCurrency(parseFloat(payment.releasedAmount ?? 0))} of {formatCurrency(parseFloat(payment.amount))} released to therapist. Remaining funds are held in escrow.
+                                </p>
+                            </div>
+                        </div>
+                    )}
+                    {booking.status === "finalized" && payment?.refundedAmount && (
+                        <div className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl p-4">
+                            <div className="flex items-start gap-2">
+                                <MdCheckCircle className="text-emerald-600 dark:text-emerald-400 text-sm mt-0.5 shrink-0" />
+                                <p className="text-xs text-emerald-700 dark:text-emerald-300">
+                                    Series finalized. {formatCurrency(parseFloat(payment.refundedAmount))} has been refunded for undelivered sessions.
                                 </p>
                             </div>
                         </div>
@@ -904,8 +929,8 @@ export default function CustomerBookingDetailPage() {
                 by parent overflow/layout */}
             <RequestRevisionModal
                 isOpen={showRevisionModal}
-                onClose={() => setShowRevisionModal(false)}
-                sessionId={session?.id}
+                onClose={() => { setShowRevisionModal(false); setRevisionSessionId(null); }}
+                sessionId={revisionSessionId || session?.id}
                 onSuccess={refetch}
             />
         </div>

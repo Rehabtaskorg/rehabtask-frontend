@@ -17,6 +17,9 @@ export const bookingsApi = {
     respondToReschedule: async (bookingId, accept, reason) => {
         return api.post(`/bookings/${bookingId}/reschedule/respond`, { accept, reason });
     },
+    finalizeBooking: async (bookingId) => {
+        return api.post(`/bookings/${bookingId}/finalize`);
+    },
 
     // Session endpoints
     completeSession: async (bookingId) => {

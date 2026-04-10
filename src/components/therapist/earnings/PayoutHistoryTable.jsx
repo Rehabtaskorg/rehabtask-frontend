@@ -57,6 +57,32 @@ function StatusBadge({ status }) {
     );
 }
 
+/** Session progress bar — shows confirmed / total with a mini bar */
+function SessionProgress({ payment }) {
+    const sessions = payment.booking?.sessions;
+    if (!sessions || sessions.length <= 1) return null;
+
+    const total = sessions.length;
+    const confirmed = sessions.filter(s => s.status === "confirmed_by_customer").length;
+    const pct = Math.round((confirmed / total) * 100);
+
+    return (
+        <div className="mt-1.5">
+            <div className="flex items-center gap-1.5">
+                <div className="flex-1 h-1.5 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
+                    <div
+                        className={`h-full rounded-full transition-all ${confirmed === total ? "bg-emerald-500" : "bg-primary"}`}
+                        style={{ width: `${pct}%` }}
+                    />
+                </div>
+                <span className="text-[10px] font-bold text-text-muted dark:text-slate-500 whitespace-nowrap">
+                    {confirmed}/{total}
+                </span>
+            </div>
+        </div>
+    );
+}
+
 export default function PayoutHistoryTable({ payments }) {
     const [activeFilter, setActiveFilter] = useState("all");
     const [currentPage, setCurrentPage] = useState(1);
@@ -136,20 +162,25 @@ export default function PayoutHistoryTable({ payments }) {
                             <thead>
                                 <tr className="bg-slate-50 dark:bg-[#101922]/50 text-text-muted dark:text-slate-500 text-[10px] font-bold uppercase tracking-wider">
                                     <th className="px-6 py-3">Customer</th>
-                                    <th className="px-4 py-3">Session Date</th>
                                     <th className="px-4 py-3">Rate</th>
+                                    <th className="px-4 py-3">Sessions</th>
                                     <th className="px-4 py-3">Fee</th>
-                                    <th className="px-4 py-3">Earnings</th>
+                                    <th className="px-4 py-3">Released</th>
                                     <th className="px-4 py-3">Status</th>
                                     <th className="px-6 py-3">Date Paid</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-border-light dark:divide-border-dark">
                                 {paginated.map((p) => {
-                                    const amount = parseFloat(p.amount);
+                                    const totalAmount = parseFloat(p.amount);
                                     const fee = parseFloat(p.platformFee);
-                                    const feePercent = amount > 0 ? Math.round((fee / amount) * 100) : 0;
-                                    const earnings = parseFloat(p.releasedAmount ?? p.therapistPayout);
+                                    const feePercent = totalAmount > 0 ? Math.round((fee / totalAmount) * 100) : 0;
+                                    const released = parseFloat(p.releasedAmount ?? 0);
+                                    const totalPayout = parseFloat(p.therapistPayout);
+                                    const perSessionRate = p.booking?.rate ? parseFloat(p.booking.rate) : totalAmount;
+                                    const sessionCount = p.booking?.sessions?.length || 1;
+                                    const confirmedCount = p.booking?.sessions?.filter(s => s.status === "confirmed_by_customer").length || 0;
+                                    const isMultiSession = sessionCount > 1;
 
                                     return (
                                         <tr
@@ -158,18 +189,45 @@ export default function PayoutHistoryTable({ payments }) {
                                             className="hover:bg-slate-50 dark:hover:bg-white/[0.03] transition-colors cursor-pointer"
                                         >
                                             <td className="px-6 py-4"><CustomerCell payment={p} /></td>
-                                            <td className="px-4 py-4 text-sm text-text-muted dark:text-slate-300">{formatDate(p.booking?.scheduledDate)}</td>
-                                            <td className="px-4 py-4 text-sm text-text-main dark:text-white">{formatCurrency(amount)}</td>
+                                            <td className="px-4 py-4">
+                                                <span className="text-sm text-text-main dark:text-white">
+                                                    {formatCurrency(perSessionRate)}
+                                                </span>
+                                                {isMultiSession && (
+                                                    <span className="text-[10px] text-text-muted dark:text-slate-500">/session</span>
+                                                )}
+                                            </td>
+                                            <td className="px-4 py-4">
+                                                {isMultiSession ? (
+                                                    <div>
+                                                        <span className="text-sm text-text-main dark:text-white">
+                                                            {confirmedCount} of {sessionCount}
+                                                        </span>
+                                                        <SessionProgress payment={p} />
+                                                    </div>
+                                                ) : (
+                                                    <span className="text-sm text-text-muted dark:text-slate-400">1</span>
+                                                )}
+                                            </td>
                                             <td className="px-4 py-4 text-sm text-red-500">-{formatCurrency(fee)} ({feePercent}%)</td>
                                             <td className="px-4 py-4">
-                                                <span className="text-sm font-bold text-emerald-600 dark:text-emerald-400">{formatCurrency(earnings)}</span>
+                                                <span className="text-sm font-bold text-emerald-600 dark:text-emerald-400">
+                                                    {formatCurrency(p.status === "escrowed" ? totalPayout : released)}
+                                                </span>
                                                 {p.status === "partially_released" && (
-                                                    <p className="text-[10px] text-amber-500 mt-0.5">of {formatCurrency(parseFloat(p.therapistPayout))} total</p>
+                                                    <p className="text-[10px] text-text-muted dark:text-slate-500 mt-0.5">
+                                                        of {formatCurrency(totalPayout)}
+                                                    </p>
                                                 )}
                                             </td>
                                             <td className="px-4 py-4"><StatusBadge status={p.status} /></td>
                                             <td className="px-6 py-4 text-sm text-text-muted dark:text-slate-400">
-                                                {p.status === "released" ? formatDate(p.releasedAt) : <span className="italic text-text-muted dark:text-slate-500">Pending</span>}
+                                                {p.status === "released"
+                                                    ? formatDate(p.releasedAt)
+                                                    : p.status === "partially_released"
+                                                        ? <span className="text-orange-500 font-medium">In progress</span>
+                                                        : <span className="italic text-text-muted dark:text-slate-500">Pending</span>
+                                                }
                                             </td>
                                         </tr>
                                     );
@@ -181,10 +239,15 @@ export default function PayoutHistoryTable({ payments }) {
                     {/* Mobile cards */}
                     <div className="lg:hidden divide-y divide-border-light dark:divide-border-dark">
                         {paginated.map((p) => {
-                            const amount = parseFloat(p.amount);
+                            const totalAmount = parseFloat(p.amount);
                             const fee = parseFloat(p.platformFee);
-                            const feePercent = amount > 0 ? Math.round((fee / amount) * 100) : 0;
-                            const earnings = parseFloat(p.releasedAmount ?? p.therapistPayout);
+                            const feePercent = totalAmount > 0 ? Math.round((fee / totalAmount) * 100) : 0;
+                            const released = parseFloat(p.releasedAmount ?? 0);
+                            const totalPayout = parseFloat(p.therapistPayout);
+                            const perSessionRate = p.booking?.rate ? parseFloat(p.booking.rate) : totalAmount;
+                            const sessionCount = p.booking?.sessions?.length || 1;
+                            const confirmedCount = p.booking?.sessions?.filter(s => s.status === "confirmed_by_customer").length || 0;
+                            const isMultiSession = sessionCount > 1;
 
                             return (
                                 <div
@@ -199,20 +262,33 @@ export default function PayoutHistoryTable({ payments }) {
                                     <div className="grid grid-cols-3 gap-3 text-sm">
                                         <div>
                                             <p className="text-[10px] text-text-muted dark:text-slate-500 uppercase font-bold">Rate</p>
-                                            <p className="text-text-main dark:text-white">{formatCurrency(amount)}</p>
+                                            <p className="text-text-main dark:text-white">
+                                                {formatCurrency(perSessionRate)}
+                                                {isMultiSession && <span className="text-[10px] text-text-muted">/session</span>}
+                                            </p>
                                         </div>
                                         <div>
                                             <p className="text-[10px] text-text-muted dark:text-slate-500 uppercase font-bold">Fee ({feePercent}%)</p>
                                             <p className="text-red-500">-{formatCurrency(fee)}</p>
                                         </div>
                                         <div>
-                                            <p className="text-[10px] text-text-muted dark:text-slate-500 uppercase font-bold">Earnings</p>
-                                            <p className="font-bold text-emerald-600 dark:text-emerald-400">{formatCurrency(earnings)}</p>
+                                            <p className="text-[10px] text-text-muted dark:text-slate-500 uppercase font-bold">Released</p>
+                                            <p className="font-bold text-emerald-600 dark:text-emerald-400">
+                                                {formatCurrency(p.status === "escrowed" ? totalPayout : released)}
+                                            </p>
+                                            {p.status === "partially_released" && (
+                                                <p className="text-[10px] text-text-muted mt-0.5">of {formatCurrency(totalPayout)}</p>
+                                            )}
                                         </div>
                                     </div>
-                                    <p className="text-[10px] text-text-muted dark:text-slate-500 mt-2">
-                                        {formatDate(p.booking?.scheduledDate)}
-                                    </p>
+                                    {isMultiSession && (
+                                        <div className="mt-2">
+                                            <p className="text-[10px] text-text-muted dark:text-slate-500">
+                                                {confirmedCount} of {sessionCount} sessions confirmed
+                                            </p>
+                                            <SessionProgress payment={p} />
+                                        </div>
+                                    )}
                                 </div>
                             );
                         })}
