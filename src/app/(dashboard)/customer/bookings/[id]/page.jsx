@@ -17,10 +17,13 @@ import { useBookingDetail } from "@/hooks/useBookings";
 import { bookingsApi } from "@/lib/bookings.api";
 import { api } from "@/lib/api";
 import { paymentsApi } from "@/lib/payments.api";
+import { resolveVisitPlan, computeTotalVisits } from "@/lib/visitPlan";
 import BookingStatusBadge from "@/components/bookings/BookingStatusBadge";
 import BookingTimeline from "@/components/bookings/BookingTimeline";
 import SessionList from "@/components/bookings/SessionList";
 import PaymentSummaryCard from "@/components/bookings/PaymentSummaryCard";
+import RequestRevisionModal from "@/components/shared/sessions/RequestRevisionModal";
+import RevisionStatusBanner from "@/components/shared/sessions/RevisionStatusBanner";
 import { formatCurrency } from "@/utils/messages";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import PatientInfoBlock from "@/components/customer/PatientInfoBlock";
@@ -167,10 +170,9 @@ function InlinePaymentSection({ booking, onPaymentSuccess }) {
     };
 
     const perSessionRate = parseFloat(booking.rate);
-    const request = booking.offer?.request;
-    const totalSessionsFromFreq = (request?.visitsPerWeek && request?.numberOfWeeks)
-        ? request.visitsPerWeek * request.numberOfWeeks
-        : 1;
+    // Effective plan: booking (authoritative post-acceptance) > offer override > request (legacy).
+    const plan = resolveVisitPlan({ booking, offer: booking.offer, request: booking.offer?.request });
+    const totalSessionsFromFreq = computeTotalVisits(plan) ?? 1;
     const sessionsCount = booking.sessions?.length > 1 ? booking.sessions.length : totalSessionsFromFreq;
     const isMultiSession = sessionsCount > 1;
     const totalAmount = perSessionRate * sessionsCount;
@@ -330,6 +332,7 @@ export default function CustomerBookingDetailPage() {
     // UI states
     const [confirming, setConfirming] = useState(false);
     const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+    const [showRevisionModal, setShowRevisionModal] = useState(false);
     const [showRefundForm, setShowRefundForm] = useState(false);
     const [refundReason, setRefundReason] = useState("");
     const [refunding, setRefunding] = useState(false);
@@ -478,10 +481,9 @@ export default function CustomerBookingDetailPage() {
     const therapistInitial = therapist?.fullName?.charAt(0) || "?";
     const sessionType = offer?.sessionType;
 
-    // Calculate total sessions from request frequency (available before payment/sessions created)
-    const totalSessionsFromFrequency = (request?.visitsPerWeek && request?.numberOfWeeks)
-        ? request.visitsPerWeek * request.numberOfWeeks
-        : 1;
+    // Effective plan: booking (authoritative post-acceptance) > offer override > request (legacy).
+    const plan = resolveVisitPlan({ booking, offer, request });
+    const totalSessionsFromFrequency = computeTotalVisits(plan) ?? 1;
     const totalSessions = sessions.length > 1 ? sessions.length : totalSessionsFromFrequency;
     const isMultiSession = totalSessions > 1;
     const perSessionRate = parseFloat(booking.rate);
@@ -756,27 +758,51 @@ export default function CustomerBookingDetailPage() {
                             </div>
                         )}
 
-                        {/* Session completed by therapist — confirm */}
+                        {/* Session in revision — customer is waiting for therapist resubmit */}
+                        {session?.status === "in_revision" && (
+                            <RevisionStatusBanner
+                                revisionRequestedAt={session.revisionRequestedAt}
+                                revisionReason={session.revisionReason}
+                                revisionDueBy={session.revisionDueBy}
+                                revisionCount={session.revisionCount}
+                                conversationHref={`/customer/messages?c=booking:${params.id}`}
+                                viewerRole="customer"
+                            />
+                        )}
+
+                        {/* Session completed by therapist — confirm or request revision */}
                         {session?.status === "completed_by_therapist" && !showConfirmDialog && (
                             <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-5">
                                 <div className="flex items-start gap-3">
                                     <MdWarning className="text-amber-600 dark:text-amber-400 text-lg mt-0.5 shrink-0" />
                                     <div className="flex-1">
-                                        <p className="text-sm font-bold text-amber-900 dark:text-amber-200">Session Marked Complete</p>
+                                        <p className="text-sm font-bold text-amber-900 dark:text-amber-200">
+                                            {session.revisionCount > 0 ? "Session Resubmitted" : "Session Marked Complete"}
+                                        </p>
                                         <p className="text-xs text-amber-700 dark:text-amber-300 mt-0.5">
-                                            Your therapist has marked this session as complete. Please confirm to release payment.
+                                            {session.revisionCount > 0
+                                                ? "Your therapist has addressed your revision request and resubmitted the session. Please review and confirm, or request additional changes."
+                                                : "Your therapist has marked this session as complete. Please confirm to release payment, or request changes if something needs updating."}
                                         </p>
                                         <p className="text-xs text-amber-600 dark:text-amber-400 mt-1">
                                             Payment auto-releases after 72 hours if not confirmed.
                                         </p>
                                     </div>
                                 </div>
-                                <button
-                                    onClick={() => setShowConfirmDialog(true)}
-                                    className="mt-3 ml-8 bg-emerald-500 hover:bg-emerald-600 text-white px-5 py-2 rounded-lg text-sm font-bold transition-colors"
-                                >
-                                    Confirm Completion
-                                </button>
+                                <div className="mt-3 ml-8 flex flex-wrap items-center gap-2">
+                                    <button
+                                        onClick={() => setShowConfirmDialog(true)}
+                                        className="bg-emerald-500 hover:bg-emerald-600 text-white px-5 py-2 rounded-lg text-sm font-bold transition-colors"
+                                    >
+                                        Confirm Completion
+                                    </button>
+                                    <button
+                                        onClick={() => setShowRevisionModal(true)}
+                                        className="border border-amber-300 dark:border-amber-700 text-amber-700 dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-900/30 px-5 py-2 rounded-lg text-sm font-bold transition-colors"
+                                    >
+                                        Request Revision
+                                    </button>
+                                </div>
                             </div>
                         )}
 
@@ -873,6 +899,15 @@ export default function CustomerBookingDetailPage() {
                     )}
                 </div>
             </div>
+
+            {/* Request Revision modal — mounted at root so it's not constrained
+                by parent overflow/layout */}
+            <RequestRevisionModal
+                isOpen={showRevisionModal}
+                onClose={() => setShowRevisionModal(false)}
+                sessionId={session?.id}
+                onSuccess={refetch}
+            />
         </div>
     )
 

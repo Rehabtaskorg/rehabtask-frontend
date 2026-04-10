@@ -31,6 +31,12 @@ export const bookingsApi = {
     scheduleSession: async (sessionId, scheduledDate) => {
         return api.post(`/sessions/${sessionId}/schedule`, { scheduledDate });
     },
+    requestSessionRevision: async (sessionId, reason) => {
+        return api.post(`/sessions/${sessionId}/request-revision`, { reason });
+    },
+    submitSessionRevision: async (sessionId, dueBy) => {
+        return api.post(`/sessions/${sessionId}/submit-revision`, { dueBy });
+    },
 
     // Payment endpoints
     requestRefund: async (bookingId, reason) => {

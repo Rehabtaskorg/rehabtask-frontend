@@ -65,8 +65,11 @@ function TherapistRequestsContent() {
     const [filters, setFilters] = useState({ serviceTypes: [], distance: "10", show: "all" });
     const [committedFilters, setCommittedFilters] = useState({ serviceTypes: [], distance: "10", show: "all" });
     const [showFilters, setShowFilters] = useState(false);
-    const [offerData, setOfferData] = useState({ rate: "", sessionType: "in-person", proposedDate: "", description: "", visitTypeId: "" });
-    const [visitTypes, setVisitTypes] = useState([]);
+    const [offerData, setOfferData] = useState({
+        rate: "", sessionType: "in-person", proposedDate: "", description: "", visitTypeId: "",
+        planOverrideEnabled: false, visitType: "", visitsPerWeek: "", numberOfWeeks: "",
+    });
+    // visitTypes state removed — OfferForm now fetches its own via useVisitTypes hook
     const [submitting, setSubmitting] = useState(false);
     const [offerSuccess, setOfferSuccess] = useState(false);
     const [offerError, setOfferError] = useState("");
@@ -103,7 +106,6 @@ function TherapistRequestsContent() {
 
     useEffect(() => {
         api.get("/payments/commission-rate").then((res) => setCommissionRate(res.data.data.rate)).catch(() => {});
-        api.get("/visit-types").then((res) => setVisitTypes(res.data.data || [])).catch(() => {});
     }, []);
 
     useEffect(() => {
@@ -146,7 +148,10 @@ function TherapistRequestsContent() {
         if (req.preferredDate) {
             const d = new Date(req.preferredDate);
             const localDT = new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
-            setOfferData({ rate: profileRate, sessionType: "in-person", proposedDate: localDT, description: "", visitTypeId: "" });
+            setOfferData({
+                rate: profileRate, sessionType: "in-person", proposedDate: localDT, description: "", visitTypeId: "",
+                planOverrideEnabled: false, visitType: "", visitsPerWeek: "", numberOfWeeks: "",
+            });
         }
     };
 
@@ -157,14 +162,20 @@ function TherapistRequestsContent() {
         setSubmitting(true);
         setOfferError("");
         try {
-            await api.post("/offers", {
+            const createPayload = {
                 requestId: selectedRequest.id,
                 rate: parseFloat(offerData.rate),
                 sessionType: offerData.sessionType,
                 proposedDate: new Date(offerData.proposedDate).toISOString(),
                 description: offerData.description,
-                ...(offerData.visitTypeId && { visitTypeId: offerData.visitTypeId }),
-            });
+            };
+            // Visit plan override — only include when toggle is on AND value filled.
+            if (offerData.planOverrideEnabled) {
+                if (offerData.visitTypeId) createPayload.visitTypeId = offerData.visitTypeId;
+                if (offerData.visitsPerWeek) createPayload.visitsPerWeek = parseInt(offerData.visitsPerWeek, 10);
+                if (offerData.numberOfWeeks) createPayload.numberOfWeeks = parseInt(offerData.numberOfWeeks, 10);
+            }
+            await api.post("/offers", createPayload);
             setOfferSuccess(true);
             // Refresh list and update selected
             await fetchRequests(committedFilters, currentPage);
@@ -186,13 +197,24 @@ function TherapistRequestsContent() {
         setSubmitting(true);
         setOfferError("");
         try {
-            await api.put(`/offers/${myOffer.id}/revise`, {
+            // On revise, explicit `null` CLEARS a previous override. If the toggle
+            // is off we always send nulls so the backend falls back to the request's plan.
+            const revisePayload = {
                 rate: parseFloat(offerData.rate),
                 sessionType: offerData.sessionType,
                 proposedDate: new Date(offerData.proposedDate).toISOString(),
                 description: offerData.description,
-                ...(offerData.visitTypeId && { visitTypeId: offerData.visitTypeId }),
-            });
+            };
+            if (offerData.planOverrideEnabled) {
+                revisePayload.visitTypeId = offerData.visitTypeId || null;
+                revisePayload.visitsPerWeek = offerData.visitsPerWeek ? parseInt(offerData.visitsPerWeek, 10) : null;
+                revisePayload.numberOfWeeks = offerData.numberOfWeeks ? parseInt(offerData.numberOfWeeks, 10) : null;
+            } else {
+                revisePayload.visitTypeId = null;
+                revisePayload.visitsPerWeek = null;
+                revisePayload.numberOfWeeks = null;
+            }
+            await api.put(`/offers/${myOffer.id}/revise`, revisePayload);
             setOfferSuccess(true);
             await fetchRequests(committedFilters, currentPage);
             const res = await api.get(`/requests/${selectedRequest.id}`);
@@ -377,7 +399,6 @@ function TherapistRequestsContent() {
                                 myOffer={getMyOffer(selectedRequest)}
                                 offerData={offerData}
                                 setOfferData={setOfferData}
-                                visitTypes={visitTypes}
                                 commissionRate={commissionRate}
                                 submitting={submitting}
                                 offerSuccess={offerSuccess}

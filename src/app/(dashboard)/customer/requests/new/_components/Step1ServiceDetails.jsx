@@ -2,6 +2,7 @@
 
 import useRequestStore from "@/store/requestStore";
 import { useRequestOptions } from "@/hooks/useRequestOptions";
+import { useVisitTypes } from "@/hooks/useVisitTypes";
 
 const SERVICE_TYPES = [
     { value: "", label: "Select a service type..." },
@@ -17,10 +18,42 @@ const LABEL_CLASS = "block text-sm font-semibold text-slate-700 dark:text-slate-
 
 export default function Step1ServiceDetails() {
     const { step1, setStep1 } = useRequestStore();
-    const { data: visitTypeOptions = [] } = useRequestOptions("visit_type");
     const { data: emrOptions = [] } = useRequestOptions("emr");
 
+    // Visit types fetched from the curated catalog, filtered by the selected service type.
+    // audience="customer" hides therapist-internal codes (MV, Supervisory, Attempted, etc.)
+    const { data: visitTypeOptions = [], isLoading: loadingVisitTypes } = useVisitTypes({
+        serviceType: step1.serviceType,
+        audience: "customer",
+    });
+
     const todayStr = new Date().toISOString().split("T")[0];
+
+    const handleServiceTypeChange = (e) => {
+        const newServiceType = e.target.value;
+        setStep1({
+            serviceType: newServiceType,
+            visitTypeId: "",
+            visitTypeName: "",
+            visitType: "",
+            visitTypeOther: "",
+        });
+    };
+
+    const handleVisitTypeChange = (e) => {
+        const selectedId = e.target.value;
+        if (!selectedId) {
+            setStep1({ visitTypeId: "", visitTypeName: "", visitType: "" });
+            return;
+        }
+        const selected = visitTypeOptions.find((vt) => vt.id === selectedId);
+        setStep1({
+            visitTypeId: selectedId,
+            visitTypeName: selected ? `${selected.name} (${selected.code})` : "",
+            visitType: "",
+            visitTypeOther: "",
+        });
+    };
 
     return (
         <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl shadow-sm p-6 sm:p-8 space-y-6">
@@ -35,7 +68,7 @@ export default function Step1ServiceDetails() {
                 </label>
                 <select
                     value={step1.serviceType}
-                    onChange={(e) => setStep1({ serviceType: e.target.value })}
+                    onChange={handleServiceTypeChange}
                     className={INPUT_CLASS}
                 >
                     {SERVICE_TYPES.map((opt) => (
@@ -167,36 +200,30 @@ export default function Step1ServiceDetails() {
 
             {/* Visit Type + EMR — 2-col grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {/* Visit Type */}
+                {/* Visit Type — FK-backed dropdown filtered by service type */}
                 <div>
                     <label className={LABEL_CLASS}>
                         Type of Visit <span className="text-red-500">*</span>
                     </label>
                     <select
-                        value={step1.visitType}
-                        onChange={(e) => {
-                            setStep1({ visitType: e.target.value });
-                            if (e.target.value !== "Other") setStep1({ visitTypeOther: "" });
-                        }}
-                        className={INPUT_CLASS}
+                        value={step1.visitTypeId}
+                        onChange={handleVisitTypeChange}
+                        disabled={!step1.serviceType || loadingVisitTypes}
+                        className={`${INPUT_CLASS} ${!step1.serviceType ? "opacity-50 cursor-not-allowed" : ""}`}
                     >
-                        <option value="">Select visit type...</option>
-                        {visitTypeOptions.map((opt) => (
-                            <option key={opt.id} value={opt.value}>
-                                {opt.value}
+                        <option value="">
+                            {!step1.serviceType
+                                ? "Select a service type first"
+                                : loadingVisitTypes
+                                    ? "Loading..."
+                                    : "Select visit type..."}
+                        </option>
+                        {visitTypeOptions.map((vt) => (
+                            <option key={vt.id} value={vt.id}>
+                                {vt.name} ({vt.code})
                             </option>
                         ))}
-                        <option value="Other">Other</option>
                     </select>
-                    {step1.visitType === "Other" && (
-                        <input
-                            type="text"
-                            value={step1.visitTypeOther}
-                            onChange={(e) => setStep1({ visitTypeOther: e.target.value })}
-                            placeholder="Enter visit type..."
-                            className={`${INPUT_CLASS} mt-2`}
-                        />
-                    )}
                 </div>
 
                 {/* EMR System */}

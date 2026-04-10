@@ -13,6 +13,8 @@ import BookingStatusBadge from "@/components/bookings/BookingStatusBadge";
 import BookingTimeline from "@/components/bookings/BookingTimeline";
 import SessionList from "@/components/bookings/SessionList";
 import PaymentSummaryCard from "@/components/bookings/PaymentSummaryCard";
+import SubmitRevisionModal from "@/components/shared/sessions/SubmitRevisionModal";
+import RevisionStatusBanner from "@/components/shared/sessions/RevisionStatusBanner";
 import { formatCurrency } from "@/utils/messages";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import PatientInfoBlock from "@/components/customer/PatientInfoBlock";
@@ -36,6 +38,7 @@ export default function TherapistBookingDetailPage() {
     // UI states
     const [completing, setCompleting] = useState(false);
     const [showCompleteDialog, setShowCompleteDialog] = useState(false);
+    const [showSubmitRevisionModal, setShowSubmitRevisionModal] = useState(false);
 
     // Reschedule states
     const [showRescheduleModal, setShowRescheduleModal] = useState(false);
@@ -454,15 +457,41 @@ export default function TherapistBookingDetailPage() {
                             </div>
                         )}
 
+                        {/* Session in revision — therapist needs to respond */}
+                        {session?.status === "in_revision" && (
+                            <div className="space-y-3">
+                                <RevisionStatusBanner
+                                    revisionRequestedAt={session.revisionRequestedAt}
+                                    revisionReason={session.revisionReason}
+                                    revisionDueBy={session.revisionDueBy}
+                                    revisionCount={session.revisionCount}
+                                    conversationHref={`/therapist/messages?c=booking:${params.id}`}
+                                    viewerRole="therapist"
+                                />
+                                <div className="flex justify-end">
+                                    <button
+                                        onClick={() => setShowSubmitRevisionModal(true)}
+                                        className="bg-primary hover:brightness-95 text-white px-5 py-2.5 rounded-lg text-sm font-bold transition-colors"
+                                    >
+                                        Respond & Resubmit
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+
                         {/* Completed by therapist — waiting for customer */}
                         {session?.status === "completed_by_therapist" && (
                             <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-5">
                                 <div className="flex items-start gap-3">
                                     <MdWarning className="text-amber-600 dark:text-amber-400 text-lg mt-0.5 shrink-0" />
                                     <div className="flex-1">
-                                        <p className="text-sm font-bold text-amber-900 dark:text-amber-200">Waiting for Customer Confirmation</p>
+                                        <p className="text-sm font-bold text-amber-900 dark:text-amber-200">
+                                            {session.revisionCount > 0 ? "Resubmitted — Waiting for Customer" : "Waiting for Customer Confirmation"}
+                                        </p>
                                         <p className="text-xs text-amber-700 dark:text-amber-300 mt-0.5">
-                                            Customer needs to confirm session completion. Payment auto-releases after 72 hours.
+                                            {session.revisionCount > 0
+                                                ? "You've resubmitted the session. The customer has 72 hours to confirm or request another revision."
+                                                : "Customer needs to confirm session completion. Payment auto-releases after 72 hours."}
                                         </p>
                                         <p className="text-xs text-amber-600 dark:text-amber-400 mt-1 italic">
                                             Auto-checking every few seconds...
@@ -552,6 +581,15 @@ export default function TherapistBookingDetailPage() {
                     )}
                 </div>
             </div>
+
+            {/* Submit Revision modal — mounted at root */}
+            <SubmitRevisionModal
+                isOpen={showSubmitRevisionModal}
+                onClose={() => setShowSubmitRevisionModal(false)}
+                sessionId={session?.id}
+                revisionReason={session?.revisionReason}
+                onSuccess={refetch}
+            />
         </div>
     );
 }

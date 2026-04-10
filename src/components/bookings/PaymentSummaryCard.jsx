@@ -2,6 +2,7 @@
 
 import { MdPayments, MdLock, MdCheckCircle, MdError, MdRefresh, MdArrowForward } from "react-icons/md";
 import { formatCurrency } from "@/utils/messages";
+import { resolveVisitPlan, computeTotalVisits } from "@/lib/visitPlan";
 
 const PAYMENT_STATUS_CONFIG = {
     intent_created: {
@@ -49,10 +50,10 @@ export default function PaymentSummaryCard({ booking, role, onAction }) {
     const payment = booking.payment;
     const sessions = booking.sessions || [];
     const session = sessions[0];
-    const request = booking.offer?.request;
-    const totalSessionsFromFreq = (request?.visitsPerWeek && request?.numberOfWeeks)
-        ? request.visitsPerWeek * request.numberOfWeeks
-        : 1;
+    // Effective plan: booking (authoritative) > offer override > request.
+    // Legacy bookings have NULL override columns and fall through to request values.
+    const plan = resolveVisitPlan({ booking, offer: booking.offer, request: booking.offer?.request });
+    const totalSessionsFromFreq = computeTotalVisits(plan) ?? 1;
     const totalSessions = sessions.length > 1 ? sessions.length : totalSessionsFromFreq;
     const isMultiSession = totalSessions > 1;
     const totalAmount = payment ? parseFloat(payment.amount) : perSessionRate * totalSessions;

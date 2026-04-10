@@ -12,6 +12,7 @@ import {
 } from "react-icons/md";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import PatientInfoBlock from "@/components/customer/PatientInfoBlock";
+import { resolveVisitPlan, hasPlanOverride, computeTotalVisits } from "@/lib/visitPlan";
 
 const STATUS_STYLES = {
     created: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400",
@@ -296,10 +297,14 @@ export default function CustomerRequestDetailPage() {
                                     <p className="font-bold text-emerald-600 dark:text-emerald-400">${parseFloat(request.rate).toFixed(2)}/visit</p>
                                 </div>
                             )}
-                            {request.visitType && (
+                            {(request.visitTypeRef || request.visitType) && (
                                 <div className="space-y-1">
                                     <p className="text-xs font-bold text-text-muted dark:text-gray-400 uppercase tracking-widest">Visit Type</p>
-                                    <p className="font-semibold text-text-main dark:text-white">{request.visitType}</p>
+                                    <p className="font-semibold text-text-main dark:text-white">
+                                        {request.visitTypeRef
+                                            ? `${request.visitTypeRef.name} (${request.visitTypeRef.code})`
+                                            : request.visitType}
+                                    </p>
                                 </div>
                             )}
                             {request.emrSystem && (
@@ -417,26 +422,79 @@ export default function CustomerRequestDetailPage() {
                                                     <p className="text-sm text-text-muted dark:text-gray-400">{therapist.specialization}</p>
                                                 )}
 
-                                                <div className="flex flex-wrap gap-4 mt-2 text-sm text-text-muted dark:text-gray-400">
-                                                    <span className="flex items-center gap-1 font-semibold text-text-main dark:text-white">
-                                                        <MdAttachMoney className="text-emerald-500" />
-                                                        ${parseFloat(offer.rate).toFixed(2)}/session
-                                                        {request.visitsPerWeek && request.numberOfWeeks && (
-                                                            <span className="text-text-muted dark:text-gray-400 font-normal text-xs ml-1">
-                                                                (${(parseFloat(offer.rate) * request.visitsPerWeek * request.numberOfWeeks).toFixed(2)} total)
-                                                            </span>
-                                                        )}
-                                                    </span>
-                                                    <span className="flex items-center gap-1">
-                                                        {offer.sessionType === "virtual" ? <MdVideocam className="text-sm" /> : <MdPersonPin className="text-sm" />}
-                                                        {offer.sessionType === "virtual" ? "Virtual" : "In-Person"}
-                                                    </span>
-                                                    {offer.visitType && (
-                                                        <span className="px-2 py-0.5 rounded bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 text-xs font-bold">
-                                                            {offer.visitType.name} ({offer.visitType.code})
-                                                        </span>
-                                                    )}
-                                                </div>
+                                                {(() => {
+                                                    // Effective plan = offer override (if any) > request.
+                                                    // This is what the customer is actually committing to on accept.
+                                                    const effectivePlan = resolveVisitPlan({ offer, request });
+                                                    const effectiveTotalVisits = computeTotalVisits(effectivePlan);
+                                                    const showDiff = hasPlanOverride(offer, request);
+
+                                                    return (
+                                                        <>
+                                                            <div className="flex flex-wrap gap-4 mt-2 text-sm text-text-muted dark:text-gray-400">
+                                                                <span className="flex items-center gap-1 font-semibold text-text-main dark:text-white">
+                                                                    <MdAttachMoney className="text-emerald-500" />
+                                                                    ${parseFloat(offer.rate).toFixed(2)}/session
+                                                                    {effectiveTotalVisits && (
+                                                                        <span className="text-text-muted dark:text-gray-400 font-normal text-xs ml-1">
+                                                                            (${(parseFloat(offer.rate) * effectiveTotalVisits).toFixed(2)} total)
+                                                                        </span>
+                                                                    )}
+                                                                </span>
+                                                                <span className="flex items-center gap-1">
+                                                                    {offer.sessionType === "virtual" ? <MdVideocam className="text-sm" /> : <MdPersonPin className="text-sm" />}
+                                                                    {offer.sessionType === "virtual" ? "Virtual" : "In-Person"}
+                                                                </span>
+                                                                {offer.visitTypeRef && (
+                                                                    <span className="px-2 py-0.5 rounded bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 text-xs font-bold">
+                                                                        {offer.visitTypeRef.name} ({offer.visitTypeRef.code})
+                                                                    </span>
+                                                                )}
+                                                            </div>
+
+                                                            {/* Visit plan diff — only rendered when therapist proposes different values */}
+                                                            {showDiff && (
+                                                                <div className="mt-3 rounded-lg border border-amber-200 dark:border-amber-800/50 bg-amber-50 dark:bg-amber-900/10 p-3">
+                                                                    <p className="text-[10px] font-bold text-amber-800 dark:text-amber-300 uppercase tracking-widest mb-2 flex items-center gap-1">
+                                                                        <MdInfo className="text-sm" />
+                                                                        Proposed treatment plan
+                                                                    </p>
+                                                                    <div className="grid grid-cols-2 gap-3 text-xs">
+                                                                        <div>
+                                                                            <p className="text-[10px] font-bold text-text-muted dark:text-gray-400 uppercase mb-1">Your request</p>
+                                                                            {(request.visitTypeRef || request.visitType) && (
+                                                                                <p className="text-text-main dark:text-white">
+                                                                                    {request.visitTypeRef
+                                                                                        ? `${request.visitTypeRef.name} (${request.visitTypeRef.code})`
+                                                                                        : request.visitType}
+                                                                                </p>
+                                                                            )}
+                                                                            {request.visitsPerWeek && request.numberOfWeeks && (
+                                                                                <p className="text-text-main dark:text-white">
+                                                                                    {request.visitsPerWeek}×/week × {request.numberOfWeeks}wk
+                                                                                    <span className="text-text-muted dark:text-gray-400"> ({request.visitsPerWeek * request.numberOfWeeks} visits)</span>
+                                                                                </p>
+                                                                            )}
+                                                                        </div>
+                                                                        <div>
+                                                                            <p className="text-[10px] font-bold text-amber-700 dark:text-amber-400 uppercase mb-1">Therapist proposes</p>
+                                                                            {effectivePlan.visitType && <p className="text-text-main dark:text-white font-semibold">{effectivePlan.visitType}</p>}
+                                                                            {effectivePlan.visitsPerWeek && effectivePlan.numberOfWeeks && (
+                                                                                <p className="text-text-main dark:text-white font-semibold">
+                                                                                    {effectivePlan.visitsPerWeek}×/week × {effectivePlan.numberOfWeeks}wk
+                                                                                    <span className="text-text-muted dark:text-gray-400 font-normal"> ({effectivePlan.visitsPerWeek * effectivePlan.numberOfWeeks} visits)</span>
+                                                                                </p>
+                                                                            )}
+                                                                        </div>
+                                                                    </div>
+                                                                    <p className="text-[10px] text-text-muted dark:text-gray-400 italic mt-2">
+                                                                        If you accept this offer, the therapist&apos;s plan becomes your treatment plan.
+                                                                    </p>
+                                                                </div>
+                                                            )}
+                                                        </>
+                                                    );
+                                                })()}
 
                                                 <p className="text-xs text-text-muted dark:text-gray-400 mt-2 flex items-center gap-1">
                                                     <MdCalendarToday className="text-sm" />
