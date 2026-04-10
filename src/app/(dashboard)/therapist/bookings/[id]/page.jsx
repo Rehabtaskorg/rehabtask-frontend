@@ -536,19 +536,19 @@ export default function TherapistBookingDetailPage() {
                             </div>
                         )}
 
-                        {/* Payment released — success */}
-                        {payment?.status === "released" && (
+                        {/* Payment released — success (not shown for finalized — the Series Finalized banner handles it) */}
+                        {payment?.status === "released" && booking.status !== "finalized" && (
                             <div className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl p-5">
                                 <div className="flex items-start gap-3">
                                     <MdCheckCircle className="text-emerald-600 dark:text-emerald-400 text-lg mt-0.5 shrink-0" />
                                     <div>
                                         <p className="text-sm font-bold text-emerald-900 dark:text-emerald-200">Payment Released</p>
                                         <p className="text-xs text-emerald-700 dark:text-emerald-300 mt-0.5">
-                                            {formatCurrency(earnings)} has been transferred to your payout account.
+                                            {formatCurrency(parseFloat(payment.releasedAmount ?? payment.therapistPayout))} has been transferred to your payout account.
                                         </p>
                                         {payment.platformFee && (
                                             <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-1">
-                                                Session rate: {formatCurrency(parseFloat(payment.amount))} — Platform fee: {formatCurrency(parseFloat(payment.platformFee))} — Your earnings: {formatCurrency(earnings)}
+                                                Session rate: {formatCurrency(parseFloat(payment.amount))} — Platform fee: {formatCurrency(parseFloat(payment.platformFee))} — Your earnings: {formatCurrency(parseFloat(payment.releasedAmount ?? payment.therapistPayout))}
                                             </p>
                                         )}
                                     </div>

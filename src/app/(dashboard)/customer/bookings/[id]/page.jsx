@@ -836,8 +836,8 @@ export default function CustomerBookingDetailPage() {
                             </div>
                         )}
 
-                        {/* Confirmed by customer — success */}
-                        {(() => {
+                        {/* Confirmed by customer — success (not shown for finalized bookings) */}
+                        {booking.status !== "finalized" && (() => {
                             const allConfirmed = isMultiSession
                                 ? sessions.length > 0 && sessions.every(s => s.status === "confirmed_by_customer")
                                 : session?.status === "confirmed_by_customer";
