@@ -53,6 +53,12 @@ const STATUS_CONFIG = {
         icon: MdUpdate,
         label: "Reschedule Requested",
     },
+    finalized: {
+        bg: "bg-slate-100 dark:bg-slate-800/50",
+        text: "text-slate-700 dark:text-slate-300",
+        icon: MdTaskAlt,
+        label: "Finalized",
+    },
 };
 
 const SIZE_CLASSES = {

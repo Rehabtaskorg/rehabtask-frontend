@@ -40,6 +40,10 @@ export default function TherapistBookingDetailPage() {
     const [showCompleteDialog, setShowCompleteDialog] = useState(false);
     const [showSubmitRevisionModal, setShowSubmitRevisionModal] = useState(false);
 
+    // Finalize states
+    const [showFinalizeConfirm, setShowFinalizeConfirm] = useState(false);
+    const [finalizing, setFinalizing] = useState(false);
+
     // Reschedule states
     const [showRescheduleModal, setShowRescheduleModal] = useState(false);
     const [rescheduleDate, setRescheduleDate] = useState("");
@@ -54,7 +58,7 @@ export default function TherapistBookingDetailPage() {
             }, 3000);
             return () => clearInterval(interval);
         }
-    }, [booking?.sessions?.[0]?.status, booking?.status, refetch]);
+    }, [booking?.sessions, booking?.status, refetch]);
 
     const handleMarkComplete = async () => {
         setCompleting(true);
@@ -101,6 +105,19 @@ export default function TherapistBookingDetailPage() {
         router.push(`/therapist/messages?c=booking:${params.id}`);
     };
 
+    const handleFinalize = async () => {
+        setFinalizing(true);
+        try {
+            await bookingsApi.finalizeBooking(params.id);
+            showToast.success("Booking finalized. Confirmed sessions have been paid out and the customer has been refunded for remaining sessions.");
+            setShowFinalizeConfirm(false);
+            refetch();
+        } catch (err) {
+            showToast.error(err.response?.data?.message || "Failed to finalize booking");
+        } finally {
+            setFinalizing(false);
+        }
+    };
 
     // ─── Loading ────
     if (loading) {
@@ -152,6 +169,16 @@ export default function TherapistBookingDetailPage() {
     const earnings = payment
         ? parseFloat(payment.therapistPayout)
         : null;
+
+    // Finalize button visibility: multi-session booking, at least 1 confirmed,
+    // at least 1 unconfirmed, and booking is still active (not already completed/finalized/cancelled)
+    const confirmedSessionCount = sessions.filter(s => s.status === "confirmed_by_customer").length;
+    const unconfirmedSessionCount = sessions.filter(s => s.status !== "confirmed_by_customer" && s.status !== "cancelled").length;
+    const canFinalize =
+        ["confirmed", "in_progress"].includes(booking.status) &&
+        sessions.length > 1 &&
+        confirmedSessionCount > 0 &&
+        unconfirmedSessionCount > 0;
 
     return (
         <div className="p-4 md:p-6 max-w-6xl mx-auto">
@@ -556,7 +583,7 @@ export default function TherapistBookingDetailPage() {
                     />
 
                     {/* Message Customer */}
-                    {["accepted", "confirmed", "in_progress", "completed"].includes(booking.status) && (
+                    {["accepted", "confirmed", "in_progress", "completed", "finalized"].includes(booking.status) && (
                         <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl p-4">
                             <button
                                 onClick={handleMessageCustomer}
@@ -568,13 +595,84 @@ export default function TherapistBookingDetailPage() {
                         </div>
                     )}
 
-                    {/* Escrow info */}
+                    {/* Finalize Completed Visits */}
+                    {canFinalize && (
+                        <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl p-4 space-y-3">
+                            {!showFinalizeConfirm ? (
+                                <button
+                                    onClick={() => setShowFinalizeConfirm(true)}
+                                    className="w-full flex items-center justify-center gap-2 py-2.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-sm font-bold transition-colors"
+                                >
+                                    <MdCheckCircle className="text-base" />
+                                    Finalize Completed Visits
+                                </button>
+                            ) : (
+                                <div className="space-y-3">
+                                    <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-3">
+                                        <p className="text-xs font-bold text-amber-800 dark:text-amber-300 mb-1">Are you sure?</p>
+                                        <p className="text-xs text-amber-700 dark:text-amber-400">
+                                            This will release payment for {confirmedSessionCount} confirmed session{confirmedSessionCount !== 1 ? "s" : ""} and
+                                            refund the customer for {unconfirmedSessionCount} undelivered session{unconfirmedSessionCount !== 1 ? "s" : ""}.
+                                            This cannot be undone.
+                                        </p>
+                                    </div>
+                                    <div className="flex gap-2">
+                                        <button
+                                            onClick={() => setShowFinalizeConfirm(false)}
+                                            disabled={finalizing}
+                                            className="flex-1 py-2 border border-border-light dark:border-border-dark text-text-main dark:text-white rounded-lg text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                                        >
+                                            Cancel
+                                        </button>
+                                        <button
+                                            onClick={handleFinalize}
+                                            disabled={finalizing}
+                                            className="flex-1 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-sm font-bold transition-colors disabled:opacity-60"
+                                        >
+                                            {finalizing ? "Finalizing..." : "Confirm Finalize"}
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+                            <p className="text-[10px] text-text-muted dark:text-gray-500 text-center">
+                                End this series early and collect payment for completed visits.
+                            </p>
+                        </div>
+                    )}
+
+                    {/* Finalized info banner */}
+                    {booking.status === "finalized" && (
+                        <div className="bg-slate-50 dark:bg-slate-800/50 border border-border-light dark:border-border-dark rounded-xl p-4">
+                            <div className="flex items-start gap-2">
+                                <MdInfo className="text-slate-500 text-sm mt-0.5 shrink-0" />
+                                <div>
+                                    <p className="text-xs font-bold text-text-main dark:text-white">Series Finalized</p>
+                                    <p className="text-xs text-text-muted dark:text-gray-400 mt-0.5">
+                                        {confirmedSessionCount} session{confirmedSessionCount !== 1 ? "s" : ""} paid out.
+                                        {payment?.refundedAmount && ` Customer refunded ${formatCurrency(parseFloat(payment.refundedAmount))} for undelivered sessions.`}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Escrow / partial release info */}
                     {payment?.status === "escrowed" && (
                         <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4">
                             <div className="flex items-start gap-2">
                                 <MdInfo className="text-blue-600 dark:text-blue-400 text-sm mt-0.5 shrink-0" />
                                 <p className="text-xs text-blue-700 dark:text-blue-300">
-                                    Customer payment of {formatCurrency(parseFloat(payment.amount))} is secured. You&apos;ll receive {formatCurrency(earnings)} after session confirmation.
+                                    Customer payment of {formatCurrency(parseFloat(payment.amount))} is secured. You&apos;ll receive payouts as each session is confirmed.
+                                </p>
+                            </div>
+                        </div>
+                    )}
+                    {payment?.status === "partially_released" && (
+                        <div className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl p-4">
+                            <div className="flex items-start gap-2">
+                                <MdCheckCircle className="text-emerald-600 dark:text-emerald-400 text-sm mt-0.5 shrink-0" />
+                                <p className="text-xs text-emerald-700 dark:text-emerald-300">
+                                    {formatCurrency(parseFloat(payment.releasedAmount ?? 0))} of {formatCurrency(parseFloat(payment.therapistPayout))} released ({confirmedSessionCount} of {sessions.length} sessions confirmed).
                                 </p>
                             </div>
                         </div>
