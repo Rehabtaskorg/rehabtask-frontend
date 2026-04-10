@@ -6,6 +6,8 @@ import {
     MdCalendarToday, MdSchedule,
 } from "react-icons/md";
 import PatientBadge from "@/components/customer/PatientBadge";
+import { useVisitTypes } from "@/hooks/useVisitTypes";
+import { resolveVisitPlan } from "@/lib/visitPlan";
 
 const getServiceTypeStyle = (serviceType) => {
     const st = serviceType?.toLowerCase() || "";
@@ -28,12 +30,18 @@ const timeAgo = (dateStr) => {
     return days === 1 ? "Yesterday" : `${days}d ago`;
 };
 
+/** Resolve the customer's requested visit type label (FK first, legacy string fallback). */
+const requestVisitTypeLabel = (request) => {
+    if (request?.visitTypeRef) return `${request.visitTypeRef.name} (${request.visitTypeRef.code})`;
+    if (request?.visitType) return request.visitType;
+    return null;
+};
+
 export default function TherapistRequestDetailPanel({
     request,
     myOffer,
     offerData,
     setOfferData,
-    visitTypes,
     commissionRate,
     submitting,
     offerSuccess,
@@ -46,6 +54,8 @@ export default function TherapistRequestDetailPanel({
     router,
 }) {
     const earnPct = commissionRate !== null ? `${Math.round((1 - commissionRate) * 100)}` : "90";
+
+    const visitTypeLabel = requestVisitTypeLabel(request);
 
     return (
         <div className="flex-1 overflow-y-auto panel-scroll">
@@ -115,10 +125,10 @@ export default function TherapistRequestDetailPanel({
                             <p className="text-sm font-semibold text-text-main dark:text-white mt-1">${parseFloat(request.rate).toFixed(2)}</p>
                         </div>
                     )}
-                    {request.visitType && (
+                    {visitTypeLabel && (
                         <div className="p-3 rounded-lg border border-border-light dark:border-border-dark">
                             <p className="text-[10px] font-bold text-text-muted dark:text-gray-400 uppercase tracking-widest">Visit Type</p>
-                            <p className="text-sm font-semibold text-text-main dark:text-white mt-1">{request.visitType}</p>
+                            <p className="text-sm font-semibold text-text-main dark:text-white mt-1">{visitTypeLabel}</p>
                         </div>
                     )}
                     {request.emr && (
@@ -145,7 +155,7 @@ export default function TherapistRequestDetailPanel({
                 {/* ── Offer States ── */}
                 <div className="pt-6 border-t border-border-light dark:border-border-dark">
                     {renderOfferState({
-                        request, myOffer, offerData, setOfferData, visitTypes,
+                        request, myOffer, offerData, setOfferData,
                         earnPct, submitting, offerSuccess, offerError,
                         onSubmitOffer, onReviseOffer, onMessageCustomer, onSendNewOffer, router,
                     })}
@@ -158,7 +168,7 @@ export default function TherapistRequestDetailPanel({
 // ─── Offer State Renderer ───────────────────────────────────
 
 function renderOfferState({
-    request, myOffer, offerData, setOfferData, visitTypes,
+    request, myOffer, offerData, setOfferData,
     earnPct, submitting, offerSuccess, offerError,
     onSubmitOffer, onReviseOffer, onMessageCustomer, onSendNewOffer, router,
 }) {
@@ -185,7 +195,6 @@ function renderOfferState({
                 request={request}
                 offerData={offerData}
                 setOfferData={setOfferData}
-                visitTypes={visitTypes}
                 submitting={submitting}
                 onSubmit={onSubmitOffer}
                 submitLabel="Submit Offer"
@@ -265,7 +274,6 @@ function renderOfferState({
                     request={request}
                     offerData={offerData}
                     setOfferData={setOfferData}
-                    visitTypes={visitTypes}
                     submitting={submitting}
                     onSubmit={onReviseOffer}
                     submitLabel="Update Offer"
@@ -329,7 +337,22 @@ function renderOfferState({
 
 // ─── Shared Offer Form ──────────────────────────────────────
 
-function OfferForm({ request, offerData, setOfferData, visitTypes, submitting, onSubmit, submitLabel, submitClassName, error }) {
+function OfferForm({ request, offerData, setOfferData, submitting, onSubmit, submitLabel, submitClassName, error }) {
+    // Visit types filtered by the REQUEST's service type (not the therapist's license).
+    // Therapist audience — all codes visible including MV, supervisory, etc.
+    const { data: visitTypes = [] } = useVisitTypes({
+        serviceType: request?.serviceType,
+        audience: "therapist",
+    });
+
+    // Resolve the customer's requested visit type for the "Customer requested:" banner.
+    const customerVTLabel = requestVisitTypeLabel(request);
+
+    // Find the selected override visit type name for the side-by-side preview.
+    const overrideVT = offerData.planOverrideEnabled && offerData.visitTypeId
+        ? visitTypes.find((vt) => vt.id === offerData.visitTypeId)
+        : null;
+
     return (
         <form onSubmit={onSubmit} className="p-5 rounded-xl border-2 border-primary/20 bg-primary/5 dark:bg-primary/5 space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -363,21 +386,9 @@ function OfferForm({ request, offerData, setOfferData, visitTypes, submitting, o
                     </div>
                 </div>
             </div>
-            {visitTypes.length > 0 && (
-                <div className="space-y-1.5">
-                    <label className="text-[11px] font-bold text-text-muted dark:text-gray-400 uppercase">Visit Type</label>
-                    <select
-                        value={offerData.visitTypeId}
-                        onChange={(e) => setOfferData((prev) => ({ ...prev, visitTypeId: e.target.value }))}
-                        className="w-full rounded-lg border border-border-light dark:border-border-dark bg-white dark:bg-card-dark text-text-main dark:text-white text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
-                    >
-                        <option value="">Select visit type</option>
-                        {visitTypes.map((vt) => (
-                            <option key={vt.id} value={vt.id}>{vt.name} ({vt.code})</option>
-                        ))}
-                    </select>
-                </div>
-            )}
+            {/* Old top-level Visit Type dropdown REMOVED — visit type is now
+                only selected via the override panel below (or inherits the
+                customer's selection when no override). */}
             <div className="space-y-1.5">
                 <label className="text-[11px] font-bold text-text-muted dark:text-gray-400 uppercase">Proposed First Session</label>
                 <input
@@ -417,25 +428,29 @@ function OfferForm({ request, offerData, setOfferData, visitTypes, submitting, o
 
                 {offerData.planOverrideEnabled && (
                     <div className="space-y-3 pl-6 pt-1">
-                        {request && (request.visitType || (request.visitsPerWeek && request.numberOfWeeks)) && (
+                        {/* Customer's original plan reference */}
+                        {request && (customerVTLabel || (request.visitsPerWeek && request.numberOfWeeks)) && (
                             <p className="text-[10px] text-text-muted dark:text-gray-400 italic">
-                                Customer requested: {request.visitType || "—"}
+                                Customer requested: {customerVTLabel || "—"}
                                 {request.visitsPerWeek && request.numberOfWeeks && (
                                     <> · {request.visitsPerWeek}×/week × {request.numberOfWeeks}wk ({request.visitsPerWeek * request.numberOfWeeks} visits)</>
                                 )}
                             </p>
                         )}
 
+                        {/* Visit Type override — dropdown backed by visit_types catalog */}
                         <div>
-                            <label className="block text-[10px] font-bold text-text-muted dark:text-gray-400 uppercase tracking-widest mb-1">Visit Type (optional)</label>
-                            <input
-                                type="text"
-                                maxLength={100}
-                                placeholder="e.g. Re-Evaluation"
-                                value={offerData.visitType || ""}
-                                onChange={(e) => setOfferData((prev) => ({ ...prev, visitType: e.target.value }))}
+                            <label className="block text-[10px] font-bold text-text-muted dark:text-gray-400 uppercase tracking-widest mb-1">Visit Type</label>
+                            <select
+                                value={offerData.visitTypeId || ""}
+                                onChange={(e) => setOfferData((prev) => ({ ...prev, visitTypeId: e.target.value }))}
                                 className="w-full px-3 py-2 rounded-lg bg-white dark:bg-card-dark border border-border-light dark:border-border-dark focus:ring-2 focus:ring-primary/20 focus:border-primary text-text-main dark:text-white text-sm outline-none"
-                            />
+                            >
+                                <option value="">— Same as customer&apos;s request —</option>
+                                {visitTypes.map((vt) => (
+                                    <option key={vt.id} value={vt.id}>{vt.name} ({vt.code})</option>
+                                ))}
+                            </select>
                         </div>
 
                         <div className="grid grid-cols-2 gap-2">
@@ -463,10 +478,16 @@ function OfferForm({ request, offerData, setOfferData, visitTypes, submitting, o
                             </div>
                         </div>
 
-                        {offerData.visitsPerWeek && offerData.numberOfWeeks && (
-                            <p className="text-[11px] font-bold text-primary">
-                                You propose: {offerData.visitsPerWeek}×/week × {offerData.numberOfWeeks} weeks ({parseInt(offerData.visitsPerWeek, 10) * parseInt(offerData.numberOfWeeks, 10)} visits total)
-                            </p>
+                        {/* Live preview of the proposed plan */}
+                        {(overrideVT || (offerData.visitsPerWeek && offerData.numberOfWeeks)) && (
+                            <div className="p-2 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800">
+                                <p className="text-[11px] font-bold text-amber-800 dark:text-amber-300">
+                                    You propose: {overrideVT ? `${overrideVT.name} (${overrideVT.code})` : (customerVTLabel || "—")}
+                                    {offerData.visitsPerWeek && offerData.numberOfWeeks && (
+                                        <> · {offerData.visitsPerWeek}×/week × {offerData.numberOfWeeks} weeks ({parseInt(offerData.visitsPerWeek, 10) * parseInt(offerData.numberOfWeeks, 10)} visits total)</>
+                                    )}
+                                </p>
+                            </div>
                         )}
                     </div>
                 )}

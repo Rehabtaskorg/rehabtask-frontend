@@ -118,7 +118,9 @@ export default function NewRequestPage() {
                 latitude: step2.latitude,
                 longitude: step2.longitude,
                 rate: parseFloat(step1.rate),
-                visitType: step1.visitType === "Other" ? step1.visitTypeOther : step1.visitType,
+                ...(step1.visitTypeId
+                    ? { visitTypeId: step1.visitTypeId }
+                    : { visitType: step1.visitType === "Other" ? step1.visitTypeOther : step1.visitType }),
                 emr: step1.emr === "Other" ? step1.emrOther : step1.emr,
                 ...(step1.visitsPerWeek && { visitsPerWeek: parseInt(step1.visitsPerWeek) }),
                 ...(step1.numberOfWeeks && { numberOfWeeks: parseInt(step1.numberOfWeeks) }),
@@ -140,12 +142,13 @@ export default function NewRequestPage() {
         }
     };
 
+    const hasVisitType = Boolean(step1.visitTypeId) || Boolean(step1.visitType && (step1.visitType !== "Other" || step1.visitTypeOther.trim()));
     const isStep1Valid =
         step1.serviceType &&
         step1.description.trim().length >= 10 &&
         step1.preferredDate &&
         step1.rate && parseFloat(step1.rate) > 0 &&
-        step1.visitType && (step1.visitType !== "Other" || step1.visitTypeOther.trim()) &&
+        hasVisitType &&
         step1.emr && (step1.emr !== "Other" || step1.emrOther.trim());
     const isStep2Valid =
         step2.address && step2.latitude !== null && step2.longitude !== null;

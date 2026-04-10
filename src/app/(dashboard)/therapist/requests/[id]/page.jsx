@@ -10,6 +10,7 @@ import {
 } from "react-icons/md";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { useAuth } from "@/hooks/useAuth";
+import { useVisitTypes } from "@/hooks/useVisitTypes";
 import PatientInfoBlock from "@/components/customer/PatientInfoBlock";
 
 const STATUS_STYLES = {
@@ -39,25 +40,26 @@ export default function TherapistRequestDetailPage() {
     const [request, setRequest] = useState(null);
     const [loading, setLoading] = useState(true);
     const [commissionRate, setCommissionRate] = useState(null);
-    const [visitTypes, setVisitTypes] = useState([]);
+    // visitTypes state removed — OfferForm fetches its own via useVisitTypes hook
     const [offerData, setOfferData] = useState({
         rate: "",
         sessionType: "in-person",
         visitTypeId: "",
         proposedDate: "",
         description: "",
-        // Visit plan override — optional counter-proposal to the customer's plan.
-        // When `planOverrideEnabled` is false, these fields are NOT sent in the
-        // payload, which means the backend keeps them NULL and the customer's
-        // plan flows through the fallback chain unchanged.
         planOverrideEnabled: false,
-        visitType: "",
         visitsPerWeek: "",
         numberOfWeeks: "",
     });
     const [submitting, setSubmitting] = useState(false);
     const [offerSuccess, setOfferSuccess] = useState(false);
     const [offerError, setOfferError] = useState(null);
+
+    // Visit types for the override dropdown — filtered by the REQUEST's discipline
+    const { data: overrideVisitTypes = [] } = useVisitTypes({
+        serviceType: request?.serviceType,
+        audience: "therapist",
+    });
 
     const fetchRequest = async () => {
         try {
@@ -86,9 +88,6 @@ export default function TherapistRequestDetailPage() {
         api.get("/payments/commission-rate").then(res => {
             setCommissionRate(res.data.data.rate);
         }).catch(() => {});
-        api.get("/visit-types").then(res => {
-            setVisitTypes(res.data.data || []);
-        }).catch(() => {});
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [params.id]);
 
@@ -115,13 +114,10 @@ export default function TherapistRequestDetailPage() {
                 proposedDate: new Date(offerData.proposedDate).toISOString(),
                 description: offerData.description,
             };
-            if (offerData.visitTypeId) payload.visitTypeId = offerData.visitTypeId;
 
-            // Only include override fields when the therapist explicitly
-            // enabled the counter-proposal toggle AND filled the value in.
-            // Empty string / unchecked = "accept customer's plan" (omit field).
+            // Visit plan override — only include when toggle is on AND value filled.
             if (offerData.planOverrideEnabled) {
-                if (offerData.visitType.trim()) payload.visitType = offerData.visitType.trim();
+                if (offerData.visitTypeId) payload.visitTypeId = offerData.visitTypeId;
                 if (offerData.visitsPerWeek) payload.visitsPerWeek = parseInt(offerData.visitsPerWeek, 10);
                 if (offerData.numberOfWeeks) payload.numberOfWeeks = parseInt(offerData.numberOfWeeks, 10);
             }
@@ -255,10 +251,14 @@ export default function TherapistRequestDetailPage() {
                                     <p className="font-bold text-emerald-600 dark:text-emerald-400">${parseFloat(request.rate).toFixed(2)}/visit</p>
                                 </div>
                             )}
-                            {request.visitType && (
+                            {(request.visitTypeRef || request.visitType) && (
                                 <div>
                                     <p className="text-xs font-bold text-text-muted dark:text-gray-400 uppercase tracking-widest mb-1">Visit Type</p>
-                                    <p className="font-semibold text-text-main dark:text-white">{request.visitType}</p>
+                                    <p className="font-semibold text-text-main dark:text-white">
+                                        {request.visitTypeRef
+                                            ? `${request.visitTypeRef.name} (${request.visitTypeRef.code})`
+                                            : request.visitType}
+                                    </p>
                                 </div>
                             )}
                             {request.emr && (
@@ -386,21 +386,9 @@ export default function TherapistRequestDetailPage() {
                                     </div>
                                 </div>
 
-                                {visitTypes.length > 0 && (
-                                    <div>
-                                        <label className="block text-xs font-bold text-text-muted dark:text-gray-400 uppercase tracking-widest mb-2">Visit Type</label>
-                                        <select
-                                            value={offerData.visitTypeId}
-                                            onChange={(e) => setOfferData(prev => ({ ...prev, visitTypeId: e.target.value }))}
-                                            className="w-full px-4 py-3 rounded-lg bg-background-light dark:bg-background-dark border border-border-light dark:border-border-dark focus:ring-2 focus:ring-primary/20 focus:border-primary text-text-main dark:text-white transition-all outline-none text-sm"
-                                        >
-                                            <option value="">Select visit type</option>
-                                            {visitTypes.map(vt => (
-                                                <option key={vt.id} value={vt.id}>{vt.name} ({vt.code})</option>
-                                            ))}
-                                        </select>
-                                    </div>
-                                )}
+                                {/* Old top-level Visit Type dropdown removed — visit type is now
+                                    selected via the override panel below, or inherits the customer's
+                                    selection when no override is set. */}
 
                                 <div>
                                     <label className="block text-xs font-bold text-text-muted dark:text-gray-400 uppercase tracking-widest mb-2">Proposed First Session</label>
@@ -444,25 +432,32 @@ export default function TherapistRequestDetailPage() {
 
                                     {offerData.planOverrideEnabled && (
                                         <div className="space-y-3 pl-6 pt-1">
-                                            {(request.visitsPerWeek || request.numberOfWeeks || request.visitType) && (
-                                                <p className="text-[10px] text-text-muted dark:text-gray-400 italic">
-                                                    Customer requested: {request.visitType || "—"}
-                                                    {request.visitsPerWeek && request.numberOfWeeks && (
-                                                        <> · {request.visitsPerWeek}×/week × {request.numberOfWeeks}wk ({request.visitsPerWeek * request.numberOfWeeks} visits)</>
-                                                    )}
-                                                </p>
-                                            )}
+                                            {(() => {
+                                                const vtLabel = request.visitTypeRef
+                                                    ? `${request.visitTypeRef.name} (${request.visitTypeRef.code})`
+                                                    : request.visitType || null;
+                                                return (vtLabel || (request.visitsPerWeek && request.numberOfWeeks)) ? (
+                                                    <p className="text-[10px] text-text-muted dark:text-gray-400 italic">
+                                                        Customer requested: {vtLabel || "—"}
+                                                        {request.visitsPerWeek && request.numberOfWeeks && (
+                                                            <> · {request.visitsPerWeek}×/week × {request.numberOfWeeks}wk ({request.visitsPerWeek * request.numberOfWeeks} visits)</>
+                                                        )}
+                                                    </p>
+                                                ) : null;
+                                            })()}
 
                                             <div>
-                                                <label className="block text-[10px] font-bold text-text-muted dark:text-gray-400 uppercase tracking-widest mb-1">Visit Type (optional)</label>
-                                                <input
-                                                    type="text"
-                                                    maxLength={100}
-                                                    placeholder="e.g. Re-Evaluation"
-                                                    value={offerData.visitType}
-                                                    onChange={(e) => setOfferData(prev => ({ ...prev, visitType: e.target.value }))}
+                                                <label className="block text-[10px] font-bold text-text-muted dark:text-gray-400 uppercase tracking-widest mb-1">Visit Type</label>
+                                                <select
+                                                    value={offerData.visitTypeId || ""}
+                                                    onChange={(e) => setOfferData(prev => ({ ...prev, visitTypeId: e.target.value }))}
                                                     className="w-full px-3 py-2 rounded-lg bg-background-light dark:bg-background-dark border border-border-light dark:border-border-dark focus:ring-2 focus:ring-primary/20 focus:border-primary text-text-main dark:text-white text-sm outline-none"
-                                                />
+                                                >
+                                                    <option value="">— Same as customer&apos;s request —</option>
+                                                    {overrideVisitTypes.map(vt => (
+                                                        <option key={vt.id} value={vt.id}>{vt.name} ({vt.code})</option>
+                                                    ))}
+                                                </select>
                                             </div>
 
                                             <div className="grid grid-cols-2 gap-2">

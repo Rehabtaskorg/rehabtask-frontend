@@ -69,7 +69,7 @@ function TherapistRequestsContent() {
         rate: "", sessionType: "in-person", proposedDate: "", description: "", visitTypeId: "",
         planOverrideEnabled: false, visitType: "", visitsPerWeek: "", numberOfWeeks: "",
     });
-    const [visitTypes, setVisitTypes] = useState([]);
+    // visitTypes state removed — OfferForm now fetches its own via useVisitTypes hook
     const [submitting, setSubmitting] = useState(false);
     const [offerSuccess, setOfferSuccess] = useState(false);
     const [offerError, setOfferError] = useState("");
@@ -106,7 +106,6 @@ function TherapistRequestsContent() {
 
     useEffect(() => {
         api.get("/payments/commission-rate").then((res) => setCommissionRate(res.data.data.rate)).catch(() => {});
-        api.get("/visit-types").then((res) => setVisitTypes(res.data.data || [])).catch(() => {});
     }, []);
 
     useEffect(() => {
@@ -169,11 +168,10 @@ function TherapistRequestsContent() {
                 sessionType: offerData.sessionType,
                 proposedDate: new Date(offerData.proposedDate).toISOString(),
                 description: offerData.description,
-                ...(offerData.visitTypeId && { visitTypeId: offerData.visitTypeId }),
             };
             // Visit plan override — only include when toggle is on AND value filled.
             if (offerData.planOverrideEnabled) {
-                if (offerData.visitType.trim()) createPayload.visitType = offerData.visitType.trim();
+                if (offerData.visitTypeId) createPayload.visitTypeId = offerData.visitTypeId;
                 if (offerData.visitsPerWeek) createPayload.visitsPerWeek = parseInt(offerData.visitsPerWeek, 10);
                 if (offerData.numberOfWeeks) createPayload.numberOfWeeks = parseInt(offerData.numberOfWeeks, 10);
             }
@@ -206,14 +204,13 @@ function TherapistRequestsContent() {
                 sessionType: offerData.sessionType,
                 proposedDate: new Date(offerData.proposedDate).toISOString(),
                 description: offerData.description,
-                ...(offerData.visitTypeId && { visitTypeId: offerData.visitTypeId }),
             };
             if (offerData.planOverrideEnabled) {
-                revisePayload.visitType = offerData.visitType.trim() || null;
+                revisePayload.visitTypeId = offerData.visitTypeId || null;
                 revisePayload.visitsPerWeek = offerData.visitsPerWeek ? parseInt(offerData.visitsPerWeek, 10) : null;
                 revisePayload.numberOfWeeks = offerData.numberOfWeeks ? parseInt(offerData.numberOfWeeks, 10) : null;
             } else {
-                revisePayload.visitType = null;
+                revisePayload.visitTypeId = null;
                 revisePayload.visitsPerWeek = null;
                 revisePayload.numberOfWeeks = null;
             }
@@ -402,7 +399,6 @@ function TherapistRequestsContent() {
                                 myOffer={getMyOffer(selectedRequest)}
                                 offerData={offerData}
                                 setOfferData={setOfferData}
-                                visitTypes={visitTypes}
                                 commissionRate={commissionRate}
                                 submitting={submitting}
                                 offerSuccess={offerSuccess}

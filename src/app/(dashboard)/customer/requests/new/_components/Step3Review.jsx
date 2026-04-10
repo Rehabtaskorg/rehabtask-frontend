@@ -99,7 +99,7 @@ export default function Step3Review({ onEditStep }) {
                                 Visit Type
                             </p>
                             <p className="text-sm font-medium text-text-main dark:text-white">
-                                {step1.visitType === "Other" ? step1.visitTypeOther : step1.visitType || "—"}
+                                {step1.visitTypeName || step1.visitType || "—"}
                             </p>
                         </div>
                         <div>

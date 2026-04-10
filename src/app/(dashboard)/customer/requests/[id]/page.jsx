@@ -297,10 +297,14 @@ export default function CustomerRequestDetailPage() {
                                     <p className="font-bold text-emerald-600 dark:text-emerald-400">${parseFloat(request.rate).toFixed(2)}/visit</p>
                                 </div>
                             )}
-                            {request.visitType && (
+                            {(request.visitTypeRef || request.visitType) && (
                                 <div className="space-y-1">
                                     <p className="text-xs font-bold text-text-muted dark:text-gray-400 uppercase tracking-widest">Visit Type</p>
-                                    <p className="font-semibold text-text-main dark:text-white">{request.visitType}</p>
+                                    <p className="font-semibold text-text-main dark:text-white">
+                                        {request.visitTypeRef
+                                            ? `${request.visitTypeRef.name} (${request.visitTypeRef.code})`
+                                            : request.visitType}
+                                    </p>
                                 </div>
                             )}
                             {request.emrSystem && (
@@ -458,7 +462,13 @@ export default function CustomerRequestDetailPage() {
                                                                     <div className="grid grid-cols-2 gap-3 text-xs">
                                                                         <div>
                                                                             <p className="text-[10px] font-bold text-text-muted dark:text-gray-400 uppercase mb-1">Your request</p>
-                                                                            {request.visitType && <p className="text-text-main dark:text-white">{request.visitType}</p>}
+                                                                            {(request.visitTypeRef || request.visitType) && (
+                                                                                <p className="text-text-main dark:text-white">
+                                                                                    {request.visitTypeRef
+                                                                                        ? `${request.visitTypeRef.name} (${request.visitTypeRef.code})`
+                                                                                        : request.visitType}
+                                                                                </p>
+                                                                            )}
                                                                             {request.visitsPerWeek && request.numberOfWeeks && (
                                                                                 <p className="text-text-main dark:text-white">
                                                                                     {request.visitsPerWeek}×/week × {request.numberOfWeeks}wk
