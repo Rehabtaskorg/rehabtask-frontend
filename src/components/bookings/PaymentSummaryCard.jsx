@@ -140,7 +140,7 @@ export default function PaymentSummaryCard({ booking, role, onAction }) {
                                         Released so far: {formatCurrency(releasedAmount)} of {formatCurrency(payout)}
                                     </p>
                                     <p className="text-xs text-orange-600 dark:text-orange-400 mt-0.5">
-                                        Remaining {formatCurrency(payout - releasedAmount)} held by admin
+                                        Remaining {formatCurrency(payout - releasedAmount)} held in escrow
                                     </p>
                                 </div>
                             )}
