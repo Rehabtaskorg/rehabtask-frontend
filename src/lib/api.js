@@ -60,7 +60,20 @@ api.interceptors.response.use(
             url.includes("/auth/login") ||
             url.includes("/auth/token/refresh");
 
-        if (isAuthEndpoint || originalRequest._retry) {
+        if (isAuthEndpoint) {
+            // The refresh endpoint itself failed (e.g. refresh_token_already_used,
+            // token expired, or revoked). Clear auth state and redirect to login
+            // so the user doesn't get stuck on an infinite loading screen.
+            if (url.includes("/auth/token/refresh")) {
+                document.cookie = "sb_access_token=; Max-Age=0; path=/";
+                document.cookie = "sb_refresh_token=; Max-Age=0; path=/";
+                document.cookie = "app_role=; Max-Age=0; path=/";
+                window.location.href = "/login?reason=session_expired";
+            }
+            return Promise.reject(error);
+        }
+
+        if (originalRequest._retry) {
             return Promise.reject(error);
         }
 
@@ -85,7 +98,10 @@ api.interceptors.response.use(
         } catch (refreshError) {
             processQueue(refreshError);
 
-            // Refresh failed — redirect to login
+            // Refresh failed — clear stale auth cookies and redirect to login
+            document.cookie = "sb_access_token=; Max-Age=0; path=/";
+            document.cookie = "sb_refresh_token=; Max-Age=0; path=/";
+            document.cookie = "app_role=; Max-Age=0; path=/";
             window.location.href = "/login?reason=session_expired";
             return Promise.reject(refreshError);
         } finally {
