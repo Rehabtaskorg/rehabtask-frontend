@@ -8,7 +8,10 @@ import { showToast } from "@/lib/toast";
 /**
  * SubmitRevisionModal - therapist-facing (Step 1 of revision response)
  *
-
+ * The therapist acknowledges the customer's revision request and commits
+ * to a date by which they'll have the updated work ready. Status stays
+ * in_revision. Step 2 (resubmit) happens via the Resubmit button.
+ */
 export default function SubmitRevisionModal({
     isOpen,
     onClose,
@@ -126,7 +129,7 @@ export default function SubmitRevisionModal({
                             min={minDateTime}
                             onChange={(e) => setDueBy(e.target.value)}
                             disabled={submitting}
-                            className="w-full px-4 py-2.5 rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-main dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary transition-all [color-scheme:light] dark:[color-scheme:dark]"
+                            className="w-full px-4 py-2.5 rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-main dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary transition-all scheme-light dark:scheme-dark"
                         />
                         <p className="text-xs text-text-muted dark:text-gray-500 mt-1.5">
                             The customer will see this date. You can resubmit the session once you&apos;ve completed the changes.
@@ -159,7 +162,7 @@ export default function SubmitRevisionModal({
                         </button>
                     </div>
                 </form>
-            </div>
-        </div>
+            </div >
+        </div >
     );
 }
