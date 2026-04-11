@@ -181,10 +181,24 @@ export default function SessionList({
                                             Resubmitted · Awaiting customer confirmation
                                         </p>
                                     )}
-                                    {isInRevision && role === "customer" && session.revisionReason && (
-                                        <p className="text-[10px] text-amber-600 dark:text-amber-400 mt-0.5 italic">
-                                            Your revision: &quot;{session.revisionReason.length > 60 ? session.revisionReason.slice(0, 60) + "..." : session.revisionReason}&quot;
-                                        </p>
+                                    {isInRevision && role === "customer" && (
+                                        <div className="mt-1 text-[10px] space-y-0.5">
+                                            {session.revisionReason && (
+                                                <p className="text-amber-600 dark:text-amber-400 italic">
+                                                    Your revision: &quot;{session.revisionReason.length > 60 ? session.revisionReason.slice(0, 60) + "..." : session.revisionReason}&quot;
+                                                </p>
+                                            )}
+                                            {session.revisionDueBy && (
+                                                <p className="text-text-muted dark:text-slate-500">
+                                                    Therapist will resubmit by {formatDate(session.revisionDueBy)} · {formatTime(session.revisionDueBy)}
+                                                </p>
+                                            )}
+                                            {!session.revisionDueBy && (
+                                                <p className="text-text-muted dark:text-slate-500">
+                                                    Waiting for therapist to respond
+                                                </p>
+                                            )}
+                                        </div>
                                     )}
                                     {isInRevision && role === "therapist" && session.revisionReason && (
                                         <p className="text-[10px] text-amber-600 dark:text-amber-400 mt-0.5 italic">
