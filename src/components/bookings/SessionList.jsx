@@ -130,6 +130,8 @@ export default function SessionList({
                     const canRequestRevision = role === "customer" && session.status === "completed_by_therapist" && onRequestRevision;
                     const canSubmitRevision = role === "therapist" && session.status === "in_revision" && onSubmitRevision;
                     const isInRevision = session.status === "in_revision";
+                    const wasRevised = session.revisionCount > 0;
+                    const isResubmitted = wasRevised && session.status === "completed_by_therapist";
                     const isThisLoading = loadingSessionId === session.id;
                     const isAnyLoading = loadingSessionId !== null;
 
@@ -151,12 +153,32 @@ export default function SessionList({
                                             Session {session.sessionNumber}
                                         </span>
                                         <span className={`text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded ${config.bg} ${config.color}`}>
-                                            {config.label}
+                                            {isResubmitted ? "Resubmitted" : config.label}
                                         </span>
                                     </div>
                                     <p className="text-xs text-text-muted dark:text-slate-400 mt-0.5">
                                         {session.scheduledDate ? `${formatDate(session.scheduledDate)} · ${formatTime(session.scheduledDate)}` : "Date not set"}
                                     </p>
+                                    {isResubmitted && role === "customer" && (
+                                        <p className="text-[10px] text-amber-600 dark:text-amber-400 mt-0.5 font-medium">
+                                            Resubmitted after revision · Please review and confirm
+                                        </p>
+                                    )}
+                                    {isResubmitted && role === "therapist" && (
+                                        <p className="text-[10px] text-amber-600 dark:text-amber-400 mt-0.5 font-medium">
+                                            Resubmitted · Awaiting customer confirmation
+                                        </p>
+                                    )}
+                                    {isInRevision && role === "customer" && session.revisionReason && (
+                                        <p className="text-[10px] text-amber-600 dark:text-amber-400 mt-0.5 italic">
+                                            Your revision: &quot;{session.revisionReason.length > 60 ? session.revisionReason.slice(0, 60) + "..." : session.revisionReason}&quot;
+                                        </p>
+                                    )}
+                                    {isInRevision && role === "therapist" && session.revisionReason && (
+                                        <p className="text-[10px] text-amber-600 dark:text-amber-400 mt-0.5 italic">
+                                            Requested: &quot;{session.revisionReason.length > 60 ? session.revisionReason.slice(0, 60) + "..." : session.revisionReason}&quot;
+                                        </p>
+                                    )}
                                 </div>
 
                                 {/* Actions */}
