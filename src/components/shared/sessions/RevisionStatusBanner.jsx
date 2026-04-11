@@ -76,7 +76,9 @@ export default function RevisionStatusBanner({
                                 )}
                                 {dueByDate && (
                                     <span className="text-amber-700 dark:text-amber-300 font-semibold">
-                                        Therapist will resubmit by {dueByDate}
+                                        {viewerRole === "therapist"
+                                            ? `You committed to resubmit by ${dueByDate}`
+                                            : `Therapist will resubmit by ${dueByDate}`}
                                     </span>
                                 )}
                                 {revisionCount > 1 && (

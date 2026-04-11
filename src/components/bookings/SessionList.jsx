@@ -207,10 +207,19 @@ export default function SessionList({
                                             )}
                                         </div>
                                     )}
-                                    {isInRevision && role === "therapist" && session.revisionReason && (
-                                        <p className="text-[10px] text-amber-600 dark:text-amber-400 mt-0.5 italic">
-                                            Requested: &quot;{session.revisionReason.length > 60 ? session.revisionReason.slice(0, 60) + "..." : session.revisionReason}&quot;
-                                        </p>
+                                    {isInRevision && role === "therapist" && (
+                                        <div className="mt-1 text-[10px] space-y-0.5">
+                                            {session.revisionReason && (
+                                                <p className="text-amber-600 dark:text-amber-400 italic">
+                                                    Requested: &quot;{session.revisionReason.length > 60 ? session.revisionReason.slice(0, 60) + "..." : session.revisionReason}&quot;
+                                                </p>
+                                            )}
+                                            {session.revisionDueBy && (
+                                                <p className="text-text-muted dark:text-slate-500">
+                                                    You committed to resubmit by {formatDate(session.revisionDueBy)} · {formatTime(session.revisionDueBy)}
+                                                </p>
+                                            )}
+                                        </div>
                                     )}
                                 </div>
 
