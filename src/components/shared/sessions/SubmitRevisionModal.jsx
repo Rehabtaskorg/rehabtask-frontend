@@ -6,7 +6,7 @@ import { bookingsApi } from "@/lib/bookings.api";
 import { showToast } from "@/lib/toast";
 
 /**
- * SubmitRevisionModal — therapist-facing (Step 1 of revision response)
+ * SubmitRevisionModal - therapist-facing (Step 1 of revision response)
  *
 
 export default function SubmitRevisionModal({
@@ -93,7 +93,7 @@ export default function SubmitRevisionModal({
                         Let the customer know when you&apos;ll have the updated session ready. You can resubmit the session once the work is done.
                     </p>
 
-                    {/* Customer's reason — quoted block */}
+                    {/* Customer's reason - quoted block */}
                     {revisionReason && (
                         <div className="bg-muted-light dark:bg-muted-dark border-l-4 border-primary/40 rounded-r-lg p-4">
                             <p className="text-[10px] font-bold text-text-muted dark:text-gray-500 uppercase tracking-wider mb-1.5">
@@ -137,7 +137,7 @@ export default function SubmitRevisionModal({
                     <div className="flex gap-3 p-4 bg-primary/5 dark:bg-primary/10 border border-primary/20 dark:border-primary/30 rounded-lg">
                         <MdInfo className="text-primary text-lg shrink-0 mt-0.5" />
                         <p className="text-xs text-text-main dark:text-white leading-relaxed">
-                            After setting the date, upload any updated documentation in the booking chat. When ready, click &quot;Resubmit Session&quot; to notify the customer — they&apos;ll get a fresh 72-hour window to review.
+                            After setting the date, upload any updated documentation in the booking chat. When ready, click &quot;Resubmit Session&quot; to notify the customer - they&apos;ll get a fresh 72-hour window to review.
                         </p>
                     </div>
 
