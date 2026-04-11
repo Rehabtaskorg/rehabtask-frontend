@@ -169,6 +169,11 @@ export default function SessionList({
                                                     Resubmitted on {formatDate(session.revisionLastSubmittedAt)} · {formatTime(session.revisionLastSubmittedAt)}
                                                 </p>
                                             )}
+                                            {session.revisionDueBy && (
+                                                <p className="text-text-muted dark:text-slate-500">
+                                                    Therapist committed to: {formatDate(session.revisionDueBy)} · {formatTime(session.revisionDueBy)}
+                                                </p>
+                                            )}
                                             {session.revisionReason && (
                                                 <p className="text-text-muted dark:text-slate-500 italic">
                                                     Your request: &quot;{session.revisionReason.length > 80 ? session.revisionReason.slice(0, 80) + "..." : session.revisionReason}&quot;
