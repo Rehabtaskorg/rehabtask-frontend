@@ -348,6 +348,15 @@ export default function TherapistBookingDetailPage() {
                                 setRevisionSessionId(sessionId);
                                 setShowSubmitRevisionModal(true);
                             }}
+                            onResubmitSession={async (sessionId) => {
+                                try {
+                                    await bookingsApi.resubmitSession(sessionId);
+                                    showToast.success("Session resubmitted. Customer has been notified and has 72 hours to review.");
+                                    await refetch();
+                                } catch (err) {
+                                    showToast.error(err.response?.data?.message || "Failed to resubmit session.");
+                                }
+                            }}
                         />
                     )}
 
@@ -500,13 +509,31 @@ export default function TherapistBookingDetailPage() {
                                     conversationHref={`/therapist/messages?c=booking:${params.id}`}
                                     viewerRole="therapist"
                                 />
-                                <div className="flex justify-end">
-                                    <button
-                                        onClick={() => { setRevisionSessionId(session?.id); setShowSubmitRevisionModal(true); }}
-                                        className="bg-primary hover:brightness-95 text-white px-5 py-2.5 rounded-lg text-sm font-bold transition-colors"
-                                    >
-                                        Respond & Resubmit
-                                    </button>
+                                <div className="flex justify-end gap-2">
+                                    {!session.revisionDueBy && (
+                                        <button
+                                            onClick={() => { setRevisionSessionId(session?.id); setShowSubmitRevisionModal(true); }}
+                                            className="bg-primary hover:brightness-95 text-white px-5 py-2.5 rounded-lg text-sm font-bold transition-colors"
+                                        >
+                                            Set Response Date
+                                        </button>
+                                    )}
+                                    {session.revisionDueBy && (
+                                        <button
+                                            onClick={async () => {
+                                                try {
+                                                    await bookingsApi.resubmitSession(session.id);
+                                                    showToast.success("Session resubmitted. Customer has been notified and has 72 hours to review.");
+                                                    await refetch();
+                                                } catch (err) {
+                                                    showToast.error(err.response?.data?.message || "Failed to resubmit session.");
+                                                }
+                                            }}
+                                            className="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-lg text-sm font-bold transition-colors"
+                                        >
+                                            Resubmit Session
+                                        </button>
+                                    )}
                                 </div>
                             </div>
                         )}

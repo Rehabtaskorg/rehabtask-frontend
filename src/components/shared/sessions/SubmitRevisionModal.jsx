@@ -6,16 +6,9 @@ import { bookingsApi } from "@/lib/bookings.api";
 import { showToast } from "@/lib/toast";
 
 /**
- * SubmitRevisionModal — therapist-facing
+ * SubmitRevisionModal — therapist-facing (Step 1 of revision response)
  *
- * Shown on the therapist's booking detail page when a session is in
- * `in_revision` and the therapist is ready to commit to a response date.
- *
- * The customer's revision reason is displayed at the top in a quote block
- * so the therapist has it visible while choosing the date. The dueBy is a
- * soft commitment — stored and shown to the customer but NOT enforced by
- * any cron (per product decision: unlimited rounds, unlimited pause).
- */
+
 export default function SubmitRevisionModal({
     isOpen,
     onClose,
@@ -29,12 +22,8 @@ export default function SubmitRevisionModal({
 
     if (!isOpen) return null;
 
-    // Min datetime for the input — now + 1 minute, formatted for datetime-local.
-    // We can't use the bare `now` because the input would reject "now" at the
-    // millisecond it ticks. Adding a minute is harmless and matches reality.
     const minDateTime = (() => {
         const d = new Date(Date.now() + 60 * 1000);
-        // datetime-local expects YYYY-MM-DDTHH:mm in local time, not UTC
         const pad = (n) => String(n).padStart(2, "0");
         return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
     })();
@@ -49,15 +38,14 @@ export default function SubmitRevisionModal({
         setError(null);
 
         try {
-            // Convert local datetime-local string to ISO before sending
             const isoDueBy = new Date(dueBy).toISOString();
-            await bookingsApi.submitSessionRevision(sessionId, isoDueBy);
-            showToast.success("Session resubmitted. Customer has been notified.");
+            await bookingsApi.respondToRevision(sessionId, isoDueBy);
+            showToast.success("Response date set. Customer has been notified. You can now work on the revision and resubmit when ready.");
             setDueBy("");
             onSuccess?.();
             onClose();
         } catch (err) {
-            setError(err.response?.data?.message || "Failed to resubmit session. Please try again.");
+            setError(err.response?.data?.message || "Failed to set response date. Please try again.");
         } finally {
             setSubmitting(false);
         }
@@ -102,7 +90,7 @@ export default function SubmitRevisionModal({
                 {/* Body */}
                 <form onSubmit={handleSubmit} className="p-6 space-y-5">
                     <p className="text-sm text-text-muted dark:text-gray-400">
-                        Let the customer know when you&apos;ll have the updated session ready.
+                        Let the customer know when you&apos;ll have the updated session ready. You can resubmit the session once the work is done.
                     </p>
 
                     {/* Customer's reason — quoted block */}
@@ -129,7 +117,7 @@ export default function SubmitRevisionModal({
                             htmlFor="revision-due-by"
                             className="block text-sm font-semibold text-text-main dark:text-white mb-1.5"
                         >
-                            I&apos;ll resubmit by <span className="text-red-500">*</span>
+                            I&apos;ll have this ready by <span className="text-red-500">*</span>
                         </label>
                         <input
                             id="revision-due-by"
@@ -141,16 +129,15 @@ export default function SubmitRevisionModal({
                             className="w-full px-4 py-2.5 rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-main dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary transition-all [color-scheme:light] dark:[color-scheme:dark]"
                         />
                         <p className="text-xs text-text-muted dark:text-gray-500 mt-1.5">
-                            The customer will see this date and know when to expect your response.
+                            The customer will see this date. You can resubmit the session once you&apos;ve completed the changes.
                         </p>
                     </div>
 
-                    {/* Reminder notice */}
+                    {/* Info notice */}
                     <div className="flex gap-3 p-4 bg-primary/5 dark:bg-primary/10 border border-primary/20 dark:border-primary/30 rounded-lg">
                         <MdInfo className="text-primary text-lg shrink-0 mt-0.5" />
                         <p className="text-xs text-text-main dark:text-white leading-relaxed">
-                            Make sure to upload any updated documentation in the booking chat before resubmitting.
-                            The customer will get a fresh 72-hour window to review.
+                            After setting the date, upload any updated documentation in the booking chat. When ready, click &quot;Resubmit Session&quot; to notify the customer — they&apos;ll get a fresh 72-hour window to review.
                         </p>
                     </div>
 
@@ -168,7 +155,7 @@ export default function SubmitRevisionModal({
                             disabled={!isValid || submitting}
                             className="px-5 py-2.5 text-sm font-semibold bg-primary hover:brightness-95 text-white rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed order-1 sm:order-2"
                         >
-                            {submitting ? "Submitting..." : "Confirm & Notify Customer"}
+                            {submitting ? "Setting..." : "Set Response Date"}
                         </button>
                     </div>
                 </form>

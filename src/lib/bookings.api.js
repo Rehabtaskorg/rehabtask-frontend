@@ -40,6 +40,12 @@ export const bookingsApi = {
     submitSessionRevision: async (sessionId, dueBy) => {
         return api.post(`/sessions/${sessionId}/submit-revision`, { dueBy });
     },
+    respondToRevision: async (sessionId, dueBy) => {
+        return api.post(`/sessions/${sessionId}/revision-respond`, { dueBy });
+    },
+    resubmitSession: async (sessionId) => {
+        return api.post(`/sessions/${sessionId}/revision-resubmit`);
+    },
 
     // Payment endpoints
     requestRefund: async (bookingId, reason) => {

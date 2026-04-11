@@ -36,6 +36,7 @@ export default function SessionList({
     onSchedule,
     onRequestRevision,
     onSubmitRevision,
+    onResubmitSession,
 }) {
     const [scheduleSessionId, setScheduleSessionId] = useState(null);
     const [scheduleDate, setScheduleDate] = useState("");
@@ -128,7 +129,8 @@ export default function SessionList({
                     const isCompletable = role === "therapist" && session.status === "scheduled";
                     const isConfirmable = role === "customer" && session.status === "completed_by_therapist";
                     const canRequestRevision = role === "customer" && session.status === "completed_by_therapist" && onRequestRevision;
-                    const canSubmitRevision = role === "therapist" && session.status === "in_revision" && onSubmitRevision;
+                    const canRespondToRevision = role === "therapist" && session.status === "in_revision" && !session.revisionDueBy && onSubmitRevision;
+                    const canResubmitSession = role === "therapist" && session.status === "in_revision" && session.revisionDueBy && onResubmitSession;
                     const isInRevision = session.status === "in_revision";
                     const wasRevised = session.revisionCount > 0;
                     const isResubmitted = wasRevised && session.status === "completed_by_therapist";
@@ -255,15 +257,26 @@ export default function SessionList({
                                         </>
                                     )}
                                     {isInRevision && role === "customer" && (
-                                        <span className="text-[10px] font-bold text-amber-600 dark:text-amber-400 italic">Awaiting therapist</span>
+                                        <span className="text-[10px] font-bold text-amber-600 dark:text-amber-400 italic">
+                                            {session.revisionDueBy ? "Therapist working on it" : "Awaiting therapist"}
+                                        </span>
                                     )}
-                                    {canSubmitRevision && (
+                                    {canRespondToRevision && (
                                         <button
                                             onClick={() => onSubmitRevision(session.id)}
                                             disabled={isAnyLoading}
                                             className="text-xs font-bold text-amber-600 dark:text-amber-400 border border-amber-300 dark:border-amber-700 px-3 py-1.5 rounded-lg hover:bg-amber-50 dark:hover:bg-amber-900/20 disabled:opacity-50"
                                         >
                                             Respond
+                                        </button>
+                                    )}
+                                    {canResubmitSession && (
+                                        <button
+                                            onClick={() => onResubmitSession(session.id)}
+                                            disabled={isAnyLoading}
+                                            className="text-xs font-bold text-white bg-primary px-3 py-1.5 rounded-lg hover:bg-primary/90 disabled:opacity-50"
+                                        >
+                                            Resubmit
                                         </button>
                                     )}
                                 </div>
