@@ -36,6 +36,7 @@ export default function SessionList({
     onSchedule,
     onRequestRevision,
     onSubmitRevision,
+    onResubmitSession,
 }) {
     const [scheduleSessionId, setScheduleSessionId] = useState(null);
     const [scheduleDate, setScheduleDate] = useState("");
@@ -128,8 +129,11 @@ export default function SessionList({
                     const isCompletable = role === "therapist" && session.status === "scheduled";
                     const isConfirmable = role === "customer" && session.status === "completed_by_therapist";
                     const canRequestRevision = role === "customer" && session.status === "completed_by_therapist" && onRequestRevision;
-                    const canSubmitRevision = role === "therapist" && session.status === "in_revision" && onSubmitRevision;
+                    const canRespondToRevision = role === "therapist" && session.status === "in_revision" && !session.revisionDueBy && onSubmitRevision;
+                    const canResubmitSession = role === "therapist" && session.status === "in_revision" && session.revisionDueBy && onResubmitSession;
                     const isInRevision = session.status === "in_revision";
+                    const wasRevised = session.revisionCount > 0;
+                    const isResubmitted = wasRevised && session.status === "completed_by_therapist";
                     const isThisLoading = loadingSessionId === session.id;
                     const isAnyLoading = loadingSessionId !== null;
 
@@ -151,12 +155,72 @@ export default function SessionList({
                                             Session {session.sessionNumber}
                                         </span>
                                         <span className={`text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded ${config.bg} ${config.color}`}>
-                                            {config.label}
+                                            {isResubmitted ? "Resubmitted" : config.label}
                                         </span>
                                     </div>
                                     <p className="text-xs text-text-muted dark:text-slate-400 mt-0.5">
                                         {session.scheduledDate ? `${formatDate(session.scheduledDate)} · ${formatTime(session.scheduledDate)}` : "Date not set"}
                                     </p>
+                                    {isResubmitted && role === "customer" && (
+                                        <div className="mt-1 text-[10px] space-y-0.5">
+                                            <p className="text-amber-600 dark:text-amber-400 font-medium">
+                                                Therapist resubmitted this session after your revision request. Please review and confirm.
+                                            </p>
+                                            {session.revisionLastSubmittedAt && (
+                                                <p className="text-text-muted dark:text-slate-500">
+                                                    Resubmitted on {formatDate(session.revisionLastSubmittedAt)} · {formatTime(session.revisionLastSubmittedAt)}
+                                                </p>
+                                            )}
+                                            {session.revisionDueBy && (
+                                                <p className="text-text-muted dark:text-slate-500">
+                                                    Therapist committed to: {formatDate(session.revisionDueBy)} · {formatTime(session.revisionDueBy)}
+                                                </p>
+                                            )}
+                                            {session.revisionReason && (
+                                                <p className="text-text-muted dark:text-slate-500 italic">
+                                                    Your request: &quot;{session.revisionReason.length > 80 ? session.revisionReason.slice(0, 80) + "..." : session.revisionReason}&quot;
+                                                </p>
+                                            )}
+                                        </div>
+                                    )}
+                                    {isResubmitted && role === "therapist" && (
+                                        <p className="text-[10px] text-amber-600 dark:text-amber-400 mt-0.5 font-medium">
+                                            Resubmitted · Awaiting customer confirmation
+                                        </p>
+                                    )}
+                                    {isInRevision && role === "customer" && (
+                                        <div className="mt-1 text-[10px] space-y-0.5">
+                                            {session.revisionReason && (
+                                                <p className="text-amber-600 dark:text-amber-400 italic">
+                                                    Your revision: &quot;{session.revisionReason.length > 60 ? session.revisionReason.slice(0, 60) + "..." : session.revisionReason}&quot;
+                                                </p>
+                                            )}
+                                            {session.revisionDueBy && (
+                                                <p className="text-text-muted dark:text-slate-500">
+                                                    Therapist will resubmit by {formatDate(session.revisionDueBy)} · {formatTime(session.revisionDueBy)}
+                                                </p>
+                                            )}
+                                            {!session.revisionDueBy && (
+                                                <p className="text-text-muted dark:text-slate-500">
+                                                    Waiting for therapist to respond
+                                                </p>
+                                            )}
+                                        </div>
+                                    )}
+                                    {isInRevision && role === "therapist" && (
+                                        <div className="mt-1 text-[10px] space-y-0.5">
+                                            {session.revisionReason && (
+                                                <p className="text-amber-600 dark:text-amber-400 italic">
+                                                    Requested: &quot;{session.revisionReason.length > 60 ? session.revisionReason.slice(0, 60) + "..." : session.revisionReason}&quot;
+                                                </p>
+                                            )}
+                                            {session.revisionDueBy && (
+                                                <p className="text-text-muted dark:text-slate-500">
+                                                    You committed to resubmit by {formatDate(session.revisionDueBy)} · {formatTime(session.revisionDueBy)}
+                                                </p>
+                                            )}
+                                        </div>
+                                    )}
                                 </div>
 
                                 {/* Actions */}
@@ -202,15 +266,26 @@ export default function SessionList({
                                         </>
                                     )}
                                     {isInRevision && role === "customer" && (
-                                        <span className="text-[10px] font-bold text-amber-600 dark:text-amber-400 italic">Awaiting therapist</span>
+                                        <span className="text-[10px] font-bold text-amber-600 dark:text-amber-400 italic">
+                                            {session.revisionDueBy ? "Therapist working on it" : "Awaiting therapist"}
+                                        </span>
                                     )}
-                                    {canSubmitRevision && (
+                                    {canRespondToRevision && (
                                         <button
                                             onClick={() => onSubmitRevision(session.id)}
                                             disabled={isAnyLoading}
                                             className="text-xs font-bold text-amber-600 dark:text-amber-400 border border-amber-300 dark:border-amber-700 px-3 py-1.5 rounded-lg hover:bg-amber-50 dark:hover:bg-amber-900/20 disabled:opacity-50"
                                         >
                                             Respond
+                                        </button>
+                                    )}
+                                    {canResubmitSession && (
+                                        <button
+                                            onClick={() => onResubmitSession(session.id)}
+                                            disabled={isAnyLoading}
+                                            className="text-xs font-bold text-white bg-primary px-3 py-1.5 rounded-lg hover:bg-primary/90 disabled:opacity-50"
+                                        >
+                                            Resubmit
                                         </button>
                                     )}
                                 </div>
