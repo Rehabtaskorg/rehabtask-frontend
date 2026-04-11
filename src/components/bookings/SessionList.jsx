@@ -160,9 +160,21 @@ export default function SessionList({
                                         {session.scheduledDate ? `${formatDate(session.scheduledDate)} · ${formatTime(session.scheduledDate)}` : "Date not set"}
                                     </p>
                                     {isResubmitted && role === "customer" && (
-                                        <p className="text-[10px] text-amber-600 dark:text-amber-400 mt-0.5 font-medium">
-                                            Resubmitted after revision · Please review and confirm
-                                        </p>
+                                        <div className="mt-1 text-[10px] space-y-0.5">
+                                            <p className="text-amber-600 dark:text-amber-400 font-medium">
+                                                Therapist resubmitted this session after your revision request. Please review and confirm.
+                                            </p>
+                                            {session.revisionLastSubmittedAt && (
+                                                <p className="text-text-muted dark:text-slate-500">
+                                                    Resubmitted on {formatDate(session.revisionLastSubmittedAt)} · {formatTime(session.revisionLastSubmittedAt)}
+                                                </p>
+                                            )}
+                                            {session.revisionReason && (
+                                                <p className="text-text-muted dark:text-slate-500 italic">
+                                                    Your request: &quot;{session.revisionReason.length > 80 ? session.revisionReason.slice(0, 80) + "..." : session.revisionReason}&quot;
+                                                </p>
+                                            )}
+                                        </div>
                                     )}
                                     {isResubmitted && role === "therapist" && (
                                         <p className="text-[10px] text-amber-600 dark:text-amber-400 mt-0.5 font-medium">
