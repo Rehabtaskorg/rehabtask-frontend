@@ -10,6 +10,8 @@ import {
     MdChevronLeft, MdChevronRight, MdVisibility,
     MdAssignment,
 } from "react-icons/md";
+import { APIProvider } from "@vis.gl/react-google-maps";
+import AddressAutocomplete from "@/components/maps/AddressAutocomplete";
 
 const ROWS_PER_PAGE_OPTIONS = [10, 25, 50];
 
@@ -374,7 +376,8 @@ function PatientDrawer({ patientId, onClose, onEdit }) {
 
     const [editing, setEditing] = useState(false);
     const [editData, setEditData] = useState({});
-    const [editError, setEditError] = useState("");
+    const [editErrors, setEditErrors] = useState({});
+    const [addressText, setAddressText] = useState("");
 
     const handleStartEdit = () => {
         if (!patient) return;
@@ -386,29 +389,95 @@ function PatientDrawer({ patientId, onClose, onEdit }) {
             city: patient.city || "",
             state: patient.state || "",
             zipCode: patient.zipCode || "",
+            latitude: patient.latitude != null ? parseFloat(patient.latitude) : null,
+            longitude: patient.longitude != null ? parseFloat(patient.longitude) : null,
         });
-        setEditError("");
+        setAddressText(
+            patient.addressLine1
+                ? [patient.addressLine1, patient.city, patient.state, patient.zipCode].filter(Boolean).join(", ")
+                : ""
+        );
+        setEditErrors({});
         setEditing(true);
     };
 
+    const handleEditAddressSelect = (result) => {
+        setAddressText(result.formattedAddress);
+        setEditData((d) => ({
+            ...d,
+            addressLine1: result.streetAddress || result.formattedAddress,
+            city: result.city || "",
+            state: result.state || "",
+            zipCode: result.zipCode || "",
+            latitude: result.latitude,
+            longitude: result.longitude,
+        }));
+    };
+
+    const handleEditAddressChange = (text) => {
+        setAddressText(text);
+        if (editData.latitude != null) {
+            setEditData((d) => ({
+                ...d,
+                addressLine1: "",
+                city: "",
+                state: "",
+                zipCode: "",
+                latitude: null,
+                longitude: null,
+            }));
+        }
+    };
+
+    const validateEdit = () => {
+        const errs = {};
+        if (!editData.fullName?.trim()) errs.fullName = "Name is required";
+        if (editData.email?.trim() && !/\S+@\S+\.\S+/.test(editData.email.trim())) errs.email = "Please enter a valid email";
+        if (editData.phone?.trim() && !/^\+1\d{10}$/.test(editData.phone.trim())) {
+            errs.phone = "Please enter a valid 10-digit US phone number";
+        }
+        if (editData.zipCode?.trim() && !/^\d{5}(-\d{4})?$/.test(editData.zipCode.trim())) {
+            errs.zipCode = "Enter a valid US zip code (e.g. 90210)";
+        }
+        setEditErrors(errs);
+        return Object.keys(errs).length === 0;
+    };
+
     const handleSaveEdit = async () => {
-        setEditError("");
+        if (!validateEdit()) return;
+        setEditErrors({});
         try {
             await updatePatient.mutateAsync({
                 id: patientId,
                 data: {
                     fullName: editData.fullName.trim(),
-                    email: editData.email.trim() || undefined,
-                    phone: editData.phone.trim() || undefined,
-                    addressLine1: editData.addressLine1.trim() || undefined,
-                    city: editData.city.trim() || undefined,
-                    state: editData.state.trim() || undefined,
-                    zipCode: editData.zipCode.trim() || undefined,
+                    email: editData.email?.trim() || undefined,
+                    phone: editData.phone?.trim() || undefined,
+                    addressLine1: editData.addressLine1?.trim() || undefined,
+                    city: editData.city?.trim() || undefined,
+                    state: editData.state?.trim() || undefined,
+                    zipCode: editData.zipCode?.trim() || undefined,
+                    latitude: editData.latitude ?? undefined,
+                    longitude: editData.longitude ?? undefined,
                 },
             });
             setEditing(false);
         } catch (err) {
-            setEditError(err.response?.data?.message || "Failed to update patient.");
+            const data = err.response?.data;
+            if (data?.errors && Array.isArray(data.errors)) {
+                const fieldErrors = {};
+                for (const e of data.errors) {
+                    const field = e.path?.[0];
+                    if (field) fieldErrors[field] = e.message;
+                    else fieldErrors.form = e.message;
+                }
+                if (Object.keys(fieldErrors).length === 0) {
+                    fieldErrors.form = data.message || "Validation failed. Please check your inputs.";
+                }
+                setEditErrors(fieldErrors);
+            } else {
+                setEditErrors({ form: data?.message || "Failed to update patient." });
+            }
         }
     };
 
@@ -505,59 +574,93 @@ function PatientDrawer({ patientId, onClose, onEdit }) {
                                 </h3>
 
                                 {editing ? (
-                                    <div className="space-y-3">
-                                        {editError && (
-                                            <div className="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-3 py-2 rounded-lg text-sm">
-                                                {editError}
+                                    <APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}>
+                                        <div className="space-y-3">
+                                            {editErrors.form && (
+                                                <div className="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-3 py-2 rounded-lg text-sm">
+                                                    {editErrors.form}
+                                                </div>
+                                            )}
+                                            <div>
+                                                <label className="block text-xs font-semibold text-text-muted dark:text-gray-400 mb-1">Full Name</label>
+                                                <input type="text" value={editData.fullName} onChange={(e) => setEditData((d) => ({ ...d, fullName: e.target.value }))} className={inputClass} />
+                                                {editErrors.fullName && <p className="text-xs text-red-500 mt-1">{editErrors.fullName}</p>}
                                             </div>
-                                        )}
-                                        <div>
-                                            <label className="block text-xs font-semibold text-text-muted dark:text-gray-400 mb-1">Full Name</label>
-                                            <input type="text" value={editData.fullName} onChange={(e) => setEditData((d) => ({ ...d, fullName: e.target.value }))} className={inputClass} />
-                                        </div>
-                                        <div>
-                                            <label className="block text-xs font-semibold text-text-muted dark:text-gray-400 mb-1">Address</label>
-                                            <input type="text" value={editData.addressLine1} onChange={(e) => setEditData((d) => ({ ...d, addressLine1: e.target.value }))} className={inputClass} />
-                                        </div>
-                                        <div className="flex gap-3">
-                                            <div className="flex-1">
-                                                <label className="block text-xs font-semibold text-text-muted dark:text-gray-400 mb-1">City</label>
-                                                <input type="text" value={editData.city} onChange={(e) => setEditData((d) => ({ ...d, city: e.target.value }))} className={inputClass} />
+                                            <div>
+                                                <AddressAutocomplete
+                                                    value={addressText}
+                                                    onChange={handleEditAddressChange}
+                                                    onSelect={handleEditAddressSelect}
+                                                    label="Address"
+                                                    placeholder="Search for an address..."
+                                                    error={editErrors.addressLine1}
+                                                />
                                             </div>
-                                            <div className="w-20">
-                                                <label className="block text-xs font-semibold text-text-muted dark:text-gray-400 mb-1">State</label>
-                                                <input type="text" value={editData.state} onChange={(e) => setEditData((d) => ({ ...d, state: e.target.value }))} className={inputClass} />
+                                            {editData.latitude != null && (
+                                                <div className="flex gap-3">
+                                                    <div className="flex-1">
+                                                        <label className="block text-xs font-semibold text-text-muted dark:text-gray-400 mb-1">City</label>
+                                                        <input type="text" value={editData.city} onChange={(e) => setEditData((d) => ({ ...d, city: e.target.value }))} className={inputClass} />
+                                                        {editErrors.city && <p className="text-xs text-red-500 mt-1">{editErrors.city}</p>}
+                                                    </div>
+                                                    <div className="w-20">
+                                                        <label className="block text-xs font-semibold text-text-muted dark:text-gray-400 mb-1">State</label>
+                                                        <input type="text" value={editData.state} onChange={(e) => setEditData((d) => ({ ...d, state: e.target.value }))} className={inputClass} />
+                                                    </div>
+                                                    <div className="w-20">
+                                                        <label className="block text-xs font-semibold text-text-muted dark:text-gray-400 mb-1">Zip</label>
+                                                        <input type="text" value={editData.zipCode} onChange={(e) => setEditData((d) => ({ ...d, zipCode: e.target.value }))} className={inputClass} />
+                                                        {editErrors.zipCode && <p className="text-xs text-red-500 mt-1">{editErrors.zipCode}</p>}
+                                                    </div>
+                                                </div>
+                                            )}
+                                            <div>
+                                                <label className="block text-xs font-semibold text-text-muted dark:text-gray-400 mb-1">
+                                                    Email <span className="text-text-muted/50 font-normal">(Optional)</span>
+                                                </label>
+                                                <input type="email" value={editData.email} onChange={(e) => setEditData((d) => ({ ...d, email: e.target.value }))} className={inputClass} />
+                                                {editErrors.email && <p className="text-xs text-red-500 mt-1">{editErrors.email}</p>}
                                             </div>
-                                            <div className="w-20">
-                                                <label className="block text-xs font-semibold text-text-muted dark:text-gray-400 mb-1">Zip</label>
-                                                <input type="text" value={editData.zipCode} onChange={(e) => setEditData((d) => ({ ...d, zipCode: e.target.value }))} className={inputClass} />
+                                            <div>
+                                                <label className="block text-xs font-semibold text-text-muted dark:text-gray-400 mb-1">
+                                                    Phone <span className="text-text-muted/50 font-normal">(Optional)</span>
+                                                </label>
+                                                <div className={`flex items-center rounded-lg border overflow-hidden ${editErrors.phone ? "border-red-400 dark:border-red-600" : "border-border-light dark:border-border-dark"} bg-background-light dark:bg-background-dark`}>
+                                                    <span className="px-3 py-2 text-sm text-text-muted dark:text-gray-400 border-r border-border-light dark:border-border-dark select-none bg-slate-50 dark:bg-slate-800 shrink-0">
+                                                        +1
+                                                    </span>
+                                                    <input
+                                                        type="tel"
+                                                        value={(editData.phone || "").startsWith("+1") ? editData.phone.slice(2) : (editData.phone || "")}
+                                                        onChange={(e) => {
+                                                            const digits = e.target.value.replace(/\D/g, "").slice(0, 10);
+                                                            setEditData((d) => ({ ...d, phone: digits ? `+1${digits}` : "" }));
+                                                        }}
+                                                        maxLength={10}
+                                                        placeholder="2025550123"
+                                                        className="flex-1 px-3 py-2 bg-transparent text-text-main dark:text-white text-sm focus:outline-none placeholder:text-text-muted/50"
+                                                    />
+                                                </div>
+                                                {editErrors.phone && <p className="text-xs text-red-500 mt-1">{editErrors.phone}</p>}
+                                            </div>
+                                            <div className="flex items-center gap-2 pt-2">
+                                                <button
+                                                    onClick={handleSaveEdit}
+                                                    disabled={updatePatient.isPending}
+                                                    className="flex items-center gap-1.5 px-4 py-2 bg-primary hover:bg-primary/90 text-white text-sm font-bold rounded-lg transition-colors disabled:opacity-50"
+                                                >
+                                                    <MdCheck className="text-base" />
+                                                    {updatePatient.isPending ? "Saving..." : "Save"}
+                                                </button>
+                                                <button
+                                                    onClick={() => { setEditing(false); setEditErrors({}); }}
+                                                    className="px-4 py-2 text-text-muted dark:text-gray-400 hover:text-text-main dark:hover:text-white text-sm font-bold transition-colors"
+                                                >
+                                                    Cancel
+                                                </button>
                                             </div>
                                         </div>
-                                        <div>
-                                            <label className="block text-xs font-semibold text-text-muted dark:text-gray-400 mb-1">Email</label>
-                                            <input type="email" value={editData.email} onChange={(e) => setEditData((d) => ({ ...d, email: e.target.value }))} className={inputClass} />
-                                        </div>
-                                        <div>
-                                            <label className="block text-xs font-semibold text-text-muted dark:text-gray-400 mb-1">Phone</label>
-                                            <input type="tel" value={editData.phone} onChange={(e) => setEditData((d) => ({ ...d, phone: e.target.value }))} className={inputClass} />
-                                        </div>
-                                        <div className="flex items-center gap-2 pt-2">
-                                            <button
-                                                onClick={handleSaveEdit}
-                                                disabled={updatePatient.isPending}
-                                                className="flex items-center gap-1.5 px-4 py-2 bg-primary hover:bg-primary/90 text-white text-sm font-bold rounded-lg transition-colors disabled:opacity-50"
-                                            >
-                                                <MdCheck className="text-base" />
-                                                {updatePatient.isPending ? "Saving..." : "Save"}
-                                            </button>
-                                            <button
-                                                onClick={() => setEditing(false)}
-                                                className="px-4 py-2 text-text-muted dark:text-gray-400 hover:text-text-main dark:hover:text-white text-sm font-bold transition-colors"
-                                            >
-                                                Cancel
-                                            </button>
-                                        </div>
-                                    </div>
+                                    </APIProvider>
                                 ) : (
                                     <div className="bg-muted-light dark:bg-muted-dark rounded-xl p-4 space-y-4 border border-border-light dark:border-border-dark">
                                         {patient.addressLine1 && (

@@ -73,9 +73,10 @@ export default function AddPatientModal({ isOpen, onClose, onSuccess }) {
         if (!city.trim()) newErrors.city = "City is required";
         if (!state.trim()) newErrors.state = "State is required";
         if (!zipCode.trim()) newErrors.zipCode = "Zip code is required";
+        else if (!/^\d{5}(-\d{4})?$/.test(zipCode.trim())) newErrors.zipCode = "Enter a valid US zip code (e.g. 90210)";
         if (email.trim() && !/\S+@\S+\.\S+/.test(email)) newErrors.email = "Please enter a valid email";
         if (phone.trim() && !/^\+1\d{10}$/.test(phone.trim())) {
-            newErrors.phone = "Phone must be in format +1XXXXXXXXXX";
+            newErrors.phone = "Please enter a valid 10-digit US phone number";
         }
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
@@ -100,8 +101,21 @@ export default function AddPatientModal({ isOpen, onClose, onSuccess }) {
             setJustAdded(true);
             onSuccess?.();
         } catch (err) {
-            const msg = err.response?.data?.message || "Failed to add patient.";
-            setErrors({ form: msg });
+            const data = err.response?.data;
+            if (data?.errors && Array.isArray(data.errors)) {
+                const fieldErrors = {};
+                for (const e of data.errors) {
+                    const field = e.path?.[0];
+                    if (field) fieldErrors[field] = e.message;
+                    else fieldErrors.form = e.message;
+                }
+                if (Object.keys(fieldErrors).length === 0) {
+                    fieldErrors.form = data.message || "Validation failed. Please check your inputs.";
+                }
+                setErrors(fieldErrors);
+            } else {
+                setErrors({ form: data?.message || "Failed to add patient. Please try again." });
+            }
         }
     };
 

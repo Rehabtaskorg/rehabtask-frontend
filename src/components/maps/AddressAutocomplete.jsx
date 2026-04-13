@@ -63,7 +63,7 @@ export default function AddressAutocomplete({
                 {
                     input,
                     componentRestrictions: { country: "us" },
-                    types: ["geocode"],
+                    types: ["address"],
                     sessionToken: sessionToken.current,
                 },
                 (results, status) => {
