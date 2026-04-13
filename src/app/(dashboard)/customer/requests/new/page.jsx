@@ -24,7 +24,7 @@ export default function NewRequestPage() {
 
     const {
         currentStep, nextStep, prevStep, reset, getPreferredDateISO,
-        step1, step2, patientId, setPatientId, editingRequestId, setEditData
+        step1, step2, patientId, setPatientId, setStep2, editingRequestId, setEditData
     } = useRequestStore();
 
     const isEditMode = !!editId;
@@ -96,6 +96,23 @@ export default function NewRequestPage() {
     const isAgency = user?.profile?.customerType === "agency";
     const { data: patients } = usePatients();
     const selectedPatient = patients?.find((p) => p.id === patientId) || null;
+
+    const handleSelectPatient = (id) => {
+        setPatientId(id);
+        if (id) {
+            const p = patients?.find((pt) => pt.id === id);
+            if (p?.addressLine1 && p?.latitude != null && p?.longitude != null) {
+                const fullAddress = [p.addressLine1, p.city, p.state, p.zipCode].filter(Boolean).join(", ");
+                setStep2({
+                    address: fullAddress,
+                    latitude: parseFloat(p.latitude),
+                    longitude: parseFloat(p.longitude),
+                });
+            }
+        } else {
+            setStep2({ address: "", latitude: null, longitude: null });
+        }
+    };
 
     const handleNext = () => nextStep();
     const handleBack = () => {
@@ -257,18 +274,20 @@ export default function NewRequestPage() {
                                                 <p className="text-sm font-bold text-text-main dark:text-white">
                                                     {selectedPatient.fullName}
                                                 </p>
-                                                <p className="text-xs text-text-muted dark:text-gray-400">
-                                                    {selectedPatient.email}
-                                                </p>
-                                                {selectedPatient.phone && (
+                                                {selectedPatient.addressLine1 && (
                                                     <p className="text-xs text-text-muted dark:text-gray-400">
-                                                        {selectedPatient.phone}
+                                                        {selectedPatient.addressLine1}, {selectedPatient.city || ""} {selectedPatient.state || ""}
+                                                    </p>
+                                                )}
+                                                {!selectedPatient.addressLine1 && selectedPatient.email && (
+                                                    <p className="text-xs text-text-muted dark:text-gray-400">
+                                                        {selectedPatient.email}
                                                     </p>
                                                 )}
                                             </div>
                                         </div>
                                         <button
-                                            onClick={() => setPatientId(null)}
+                                            onClick={() => handleSelectPatient(null)}
                                             className="text-primary text-sm font-bold hover:underline"
                                         >
                                             Change
@@ -278,13 +297,13 @@ export default function NewRequestPage() {
                                     <div>
                                         <select
                                             value={patientId || ""}
-                                            onChange={(e) => setPatientId(e.target.value || null)}
+                                            onChange={(e) => handleSelectPatient(e.target.value || null)}
                                             className="w-full px-4 py-3 rounded-xl bg-white dark:bg-background-dark border border-border-light dark:border-border-dark text-text-main dark:text-white text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
                                         >
                                             <option value="">Choose a patient...</option>
                                             {patients?.map((p) => (
                                                 <option key={p.id} value={p.id}>
-                                                    {p.fullName} — {p.email}
+                                                    {p.fullName}{p.city ? ` — ${p.city}, ${p.state || ""}` : p.email ? ` — ${p.email}` : ""}
                                                 </option>
                                             ))}
                                         </select>
@@ -320,7 +339,11 @@ export default function NewRequestPage() {
                                     </div>
                                     <div>
                                         <p className="text-sm font-bold text-text-main dark:text-white">{selectedPatient.fullName}</p>
-                                        <p className="text-xs text-text-muted dark:text-gray-400">{selectedPatient.email}</p>
+                                        <p className="text-xs text-text-muted dark:text-gray-400">
+                                            {selectedPatient.addressLine1
+                                                ? `${selectedPatient.addressLine1}, ${selectedPatient.city || ""} ${selectedPatient.state || ""}`
+                                                : selectedPatient.email || ""}
+                                        </p>
                                     </div>
                                 </div>
                             </div>

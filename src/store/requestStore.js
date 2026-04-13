@@ -74,8 +74,8 @@ const useRequestStore = create(
                     },
                     step2: {
                         address: request.location || "",
-                        latitude: request.latitude ? parseFloat(request.latitude) : null,
-                        longitude: request.longitude ? parseFloat(request.longitude) : null,
+                        latitude: request.latitude != null ? parseFloat(request.latitude) : null,
+                        longitude: request.longitude != null ? parseFloat(request.longitude) : null,
                     },
                 });
             },

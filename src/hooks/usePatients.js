@@ -13,6 +13,17 @@ export function usePatients() {
     });
 }
 
+export function usePatient(patientId) {
+    return useQuery({
+        queryKey: ["agency-patient", patientId],
+        queryFn: async () => {
+            const res = await patientsApi.getPatient(patientId);
+            return res.data.data;
+        },
+        enabled: !!patientId,
+    });
+}
+
 export function useCreatePatient() {
     const queryClient = useQueryClient();
     return useMutation({
@@ -29,6 +40,7 @@ export function useUpdatePatient() {
         mutationFn: ({ id, data }) => patientsApi.updatePatient(id, data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["agency-patients"] });
+            queryClient.invalidateQueries({ queryKey: ["agency-patient"] });
         },
     });
 }
