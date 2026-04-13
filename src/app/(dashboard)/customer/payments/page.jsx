@@ -35,6 +35,28 @@ const formatDate = (dateStr) => {
 const getInitials = (name) =>
     name?.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2) || "?";
 
+// Status display for a CustomerRefund (what the customer actually sees)
+const getRefundDisplay = (customerRefunds, fallbackRefundedAmount) => {
+    // Most recent customer refund (if any)
+    const refund = customerRefunds?.[0];
+    if (refund) {
+        if (refund.status === "pending_connect") {
+            return { label: `${formatCurrency(refund.amount)} pending payout`, color: "text-amber-600 dark:text-amber-400 font-semibold" };
+        }
+        if (refund.status === "transferred") {
+            return { label: `${formatCurrency(refund.amount)} sent to bank`, color: "text-emerald-600 dark:text-emerald-400 font-semibold" };
+        }
+        if (refund.status === "refunded_to_card") {
+            return { label: `${formatCurrency(refund.amount)} returned to card`, color: "text-emerald-600 dark:text-emerald-400 font-semibold" };
+        }
+    }
+    // Legacy: payment.refundedAmount set via old card refund path
+    if (fallbackRefundedAmount) {
+        return { label: `${formatCurrency(fallbackRefundedAmount)} refunded`, color: "text-emerald-600 dark:text-emerald-400 font-semibold" };
+    }
+    return null;
+};
+
 export default function CustomerPaymentsPage() {
     usePageTitle("Payments & Refunds");
     const router = useRouter();
@@ -306,12 +328,13 @@ export default function CustomerPaymentsPage() {
                                                                     {config.label}
                                                                 </span>
                                                             </td>
-                                                            <td className="px-5 py-4 text-xs text-text-muted dark:text-gray-400">
-                                                                {payment.refundedAmount ? (
-                                                                    <span className="text-emerald-600 dark:text-emerald-400 font-semibold">
-                                                                        {formatCurrency(payment.refundedAmount)} refunded
-                                                                    </span>
-                                                                ) : "—"}
+                                                            <td className="px-5 py-4 text-xs">
+                                                                {(() => {
+                                                                    const refundDisplay = getRefundDisplay(payment.customerRefunds, payment.refundedAmount);
+                                                                    return refundDisplay ? (
+                                                                        <span className={refundDisplay.color}>{refundDisplay.label}</span>
+                                                                    ) : <span className="text-text-muted dark:text-gray-400">—</span>;
+                                                                })()}
                                                             </td>
                                                             <td className="px-5 py-4 text-right">
                                                                 {isExpanded ? <MdExpandLess className="text-lg text-text-muted" /> : <MdExpandMore className="text-lg text-text-muted" />}
@@ -352,12 +375,24 @@ export default function CustomerPaymentsPage() {
                                                                                     <span>Therapist Payout</span>
                                                                                     <span>{formatCurrency(payment.releasedAmount || payment.therapistPayout)}</span>
                                                                                 </div>
-                                                                                {payment.refundedAmount && (
-                                                                                    <div className="flex justify-between text-emerald-600 dark:text-emerald-400 font-semibold pt-1 border-t border-border-light dark:border-border-dark">
-                                                                                        <span>Refunded to You</span>
-                                                                                        <span>{formatCurrency(payment.refundedAmount)}</span>
-                                                                                    </div>
-                                                                                )}
+                                                                                {(() => {
+                                                                                    const cr = payment.customerRefunds?.[0];
+                                                                                    const amount = cr?.amount || payment.refundedAmount;
+                                                                                    if (!amount) return null;
+                                                                                    const label = cr?.status === "pending_connect" ? "Refund Pending"
+                                                                                        : cr?.status === "transferred" ? "Refund Sent"
+                                                                                        : cr?.status === "refunded_to_card" ? "Refund Returned to Card"
+                                                                                        : "Refunded to You";
+                                                                                    const colorClass = cr?.status === "pending_connect"
+                                                                                        ? "text-amber-600 dark:text-amber-400"
+                                                                                        : "text-emerald-600 dark:text-emerald-400";
+                                                                                    return (
+                                                                                        <div className={`flex justify-between font-semibold pt-1 border-t border-border-light dark:border-border-dark ${colorClass}`}>
+                                                                                            <span>{label}</span>
+                                                                                            <span>{formatCurrency(amount)}</span>
+                                                                                        </div>
+                                                                                    );
+                                                                                })()}
                                                                             </div>
                                                                         </div>
 
@@ -384,7 +419,39 @@ export default function CustomerPaymentsPage() {
                                                                                         <p className="text-[10px] text-text-muted dark:text-gray-400">{formatDate(payment.releasedAt)}</p>
                                                                                     </div>
                                                                                 )}
-                                                                                {payment.refundedAt && (
+                                                                                {(() => {
+                                                                                    const cr = payment.customerRefunds?.[0];
+                                                                                    if (!cr) return null;
+                                                                                    if (cr.status === "pending_connect") {
+                                                                                        return (
+                                                                                            <div className="relative pl-5">
+                                                                                                <div className="absolute left-0 top-1 w-3 h-3 rounded-full bg-amber-500 animate-pulse" />
+                                                                                                <p className="text-xs text-text-main dark:text-white">Refund pending — awaiting payout setup</p>
+                                                                                                <p className="text-[10px] text-text-muted dark:text-gray-400">{formatDate(cr.createdAt)}</p>
+                                                                                            </div>
+                                                                                        );
+                                                                                    }
+                                                                                    if (cr.status === "transferred") {
+                                                                                        return (
+                                                                                            <div className="relative pl-5">
+                                                                                                <div className="absolute left-0 top-1 w-3 h-3 rounded-full bg-emerald-500" />
+                                                                                                <p className="text-xs text-text-main dark:text-white">Refund sent to bank</p>
+                                                                                                <p className="text-[10px] text-text-muted dark:text-gray-400">{formatDate(cr.transferredAt)}</p>
+                                                                                            </div>
+                                                                                        );
+                                                                                    }
+                                                                                    if (cr.status === "refunded_to_card") {
+                                                                                        return (
+                                                                                            <div className="relative pl-5">
+                                                                                                <div className="absolute left-0 top-1 w-3 h-3 rounded-full bg-emerald-500" />
+                                                                                                <p className="text-xs text-text-main dark:text-white">Refund returned to card</p>
+                                                                                                <p className="text-[10px] text-text-muted dark:text-gray-400">{formatDate(cr.fallbackRefundAt)}</p>
+                                                                                            </div>
+                                                                                        );
+                                                                                    }
+                                                                                    return null;
+                                                                                })()}
+                                                                                {!payment.customerRefunds?.[0] && payment.refundedAt && (
                                                                                     <div className="relative pl-5">
                                                                                         <div className="absolute left-0 top-1 w-3 h-3 rounded-full bg-amber-500" />
                                                                                         <p className="text-xs text-text-main dark:text-white">Refund issued</p>
@@ -428,11 +495,14 @@ export default function CustomerPaymentsPage() {
                                                         </span>
                                                     </div>
                                                 </div>
-                                                {payment.refundedAmount && (
-                                                    <p className="text-xs text-emerald-600 dark:text-emerald-400 font-semibold mt-2">
-                                                        {formatCurrency(payment.refundedAmount)} refunded
-                                                    </p>
-                                                )}
+                                                {(() => {
+                                                    const refundDisplay = getRefundDisplay(payment.customerRefunds, payment.refundedAmount);
+                                                    return refundDisplay ? (
+                                                        <p className={`text-xs mt-2 ${refundDisplay.color}`}>
+                                                            {refundDisplay.label}
+                                                        </p>
+                                                    ) : null;
+                                                })()}
                                             </div>
                                         );
                                     })}
