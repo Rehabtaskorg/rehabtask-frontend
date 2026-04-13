@@ -451,14 +451,14 @@ function PatientDrawer({ patientId, onClose, onEdit }) {
                 id: patientId,
                 data: {
                     fullName: editData.fullName.trim(),
-                    email: editData.email?.trim() || undefined,
-                    phone: editData.phone?.trim() || undefined,
-                    addressLine1: editData.addressLine1?.trim() || undefined,
-                    city: editData.city?.trim() || undefined,
-                    state: editData.state?.trim() || undefined,
-                    zipCode: editData.zipCode?.trim() || undefined,
-                    latitude: editData.latitude ?? undefined,
-                    longitude: editData.longitude ?? undefined,
+                    email: editData.email?.trim() || "",
+                    phone: editData.phone?.trim() || "",
+                    addressLine1: editData.addressLine1?.trim() || "",
+                    city: editData.city?.trim() || "",
+                    state: editData.state?.trim() || "",
+                    zipCode: editData.zipCode?.trim() || "",
+                    latitude: editData.latitude ?? null,
+                    longitude: editData.longitude ?? null,
                 },
             });
             setEditing(false);
