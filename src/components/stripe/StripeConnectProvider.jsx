@@ -188,7 +188,7 @@ function buildAppearance(theme) {
 
 /* ─── Component ─────────────────────────────────────────────────────────── */
 
-export default function StripeConnectProvider({ children }) {
+export default function StripeConnectProvider({ children, accountSessionEndpoint }) {
     const [theme, setTheme] = useState(getInitialTheme);
 
     // Subscribe to OS theme changes. Flipping `theme` triggers a new memo
@@ -211,13 +211,14 @@ export default function StripeConnectProvider({ children }) {
              * expiry. Must return a raw client_secret string.
              */
             fetchClientSecret: async () => {
-                const res = await api.post("/payments/account-session");
+                const endpoint = accountSessionEndpoint || "/payments/account-session";
+                const res = await api.post(endpoint);
                 return res.data.data.clientSecret;
             },
 
             appearance: buildAppearance(theme),
         });
-    }, [theme]);
+    }, [theme, accountSessionEndpoint]);
 
     return (
         <ConnectComponentsProvider
