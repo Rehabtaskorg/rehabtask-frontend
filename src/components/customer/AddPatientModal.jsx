@@ -1,29 +1,86 @@
 "use client";
 
 import { useState } from "react";
-import { MdClose, MdPerson, MdEmail } from "react-icons/md";
+import { MdClose, MdPerson, MdCheck } from "react-icons/md";
+import { APIProvider, Map, AdvancedMarker } from "@vis.gl/react-google-maps";
 import { useCreatePatient } from "@/hooks/usePatients";
+import AddressAutocomplete from "@/components/maps/AddressAutocomplete";
+
+const inputBase =
+    "w-full bg-background-light dark:bg-background-dark border border-border-light dark:border-border-dark rounded-lg px-4 py-2.5 text-sm text-text-main dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all";
 
 export default function AddPatientModal({ isOpen, onClose, onSuccess }) {
+    const createPatient = useCreatePatient();
+
     const [fullName, setFullName] = useState("");
     const [email, setEmail] = useState("");
     const [phone, setPhone] = useState("");
+    const [addressText, setAddressText] = useState("");
+    const [addressLine1, setAddressLine1] = useState("");
+    const [city, setCity] = useState("");
+    const [state, setState] = useState("");
+    const [zipCode, setZipCode] = useState("");
+    const [latitude, setLatitude] = useState(null);
+    const [longitude, setLongitude] = useState(null);
     const [errors, setErrors] = useState({});
-    const createPatient = useCreatePatient();
+    const [justAdded, setJustAdded] = useState(false);
 
     if (!isOpen) return null;
+
+    const hasLocation = latitude !== null && longitude !== null;
+
+    const resetForm = () => {
+        setFullName("");
+        setEmail("");
+        setPhone("");
+        setAddressText("");
+        setAddressLine1("");
+        setCity("");
+        setState("");
+        setZipCode("");
+        setLatitude(null);
+        setLongitude(null);
+        setErrors({});
+        setJustAdded(false);
+    };
+
+    const handleAddressSelect = (result) => {
+        setAddressText(result.formattedAddress);
+        setAddressLine1(result.streetAddress || result.formattedAddress);
+        setCity(result.city || "");
+        setState(result.state || "");
+        setZipCode(result.zipCode || "");
+        setLatitude(result.latitude);
+        setLongitude(result.longitude);
+    };
+
+    const handleAddressChange = (text) => {
+        setAddressText(text);
+        if (latitude !== null) {
+            setLatitude(null);
+            setLongitude(null);
+            setAddressLine1("");
+            setCity("");
+            setState("");
+            setZipCode("");
+        }
+    };
 
     const validate = () => {
         const newErrors = {};
         if (!fullName.trim()) newErrors.fullName = "Full name is required";
-        if (!email.trim()) newErrors.email = "Email is required";
-        else if (!/\S+@\S+\.\S+/.test(email)) newErrors.email = "Please enter a valid email";
+        if (!addressLine1.trim()) newErrors.address = "Please select an address from the dropdown";
+        if (!city.trim()) newErrors.city = "City is required";
+        if (!state.trim()) newErrors.state = "State is required";
+        if (!zipCode.trim()) newErrors.zipCode = "Zip code is required";
+        else if (!/^\d{5}(-\d{4})?$/.test(zipCode.trim())) newErrors.zipCode = "Enter a valid US zip code (e.g. 90210)";
+        if (email.trim() && !/\S+@\S+\.\S+/.test(email)) newErrors.email = "Please enter a valid email";
         if (phone.trim() && !/^\+1\d{10}$/.test(phone.trim())) {
-            newErrors.phone = "Phone must be in format +1XXXXXXXXXX";
+            newErrors.phone = "Please enter a valid 10-digit US phone number";
         }
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
-    }
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -32,145 +89,234 @@ export default function AddPatientModal({ isOpen, onClose, onSuccess }) {
         try {
             await createPatient.mutateAsync({
                 fullName: fullName.trim(),
-                email: email.trim(),
+                email: email.trim() || undefined,
                 phone: phone.trim() || undefined,
+                addressLine1: addressLine1.trim(),
+                city: city.trim(),
+                state: state.trim(),
+                zipCode: zipCode.trim(),
+                latitude: latitude ?? undefined,
+                longitude: longitude ?? undefined,
             });
-            setFullName("");
-            setEmail("");
-            setPhone("");
-            setErrors({});
+            setJustAdded(true);
             onSuccess?.();
-            onClose();
         } catch (err) {
-            const msg = err.response?.data?.message || "Failed to add patient.";
-            setErrors({ form: msg });
+            const data = err.response?.data;
+            if (data?.errors && Array.isArray(data.errors)) {
+                const fieldErrors = {};
+                for (const e of data.errors) {
+                    const field = e.path?.[0];
+                    if (field) fieldErrors[field] = e.message;
+                    else fieldErrors.form = e.message;
+                }
+                if (Object.keys(fieldErrors).length === 0) {
+                    fieldErrors.form = data.message || "Validation failed. Please check your inputs.";
+                }
+                setErrors(fieldErrors);
+            } else {
+                setErrors({ form: data?.message || "Failed to add patient. Please try again." });
+            }
         }
-    }
+    };
 
     const handleBackdropClick = (e) => {
-        if (e.target === e.currentTarget) onClose();
+        if (e.target === e.currentTarget && !createPatient.isPending) {
+            resetForm();
+            onClose();
+        }
+    };
+
+    const handleClose = () => {
+        if (createPatient.isPending) return;
+        resetForm();
+        onClose();
+    };
+
+    const fieldClass = (hasError) =>
+        `${inputBase} ${hasError ? "border-red-400 dark:border-red-600 focus:ring-red-400/40" : ""}`;
+
+    // Success state
+    if (justAdded) {
+        return (
+            <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={handleBackdropClick}>
+                <div className="bg-card-light dark:bg-card-dark rounded-xl w-full max-w-md shadow-2xl overflow-hidden">
+                    <div className="p-8 text-center space-y-4">
+                        <div className="w-16 h-16 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center mx-auto">
+                            <MdCheck className="text-emerald-600 dark:text-emerald-400 text-3xl" />
+                        </div>
+                        <h2 className="text-lg font-bold text-text-main dark:text-white">Patient Added</h2>
+                        <p className="text-sm text-text-muted dark:text-gray-400">The patient has been added to your roster.</p>
+                        <div className="flex gap-3 pt-2">
+                            <button
+                                onClick={resetForm}
+                                className="flex-1 px-4 py-2.5 text-sm font-semibold text-primary border border-primary/30 rounded-lg hover:bg-primary/5 transition-colors"
+                            >
+                                Add Another
+                            </button>
+                            <button
+                                onClick={handleClose}
+                                className="flex-1 px-4 py-2.5 text-sm font-semibold text-white bg-primary rounded-lg hover:bg-primary/90 transition-colors"
+                            >
+                                Done
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
     }
 
-    const inputClass = (hasError) =>
-        `w-full pl-10 pr-3 py-2.5 rounded-lg border ${hasError ? "border-red-400 dark:border-red-600" :
-            "border-border-light dark:border-border-dark"} bg-background-light dark:bg-background-dark text-text-main
-             dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary transition-all`;
-
     return (
-        <div
-            className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
-            onClick={handleBackdropClick}
-        >
-            <div className="bg-card-light dark:bg-card-dark rounded-xl w-full max-w-md shadow-2xl overflow-hidden">
-                {/* Header */}
-                <div className="px-6 py-4 border-b border-border-light dark:border-border-dark flex items-center justify-between">
-                    <h2 className="text-lg font-semibold text-text-main dark:text-white">Add New Patient</h2>
-                    <button
-                        onClick={onClose}
-                        className="text-text-muted dark:text-gray-400 hover:text-text-main dark:hover:text-white transition-colors p-1"
-                    >
-                        <MdClose className="text-xl" />
-                    </button>
-                </div>
-
-                {/* Form */}
-                <form onSubmit={handleSubmit} className="p-6 space-y-4">
-                    {errors.form && (
-                        <div className="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-4 py-3 rounded-lg text-sm">
-                            {errors.form}
-                        </div>
-                    )}
-
-                    {/* Full Name */}
-                    <div>
-                        <label className="block text-sm font-medium text-text-main dark:text-white mb-1.5">
-                            Full Name <span className="text-red-500">*</span>
-                        </label>
-                        <div className="relative">
-                            <MdPerson className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted dark:text-gray-400 text-lg" />
-                            <input
-                                type="text"
-                                value={fullName}
-                                onChange={(e) => setFullName(e.target.value)}
-                                placeholder="Enter patient full name"
-                                className={inputClass(errors.fullName)}
-                            />
-                        </div>
-                        {errors.fullName && (
-                            <p className="text-xs text-red-500 mt-1">{errors.fullName}</p>
-                        )}
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={handleBackdropClick}>
+            <APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}>
+                <div className="bg-card-light dark:bg-card-dark rounded-xl w-full max-w-140 shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
+                    {/* Header */}
+                    <div className="px-6 py-4 border-b border-border-light dark:border-border-dark flex items-center justify-between shrink-0">
+                        <h2 className="text-lg font-bold text-text-main dark:text-white">Add New Patient</h2>
+                        <button
+                            onClick={handleClose}
+                            disabled={createPatient.isPending}
+                            className="text-text-muted dark:text-gray-400 hover:text-text-main dark:hover:text-white transition-colors p-1 disabled:opacity-50"
+                        >
+                            <MdClose className="text-xl" />
+                        </button>
                     </div>
 
-                    {/* Email */}
-                    <div>
-                        <label className="block text-sm font-medium text-text-main dark:text-white mb-1.5">
-                            Email Address <span className="text-red-500">*</span>
-                        </label>
-                        <div className="relative">
-                            <MdEmail className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted dark:text-gray-400 text-lg" />
+                    {/* Scrollable Form */}
+                    <form onSubmit={handleSubmit} className="p-6 space-y-5 overflow-y-auto flex-1">
+                        {errors.form && (
+                            <div className="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-4 py-3 rounded-lg text-sm">
+                                {errors.form}
+                            </div>
+                        )}
+
+                        {/* Full Name */}
+                        <div>
+                            <label className="block text-sm font-medium text-text-main dark:text-white mb-1.5">
+                                Full Name <span className="text-red-500">*</span>
+                            </label>
+                            <div className="relative">
+                                <MdPerson className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted dark:text-gray-400 text-lg" />
+                                <input
+                                    type="text"
+                                    value={fullName}
+                                    onChange={(e) => setFullName(e.target.value)}
+                                    placeholder="Enter patient full name"
+                                    className={`${fieldClass(errors.fullName)} pl-10`}
+                                />
+                            </div>
+                            {errors.fullName && <p className="text-xs text-red-500 mt-1">{errors.fullName}</p>}
+                        </div>
+
+                        {/* Address Autocomplete */}
+                        <div>
+                            <AddressAutocomplete
+                                value={addressText}
+                                onChange={handleAddressChange}
+                                onSelect={handleAddressSelect}
+                                label="Address"
+                                placeholder="Start typing an address..."
+                                required
+                                error={errors.address}
+                            />
+                        </div>
+
+                        {/* City / State / Zip */}
+                        {hasLocation && (
+                            <div className="flex gap-3">
+                                <div className="flex-1">
+                                    <label className="block text-xs font-semibold text-text-muted dark:text-gray-400 uppercase tracking-wider mb-1">City</label>
+                                    <input type="text" value={city} onChange={(e) => setCity(e.target.value)} className={fieldClass(errors.city)} />
+                                    {errors.city && <p className="text-xs text-red-500 mt-1">{errors.city}</p>}
+                                </div>
+                                <div className="w-24">
+                                    <label className="block text-xs font-semibold text-text-muted dark:text-gray-400 uppercase tracking-wider mb-1">State</label>
+                                    <input type="text" value={state} onChange={(e) => setState(e.target.value)} className={`${fieldClass(errors.state)} text-center`} />
+                                    {errors.state && <p className="text-xs text-red-500 mt-1">{errors.state}</p>}
+                                </div>
+                                <div className="w-24">
+                                    <label className="block text-xs font-semibold text-text-muted dark:text-gray-400 uppercase tracking-wider mb-1">Zip</label>
+                                    <input type="text" value={zipCode} onChange={(e) => setZipCode(e.target.value)} className={`${fieldClass(errors.zipCode)} text-center`} />
+                                    {errors.zipCode && <p className="text-xs text-red-500 mt-1">{errors.zipCode}</p>}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Map Preview */}
+                        {hasLocation && (
+                            <div className="rounded-xl overflow-hidden border border-border-light dark:border-border-dark h-40">
+                                <Map
+                                    center={{ lat: latitude, lng: longitude }}
+                                    zoom={14}
+                                    mapId="patient-address-map"
+                                    disableDefaultUI
+                                    className="w-full h-full"
+                                >
+                                    <AdvancedMarker position={{ lat: latitude, lng: longitude }} />
+                                </Map>
+                            </div>
+                        )}
+
+                        {/* Email (optional) */}
+                        <div>
+                            <label className="block text-sm font-medium text-text-main dark:text-white mb-1.5">
+                                Email <span className="text-text-muted dark:text-gray-400 font-normal text-xs">(Optional)</span>
+                            </label>
                             <input
                                 type="email"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
-                                placeholder="e.g. patient@example.com"
-                                className={inputClass(errors.email)}
+                                placeholder="patient@example.com"
+                                className={fieldClass(errors.email)}
                             />
+                            {errors.email && <p className="text-xs text-red-500 mt-1">{errors.email}</p>}
                         </div>
-                        {errors.email && (
-                            <p className="text-xs text-red-500 mt-1">{errors.email}</p>
-                        )}
-                    </div>
 
-                    {/* Phone */}
-                    <div>
-                        <label className="block text-sm font-medium text-text-main dark:text-white mb-1.5">
-                            Phone Number <span className="text-text-muted dark:text-gray-400 font-normal">(Optional)</span>
-                        </label>
-                        <div className={`flex items-center rounded-lg border overflow-hidden ${errors.phone ? "border-red-400 dark:border-red-600" : "border-border-light dark:border-border-dark"} bg-background-light dark:bg-background-dark`}>
-                            <span className="px-3 py-2.5 text-sm text-text-muted dark:text-gray-400 border-r border-border-light dark:border-border-dark select-none bg-slate-50 dark:bg-slate-800 shrink-0">
-                                +1
-                            </span>
-                            <input
-                                type="tel"
-                                value={phone.startsWith("+1") ? phone.slice(2) : phone}
-                                onChange={(e) => {
-                                    const digits = e.target.value.replace(/\D/g, "").slice(0, 10);
-                                    setPhone(digits ? `+1${digits}` : "");
-                                }}
-                                maxLength={10}
-                                placeholder="2025550123"
-                                className="flex-1 px-3 py-2.5 bg-transparent text-text-main dark:text-white text-sm focus:outline-none placeholder:text-text-muted/50"
-                            />
+                        {/* Phone (optional) */}
+                        <div>
+                            <label className="block text-sm font-medium text-text-main dark:text-white mb-1.5">
+                                Phone <span className="text-text-muted dark:text-gray-400 font-normal text-xs">(Optional)</span>
+                            </label>
+                            <div className={`flex items-center rounded-lg border overflow-hidden ${errors.phone ? "border-red-400 dark:border-red-600" : "border-border-light dark:border-border-dark"} bg-background-light dark:bg-background-dark`}>
+                                <span className="px-3 py-2.5 text-sm text-text-muted dark:text-gray-400 border-r border-border-light dark:border-border-dark select-none bg-slate-50 dark:bg-slate-800 shrink-0">
+                                    +1
+                                </span>
+                                <input
+                                    type="tel"
+                                    value={phone.startsWith("+1") ? phone.slice(2) : phone}
+                                    onChange={(e) => {
+                                        const digits = e.target.value.replace(/\D/g, "").slice(0, 10);
+                                        setPhone(digits ? `+1${digits}` : "");
+                                    }}
+                                    maxLength={10}
+                                    placeholder="2025550123"
+                                    className="flex-1 px-3 py-2.5 bg-transparent text-text-main dark:text-white text-sm focus:outline-none placeholder:text-text-muted/50"
+                                />
+                            </div>
+                            {errors.phone && <p className="text-xs text-red-500 mt-1">{errors.phone}</p>}
                         </div>
-                        {errors.phone ? (
-                            <p className="mt-1 text-xs text-red-500">{errors.phone}</p>
-                        ) : (
-                            <p className="mt-1.5 text-xs text-text-muted dark:text-gray-400">
-                                Optional — enter the 10-digit US number
-                            </p>
-                        )}
-                    </div>
 
-                    {/* Footer */}
-                    <div className="pt-4 flex items-center justify-end gap-3">
-                        <button
-                            type="button"
-                            onClick={onClose}
-                            className="px-4 py-2.5 text-sm font-medium text-text-muted dark:text-gray-400 hover:text-text-main dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors"
-                        >
-                            Cancel
-                        </button>
-                        <button
-                            type="submit"
-                            disabled={createPatient.isPending}
-                            className="px-5 py-2.5 text-sm font-semibold text-white bg-primary hover:bg-primary/90 rounded-lg shadow-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            {createPatient.isPending ? "Adding..." : "Add Patient"}
-                        </button>
-                    </div>
-                </form>
-            </div>
+                        {/* Footer */}
+                        <div className="pt-2 flex items-center justify-end gap-3">
+                            <button
+                                type="button"
+                                onClick={handleClose}
+                                disabled={createPatient.isPending}
+                                className="px-4 py-2.5 text-sm font-medium text-text-muted dark:text-gray-400 hover:text-text-main dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors disabled:opacity-50"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="submit"
+                                disabled={createPatient.isPending}
+                                className="px-5 py-2.5 text-sm font-semibold text-white bg-primary hover:bg-primary/90 rounded-lg shadow-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                {createPatient.isPending ? "Adding..." : "Add Patient"}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </APIProvider>
         </div>
-    )
-
+    );
 }

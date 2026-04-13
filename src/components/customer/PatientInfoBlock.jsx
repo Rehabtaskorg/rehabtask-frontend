@@ -1,4 +1,4 @@
-import { MdPerson, MdEmail, MdPhone } from "react-icons/md";
+import { MdPerson, MdEmail, MdPhone, MdLocationOn } from "react-icons/md";
 
 /**
  * Reusable Patient Info block for booking/request detail pages.
@@ -23,6 +23,14 @@ export default function PatientInfoBlock({ patient, note }) {
                 <p className="text-sm font-bold text-text-main dark:text-white">
                     {patient.fullName}
                 </p>
+                {patient.addressLine1 && (
+                    <div className="flex items-center gap-2 text-text-muted dark:text-gray-400">
+                        <MdLocationOn className="text-sm shrink-0" />
+                        <span className="text-sm">
+                            {patient.addressLine1}{patient.city ? `, ${patient.city}` : ""}{patient.state ? `, ${patient.state}` : ""}
+                        </span>
+                    </div>
+                )}
                 {patient.email && (
                     <div className="flex items-center gap-2 text-text-muted dark:text-gray-400">
                         <MdEmail className="text-sm shrink-0" />

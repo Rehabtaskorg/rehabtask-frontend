@@ -63,7 +63,7 @@ export default function AddressAutocomplete({
                 {
                     input,
                     componentRestrictions: { country: "us" },
-                    types: ["geocode"],
+                    types: ["address"],
                     sessionToken: sessionToken.current,
                 },
                 (results, status) => {
@@ -121,11 +121,25 @@ export default function AddressAutocomplete({
                         const stateComp = components.find((c) =>
                             c.types.includes("administrative_area_level_1")
                         );
+                        const zipComp = components.find((c) =>
+                            c.types.includes("postal_code")
+                        );
+                        const streetNumber = components.find((c) =>
+                            c.types.includes("street_number")
+                        );
+                        const route = components.find((c) =>
+                            c.types.includes("route")
+                        );
+                        const streetAddress = [streetNumber?.long_name, route?.long_name]
+                            .filter(Boolean)
+                            .join(" ");
 
                         onSelect?.({
                             formattedAddress: result.formatted_address,
+                            streetAddress: streetAddress || "",
                             city: cityComp?.long_name || "",
                             state: stateComp?.short_name || "",
+                            zipCode: zipComp?.long_name || "",
                             latitude: loc.lat(),
                             longitude: loc.lng(),
                         });
