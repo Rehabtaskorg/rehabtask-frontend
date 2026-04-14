@@ -41,7 +41,7 @@ const getRefundDisplay = (customerRefunds, fallbackRefundedAmount) => {
     const refund = customerRefunds?.[0];
     if (refund) {
         if (refund.status === "pending_connect") {
-            return { label: `${formatCurrency(refund.amount)} pending payout`, color: "text-amber-600 dark:text-amber-400 font-semibold" };
+            return { label: `${formatCurrency(refund.amount)} pending refund`, color: "text-amber-600 dark:text-amber-400 font-semibold" };
         }
         if (refund.status === "transferred") {
             return { label: `${formatCurrency(refund.amount)} sent to bank`, color: "text-emerald-600 dark:text-emerald-400 font-semibold" };
