@@ -36,22 +36,45 @@ const getInitials = (name) =>
     name?.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2) || "?";
 
 // Status display for a CustomerRefund (what the customer actually sees)
+// Build an aggregate refund label for a payment's row.
+// Sums per-status totals across all CustomerRefund rows for this payment.
+// Pending takes priority in the label since it's the actionable state.
 const getRefundDisplay = (customerRefunds, fallbackRefundedAmount) => {
-    // Most recent customer refund (if any)
-    const refund = customerRefunds?.[0];
-    if (refund) {
-        if (refund.status === "pending_connect") {
-            return { label: `${formatCurrency(refund.amount)} pending refund`, color: "text-amber-600 dark:text-amber-400 font-semibold" };
+    const refunds = customerRefunds || [];
+
+    if (refunds.length > 0) {
+        const sumByStatus = (status) => refunds
+            .filter(r => r.status === status)
+            .reduce((sum, r) => sum + parseFloat(r.amount), 0);
+
+        const pending = sumByStatus("pending_connect");
+        const transferred = sumByStatus("transferred");
+        const card = sumByStatus("refunded_to_card");
+        const completed = transferred + card;
+
+        // Priority: show pending if any (action needed); otherwise show completed total
+        if (pending > 0 && completed > 0) {
+            return {
+                label: `${formatCurrency(completed)} sent · ${formatCurrency(pending)} pending`,
+                color: "text-amber-600 dark:text-amber-400 font-semibold",
+            };
         }
-        if (refund.status === "transferred") {
-            return { label: `${formatCurrency(refund.amount)} sent to bank`, color: "text-emerald-600 dark:text-emerald-400 font-semibold" };
+        if (pending > 0) {
+            return { label: `${formatCurrency(pending)} pending refund`, color: "text-amber-600 dark:text-amber-400 font-semibold" };
         }
-        if (refund.status === "refunded_to_card") {
-            return { label: `${formatCurrency(refund.amount)} returned to card`, color: "text-emerald-600 dark:text-emerald-400 font-semibold" };
+        if (transferred > 0 && card === 0) {
+            return { label: `${formatCurrency(transferred)} sent to bank`, color: "text-emerald-600 dark:text-emerald-400 font-semibold" };
+        }
+        if (card > 0 && transferred === 0) {
+            return { label: `${formatCurrency(card)} returned to card`, color: "text-emerald-600 dark:text-emerald-400 font-semibold" };
+        }
+        if (completed > 0) {
+            return { label: `${formatCurrency(completed)} refunded`, color: "text-emerald-600 dark:text-emerald-400 font-semibold" };
         }
     }
-    // Legacy: payment.refundedAmount set via old card refund path
-    if (fallbackRefundedAmount) {
+
+    // Legacy: payment.refundedAmount set via old card refund path (no CustomerRefund row)
+    if (fallbackRefundedAmount && refunds.length === 0) {
         return { label: `${formatCurrency(fallbackRefundedAmount)} refunded`, color: "text-emerald-600 dark:text-emerald-400 font-semibold" };
     }
     return null;
@@ -376,20 +399,45 @@ export default function CustomerPaymentsPage() {
                                                                                     <span>{formatCurrency(payment.releasedAmount || payment.therapistPayout)}</span>
                                                                                 </div>
                                                                                 {(() => {
-                                                                                    const cr = payment.customerRefunds?.[0];
-                                                                                    const amount = cr?.amount || payment.refundedAmount;
-                                                                                    if (!amount) return null;
-                                                                                    const label = cr?.status === "pending_connect" ? "Refund Pending"
-                                                                                        : cr?.status === "transferred" ? "Refund Sent"
-                                                                                        : cr?.status === "refunded_to_card" ? "Refund Returned to Card"
-                                                                                        : "Refunded to You";
-                                                                                    const colorClass = cr?.status === "pending_connect"
-                                                                                        ? "text-amber-600 dark:text-amber-400"
-                                                                                        : "text-emerald-600 dark:text-emerald-400";
+                                                                                    const refunds = payment.customerRefunds || [];
+                                                                                    if (refunds.length === 0) {
+                                                                                        // Legacy: payment.refundedAmount only (no CustomerRefund rows)
+                                                                                        if (payment.refundedAmount) {
+                                                                                            return (
+                                                                                                <div className="flex justify-between font-semibold pt-1 border-t border-border-light dark:border-border-dark text-emerald-600 dark:text-emerald-400">
+                                                                                                    <span>Refunded to You</span>
+                                                                                                    <span>{formatCurrency(payment.refundedAmount)}</span>
+                                                                                                </div>
+                                                                                            );
+                                                                                        }
+                                                                                        return null;
+                                                                                    }
+                                                                                    const sumByStatus = (status) => refunds
+                                                                                        .filter(r => r.status === status)
+                                                                                        .reduce((sum, r) => sum + parseFloat(r.amount), 0);
+                                                                                    const pending = sumByStatus("pending_connect");
+                                                                                    const transferred = sumByStatus("transferred");
+                                                                                    const card = sumByStatus("refunded_to_card");
                                                                                     return (
-                                                                                        <div className={`flex justify-between font-semibold pt-1 border-t border-border-light dark:border-border-dark ${colorClass}`}>
-                                                                                            <span>{label}</span>
-                                                                                            <span>{formatCurrency(amount)}</span>
+                                                                                        <div className="pt-1 border-t border-border-light dark:border-border-dark space-y-1">
+                                                                                            {transferred > 0 && (
+                                                                                                <div className="flex justify-between font-semibold text-emerald-600 dark:text-emerald-400">
+                                                                                                    <span>Refund Sent to Bank</span>
+                                                                                                    <span>{formatCurrency(transferred)}</span>
+                                                                                                </div>
+                                                                                            )}
+                                                                                            {card > 0 && (
+                                                                                                <div className="flex justify-between font-semibold text-emerald-600 dark:text-emerald-400">
+                                                                                                    <span>Refund Returned to Card</span>
+                                                                                                    <span>{formatCurrency(card)}</span>
+                                                                                                </div>
+                                                                                            )}
+                                                                                            {pending > 0 && (
+                                                                                                <div className="flex justify-between font-semibold text-amber-600 dark:text-amber-400">
+                                                                                                    <span>Refund Pending</span>
+                                                                                                    <span>{formatCurrency(pending)}</span>
+                                                                                                </div>
+                                                                                            )}
                                                                                         </div>
                                                                                     );
                                                                                 })()}
@@ -419,38 +467,36 @@ export default function CustomerPaymentsPage() {
                                                                                         <p className="text-[10px] text-text-muted dark:text-gray-400">{formatDate(payment.releasedAt)}</p>
                                                                                     </div>
                                                                                 )}
-                                                                                {(() => {
-                                                                                    const cr = payment.customerRefunds?.[0];
-                                                                                    if (!cr) return null;
+                                                                                {(payment.customerRefunds || []).map((cr) => {
                                                                                     if (cr.status === "pending_connect") {
                                                                                         return (
-                                                                                            <div className="relative pl-5">
+                                                                                            <div key={cr.id} className="relative pl-5">
                                                                                                 <div className="absolute left-0 top-1 w-3 h-3 rounded-full bg-amber-500 animate-pulse" />
-                                                                                                <p className="text-xs text-text-main dark:text-white">Refund pending — awaiting payout setup</p>
+                                                                                                <p className="text-xs text-text-main dark:text-white">Refund pending ({formatCurrency(cr.amount)}) — awaiting payout setup</p>
                                                                                                 <p className="text-[10px] text-text-muted dark:text-gray-400">{formatDate(cr.createdAt)}</p>
                                                                                             </div>
                                                                                         );
                                                                                     }
                                                                                     if (cr.status === "transferred") {
                                                                                         return (
-                                                                                            <div className="relative pl-5">
+                                                                                            <div key={cr.id} className="relative pl-5">
                                                                                                 <div className="absolute left-0 top-1 w-3 h-3 rounded-full bg-emerald-500" />
-                                                                                                <p className="text-xs text-text-main dark:text-white">Refund sent to bank</p>
+                                                                                                <p className="text-xs text-text-main dark:text-white">Refund sent to bank ({formatCurrency(cr.amount)})</p>
                                                                                                 <p className="text-[10px] text-text-muted dark:text-gray-400">{formatDate(cr.transferredAt)}</p>
                                                                                             </div>
                                                                                         );
                                                                                     }
                                                                                     if (cr.status === "refunded_to_card") {
                                                                                         return (
-                                                                                            <div className="relative pl-5">
+                                                                                            <div key={cr.id} className="relative pl-5">
                                                                                                 <div className="absolute left-0 top-1 w-3 h-3 rounded-full bg-emerald-500" />
-                                                                                                <p className="text-xs text-text-main dark:text-white">Refund returned to card</p>
+                                                                                                <p className="text-xs text-text-main dark:text-white">Refund returned to card ({formatCurrency(cr.amount)})</p>
                                                                                                 <p className="text-[10px] text-text-muted dark:text-gray-400">{formatDate(cr.fallbackRefundAt)}</p>
                                                                                             </div>
                                                                                         );
                                                                                     }
                                                                                     return null;
-                                                                                })()}
+                                                                                })}
                                                                                 {!payment.customerRefunds?.[0] && payment.refundedAt && (
                                                                                     <div className="relative pl-5">
                                                                                         <div className="absolute left-0 top-1 w-3 h-3 rounded-full bg-amber-500" />
