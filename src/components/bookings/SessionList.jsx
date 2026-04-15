@@ -67,7 +67,11 @@ export default function SessionList({
 
     const totalSessions = sessions.length;
     const confirmedCount = sessions.filter(s => s.status === "confirmed_by_customer").length;
-    const progressPercent = totalSessions > 0 ? Math.round((confirmedCount / totalSessions) * 100) : 0;
+    // Missed and cancelled sessions are out of the equation — they will never complete.
+    const missedOrCancelledCount = sessions.filter(s => s.status === "missed" || s.status === "cancelled").length;
+    const deliverableCount = Math.max(0, totalSessions - missedOrCancelledCount);
+    const progressDenominator = deliverableCount > 0 ? deliverableCount : totalSessions;
+    const progressPercent = progressDenominator > 0 ? Math.round((confirmedCount / progressDenominator) * 100) : 0;
 
     const todayStr = new Date().toISOString().slice(0, 16);
 
@@ -128,7 +132,12 @@ export default function SessionList({
                     Treatment Plan
                 </h3>
                 <span className="text-sm font-semibold text-text-muted dark:text-slate-400">
-                    {confirmedCount} of {totalSessions} completed
+                    {confirmedCount} of {progressDenominator} completed
+                    {missedOrCancelledCount > 0 && (
+                        <span className="text-xs text-text-muted/70 dark:text-slate-500 ml-1">
+                            ({missedOrCancelledCount} {sessions.some(s => s.status === "missed") ? "missed" : "cancelled"})
+                        </span>
+                    )}
                 </span>
             </div>
 

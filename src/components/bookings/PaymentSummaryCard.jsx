@@ -66,13 +66,32 @@ export default function PaymentSummaryCard({ booking, role, onAction }) {
     const releasedAmount = payment?.releasedAmount ? parseFloat(payment.releasedAmount) : null;
     const isPartialRelease = payment?.status === "partially_released";
 
+    // Deliverable sessions = the ones still capable of generating a payout.
+    // Missed and cancelled sessions are removed from the equation (already refunded).
+    // For multi-session bookings: per-session rate is fixed, so payout shrinks linearly.
+    const missedOrCancelledCount = sessions.filter(s => s.status === "missed" || s.status === "cancelled").length;
+    const deliverableSessionCount = Math.max(0, totalSessions - missedOrCancelledCount);
+    const hasReducedScope = missedOrCancelledCount > 0 && payment && totalSessions > 0;
+
+    // Recalculate the achievable totals after refunds for missed/cancelled sessions.
+    // Per-session math = (originalTotal / originalSessions) × deliverableSessions
+    const effectivePayout = hasReducedScope && fullPayout != null
+        ? parseFloat(((fullPayout / totalSessions) * deliverableSessionCount).toFixed(2))
+        : fullPayout;
+    const effectivePlatformFee = hasReducedScope && fullPlatformFee != null
+        ? parseFloat(((fullPlatformFee / totalSessions) * deliverableSessionCount).toFixed(2))
+        : fullPlatformFee;
+    const effectiveTotalAmount = hasReducedScope
+        ? parseFloat(((totalAmount / totalSessions) * deliverableSessionCount).toFixed(2))
+        : totalAmount;
+
     // For finalized bookings, show actual released amounts (not the full plan totals)
     const platformFee = isFinalized && releasedAmount !== null && fullPayout > 0
         ? parseFloat((fullPlatformFee * (releasedAmount / fullPayout)).toFixed(2))
-        : fullPlatformFee;
+        : effectivePlatformFee;
     const payout = isFinalized && releasedAmount !== null
         ? releasedAmount
-        : fullPayout;
+        : effectivePayout;
 
     const paymentConfig = payment ? PAYMENT_STATUS_CONFIG[payment.status] : null;
     const PaymentIcon = paymentConfig?.icon || MdPayments;
@@ -117,6 +136,12 @@ export default function PaymentSummaryCard({ booking, role, onAction }) {
                                 {formatCurrency(totalAmount)}
                             </span>
                         </div>
+                        {hasReducedScope && (
+                            <div className="flex items-center justify-between text-xs text-text-muted dark:text-gray-400">
+                                <span>{missedOrCancelledCount} session{missedOrCancelledCount > 1 ? "s" : ""} {sessions.some(s => s.status === "missed") ? "missed" : "cancelled"}</span>
+                                <span>-{formatCurrency(totalAmount - effectiveTotalAmount)}</span>
+                            </div>
+                        )}
                     </>
                 ) : (
                     <div className="flex items-center justify-between">
@@ -138,18 +163,25 @@ export default function PaymentSummaryCard({ booking, role, onAction }) {
                         </div>
                         <div className="border-t border-border-light dark:border-border-dark pt-3">
                             <div className="flex items-center justify-between">
-                                <span className="text-sm font-semibold text-text-main dark:text-white">Your Earnings</span>
+                                <span className="text-sm font-semibold text-text-main dark:text-white">
+                                    {hasReducedScope ? "Max Earnings" : "Your Earnings"}
+                                </span>
                                 <span className="text-lg font-bold text-emerald-600 dark:text-emerald-400">
                                     {formatCurrency(payout)}
                                 </span>
                             </div>
+                            {hasReducedScope && (
+                                <p className="text-[11px] text-text-muted dark:text-gray-400 mt-0.5">
+                                    Adjusted for {missedOrCancelledCount} {sessions.some(s => s.status === "missed") ? "missed" : "cancelled"} session{missedOrCancelledCount > 1 ? "s" : ""}
+                                </p>
+                            )}
                             {isPartialRelease && releasedAmount !== null && (
                                 <div className="mt-2 bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg px-3 py-2">
                                     <p className="text-xs font-medium text-orange-700 dark:text-orange-300">
                                         Released so far: {formatCurrency(releasedAmount)} of {formatCurrency(payout)}
                                     </p>
                                     <p className="text-xs text-orange-600 dark:text-orange-400 mt-0.5">
-                                        Remaining {formatCurrency(payout - releasedAmount)} held in escrow
+                                        Remaining {formatCurrency(Math.max(0, payout - releasedAmount))} held in escrow
                                     </p>
                                 </div>
                             )}

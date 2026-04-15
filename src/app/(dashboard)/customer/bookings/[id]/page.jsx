@@ -905,16 +905,28 @@ export default function CustomerBookingDetailPage() {
                             </div>
                         </div>
                     )}
-                    {payment?.status === "partially_released" && (
-                        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4">
-                            <div className="flex items-start gap-2">
-                                <MdInfo className="text-blue-600 dark:text-blue-400 text-sm mt-0.5 shrink-0" />
-                                <p className="text-xs text-blue-700 dark:text-blue-300">
-                                    {formatCurrency(parseFloat(payment.releasedAmount ?? 0))} of {formatCurrency(parseFloat(payment.amount))} released to therapist. Remaining funds are held in escrow.
-                                </p>
+                    {payment?.status === "partially_released" && (() => {
+                        const totalAmount = parseFloat(payment.amount);
+                        const releasedAmount = parseFloat(payment.releasedAmount ?? 0);
+                        const refundedAmount = parseFloat(payment.refundedAmount ?? 0);
+                        const stillInEscrow = Math.max(0, totalAmount - releasedAmount - refundedAmount);
+                        return (
+                            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4">
+                                <div className="flex items-start gap-2">
+                                    <MdInfo className="text-blue-600 dark:text-blue-400 text-sm mt-0.5 shrink-0" />
+                                    <div className="text-xs text-blue-700 dark:text-blue-300 space-y-0.5">
+                                        <p>{formatCurrency(releasedAmount)} paid to therapist for confirmed sessions.</p>
+                                        {refundedAmount > 0 && (
+                                            <p>{formatCurrency(refundedAmount)} refunded to you for missed/undelivered sessions.</p>
+                                        )}
+                                        {stillInEscrow > 0 && (
+                                            <p>{formatCurrency(stillInEscrow)} held in escrow for upcoming sessions.</p>
+                                        )}
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                    )}
+                        );
+                    })()}
                     {booking.status === "finalized" && payment?.refundedAmount && (
                         <div className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl p-4">
                             <div className="flex items-start gap-2">

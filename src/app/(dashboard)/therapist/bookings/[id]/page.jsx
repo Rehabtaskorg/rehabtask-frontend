@@ -702,16 +702,27 @@ export default function TherapistBookingDetailPage() {
                             </div>
                         </div>
                     )}
-                    {payment?.status === "partially_released" && (
-                        <div className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl p-4">
-                            <div className="flex items-start gap-2">
-                                <MdCheckCircle className="text-emerald-600 dark:text-emerald-400 text-sm mt-0.5 shrink-0" />
-                                <p className="text-xs text-emerald-700 dark:text-emerald-300">
-                                    {formatCurrency(parseFloat(payment.releasedAmount ?? 0))} of {formatCurrency(parseFloat(payment.therapistPayout))} released ({confirmedSessionCount} of {sessions.length} sessions confirmed).
-                                </p>
+                    {payment?.status === "partially_released" && (() => {
+                        const totalSessionCount = sessions.length;
+                        const missedOrCancelled = sessions.filter(s => s.status === "missed" || s.status === "cancelled").length;
+                        const deliverable = Math.max(0, totalSessionCount - missedOrCancelled);
+                        const fullPayout = parseFloat(payment.therapistPayout);
+                        // Adjusted max payout = per-session payout × deliverable sessions
+                        const adjustedMaxPayout = totalSessionCount > 0
+                            ? parseFloat(((fullPayout / totalSessionCount) * deliverable).toFixed(2))
+                            : fullPayout;
+                        const released = parseFloat(payment.releasedAmount ?? 0);
+                        return (
+                            <div className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl p-4">
+                                <div className="flex items-start gap-2">
+                                    <MdCheckCircle className="text-emerald-600 dark:text-emerald-400 text-sm mt-0.5 shrink-0" />
+                                    <p className="text-xs text-emerald-700 dark:text-emerald-300">
+                                        {formatCurrency(released)} of {formatCurrency(adjustedMaxPayout)} released ({confirmedSessionCount} of {deliverable} deliverable session{deliverable !== 1 ? "s" : ""} confirmed{missedOrCancelled > 0 ? `, ${missedOrCancelled} ${sessions.some(s => s.status === "missed") ? "missed" : "cancelled"}` : ""}).
+                                    </p>
+                                </div>
                             </div>
-                        </div>
-                    )}
+                        );
+                    })()}
                 </div>
             </div>
 
