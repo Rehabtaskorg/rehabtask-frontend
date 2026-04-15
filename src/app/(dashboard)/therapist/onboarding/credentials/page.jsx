@@ -28,13 +28,32 @@ export default function CredentialsPage() {
     const uploadedDocs = credentials.licenseDocuments;
 
     const { register, handleSubmit, formState: { errors } } = useForm({
-        resolver: zodResolver(credentialsSchema.omit({ licenseDocuments: true }).extend({
-            ratePerVisit: z.coerce.number().min(0).max(10000).optional().nullable().transform(val => val === 0 ? null : val),
-        })),
+        resolver: zodResolver(
+            credentialsSchema
+                .omit({ licenseDocuments: true })
+                .extend({
+                    ratePerVisit: z.coerce.number().min(0).max(10000).optional().nullable().transform(val => val === 0 ? null : val),
+                    attemptedVisitRate: z.preprocess(
+                        (val) => (val === "" || val === undefined ? null : val),
+                        z.coerce.number().min(0).max(10000).nullable(),
+                    ),
+                })
+                .refine(
+                    (data) => {
+                        if (data.attemptedVisitRate == null || data.ratePerVisit == null) return true;
+                        return data.attemptedVisitRate <= data.ratePerVisit;
+                    },
+                    {
+                        message: "Cannot be greater than your session rate",
+                        path: ["attemptedVisitRate"],
+                    }
+                )
+        ),
         defaultValues: {
             licenseNumber: credentials.licenseNumber,
             licenseState: credentials.licenseState,
             ratePerVisit: "",
+            attemptedVisitRate: "",
         },
     });
 
@@ -53,6 +72,7 @@ export default function CredentialsPage() {
                 licenseNumber: data.licenseNumber,
                 licenseState: data.licenseState,
                 ...(data.ratePerVisit != null && data.ratePerVisit !== "" && { ratePerVisit: data.ratePerVisit }),
+                ...(data.attemptedVisitRate != null && { attemptedVisitRate: data.attemptedVisitRate }),
                 licenseDocuments: credentials.licenseDocuments.map(doc => ({
                     path: doc.path,
                     fileName: doc.fileName,
@@ -245,6 +265,28 @@ export default function CredentialsPage() {
                                 placeholder="e.g. 85.00"
                             />
                             <p className="text-xs text-text-muted">Your standard rate per session. This will pre-fill your offers and show on your profile. You can adjust per offer.</p>
+                        </div>
+
+                        {/* Attempted Visit Rate */}
+                        <div className="flex flex-col gap-2 mt-4">
+                            <label className="text-text-main dark:text-white text-sm font-semibold">
+                                Attempted Visit Rate ($) <span className="text-gray-400 font-normal ml-1">(optional)</span>
+                            </label>
+                            <input
+                                type="number"
+                                min="0"
+                                max="10000"
+                                step="0.01"
+                                {...register("attemptedVisitRate")}
+                                className="w-full px-4 py-3 h-12 rounded-lg border border-border-light dark:border-border-dark bg-input-light dark:bg-input-dark text-text-main dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all md:w-1/2"
+                                placeholder="e.g. 40.00"
+                            />
+                            {errors.attemptedVisitRate && (
+                                <p className="text-red-500 text-sm">{errors.attemptedVisitRate.message}</p>
+                            )}
+                            <p className="text-xs text-text-muted">
+                                Charged when you arrive but the patient isn&apos;t home. Must be less than or equal to your session rate. Leave blank if you won&apos;t charge for no-shows. You can change this later.
+                            </p>
                         </div>
 
                         {/* File Upload */}

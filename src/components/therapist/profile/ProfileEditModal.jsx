@@ -39,11 +39,28 @@ const profileEditSchema = z.object({
         .optional()
         .nullable()
         .transform(val => val === 0 ? null : val),
+    attemptedVisitRate: z.preprocess(
+        (val) => (val === "" || val === undefined ? null : val),
+        z.coerce
+            .number({ invalid_type_error: "Must be a number" })
+            .min(0, "Must be 0 or greater")
+            .max(10000, "Must be $10,000 or less")
+            .nullable()
+    ),
     professionalSummary: z
         .string()
         .min(100, "Must be at least 100 characters")
         .max(2000, "Cannot exceed 2000 characters"),
-});
+}).refine(
+    (data) => {
+        if (data.attemptedVisitRate == null || data.ratePerVisit == null) return true;
+        return data.attemptedVisitRate <= data.ratePerVisit;
+    },
+    {
+        message: "Cannot be greater than your session rate",
+        path: ["attemptedVisitRate"],
+    }
+);
 
 const ProfileEditModal = ({ isOpen, onClose, profile, onSuccess }) => {
     const [photoUrl, setPhotoUrl] = useState(profile?.profilePhotoUrl || null);
@@ -63,6 +80,7 @@ const ProfileEditModal = ({ isOpen, onClose, profile, onSuccess }) => {
             yearsOfExperience: profile?.yearsOfExperience || 0,
             specialization: profile?.specialization || "",
             ratePerVisit: profile?.ratePerVisit ? parseFloat(profile.ratePerVisit) : "",
+            attemptedVisitRate: profile?.attemptedVisitRate != null ? parseFloat(profile.attemptedVisitRate) : "",
             professionalSummary: profile?.professionalSummary || "",
         }
     })
@@ -251,6 +269,22 @@ const ProfileEditModal = ({ isOpen, onClose, profile, onSuccess }) => {
                             error={errors.ratePerVisit?.message}
                             {...register("ratePerVisit")}
                         />
+                    </div>
+
+                    <div className="space-y-1">
+                        <Input
+                            label="Attempted Visit Rate ($) — optional"
+                            type="number"
+                            min={0}
+                            max={10000}
+                            step="0.01"
+                            placeholder="e.g. 40.00"
+                            error={errors.attemptedVisitRate?.message}
+                            {...register("attemptedVisitRate")}
+                        />
+                        <p className="text-xs text-text-muted dark:text-slate-400">
+                            Charged when you arrive but the patient isn&apos;t home. Must be less than or equal to your session rate. Leave blank if you won&apos;t charge for no-shows. Changes only apply to new offers — existing bookings keep their original rate.
+                        </p>
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">

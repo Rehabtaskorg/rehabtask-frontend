@@ -68,24 +68,43 @@ export default function PaymentSummaryCard({ booking, role, onAction }) {
     const releasedAmount = payment?.releasedAmount ? parseFloat(payment.releasedAmount) : null;
     const isPartialRelease = payment?.status === "partially_released";
 
-    // Deliverable sessions = the ones still capable of generating a payout.
-    // Missed and cancelled sessions are removed from the equation (already refunded).
-    // For multi-session bookings: per-session rate is fixed, so payout shrinks linearly.
+    // Deliverable sessions split:
+    //   - missed/cancelled: contribute $0 to therapist (full refund to customer)
+    //   - attempted: contribute attemptedRateCharged to therapist (partial refund to customer)
+    //   - all others: contribute full per-session rate
+    // For multi-session math we treat sessions as units of value. Missed/cancelled
+    // shrink the deliverable count; attempted still counts but at a discounted rate.
     const missedOrCancelledCount = sessions.filter(s => s.status === "missed" || s.status === "cancelled").length;
-    const deliverableSessionCount = Math.max(0, totalSessions - missedOrCancelledCount);
-    const hasReducedScope = missedOrCancelledCount > 0 && payment && totalSessions > 0;
+    const attemptedSessions = sessions.filter(s => s.status === "attempted");
+    const attemptedRevenue = attemptedSessions.reduce(
+        (sum, s) => sum + (s.attemptedRateCharged != null ? parseFloat(s.attemptedRateCharged) : 0),
+        0
+    );
+    // Discount = the value lost vs. a fully-confirmed multi-session booking.
+    // Per-session base value (gross) = totalAmount / totalSessions.
+    // Loss from missed/cancelled = full per-session value each.
+    // Loss from attempted = (per-session rate - attempted rate) each.
+    const perSessionValue = totalSessions > 0 ? totalAmount / totalSessions : 0;
+    const lossFromMissedCancelled = missedOrCancelledCount * perSessionValue;
+    const lossFromAttempted = attemptedSessions.reduce(
+        (sum) => sum + perSessionValue,
+        0
+    ) - attemptedRevenue;
+    const totalDiscount = parseFloat((lossFromMissedCancelled + Math.max(0, lossFromAttempted)).toFixed(2));
+    const hasReducedScope = totalDiscount > 0 && payment && totalSessions > 0;
 
-    // Recalculate the achievable totals after refunds for missed/cancelled sessions.
-    // Per-session math = (originalTotal / originalSessions) × deliverableSessions
-    const effectivePayout = hasReducedScope && fullPayout != null
-        ? parseFloat(((fullPayout / totalSessions) * deliverableSessionCount).toFixed(2))
-        : fullPayout;
-    const effectivePlatformFee = hasReducedScope && fullPlatformFee != null
-        ? parseFloat(((fullPlatformFee / totalSessions) * deliverableSessionCount).toFixed(2))
-        : fullPlatformFee;
+    // Effective totals are the original minus the proportional loss. Commission
+    // proportions match the original ratio so the therapist's net stays fair.
+    const feeRatio = totalAmount > 0 && fullPlatformFee != null ? fullPlatformFee / totalAmount : 0;
     const effectiveTotalAmount = hasReducedScope
-        ? parseFloat(((totalAmount / totalSessions) * deliverableSessionCount).toFixed(2))
+        ? parseFloat((totalAmount - totalDiscount).toFixed(2))
         : totalAmount;
+    const effectivePlatformFee = hasReducedScope && fullPlatformFee != null
+        ? parseFloat((effectiveTotalAmount * feeRatio).toFixed(2))
+        : fullPlatformFee;
+    const effectivePayout = hasReducedScope && fullPayout != null
+        ? parseFloat((effectiveTotalAmount - effectivePlatformFee).toFixed(2))
+        : fullPayout;
 
     // For finalized bookings, show actual released amounts (not the full plan totals)
     const platformFee = isFinalized && releasedAmount !== null && fullPayout > 0
@@ -140,7 +159,19 @@ export default function PaymentSummaryCard({ booking, role, onAction }) {
                         </div>
                         {hasReducedScope && (
                             <div className="flex items-center justify-between text-xs text-text-muted dark:text-gray-400">
-                                <span>{missedOrCancelledCount} session{missedOrCancelledCount > 1 ? "s" : ""} {sessions.some(s => s.status === "missed") ? "missed" : "cancelled"}</span>
+                                <span>
+                                    {(() => {
+                                        const parts = [];
+                                        if (missedOrCancelledCount > 0) {
+                                            const label = sessions.some(s => s.status === "missed") ? "missed" : "cancelled";
+                                            parts.push(`${missedOrCancelledCount} ${label}`);
+                                        }
+                                        if (attemptedSessions.length > 0) {
+                                            parts.push(`${attemptedSessions.length} attempted`);
+                                        }
+                                        return `${parts.join(" + ")} session${(missedOrCancelledCount + attemptedSessions.length) > 1 ? "s" : ""}`;
+                                    })()}
+                                </span>
                                 <span>-{formatCurrency(totalAmount - effectiveTotalAmount)}</span>
                             </div>
                         )}
@@ -174,7 +205,16 @@ export default function PaymentSummaryCard({ booking, role, onAction }) {
                             </div>
                             {hasReducedScope && (
                                 <p className="text-[11px] text-text-muted dark:text-gray-400 mt-0.5">
-                                    Adjusted for {missedOrCancelledCount} {sessions.some(s => s.status === "missed") ? "missed" : "cancelled"} session{missedOrCancelledCount > 1 ? "s" : ""}
+                                    Adjusted for {(() => {
+                                        const parts = [];
+                                        if (missedOrCancelledCount > 0) {
+                                            parts.push(`${missedOrCancelledCount} ${sessions.some(s => s.status === "missed") ? "missed" : "cancelled"}`);
+                                        }
+                                        if (attemptedSessions.length > 0) {
+                                            parts.push(`${attemptedSessions.length} attempted`);
+                                        }
+                                        return `${parts.join(" + ")} session${(missedOrCancelledCount + attemptedSessions.length) > 1 ? "s" : ""}`;
+                                    })()}
                                 </p>
                             )}
                             {isPartialRelease && releasedAmount !== null && (

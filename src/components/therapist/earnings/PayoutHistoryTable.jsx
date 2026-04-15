@@ -47,18 +47,33 @@ function computePayoutFigures(payment) {
 
     const confirmedCount = sessions.filter(s => s.status === "confirmed_by_customer").length;
     const missedOrCancelledCount = sessions.filter(s => s.status === "missed" || s.status === "cancelled").length;
+    // Attempted sessions earn the therapist a partial fee (attemptedRateCharged)
+    // instead of the full per-session rate. We treat them as "delivered at a discount."
+    const attemptedSessions = sessions.filter(s => s.status === "attempted");
+    const attemptedCount = attemptedSessions.length;
+    const attemptedRevenue = attemptedSessions.reduce(
+        (sum, s) => sum + (s.attemptedRateCharged != null ? parseFloat(s.attemptedRateCharged) : 0),
+        0
+    );
     const deliverableCount = Math.max(0, totalSessionCount - missedOrCancelledCount);
-    const hasReducedScope = missedOrCancelledCount > 0 && totalSessionCount > 1;
+    // Discount accumulator (gross dollars lost vs. an all-confirmed booking)
+    const perSessionValue = totalSessionCount > 0 ? totalAmount / totalSessionCount : 0;
+    const lossFromMissedCancelled = missedOrCancelledCount * perSessionValue;
+    const lossFromAttempted = Math.max(0, attemptedCount * perSessionValue - attemptedRevenue);
+    const totalDiscount = parseFloat((lossFromMissedCancelled + lossFromAttempted).toFixed(2));
+    const hasReducedScope = totalDiscount > 0 && totalSessionCount > 1;
 
-    // Prorate totals by deliverable fraction
+    // Adjusted totals subtract the discount, with commission held at the same ratio
+    // so the therapist's net split stays consistent with the original escrow math.
     const adjustedTotalAmount = hasReducedScope
-        ? parseFloat(((totalAmount / totalSessionCount) * deliverableCount).toFixed(2))
+        ? parseFloat((totalAmount - totalDiscount).toFixed(2))
         : totalAmount;
+    const feeRatio = totalAmount > 0 ? fullFee / totalAmount : 0;
     const adjustedFee = hasReducedScope
-        ? parseFloat(((fullFee / totalSessionCount) * deliverableCount).toFixed(2))
+        ? parseFloat((adjustedTotalAmount * feeRatio).toFixed(2))
         : fullFee;
     const adjustedPayout = hasReducedScope
-        ? parseFloat(((fullPayout / totalSessionCount) * deliverableCount).toFixed(2))
+        ? parseFloat((adjustedTotalAmount - adjustedFee).toFixed(2))
         : fullPayout;
 
     const feePercent = adjustedTotalAmount > 0
@@ -69,6 +84,7 @@ function computePayoutFigures(payment) {
         totalSessionCount,
         confirmedCount,
         missedOrCancelledCount,
+        attemptedCount,
         deliverableCount,
         hasReducedScope,
         fee: adjustedFee,
@@ -170,11 +186,10 @@ export default function PayoutHistoryTable({ payments }) {
                         <button
                             key={tab.key}
                             onClick={() => handleFilterChange(tab.key)}
-                            className={`flex items-center gap-1.5 px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-lg transition-colors ${
-                                activeFilter === tab.key
-                                    ? "bg-primary/10 text-primary"
-                                    : "text-text-muted dark:text-slate-500 hover:text-text-main dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800"
-                            }`}
+                            className={`flex items-center gap-1.5 px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-lg transition-colors ${activeFilter === tab.key
+                                ? "bg-primary/10 text-primary"
+                                : "text-text-muted dark:text-slate-500 hover:text-text-main dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800"
+                                }`}
                         >
                             {tab.dotColor && <div className={`w-1.5 h-1.5 rounded-full ${tab.dotColor}`} />}
                             {tab.label}
@@ -210,7 +225,7 @@ export default function PayoutHistoryTable({ payments }) {
                     <div className="hidden lg:block overflow-x-auto">
                         <table className="w-full text-left">
                             <thead>
-                                <tr className="bg-slate-50 dark:bg-[#101922]/50 text-text-muted dark:text-slate-500 text-[10px] font-bold uppercase tracking-wider">
+                                <tr className="bg-slate-50 dark:bg-background-dark/50 text-text-muted dark:text-slate-500 text-[10px] font-bold uppercase tracking-wider">
                                     <th className="px-6 py-3">Customer</th>
                                     <th className="px-4 py-3">Rate</th>
                                     <th className="px-4 py-3">Sessions</th>
@@ -231,7 +246,7 @@ export default function PayoutHistoryTable({ payments }) {
                                         <tr
                                             key={p.id}
                                             onClick={() => handleRowClick(p.bookingId)}
-                                            className="hover:bg-slate-50 dark:hover:bg-white/[0.03] transition-colors cursor-pointer"
+                                            className="hover:bg-slate-50 dark:hover:bg-white/3 transition-colors cursor-pointer"
                                         >
                                             <td className="px-6 py-4"><CustomerCell payment={p} /></td>
                                             <td className="px-4 py-4">
@@ -250,7 +265,10 @@ export default function PayoutHistoryTable({ payments }) {
                                                         </span>
                                                         {figures.hasReducedScope && (
                                                             <p className="text-[10px] text-text-muted dark:text-slate-500 mt-0.5">
-                                                                {figures.missedOrCancelledCount} missed/cancelled
+                                                                {[
+                                                                    figures.missedOrCancelledCount > 0 && `${figures.missedOrCancelledCount} missed/cancelled`,
+                                                                    figures.attemptedCount > 0 && `${figures.attemptedCount} attempted`,
+                                                                ].filter(Boolean).join(" · ")}
                                                             </p>
                                                         )}
                                                         <SessionProgress payment={p} />
@@ -298,7 +316,7 @@ export default function PayoutHistoryTable({ payments }) {
                                 <div
                                     key={p.id}
                                     onClick={() => handleRowClick(p.bookingId)}
-                                    className="p-4 hover:bg-slate-50 dark:hover:bg-white/[0.03] transition-colors cursor-pointer"
+                                    className="p-4 hover:bg-slate-50 dark:hover:bg-white/3 transition-colors cursor-pointer"
                                 >
                                     <div className="flex justify-between items-start mb-3">
                                         <CustomerCell payment={p} />
@@ -330,7 +348,10 @@ export default function PayoutHistoryTable({ payments }) {
                                         <div className="mt-2">
                                             <p className="text-[10px] text-text-muted dark:text-slate-500">
                                                 {figures.confirmedCount} of {figures.deliverableCount} sessions confirmed
-                                                {figures.hasReducedScope && ` (${figures.missedOrCancelledCount} missed/cancelled)`}
+                                                {figures.hasReducedScope && ` (${[
+                                                    figures.missedOrCancelledCount > 0 && `${figures.missedOrCancelledCount} missed/cancelled`,
+                                                    figures.attemptedCount > 0 && `${figures.attemptedCount} attempted`,
+                                                ].filter(Boolean).join(" · ")})`}
                                             </p>
                                             <SessionProgress payment={p} />
                                         </div>
@@ -358,11 +379,10 @@ export default function PayoutHistoryTable({ payments }) {
                                     <button
                                         key={page}
                                         onClick={() => setCurrentPage(page)}
-                                        className={`px-3 py-1 rounded text-xs font-bold transition-colors ${
-                                            currentPage === page
-                                                ? "bg-primary text-white"
-                                                : "border border-border-light dark:border-border-dark text-text-muted dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
-                                        }`}
+                                        className={`px-3 py-1 rounded text-xs font-bold transition-colors ${currentPage === page
+                                            ? "bg-primary text-white"
+                                            : "border border-border-light dark:border-border-dark text-text-muted dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
+                                            }`}
                                     >
                                         {page}
                                     </button>

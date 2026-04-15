@@ -52,6 +52,9 @@ export const bookingsApi = {
     markSessionMissedByCustomer: async (sessionId, reason) => {
         return api.post(`/sessions/${sessionId}/mark-missed-by-customer`, { reason });
     },
+    markSessionAttempted: async (sessionId, reason) => {
+        return api.post(`/sessions/${sessionId}/mark-attempted`, { reason });
+    },
 
     // Payment endpoints
     requestRefund: async (bookingId, reason) => {

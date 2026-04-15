@@ -15,6 +15,7 @@ import SessionList from "@/components/bookings/SessionList";
 import PaymentSummaryCard from "@/components/bookings/PaymentSummaryCard";
 import SubmitRevisionModal from "@/components/shared/sessions/SubmitRevisionModal";
 import MarkSessionMissedModal from "@/components/shared/sessions/MarkSessionMissedModal";
+import MarkSessionAttemptedModal from "@/components/shared/sessions/MarkSessionAttemptedModal";
 import RevisionStatusBanner from "@/components/shared/sessions/RevisionStatusBanner";
 import { formatCurrency } from "@/utils/messages";
 import { usePageTitle } from "@/hooks/usePageTitle";
@@ -42,6 +43,7 @@ export default function TherapistBookingDetailPage() {
     const [showSubmitRevisionModal, setShowSubmitRevisionModal] = useState(false);
     const [revisionSessionId, setRevisionSessionId] = useState(null);
     const [markMissedSession, setMarkMissedSession] = useState(null);
+    const [markAttemptedSession, setMarkAttemptedSession] = useState(null);
 
     // Finalize states
     const [showFinalizeConfirm, setShowFinalizeConfirm] = useState(false);
@@ -324,6 +326,7 @@ export default function TherapistBookingDetailPage() {
                     {sessions.length > 1 && (
                         <SessionList
                             sessions={sessions}
+                            booking={booking}
                             role="therapist"
                             onMarkComplete={async (sessionId) => {
                                 try {
@@ -360,6 +363,7 @@ export default function TherapistBookingDetailPage() {
                                 }
                             }}
                             onMarkMissed={(s) => setMarkMissedSession(s)}
+                            onMarkAttempted={(s) => setMarkAttemptedSession(s)}
                         />
                     )}
 
@@ -743,6 +747,17 @@ export default function TherapistBookingDetailPage() {
                 sessionNumber={markMissedSession?.sessionNumber}
                 actorRole="therapist"
                 refundAmount={booking?.rate}
+                onSuccess={refetch}
+            />
+
+            {/* Mark Attempted modal (therapist only — patient not home) */}
+            <MarkSessionAttemptedModal
+                isOpen={!!markAttemptedSession}
+                onClose={() => setMarkAttemptedSession(null)}
+                sessionId={markAttemptedSession?.id}
+                sessionNumber={markAttemptedSession?.sessionNumber}
+                attemptedRate={booking?.attemptedVisitRate}
+                sessionRate={booking?.rate}
                 onSuccess={refetch}
             />
         </div>

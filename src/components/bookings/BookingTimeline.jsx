@@ -84,13 +84,28 @@ export default function BookingTimeline({ booking }) {
     const { payment } = booking;
     const isMultiSession = sessions.length > 1;
 
-    // Missed + cancelled sessions are out of scope — they've been refunded per-session
-    // and should not block the booking timeline milestones from reaching "complete".
-    // Only "deliverable" sessions (pending_schedule, scheduled, completed_by_therapist,
-    // in_revision, confirmed_by_customer) count towards the All-Sessions milestones.
-    const deliverableSessions = sessions.filter(s => s.status !== "missed" && s.status !== "cancelled");
-    const missedOrCancelledCount = sessions.length - deliverableSessions.length;
-    const hasReducedScope = missedOrCancelledCount > 0;
+    // Missed/cancelled/attempted sessions are out of scope for milestone tracking.
+    //   - missed:    full refund, no payout
+    //   - cancelled: never delivered
+    //   - attempted: partial payout already released, customer already refunded the
+    //                remainder. The session is closed and contributes nothing to
+    //                the "All Sessions Confirmed" milestone — therapist already
+    //                got paid for what they could deliver (the trip).
+    const deliverableSessions = sessions.filter(s =>
+        s.status !== "missed" && s.status !== "cancelled" && s.status !== "attempted"
+    );
+    const missedOrCancelledCount = sessions.filter(s => s.status === "missed" || s.status === "cancelled").length;
+    const attemptedCount = sessions.filter(s => s.status === "attempted").length;
+    const reducedScopeCount = missedOrCancelledCount + attemptedCount;
+    const hasReducedScope = reducedScopeCount > 0;
+    const reducedScopeLabel = (() => {
+        const parts = [];
+        if (missedOrCancelledCount > 0) {
+            parts.push(`${missedOrCancelledCount} ${sessions.some(s => s.status === "missed") ? "missed" : "cancelled"}`);
+        }
+        if (attemptedCount > 0) parts.push(`${attemptedCount} attempted`);
+        return parts.join(" + ");
+    })();
 
     // For multi-session: aggregate status across all DELIVERABLE sessions
     const allSessionsConfirmed = isMultiSession
@@ -180,9 +195,9 @@ export default function BookingTimeline({ booking }) {
                 title: isMultiSession ? "All Sessions Completed by Therapist" : "Therapist Marked Complete",
                 subtitle: isMultiSession
                     ? (anyTherapistComplete && !allTherapistComplete
-                        ? `${completedCount} of ${deliverableCount} deliverable sessions completed${hasReducedScope ? ` (${missedOrCancelledCount} missed/cancelled)` : ""}`
+                        ? `${completedCount} of ${deliverableCount} deliverable sessions completed${hasReducedScope ? ` (${reducedScopeLabel})` : ""}`
                         : (hasReducedScope && allTherapistComplete
-                            ? `${deliverableCount} deliverable session${deliverableCount !== 1 ? "s" : ""} completed (${missedOrCancelledCount} missed/cancelled, excluded)`
+                            ? `${deliverableCount} deliverable session${deliverableCount !== 1 ? "s" : ""} completed (${reducedScopeLabel}, excluded)`
                             : null))
                     : null,
                 timestamp: therapistTimestamp,
@@ -207,9 +222,9 @@ export default function BookingTimeline({ booking }) {
                 title: isMultiSession ? "All Sessions Confirmed" : "Customer Confirmed Completion",
                 subtitle: isMultiSession
                     ? (waiting
-                        ? `${confirmedCount} of ${deliverableCount} deliverable session${deliverableCount !== 1 ? "s" : ""} confirmed${hasReducedScope ? ` (${missedOrCancelledCount} missed/cancelled)` : ""}`
+                        ? `${confirmedCount} of ${deliverableCount} deliverable session${deliverableCount !== 1 ? "s" : ""} confirmed${hasReducedScope ? ` (${reducedScopeLabel})` : ""}`
                         : (hasReducedScope && customerDone
-                            ? `All ${deliverableCount} deliverable session${deliverableCount !== 1 ? "s" : ""} confirmed (${missedOrCancelledCount} missed/cancelled, excluded)`
+                            ? `All ${deliverableCount} deliverable session${deliverableCount !== 1 ? "s" : ""} confirmed (${reducedScopeLabel}, excluded)`
                             : null))
                     : (waiting ? "Awaiting customer confirmation" : null),
                 timestamp: customerTimestamp,
@@ -230,7 +245,7 @@ export default function BookingTimeline({ booking }) {
             const subtitle = isFinalized
                 ? `Therapist paid for delivered sessions, customer refunded for remaining`
                 : (hasReducedScope && released
-                    ? `Paid out for ${deliverableSessions.filter(s => s.status === "confirmed_by_customer").length} deliverable session${deliverableSessions.filter(s => s.status === "confirmed_by_customer").length !== 1 ? "s" : ""} (${missedOrCancelledCount} missed/cancelled, refunded separately)`
+                    ? `Paid out for ${deliverableSessions.filter(s => s.status === "confirmed_by_customer").length} deliverable session${deliverableSessions.filter(s => s.status === "confirmed_by_customer").length !== 1 ? "s" : ""} (${reducedScopeLabel}, refunded separately)`
                     : null);
             steps.push({
                 icon: MdAccountBalanceWallet,

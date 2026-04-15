@@ -191,6 +191,23 @@ export default function SessionOfferWidget({ offerId }) {
                         </div>
                     )}
 
+                    {offer.attemptedVisitRate != null && (
+                        parseFloat(offer.attemptedVisitRate) > 0 ? (
+                            <div className="px-3 py-2 rounded-lg bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/40">
+                                <p className="text-[11px] text-amber-800 dark:text-amber-300">
+                                    <span className="font-semibold">Not home when therapist arrives?</span>{" "}
+                                    {formatCurrency(offer.attemptedVisitRate)} attempted visit fee
+                                </p>
+                            </div>
+                        ) : (
+                            <div className="px-3 py-2 rounded-lg bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/40">
+                                <p className="text-[11px] text-emerald-800 dark:text-emerald-300 font-medium">
+                                    ✓ No charge for missed visits
+                                </p>
+                            </div>
+                        )
+                    )}
+
                     {/* Status text */}
                     <p className="text-center text-[10px] text-text-muted dark:text-gray-500 italic">
                         {STATUS_TEXT[offer.status] ?? 'Offer expired'}

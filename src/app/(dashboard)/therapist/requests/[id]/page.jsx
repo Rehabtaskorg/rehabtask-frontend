@@ -37,12 +37,16 @@ export default function TherapistRequestDetailPage() {
     const params = useParams();
     const { user } = useAuth();
     const profileRate = user?.profile?.ratePerVisit ? parseFloat(user.profile.ratePerVisit).toFixed(2) : '';
+    const profileAttemptedRate = user?.profile?.attemptedVisitRate != null
+        ? parseFloat(user.profile.attemptedVisitRate).toFixed(2)
+        : '';
     const [request, setRequest] = useState(null);
     const [loading, setLoading] = useState(true);
     const [commissionRate, setCommissionRate] = useState(null);
     // visitTypes state removed — OfferForm fetches its own via useVisitTypes hook
     const [offerData, setOfferData] = useState({
         rate: "",
+        attemptedVisitRate: "",
         sessionType: "in-person",
         visitTypeId: "",
         proposedDate: "",
@@ -101,18 +105,35 @@ export default function TherapistRequestDetailPage() {
         }
     }, [profileRate, request]);
 
+    useEffect(() => {
+        if (profileAttemptedRate !== '') {
+            setOfferData(prev => prev.attemptedVisitRate === '' ? { ...prev, attemptedVisitRate: profileAttemptedRate } : prev);
+        }
+    }, [profileAttemptedRate]);
+
     const handleSubmitOffer = async (e) => {
         e.preventDefault();
         setSubmitting(true);
         setOfferError(null);
 
         try {
+            const rateNum = parseFloat(offerData.rate);
+            const attemptedTrim = String(offerData.attemptedVisitRate ?? "").trim();
+            const attemptedNum = attemptedTrim === "" ? null : parseFloat(attemptedTrim);
+
+            if (attemptedNum != null && attemptedNum > rateNum) {
+                setOfferError("Attempted visit rate cannot be greater than the session rate.");
+                setSubmitting(false);
+                return;
+            }
+
             const payload = {
                 requestId: params.id,
-                rate: parseFloat(offerData.rate),
+                rate: rateNum,
                 sessionType: offerData.sessionType,
                 proposedDate: new Date(offerData.proposedDate).toISOString(),
                 description: offerData.description,
+                attemptedVisitRate: attemptedNum,
             };
 
             // Visit plan override — only include when toggle is on AND value filled.
@@ -358,6 +379,28 @@ export default function TherapistRequestDetailPage() {
                                             className="w-full pl-8 pr-4 py-3 rounded-lg bg-background-light dark:bg-background-dark border border-border-light dark:border-border-dark focus:ring-2 focus:ring-primary/20 focus:border-primary text-text-main dark:text-white transition-all outline-none font-semibold"
                                         />
                                     </div>
+                                </div>
+
+                                <div>
+                                    <label className="block text-xs font-bold text-text-muted dark:text-gray-400 uppercase tracking-widest mb-2">
+                                        Attempted Visit Rate ($) <span className="text-text-muted/70 font-normal normal-case ml-1">— optional</span>
+                                    </label>
+                                    <div className="relative">
+                                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted font-mono text-sm">$</span>
+                                        <input
+                                            type="number"
+                                            step="0.01"
+                                            min="0"
+                                            max={offerData.rate || 10000}
+                                            placeholder="40.00"
+                                            value={offerData.attemptedVisitRate}
+                                            onChange={(e) => setOfferData(prev => ({ ...prev, attemptedVisitRate: e.target.value }))}
+                                            className="w-full pl-8 pr-4 py-3 rounded-lg bg-background-light dark:bg-background-dark border border-border-light dark:border-border-dark focus:ring-2 focus:ring-primary/20 focus:border-primary text-text-main dark:text-white transition-all outline-none font-semibold"
+                                        />
+                                    </div>
+                                    <p className="mt-1.5 text-[11px] text-text-muted dark:text-gray-400">
+                                        Charged when you arrive but the patient isn&apos;t home. Must be ≤ session rate. Leave blank for no charge.
+                                    </p>
                                 </div>
 
                                 <div>

@@ -652,6 +652,7 @@ export default function CustomerBookingDetailPage() {
                     {sessions.length > 1 && (
                         <SessionList
                             sessions={sessions}
+                            booking={booking}
                             role="customer"
                             onConfirm={async (sessionId) => {
                                 await bookingsApi.confirmSession(sessionId);
