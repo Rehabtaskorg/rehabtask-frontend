@@ -4,42 +4,44 @@ import { MdPayments, MdLock, MdCheckCircle, MdError, MdRefresh, MdArrowForward }
 import { formatCurrency } from "@/utils/messages";
 import { resolveVisitPlan, computeTotalVisits } from "@/lib/visitPlan";
 
+// Labels are role-aware. Therapists see accounting terms (they map to the
+// earnings dashboard); customers see plain-language status of their money.
 const PAYMENT_STATUS_CONFIG = {
     intent_created: {
         icon: MdRefresh,
         color: "text-amber-600 dark:text-amber-400",
         bg: "bg-amber-50 dark:bg-amber-900/20",
-        label: "Processing",
+        label: { therapist: "Processing", customer: "Processing" },
     },
     escrowed: {
         icon: MdLock,
         color: "text-blue-600 dark:text-blue-400",
         bg: "bg-blue-50 dark:bg-blue-900/20",
-        label: "Held in Escrow",
+        label: { therapist: "Held in Escrow", customer: "Payment Secured" },
     },
     partially_released: {
         icon: MdLock,
         color: "text-orange-600 dark:text-orange-400",
         bg: "bg-orange-50 dark:bg-orange-900/20",
-        label: "Partially Released",
+        label: { therapist: "Partially Released", customer: "Payment Active" },
     },
     released: {
         icon: MdCheckCircle,
         color: "text-emerald-600 dark:text-emerald-400",
         bg: "bg-emerald-50 dark:bg-emerald-900/20",
-        label: "Released",
+        label: { therapist: "Released", customer: "Payment Complete" },
     },
     refunded: {
         icon: MdRefresh,
         color: "text-slate-600 dark:text-slate-400",
         bg: "bg-slate-50 dark:bg-slate-800",
-        label: "Refunded",
+        label: { therapist: "Refunded", customer: "Refunded" },
     },
     failed: {
         icon: MdError,
         color: "text-red-600 dark:text-red-400",
         bg: "bg-red-50 dark:bg-red-900/20",
-        label: "Failed",
+        label: { therapist: "Failed", customer: "Payment Failed" },
     },
 }
 
@@ -211,7 +213,7 @@ export default function PaymentSummaryCard({ booking, role, onAction }) {
                     <div className={`flex items-center gap-2 px-3 py-2 rounded-lg ${paymentConfig.bg}`}>
                         <PaymentIcon className={`text-base ${paymentConfig.color}`} />
                         <span className={`text-xs font-semibold ${paymentConfig.color}`}>
-                            {paymentConfig.label}
+                            {paymentConfig.label?.[role] || paymentConfig.label?.therapist || "—"}
                         </span>
                     </div>
                 )}
