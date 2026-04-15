@@ -14,6 +14,7 @@ import BookingTimeline from "@/components/bookings/BookingTimeline";
 import SessionList from "@/components/bookings/SessionList";
 import PaymentSummaryCard from "@/components/bookings/PaymentSummaryCard";
 import SubmitRevisionModal from "@/components/shared/sessions/SubmitRevisionModal";
+import MarkSessionMissedModal from "@/components/shared/sessions/MarkSessionMissedModal";
 import RevisionStatusBanner from "@/components/shared/sessions/RevisionStatusBanner";
 import { formatCurrency } from "@/utils/messages";
 import { usePageTitle } from "@/hooks/usePageTitle";
@@ -40,6 +41,7 @@ export default function TherapistBookingDetailPage() {
     const [showCompleteDialog, setShowCompleteDialog] = useState(false);
     const [showSubmitRevisionModal, setShowSubmitRevisionModal] = useState(false);
     const [revisionSessionId, setRevisionSessionId] = useState(null);
+    const [markMissedSession, setMarkMissedSession] = useState(null);
 
     // Finalize states
     const [showFinalizeConfirm, setShowFinalizeConfirm] = useState(false);
@@ -357,6 +359,7 @@ export default function TherapistBookingDetailPage() {
                                     showToast.error(err.response?.data?.message || "Failed to resubmit session.");
                                 }
                             }}
+                            onMarkMissed={(s) => setMarkMissedSession(s)}
                         />
                     )}
 
@@ -718,6 +721,17 @@ export default function TherapistBookingDetailPage() {
                 onClose={() => { setShowSubmitRevisionModal(false); setRevisionSessionId(null); }}
                 sessionId={revisionSessionId || session?.id}
                 revisionReason={revisionSessionId ? sessions.find(s => s.id === revisionSessionId)?.revisionReason : session?.revisionReason}
+                onSuccess={refetch}
+            />
+
+            {/* Mark Missed modal (therapist self-report) */}
+            <MarkSessionMissedModal
+                isOpen={!!markMissedSession}
+                onClose={() => setMarkMissedSession(null)}
+                sessionId={markMissedSession?.id}
+                sessionNumber={markMissedSession?.sessionNumber}
+                actorRole="therapist"
+                refundAmount={booking?.rate}
                 onSuccess={refetch}
             />
         </div>

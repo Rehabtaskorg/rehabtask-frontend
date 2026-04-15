@@ -46,6 +46,12 @@ export const bookingsApi = {
     resubmitSession: async (sessionId) => {
         return api.post(`/sessions/${sessionId}/revision-resubmit`);
     },
+    markSessionMissedByTherapist: async (sessionId, reason) => {
+        return api.post(`/sessions/${sessionId}/mark-missed-by-therapist`, { reason });
+    },
+    markSessionMissedByCustomer: async (sessionId, reason) => {
+        return api.post(`/sessions/${sessionId}/mark-missed-by-customer`, { reason });
+    },
 
     // Payment endpoints
     requestRefund: async (bookingId, reason) => {

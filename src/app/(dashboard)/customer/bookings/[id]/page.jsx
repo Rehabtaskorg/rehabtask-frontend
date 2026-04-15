@@ -23,6 +23,7 @@ import BookingTimeline from "@/components/bookings/BookingTimeline";
 import SessionList from "@/components/bookings/SessionList";
 import PaymentSummaryCard from "@/components/bookings/PaymentSummaryCard";
 import RequestRevisionModal from "@/components/shared/sessions/RequestRevisionModal";
+import MarkSessionMissedModal from "@/components/shared/sessions/MarkSessionMissedModal";
 import RevisionStatusBanner from "@/components/shared/sessions/RevisionStatusBanner";
 import { formatCurrency } from "@/utils/messages";
 import { usePageTitle } from "@/hooks/usePageTitle";
@@ -334,6 +335,7 @@ export default function CustomerBookingDetailPage() {
     const [showConfirmDialog, setShowConfirmDialog] = useState(false);
     const [showRevisionModal, setShowRevisionModal] = useState(false);
     const [revisionSessionId, setRevisionSessionId] = useState(null);
+    const [reportMissedSession, setReportMissedSession] = useState(null);
     const [showRefundForm, setShowRefundForm] = useState(false);
     const [refundReason, setRefundReason] = useState("");
     const [refunding, setRefunding] = useState(false);
@@ -659,6 +661,7 @@ export default function CustomerBookingDetailPage() {
                                 setRevisionSessionId(sessionId);
                                 setShowRevisionModal(true);
                             }}
+                            onReportMissed={(s) => setReportMissedSession(s)}
                         />
                     )}
 
@@ -931,6 +934,17 @@ export default function CustomerBookingDetailPage() {
                 isOpen={showRevisionModal}
                 onClose={() => { setShowRevisionModal(false); setRevisionSessionId(null); }}
                 sessionId={revisionSessionId || session?.id}
+                onSuccess={refetch}
+            />
+
+            {/* Report Missed Visit modal (customer complaint flow) */}
+            <MarkSessionMissedModal
+                isOpen={!!reportMissedSession}
+                onClose={() => setReportMissedSession(null)}
+                sessionId={reportMissedSession?.id}
+                sessionNumber={reportMissedSession?.sessionNumber}
+                actorRole="customer"
+                refundAmount={booking?.rate}
                 onSuccess={refetch}
             />
         </div>
