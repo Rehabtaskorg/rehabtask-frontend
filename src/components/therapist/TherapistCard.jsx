@@ -69,6 +69,11 @@ export default function TherapistCard({ therapist, onClick }) {
                         <span>${parseFloat(therapist.ratePerVisit).toFixed(2)}/visit</span>
                     </div>
                 )}
+                {therapist.attemptedVisitRate != null && parseFloat(therapist.attemptedVisitRate) > 0 && (
+                    <p className="text-[11px] text-text-muted dark:text-gray-500">
+                        Attempted visit fee: ${parseFloat(therapist.attemptedVisitRate).toFixed(2)}
+                    </p>
+                )}
             </div>
 
             {/* Tags */}
