@@ -284,6 +284,18 @@ export default function TherapistPublicProfilePage() {
                                         </div>
                                         <span className="bg-emerald-50 text-emerald-700 px-3 py-1 rounded-full text-[10px] font-bold uppercase">In-Home</span>
                                     </div>
+                                    {profile.attemptedVisitRate != null && (
+                                        parseFloat(profile.attemptedVisitRate) > 0 ? (
+                                            <p className="text-xs text-gray-500 mb-4">
+                                                Attempted visit fee: <span className="font-semibold text-gray-700">${parseFloat(profile.attemptedVisitRate).toFixed(2)}</span>
+                                                <span className="text-gray-400 ml-1">(if patient is not home)</span>
+                                            </p>
+                                        ) : (
+                                            <p className="text-xs text-emerald-600 font-medium mb-4">
+                                                No charge for missed visits
+                                            </p>
+                                        )
+                                    )}
                                     <div className="space-y-3 mb-6">
                                         <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl cursor-pointer hover:bg-gray-100 transition-colors" onClick={() => handleAuthGate("contact")}>
                                             <div className="w-10 h-10 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-primary"><MdCall className="text-lg" /></div>
@@ -315,6 +327,12 @@ export default function TherapistPublicProfilePage() {
                                             { label: "License Type", value: profile.primaryLicenseType },
                                             { label: "Experience", value: profile.yearsOfExperience ? `${profile.yearsOfExperience} Years` : "—" },
                                             { label: "Rate", value: rate ? `$${rate}/visit` : "—" },
+                                            ...(profile.attemptedVisitRate != null ? [{
+                                                label: "Attempted Visit",
+                                                value: parseFloat(profile.attemptedVisitRate) > 0
+                                                    ? `$${parseFloat(profile.attemptedVisitRate).toFixed(2)}`
+                                                    : "No charge",
+                                            }] : []),
                                             { label: "Service Area", value: primaryArea ? `${primaryArea.city} (${primaryArea.radiusMiles}mi)` : "—" },
                                         ].map((fact, i, arr) => (
                                             <div key={fact.label} className={`flex justify-between items-center py-2 ${i < arr.length - 1 ? "border-b border-gray-100" : ""}`}>

@@ -14,10 +14,11 @@ import BookingTimeline from "@/components/bookings/BookingTimeline";
 import SessionList from "@/components/bookings/SessionList";
 import PaymentSummaryCard from "@/components/bookings/PaymentSummaryCard";
 import SubmitRevisionModal from "@/components/shared/sessions/SubmitRevisionModal";
+import MarkSessionMissedModal from "@/components/shared/sessions/MarkSessionMissedModal";
+import MarkSessionAttemptedModal from "@/components/shared/sessions/MarkSessionAttemptedModal";
 import RevisionStatusBanner from "@/components/shared/sessions/RevisionStatusBanner";
 import { formatCurrency } from "@/utils/messages";
 import { usePageTitle } from "@/hooks/usePageTitle";
-import PatientInfoBlock from "@/components/customer/PatientInfoBlock";
 
 const formatDate = (dateStr) => {
     if (!dateStr) return "—";
@@ -40,6 +41,8 @@ export default function TherapistBookingDetailPage() {
     const [showCompleteDialog, setShowCompleteDialog] = useState(false);
     const [showSubmitRevisionModal, setShowSubmitRevisionModal] = useState(false);
     const [revisionSessionId, setRevisionSessionId] = useState(null);
+    const [markMissedSession, setMarkMissedSession] = useState(null);
+    const [markAttemptedSession, setMarkAttemptedSession] = useState(null);
 
     // Finalize states
     const [showFinalizeConfirm, setShowFinalizeConfirm] = useState(false);
@@ -174,7 +177,13 @@ export default function TherapistBookingDetailPage() {
     // Finalize button visibility: multi-session booking, at least 1 confirmed,
     // at least 1 unconfirmed, and booking is still active (not already completed/finalized/cancelled)
     const confirmedSessionCount = sessions.filter(s => s.status === "confirmed_by_customer").length;
-    const unconfirmedSessionCount = sessions.filter(s => s.status !== "confirmed_by_customer" && s.status !== "cancelled").length;
+    const attemptedSessionCount = sessions.filter(s => s.status === "attempted").length;
+    // "Paid out" = confirmed (full payout) + attempted (partial payout). Both have
+    // a SessionPayout row and a Stripe transfer — the therapist received money.
+    const paidOutSessionCount = confirmedSessionCount + attemptedSessionCount;
+    const unconfirmedSessionCount = sessions.filter(s =>
+        s.status !== "confirmed_by_customer" && s.status !== "cancelled" && s.status !== "attempted"
+    ).length;
     const canFinalize =
         ["confirmed", "in_progress"].includes(booking.status) &&
         sessions.length > 1 &&
@@ -242,13 +251,7 @@ export default function TherapistBookingDetailPage() {
                         </div>
                     </div>
 
-                    {/* Patient info block (agency bookings only) */}
-                    {booking.patient && (
-                        <PatientInfoBlock
-                            patient={booking.patient}
-                            note="This booking is managed by an agency. The patient above is the person you will be treating."
-                        />
-                    )}
+                    {/* Patient identity hidden from therapist */}
 
                     {/* Session Details */}
                     <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl p-5">
@@ -322,6 +325,7 @@ export default function TherapistBookingDetailPage() {
                     {sessions.length > 1 && (
                         <SessionList
                             sessions={sessions}
+                            booking={booking}
                             role="therapist"
                             onMarkComplete={async (sessionId) => {
                                 try {
@@ -357,6 +361,8 @@ export default function TherapistBookingDetailPage() {
                                     showToast.error(err.response?.data?.message || "Failed to resubmit session.");
                                 }
                             }}
+                            onMarkMissed={(s) => setMarkMissedSession(s)}
+                            onMarkAttempted={(s) => setMarkAttemptedSession(s)}
                         />
                     )}
 
@@ -471,6 +477,33 @@ export default function TherapistBookingDetailPage() {
                                     Mark Session as Complete
                                 </button>
                             </div>
+                        )}
+
+                        {/* Single-session: Mark Missed + Mark Attempted (only when past scheduled date) */}
+                        {booking.status === "confirmed" && session?.status === "scheduled" && sessions.length <= 1 && !showCompleteDialog && (
+                            (() => {
+                                const scheduledInPast = session.scheduledDate && new Date(session.scheduledDate) <= new Date();
+                                const hasAttemptedRate = booking.attemptedVisitRate != null && parseFloat(booking.attemptedVisitRate) > 0;
+                                if (!scheduledInPast) return null;
+                                return (
+                                    <div className="flex items-center gap-3">
+                                        <button
+                                            onClick={() => setMarkMissedSession(session)}
+                                            className="text-sm font-bold text-red-500 dark:text-red-400 border border-red-300 dark:border-red-800 px-4 py-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                                        >
+                                            Mark Missed
+                                        </button>
+                                        {hasAttemptedRate && (
+                                            <button
+                                                onClick={() => setMarkAttemptedSession(session)}
+                                                className="text-sm font-bold text-amber-600 dark:text-amber-400 border border-amber-300 dark:border-amber-700 px-4 py-2 rounded-lg hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-colors"
+                                            >
+                                                Mark Attempted
+                                            </button>
+                                        )}
+                                    </div>
+                                );
+                            })()
                         )}
 
                         {/* Complete dialog (inline) */}
@@ -680,8 +713,9 @@ export default function TherapistBookingDetailPage() {
                                 <div>
                                     <p className="text-xs font-bold text-text-main dark:text-white">Series Finalized</p>
                                     <p className="text-xs text-text-muted dark:text-gray-400 mt-0.5">
-                                        {confirmedSessionCount} session{confirmedSessionCount !== 1 ? "s" : ""} paid out.
-                                        {payment?.refundedAmount && ` Customer refunded ${formatCurrency(parseFloat(payment.refundedAmount))} for undelivered sessions.`}
+                                        {paidOutSessionCount} session{paidOutSessionCount !== 1 ? "s" : ""} paid out
+                                        {attemptedSessionCount > 0 && ` (${attemptedSessionCount} attempted visit${attemptedSessionCount !== 1 ? "s" : ""})`}.
+                                        {payment?.refundedAmount && ` Customer refunded ${formatCurrency(parseFloat(payment.refundedAmount))}.`}
                                     </p>
                                 </div>
                             </div>
@@ -699,16 +733,43 @@ export default function TherapistBookingDetailPage() {
                             </div>
                         </div>
                     )}
-                    {payment?.status === "partially_released" && (
-                        <div className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl p-4">
-                            <div className="flex items-start gap-2">
-                                <MdCheckCircle className="text-emerald-600 dark:text-emerald-400 text-sm mt-0.5 shrink-0" />
-                                <p className="text-xs text-emerald-700 dark:text-emerald-300">
-                                    {formatCurrency(parseFloat(payment.releasedAmount ?? 0))} of {formatCurrency(parseFloat(payment.therapistPayout))} released ({confirmedSessionCount} of {sessions.length} sessions confirmed).
-                                </p>
+                    {payment?.status === "partially_released" && (() => {
+                        const totalSessionCount = sessions.length;
+                        const missedOrCancelled = sessions.filter(s => s.status === "missed" || s.status === "cancelled").length;
+                        const attempted = sessions.filter(s => s.status === "attempted").length;
+                        const attemptedRevenue = sessions
+                            .filter(s => s.status === "attempted")
+                            .reduce((sum, s) => sum + (s.attemptedRateCharged != null ? parseFloat(s.attemptedRateCharged) : 0), 0);
+                        const deliverable = Math.max(0, totalSessionCount - missedOrCancelled);
+                        const fullPayout = parseFloat(payment.therapistPayout);
+                        const perSessionValue = totalSessionCount > 0 ? parseFloat(payment.amount) / totalSessionCount : 0;
+                        const feeRatio = parseFloat(payment.amount) > 0 ? parseFloat(payment.platformFee) / parseFloat(payment.amount) : 0;
+                        // Discount from missed/cancelled (full loss) + attempted (partial loss)
+                        const lossFromMissedCancelled = missedOrCancelled * perSessionValue;
+                        const lossFromAttempted = Math.max(0, attempted * perSessionValue - attemptedRevenue);
+                        const totalDiscount = lossFromMissedCancelled + lossFromAttempted;
+                        const adjustedTotal = parseFloat(payment.amount) - totalDiscount;
+                        const adjustedMaxPayout = parseFloat((adjustedTotal - adjustedTotal * feeRatio).toFixed(2));
+                        const released = parseFloat(payment.releasedAmount ?? 0);
+                        // Build a readable summary of what happened
+                        const parts = [];
+                        if (confirmedSessionCount > 0) parts.push(`${confirmedSessionCount} confirmed`);
+                        if (attempted > 0) parts.push(`${attempted} attempted`);
+                        const progressLabel = parts.length > 0 ? parts.join(" + ") : "0";
+                        const reducedParts = [];
+                        if (missedOrCancelled > 0) reducedParts.push(`${missedOrCancelled} ${sessions.some(s => s.status === "missed") ? "missed" : "cancelled"}`);
+                        if (attempted > 0 && !parts.includes(`${attempted} attempted`)) reducedParts.push(`${attempted} attempted`);
+                        return (
+                            <div className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl p-4">
+                                <div className="flex items-start gap-2">
+                                    <MdCheckCircle className="text-emerald-600 dark:text-emerald-400 text-sm mt-0.5 shrink-0" />
+                                    <p className="text-xs text-emerald-700 dark:text-emerald-300">
+                                        {formatCurrency(released)} of {formatCurrency(adjustedMaxPayout)} released ({progressLabel} of {deliverable} deliverable session{deliverable !== 1 ? "s" : ""}{reducedParts.length > 0 ? `, ${reducedParts.join(" · ")}` : ""}).
+                                    </p>
+                                </div>
                             </div>
-                        </div>
-                    )}
+                        );
+                    })()}
                 </div>
             </div>
 
@@ -718,6 +779,28 @@ export default function TherapistBookingDetailPage() {
                 onClose={() => { setShowSubmitRevisionModal(false); setRevisionSessionId(null); }}
                 sessionId={revisionSessionId || session?.id}
                 revisionReason={revisionSessionId ? sessions.find(s => s.id === revisionSessionId)?.revisionReason : session?.revisionReason}
+                onSuccess={refetch}
+            />
+
+            {/* Mark Missed modal (therapist self-report) */}
+            <MarkSessionMissedModal
+                isOpen={!!markMissedSession}
+                onClose={() => setMarkMissedSession(null)}
+                sessionId={markMissedSession?.id}
+                sessionNumber={markMissedSession?.sessionNumber}
+                actorRole="therapist"
+                refundAmount={booking?.rate}
+                onSuccess={refetch}
+            />
+
+            {/* Mark Attempted modal (therapist only — patient not home) */}
+            <MarkSessionAttemptedModal
+                isOpen={!!markAttemptedSession}
+                onClose={() => setMarkAttemptedSession(null)}
+                sessionId={markAttemptedSession?.id}
+                sessionNumber={markAttemptedSession?.sessionNumber}
+                attemptedRate={booking?.attemptedVisitRate}
+                sessionRate={booking?.rate}
                 onSuccess={refetch}
             />
         </div>

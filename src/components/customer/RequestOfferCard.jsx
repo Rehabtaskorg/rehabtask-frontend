@@ -100,6 +100,25 @@ export default function RequestOfferCard({
                 </p>
             )}
 
+            {/* Attempted-visit rate disclosure — by accepting the offer the customer
+                consents to this fee in the event they aren't home for a session. */}
+            {offer.attemptedVisitRate != null && (
+                parseFloat(offer.attemptedVisitRate) > 0 ? (
+                    <div className="mt-2 px-3 py-2 rounded-lg bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/40">
+                        <p className="text-[11px] text-amber-800 dark:text-amber-300">
+                            <span className="font-semibold">If you&apos;re not home when therapist arrives:</span>{" "}
+                            ${parseFloat(offer.attemptedVisitRate).toFixed(2)} attempted visit fee
+                        </p>
+                    </div>
+                ) : (
+                    <div className="mt-2 px-3 py-2 rounded-lg bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/40">
+                        <p className="text-[11px] text-emerald-800 dark:text-emerald-300 font-medium">
+                            ✓ No charge for missed visits
+                        </p>
+                    </div>
+                )
+            )}
+
             {/* Status badge — show for non-pending OR client-side expired */}
             {(!isPending || isClientExpired) && (
                 <div className="mt-3">

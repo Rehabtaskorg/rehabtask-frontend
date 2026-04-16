@@ -84,17 +84,41 @@ export default function BookingTimeline({ booking }) {
     const { payment } = booking;
     const isMultiSession = sessions.length > 1;
 
-    // For multi-session: aggregate status across all sessions
+    // Missed/cancelled/attempted sessions are out of scope for milestone tracking.
+    //   - missed:    full refund, no payout
+    //   - cancelled: never delivered
+    //   - attempted: partial payout already released, customer already refunded the
+    //                remainder. The session is closed and contributes nothing to
+    //                the "All Sessions Confirmed" milestone — therapist already
+    //                got paid for what they could deliver (the trip).
+    const deliverableSessions = sessions.filter(s =>
+        s.status !== "missed" && s.status !== "cancelled" && s.status !== "attempted"
+    );
+    const missedOrCancelledCount = sessions.filter(s => s.status === "missed" || s.status === "cancelled").length;
+    const attemptedCount = sessions.filter(s => s.status === "attempted").length;
+    const reducedScopeCount = missedOrCancelledCount + attemptedCount;
+    const hasReducedScope = reducedScopeCount > 0;
+    const reducedScopeLabel = (() => {
+        const parts = [];
+        if (missedOrCancelledCount > 0) {
+            parts.push(`${missedOrCancelledCount} ${sessions.some(s => s.status === "missed") ? "missed" : "cancelled"}`);
+        }
+        if (attemptedCount > 0) parts.push(`${attemptedCount} attempted`);
+        return parts.join(" + ");
+    })();
+
+    // For multi-session: aggregate status across all DELIVERABLE sessions
     const allSessionsConfirmed = isMultiSession
-        ? sessions.length > 0 && sessions.every(s => s.status === "confirmed_by_customer")
+        ? deliverableSessions.length > 0 && deliverableSessions.every(s => s.status === "confirmed_by_customer")
         : session?.status === "confirmed_by_customer";
     const anyTherapistComplete = isMultiSession
-        ? sessions.some(s => s.status === "completed_by_therapist")
+        ? deliverableSessions.some(s => s.status === "completed_by_therapist")
         : session?.status === "completed_by_therapist";
     const allTherapistComplete = isMultiSession
-        ? sessions.every(s => ["completed_by_therapist", "confirmed_by_customer"].includes(s.status))
+        ? deliverableSessions.length > 0 && deliverableSessions.every(s => ["completed_by_therapist", "confirmed_by_customer"].includes(s.status))
         : !!session?.completedAt;
     const isCancelled = booking.status === "cancelled";
+    const isFinalized = booking.status === "finalized";
 
     // Build steps dynamically
     const steps = [];
@@ -158,17 +182,23 @@ export default function BookingTimeline({ booking }) {
             });
         }
     } else {
-        // 4. Therapist Marked complete
+        // 4. Therapist Marked complete (counted against deliverable sessions only)
         if (session) {
             const therapistDone = isMultiSession ? allTherapistComplete : !!session.completedAt;
             const therapistTimestamp = isMultiSession
-                ? (allTherapistComplete ? sessions.filter(s => s.completedAt).pop()?.completedAt : null)
+                ? (allTherapistComplete ? deliverableSessions.filter(s => s.completedAt).pop()?.completedAt : null)
                 : session.completedAt;
+            const completedCount = deliverableSessions.filter(s => ["completed_by_therapist", "confirmed_by_customer"].includes(s.status)).length;
+            const deliverableCount = deliverableSessions.length;
             steps.push({
                 icon: MdTaskAlt,
                 title: isMultiSession ? "All Sessions Completed by Therapist" : "Therapist Marked Complete",
-                subtitle: isMultiSession && anyTherapistComplete && !allTherapistComplete
-                    ? `${sessions.filter(s => ["completed_by_therapist", "confirmed_by_customer"].includes(s.status)).length} of ${sessions.length} sessions completed`
+                subtitle: isMultiSession
+                    ? (anyTherapistComplete && !allTherapistComplete
+                        ? `${completedCount} of ${deliverableCount} deliverable sessions completed${hasReducedScope ? ` (${reducedScopeLabel})` : ""}`
+                        : (hasReducedScope && allTherapistComplete
+                            ? `${deliverableCount} deliverable session${deliverableCount !== 1 ? "s" : ""} completed (${reducedScopeLabel}, excluded)`
+                            : null))
                     : null,
                 timestamp: therapistTimestamp,
                 isCompleted: therapistDone,
@@ -176,20 +206,26 @@ export default function BookingTimeline({ booking }) {
             });
         }
 
-        // 5. Customer Confirmed
+        // 5. Customer Confirmed (counted against deliverable sessions only)
         if (session) {
             const customerDone = isMultiSession ? allSessionsConfirmed : !!session.confirmedByCustomerAt;
             const customerTimestamp = isMultiSession
-                ? (allSessionsConfirmed ? sessions.filter(s => s.confirmedByCustomerAt).pop()?.confirmedByCustomerAt : null)
+                ? (allSessionsConfirmed ? deliverableSessions.filter(s => s.confirmedByCustomerAt).pop()?.confirmedByCustomerAt : null)
                 : session.confirmedByCustomerAt;
             const waiting = isMultiSession
                 ? (anyTherapistComplete && !allSessionsConfirmed)
                 : session.status === "completed_by_therapist";
+            const confirmedCount = deliverableSessions.filter(s => s.status === "confirmed_by_customer").length;
+            const deliverableCount = deliverableSessions.length;
             steps.push({
                 icon: MdPersonPin,
                 title: isMultiSession ? "All Sessions Confirmed" : "Customer Confirmed Completion",
-                subtitle: isMultiSession && waiting
-                    ? `${sessions.filter(s => s.status === "confirmed_by_customer").length} of ${sessions.length} confirmed`
+                subtitle: isMultiSession
+                    ? (waiting
+                        ? `${confirmedCount} of ${deliverableCount} deliverable session${deliverableCount !== 1 ? "s" : ""} confirmed${hasReducedScope ? ` (${reducedScopeLabel})` : ""}`
+                        : (hasReducedScope && customerDone
+                            ? `All ${deliverableCount} deliverable session${deliverableCount !== 1 ? "s" : ""} confirmed (${reducedScopeLabel}, excluded)`
+                            : null))
                     : (waiting ? "Awaiting customer confirmation" : null),
                 timestamp: customerTimestamp,
                 isCompleted: customerDone,
@@ -197,14 +233,26 @@ export default function BookingTimeline({ booking }) {
             });
         }
 
-        // 6. Payment Released
+        // 6. Payment Released / Finalized / Partially Released
         if (payment && !isCancelled) {
             const released = payment.status === "released";
+            // When a booking is finalized early (not every deliverable confirmed), the
+            // "Payment Released" milestone changes character — it's the partial payout
+            // plus the remaining sessions being refunded to the customer.
+            const title = isFinalized
+                ? "Booking Finalized"
+                : "Payment Released";
+            const subtitle = isFinalized
+                ? `Therapist paid for delivered sessions, customer refunded for remaining`
+                : (hasReducedScope && released
+                    ? `Paid out for ${deliverableSessions.filter(s => s.status === "confirmed_by_customer").length} deliverable session${deliverableSessions.filter(s => s.status === "confirmed_by_customer").length !== 1 ? "s" : ""} (${reducedScopeLabel}, refunded separately)`
+                    : null);
             steps.push({
                 icon: MdAccountBalanceWallet,
-                title: "Payment Released",
+                title,
+                subtitle,
                 timestamp: payment.releasedAt,
-                isCompleted: released,
+                isCompleted: released || isFinalized,
             });
         }
     }

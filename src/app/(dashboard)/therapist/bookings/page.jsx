@@ -9,7 +9,6 @@ import { formatCurrency } from "@/utils/messages";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { useTherapistAccess } from "@/contexts/TherapistAccessContext";
 import LockedPageOverlay from "@/components/therapist/LockedPageOverlay";
-import PatientBadge from "@/components/customer/PatientBadge";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -242,7 +241,7 @@ function TherapistBookingsContent() {
                                                     <span className="text-sm text-text-main dark:text-white">
                                                         {booking.offer?.request?.serviceType || "—"}
                                                     </span>
-                                                    <PatientBadge patient={booking.patient} />
+                                                    {/* Patient identity hidden from therapist */}
                                                 </td>
                                                 <td className="py-3.5 pr-4">
                                                     <p className="text-sm text-text-main dark:text-white">
@@ -296,7 +295,7 @@ function TherapistBookingsContent() {
                                                 <p className="text-xs text-text-muted dark:text-gray-400 mb-2">
                                                     {booking.offer?.request?.serviceType || "—"}
                                                 </p>
-                                                <PatientBadge patient={booking.patient} />
+                                                {/* Patient identity hidden from therapist */}
                                                 <div className="flex items-center gap-4 text-xs text-text-muted dark:text-gray-400">
                                                     <span className="flex items-center gap-1">
                                                         <MdCalendarToday className="text-sm" />

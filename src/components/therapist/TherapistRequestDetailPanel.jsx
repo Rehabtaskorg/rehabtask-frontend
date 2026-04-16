@@ -5,9 +5,7 @@ import {
     MdWarning, MdError, MdAccessTime, MdOpenInNew,
     MdCalendarToday, MdSchedule,
 } from "react-icons/md";
-import PatientBadge from "@/components/customer/PatientBadge";
 import { useVisitTypes } from "@/hooks/useVisitTypes";
-import { resolveVisitPlan } from "@/lib/visitPlan";
 
 const getServiceTypeStyle = (serviceType) => {
     const st = serviceType?.toLowerCase() || "";
@@ -92,18 +90,7 @@ export default function TherapistRequestDetailPanel({
                     <p className="text-sm text-text-main dark:text-gray-300 leading-relaxed">{request.description}</p>
                 </div>
 
-                {/* ── Patient Info ── */}
-                {request.patient && (
-                    <div className="flex items-center gap-3 p-4 rounded-xl bg-primary/5 dark:bg-primary/10 border border-primary/20">
-                        <div className="w-9 h-9 rounded-full bg-primary/10 dark:bg-primary/20 flex items-center justify-center shrink-0">
-                            <svg className="w-4 h-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
-                        </div>
-                        <div>
-                            <p className="text-[10px] font-bold text-primary/70 uppercase tracking-widest">Patient</p>
-                            <p className="text-sm font-bold text-text-main dark:text-white">{request.patient.fullName}</p>
-                        </div>
-                    </div>
-                )}
+                {/* Patient identity hidden from therapist pre-booking */}
 
                 {/* ── Metadata Grid ── */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -386,9 +373,22 @@ function OfferForm({ request, offerData, setOfferData, submitting, onSubmit, sub
                     </div>
                 </div>
             </div>
-            {/* Old top-level Visit Type dropdown REMOVED — visit type is now
-                only selected via the override panel below (or inherits the
-                customer's selection when no override). */}
+            <div className="space-y-1.5">
+                <label className="text-[11px] font-bold text-text-muted dark:text-gray-400 uppercase">
+                    Attempted Visit Rate ($) <span className="text-text-muted/70 font-normal normal-case">— optional</span>
+                </label>
+                <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted font-mono text-sm">$</span>
+                    <input
+                        type="number" step="0.01" min="0" max={offerData.rate || 10000}
+                        placeholder="Blank = no charge"
+                        value={offerData.attemptedVisitRate ?? ""}
+                        onChange={(e) => setOfferData((prev) => ({ ...prev, attemptedVisitRate: e.target.value }))}
+                        className="w-full pl-7 rounded-lg border border-border-light dark:border-border-dark bg-white dark:bg-card-dark text-text-main dark:text-white font-mono text-sm py-2 pr-3 focus:outline-none focus:ring-2 focus:ring-primary"
+                    />
+                </div>
+                <p className="text-[10px] text-text-muted dark:text-gray-500">Charged when you arrive but patient isn&apos;t home. Must be ≤ session rate.</p>
+            </div>
             <div className="space-y-1.5">
                 <label className="text-[11px] font-bold text-text-muted dark:text-gray-400 uppercase">Proposed First Session</label>
                 <input

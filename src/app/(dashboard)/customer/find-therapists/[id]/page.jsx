@@ -148,6 +148,11 @@ export default function TherapistProfilePage() {
                                         ${parseFloat(therapist.ratePerVisit).toFixed(2)}/visit
                                     </span>
                                 )}
+                                {therapist.attemptedVisitRate != null && parseFloat(therapist.attemptedVisitRate) > 0 && (
+                                    <span className="text-xs text-text-muted dark:text-gray-400">
+                                        Attempted visit: ${parseFloat(therapist.attemptedVisitRate).toFixed(2)}
+                                    </span>
+                                )}
                                 <StarRating
                                     rating={therapist.averageRating || 0}
                                     size="sm"

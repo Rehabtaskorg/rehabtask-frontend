@@ -440,7 +440,7 @@ function DashboardInner({ user, pathname, sidebarOpen, setSidebarOpen, handleLog
                             <NavLink href="/customer/bookings" icon={MdCalendarToday} label="My Bookings" pathname={pathname} collapsed={c} />
                             <NavLink href="/customer/disputes" icon={MdGavel} label="Disputes" pathname={pathname} collapsed={c} />
                             <CustomerMessagesLink pathname={pathname} collapsed={c} />
-                            <NavLink href="/customer/payments" icon={MdPayments} label="Payment History" pathname={pathname} collapsed={c} />
+                            <NavLink href="/customer/payments" icon={MdPayments} label="Payments & Refunds" pathname={pathname} collapsed={c} />
                             <NavLink href="/customer/subscription" icon={MdStars} label="Subscription" pathname={pathname} collapsed={c} />
                             <NavLink href="/customer/faqs" icon={MdQuestionAnswer} label="FAQs" pathname={pathname} collapsed={c} />
                             <NavLink href="/customer/profile" icon={MdSettings} label="Account Settings" pathname={pathname} collapsed={c} />

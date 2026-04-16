@@ -3,7 +3,8 @@
 import { useState } from "react";
 import {
     MdCheckCircle, MdRadioButtonUnchecked, MdTimer, MdCancel,
-    MdCalendarToday, MdSchedule, MdTaskAlt, MdEdit
+    MdCalendarToday, MdSchedule, MdTaskAlt, MdEdit, MdEventBusy,
+    MdLocationOff,
 } from "react-icons/md";
 
 const STATUS_CONFIG = {
@@ -13,6 +14,29 @@ const STATUS_CONFIG = {
     in_revision: { icon: MdEdit, color: "text-amber-600", bg: "bg-amber-50 dark:bg-amber-900/20", label: "In Revision" },
     confirmed_by_customer: { icon: MdCheckCircle, color: "text-emerald-500", bg: "bg-emerald-50 dark:bg-emerald-900/20", label: "Confirmed" },
     cancelled: { icon: MdCancel, color: "text-red-500", bg: "bg-red-50 dark:bg-red-900/20", label: "Cancelled" },
+    missed: { icon: MdEventBusy, color: "text-red-500", bg: "bg-red-50 dark:bg-red-900/20", label: "Missed" },
+    attempted: { icon: MdLocationOff, color: "text-amber-600", bg: "bg-amber-50 dark:bg-amber-900/20", label: "Attempted Visit" },
+};
+
+const formatCurrency = (amount) => `$${parseFloat(amount).toFixed(2)}`;
+
+const getRefundPill = (session) => {
+    const refunds = session.customerRefunds || [];
+    if (refunds.length === 0) return null;
+    const total = refunds.reduce((sum, r) => sum + parseFloat(r.amount ?? 0), 0);
+    const hasPending = refunds.some((r) => r.status === "pending_connect");
+    const hasTransferred = refunds.some((r) => r.status === "transferred");
+    const hasCard = refunds.some((r) => r.status === "refunded_to_card");
+    if (hasPending) {
+        return { label: `${formatCurrency(total)} pending refund`, color: "bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400" };
+    }
+    if (hasTransferred) {
+        return { label: `${formatCurrency(total)} sent to bank`, color: "bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400" };
+    }
+    if (hasCard) {
+        return { label: `${formatCurrency(total)} returned to card`, color: "bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400" };
+    }
+    return null;
 };
 
 const INPUT_CLASS = "w-full bg-muted-light dark:bg-muted-dark border border-border-light dark:border-border-dark rounded-lg px-3 py-2 text-sm text-text-main dark:text-white focus:ring-2 focus:ring-primary focus:border-primary focus:outline-none";
@@ -30,6 +54,7 @@ const formatTime = (dateStr) => {
 
 export default function SessionList({
     sessions = [],
+    booking,
     role,
     onMarkComplete,
     onConfirm,
@@ -37,6 +62,9 @@ export default function SessionList({
     onRequestRevision,
     onSubmitRevision,
     onResubmitSession,
+    onMarkMissed,
+    onReportMissed,
+    onMarkAttempted,
 }) {
     const [scheduleSessionId, setScheduleSessionId] = useState(null);
     const [scheduleDate, setScheduleDate] = useState("");
@@ -46,8 +74,20 @@ export default function SessionList({
     if (!sessions || sessions.length <= 1) return null;
 
     const totalSessions = sessions.length;
-    const confirmedCount = sessions.filter(s => s.status === "confirmed_by_customer").length;
-    const progressPercent = totalSessions > 0 ? Math.round((confirmedCount / totalSessions) * 100) : 0;
+    const confirmedCount = sessions.filter(s =>
+        s.status === "confirmed_by_customer" || s.status === "attempted"
+    ).length;
+    // Missed/cancelled never deliver value — exclude from deliverable count.
+    // Attempted DOES deliver value (partial), so it stays in the deliverable pool.
+    const missedOrCancelledCount = sessions.filter(s => s.status === "missed" || s.status === "cancelled").length;
+    const deliverableCount = Math.max(0, totalSessions - missedOrCancelledCount);
+    const progressDenominator = deliverableCount > 0 ? deliverableCount : totalSessions;
+    const progressPercent = progressDenominator > 0 ? Math.round((confirmedCount / progressDenominator) * 100) : 0;
+
+    const bookingAttemptedRate = booking?.attemptedVisitRate != null
+        ? parseFloat(booking.attemptedVisitRate)
+        : null;
+    const attemptedFeatureEnabled = bookingAttemptedRate != null && bookingAttemptedRate > 0;
 
     const todayStr = new Date().toISOString().slice(0, 16);
 
@@ -108,7 +148,12 @@ export default function SessionList({
                     Treatment Plan
                 </h3>
                 <span className="text-sm font-semibold text-text-muted dark:text-slate-400">
-                    {confirmedCount} of {totalSessions} completed
+                    {confirmedCount} of {progressDenominator} completed
+                    {missedOrCancelledCount > 0 && (
+                        <span className="text-xs text-text-muted/70 dark:text-slate-500 ml-1">
+                            ({missedOrCancelledCount} {sessions.some(s => s.status === "missed") ? "missed" : "cancelled"})
+                        </span>
+                    )}
                 </span>
             </div>
 
@@ -136,6 +181,21 @@ export default function SessionList({
                     const isResubmitted = wasRevised && session.status === "completed_by_therapist";
                     const isThisLoading = loadingSessionId === session.id;
                     const isAnyLoading = loadingSessionId !== null;
+
+                    // Missed-visit logic
+                    const isMissed = session.status === "missed";
+                    const isAttempted = session.status === "attempted";
+                    const scheduledInPast = session.scheduledDate && new Date(session.scheduledDate) <= new Date();
+                    const canMarkMissed = role === "therapist" && session.status === "scheduled" && onMarkMissed;
+                    const canReportMissed = role === "customer" && session.status === "scheduled" && scheduledInPast && onReportMissed;
+                    // Attempted visit: therapist-only; needs the snapshot rate set; same
+                    // timing block as missed (must be on or after the scheduled date).
+                    const canMarkAttempted = role === "therapist"
+                        && session.status === "scheduled"
+                        && scheduledInPast
+                        && attemptedFeatureEnabled
+                        && onMarkAttempted;
+                    const refundPill = getRefundPill(session);
 
                     return (
                         <div key={session.id}>
@@ -221,6 +281,65 @@ export default function SessionList({
                                             )}
                                         </div>
                                     )}
+
+                                    {/* Missed visit details (both roles see this) */}
+                                    {isMissed && (
+                                        <div className="mt-1 text-[10px] space-y-0.5">
+                                            <p className="text-red-600 dark:text-red-400 font-medium">
+                                                {session.missedBy === "therapist"
+                                                    ? (role === "therapist" ? "You marked this session as missed." : "Missed by therapist.")
+                                                    : (role === "customer" ? "You reported this as a missed visit." : "Reported as missed by customer.")}
+                                            </p>
+                                            {session.missedReason && (
+                                                <p className="text-text-muted dark:text-slate-500 italic">
+                                                    Reason: &quot;{session.missedReason.length > 80 ? session.missedReason.slice(0, 80) + "..." : session.missedReason}&quot;
+                                                </p>
+                                            )}
+                                            {session.missedAt && (
+                                                <p className="text-text-muted dark:text-slate-500">
+                                                    Marked on {formatDate(session.missedAt)} · {formatTime(session.missedAt)}
+                                                </p>
+                                            )}
+                                            {refundPill && (
+                                                <span className={`inline-block mt-1 text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded ${refundPill.color}`}>
+                                                    {refundPill.label}
+                                                </span>
+                                            )}
+                                        </div>
+                                    )}
+
+                                    {/* Attempted visit details (both roles) */}
+                                    {isAttempted && (
+                                        <div className="mt-1 text-[10px] space-y-0.5">
+                                            <p className="text-amber-700 dark:text-amber-400 font-medium">
+                                                {role === "therapist"
+                                                    ? "You recorded an attempted visit (patient not home)."
+                                                    : "Therapist recorded an attempted visit (you weren't home)."}
+                                            </p>
+                                            {session.attemptedRateCharged != null && (
+                                                <p className="text-text-muted dark:text-slate-500">
+                                                    {role === "therapist"
+                                                        ? `Released to you: ${formatCurrency(session.attemptedRateCharged)} (before commission)`
+                                                        : `Charged: ${formatCurrency(session.attemptedRateCharged)} of session rate`}
+                                                </p>
+                                            )}
+                                            {session.attemptedReason && (
+                                                <p className="text-text-muted dark:text-slate-500 italic">
+                                                    Reason: &quot;{session.attemptedReason.length > 80 ? session.attemptedReason.slice(0, 80) + "..." : session.attemptedReason}&quot;
+                                                </p>
+                                            )}
+                                            {session.attemptedAt && (
+                                                <p className="text-text-muted dark:text-slate-500">
+                                                    Recorded on {formatDate(session.attemptedAt)} · {formatTime(session.attemptedAt)}
+                                                </p>
+                                            )}
+                                            {refundPill && (
+                                                <span className={`inline-block mt-1 text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded ${refundPill.color}`}>
+                                                    {refundPill.label}
+                                                </span>
+                                            )}
+                                        </div>
+                                    )}
                                 </div>
 
                                 {/* Actions */}
@@ -286,6 +405,34 @@ export default function SessionList({
                                             className="text-xs font-bold text-white bg-primary px-3 py-1.5 rounded-lg hover:bg-primary/90 disabled:opacity-50"
                                         >
                                             Resubmit
+                                        </button>
+                                    )}
+                                    {canMarkMissed && scheduleSessionId !== session.id && (
+                                        <button
+                                            onClick={() => onMarkMissed(session)}
+                                            disabled={isAnyLoading}
+                                            className="text-xs font-bold text-red-500 dark:text-red-400 hover:underline disabled:opacity-50"
+                                        >
+                                            Mark Missed
+                                        </button>
+                                    )}
+                                    {canMarkAttempted && scheduleSessionId !== session.id && (
+                                        <button
+                                            onClick={() => onMarkAttempted(session)}
+                                            disabled={isAnyLoading}
+                                            className="text-xs font-bold text-amber-600 dark:text-amber-400 border border-amber-300 dark:border-amber-700 px-3 py-1.5 rounded-lg hover:bg-amber-50 dark:hover:bg-amber-900/20 disabled:opacity-50"
+                                            title={`Patient not home — record attempted visit (${formatCurrency(bookingAttemptedRate)} fee)`}
+                                        >
+                                            Mark Attempted
+                                        </button>
+                                    )}
+                                    {canReportMissed && (
+                                        <button
+                                            onClick={() => onReportMissed(session)}
+                                            disabled={isAnyLoading}
+                                            className="text-xs font-bold text-red-500 dark:text-red-400 border border-red-300 dark:border-red-800 px-3 py-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 disabled:opacity-50"
+                                        >
+                                            Report Missed
                                         </button>
                                     )}
                                 </div>

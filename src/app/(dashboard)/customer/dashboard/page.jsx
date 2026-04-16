@@ -6,10 +6,11 @@ import Link from "next/link";
 import { api } from "@/lib/api";
 import {
     MdWarning, MdClose, MdAssignment, MdArrowForward,
-    MdEvent, MdSchedule, MdCheckCircle, MdInfo, MdStars, MdAccessTime
+    MdEvent, MdSchedule, MdCheckCircle, MdInfo, MdStars, MdAccessTime, MdPayments,
 } from "react-icons/md";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { useSubscription } from "@/hooks/useSubscription";
+import { useRefundSummary } from "@/hooks/usePayments";
 
 const STATUS_STYLES = {
     created: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
@@ -39,7 +40,9 @@ export default function CustomerDashboard() {
     const [upcomingBookings, setUpcomingBookings] = useState([]);
     const [pendingConfirmations, setPendingConfirmations] = useState([]);
     const [alertDismissed, setAlertDismissed] = useState(false);
+    const [refundBannerDismissed, setRefundBannerDismissed] = useState(false);
     const [loading, setLoading] = useState(true);
+    const { data: refundSummary } = useRefundSummary();
 
     const fetchDashboardData = async () => {
         try {
@@ -120,6 +123,31 @@ export default function CustomerDashboard() {
                     <button onClick={() => setAlertDismissed(true)} className="text-amber-600 hover:text-amber-700 p-1 rounded">
                         <MdClose className="text-lg" />
                     </button>
+                </div>
+            )}
+
+            {/* Pending Refund Banner */}
+            {!refundBannerDismissed && refundSummary?.pendingRefundAmount > 0 && (
+                <div className="flex items-center justify-between p-4 border border-primary/30 bg-primary/5 dark:bg-primary/10 rounded-xl">
+                    <div className="flex items-center gap-3">
+                        <MdPayments className="text-primary text-xl shrink-0" />
+                        <div className="text-sm">
+                            <span className="font-bold text-text-main dark:text-white">
+                                You have ${parseFloat(refundSummary.pendingRefundAmount).toFixed(2)} in pending refunds.
+                            </span>
+                            <span className="text-text-muted dark:text-gray-400 ml-1">
+                                Set up your payout account to receive them.
+                            </span>
+                        </div>
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0">
+                        <Link href="/customer/payments" className="text-primary text-sm font-bold hover:underline">
+                            View
+                        </Link>
+                        <button onClick={() => setRefundBannerDismissed(true)} className="text-text-muted hover:text-text-main dark:hover:text-white p-1 rounded">
+                            <MdClose className="text-lg" />
+                        </button>
+                    </div>
                 </div>
             )}
 

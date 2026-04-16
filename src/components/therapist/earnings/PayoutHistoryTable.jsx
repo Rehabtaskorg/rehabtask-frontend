@@ -31,6 +31,69 @@ function formatDate(dateStr) {
     return new Date(dateStr).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 }
 
+/**
+ * Compute adjusted payout figures accounting for missed/cancelled sessions.
+ *
+ * Missed and cancelled sessions have already been refunded to the customer
+ * (per-session), so they can never contribute to the therapist's earnings.
+ * The UI should reflect the adjusted ceiling, not the original booking total.
+ */
+function computePayoutFigures(payment) {
+    const sessions = payment.booking?.sessions || [];
+    const totalSessionCount = sessions.length || 1;
+    const totalAmount = parseFloat(payment.amount);
+    const fullFee = parseFloat(payment.platformFee);
+    const fullPayout = parseFloat(payment.therapistPayout);
+
+    const confirmedCount = sessions.filter(s => s.status === "confirmed_by_customer").length;
+    const missedOrCancelledCount = sessions.filter(s => s.status === "missed" || s.status === "cancelled").length;
+    // Attempted sessions earn the therapist a partial fee (attemptedRateCharged)
+    // instead of the full per-session rate. We treat them as "delivered at a discount."
+    const attemptedSessions = sessions.filter(s => s.status === "attempted");
+    const attemptedCount = attemptedSessions.length;
+    const attemptedRevenue = attemptedSessions.reduce(
+        (sum, s) => sum + (s.attemptedRateCharged != null ? parseFloat(s.attemptedRateCharged) : 0),
+        0
+    );
+    const deliverableCount = Math.max(0, totalSessionCount - missedOrCancelledCount);
+    // Discount accumulator (gross dollars lost vs. an all-confirmed booking)
+    const perSessionValue = totalSessionCount > 0 ? totalAmount / totalSessionCount : 0;
+    const lossFromMissedCancelled = missedOrCancelledCount * perSessionValue;
+    const lossFromAttempted = Math.max(0, attemptedCount * perSessionValue - attemptedRevenue);
+    const totalDiscount = parseFloat((lossFromMissedCancelled + lossFromAttempted).toFixed(2));
+    const hasReducedScope = totalDiscount > 0 && totalSessionCount > 1;
+
+    // Adjusted totals subtract the discount, with commission held at the same ratio
+    // so the therapist's net split stays consistent with the original escrow math.
+    const adjustedTotalAmount = hasReducedScope
+        ? parseFloat((totalAmount - totalDiscount).toFixed(2))
+        : totalAmount;
+    const feeRatio = totalAmount > 0 ? fullFee / totalAmount : 0;
+    const adjustedFee = hasReducedScope
+        ? parseFloat((adjustedTotalAmount * feeRatio).toFixed(2))
+        : fullFee;
+    const adjustedPayout = hasReducedScope
+        ? parseFloat((adjustedTotalAmount - adjustedFee).toFixed(2))
+        : fullPayout;
+
+    const feePercent = adjustedTotalAmount > 0
+        ? Math.round((adjustedFee / adjustedTotalAmount) * 100)
+        : 0;
+
+    return {
+        totalSessionCount,
+        confirmedCount,
+        missedOrCancelledCount,
+        attemptedCount,
+        deliverableCount,
+        hasReducedScope,
+        fee: adjustedFee,
+        feePercent,
+        totalPayout: adjustedPayout,
+        released: parseFloat(payment.releasedAmount ?? 0),
+    };
+}
+
 function CustomerCell({ payment }) {
     const name = payment.booking?.customer?.fullName || "Customer";
     const service = payment.booking?.offer?.request?.serviceType || "";
@@ -57,26 +120,29 @@ function StatusBadge({ status }) {
     );
 }
 
-/** Session progress bar — shows confirmed / total with a mini bar */
+/** Session progress bar — shows confirmed / deliverable with a mini bar */
 function SessionProgress({ payment }) {
     const sessions = payment.booking?.sessions;
     if (!sessions || sessions.length <= 1) return null;
 
     const total = sessions.length;
     const confirmed = sessions.filter(s => s.status === "confirmed_by_customer").length;
-    const pct = Math.round((confirmed / total) * 100);
+    const missedOrCancelled = sessions.filter(s => s.status === "missed" || s.status === "cancelled").length;
+    const deliverable = Math.max(0, total - missedOrCancelled);
+    const denominator = deliverable > 0 ? deliverable : total;
+    const pct = denominator > 0 ? Math.round((confirmed / denominator) * 100) : 0;
 
     return (
         <div className="mt-1.5">
             <div className="flex items-center gap-1.5">
                 <div className="flex-1 h-1.5 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
                     <div
-                        className={`h-full rounded-full transition-all ${confirmed === total ? "bg-emerald-500" : "bg-primary"}`}
+                        className={`h-full rounded-full transition-all ${confirmed === denominator ? "bg-emerald-500" : "bg-primary"}`}
                         style={{ width: `${pct}%` }}
                     />
                 </div>
                 <span className="text-[10px] font-bold text-text-muted dark:text-slate-500 whitespace-nowrap">
-                    {confirmed}/{total}
+                    {confirmed}/{denominator}
                 </span>
             </div>
         </div>
@@ -120,11 +186,10 @@ export default function PayoutHistoryTable({ payments }) {
                         <button
                             key={tab.key}
                             onClick={() => handleFilterChange(tab.key)}
-                            className={`flex items-center gap-1.5 px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-lg transition-colors ${
-                                activeFilter === tab.key
-                                    ? "bg-primary/10 text-primary"
-                                    : "text-text-muted dark:text-slate-500 hover:text-text-main dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800"
-                            }`}
+                            className={`flex items-center gap-1.5 px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-lg transition-colors ${activeFilter === tab.key
+                                ? "bg-primary/10 text-primary"
+                                : "text-text-muted dark:text-slate-500 hover:text-text-main dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800"
+                                }`}
                         >
                             {tab.dotColor && <div className={`w-1.5 h-1.5 rounded-full ${tab.dotColor}`} />}
                             {tab.label}
@@ -160,7 +225,7 @@ export default function PayoutHistoryTable({ payments }) {
                     <div className="hidden lg:block overflow-x-auto">
                         <table className="w-full text-left">
                             <thead>
-                                <tr className="bg-slate-50 dark:bg-[#101922]/50 text-text-muted dark:text-slate-500 text-[10px] font-bold uppercase tracking-wider">
+                                <tr className="bg-slate-50 dark:bg-background-dark/50 text-text-muted dark:text-slate-500 text-[10px] font-bold uppercase tracking-wider">
                                     <th className="px-6 py-3">Customer</th>
                                     <th className="px-4 py-3">Rate</th>
                                     <th className="px-4 py-3">Sessions</th>
@@ -173,20 +238,15 @@ export default function PayoutHistoryTable({ payments }) {
                             <tbody className="divide-y divide-border-light dark:divide-border-dark">
                                 {paginated.map((p) => {
                                     const totalAmount = parseFloat(p.amount);
-                                    const fee = parseFloat(p.platformFee);
-                                    const feePercent = totalAmount > 0 ? Math.round((fee / totalAmount) * 100) : 0;
-                                    const released = parseFloat(p.releasedAmount ?? 0);
-                                    const totalPayout = parseFloat(p.therapistPayout);
                                     const perSessionRate = p.booking?.rate ? parseFloat(p.booking.rate) : totalAmount;
-                                    const sessionCount = p.booking?.sessions?.length || 1;
-                                    const confirmedCount = p.booking?.sessions?.filter(s => s.status === "confirmed_by_customer").length || 0;
-                                    const isMultiSession = sessionCount > 1;
+                                    const figures = computePayoutFigures(p);
+                                    const isMultiSession = figures.totalSessionCount > 1;
 
                                     return (
                                         <tr
                                             key={p.id}
                                             onClick={() => handleRowClick(p.bookingId)}
-                                            className="hover:bg-slate-50 dark:hover:bg-white/[0.03] transition-colors cursor-pointer"
+                                            className="hover:bg-slate-50 dark:hover:bg-white/3 transition-colors cursor-pointer"
                                         >
                                             <td className="px-6 py-4"><CustomerCell payment={p} /></td>
                                             <td className="px-4 py-4">
@@ -201,22 +261,30 @@ export default function PayoutHistoryTable({ payments }) {
                                                 {isMultiSession ? (
                                                     <div>
                                                         <span className="text-sm text-text-main dark:text-white">
-                                                            {confirmedCount} of {sessionCount}
+                                                            {figures.confirmedCount} of {figures.deliverableCount}
                                                         </span>
+                                                        {figures.hasReducedScope && (
+                                                            <p className="text-[10px] text-text-muted dark:text-slate-500 mt-0.5">
+                                                                {[
+                                                                    figures.missedOrCancelledCount > 0 && `${figures.missedOrCancelledCount} missed/cancelled`,
+                                                                    figures.attemptedCount > 0 && `${figures.attemptedCount} attempted`,
+                                                                ].filter(Boolean).join(" · ")}
+                                                            </p>
+                                                        )}
                                                         <SessionProgress payment={p} />
                                                     </div>
                                                 ) : (
                                                     <span className="text-sm text-text-muted dark:text-slate-400">1</span>
                                                 )}
                                             </td>
-                                            <td className="px-4 py-4 text-sm text-red-500">-{formatCurrency(fee)} ({feePercent}%)</td>
+                                            <td className="px-4 py-4 text-sm text-red-500">-{formatCurrency(figures.fee)} ({figures.feePercent}%)</td>
                                             <td className="px-4 py-4">
                                                 <span className="text-sm font-bold text-emerald-600 dark:text-emerald-400">
-                                                    {formatCurrency(p.status === "escrowed" ? totalPayout : released)}
+                                                    {formatCurrency(p.status === "escrowed" ? figures.totalPayout : figures.released)}
                                                 </span>
                                                 {p.status === "partially_released" && (
                                                     <p className="text-[10px] text-text-muted dark:text-slate-500 mt-0.5">
-                                                        of {formatCurrency(totalPayout)}
+                                                        of {formatCurrency(figures.totalPayout)}
                                                     </p>
                                                 )}
                                             </td>
@@ -240,20 +308,15 @@ export default function PayoutHistoryTable({ payments }) {
                     <div className="lg:hidden divide-y divide-border-light dark:divide-border-dark">
                         {paginated.map((p) => {
                             const totalAmount = parseFloat(p.amount);
-                            const fee = parseFloat(p.platformFee);
-                            const feePercent = totalAmount > 0 ? Math.round((fee / totalAmount) * 100) : 0;
-                            const released = parseFloat(p.releasedAmount ?? 0);
-                            const totalPayout = parseFloat(p.therapistPayout);
                             const perSessionRate = p.booking?.rate ? parseFloat(p.booking.rate) : totalAmount;
-                            const sessionCount = p.booking?.sessions?.length || 1;
-                            const confirmedCount = p.booking?.sessions?.filter(s => s.status === "confirmed_by_customer").length || 0;
-                            const isMultiSession = sessionCount > 1;
+                            const figures = computePayoutFigures(p);
+                            const isMultiSession = figures.totalSessionCount > 1;
 
                             return (
                                 <div
                                     key={p.id}
                                     onClick={() => handleRowClick(p.bookingId)}
-                                    className="p-4 hover:bg-slate-50 dark:hover:bg-white/[0.03] transition-colors cursor-pointer"
+                                    className="p-4 hover:bg-slate-50 dark:hover:bg-white/3 transition-colors cursor-pointer"
                                 >
                                     <div className="flex justify-between items-start mb-3">
                                         <CustomerCell payment={p} />
@@ -268,23 +331,27 @@ export default function PayoutHistoryTable({ payments }) {
                                             </p>
                                         </div>
                                         <div>
-                                            <p className="text-[10px] text-text-muted dark:text-slate-500 uppercase font-bold">Fee ({feePercent}%)</p>
-                                            <p className="text-red-500">-{formatCurrency(fee)}</p>
+                                            <p className="text-[10px] text-text-muted dark:text-slate-500 uppercase font-bold">Fee ({figures.feePercent}%)</p>
+                                            <p className="text-red-500">-{formatCurrency(figures.fee)}</p>
                                         </div>
                                         <div>
                                             <p className="text-[10px] text-text-muted dark:text-slate-500 uppercase font-bold">Released</p>
                                             <p className="font-bold text-emerald-600 dark:text-emerald-400">
-                                                {formatCurrency(p.status === "escrowed" ? totalPayout : released)}
+                                                {formatCurrency(p.status === "escrowed" ? figures.totalPayout : figures.released)}
                                             </p>
                                             {p.status === "partially_released" && (
-                                                <p className="text-[10px] text-text-muted mt-0.5">of {formatCurrency(totalPayout)}</p>
+                                                <p className="text-[10px] text-text-muted mt-0.5">of {formatCurrency(figures.totalPayout)}</p>
                                             )}
                                         </div>
                                     </div>
                                     {isMultiSession && (
                                         <div className="mt-2">
                                             <p className="text-[10px] text-text-muted dark:text-slate-500">
-                                                {confirmedCount} of {sessionCount} sessions confirmed
+                                                {figures.confirmedCount} of {figures.deliverableCount} sessions confirmed
+                                                {figures.hasReducedScope && ` (${[
+                                                    figures.missedOrCancelledCount > 0 && `${figures.missedOrCancelledCount} missed/cancelled`,
+                                                    figures.attemptedCount > 0 && `${figures.attemptedCount} attempted`,
+                                                ].filter(Boolean).join(" · ")})`}
                                             </p>
                                             <SessionProgress payment={p} />
                                         </div>
@@ -312,11 +379,10 @@ export default function PayoutHistoryTable({ payments }) {
                                     <button
                                         key={page}
                                         onClick={() => setCurrentPage(page)}
-                                        className={`px-3 py-1 rounded text-xs font-bold transition-colors ${
-                                            currentPage === page
-                                                ? "bg-primary text-white"
-                                                : "border border-border-light dark:border-border-dark text-text-muted dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
-                                        }`}
+                                        className={`px-3 py-1 rounded text-xs font-bold transition-colors ${currentPage === page
+                                            ? "bg-primary text-white"
+                                            : "border border-border-light dark:border-border-dark text-text-muted dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
+                                            }`}
                                     >
                                         {page}
                                     </button>

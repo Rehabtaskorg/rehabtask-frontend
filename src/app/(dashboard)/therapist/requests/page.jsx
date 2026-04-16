@@ -12,7 +12,6 @@ import { usePageTitle } from "@/hooks/usePageTitle";
 import { useAuth } from "@/hooks/useAuth";
 import { useTherapistAccess } from "@/contexts/TherapistAccessContext";
 import LockedPageOverlay from "@/components/therapist/LockedPageOverlay";
-import PatientBadge from "@/components/customer/PatientBadge";
 import TherapistRequestDetailPanel from "@/components/therapist/TherapistRequestDetailPanel";
 import TherapistRequestFilters, { FilterToggleButton } from "@/components/therapist/TherapistRequestFilters";
 
@@ -65,8 +64,10 @@ function TherapistRequestsContent() {
     const [filters, setFilters] = useState({ serviceTypes: [], distance: "10", show: "all" });
     const [committedFilters, setCommittedFilters] = useState({ serviceTypes: [], distance: "10", show: "all" });
     const [showFilters, setShowFilters] = useState(false);
+    const profileAttemptedRate = user?.profile?.attemptedVisitRate != null
+        ? parseFloat(user.profile.attemptedVisitRate).toFixed(2) : '';
     const [offerData, setOfferData] = useState({
-        rate: "", sessionType: "in-person", proposedDate: "", description: "", visitTypeId: "",
+        rate: "", attemptedVisitRate: "", sessionType: "in-person", proposedDate: "", description: "", visitTypeId: "",
         planOverrideEnabled: false, visitType: "", visitsPerWeek: "", numberOfWeeks: "",
     });
     // visitTypes state removed — OfferForm now fetches its own via useVisitTypes hook
@@ -112,6 +113,12 @@ function TherapistRequestsContent() {
         if (profileRate) setOfferData((prev) => ({ ...prev, rate: profileRate }));
     }, [profileRate]);
 
+    useEffect(() => {
+        if (profileAttemptedRate !== '') {
+            setOfferData((prev) => prev.attemptedVisitRate === '' ? { ...prev, attemptedVisitRate: profileAttemptedRate } : prev);
+        }
+    }, [profileAttemptedRate]);
+
     // ─── Filter Actions ─────────────────────────────────────
 
     const toggleServiceType = (val) => {
@@ -149,7 +156,7 @@ function TherapistRequestsContent() {
             const d = new Date(req.preferredDate);
             const localDT = new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
             setOfferData({
-                rate: profileRate, sessionType: "in-person", proposedDate: localDT, description: "", visitTypeId: "",
+                rate: profileRate, attemptedVisitRate: profileAttemptedRate, sessionType: "in-person", proposedDate: localDT, description: "", visitTypeId: "",
                 planOverrideEnabled: false, visitType: "", visitsPerWeek: "", numberOfWeeks: "",
             });
         }
@@ -162,12 +169,15 @@ function TherapistRequestsContent() {
         setSubmitting(true);
         setOfferError("");
         try {
+            const attemptedTrim = String(offerData.attemptedVisitRate ?? "").trim();
+            const attemptedNum = attemptedTrim === "" ? null : parseFloat(attemptedTrim);
             const createPayload = {
                 requestId: selectedRequest.id,
                 rate: parseFloat(offerData.rate),
                 sessionType: offerData.sessionType,
                 proposedDate: new Date(offerData.proposedDate).toISOString(),
                 description: offerData.description,
+                attemptedVisitRate: attemptedNum,
             };
             // Visit plan override — only include when toggle is on AND value filled.
             if (offerData.planOverrideEnabled) {
@@ -199,11 +209,14 @@ function TherapistRequestsContent() {
         try {
             // On revise, explicit `null` CLEARS a previous override. If the toggle
             // is off we always send nulls so the backend falls back to the request's plan.
+            const revAttemptedTrim = String(offerData.attemptedVisitRate ?? "").trim();
+            const revAttemptedNum = revAttemptedTrim === "" ? null : parseFloat(revAttemptedTrim);
             const revisePayload = {
                 rate: parseFloat(offerData.rate),
                 sessionType: offerData.sessionType,
                 proposedDate: new Date(offerData.proposedDate).toISOString(),
                 description: offerData.description,
+                attemptedVisitRate: revAttemptedNum,
             };
             if (offerData.planOverrideEnabled) {
                 revisePayload.visitTypeId = offerData.visitTypeId || null;
@@ -325,7 +338,7 @@ function TherapistRequestsContent() {
                                                 </div>
                                                 <h4 className="font-bold text-text-main dark:text-white mb-1 leading-tight line-clamp-1">{req.description?.split("\n")[0] || req.serviceType}</h4>
                                                 <p className="text-sm text-text-muted dark:text-gray-400 line-clamp-2 mb-3 leading-relaxed">{req.description}</p>
-                                                <PatientBadge patient={req.patient} />
+                                                {/* Patient identity hidden from therapist — visible only after booking */}
                                                 {req.visitsPerWeek && req.numberOfWeeks && (
                                                     <div className="flex items-center gap-1 text-xs font-semibold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/20 px-2 py-1 rounded-md mb-2 w-fit">
                                                         <MdRefresh className="text-[13px]" />
