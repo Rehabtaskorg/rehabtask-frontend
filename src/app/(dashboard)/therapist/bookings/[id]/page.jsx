@@ -473,6 +473,33 @@ export default function TherapistBookingDetailPage() {
                             </div>
                         )}
 
+                        {/* Single-session: Mark Missed + Mark Attempted (only when past scheduled date) */}
+                        {booking.status === "confirmed" && session?.status === "scheduled" && sessions.length <= 1 && !showCompleteDialog && (
+                            (() => {
+                                const scheduledInPast = session.scheduledDate && new Date(session.scheduledDate) <= new Date();
+                                const hasAttemptedRate = booking.attemptedVisitRate != null && parseFloat(booking.attemptedVisitRate) > 0;
+                                if (!scheduledInPast) return null;
+                                return (
+                                    <div className="flex items-center gap-3">
+                                        <button
+                                            onClick={() => setMarkMissedSession(session)}
+                                            className="text-sm font-bold text-red-500 dark:text-red-400 border border-red-300 dark:border-red-800 px-4 py-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                                        >
+                                            Mark Missed
+                                        </button>
+                                        {hasAttemptedRate && (
+                                            <button
+                                                onClick={() => setMarkAttemptedSession(session)}
+                                                className="text-sm font-bold text-amber-600 dark:text-amber-400 border border-amber-300 dark:border-amber-700 px-4 py-2 rounded-lg hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-colors"
+                                            >
+                                                Mark Attempted
+                                            </button>
+                                        )}
+                                    </div>
+                                );
+                            })()
+                        )}
+
                         {/* Complete dialog (inline) */}
                         {showCompleteDialog && (
                             <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-5">
