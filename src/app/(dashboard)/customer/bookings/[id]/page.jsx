@@ -896,7 +896,7 @@ export default function CustomerBookingDetailPage() {
                     />
 
                     {/* Payment status info */}
-                    {payment?.status === "escrowed" && (
+                    {payment?.status === "escrowed" && booking.status !== "finalized" && booking.status !== "cancelled" && (
                         <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4">
                             <div className="flex items-start gap-2">
                                 <MdInfo className="text-blue-600 dark:text-blue-400 text-sm mt-0.5 shrink-0" />
