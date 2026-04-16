@@ -505,6 +505,23 @@ export default function CustomerRequestDetailPage() {
                                                     <p className="text-sm text-text-main dark:text-gray-300 mt-3 leading-relaxed">{offer.description}</p>
                                                 )}
 
+                                                {offer.attemptedVisitRate != null && (
+                                                    parseFloat(offer.attemptedVisitRate) > 0 ? (
+                                                        <div className="mt-3 px-3 py-2 rounded-lg bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/40">
+                                                            <p className="text-[11px] text-amber-800 dark:text-amber-300">
+                                                                <span className="font-semibold">If you&apos;re not home when therapist arrives:</span>{" "}
+                                                                ${parseFloat(offer.attemptedVisitRate).toFixed(2)} attempted visit fee
+                                                            </p>
+                                                        </div>
+                                                    ) : (
+                                                        <div className="mt-3 px-3 py-2 rounded-lg bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/40">
+                                                            <p className="text-[11px] text-emerald-800 dark:text-emerald-300 font-medium">
+                                                                No charge for missed visits
+                                                            </p>
+                                                        </div>
+                                                    )
+                                                )}
+
                                                 {isExpired && (
                                                     <p className="text-xs text-amber-600 dark:text-amber-400 mt-2 italic">
                                                         This offer has expired. The therapist can send a new offer if still interested.
