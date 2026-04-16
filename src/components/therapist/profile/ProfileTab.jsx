@@ -190,6 +190,16 @@ const ProfileTab = ({ profile, approvalStatus, onboardingComplete }) => {
                                 label="Rate per Visit"
                                 value={profile?.ratePerVisit ? `$${parseFloat(profile.ratePerVisit).toFixed(2)}` : null}
                             />
+                            <InfoRow
+                                label="Attempted Visit Rate"
+                                value={
+                                    profile?.attemptedVisitRate != null
+                                        ? parseFloat(profile.attemptedVisitRate) === 0
+                                            ? "$0.00 (no charge for no-shows)"
+                                            : `$${parseFloat(profile.attemptedVisitRate).toFixed(2)}`
+                                        : "Not set"
+                                }
+                            />
                             <InfoRow label="License Type" value={licenseTypeLabel} />
                             <InfoRow
                                 label="License Number"
