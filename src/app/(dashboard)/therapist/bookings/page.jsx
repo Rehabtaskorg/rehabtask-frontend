@@ -295,7 +295,7 @@ function TherapistBookingsContent() {
                                                 <p className="text-xs text-text-muted dark:text-gray-400 mb-2">
                                                     {booking.offer?.request?.serviceType || "—"}
                                                 </p>
-                                                <PatientBadge patient={booking.patient} />
+                                                {/* Patient identity hidden from therapist */}
                                                 <div className="flex items-center gap-4 text-xs text-text-muted dark:text-gray-400">
                                                     <span className="flex items-center gap-1">
                                                         <MdCalendarToday className="text-sm" />
