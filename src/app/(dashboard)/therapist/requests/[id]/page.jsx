@@ -5,13 +5,11 @@ import { useParams, useRouter } from "next/navigation";
 import { api } from "@/lib/api";
 import {
     MdArrowBack, MdLocationOn, MdCheckCircle, MdWarning, MdError,
-    MdCalendarToday, MdAccessTime, MdPerson, MdInfo, MdChat,
-    MdVideocam, MdPersonPin, MdSend, MdSchedule, MdClose
+    MdInfo, MdChat, MdVideocam, MdPersonPin, MdSend, MdSchedule,
 } from "react-icons/md";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { useAuth } from "@/hooks/useAuth";
 import { useVisitTypes } from "@/hooks/useVisitTypes";
-import PatientInfoBlock from "@/components/customer/PatientInfoBlock";
 
 const STATUS_STYLES = {
     created: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400",
@@ -325,21 +323,7 @@ export default function TherapistRequestDetailPage() {
                         )}
                     </section>
 
-                    {/* Card 2: Patient Info */}
-                    {request.patient && (
-                        <section className="bg-card-light dark:bg-card-dark rounded-xl shadow-sm border border-border-light dark:border-border-dark overflow-hidden">
-                            <div className="p-6">
-                                <h2 className="text-xs font-bold text-text-muted dark:text-gray-400 uppercase tracking-widest mb-6">Patient Info</h2>
-                                <PatientInfoBlock patient={request.patient} />
-                            </div>
-                            <div className="bg-amber-50 dark:bg-amber-900/10 border-l-4 border-amber-400 px-6 py-4 flex items-start gap-3">
-                                <MdInfo className="text-amber-600 dark:text-amber-400 mt-0.5 shrink-0" />
-                                <p className="text-sm font-medium text-amber-800 dark:text-amber-300">
-                                    This patient is managed by {request.customer?.agencyName || "an agency"}. All documentation must be completed within their EMR system.
-                                </p>
-                            </div>
-                        </section>
-                    )}
+                    {/* Patient identity hidden from therapist pre-booking */}
 
                 </div>
 
