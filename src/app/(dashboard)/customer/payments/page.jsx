@@ -109,9 +109,6 @@ export default function CustomerPaymentsPage() {
 
     const hasPendingRefunds = summary?.pendingRefundAmount > 0;
     const hasConnectAccount = connectStatus?.connected;
-    const daysUntilExpiry = summary?.nearestExpiryDate
-        ? Math.max(0, Math.ceil((new Date(summary.nearestExpiryDate) - new Date()) / (1000 * 60 * 60 * 24)))
-        : null;
 
     return (
         <div className="flex-1 flex flex-col overflow-hidden">
@@ -183,23 +180,6 @@ export default function CustomerPaymentsPage() {
                                             <p className="text-sm text-text-muted dark:text-gray-400 mt-0.5">
                                                 Set up your payout account to receive refunds directly to your bank account.
                                             </p>
-                                            {daysUntilExpiry !== null && (
-                                                <div className="mt-3 max-w-xs">
-                                                    <div className="flex justify-between text-[10px] font-bold text-text-muted dark:text-gray-400 mb-1">
-                                                        <span>Expires in {daysUntilExpiry} days</span>
-                                                        <span>{Math.round(((30 - daysUntilExpiry) / 30) * 100)}%</span>
-                                                    </div>
-                                                    <div className="h-1.5 w-full bg-muted-light dark:bg-muted-dark rounded-full overflow-hidden">
-                                                        <div
-                                                            className="h-full bg-amber-500 rounded-full transition-all"
-                                                            style={{ width: `${((30 - daysUntilExpiry) / 30) * 100}%` }}
-                                                        />
-                                                    </div>
-                                                    <p className="text-[10px] text-text-muted dark:text-gray-400 mt-1">
-                                                        After {daysUntilExpiry} days, refunds will be returned to your original payment method.
-                                                    </p>
-                                                </div>
-                                            )}
                                         </div>
                                     </div>
                                     <Link
