@@ -22,6 +22,12 @@ const STATUS_CONFIG = {
     failed: { label: "Failed", color: "bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400" },
 };
 
+const getEffectiveStatus = (payment) => {
+    const bookingStatus = payment.booking?.status;
+    if (payment.status === "escrowed" && ["finalized", "cancelled"].includes(bookingStatus)) return "refunded";
+    return payment.status;
+};
+
 const formatCurrency = (amount) => {
     const num = parseFloat(amount);
     return isNaN(num) ? "$0.00" : `$${num.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -295,7 +301,7 @@ export default function CustomerPaymentsPage() {
                                         </thead>
                                         <tbody className="divide-y divide-border-light dark:divide-border-dark">
                                             {paginated.map((payment) => {
-                                                const config = STATUS_CONFIG[payment.status] || STATUS_CONFIG.escrowed;
+                                                const config = STATUS_CONFIG[getEffectiveStatus(payment)] || STATUS_CONFIG.escrowed;
                                                 const isExpanded = expandedId === payment.id;
                                                 const therapist = payment.booking?.therapist;
                                                 const serviceType = payment.booking?.offer?.request?.serviceType || payment.booking?.sessionType || "—";
@@ -376,7 +382,7 @@ export default function CustomerPaymentsPage() {
                                                                                 </div>
                                                                                 <div className="flex justify-between text-text-muted dark:text-gray-400">
                                                                                     <span>Therapist Payout</span>
-                                                                                    <span>{formatCurrency(payment.releasedAmount || payment.therapistPayout)}</span>
+                                                                                    <span>{formatCurrency(getEffectiveStatus(payment) === "refunded" ? 0 : (payment.releasedAmount || payment.therapistPayout))}</span>
                                                                                 </div>
                                                                                 {(() => {
                                                                                     const refunds = payment.customerRefunds || [];
@@ -500,7 +506,7 @@ export default function CustomerPaymentsPage() {
                                 {/* Mobile card list */}
                                 <div className="lg:hidden divide-y divide-border-light dark:divide-border-dark">
                                     {paginated.map((payment) => {
-                                        const config = STATUS_CONFIG[payment.status] || STATUS_CONFIG.escrowed;
+                                        const config = STATUS_CONFIG[getEffectiveStatus(payment)] || STATUS_CONFIG.escrowed;
                                         const therapist = payment.booking?.therapist;
                                         return (
                                             <div key={payment.id} className="p-4">
