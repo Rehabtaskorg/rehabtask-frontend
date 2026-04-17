@@ -908,15 +908,18 @@ export default function CustomerBookingDetailPage() {
                     )}
                     {payment?.status === "partially_released" && (() => {
                         const totalAmount = parseFloat(payment.amount);
+                        const platformFee = parseFloat(payment.platformFee ?? 0);
                         const releasedAmount = parseFloat(payment.releasedAmount ?? 0);
                         const refundedAmount = parseFloat(payment.refundedAmount ?? 0);
-                        const stillInEscrow = Math.max(0, totalAmount - releasedAmount - refundedAmount);
+                        const feeRatio = totalAmount > 0 ? platformFee / totalAmount : 0;
+                        const grossReleased = feeRatio < 1 ? parseFloat((releasedAmount / (1 - feeRatio)).toFixed(2)) : releasedAmount;
+                        const stillInEscrow = Math.max(0, parseFloat((totalAmount - grossReleased - refundedAmount).toFixed(2)));
                         return (
                             <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4">
                                 <div className="flex items-start gap-2">
                                     <MdInfo className="text-blue-600 dark:text-blue-400 text-sm mt-0.5 shrink-0" />
                                     <div className="text-xs text-blue-700 dark:text-blue-300 space-y-0.5">
-                                        <p>{formatCurrency(releasedAmount)} paid to therapist for confirmed sessions.</p>
+                                        <p>{formatCurrency(grossReleased)} paid for confirmed sessions.</p>
                                         {refundedAmount > 0 && (
                                             <p>{formatCurrency(refundedAmount)} refunded to you for missed/undelivered sessions.</p>
                                         )}
