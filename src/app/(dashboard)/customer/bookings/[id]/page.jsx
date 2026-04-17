@@ -604,14 +604,14 @@ export default function CustomerBookingDetailPage() {
                                 <MdCalendarToday className="text-primary text-lg mt-0.5 shrink-0" />
                                 <div>
                                     <p className="text-xs text-text-muted dark:text-gray-400">Date</p>
-                                    <p className="text-sm font-medium text-text-main dark:text-white">{formatDate(booking.scheduledDate)}</p>
+                                    <p className="text-sm font-medium text-text-main dark:text-white">{formatDate(session?.scheduledDate || booking.scheduledDate)}</p>
                                 </div>
                             </div>
                             <div className="flex items-start gap-3">
                                 <MdAccessTime className="text-primary text-lg mt-0.5 shrink-0" />
                                 <div>
                                     <p className="text-xs text-text-muted dark:text-gray-400">Time</p>
-                                    <p className="text-sm font-medium text-text-main dark:text-white">{formatTime(booking.scheduledDate)}</p>
+                                    <p className="text-sm font-medium text-text-main dark:text-white">{formatTime(session?.scheduledDate || booking.scheduledDate)}</p>
                                 </div>
                             </div>
                             <div className="flex items-start gap-3">

@@ -19,6 +19,7 @@ import { formatCurrency } from "@/utils/messages";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { useTherapistAccess } from "@/contexts/TherapistAccessContext";
 import LockedPageOverlay from "@/components/therapist/LockedPageOverlay";
+import ConfirmModal from "@/components/ui/ConfirmModal";
 
 // ─── Helpers ────────────────────────────────────────────────
 
@@ -103,6 +104,7 @@ function MyOffersContent() {
     const [withdrawingIds, setWithdrawingIds] = useState(new Set());
     const [revising, setRevising] = useState(false);
     const [reviseError, setReviseError] = useState("");
+    const [withdrawConfirmId, setWithdrawConfirmId] = useState(null);
 
     // ─── Derived data ───────────────────────────────────────
 
@@ -123,8 +125,14 @@ function MyOffersContent() {
 
     // ─── Handlers ───────────────────────────────────────────
 
-    const handleWithdraw = async (offerId) => {
-        if (!window.confirm("Are you sure you want to withdraw this offer?")) return;
+    const handleWithdraw = (offerId) => {
+        setWithdrawConfirmId(offerId);
+    };
+
+    const executeWithdraw = async () => {
+        const offerId = withdrawConfirmId;
+        if (!offerId) return;
+        setWithdrawConfirmId(null);
         setWithdrawingIds((prev) => new Set(prev).add(offerId));
         try {
             await offersApi.withdrawOffer(offerId);
@@ -324,6 +332,17 @@ function MyOffersContent() {
                     </div>
                 )}
             </div>
+
+            <ConfirmModal
+                isOpen={!!withdrawConfirmId}
+                onClose={() => setWithdrawConfirmId(null)}
+                onConfirm={executeWithdraw}
+                title="Withdraw Offer"
+                message="This will withdraw your offer. The customer will be notified. You can send a new offer later if needed."
+                confirmLabel="Withdraw"
+                confirmClassName="bg-red-600 hover:bg-red-700 text-white"
+                loading={withdrawingIds.size > 0}
+            />
         </>
     );
 }
