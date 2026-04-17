@@ -20,6 +20,7 @@ import { paymentsApi } from "@/lib/payments.api";
 import { resolveVisitPlan, computeTotalVisits } from "@/lib/visitPlan";
 import BookingStatusBadge from "@/components/bookings/BookingStatusBadge";
 import BookingTimeline from "@/components/bookings/BookingTimeline";
+import BookingSharedFiles from "@/components/bookings/BookingSharedFiles";
 import SessionList from "@/components/bookings/SessionList";
 import PaymentSummaryCard from "@/components/bookings/PaymentSummaryCard";
 import RequestRevisionModal from "@/components/shared/sessions/RequestRevisionModal";
@@ -644,6 +645,9 @@ export default function CustomerBookingDetailPage() {
                             </div>
                         )}
                     </div>
+
+                    {/* Shared Files */}
+                    <BookingSharedFiles bookingId={booking.id} canUpload={false} />
 
                     {/* Timeline */}
                     <BookingTimeline booking={booking} />

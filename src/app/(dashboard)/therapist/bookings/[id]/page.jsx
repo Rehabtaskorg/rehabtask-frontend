@@ -19,6 +19,7 @@ import MarkSessionAttemptedModal from "@/components/shared/sessions/MarkSessionA
 import RevisionStatusBanner from "@/components/shared/sessions/RevisionStatusBanner";
 import { formatCurrency } from "@/utils/messages";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import BookingSharedFiles from "@/components/bookings/BookingSharedFiles";
 
 const formatDate = (dateStr) => {
     if (!dateStr) return "—";
@@ -317,6 +318,9 @@ export default function TherapistBookingDetailPage() {
                             </p>
                         </div>
                     )}
+
+                    {/* Shared Files */}
+                    <BookingSharedFiles bookingId={booking.id} canUpload={true} />
 
                     {/* Timeline */}
                     <BookingTimeline booking={booking} />

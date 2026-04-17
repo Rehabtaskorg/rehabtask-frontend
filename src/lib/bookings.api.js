@@ -56,6 +56,10 @@ export const bookingsApi = {
         return api.post(`/sessions/${sessionId}/mark-attempted`, { reason });
     },
 
+    getBookingConversation: async (bookingId) => {
+        return api.get(`/bookings/${bookingId}/conversation`);
+    },
+
     // Payment endpoints
     requestRefund: async (bookingId, reason) => {
         return api.post("/payments/refund", { bookingId, reason });
