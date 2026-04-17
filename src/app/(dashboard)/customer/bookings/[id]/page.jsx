@@ -646,9 +646,6 @@ export default function CustomerBookingDetailPage() {
                         )}
                     </div>
 
-                    {/* Shared Files */}
-                    <BookingSharedFiles bookingId={booking.id} canUpload={false} />
-
                     {/* Timeline */}
                     <BookingTimeline booking={booking} />
 
@@ -898,6 +895,9 @@ export default function CustomerBookingDetailPage() {
                         role="customer"
                         onAction={handlePaymentAction}
                     />
+
+                    {/* Shared Files */}
+                    <BookingSharedFiles bookingId={booking.id} canUpload={false} />
 
                     {/* Payment status info */}
                     {payment?.status === "escrowed" && booking.status !== "finalized" && booking.status !== "cancelled" && (

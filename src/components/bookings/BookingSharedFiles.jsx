@@ -2,7 +2,7 @@
 
 import { useState, useRef, useCallback } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { MdAttachFile, MdClose } from "react-icons/md";
+import { MdAttachFile } from "react-icons/md";
 import { bookingsApi } from "@/lib/bookings.api";
 import { messagesApi } from "@/lib/messages.api";
 import SharedFiles from "@/components/shared/messages/SharedFiles";
@@ -103,12 +103,11 @@ export default function BookingSharedFiles({ bookingId, canUpload = false }) {
                 onViewAll={() => setShowAllFiles(true)}
             />
 
-            {showAllFiles && (
-                <AttachmentsModal
-                    conversationId={conversationId}
-                    onClose={() => setShowAllFiles(false)}
-                />
-            )}
+            <AttachmentsModal
+                isOpen={showAllFiles}
+                conversationId={conversationId}
+                onClose={() => setShowAllFiles(false)}
+            />
         </div>
     );
 }

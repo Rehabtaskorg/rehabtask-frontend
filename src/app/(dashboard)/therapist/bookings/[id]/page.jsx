@@ -319,9 +319,6 @@ export default function TherapistBookingDetailPage() {
                         </div>
                     )}
 
-                    {/* Shared Files */}
-                    <BookingSharedFiles bookingId={booking.id} canUpload={true} />
-
                     {/* Timeline */}
                     <BookingTimeline booking={booking} />
 
@@ -650,6 +647,9 @@ export default function TherapistBookingDetailPage() {
                         booking={booking}
                         role="therapist"
                     />
+
+                    {/* Shared Files */}
+                    <BookingSharedFiles bookingId={booking.id} canUpload={true} />
 
                     {/* Message Customer */}
                     {["accepted", "confirmed", "in_progress", "completed", "finalized"].includes(booking.status) && (
