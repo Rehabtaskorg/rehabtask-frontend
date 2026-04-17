@@ -18,12 +18,14 @@ const STATUS_STYLES = {
     released: "bg-emerald-100 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400",
     escrowed: "bg-amber-100 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400",
     partially_released: "bg-orange-100 dark:bg-orange-500/10 text-orange-700 dark:text-orange-400",
+    refunded: "bg-slate-100 dark:bg-slate-500/10 text-slate-600 dark:text-slate-400",
 };
 
 const STATUS_TEXT = {
     released: "Paid Out",
     escrowed: "In Escrow",
     partially_released: "Partially Paid",
+    refunded: "Refunded",
 };
 
 function formatDate(dateStr) {
@@ -80,6 +82,10 @@ function computePayoutFigures(payment) {
         ? Math.round((adjustedFee / adjustedTotalAmount) * 100)
         : 0;
 
+    const bookingStatus = payment.booking?.status;
+    const isBookingFinalized = bookingStatus === "finalized" || bookingStatus === "cancelled";
+    const effectiveStatus = (isBookingFinalized && payment.status === "escrowed") ? "refunded" : payment.status;
+
     return {
         totalSessionCount,
         confirmedCount,
@@ -89,8 +95,9 @@ function computePayoutFigures(payment) {
         hasReducedScope,
         fee: adjustedFee,
         feePercent,
-        totalPayout: adjustedPayout,
-        released: parseFloat(payment.releasedAmount ?? 0),
+        totalPayout: isBookingFinalized && payment.status === "escrowed" ? 0 : adjustedPayout,
+        released: isBookingFinalized && payment.status === "escrowed" ? 0 : parseFloat(payment.releasedAmount ?? 0),
+        effectiveStatus,
     };
 }
 
@@ -280,21 +287,23 @@ export default function PayoutHistoryTable({ payments }) {
                                             <td className="px-4 py-4 text-sm text-red-500">-{formatCurrency(figures.fee)} ({figures.feePercent}%)</td>
                                             <td className="px-4 py-4">
                                                 <span className="text-sm font-bold text-emerald-600 dark:text-emerald-400">
-                                                    {formatCurrency(p.status === "escrowed" ? figures.totalPayout : figures.released)}
+                                                    {formatCurrency(figures.effectiveStatus === "escrowed" ? figures.totalPayout : figures.released)}
                                                 </span>
-                                                {p.status === "partially_released" && (
+                                                {figures.effectiveStatus === "partially_released" && (
                                                     <p className="text-[10px] text-text-muted dark:text-slate-500 mt-0.5">
                                                         of {formatCurrency(figures.totalPayout)}
                                                     </p>
                                                 )}
                                             </td>
-                                            <td className="px-4 py-4"><StatusBadge status={p.status} /></td>
+                                            <td className="px-4 py-4"><StatusBadge status={figures.effectiveStatus} /></td>
                                             <td className="px-6 py-4 text-sm text-text-muted dark:text-slate-400">
-                                                {p.status === "released"
+                                                {figures.effectiveStatus === "released"
                                                     ? formatDate(p.releasedAt)
-                                                    : p.status === "partially_released"
+                                                    : figures.effectiveStatus === "partially_released"
                                                         ? <span className="text-orange-500 font-medium">In progress</span>
-                                                        : <span className="italic text-text-muted dark:text-slate-500">Pending</span>
+                                                        : figures.effectiveStatus === "refunded"
+                                                            ? <span className="text-slate-500">Refunded</span>
+                                                            : <span className="italic text-text-muted dark:text-slate-500">Pending</span>
                                                 }
                                             </td>
                                         </tr>
@@ -320,7 +329,7 @@ export default function PayoutHistoryTable({ payments }) {
                                 >
                                     <div className="flex justify-between items-start mb-3">
                                         <CustomerCell payment={p} />
-                                        <StatusBadge status={p.status} />
+                                        <StatusBadge status={figures.effectiveStatus} />
                                     </div>
                                     <div className="grid grid-cols-3 gap-3 text-sm">
                                         <div>
@@ -337,9 +346,9 @@ export default function PayoutHistoryTable({ payments }) {
                                         <div>
                                             <p className="text-[10px] text-text-muted dark:text-slate-500 uppercase font-bold">Released</p>
                                             <p className="font-bold text-emerald-600 dark:text-emerald-400">
-                                                {formatCurrency(p.status === "escrowed" ? figures.totalPayout : figures.released)}
+                                                {formatCurrency(figures.effectiveStatus === "escrowed" ? figures.totalPayout : figures.released)}
                                             </p>
-                                            {p.status === "partially_released" && (
+                                            {figures.effectiveStatus === "partially_released" && (
                                                 <p className="text-[10px] text-text-muted mt-0.5">of {formatCurrency(figures.totalPayout)}</p>
                                             )}
                                         </div>

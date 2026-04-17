@@ -20,6 +20,7 @@ import { paymentsApi } from "@/lib/payments.api";
 import { resolveVisitPlan, computeTotalVisits } from "@/lib/visitPlan";
 import BookingStatusBadge from "@/components/bookings/BookingStatusBadge";
 import BookingTimeline from "@/components/bookings/BookingTimeline";
+import BookingSharedFiles from "@/components/bookings/BookingSharedFiles";
 import SessionList from "@/components/bookings/SessionList";
 import PaymentSummaryCard from "@/components/bookings/PaymentSummaryCard";
 import RequestRevisionModal from "@/components/shared/sessions/RequestRevisionModal";
@@ -604,14 +605,14 @@ export default function CustomerBookingDetailPage() {
                                 <MdCalendarToday className="text-primary text-lg mt-0.5 shrink-0" />
                                 <div>
                                     <p className="text-xs text-text-muted dark:text-gray-400">Date</p>
-                                    <p className="text-sm font-medium text-text-main dark:text-white">{formatDate(booking.scheduledDate)}</p>
+                                    <p className="text-sm font-medium text-text-main dark:text-white">{formatDate(session?.scheduledDate || booking.scheduledDate)}</p>
                                 </div>
                             </div>
                             <div className="flex items-start gap-3">
                                 <MdAccessTime className="text-primary text-lg mt-0.5 shrink-0" />
                                 <div>
                                     <p className="text-xs text-text-muted dark:text-gray-400">Time</p>
-                                    <p className="text-sm font-medium text-text-main dark:text-white">{formatTime(booking.scheduledDate)}</p>
+                                    <p className="text-sm font-medium text-text-main dark:text-white">{formatTime(session?.scheduledDate || booking.scheduledDate)}</p>
                                 </div>
                             </div>
                             <div className="flex items-start gap-3">
@@ -779,8 +780,8 @@ export default function CustomerBookingDetailPage() {
                             />
                         )}
 
-                        {/* Session completed by therapist — confirm or request revision */}
-                        {session?.status === "completed_by_therapist" && !showConfirmDialog && (
+                        {/* Session completed by therapist — confirm or request revision (single-session only; multi-session has per-session buttons in SessionList) */}
+                        {sessions.length <= 1 && session?.status === "completed_by_therapist" && !showConfirmDialog && (
                             <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-5">
                                 <div className="flex items-start gap-3">
                                     <MdWarning className="text-amber-600 dark:text-amber-400 text-lg mt-0.5 shrink-0" />
@@ -815,8 +816,8 @@ export default function CustomerBookingDetailPage() {
                             </div>
                         )}
 
-                        {/* Confirm dialog (inline) */}
-                        {showConfirmDialog && (
+                        {/* Confirm dialog (inline, single-session only) */}
+                        {sessions.length <= 1 && showConfirmDialog && (
                             <div className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl p-5">
                                 <p className="text-sm font-bold text-emerald-900 dark:text-emerald-200 mb-1">Confirm Session Completion?</p>
                                 <p className="text-xs text-emerald-700 dark:text-emerald-300 mb-4">
@@ -895,8 +896,11 @@ export default function CustomerBookingDetailPage() {
                         onAction={handlePaymentAction}
                     />
 
+                    {/* Shared Files */}
+                    <BookingSharedFiles bookingId={booking.id} canUpload={false} />
+
                     {/* Payment status info */}
-                    {payment?.status === "escrowed" && (
+                    {payment?.status === "escrowed" && booking.status !== "finalized" && booking.status !== "cancelled" && (
                         <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4">
                             <div className="flex items-start gap-2">
                                 <MdInfo className="text-blue-600 dark:text-blue-400 text-sm mt-0.5 shrink-0" />
@@ -908,15 +912,18 @@ export default function CustomerBookingDetailPage() {
                     )}
                     {payment?.status === "partially_released" && (() => {
                         const totalAmount = parseFloat(payment.amount);
+                        const platformFee = parseFloat(payment.platformFee ?? 0);
                         const releasedAmount = parseFloat(payment.releasedAmount ?? 0);
                         const refundedAmount = parseFloat(payment.refundedAmount ?? 0);
-                        const stillInEscrow = Math.max(0, totalAmount - releasedAmount - refundedAmount);
+                        const feeRatio = totalAmount > 0 ? platformFee / totalAmount : 0;
+                        const grossReleased = feeRatio < 1 ? parseFloat((releasedAmount / (1 - feeRatio)).toFixed(2)) : releasedAmount;
+                        const stillInEscrow = Math.max(0, parseFloat((totalAmount - grossReleased - refundedAmount).toFixed(2)));
                         return (
                             <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4">
                                 <div className="flex items-start gap-2">
                                     <MdInfo className="text-blue-600 dark:text-blue-400 text-sm mt-0.5 shrink-0" />
                                     <div className="text-xs text-blue-700 dark:text-blue-300 space-y-0.5">
-                                        <p>{formatCurrency(releasedAmount)} paid to therapist for confirmed sessions.</p>
+                                        <p>{formatCurrency(grossReleased)} paid for confirmed sessions.</p>
                                         {refundedAmount > 0 && (
                                             <p>{formatCurrency(refundedAmount)} refunded to you for missed/undelivered sessions.</p>
                                         )}

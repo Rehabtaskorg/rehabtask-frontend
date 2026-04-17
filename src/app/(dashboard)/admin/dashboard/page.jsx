@@ -116,7 +116,7 @@ export default function AdminDashboardPage() {
     const { data: payStats, isLoading: payLoading } = useAdminPaymentStats({ enabled: can('payments') });
     const { data: subStats, isLoading: subLoading } = useAdminSubscriptionStats({ enabled: can('subscriptions') });
     const { data: usersData, isLoading: usersLoading } = useAdminUsers({ limit: 1, enabled: can('users') });
-    const { data: pendingData, isLoading: pendingLoading } = useAdminTherapists({ approvalStatus: 'pending', limit: 5, enabled: can('therapists') });
+    const { data: pendingData, isLoading: pendingLoading } = useAdminTherapists({ approvalStatus: 'review', limit: 5, enabled: can('therapists') });
     const { data: disputesData, isLoading: dispLoading } = useAdminDisputes({ status: 'open', limit: 5, enabled: can('disputes') });
     const { data: bookingsData, isLoading: bookLoading } = useAdminBookings({ limit: 6, enabled: can('bookings') });
 

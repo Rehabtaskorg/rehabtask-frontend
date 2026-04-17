@@ -22,6 +22,12 @@ const STATUS_CONFIG = {
     failed: { label: "Failed", color: "bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400" },
 };
 
+const getEffectiveStatus = (payment) => {
+    const bookingStatus = payment.booking?.status;
+    if (payment.status === "escrowed" && ["finalized", "cancelled"].includes(bookingStatus)) return "refunded";
+    return payment.status;
+};
+
 const formatCurrency = (amount) => {
     const num = parseFloat(amount);
     return isNaN(num) ? "$0.00" : `$${num.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -109,9 +115,6 @@ export default function CustomerPaymentsPage() {
 
     const hasPendingRefunds = summary?.pendingRefundAmount > 0;
     const hasConnectAccount = connectStatus?.connected;
-    const daysUntilExpiry = summary?.nearestExpiryDate
-        ? Math.max(0, Math.ceil((new Date(summary.nearestExpiryDate) - new Date()) / (1000 * 60 * 60 * 24)))
-        : null;
 
     return (
         <div className="flex-1 flex flex-col overflow-hidden">
@@ -183,23 +186,6 @@ export default function CustomerPaymentsPage() {
                                             <p className="text-sm text-text-muted dark:text-gray-400 mt-0.5">
                                                 Set up your payout account to receive refunds directly to your bank account.
                                             </p>
-                                            {daysUntilExpiry !== null && (
-                                                <div className="mt-3 max-w-xs">
-                                                    <div className="flex justify-between text-[10px] font-bold text-text-muted dark:text-gray-400 mb-1">
-                                                        <span>Expires in {daysUntilExpiry} days</span>
-                                                        <span>{Math.round(((30 - daysUntilExpiry) / 30) * 100)}%</span>
-                                                    </div>
-                                                    <div className="h-1.5 w-full bg-muted-light dark:bg-muted-dark rounded-full overflow-hidden">
-                                                        <div
-                                                            className="h-full bg-amber-500 rounded-full transition-all"
-                                                            style={{ width: `${((30 - daysUntilExpiry) / 30) * 100}%` }}
-                                                        />
-                                                    </div>
-                                                    <p className="text-[10px] text-text-muted dark:text-gray-400 mt-1">
-                                                        After {daysUntilExpiry} days, refunds will be returned to your original payment method.
-                                                    </p>
-                                                </div>
-                                            )}
                                         </div>
                                     </div>
                                     <Link
@@ -315,7 +301,7 @@ export default function CustomerPaymentsPage() {
                                         </thead>
                                         <tbody className="divide-y divide-border-light dark:divide-border-dark">
                                             {paginated.map((payment) => {
-                                                const config = STATUS_CONFIG[payment.status] || STATUS_CONFIG.escrowed;
+                                                const config = STATUS_CONFIG[getEffectiveStatus(payment)] || STATUS_CONFIG.escrowed;
                                                 const isExpanded = expandedId === payment.id;
                                                 const therapist = payment.booking?.therapist;
                                                 const serviceType = payment.booking?.offer?.request?.serviceType || payment.booking?.sessionType || "—";
@@ -385,63 +371,66 @@ export default function CustomerPaymentsPage() {
                                                                         {/* Financial Breakdown */}
                                                                         <div>
                                                                             <p className="text-[10px] font-bold text-text-muted dark:text-gray-400 uppercase tracking-widest mb-2">Financial Breakdown</p>
-                                                                            <div className="space-y-1.5 text-xs">
-                                                                                <div className="flex justify-between text-text-main dark:text-white">
-                                                                                    <span>Total Paid</span>
-                                                                                    <span>{formatCurrency(payment.amount)}</span>
-                                                                                </div>
-                                                                                <div className="flex justify-between text-text-muted dark:text-gray-400">
-                                                                                    <span>Platform Fee</span>
-                                                                                    <span>-{formatCurrency(payment.platformFee)}</span>
-                                                                                </div>
-                                                                                <div className="flex justify-between text-text-muted dark:text-gray-400">
-                                                                                    <span>Therapist Payout</span>
-                                                                                    <span>{formatCurrency(payment.releasedAmount || payment.therapistPayout)}</span>
-                                                                                </div>
-                                                                                {(() => {
-                                                                                    const refunds = payment.customerRefunds || [];
-                                                                                    if (refunds.length === 0) {
-                                                                                        // Legacy: payment.refundedAmount only (no CustomerRefund rows)
-                                                                                        if (payment.refundedAmount) {
-                                                                                            return (
-                                                                                                <div className="flex justify-between font-semibold pt-1 border-t border-border-light dark:border-border-dark text-emerald-600 dark:text-emerald-400">
-                                                                                                    <span>Refunded to You</span>
-                                                                                                    <span>{formatCurrency(payment.refundedAmount)}</span>
-                                                                                                </div>
-                                                                                            );
-                                                                                        }
-                                                                                        return null;
-                                                                                    }
-                                                                                    const sumByStatus = (status) => refunds
-                                                                                        .filter(r => r.status === status)
-                                                                                        .reduce((sum, r) => sum + parseFloat(r.amount), 0);
-                                                                                    const pending = sumByStatus("pending_connect");
-                                                                                    const transferred = sumByStatus("transferred");
-                                                                                    const card = sumByStatus("refunded_to_card");
-                                                                                    return (
-                                                                                        <div className="pt-1 border-t border-border-light dark:border-border-dark space-y-1">
-                                                                                            {transferred > 0 && (
-                                                                                                <div className="flex justify-between font-semibold text-emerald-600 dark:text-emerald-400">
-                                                                                                    <span>Refund Sent to Bank</span>
-                                                                                                    <span>{formatCurrency(transferred)}</span>
-                                                                                                </div>
-                                                                                            )}
-                                                                                            {card > 0 && (
-                                                                                                <div className="flex justify-between font-semibold text-emerald-600 dark:text-emerald-400">
-                                                                                                    <span>Refund Returned to Card</span>
-                                                                                                    <span>{formatCurrency(card)}</span>
-                                                                                                </div>
-                                                                                            )}
-                                                                                            {pending > 0 && (
-                                                                                                <div className="flex justify-between font-semibold text-amber-600 dark:text-amber-400">
-                                                                                                    <span>Refund Pending</span>
-                                                                                                    <span>{formatCurrency(pending)}</span>
-                                                                                                </div>
-                                                                                            )}
+                                                                            {(() => {
+                                                                                const total = parseFloat(payment.amount);
+                                                                                const feeRatio = total > 0 ? parseFloat(payment.platformFee) / total : 0;
+                                                                                const released = parseFloat(payment.releasedAmount ?? 0);
+                                                                                const grossReleased = feeRatio < 1 ? parseFloat((released / (1 - feeRatio)).toFixed(2)) : released;
+                                                                                const refunds = payment.customerRefunds || [];
+                                                                                const sumByStatus = (status) => refunds.filter(r => r.status === status).reduce((s, r) => s + parseFloat(r.amount), 0);
+                                                                                const pendingRefund = sumByStatus("pending_connect");
+                                                                                const transferredRefund = sumByStatus("transferred");
+                                                                                const cardRefund = sumByStatus("refunded_to_card");
+                                                                                const legacyRefund = refunds.length === 0 && payment.refundedAmount ? parseFloat(payment.refundedAmount) : 0;
+                                                                                const totalRefunded = pendingRefund + transferredRefund + cardRefund + legacyRefund;
+                                                                                const effectiveReleased = getEffectiveStatus(payment) === "refunded" ? 0 : grossReleased;
+                                                                                const remaining = Math.max(0, parseFloat((total - effectiveReleased - totalRefunded).toFixed(2)));
+
+                                                                                return (
+                                                                                    <div className="space-y-1.5 text-xs">
+                                                                                        <div className="flex justify-between font-semibold text-text-main dark:text-white">
+                                                                                            <span>Total Paid</span>
+                                                                                            <span>{formatCurrency(total)}</span>
                                                                                         </div>
-                                                                                    );
-                                                                                })()}
-                                                                            </div>
+                                                                                        {effectiveReleased > 0 && (
+                                                                                            <div className="flex justify-between text-text-muted dark:text-gray-400">
+                                                                                                <span>Released to therapist</span>
+                                                                                                <span>{formatCurrency(effectiveReleased)}</span>
+                                                                                            </div>
+                                                                                        )}
+                                                                                        {transferredRefund > 0 && (
+                                                                                            <div className="flex justify-between text-emerald-600 dark:text-emerald-400">
+                                                                                                <span>Refunded to your bank</span>
+                                                                                                <span>{formatCurrency(transferredRefund)}</span>
+                                                                                            </div>
+                                                                                        )}
+                                                                                        {cardRefund > 0 && (
+                                                                                            <div className="flex justify-between text-emerald-600 dark:text-emerald-400">
+                                                                                                <span>Returned to card</span>
+                                                                                                <span>{formatCurrency(cardRefund)}</span>
+                                                                                            </div>
+                                                                                        )}
+                                                                                        {pendingRefund > 0 && (
+                                                                                            <div className="flex justify-between text-amber-600 dark:text-amber-400">
+                                                                                                <span>Refund pending</span>
+                                                                                                <span>{formatCurrency(pendingRefund)}</span>
+                                                                                            </div>
+                                                                                        )}
+                                                                                        {legacyRefund > 0 && (
+                                                                                            <div className="flex justify-between text-emerald-600 dark:text-emerald-400">
+                                                                                                <span>Refunded</span>
+                                                                                                <span>{formatCurrency(legacyRefund)}</span>
+                                                                                            </div>
+                                                                                        )}
+                                                                                        {remaining > 0 && (
+                                                                                            <div className="flex justify-between text-text-muted dark:text-gray-400 pt-1 border-t border-border-light dark:border-border-dark">
+                                                                                                <span>Held in escrow</span>
+                                                                                                <span>{formatCurrency(remaining)}</span>
+                                                                                            </div>
+                                                                                        )}
+                                                                                    </div>
+                                                                                );
+                                                                            })()}
                                                                         </div>
 
                                                                         {/* Timeline */}
@@ -520,7 +509,7 @@ export default function CustomerPaymentsPage() {
                                 {/* Mobile card list */}
                                 <div className="lg:hidden divide-y divide-border-light dark:divide-border-dark">
                                     {paginated.map((payment) => {
-                                        const config = STATUS_CONFIG[payment.status] || STATUS_CONFIG.escrowed;
+                                        const config = STATUS_CONFIG[getEffectiveStatus(payment)] || STATUS_CONFIG.escrowed;
                                         const therapist = payment.booking?.therapist;
                                         return (
                                             <div key={payment.id} className="p-4">

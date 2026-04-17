@@ -8,6 +8,7 @@ import { offersApi } from "@/lib/offers";
 import { useAuth } from "@/hooks/useAuth";
 import { formatCurrency, formatMessageTime } from "@/utils/messages";
 import { MdCheck, MdClose, MdEdit } from "react-icons/md";
+import ConfirmModal from "@/components/ui/ConfirmModal";
 
 const getOfferStatusBadge = (status) => {
     switch (status) {
@@ -54,9 +55,10 @@ export default function SessionOfferWidget({ offerId }) {
     const { user } = useAuth();
     const { offer, loading, error } = useOfferDetails(offerId);
 
-    const [actionLoading, setActionLoading] = useState(null); // 'accept' | 'decline' | 'change' | null
+    const [actionLoading, setActionLoading] = useState(null);
     const [actionError, setActionError] = useState(null);
     const [showChangeInput, setShowChangeInput] = useState(false);
+    const [confirmAction, setConfirmAction] = useState(null);
     const [changeNote, setChangeNote] = useState("");
 
     if (loading) {
@@ -87,36 +89,59 @@ export default function SessionOfferWidget({ offerId }) {
         queryClient.invalidateQueries({ queryKey: ["messages"] });
     };
 
-    const handleAccept = async () => {
-        if (!confirm("Accept this offer? A booking will be created and you can pay when ready.")) return;
-        setActionLoading("accept");
-        setActionError(null);
-        try {
-            await offersApi.acceptOffer(offerId);
-            invalidateAfterAction();
-        } catch (err) {
-            const code = err.response?.data?.code;
-            if (code === "THERAPIST_LIMIT_REACHED" || code === "REQUEST_LIMIT_REACHED") {
-                setActionError(err.response.data.message);
-            } else {
-                setActionError(err.response?.data?.message || "Failed to accept offer");
-            }
-        } finally {
-            setActionLoading(null);
-        }
+    const handleAccept = () => {
+        setConfirmAction({
+            type: "accept",
+            title: "Accept Offer",
+            message: "A booking will be created and you can pay when ready.",
+            confirmLabel: "Accept Offer",
+            confirmClassName: "bg-emerald-600 hover:bg-emerald-700 text-white",
+        });
     };
 
-    const handleDecline = async () => {
-        if (!confirm("Decline this offer? The therapist will be notified.")) return;
-        setActionLoading("decline");
+    const handleDecline = () => {
+        setConfirmAction({
+            type: "decline",
+            title: "Decline Offer",
+            message: "The therapist will be notified that you declined.",
+            confirmLabel: "Decline",
+            confirmClassName: "bg-red-600 hover:bg-red-700 text-white",
+        });
+    };
+
+    const executeConfirmAction = async () => {
+        if (!confirmAction) return;
         setActionError(null);
-        try {
-            await offersApi.declineOffer(offerId);
-            invalidateAfterAction();
-        } catch (err) {
-            setActionError(err.response?.data?.message || "Failed to decline offer");
-        } finally {
-            setActionLoading(null);
+
+        if (confirmAction.type === "accept") {
+            setActionLoading("accept");
+            try {
+                await offersApi.acceptOffer(offerId);
+                invalidateAfterAction();
+                setConfirmAction(null);
+            } catch (err) {
+                setConfirmAction(null);
+                const code = err.response?.data?.code;
+                if (code === "THERAPIST_LIMIT_REACHED" || code === "REQUEST_LIMIT_REACHED") {
+                    setActionError(err.response.data.message);
+                } else {
+                    setActionError(err.response?.data?.message || "Failed to accept offer");
+                }
+            } finally {
+                setActionLoading(null);
+            }
+        } else if (confirmAction.type === "decline") {
+            setActionLoading("decline");
+            try {
+                await offersApi.declineOffer(offerId);
+                invalidateAfterAction();
+                setConfirmAction(null);
+            } catch (err) {
+                setConfirmAction(null);
+                setActionError(err.response?.data?.message || "Failed to decline offer");
+            } finally {
+                setActionLoading(null);
+            }
         }
     };
 
@@ -303,6 +328,17 @@ export default function SessionOfferWidget({ offerId }) {
                     Offer sent at {formatMessageTime(offer.createdAt)}
                 </p>
             )}
+
+            <ConfirmModal
+                isOpen={!!confirmAction}
+                onClose={() => setConfirmAction(null)}
+                onConfirm={executeConfirmAction}
+                title={confirmAction?.title || ""}
+                message={confirmAction?.message || ""}
+                confirmLabel={confirmAction?.confirmLabel || "Confirm"}
+                confirmClassName={confirmAction?.confirmClassName}
+                loading={!!actionLoading}
+            />
         </div>
     )
 }

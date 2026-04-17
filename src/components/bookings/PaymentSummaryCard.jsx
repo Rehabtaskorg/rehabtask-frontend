@@ -68,22 +68,15 @@ export default function PaymentSummaryCard({ booking, role, onAction }) {
     const releasedAmount = payment?.releasedAmount ? parseFloat(payment.releasedAmount) : null;
     const isPartialRelease = payment?.status === "partially_released";
 
-    // Deliverable sessions split:
-    //   - missed/cancelled: contribute $0 to therapist (full refund to customer)
-    //   - attempted: contribute attemptedRateCharged to therapist (partial refund to customer)
-    //   - all others: contribute full per-session rate
-    // For multi-session math we treat sessions as units of value. Missed/cancelled
-    // shrink the deliverable count; attempted still counts but at a discounted rate.
+    
     const missedOrCancelledCount = sessions.filter(s => s.status === "missed" || s.status === "cancelled").length;
     const attemptedSessions = sessions.filter(s => s.status === "attempted");
     const attemptedRevenue = attemptedSessions.reduce(
         (sum, s) => sum + (s.attemptedRateCharged != null ? parseFloat(s.attemptedRateCharged) : 0),
         0
     );
-    // Discount = the value lost vs. a fully-confirmed multi-session booking.
-    // Per-session base value (gross) = totalAmount / totalSessions.
-    // Loss from missed/cancelled = full per-session value each.
-    // Loss from attempted = (per-session rate - attempted rate) each.
+    
+    
     const perSessionValue = totalSessions > 0 ? totalAmount / totalSessions : 0;
     const lossFromMissedCancelled = missedOrCancelledCount * perSessionValue;
     const lossFromAttempted = attemptedSessions.reduce(
@@ -114,7 +107,12 @@ export default function PaymentSummaryCard({ booking, role, onAction }) {
         ? releasedAmount
         : effectivePayout;
 
-    const paymentConfig = payment ? PAYMENT_STATUS_CONFIG[payment.status] : null;
+    // When the booking is finalized but payment stayed escrowed (all sessions missed,
+    // no therapist transfer), show "Refunded" instead of "Held in Escrow" / "Payment Secured".
+    const effectivePaymentStatus = (isFinalized && payment?.status === "escrowed")
+        ? "refunded"
+        : payment?.status;
+    const paymentConfig = payment ? PAYMENT_STATUS_CONFIG[effectivePaymentStatus] : null;
     const PaymentIcon = paymentConfig?.icon || MdPayments;
 
     // Determine CTA — only "Pay Now" lives here. Mark Complete and Confirm Completion

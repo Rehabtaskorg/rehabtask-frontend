@@ -2,10 +2,11 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { MdAdd, MdSchedule, MdChevronLeft, MdChevronRight } from "react-icons/md";
+import { MdAdd, MdSchedule, MdChevronLeft, MdChevronRight, MdCheckCircle, MdClose } from "react-icons/md";
 import { api } from "@/lib/api";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import ExpandableRequestCard from "@/components/customer/ExpandableRequestCard";
+import ConfirmModal from "@/components/ui/ConfirmModal";
 
 const FILTER_TABS = [
     { key: "all", label: "All" },
@@ -36,6 +37,7 @@ export default function MyRequestsPage() {
     const [showCancelConfirm, setShowCancelConfirm] = useState(false);
     const [cancelling, setCancelling] = useState(false);
     const [acceptedBooking, setAcceptedBooking] = useState(null);
+    const [confirmAction, setConfirmAction] = useState(null);
 
     // ─── Data Fetching (server-side filtered + paginated) ───
 
@@ -95,37 +97,71 @@ export default function MyRequestsPage() {
 
     // ─── Offer Actions ──────────────────────────────────────
 
-    const handleAccept = async (offerId) => {
-        if (!window.confirm("Accept this offer? A booking will be created and you can pay when ready.")) return;
-        setAccepting(offerId);
-        try {
-            const res = await api.post(`/offers/${offerId}/accept`);
-            setAcceptedBooking(res.data.data.booking);
-            if (expandedId) await refreshExpandedRequest(expandedId);
-        } catch (err) {
-            const code = err.response?.data?.code;
-            if (code === "THERAPIST_LIMIT_REACHED" || code === "REQUEST_LIMIT_REACHED") {
-                if (window.confirm(err.response.data.message + "\n\nWould you like to upgrade your plan?")) {
-                    router.push("/customer/subscription");
-                }
-            } else {
-                alert(err.response?.data?.message || "Failed to accept offer.");
-            }
-        } finally {
-            setAccepting(null);
-        }
+    const handleAccept = (offerId) => {
+        setConfirmAction({
+            type: "accept",
+            offerId,
+            title: "Accept Offer",
+            message: "A booking will be created and you can pay when ready. This will also decline any other pending offers for this request.",
+            confirmLabel: "Accept Offer",
+            confirmClassName: "bg-emerald-600 hover:bg-emerald-700 text-white",
+        });
     };
 
-    const handleDecline = async (offerId) => {
-        if (!window.confirm("Decline this offer?")) return;
-        setDeclining(offerId);
-        try {
-            await api.post(`/offers/${offerId}/decline`);
-            if (expandedId) await refreshExpandedRequest(expandedId);
-        } catch (err) {
-            alert(err.response?.data?.message || "Failed to decline offer.");
-        } finally {
-            setDeclining(null);
+    const handleDecline = (offerId) => {
+        setConfirmAction({
+            type: "decline",
+            offerId,
+            title: "Decline Offer",
+            message: "The therapist will be notified that you declined. You can still receive new offers from other therapists.",
+            confirmLabel: "Decline",
+            confirmClassName: "bg-red-600 hover:bg-red-700 text-white",
+        });
+    };
+
+    const executeConfirmAction = async () => {
+        if (!confirmAction) return;
+        const { type, offerId } = confirmAction;
+
+        if (type === "accept") {
+            setAccepting(offerId);
+            try {
+                const res = await api.post(`/offers/${offerId}/accept`);
+                setAcceptedBooking(res.data.data.booking);
+                if (expandedId) await refreshExpandedRequest(expandedId);
+                setConfirmAction(null);
+            } catch (err) {
+                const code = err.response?.data?.code;
+                if (code === "THERAPIST_LIMIT_REACHED" || code === "REQUEST_LIMIT_REACHED") {
+                    setConfirmAction({
+                        type: "upgrade",
+                        title: "Limit Reached",
+                        message: err.response.data.message + " Would you like to upgrade your plan?",
+                        confirmLabel: "Upgrade Plan",
+                        confirmClassName: "bg-primary hover:bg-primary/90 text-white",
+                    });
+                } else {
+                    setConfirmAction(null);
+                    alert(err.response?.data?.message || "Failed to accept offer.");
+                }
+            } finally {
+                setAccepting(null);
+            }
+        } else if (type === "decline") {
+            setDeclining(offerId);
+            try {
+                await api.post(`/offers/${offerId}/decline`);
+                if (expandedId) await refreshExpandedRequest(expandedId);
+                setConfirmAction(null);
+            } catch (err) {
+                setConfirmAction(null);
+                alert(err.response?.data?.message || "Failed to decline offer.");
+            } finally {
+                setDeclining(null);
+            }
+        } else if (type === "upgrade") {
+            setConfirmAction(null);
+            router.push("/customer/subscription");
         }
     };
 
@@ -302,6 +338,17 @@ export default function MyRequestsPage() {
                     )}
                 </div>
             </div>
+
+            <ConfirmModal
+                isOpen={!!confirmAction}
+                onClose={() => setConfirmAction(null)}
+                onConfirm={executeConfirmAction}
+                title={confirmAction?.title || ""}
+                message={confirmAction?.message || ""}
+                confirmLabel={confirmAction?.confirmLabel || "Confirm"}
+                confirmClassName={confirmAction?.confirmClassName}
+                loading={!!accepting || !!declining}
+            />
         </div>
     );
 }

@@ -188,7 +188,7 @@ export default function PayoutSetupPage() {
                                 href="/customer/payments"
                                 className="block w-full text-center text-text-muted dark:text-gray-400 hover:text-text-main dark:hover:text-white mt-3 py-2 text-sm font-semibold transition-colors"
                             >
-                                Skip for now — refunds will be returned to your card
+                                Skip for now
                             </Link>
 
                             <div className="flex items-center gap-2 text-text-muted dark:text-gray-500 text-xs mt-4 justify-center">

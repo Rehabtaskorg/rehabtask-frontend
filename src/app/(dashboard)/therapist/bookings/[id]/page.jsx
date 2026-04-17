@@ -19,6 +19,7 @@ import MarkSessionAttemptedModal from "@/components/shared/sessions/MarkSessionA
 import RevisionStatusBanner from "@/components/shared/sessions/RevisionStatusBanner";
 import { formatCurrency } from "@/utils/messages";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import BookingSharedFiles from "@/components/bookings/BookingSharedFiles";
 
 const formatDate = (dateStr) => {
     if (!dateStr) return "—";
@@ -268,14 +269,14 @@ export default function TherapistBookingDetailPage() {
                                 <MdCalendarToday className="text-primary text-lg mt-0.5 shrink-0" />
                                 <div>
                                     <p className="text-xs text-text-muted dark:text-gray-400">Date</p>
-                                    <p className="text-sm font-medium text-text-main dark:text-white">{formatDate(booking.scheduledDate)}</p>
+                                    <p className="text-sm font-medium text-text-main dark:text-white">{formatDate(session?.scheduledDate || booking.scheduledDate)}</p>
                                 </div>
                             </div>
                             <div className="flex items-start gap-3">
                                 <MdAccessTime className="text-primary text-lg mt-0.5 shrink-0" />
                                 <div>
                                     <p className="text-xs text-text-muted dark:text-gray-400">Time</p>
-                                    <p className="text-sm font-medium text-text-main dark:text-white">{formatTime(booking.scheduledDate)}</p>
+                                    <p className="text-sm font-medium text-text-main dark:text-white">{formatTime(session?.scheduledDate || booking.scheduledDate)}</p>
                                 </div>
                             </div>
                             <div className="flex items-start gap-3">
@@ -386,8 +387,8 @@ export default function TherapistBookingDetailPage() {
                             </div>
                         )}
 
-                        {/* Reschedule button — visible for eligible statuses */}
-                        {["accepted", "confirmed"].includes(booking.status) && !showRescheduleModal && (
+                        {/* Reschedule button — single-session only (multi-session has per-session reschedule in SessionList) */}
+                        {sessions.length <= 1 && ["accepted", "confirmed"].includes(booking.status) && !showRescheduleModal && (
                             <button
                                 onClick={() => setShowRescheduleModal(true)}
                                 className="flex items-center gap-2 text-sm font-semibold text-primary hover:text-primary/80 transition-colors"
@@ -458,8 +459,8 @@ export default function TherapistBookingDetailPage() {
                             </div>
                         )}
 
-                        {/* Confirmed + scheduled — mark complete */}
-                        {booking.status === "confirmed" && session?.status === "scheduled" && !showCompleteDialog && (
+                        {/* Confirmed + scheduled — mark complete (single-session only; multi-session has per-session buttons in SessionList) */}
+                        {sessions.length <= 1 && booking.status === "confirmed" && session?.status === "scheduled" && !showCompleteDialog && (
                             <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-5">
                                 <div className="flex items-start gap-3">
                                     <MdInfo className="text-blue-600 dark:text-blue-400 text-lg mt-0.5 shrink-0" />
@@ -507,7 +508,7 @@ export default function TherapistBookingDetailPage() {
                         )}
 
                         {/* Complete dialog (inline) */}
-                        {showCompleteDialog && (
+                        {sessions.length <= 1 && showCompleteDialog && (
                             <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-5">
                                 <p className="text-sm font-bold text-blue-900 dark:text-blue-200 mb-1">Mark Session as Complete?</p>
                                 <p className="text-xs text-blue-700 dark:text-blue-300 mb-4">
@@ -571,8 +572,8 @@ export default function TherapistBookingDetailPage() {
                             </div>
                         )}
 
-                        {/* Completed by therapist — waiting for customer */}
-                        {session?.status === "completed_by_therapist" && (
+                        {/* Completed by therapist — waiting for customer (single-session only) */}
+                        {sessions.length <= 1 && session?.status === "completed_by_therapist" && (
                             <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-5">
                                 <div className="flex items-start gap-3">
                                     <MdWarning className="text-amber-600 dark:text-amber-400 text-lg mt-0.5 shrink-0" />
@@ -646,6 +647,9 @@ export default function TherapistBookingDetailPage() {
                         booking={booking}
                         role="therapist"
                     />
+
+                    {/* Shared Files */}
+                    <BookingSharedFiles bookingId={booking.id} canUpload={true} />
 
                     {/* Message Customer */}
                     {["accepted", "confirmed", "in_progress", "completed", "finalized"].includes(booking.status) && (
@@ -723,7 +727,7 @@ export default function TherapistBookingDetailPage() {
                     )}
 
                     {/* Escrow / partial release info */}
-                    {payment?.status === "escrowed" && (
+                    {payment?.status === "escrowed" && booking.status !== "finalized" && booking.status !== "cancelled" && (
                         <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4">
                             <div className="flex items-start gap-2">
                                 <MdInfo className="text-blue-600 dark:text-blue-400 text-sm mt-0.5 shrink-0" />
