@@ -137,12 +137,24 @@ function PaymentSidePanel({ payment, onClose }) {
 
     if (!payment) return null;
 
-    const isReleasable = payment.status === "escrowed";
+    const bookingStatus = payment.booking?.status;
+    const isBookingFinalized = ["finalized", "cancelled"].includes(bookingStatus);
+    const effectiveStatus = (isBookingFinalized && payment.status === "escrowed") ? "refunded" : payment.status;
+
+    const isReleasable = effectiveStatus === "escrowed" && !isBookingFinalized;
     const isPartiallyReleased = payment.status === "partially_released";
-    const isRefundable = ["escrowed", "intent_created"].includes(payment.status);
+    const isRefundable = ["escrowed", "intent_created"].includes(payment.status) && !isBookingFinalized;
+
+    const sessions = payment.booking?.sessions || [];
+    const missedOrCancelled = sessions.filter(s => ["missed", "cancelled", "attempted"].includes(s.status)).length;
+    const totalSessions = sessions.length || 1;
+    const deliverable = Math.max(0, totalSessions - missedOrCancelled);
+    const adjustedMaxPayout = totalSessions > 1 && missedOrCancelled > 0
+        ? parseFloat(((maxPayout / totalSessions) * deliverable).toFixed(2))
+        : maxPayout;
 
     const alreadyReleased = parseFloat(payment.releasedAmount ?? 0);
-    const remainderAmount = isPartiallyReleased ? parseFloat((maxPayout - alreadyReleased).toFixed(2)) : 0;
+    const remainderAmount = isPartiallyReleased ? parseFloat((adjustedMaxPayout - alreadyReleased).toFixed(2)) : 0;
 
     const parsedReleaseAmount = parseFloat(releaseAmount);
     const releaseAmountValid =
@@ -211,7 +223,7 @@ function PaymentSidePanel({ payment, onClose }) {
                             <p className="text-xs text-text-muted mt-0.5">Total charged</p>
                         </div>
                         <StatusBadge
-                            value={payment.status}
+                            value={effectiveStatus}
                             styleMap={PAYMENT_STATUS_STYLES}
                         />
                     </div>
@@ -227,7 +239,7 @@ function PaymentSidePanel({ payment, onClose }) {
                         <div className="flex justify-between">
                             <span className="text-text-muted">Therapist Payout</span>
                             <span className="text-text-main dark:text-white font-medium">
-                                {fmt$(payment.therapistPayout)}
+                                {fmt$(isBookingFinalized && payment.status === "escrowed" ? 0 : adjustedMaxPayout)}
                             </span>
                         </div>
                         {payment.stripePaymentIntentId && (
@@ -436,7 +448,8 @@ function PaymentSidePanel({ payment, onClose }) {
                         <div className="space-y-2">
                             <div className="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg p-3">
                                 <p className="text-xs font-medium text-orange-800 dark:text-orange-300">
-                                    Partially released: {fmt$(alreadyReleased)} of {fmt$(maxPayout)}
+                                    Partially released: {fmt$(alreadyReleased)} of {fmt$(adjustedMaxPayout)}
+                                    {missedOrCancelled > 0 && ` (${missedOrCancelled} missed/cancelled excluded)`}
                                 </p>
                                 <p className="text-xs text-orange-600 dark:text-orange-400 mt-0.5">
                                     Remaining: {fmt$(remainderAmount)}
