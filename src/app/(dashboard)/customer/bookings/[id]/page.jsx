@@ -779,8 +779,8 @@ export default function CustomerBookingDetailPage() {
                             />
                         )}
 
-                        {/* Session completed by therapist — confirm or request revision */}
-                        {session?.status === "completed_by_therapist" && !showConfirmDialog && (
+                        {/* Session completed by therapist — confirm or request revision (single-session only; multi-session has per-session buttons in SessionList) */}
+                        {sessions.length <= 1 && session?.status === "completed_by_therapist" && !showConfirmDialog && (
                             <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-5">
                                 <div className="flex items-start gap-3">
                                     <MdWarning className="text-amber-600 dark:text-amber-400 text-lg mt-0.5 shrink-0" />
@@ -815,8 +815,8 @@ export default function CustomerBookingDetailPage() {
                             </div>
                         )}
 
-                        {/* Confirm dialog (inline) */}
-                        {showConfirmDialog && (
+                        {/* Confirm dialog (inline, single-session only) */}
+                        {sessions.length <= 1 && showConfirmDialog && (
                             <div className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl p-5">
                                 <p className="text-sm font-bold text-emerald-900 dark:text-emerald-200 mb-1">Confirm Session Completion?</p>
                                 <p className="text-xs text-emerald-700 dark:text-emerald-300 mb-4">
