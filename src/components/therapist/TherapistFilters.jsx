@@ -3,54 +3,40 @@
 
 import { useState, useEffect } from "react";
 import { MdLocationOn, MdDescription, MdClose, MdMedicalServices } from "react-icons/md";
-import Input from "../ui/Input";
+import LocationAutocomplete from "@/components/public/LocationAutocomplete";
 import { LICENSE_TYPES } from "@/lib/constants/credentials";
 import { SPECIALIZATIONS } from "@/lib/constants/specializations";
-import { geocodeZipCode } from "@/lib/geocoding";
+import {
+    DEFAULT_SERVICE_RADIUS_MILES,
+    MIN_SERVICE_RADIUS_MILES,
+    MAX_SERVICE_RADIUS_MILES,
+} from "@/lib/constants";
 
 export default function TherapistFilters({ filters, onFilterChange, onClear }) {
-    const [localZip, setLocalZip] = useState(filters.zipCode || "");
-    const [geocodeError, setGeocodeError] = useState("");
+    const [locationInput, setLocationInput] = useState(filters.locationLabel || "");
 
-    // Sync external filter changes (e.g., "Clear All" resets zipCode)
     useEffect(() => {
-        setLocalZip(filters.zipCode || "");
-    }, [filters.zipCode]);
+        setLocationInput(filters.locationLabel || "");
+    }, [filters.locationLabel]);
 
-    const handleZipChange = async (e) => {
-        const value = e.target.value.replace(/[^0-9]/g, "").slice(0, 5);
-        setLocalZip(value);
-        setGeocodeError("");
+    const handleLocationSelect = (place) => {
+        onFilterChange({
+            ...filters,
+            locationLabel: place.formattedAddress || [place.city, place.state].filter(Boolean).join(", "),
+            zipCode: place.zipCode || "",
+            latitude: place.latitude,
+            longitude: place.longitude,
+        });
+    };
 
-        // Clear location when ZIP is cleared or incomplete
-        if (!value) {
-            onFilterChange({
-                ...filters,
-                zipCode: "",
-                latitude: undefined,
-                longitude: undefined,
-            });
-            return;
-        }
-
-        if (value.length < 5) return;
-
-        // Auto-geocode when 5 digits entered
-        try {
-            const result = await geocodeZipCode(value);
-            if (result) {
-                onFilterChange({
-                    ...filters,
-                    zipCode: value,
-                    latitude: result.latitude,
-                    longitude: result.longitude,
-                });
-            } else {
-                setGeocodeError("Could not find this ZIP code. Please check and try again.");
-            }
-        } catch {
-            setGeocodeError("Geocoding failed. Please try again.");
-        }
+    const handleLocationClear = () => {
+        onFilterChange({
+            ...filters,
+            locationLabel: "",
+            zipCode: "",
+            latitude: undefined,
+            longitude: undefined,
+        });
     };
 
     const handleRadiusChange = (e) => {
@@ -80,14 +66,13 @@ export default function TherapistFilters({ filters, onFilterChange, onClear }) {
     };
 
     const hasActiveFilters =
-        !!filters.zipCode ||
+        !!filters.latitude ||
         (filters.licenseTypes && filters.licenseTypes.length > 0) ||
         (filters.specializations && filters.specializations.length > 0) ||
-        filters.radiusMiles !== 25;
+        filters.radiusMiles !== DEFAULT_SERVICE_RADIUS_MILES;
 
     return (
         <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl p-6 sticky top-20">
-            {/* Header */}
             <div className="mb-6">
                 <h3 className="text-base font-bold text-text-main dark:text-white">
                     Filters
@@ -97,7 +82,6 @@ export default function TherapistFilters({ filters, onFilterChange, onClear }) {
                 </p>
             </div>
 
-            {/* Location Section */}
             <div className="mb-6">
                 <div className="flex items-center gap-2 mb-3">
                     <MdLocationOn className="text-primary text-base" />
@@ -105,41 +89,41 @@ export default function TherapistFilters({ filters, onFilterChange, onClear }) {
                         Location
                     </span>
                 </div>
-                <Input
-                    label="ZIP CODE"
-                    placeholder="e.g. 90210"
-                    value={localZip}
-                    onChange={handleZipChange}
-                    error={geocodeError || undefined}
+                <LocationAutocomplete
+                    variant="form"
+                    label="Address, city, or ZIP"
+                    placeholder="e.g. 90210 or Los Angeles, CA"
+                    value={locationInput}
+                    onChange={setLocationInput}
+                    onSelect={handleLocationSelect}
+                    onClear={handleLocationClear}
                 />
 
-                {/* Distance slider */}
                 <div className="mt-4">
                     <div className="flex items-center justify-between mb-2">
                         <label className="text-xs font-semibold text-text-muted dark:text-gray-400">
                             Distance (miles)
                         </label>
                         <span className="text-xs font-bold text-primary">
-                            {filters.radiusMiles || 25} mi
+                            {filters.radiusMiles || DEFAULT_SERVICE_RADIUS_MILES} mi
                         </span>
                     </div>
                     <input
                         type="range"
                         min={5}
-                        max={100}
+                        max={MAX_SERVICE_RADIUS_MILES}
                         step={5}
-                        value={filters.radiusMiles || 25}
+                        value={filters.radiusMiles || DEFAULT_SERVICE_RADIUS_MILES}
                         onChange={handleRadiusChange}
                         className="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full appearance-none cursor-pointer accent-primary"
                     />
                     <div className="flex justify-between text-[10px] text-text-muted dark:text-gray-500 mt-1">
                         <span>5 mi</span>
-                        <span>100 mi</span>
+                        <span>{MAX_SERVICE_RADIUS_MILES} mi</span>
                     </div>
                 </div>
             </div>
 
-            {/* Therapy Type Section */}
             <div className="mb-6">
                 <div className="flex items-center gap-2 mb-3">
                     <MdMedicalServices className="text-primary text-base" />
@@ -170,7 +154,6 @@ export default function TherapistFilters({ filters, onFilterChange, onClear }) {
                 </div>
             </div>
 
-            {/* Sub-Specialty Section */}
             <div className="mb-6">
                 <div className="flex items-center gap-2 mb-3">
                     <MdDescription className="text-primary text-base" />
@@ -201,7 +184,6 @@ export default function TherapistFilters({ filters, onFilterChange, onClear }) {
                 </div>
             </div>
 
-            {/* Clear All */}
             {hasActiveFilters && (
                 <button
                     onClick={onClear}
@@ -212,6 +194,5 @@ export default function TherapistFilters({ filters, onFilterChange, onClear }) {
                 </button>
             )}
         </div>
-    )
-
+    );
 }

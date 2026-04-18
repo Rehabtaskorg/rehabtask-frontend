@@ -8,14 +8,16 @@ import { useTherapistSearch } from "@/hooks/useTherapistSearch";
 import TherapistCard from "@/components/therapist/TherapistCard";
 import TherapistFilters from "@/components/therapist/TherapistFilters";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import { DEFAULT_SERVICE_RADIUS_MILES } from "@/lib/constants";
 
 const GOOGLE_MAPS_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 
 const DEFAULT_FILTERS = {
+    locationLabel: "",
     zipCode: "",
     latitude: undefined,
     longitude: undefined,
-    radiusMiles: 25,
+    radiusMiles: DEFAULT_SERVICE_RADIUS_MILES,
     licenseTypes: [],
     specializations: [],
 };
@@ -126,7 +128,7 @@ export default function FindTherapistsPage() {
         return pages;
     }, [page, totalPages]);
 
-    const hasActiveFilters = searchQuery || filters.licenseTypes.length > 0 || filters.specializations.length > 0 || filters.zipCode || sortBy !== "relevance";
+    const hasActiveFilters = searchQuery || filters.licenseTypes.length > 0 || filters.specializations.length > 0 || !!filters.latitude || sortBy !== "relevance";
 
     return (
         <APIProvider apiKey={GOOGLE_MAPS_API_KEY}>
