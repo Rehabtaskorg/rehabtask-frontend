@@ -1,0 +1,5 @@
+export const DEFAULT_SERVICE_RADIUS_MILES = 25;
+export const MIN_SERVICE_RADIUS_MILES = 1;
+export const MAX_SERVICE_RADIUS_MILES = 100;
+
+export const PUBLIC_SEARCH_RADIUS_MILES = 50;

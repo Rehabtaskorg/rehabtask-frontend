@@ -1,11 +1,16 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 "use client";
 
 import { useState, useEffect } from "react";
 import { Map, AdvancedMarker } from "@vis.gl/react-google-maps";
 import { MdClose, MdLocationOn } from "react-icons/md";
 import Button from "@/components/ui/Button";
-import Input from "@/components/ui/Input";
-import { geocodeZipCode } from "@/lib/geocoding";
+import LocationAutocomplete from "@/components/public/LocationAutocomplete";
+import {
+    DEFAULT_SERVICE_RADIUS_MILES,
+    MIN_SERVICE_RADIUS_MILES,
+    MAX_SERVICE_RADIUS_MILES,
+} from "@/lib/constants";
 
 const DEFAULT_CENTER = { lat: 39.8283, lng: -98.5795 };
 const DEFAULT_ZOOM = 4;
@@ -14,92 +19,85 @@ const SELECTED_ZOOM = 10;
 const WorkAreaFormModal = ({ isOpen, onClose, workArea, onSave }) => {
     const isEditing = !!workArea;
 
+    const [locationInput, setLocationInput] = useState("");
     const [zipCode, setZipCode] = useState("");
     const [city, setCity] = useState("");
     const [state, setState] = useState("");
     const [latitude, setLatitude] = useState(null);
     const [longitude, setLongitude] = useState(null);
-    const [radiusMiles, setRadiusMiles] = useState(25);
-    const [isGeocoding, setIsGeocoding] = useState(false);
+    const [radiusMiles, setRadiusMiles] = useState(DEFAULT_SERVICE_RADIUS_MILES);
     const [error, setError] = useState(null);
 
-    // Reset/populate state when modal opens
     useEffect(() => {
         if (isOpen) {
             if (workArea) {
-                setZipCode(workArea.zipCode || "");
-                setCity(workArea.city || "");
-                setState(workArea.state || "");
+                const z = workArea.zipCode || "";
+                const c = workArea.city || "";
+                const s = workArea.state || "";
+                setZipCode(z);
+                setCity(c);
+                setState(s);
                 setLatitude(parseFloat(workArea.latitude) || null);
                 setLongitude(parseFloat(workArea.longitude) || null);
-                setRadiusMiles(workArea.radiusMiles || 25);
+                setRadiusMiles(workArea.radiusMiles || DEFAULT_SERVICE_RADIUS_MILES);
+                setLocationInput(z && c && s ? `${z}, ${c}, ${s}` : z);
             } else {
+                setLocationInput("");
                 setZipCode("");
                 setCity("");
                 setState("");
                 setLatitude(null);
                 setLongitude(null);
-                setRadiusMiles(25);
+                setRadiusMiles(DEFAULT_SERVICE_RADIUS_MILES);
             }
             setError(null);
-            setIsGeocoding(false);
         }
     }, [isOpen, workArea]);
 
-    const handleZipChange = async (e) => {
-        const value = e.target.value.replace(/\D/g, "").slice(0, 5);
-        setZipCode(value);
+    const handleLocationSelect = (place) => {
         setError(null);
 
-        // Clear resolved location when ZIP changes
-        if (value.length < 5) {
-            setCity("");
-            setState("");
-            setLatitude(null);
-            setLongitude(null);
+        if (!place.zipCode) {
+            setError("Please select a result that includes a ZIP code.");
             return;
         }
 
-        // Auto-geocode when 5 digits entered
-        if (value.length === 5) {
-            setIsGeocoding(true);
-            try {
-                const result = await geocodeZipCode(value);
-                if (result) {
-                    setCity(result.city);
-                    setState(result.state);
-                    setLatitude(result.latitude);
-                    setLongitude(result.longitude);
-                } else {
-                    setError("Could not find a location for this ZIP code.");
-                    setCity("");
-                    setState("");
-                    setLatitude(null);
-                    setLongitude(null);
-                }
-            } catch {
-                setError("Failed to geocode ZIP code. Please try again.");
-            } finally {
-                setIsGeocoding(false);
-            }
-        }
+        setZipCode(place.zipCode);
+        setCity(place.city);
+        setState(place.state);
+        setLatitude(place.latitude);
+        setLongitude(place.longitude);
+    };
+
+    const handleLocationClear = () => {
+        setZipCode("");
+        setCity("");
+        setState("");
+        setLatitude(null);
+        setLongitude(null);
+        setError(null);
     };
 
     const handleSave = () => {
         setError(null);
 
-        if (!zipCode || zipCode.length !== 5) {
-            setError("Please enter a valid 5-digit US ZIP code.");
+        if (!zipCode || !/^\d{5}$/.test(zipCode)) {
+            setError("Please select a valid 5-digit US ZIP code.");
             return;
         }
 
         if (!city || !state || latitude === null || longitude === null) {
-            setError("Please enter a valid ZIP code that maps to a US location.");
+            setError("Please select a ZIP code from the dropdown to set your work area.");
             return;
         }
 
-        if (radiusMiles < 1 || radiusMiles > 100) {
-            setError("Radius must be between 1 and 100 miles.");
+        if (
+            radiusMiles < MIN_SERVICE_RADIUS_MILES ||
+            radiusMiles > MAX_SERVICE_RADIUS_MILES
+        ) {
+            setError(
+                `Radius must be between ${MIN_SERVICE_RADIUS_MILES} and ${MAX_SERVICE_RADIUS_MILES} miles.`
+            );
             return;
         }
 
@@ -153,30 +151,29 @@ const WorkAreaFormModal = ({ isOpen, onClose, workArea, onSave }) => {
 
                 {/* Body */}
                 <div className="p-6 space-y-5">
-                    {/* Error alert */}
                     {error && (
                         <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3">
                             <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
                         </div>
                     )}
 
-                    {/* ZIP Code Input */}
-                    <Input
+                    <LocationAutocomplete
+                        variant="form"
                         label="ZIP Code"
-                        placeholder="e.g. 77001"
-                        value={zipCode}
-                        onChange={handleZipChange}
                         required
+                        placeholder="e.g. 77001"
+                        value={locationInput}
+                        onChange={setLocationInput}
+                        onSelect={handleLocationSelect}
+                        onClear={handleLocationClear}
+                        restrictToPostalCode
                         helperText={
-                            isGeocoding
-                                ? "Looking up location..."
-                                : isEditing && !hasSelectedLocation && zipCode
-                                    ? "Enter a new ZIP code to change location"
-                                    : "Enter a 5-digit US ZIP code"
+                            hasSelectedLocation
+                                ? null
+                                : "Search by a 5-digit US ZIP code"
                         }
                     />
 
-                    {/* Resolved location badge */}
                     {hasSelectedLocation && city && state && (
                         <div className="flex items-center gap-2 bg-primary/5 border border-primary/20 rounded-lg px-3 py-2">
                             <MdLocationOn className="text-primary shrink-0" />
@@ -191,7 +188,6 @@ const WorkAreaFormModal = ({ isOpen, onClose, workArea, onSave }) => {
                         </div>
                     )}
 
-                    {/* Map Preview */}
                     <div className="rounded-xl overflow-hidden border border-border-light dark:border-border-dark h-48">
                         <Map
                             defaultCenter={DEFAULT_CENTER}
@@ -211,7 +207,6 @@ const WorkAreaFormModal = ({ isOpen, onClose, workArea, onSave }) => {
                         </Map>
                     </div>
 
-                    {/* Radius Slider */}
                     <div className="space-y-2">
                         <div className="flex items-center justify-between">
                             <label className="block text-sm font-bold text-text-main dark:text-white uppercase tracking-wide">
@@ -223,24 +218,23 @@ const WorkAreaFormModal = ({ isOpen, onClose, workArea, onSave }) => {
                         </div>
                         <input
                             type="range"
-                            min={1}
-                            max={100}
+                            min={MIN_SERVICE_RADIUS_MILES}
+                            max={MAX_SERVICE_RADIUS_MILES}
                             value={radiusMiles}
                             onChange={(e) => setRadiusMiles(parseInt(e.target.value, 10))}
                             className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-primary"
                         />
                         <div className="flex justify-between text-xs text-text-muted">
-                            <span>1 mi</span>
-                            <span>100 mi</span>
+                            <span>{MIN_SERVICE_RADIUS_MILES} mi</span>
+                            <span>{MAX_SERVICE_RADIUS_MILES} mi</span>
                         </div>
                     </div>
 
-                    {/* Actions */}
                     <div className="flex items-center justify-end gap-3 pt-2">
                         <Button variant="secondary" onClick={onClose}>
                             Cancel
                         </Button>
-                        <Button onClick={handleSave} disabled={isGeocoding}>
+                        <Button onClick={handleSave}>
                             {isEditing ? "Update" : "Add"} Work Area
                         </Button>
                     </div>
