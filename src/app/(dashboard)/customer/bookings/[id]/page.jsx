@@ -368,14 +368,20 @@ export default function CustomerBookingDetailPage() {
         }
     }, [awaitingPaymentUpdate, booking?.status]);
 
-    // Payment success banner from redirect
     useEffect(() => {
-        if (searchParams.get("payment") === "success") {
+        const ownSuccess = searchParams.get("payment") === "success";
+        const redirectStatus = searchParams.get("redirect_status");
+
+        if (ownSuccess || redirectStatus === "succeeded") {
             setShowPaymentBanner(true);
             setAwaitingPaymentUpdate(true);
             window.history.replaceState({}, "", `/customer/bookings/${params.id}`);
             const timer = setTimeout(() => setShowPaymentBanner(false), 6000);
             return () => clearTimeout(timer);
+        }
+
+        if (redirectStatus === "failed") {
+            window.history.replaceState({}, "", `/customer/bookings/${params.id}`);
         }
     }, [searchParams, params.id]);
 
