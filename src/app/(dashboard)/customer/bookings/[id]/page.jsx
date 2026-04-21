@@ -133,12 +133,6 @@ function InlinePaymentSection({ booking, onPaymentSuccess }) {
 
             if (result.status === "requires_action" && result.clientSecret) {
                 const stripeInstance = await stripePromise;
-                const { error: actionError } = await stripeInstance.handleCardAction(result.clientSecret);
-                console.log("[PAY DEBUG] handleCardAction:", { actionError });
-                if (actionError) {
-                    setPayError(actionError.message);
-                    return;
-                }
                 const { error: confirmError, paymentIntent } = await stripeInstance.confirmCardPayment(result.clientSecret, { payment_method: selectedPmId });
                 console.log("[PAY DEBUG] confirmCardPayment:", { confirmError, status: paymentIntent?.status });
                 if (confirmError) {
