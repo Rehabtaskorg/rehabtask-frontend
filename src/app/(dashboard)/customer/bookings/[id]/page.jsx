@@ -137,7 +137,7 @@ function InlinePaymentSection({ booking, onPaymentSuccess }) {
                     setPayError(actionError.message);
                     return;
                 }
-                const { error: confirmError, paymentIntent } = await stripeInstance.confirmCardPayment(result.clientSecret);
+                const { error: confirmError, paymentIntent } = await stripeInstance.confirmCardPayment(result.clientSecret, { payment_method: selectedPmId });
                 if (confirmError) {
                     setPayError(confirmError.message);
                 } else if (paymentIntent?.status === "succeeded") {
