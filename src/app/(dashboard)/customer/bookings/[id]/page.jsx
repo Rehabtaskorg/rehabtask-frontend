@@ -124,7 +124,6 @@ function InlinePaymentSection({ booking, onPaymentSuccess }) {
             });
 
             const result = res.data.data;
-            console.log("[PAY DEBUG] create-intent result:", result);
 
             if (result.status === "succeeded") {
                 onPaymentSuccess();
@@ -134,7 +133,6 @@ function InlinePaymentSection({ booking, onPaymentSuccess }) {
             if (result.status === "requires_action" && result.clientSecret) {
                 const stripeInstance = await stripePromise;
                 const { error: confirmError, paymentIntent } = await stripeInstance.confirmCardPayment(result.clientSecret, { payment_method: selectedPmId });
-                console.log("[PAY DEBUG] confirmCardPayment:", { confirmError, status: paymentIntent?.status });
                 if (confirmError) {
                     setPayError(confirmError.message);
                 } else if (paymentIntent?.status === "succeeded") {
@@ -150,10 +148,8 @@ function InlinePaymentSection({ booking, onPaymentSuccess }) {
                 return;
             }
 
-            console.log("[PAY DEBUG] unexpected status:", result.status);
             setPayError("Payment could not be completed. Please try again or use a different card.");
         } catch (err) {
-            console.log("[PAY DEBUG] catch error:", err.response?.data || err.message);
             setPayError(err.response?.data?.message || "Payment failed. Please try again.");
         } finally {
             setPaying(false);
