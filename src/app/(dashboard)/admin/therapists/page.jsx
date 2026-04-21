@@ -64,6 +64,15 @@ function TherapistSidePanel({ therapist, onClose, onApprove, onReject, loading, 
         setReasonError('');
     }, [therapist.id]);
 
+    // Collapse reject form once status becomes rejected (covers both fresh open and optimistic update)
+    useEffect(() => {
+        if (therapist.therapistProfile?.approvalStatus === 'rejected') {
+            setShowRejectForm(false);
+            setReason('');
+            setReasonError('');
+        }
+    }, [therapist.therapistProfile?.approvalStatus]);
+
     return (
         <div className="flex flex-col h-full">
             {/* Header */}
