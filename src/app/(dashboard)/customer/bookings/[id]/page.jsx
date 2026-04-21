@@ -132,13 +132,18 @@ function InlinePaymentSection({ booking, onPaymentSuccess }) {
 
             if (result.status === "requires_action" && result.clientSecret) {
                 const stripeInstance = await stripePromise;
-                const { error, paymentIntent } = await stripeInstance.handleCardAction(result.clientSecret);
-                if (error) {
-                    setPayError(error.message);
+                const { error: actionError } = await stripeInstance.handleCardAction(result.clientSecret);
+                if (actionError) {
+                    setPayError(actionError.message);
+                    return;
+                }
+                const { error: confirmError, paymentIntent } = await stripeInstance.confirmCardPayment(result.clientSecret);
+                if (confirmError) {
+                    setPayError(confirmError.message);
                 } else if (paymentIntent?.status === "succeeded") {
                     onPaymentSuccess();
                 } else {
-                    setPayError("Payment authentication passed but payment was not completed. Please try again.");
+                    setPayError("Payment could not be completed. Please try again.");
                 }
                 return;
             }
@@ -242,7 +247,7 @@ function InlinePaymentSection({ booking, onPaymentSuccess }) {
                                         name="paymentMethod"
                                         value={pm.id}
                                         checked={selectedPmId === pm.id}
-                                        onChange={() => setSelectedPmId(pm.id)}
+                                        onChange={() => { setSelectedPmId(pm.id); setPayError(null); }}
                                         className="accent-primary"
                                     />
                                     <MdCreditCard className="text-lg text-text-muted dark:text-gray-400" />
