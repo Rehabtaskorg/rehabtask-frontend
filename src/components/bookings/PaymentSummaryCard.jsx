@@ -121,9 +121,10 @@ export default function PaymentSummaryCard({ booking, role, onAction }) {
     let ctaAction = null;
     let ctaColor = "bg-primary hover:bg-primary/90";
 
-    if (isCustomer && ["pending", "accepted"].includes(booking.status) && !payment) {
-        ctaLabel = "Pay Now";
+    if (isCustomer && ["pending", "accepted"].includes(booking.status) && (!payment || payment.status === "failed")) {
+        ctaLabel = payment?.status === "failed" ? "Retry Payment" : "Pay Now";
         ctaAction = "proceed_payment";
+        if (payment?.status === "failed") ctaColor = "bg-red-600 hover:bg-red-700";
     }
 
     return (

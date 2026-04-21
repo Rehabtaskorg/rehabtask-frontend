@@ -700,8 +700,8 @@ export default function CustomerBookingDetailPage() {
                             </div>
                         )}
 
-                        {/* Accepted/Pending — inline payment section (show when no payment or payment needs action) */}
-                        {["pending", "accepted"].includes(booking.status) && (!payment || ["intent_created", "requires_action"].includes(payment.status)) && (
+                        {/* Accepted/Pending — inline payment section (show when no payment, payment needs action, or payment failed) */}
+                        {["pending", "accepted"].includes(booking.status) && (!payment || ["intent_created", "requires_action", "failed"].includes(payment.status)) && (
                             <div id="inline-payment">
                                 <InlinePaymentSection
                                     booking={booking}
