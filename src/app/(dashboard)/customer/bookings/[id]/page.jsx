@@ -1,328 +1,30 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
-import { useQuery } from "@tanstack/react-query";
-import { loadStripe } from "@stripe/stripe-js";
-import { Elements, PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
-import { getStripeAppearance } from "@/lib/stripe.appearance";
 import {
     MdArrowBack, MdChat, MdCalendarToday, MdAccessTime, MdLocationOn, MdVideocam, MdPerson,
     MdCheckCircle, MdClose, MdWarning, MdInfo, MdRefresh, MdSchedule, MdUpdate,
-    MdLock, MdCreditCard,
 } from "react-icons/md";
 import { useBookingDetail } from "@/hooks/useBookings";
+import { useBookingPolling, usePaymentRedirect } from "@/hooks/useBookingPolling";
 import { bookingsApi } from "@/lib/bookings.api";
-import { api } from "@/lib/api";
-import { paymentsApi } from "@/lib/payments.api";
 import { resolveVisitPlan, computeTotalVisits } from "@/lib/visitPlan";
+import { formatCurrency } from "@/utils/messages";
+import { formatDate, formatTime } from "@/utils/dates";
+import { usePageTitle } from "@/hooks/usePageTitle";
 import BookingStatusBadge from "@/components/bookings/BookingStatusBadge";
 import BookingTimeline from "@/components/bookings/BookingTimeline";
 import BookingSharedFiles from "@/components/bookings/BookingSharedFiles";
+import BookingEscrowInfo from "@/components/bookings/BookingEscrowInfo";
 import SessionList from "@/components/bookings/SessionList";
 import PaymentSummaryCard from "@/components/bookings/PaymentSummaryCard";
+import InlinePaymentSection from "@/components/bookings/InlinePaymentSection";
 import RequestRevisionModal from "@/components/shared/sessions/RequestRevisionModal";
 import MarkSessionMissedModal from "@/components/shared/sessions/MarkSessionMissedModal";
 import RevisionStatusBanner from "@/components/shared/sessions/RevisionStatusBanner";
-import { formatCurrency } from "@/utils/messages";
-import { usePageTitle } from "@/hooks/usePageTitle";
 import PatientInfoBlock from "@/components/customer/PatientInfoBlock";
-
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY);
-
-const BRAND_LABELS = {
-    visa: "Visa", mastercard: "Mastercard", amex: "Amex",
-    discover: "Discover", diners: "Diners", jcb: "JCB", unionpay: "UnionPay",
-};
-
-// ─── New Card Checkout (inside Stripe Elements) ──────────────────────────────
-function NewCardCheckoutForm({ booking, onSuccess, onError }) {
-    const stripe = useStripe();
-    const elements = useElements();
-    const [processing, setProcessing] = useState(false);
-    const [error, setError] = useState(null);
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        if (!stripe || !elements) return;
-
-        setProcessing(true);
-        setError(null);
-
-        try {
-            const { error: submitError } = await stripe.confirmPayment({
-                elements,
-                confirmParams: {
-                    return_url: `${window.location.origin}/customer/bookings/${booking.id}?payment=success`,
-                },
-            });
-
-            if (submitError) {
-                setError(submitError.message);
-            }
-        } catch (err) {
-            setError("An unexpected error occurred.");
-        } finally {
-            setProcessing(false);
-        }
-    };
-
-    return (
-        <form onSubmit={handleSubmit} className="space-y-4">
-            <PaymentElement />
-            {error && (
-                <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
-            )}
-            <button
-                type="submit"
-                disabled={!stripe || processing}
-                className="w-full py-3 bg-primary hover:bg-primary/90 text-white font-bold rounded-xl shadow-lg shadow-primary/20 transition-colors disabled:opacity-50 text-sm"
-            >
-                {processing ? "Processing..." : `Pay ${formatCurrency(parseFloat(booking.rate))}`}
-            </button>
-        </form>
-    );
-}
-
-// ─── Inline Payment Section ──────────────────────────────────────────────────
-function InlinePaymentSection({ booking, onPaymentSuccess }) {
-    const [selectedPmId, setSelectedPmId] = useState(null);
-    const [showNewCard, setShowNewCard] = useState(false);
-    const [paying, setPaying] = useState(false);
-    const [payError, setPayError] = useState(null);
-    const [newCardClientSecret, setNewCardClientSecret] = useState(null);
-    const [loadingNewCard, setLoadingNewCard] = useState(false);
-
-    const { data: methods = [], isLoading: methodsLoading } = useQuery({
-        queryKey: ["paymentMethods"],
-        queryFn: async () => {
-            const res = await paymentsApi.getPaymentMethods();
-            return res.data.data;
-        },
-    });
-
-    // Auto-select default card
-    useEffect(() => {
-        if (methods.length > 0 && !selectedPmId) {
-            const defaultCard = methods.find((m) => m.isDefault) || methods[0];
-            setSelectedPmId(defaultCard.id);
-        }
-    }, [methods.length]);
-
-    const handlePayWithSavedCard = async () => {
-        if (paying) return;
-        if (!selectedPmId) return;
-        setPaying(true);
-        setPayError(null);
-
-        try {
-            const res = await api.post("/payments/create-intent", {
-                bookingId: booking.id,
-                paymentMethodId: selectedPmId,
-            });
-
-            const result = res.data.data;
-
-            if (result.status === "succeeded") {
-                onPaymentSuccess();
-                return;
-            }
-
-            if (result.status === "requires_action" && result.clientSecret) {
-                const stripeInstance = await stripePromise;
-                const { error, paymentIntent } = await stripeInstance.handleCardAction(result.clientSecret);
-                if (error) {
-                    setPayError(error.message);
-                } else if (paymentIntent?.status === "succeeded") {
-                    onPaymentSuccess();
-                } else {
-                    setPayError("Payment authentication passed but payment was not completed. Please try again.");
-                }
-                return;
-            }
-
-            if (result.status === "processing") {
-                setPayError("Payment is processing. Please wait a moment and refresh.");
-                return;
-            }
-
-            // Any other status is unexpected
-            setPayError("Payment could not be completed. Please try again or use a different card.");
-        } catch (err) {
-            setPayError(err.response?.data?.message || "Payment failed. Please try again.");
-        } finally {
-            setPaying(false);
-        }
-    };
-
-    const handleShowNewCard = async () => {
-        setLoadingNewCard(true);
-        setPayError(null);
-        try {
-            const res = await api.post("/payments/create-intent", { bookingId: booking.id });
-            setNewCardClientSecret(res.data.data.clientSecret);
-            setShowNewCard(true);
-        } catch (err) {
-            setPayError(err.response?.data?.message || "Failed to start payment.");
-        } finally {
-            setLoadingNewCard(false);
-        }
-    };
-
-    const perSessionRate = parseFloat(booking.rate);
-    // Effective plan: booking (authoritative post-acceptance) > offer override > request (legacy).
-    const plan = resolveVisitPlan({ booking, offer: booking.offer, request: booking.offer?.request });
-    const totalSessionsFromFreq = computeTotalVisits(plan) ?? 1;
-    const sessionsCount = booking.sessions?.length > 1 ? booking.sessions.length : totalSessionsFromFreq;
-    const isMultiSession = sessionsCount > 1;
-    const totalAmount = perSessionRate * sessionsCount;
-    const amount = formatCurrency(totalAmount);
-
-    return (
-        <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl p-6 space-y-5">
-            {/* Header */}
-            <div className="flex items-center gap-2">
-                <MdLock className="text-text-muted dark:text-gray-400" />
-                <h3 className="text-base font-bold text-text-main dark:text-white">Complete Payment</h3>
-            </div>
-
-            {/* Escrow info */}
-            <div className="flex items-start gap-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg px-3 py-2.5">
-                <MdInfo className="text-blue-600 dark:text-blue-400 text-sm mt-0.5 shrink-0" />
-                <p className="text-xs text-blue-700 dark:text-blue-300">
-                    Your payment will be held securely until you confirm {isMultiSession ? "all sessions" : "session"} completion
-                </p>
-            </div>
-
-            {/* Amount */}
-            <div>
-                {isMultiSession ? (
-                    <>
-                        <p className="text-xs font-bold text-text-muted dark:text-gray-400 uppercase tracking-wider">
-                            {formatCurrency(perSessionRate)}/session × {sessionsCount} sessions
-                        </p>
-                        <p className="text-2xl font-black text-text-main dark:text-white">{amount}</p>
-                    </>
-                ) : (
-                    <>
-                        <p className="text-xs font-bold text-text-muted dark:text-gray-400 uppercase tracking-wider">Session Rate</p>
-                        <p className="text-2xl font-black text-text-main dark:text-white">{amount}</p>
-                    </>
-                )}
-            </div>
-
-            {payError && (
-                <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg px-3 py-2.5">
-                    <p className="text-xs text-red-700 dark:text-red-300">{payError}</p>
-                </div>
-            )}
-
-            {methodsLoading ? (
-                <div className="flex justify-center py-6">
-                    <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-                </div>
-            ) : !showNewCard ? (
-                <>
-                    {/* Saved Cards */}
-                    {methods.length > 0 && (
-                        <div className="space-y-2">
-                            {methods.map((pm) => (
-                                <label
-                                    key={pm.id}
-                                    className={`flex items-center gap-3 px-4 py-3 rounded-xl border cursor-pointer transition-colors ${
-                                        selectedPmId === pm.id
-                                            ? "border-primary bg-primary/5 dark:bg-primary/10"
-                                            : "border-border-light dark:border-border-dark hover:border-slate-300 dark:hover:border-slate-600"
-                                    }`}
-                                >
-                                    <input
-                                        type="radio"
-                                        name="paymentMethod"
-                                        value={pm.id}
-                                        checked={selectedPmId === pm.id}
-                                        onChange={() => setSelectedPmId(pm.id)}
-                                        className="accent-primary"
-                                    />
-                                    <MdCreditCard className="text-lg text-text-muted dark:text-gray-400" />
-                                    <div className="flex-1 min-w-0">
-                                        <span className="text-sm font-bold text-text-main dark:text-white">
-                                            {BRAND_LABELS[pm.brand] || pm.brand} &bull;&bull;&bull;&bull; {pm.last4}
-                                        </span>
-                                        <span className="text-xs text-text-muted dark:text-gray-400 ml-2">
-                                            Expires {String(pm.expMonth).padStart(2, "0")}/{String(pm.expYear).slice(-2)}
-                                        </span>
-                                    </div>
-                                    {pm.isDefault && (
-                                        <span className="text-[10px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full">
-                                            Default
-                                        </span>
-                                    )}
-                                </label>
-                            ))}
-                        </div>
-                    )}
-
-                    {/* Use different method link */}
-                    <button
-                        onClick={handleShowNewCard}
-                        disabled={loadingNewCard}
-                        className="text-sm text-primary hover:text-primary/80 font-medium transition-colors disabled:opacity-50"
-                    >
-                        {loadingNewCard ? "Loading..." : methods.length > 0 ? "Use a different payment method" : "Enter card details"}
-                    </button>
-
-                    {/* Pay button (saved card) */}
-                    {methods.length > 0 && (
-                        <button
-                            onClick={handlePayWithSavedCard}
-                            disabled={paying || !selectedPmId}
-                            className="w-full py-3 bg-primary hover:bg-primary/90 text-white font-bold rounded-xl shadow-lg shadow-primary/20 transition-colors disabled:opacity-50 text-sm"
-                        >
-                            {paying ? "Processing..." : `Pay ${amount}`}
-                        </button>
-                    )}
-                </>
-            ) : (
-                /* New Card Form */
-                newCardClientSecret && (
-                    <div className="space-y-3">
-                        {methods.length > 0 && (
-                            <button
-                                onClick={() => setShowNewCard(false)}
-                                className="text-sm text-primary hover:text-primary/80 font-medium transition-colors"
-                            >
-                                &larr; Back to saved cards
-                            </button>
-                        )}
-                        <Elements
-                            stripe={stripePromise}
-                            options={{ clientSecret: newCardClientSecret, appearance: getStripeAppearance() }}
-                        >
-                            <NewCardCheckoutForm booking={booking} onSuccess={onPaymentSuccess} />
-                        </Elements>
-                    </div>
-                )
-            )}
-
-            {/* Stripe footer */}
-            <p className="text-[10px] text-text-muted dark:text-gray-500 text-center">
-                Powered by Stripe
-            </p>
-        </div>
-    );
-}
-
-const formatDate = (dateStr) => {
-    if (!dateStr) return "—";
-    return new Date(dateStr).toLocaleDateString([], { weekday: "long", month: "long", day: "numeric", year: "numeric" });
-};
-
-const formatTime = (dateStr) => {
-    if (!dateStr) return "—";
-    return new Date(dateStr).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
-};
 
 export default function CustomerBookingDetailPage() {
     usePageTitle("Booking Details");
@@ -331,7 +33,6 @@ export default function CustomerBookingDetailPage() {
     const searchParams = useSearchParams();
     const { booking, loading, error, refetch } = useBookingDetail(params.id);
 
-    // UI states
     const [confirming, setConfirming] = useState(false);
     const [showConfirmDialog, setShowConfirmDialog] = useState(false);
     const [showRevisionModal, setShowRevisionModal] = useState(false);
@@ -345,50 +46,12 @@ export default function CustomerBookingDetailPage() {
     const [actionError, setActionError] = useState(null);
     const [awaitingPaymentUpdate, setAwaitingPaymentUpdate] = useState(false);
 
-    // Auto-refresh when waiting for therapist actions (mark complete, schedule sessions)
-    useEffect(() => {
-        if (booking && ["confirmed", "in_progress"].includes(booking.status)) {
-            const interval = setInterval(() => { refetch(); }, 5000);
-            return () => clearInterval(interval);
-        }
-    }, [booking?.status, refetch]);
-
-    // Poll after payment success until webhook updates the booking status
-    useEffect(() => {
-        if (!awaitingPaymentUpdate) return;
-        const interval = setInterval(() => { refetch(); }, 2000);
-        const timeout = setTimeout(() => { setAwaitingPaymentUpdate(false); }, 30000);
-        return () => { clearInterval(interval); clearTimeout(timeout); };
-    }, [awaitingPaymentUpdate, refetch]);
-
-    // Stop polling once booking status changes from accepted/pending
-    useEffect(() => {
-        if (awaitingPaymentUpdate && booking && !["pending", "accepted"].includes(booking.status)) {
-            setAwaitingPaymentUpdate(false);
-        }
-    }, [awaitingPaymentUpdate, booking?.status]);
-
-    // Payment success banner from redirect
-    useEffect(() => {
-        if (searchParams.get("payment") === "success") {
-            setShowPaymentBanner(true);
-            setAwaitingPaymentUpdate(true);
-            window.history.replaceState({}, "", `/customer/bookings/${params.id}`);
-            const timer = setTimeout(() => setShowPaymentBanner(false), 6000);
-            return () => clearTimeout(timer);
-        }
-    }, [searchParams, params.id]);
-
-    const clearError = () => setActionError(null);
-
-    const handleProceedToPayment = () => {
-        // Scroll to the inline payment section on this page
-        document.getElementById("inline-payment")?.scrollIntoView({ behavior: "smooth" });
-    };
+    useBookingPolling({ booking, refetch, awaitingPaymentUpdate, setAwaitingPaymentUpdate });
+    usePaymentRedirect({ params, searchParams, setShowPaymentBanner, setAwaitingPaymentUpdate });
 
     const handleConfirmCompletion = async () => {
         setConfirming(true);
-        clearError();
+        setActionError(null);
         try {
             await bookingsApi.confirmSession(booking.sessions?.[0]?.id);
             setShowConfirmDialog(false);
@@ -398,13 +61,12 @@ export default function CustomerBookingDetailPage() {
         } finally {
             setConfirming(false);
         }
-    }
+    };
 
     const handleRequestRefund = async () => {
         if (!refundReason.trim()) return;
         setRefunding(true);
-        clearError();
-
+        setActionError(null);
         try {
             await bookingsApi.requestRefund(params.id, refundReason);
             setShowRefundForm(false);
@@ -415,11 +77,11 @@ export default function CustomerBookingDetailPage() {
         } finally {
             setRefunding(false);
         }
-    }
+    };
 
     const handleRescheduleResponse = async (accept) => {
         setRescheduleResponding(accept ? "accept" : "decline");
-        clearError();
+        setActionError(null);
         try {
             await bookingsApi.respondToReschedule(params.id, accept);
             await refetch();
@@ -430,15 +92,13 @@ export default function CustomerBookingDetailPage() {
         }
     };
 
-    const handleMessageTherapist = () => {
-        router.push(`/customer/messages?c=booking:${params.id}`);
-    }
+    const handlePaymentSuccess = () => {
+        setShowPaymentBanner(true);
+        setAwaitingPaymentUpdate(true);
+        refetch();
+        setTimeout(() => setShowPaymentBanner(false), 6000);
+    };
 
-    const handlePaymentAction = useCallback((action) => {
-        if (action === "proceed_payment") handleProceedToPayment();
-    }, []);
-
-    // Loading
     if (loading) {
         return (
             <div className="p-4 md:p-6 max-w-6xl mx-auto">
@@ -459,7 +119,6 @@ export default function CustomerBookingDetailPage() {
         );
     }
 
-    // Error / Not found
     if (error || !booking) {
         return (
             <div className="p-4 md:p-6 max-w-6xl mx-auto">
@@ -485,17 +144,17 @@ export default function CustomerBookingDetailPage() {
     const therapistInitial = therapist?.fullName?.charAt(0) || "?";
     const sessionType = offer?.sessionType;
 
-    // Effective plan: booking (authoritative post-acceptance) > offer override > request (legacy).
     const plan = resolveVisitPlan({ booking, offer, request });
-    const totalSessionsFromFrequency = computeTotalVisits(plan) ?? 1;
-    const totalSessions = sessions.length > 1 ? sessions.length : totalSessionsFromFrequency;
+    const totalSessions = sessions.length > 1 ? sessions.length : (computeTotalVisits(plan) ?? 1);
     const isMultiSession = totalSessions > 1;
     const perSessionRate = parseFloat(booking.rate);
-    const totalAmount = payment ? parseFloat(payment.amount) : perSessionRate * totalSessions;
+
+    const allConfirmed = isMultiSession
+        ? sessions.length > 0 && sessions.every(s => s.status === "confirmed_by_customer")
+        : session?.status === "confirmed_by_customer";
 
     return (
         <div className="p-4 md:p-6 max-w-6xl mx-auto">
-            {/* Payment success banner */}
             {showPaymentBanner && (
                 <div className="mb-4 flex items-center gap-3 px-4 py-3 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800">
                     <MdCheckCircle className="text-emerald-600 dark:text-emerald-400 text-lg shrink-0" />
@@ -508,18 +167,16 @@ export default function CustomerBookingDetailPage() {
                 </div>
             )}
 
-            {/* Action error banner */}
             {actionError && (
                 <div className="mb-4 flex items-center gap-3 px-4 py-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
                     <MdWarning className="text-red-600 dark:text-red-400 text-lg shrink-0" />
                     <p className="text-sm text-red-800 dark:text-red-300 flex-1">{actionError}</p>
-                    <button onClick={clearError} className="text-red-600 dark:text-red-400 hover:text-red-800">
+                    <button onClick={() => setActionError(null)} className="text-red-600 dark:text-red-400 hover:text-red-800">
                         <MdClose className="text-base" />
                     </button>
                 </div>
             )}
 
-            {/* Back button */}
             <button
                 onClick={() => router.push("/customer/bookings")}
                 className="flex items-center gap-1 text-sm text-text-muted dark:text-gray-400 hover:text-primary transition-colors mb-6"
@@ -527,7 +184,6 @@ export default function CustomerBookingDetailPage() {
                 <MdArrowBack className="text-base" /> Back to Bookings
             </button>
 
-            {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
                 <div>
                     <h1 className="text-xl sm:text-2xl font-black tracking-tight text-text-main dark:text-white">
@@ -540,11 +196,9 @@ export default function CustomerBookingDetailPage() {
                 <BookingStatusBadge status={booking.status} size="md" />
             </div>
 
-            {/* Two-column grid */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                {/* ── Left Column ── */}
                 <div className="lg:col-span-8 space-y-6">
-                    {/* Therapist Card */}
+                    {/* Therapist card */}
                     <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl p-5">
                         <div className="flex items-start gap-4">
                             {therapist?.profilePhotoUrl ? (
@@ -565,19 +219,15 @@ export default function CustomerBookingDetailPage() {
                                     {therapist?.fullName || "Therapist"}
                                 </h3>
                                 {therapist?.specialization && (
-                                    <p className="text-sm text-text-muted dark:text-gray-400 mt-0.5">
-                                        {therapist.specialization}
-                                    </p>
+                                    <p className="text-sm text-text-muted dark:text-gray-400 mt-0.5">{therapist.specialization}</p>
                                 )}
                                 {therapist?.phone && (
-                                    <p className="text-xs text-text-muted dark:text-gray-500 mt-1">
-                                        {therapist.phone}
-                                    </p>
+                                    <p className="text-xs text-text-muted dark:text-gray-500 mt-1">{therapist.phone}</p>
                                 )}
                             </div>
                             {["accepted", "confirmed", "in_progress", "completed", "reschedule_requested"].includes(booking.status) && (
                                 <button
-                                    onClick={handleMessageTherapist}
+                                    onClick={() => router.push(`/customer/messages?c=booking:${params.id}`)}
                                     className="flex items-center gap-1.5 px-3 py-2 border border-primary text-primary rounded-lg text-xs font-bold hover:bg-primary/5 transition-colors shrink-0"
                                 >
                                     <MdChat className="text-sm" />
@@ -587,10 +237,9 @@ export default function CustomerBookingDetailPage() {
                         </div>
                     </div>
 
-                    {/* Patient info block (agency bookings only) */}
                     {booking.patient && <PatientInfoBlock patient={booking.patient} />}
 
-                    {/* Session Details */}
+                    {/* Session details */}
                     <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl p-5">
                         <h3 className="text-sm font-bold text-text-main dark:text-white mb-4">Session Details</h3>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -616,11 +265,10 @@ export default function CustomerBookingDetailPage() {
                                 </div>
                             </div>
                             <div className="flex items-start gap-3">
-                                {sessionType === "virtual" ? (
-                                    <MdVideocam className="text-primary text-lg mt-0.5 shrink-0" />
-                                ) : (
-                                    <MdLocationOn className="text-primary text-lg mt-0.5 shrink-0" />
-                                )}
+                                {sessionType === "virtual"
+                                    ? <MdVideocam className="text-primary text-lg mt-0.5 shrink-0" />
+                                    : <MdLocationOn className="text-primary text-lg mt-0.5 shrink-0" />
+                                }
                                 <div>
                                     <p className="text-xs text-text-muted dark:text-gray-400">
                                         {sessionType === "virtual" ? "Session Type" : "Location"}
@@ -631,14 +279,13 @@ export default function CustomerBookingDetailPage() {
                                 </div>
                             </div>
                         </div>
-
-                        {/* Session type badge */}
                         {sessionType && (
                             <div className="mt-4 pt-4 border-t border-border-light dark:border-border-dark">
-                                <span className={`inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full ${sessionType === "virtual"
-                                    ? "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
-                                    : "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300"
-                                    }`}>
+                                <span className={`inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full ${
+                                    sessionType === "virtual"
+                                        ? "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
+                                        : "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300"
+                                }`}>
                                     {sessionType === "virtual" ? <MdVideocam className="text-sm" /> : <MdPerson className="text-sm" />}
                                     {sessionType === "virtual" ? "Virtual" : "In-Person"}
                                 </span>
@@ -646,10 +293,8 @@ export default function CustomerBookingDetailPage() {
                         )}
                     </div>
 
-                    {/* Timeline */}
                     <BookingTimeline booking={booking} />
 
-                    {/* Multi-session treatment plan */}
                     {sessions.length > 1 && (
                         <SessionList
                             sessions={sessions}
@@ -667,9 +312,8 @@ export default function CustomerBookingDetailPage() {
                         />
                     )}
 
-                    {/* ── Action Area ── */}
+                    {/* Action area */}
                     <div className="space-y-4">
-                        {/* Reschedule request */}
                         {booking.status === "reschedule_requested" && booking.proposedNewDate && (
                             <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-5">
                                 <div className="flex items-start gap-3 mb-3">
@@ -700,22 +344,12 @@ export default function CustomerBookingDetailPage() {
                             </div>
                         )}
 
-                        {/* Accepted/Pending — inline payment section (show when no payment, payment needs action, or payment failed) */}
                         {["pending", "accepted"].includes(booking.status) && (!payment || ["intent_created", "requires_action", "failed"].includes(payment.status)) && (
                             <div id="inline-payment">
-                                <InlinePaymentSection
-                                    booking={booking}
-                                    onPaymentSuccess={() => {
-                                        setShowPaymentBanner(true);
-                                        setAwaitingPaymentUpdate(true);
-                                        refetch();
-                                        const timer = setTimeout(() => setShowPaymentBanner(false), 6000);
-                                    }}
-                                />
+                                <InlinePaymentSection booking={booking} onPaymentSuccess={handlePaymentSuccess} />
                             </div>
                         )}
 
-                        {/* Escrowed + scheduled — can request refund */}
                         {payment?.status === "escrowed" && session?.status === "scheduled" && !showRefundForm && (
                             <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl p-5">
                                 <div className="flex items-start gap-3">
@@ -736,7 +370,6 @@ export default function CustomerBookingDetailPage() {
                             </div>
                         )}
 
-                        {/* Refund form */}
                         {showRefundForm && (
                             <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-5">
                                 <p className="text-sm font-bold text-red-900 dark:text-red-200 mb-2">Request Refund</p>
@@ -768,7 +401,6 @@ export default function CustomerBookingDetailPage() {
                             </div>
                         )}
 
-                        {/* Session in revision — customer is waiting for therapist resubmit */}
                         {session?.status === "in_revision" && (
                             <RevisionStatusBanner
                                 revisionRequestedAt={session.revisionRequestedAt}
@@ -780,7 +412,6 @@ export default function CustomerBookingDetailPage() {
                             />
                         )}
 
-                        {/* Session completed by therapist — confirm or request revision (single-session only; multi-session has per-session buttons in SessionList) */}
                         {sessions.length <= 1 && session?.status === "completed_by_therapist" && !showConfirmDialog && (
                             <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-5">
                                 <div className="flex items-start gap-3">
@@ -816,12 +447,11 @@ export default function CustomerBookingDetailPage() {
                             </div>
                         )}
 
-                        {/* Confirm dialog (inline, single-session only) */}
                         {sessions.length <= 1 && showConfirmDialog && (
                             <div className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl p-5">
                                 <p className="text-sm font-bold text-emerald-900 dark:text-emerald-200 mb-1">Confirm Session Completion?</p>
                                 <p className="text-xs text-emerald-700 dark:text-emerald-300 mb-4">
-                                    This will release {formatCurrency(parseFloat(booking.rate))} to the therapist. This action cannot be undone.
+                                    This will release {formatCurrency(perSessionRate)} to the therapist. This action cannot be undone.
                                 </p>
                                 <div className="flex items-center gap-2">
                                     <button
@@ -841,35 +471,25 @@ export default function CustomerBookingDetailPage() {
                             </div>
                         )}
 
-                        {/* Confirmed by customer — success (not shown for finalized bookings) */}
-                        {booking.status !== "finalized" && (() => {
-                            const allConfirmed = isMultiSession
-                                ? sessions.length > 0 && sessions.every(s => s.status === "confirmed_by_customer")
-                                : session?.status === "confirmed_by_customer";
-                            const paymentReleased = payment?.status === "released";
-
-                            if (allConfirmed || paymentReleased) return (
-                                <div className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl p-5">
-                                    <div className="flex items-start gap-3">
-                                        <MdCheckCircle className="text-emerald-600 dark:text-emerald-400 text-lg mt-0.5 shrink-0" />
-                                        <div>
-                                            <p className="text-sm font-bold text-emerald-900 dark:text-emerald-200">
-                                                {isMultiSession ? "All Sessions Complete" : "Session Complete"}
-                                            </p>
-                                            <p className="text-xs text-emerald-700 dark:text-emerald-300 mt-0.5">
-                                                {paymentReleased
-                                                    ? `Payment of ${formatCurrency(parseFloat(payment.amount))} has been released to the therapist.`
-                                                    : "Payment will be released shortly."
-                                                }
-                                            </p>
-                                        </div>
+                        {booking.status !== "finalized" && (allConfirmed || payment?.status === "released") && (
+                            <div className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl p-5">
+                                <div className="flex items-start gap-3">
+                                    <MdCheckCircle className="text-emerald-600 dark:text-emerald-400 text-lg mt-0.5 shrink-0" />
+                                    <div>
+                                        <p className="text-sm font-bold text-emerald-900 dark:text-emerald-200">
+                                            {isMultiSession ? "All Sessions Complete" : "Session Complete"}
+                                        </p>
+                                        <p className="text-xs text-emerald-700 dark:text-emerald-300 mt-0.5">
+                                            {payment?.status === "released"
+                                                ? `Payment of ${formatCurrency(parseFloat(payment.amount))} has been released to the therapist.`
+                                                : "Payment will be released shortly."
+                                            }
+                                        </p>
                                     </div>
                                 </div>
-                            );
-                            return null;
-                        })()}
+                            </div>
+                        )}
 
-                        {/* Cancelled */}
                         {booking.status === "cancelled" && (
                             <div className="bg-slate-50 dark:bg-slate-800/50 border border-border-light dark:border-border-dark rounded-xl p-5">
                                 <div className="flex items-start gap-3">
@@ -888,68 +508,21 @@ export default function CustomerBookingDetailPage() {
                     </div>
                 </div>
 
-                {/* ── Right Column ── */}
                 <div className="lg:col-span-4 space-y-6">
                     <PaymentSummaryCard
                         booking={booking}
                         role="customer"
-                        onAction={handlePaymentAction}
+                        onAction={(action) => {
+                            if (action === "proceed_payment") {
+                                document.getElementById("inline-payment")?.scrollIntoView({ behavior: "smooth" });
+                            }
+                        }}
                     />
-
-                    {/* Shared Files */}
                     <BookingSharedFiles bookingId={booking.id} canUpload={false} />
-
-                    {/* Payment status info */}
-                    {payment?.status === "escrowed" && booking.status !== "finalized" && booking.status !== "cancelled" && (
-                        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4">
-                            <div className="flex items-start gap-2">
-                                <MdInfo className="text-blue-600 dark:text-blue-400 text-sm mt-0.5 shrink-0" />
-                                <p className="text-xs text-blue-700 dark:text-blue-300">
-                                    Your payment is held securely in escrow. The therapist receives their share as you confirm each session.
-                                </p>
-                            </div>
-                        </div>
-                    )}
-                    {payment?.status === "partially_released" && (() => {
-                        const totalAmount = parseFloat(payment.amount);
-                        const platformFee = parseFloat(payment.platformFee ?? 0);
-                        const releasedAmount = parseFloat(payment.releasedAmount ?? 0);
-                        const refundedAmount = parseFloat(payment.refundedAmount ?? 0);
-                        const feeRatio = totalAmount > 0 ? platformFee / totalAmount : 0;
-                        const grossReleased = feeRatio < 1 ? parseFloat((releasedAmount / (1 - feeRatio)).toFixed(2)) : releasedAmount;
-                        const stillInEscrow = Math.max(0, parseFloat((totalAmount - grossReleased - refundedAmount).toFixed(2)));
-                        return (
-                            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4">
-                                <div className="flex items-start gap-2">
-                                    <MdInfo className="text-blue-600 dark:text-blue-400 text-sm mt-0.5 shrink-0" />
-                                    <div className="text-xs text-blue-700 dark:text-blue-300 space-y-0.5">
-                                        <p>{formatCurrency(grossReleased)} paid for confirmed sessions.</p>
-                                        {refundedAmount > 0 && (
-                                            <p>{formatCurrency(refundedAmount)} refunded to you for missed/undelivered sessions.</p>
-                                        )}
-                                        {stillInEscrow > 0 && (
-                                            <p>{formatCurrency(stillInEscrow)} held in escrow for upcoming sessions.</p>
-                                        )}
-                                    </div>
-                                </div>
-                            </div>
-                        );
-                    })()}
-                    {booking.status === "finalized" && payment?.refundedAmount && (
-                        <div className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl p-4">
-                            <div className="flex items-start gap-2">
-                                <MdCheckCircle className="text-emerald-600 dark:text-emerald-400 text-sm mt-0.5 shrink-0" />
-                                <p className="text-xs text-emerald-700 dark:text-emerald-300">
-                                    Series finalized. {formatCurrency(parseFloat(payment.refundedAmount))} has been refunded for undelivered sessions.
-                                </p>
-                            </div>
-                        </div>
-                    )}
+                    <BookingEscrowInfo booking={booking} payment={payment} />
                 </div>
             </div>
 
-            {/* Request Revision modal — mounted at root so it's not constrained
-                by parent overflow/layout */}
             <RequestRevisionModal
                 isOpen={showRevisionModal}
                 onClose={() => { setShowRevisionModal(false); setRevisionSessionId(null); }}
@@ -957,7 +530,6 @@ export default function CustomerBookingDetailPage() {
                 onSuccess={refetch}
             />
 
-            {/* Report Missed Visit modal (customer complaint flow) */}
             <MarkSessionMissedModal
                 isOpen={!!reportMissedSession}
                 onClose={() => setReportMissedSession(null)}
@@ -968,6 +540,5 @@ export default function CustomerBookingDetailPage() {
                 onSuccess={refetch}
             />
         </div>
-    )
-
+    );
 }
