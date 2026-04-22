@@ -3,6 +3,12 @@
 import { useVisitTypes } from "@/hooks/useVisitTypes";
 import { MdSchedule } from "react-icons/md";
 
+const nowLocalISO = () => {
+    const d = new Date();
+    const pad = (n) => String(n).padStart(2, "0");
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+};
+
 export default function OfferFormFields({ formData, setFormData, serviceType }) {
     const { data: visitTypes = [] } = useVisitTypes({
         serviceType,
@@ -91,6 +97,7 @@ export default function OfferFormFields({ formData, setFormData, serviceType }) 
                 <input
                     type="datetime-local"
                     required
+                    min={nowLocalISO()}
                     value={formData.proposedDate}
                     onChange={(e) => setFormData((d) => ({ ...d, proposedDate: e.target.value }))}
                     className="w-full px-4 py-3 rounded-lg bg-background-light dark:bg-background-dark border border-border-light dark:border-border-dark focus:ring-2 focus:ring-primary/20 focus:border-primary text-text-main dark:text-white transition-all outline-none text-sm"

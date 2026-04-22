@@ -89,7 +89,9 @@ export default function SessionList({
         : null;
     const attemptedFeatureEnabled = bookingAttemptedRate != null && bookingAttemptedRate > 0;
 
-    const todayStr = new Date().toISOString().slice(0, 16);
+    const pad = (n) => String(n).padStart(2, "0");
+    const d = new Date();
+    const todayStr = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 
     const handleScheduleSubmit = async (sessionId) => {
         if (!scheduleDate) return;

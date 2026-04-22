@@ -7,6 +7,12 @@ import {
 } from "react-icons/md";
 import { useVisitTypes } from "@/hooks/useVisitTypes";
 
+const nowLocalISO = () => {
+    const d = new Date();
+    const pad = (n) => String(n).padStart(2, "0");
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+};
+
 const getServiceTypeStyle = (serviceType) => {
     const st = serviceType?.toLowerCase() || "";
     if (st.includes("physical") || st.includes("pt"))
@@ -393,6 +399,7 @@ function OfferForm({ request, offerData, setOfferData, submitting, onSubmit, sub
                 <label className="text-[11px] font-bold text-text-muted dark:text-gray-400 uppercase">Proposed First Session</label>
                 <input
                     type="datetime-local" required
+                    min={nowLocalISO()}
                     value={offerData.proposedDate}
                     onChange={(e) => setOfferData((prev) => ({ ...prev, proposedDate: e.target.value }))}
                     className="w-full rounded-lg border border-border-light dark:border-border-dark bg-white dark:bg-card-dark text-text-main dark:text-white text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
