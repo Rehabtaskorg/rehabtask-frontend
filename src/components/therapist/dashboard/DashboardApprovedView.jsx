@@ -138,7 +138,7 @@ export default function DashboardApprovedView() {
                         <p className="text-2xl font-bold text-text-main dark:text-white">{stats.availableRequests}</p>
                         <p className="text-sm text-text-muted dark:text-slate-400 mt-0.5">Open Requests</p>
                     </Link>
-                    <Link href="/therapist/offers" className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl p-5 hover:shadow-md hover:border-primary/30 transition-all">
+                    <Link href="/therapist/bookings" className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl p-5 hover:shadow-md hover:border-primary/30 transition-all">
                         <div className="flex items-start justify-between mb-3">
                             <div className="p-2.5 rounded-xl bg-amber-500">
                                 <MdPendingActions className="text-xl text-white" />
