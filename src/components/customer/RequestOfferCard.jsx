@@ -65,21 +65,31 @@ export default function RequestOfferCard({
                                 </p>
                             )}
                         </div>
-                        <div className="text-right shrink-0">
+                        <div className="text-right shrink-0 max-w-40">
                             <p className="text-sm font-bold text-primary dark:text-blue-400 font-mono">
                                 ${parseFloat(offer.rate).toFixed(2)}
                                 <span className="text-xs text-text-muted dark:text-gray-400 font-sans font-normal">/session</span>
                             </p>
                             {offer.sessionType && (
-                                <span className="text-[10px] font-medium text-text-muted dark:text-gray-400 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full mt-1 inline-block">
+                                <span className="text-[10px] font-medium text-text-muted dark:text-gray-400 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full mt-1 inline-block max-w-full truncate">
                                     {formatSessionType(offer.sessionType)}
                                 </span>
                             )}
-                            {offer.visitTypeRef && (
-                                <span className="text-[10px] font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 px-2 py-0.5 rounded-full mt-1 inline-block">
+                            {offer.visitTypeRef ? (
+                                <span
+                                    className="text-[10px] font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 px-2 py-0.5 rounded-full mt-1 inline-block max-w-full truncate"
+                                    title={`${offer.visitTypeRef.name} (${offer.visitTypeRef.code})`}
+                                >
                                     {offer.visitTypeRef.name} ({offer.visitTypeRef.code})
                                 </span>
-                            )}
+                            ) : offer.visitType ? (
+                                <span
+                                    className="text-[10px] font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 px-2 py-0.5 rounded-full mt-1 inline-block max-w-full truncate"
+                                    title={offer.visitType}
+                                >
+                                    {offer.visitType}
+                                </span>
+                            ) : null}
                         </div>
                     </div>
                 </div>
