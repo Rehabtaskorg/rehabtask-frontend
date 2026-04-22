@@ -3,6 +3,7 @@
 import useRequestStore from "@/store/requestStore";
 import { useRequestOptions } from "@/hooks/useRequestOptions";
 import { useVisitTypes } from "@/hooks/useVisitTypes";
+import { localDateStr } from "@/utils/dates";
 
 const SERVICE_TYPES = [
     { value: "", label: "Select a service type..." },
@@ -27,7 +28,7 @@ export default function Step1ServiceDetails() {
         audience: "customer",
     });
 
-    const todayStr = new Date().toISOString().split("T")[0];
+    const todayStr = localDateStr();
 
     const handleServiceTypeChange = (e) => {
         const newServiceType = e.target.value;

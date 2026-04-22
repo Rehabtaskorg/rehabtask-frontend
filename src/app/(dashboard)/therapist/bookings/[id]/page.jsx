@@ -8,6 +8,7 @@ import {
 } from "react-icons/md";
 import { useBookingDetail } from "@/hooks/useBookings";
 import { bookingsApi } from "@/lib/bookings.api";
+import { localDateStr } from "@/utils/dates";
 import { showToast } from "@/lib/toast";
 import BookingStatusBadge from "@/components/bookings/BookingStatusBadge";
 import BookingTimeline from "@/components/bookings/BookingTimeline";
@@ -412,7 +413,7 @@ export default function TherapistBookingDetailPage() {
                                             type="date"
                                             value={rescheduleDate}
                                             onChange={(e) => setRescheduleDate(e.target.value)}
-                                            min={new Date().toISOString().split("T")[0]}
+                                            min={localDateStr()}
                                             className="w-full text-sm rounded-lg bg-white dark:bg-slate-800 border border-border-light dark:border-border-dark p-2 focus:ring-primary focus:outline-none text-text-main dark:text-white"
                                         />
                                     </div>
