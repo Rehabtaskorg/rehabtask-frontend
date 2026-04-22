@@ -15,6 +15,7 @@ import {
     useApproveTherapist,
     useRejectTherapist,
 } from '@/hooks/useAdmin';
+import ConfirmModal from '@/components/ui/ConfirmModal';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -39,6 +40,7 @@ function TherapistSidePanel({ therapist, onClose, onApprove, onReject, loading, 
     const [showRejectForm, setShowRejectForm] = useState(false);
     const [reason, setReason] = useState('');
     const [reasonError, setReasonError] = useState('');
+    const [showConfirmModal, setShowConfirmModal] = useState(false);
 
     const isPending = ['pending', 'review'].includes(therapist.therapistProfile?.approvalStatus);
 
@@ -48,11 +50,17 @@ function TherapistSidePanel({ therapist, onClose, onApprove, onReject, loading, 
             return;
         }
         setReasonError('');
+        setShowConfirmModal(true);
+    };
+
+    const handleConfirmReject = () => {
+        setShowConfirmModal(false);
         onReject(therapist.id, reason.trim());
     };
 
     const cancelReject = () => {
         setShowRejectForm(false);
+        setShowConfirmModal(false);
         setReason('');
         setReasonError('');
     };
@@ -68,6 +76,7 @@ function TherapistSidePanel({ therapist, onClose, onApprove, onReject, loading, 
     useEffect(() => {
         if (therapist.therapistProfile?.approvalStatus === 'rejected') {
             setShowRejectForm(false);
+            setShowConfirmModal(false);
             setReason('');
             setReasonError('');
         }
@@ -75,6 +84,17 @@ function TherapistSidePanel({ therapist, onClose, onApprove, onReject, loading, 
 
     return (
         <div className="flex flex-col h-full">
+            <ConfirmModal
+                isOpen={showConfirmModal}
+                onClose={() => setShowConfirmModal(false)}
+                onConfirm={handleConfirmReject}
+                title="Reject Application"
+                message={`Are you sure you want to reject ${therapist.therapistProfile?.fullName ?? "this therapist"}'s application? This action will notify the therapist with your reason and cannot be undone.`}
+                confirmLabel="Yes, Reject"
+                cancelLabel="Cancel"
+                confirmClassName="bg-red-600 hover:bg-red-700 text-white"
+                loading={loading}
+            />
             {/* Header */}
             <div className="flex items-center justify-between px-5 py-4 border-b border-border-light dark:border-border-dark shrink-0">
                 <h3 className="font-semibold text-text-main dark:text-white text-sm">Review Application</h3>
