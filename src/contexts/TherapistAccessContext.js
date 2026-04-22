@@ -3,6 +3,7 @@ import { createContext, useContext } from "react";
 
 const TherapistAccessContext = createContext({
     approvalStatus: null,
+    rejectionReason: null,
     onboardingComplete: false,
     onboardingStep: 1,
     canAccessMarketplace: false,

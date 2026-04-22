@@ -254,6 +254,7 @@ export default function DashboardLayout({ children }) {
         const functionallyComplete = isComplete || step >= 5;
         return {
             approvalStatus: status,
+            rejectionReason: tp?.rejectionReason ?? null,
             onboardingComplete: functionallyComplete,
             onboardingStep: step,
             canAccessMarketplace: status === "approved",

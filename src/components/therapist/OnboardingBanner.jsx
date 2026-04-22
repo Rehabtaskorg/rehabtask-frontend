@@ -6,6 +6,8 @@ import { authAPi } from "@/lib/auth.api";
 import { useOnboardingSync } from "@/hooks/useOnboardingSync";
 import { ONBOARDING_STEP_ROUTES } from "@/lib/therapistRouteAccess";
 import useOnboardingStore from "@/store/onboardingStore";
+import ConfirmModal from "@/components/ui/ConfirmModal";
+import { MdInfo } from "react-icons/md";
 
 export default function OnboardingBanner() {
     const router = useRouter();
@@ -15,6 +17,8 @@ export default function OnboardingBanner() {
     const [bannerType, setBannerType] = useState("incomplete");
     const [progress, setProgress] = useState(0);
     const [isLoading, setIsLoading] = useState(true);
+    const [rejectionReason, setRejectionReason] = useState(null);
+    const [showFeedbackModal, setShowFeedbackModal] = useState(false);
 
     const checkOnboardingStatus = useCallback(async () => {
         setIsLoading(true);
@@ -40,6 +44,10 @@ export default function OnboardingBanner() {
             }
 
             const { onboardingComplete, approvalStatus, progress: backendProgress, steps } = status;
+
+            if (approvalStatus === "rejected") {
+                setRejectionReason(userData.profile?.rejectionReason ?? null);
+            }
 
             // Determine banner type based on backend data
             if (!onboardingComplete) {
@@ -208,24 +216,37 @@ export default function OnboardingBanner() {
 
     if (bannerType === "rejected") {
         return (
-            <div className="sticky top-0 z-40 border-b-2 border-red-500 bg-red-50 dark:bg-red-900/20 px-4 sm:px-6 lg:px-8 py-3 transition-colors duration-200">
-                <div className="max-w-7xl mx-auto flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                        <svg className="w-5 h-5 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        <p className="text-sm font-semibold text-red-800 dark:text-red-200">
-                            Your application needs attention - please review and resubmit
-                        </p>
+            <>
+                <div className="sticky top-0 z-40 border-b-2 border-red-500 bg-red-50 dark:bg-red-900/20 px-4 sm:px-6 lg:px-8 py-3 transition-colors duration-200">
+                    <div className="max-w-7xl mx-auto flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                            <svg className="w-5 h-5 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <p className="text-sm font-semibold text-red-800 dark:text-red-200">
+                                Your application needs attention — please review and resubmit
+                            </p>
+                        </div>
+                        <button
+                            onClick={() => setShowFeedbackModal(true)}
+                            className="px-4 py-2 rounded-lg text-sm font-semibold bg-red-600 text-white hover:brightness-95 transition-all"
+                        >
+                            Review Feedback
+                        </button>
                     </div>
-                    <button
-                        onClick={() => router.push("/therapist/onboarding/review")}
-                        className="px-4 py-2 rounded-lg text-sm font-semibold bg-red-600 text-white hover:brightness-95 transition-all"
-                    >
-                        Review Feedback
-                    </button>
                 </div>
-            </div>
+                <ConfirmModal
+                    isOpen={showFeedbackModal}
+                    onClose={() => { setShowFeedbackModal(false); router.push("/therapist/dashboard"); }}
+                    onConfirm={() => setShowFeedbackModal(false)}
+                    title="Application Feedback"
+                    message={rejectionReason || "Our review team found issues with your application. Please review your credentials and contact support for specific details."}
+                    confirmLabel="Got it"
+                    cancelLabel="Go to Dashboard"
+                    confirmClassName="bg-primary hover:bg-primary/90 text-white"
+                    icon={<MdInfo className="text-red-500 text-xl" />}
+                />
+            </>
         );
     }
 
