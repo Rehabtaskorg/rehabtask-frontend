@@ -15,6 +15,7 @@ import {
 } from "react-icons/md";
 import { useMyOffers } from "@/hooks/useOffers";
 import { offersApi } from "@/lib/offers";
+import OfferFormFields from "@/components/therapist/OfferFormFields";
 import { formatCurrency } from "@/utils/messages";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { useTherapistAccess } from "@/contexts/TherapistAccessContext";
@@ -100,7 +101,7 @@ function MyOffersContent() {
 
     const [activeTab, setActiveTab] = useState("all");
     const [reviseOpenId, setReviseOpenId] = useState(null);
-    const [reviseData, setReviseData] = useState({ rate: "", attemptedVisitRate: "", sessionType: "in-person", proposedDate: "", description: "" });
+    const [reviseData, setReviseData] = useState({ rate: "", attemptedVisitRate: "", sessionType: "in_person", proposedDate: "", description: "", planOverrideEnabled: false, visitTypeId: "", visitType: "", visitsPerWeek: "", numberOfWeeks: "" });
     const [withdrawingIds, setWithdrawingIds] = useState(new Set());
     const [revising, setRevising] = useState(false);
     const [reviseError, setReviseError] = useState("");
@@ -151,12 +152,18 @@ function MyOffersContent() {
     const openReviseForm = (offer) => {
         setReviseOpenId(offer.id);
         setReviseError("");
+        const hasOverride = !!(offer.visitTypeId || offer.visitType || offer.visitsPerWeek || offer.numberOfWeeks);
         setReviseData({
             rate: parseFloat(offer.rate) || "",
             attemptedVisitRate: offer.attemptedVisitRate != null ? parseFloat(offer.attemptedVisitRate) : "",
-            sessionType: offer.sessionType || "in-person",
+            sessionType: offer.sessionType || "in_person",
             proposedDate: offer.proposedDate ? new Date(offer.proposedDate).toISOString().slice(0, 16) : "",
             description: offer.description || "",
+            planOverrideEnabled: hasOverride,
+            visitTypeId: offer.visitTypeId || "",
+            visitType: offer.visitType || "",
+            visitsPerWeek: offer.visitsPerWeek ?? "",
+            numberOfWeeks: offer.numberOfWeeks ?? "",
         });
     };
 
@@ -177,13 +184,20 @@ function MyOffersContent() {
                 setRevising(false);
                 return;
             }
-            await offersApi.reviseOffer(offerId, {
+            const payload = {
                 rate: rateNum,
                 sessionType: reviseData.sessionType,
                 proposedDate: new Date(reviseData.proposedDate).toISOString(),
                 description: reviseData.description,
                 attemptedVisitRate: attemptedNum,
-            });
+            };
+            if (reviseData.planOverrideEnabled) {
+                if (reviseData.visitTypeId) payload.visitTypeId = reviseData.visitTypeId;
+                if (reviseData.visitType) payload.visitType = reviseData.visitType;
+                if (reviseData.visitsPerWeek) payload.visitsPerWeek = parseInt(reviseData.visitsPerWeek, 10);
+                if (reviseData.numberOfWeeks) payload.numberOfWeeks = parseInt(reviseData.numberOfWeeks, 10);
+            }
+            await offersApi.reviseOffer(offerId, payload);
             closeReviseForm();
             await refetch();
         } catch (err) {
@@ -515,86 +529,14 @@ function OfferCard({
                 <div className="bg-background-light dark:bg-background-dark rounded-xl p-5 mt-4 border border-border-light dark:border-border-dark">
                     <h4 className="text-sm font-bold text-text-main dark:text-white mb-4">Update Your Offer</h4>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {/* Rate */}
-                        <div>
-                            <label className="block text-xs font-medium text-text-muted dark:text-gray-400 mb-1">
-                                Rate ($)
-                            </label>
-                            <input
-                                type="number"
-                                step="0.01"
-                                min="0"
-                                value={reviseData.rate}
-                                onChange={(e) => setReviseData((d) => ({ ...d, rate: e.target.value }))}
-                                className="w-full bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-lg px-3 py-2 text-sm text-text-main dark:text-white focus:outline-none focus:ring-2 focus:ring-primary"
-                            />
-                        </div>
+                    <OfferFormFields
+                        formData={reviseData}
+                        setFormData={setReviseData}
+                        serviceType={offer.request?.serviceType}
+                    />
 
-                        {/* Attempted Visit Rate */}
-                        <div>
-                            <label className="block text-xs font-medium text-text-muted dark:text-gray-400 mb-1">
-                                Attempted Visit Rate ($) — optional
-                            </label>
-                            <input
-                                type="number"
-                                step="0.01"
-                                min="0"
-                                max={reviseData.rate || 10000}
-                                placeholder="Blank = no charge"
-                                value={reviseData.attemptedVisitRate}
-                                onChange={(e) => setReviseData((d) => ({ ...d, attemptedVisitRate: e.target.value }))}
-                                className="w-full bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-lg px-3 py-2 text-sm text-text-main dark:text-white focus:outline-none focus:ring-2 focus:ring-primary"
-                            />
-                            <p className="mt-1 text-[10px] text-text-muted dark:text-gray-500">Charged when patient isn&apos;t home. Must be ≤ rate.</p>
-                        </div>
-
-                        {/* Session Type */}
-                        <div>
-                            <label className="block text-xs font-medium text-text-muted dark:text-gray-400 mb-1">
-                                Session Type
-                            </label>
-                            <select
-                                value={reviseData.sessionType}
-                                onChange={(e) => setReviseData((d) => ({ ...d, sessionType: e.target.value }))}
-                                className="w-full bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-lg px-3 py-2 text-sm text-text-main dark:text-white focus:outline-none focus:ring-2 focus:ring-primary"
-                            >
-                                <option value="in-person">In Person</option>
-                                <option value="virtual">Virtual</option>
-                            </select>
-                        </div>
-
-                        {/* Proposed Date */}
-                        <div>
-                            <label className="block text-xs font-medium text-text-muted dark:text-gray-400 mb-1">
-                                Proposed Date
-                            </label>
-                            <input
-                                type="datetime-local"
-                                value={reviseData.proposedDate}
-                                onChange={(e) => setReviseData((d) => ({ ...d, proposedDate: e.target.value }))}
-                                className="w-full bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-lg px-3 py-2 text-sm text-text-main dark:text-white focus:outline-none focus:ring-2 focus:ring-primary"
-                            />
-                        </div>
-                    </div>
-
-                    {/* Description */}
-                    <div className="mt-4">
-                        <label className="block text-xs font-medium text-text-muted dark:text-gray-400 mb-1">
-                            Description
-                        </label>
-                        <textarea
-                            rows={3}
-                            value={reviseData.description}
-                            onChange={(e) => setReviseData((d) => ({ ...d, description: e.target.value }))}
-                            className="w-full bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-lg px-3 py-2 text-sm text-text-main dark:text-white focus:outline-none focus:ring-2 focus:ring-primary resize-none"
-                        />
-                    </div>
-
-                    {/* Error */}
                     {reviseError && <p className="text-red-500 text-xs mt-2">{reviseError}</p>}
 
-                    {/* Actions */}
                     <div className="flex items-center justify-end gap-3 mt-4">
                         <button
                             onClick={onCloseRevise}
