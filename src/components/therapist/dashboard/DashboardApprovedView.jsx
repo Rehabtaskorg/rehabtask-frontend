@@ -38,7 +38,7 @@ export default function DashboardApprovedView() {
                 api.get("/requests/available"),
                 api.get("/bookings/therapist"),
                 api.get("/payments/payouts"),
-                api.get("/payments/connect/status").catch(() => ({ data: { data: { connected: false } } })),
+                api.get("/payments/connect/status").catch(() => null),
             ]);
 
             const requests = requestRes.data.data.requests || [];
@@ -46,15 +46,16 @@ export default function DashboardApprovedView() {
             const earnings = earningRes.data.data || {};
 
             const upcomingStatuses = ["accepted", "confirmed", "in_progress"];
+            const completedStatuses = ["completed", "finalized"];
 
             setRecentRequests(requests.slice(0, 3));
             setUpcomingBookings(bookings.filter(b => upcomingStatuses.includes(b.status)).slice(0, 3));
-            setStripeStatus(stripeRes.data.data);
+            setStripeStatus(stripeRes?.data?.data ?? null);
 
             setStats({
                 availableRequests: requests.filter(r => ["created", "offers_received"].includes(r.status)).length,
                 upcomingBookings: bookings.filter(b => upcomingStatuses.includes(b.status)).length,
-                completedSessions: bookings.filter(b => b.status === "completed").length,
+                completedSessions: bookings.filter(b => completedStatuses.includes(b.status)).length,
                 totalEarnings: earnings.totalEarnings || 0,
             });
         } catch (error) {
@@ -106,8 +107,8 @@ export default function DashboardApprovedView() {
                     </div>
                 </header>
 
-                {/* Payout account setup banner */}
-                {!stripeStatus?.connected && (
+                {/* Payout account setup banner — only show when status resolved AND not connected */}
+                {stripeStatus !== null && !stripeStatus?.connected && (
                     <div className="rounded-xl border border-amber-200 bg-amber-50 dark:bg-amber-900/20 dark:border-amber-900/50 p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                         <div className="flex gap-3">
                             <MdWarning className="text-amber-600 dark:text-amber-500 text-xl shrink-0" />
