@@ -16,6 +16,7 @@ function VerifyCallbackContent() {
     const [status, setStatus] = useState("verifying");
     const [message, setMessage] = useState("Verifying your email...");
     const [userInfo, setUserInfo] = useState(null);
+    const [sessionEmail, setSessionEmail] = useState(null);
 
     useEffect(() => {
         const verifyEmail = async () => {
@@ -34,6 +35,9 @@ function VerifyCallbackContent() {
                     setMessage("No session found. Please try requesting a new verification link.");
                     return;
                 }
+
+                // Capture email early so the error redirect can carry it
+                if (session.user?.email) setSessionEmail(session.user.email);
 
                 // Get minimal user info from session (no API call needed)
                 const sessionUser = await getSessionUserInfo();
@@ -107,7 +111,10 @@ function VerifyCallbackContent() {
                         <Alert type="error" message={message} />
                         <div className="text-center">
                             <button
-                                onClick={() => router.push("/verify-email")}
+                                onClick={() => {
+                                    const email = sessionEmail || userInfo?.email;
+                                    router.push(email ? `/verify-email?email=${encodeURIComponent(email)}` : "/verify-email");
+                                }}
                                 className="text-primary text-sm font-semibold hover:underline"
                             >
                                 Request new verification link
