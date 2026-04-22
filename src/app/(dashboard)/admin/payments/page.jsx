@@ -24,6 +24,7 @@ import {
     useAdminCommissionHistory,
     useSetCommissionRate,
 } from "@/hooks/useAdmin";
+import { localDateStr } from "@/utils/dates";
 
 const fmt$ = (v) =>
     v == null
@@ -487,9 +488,7 @@ function CommissionRateCard({ rateData, onSave, isSaving }) {
     const [error, setError] = useState("");
 
     // Minimum date for scheduler: tomorrow (no past dates allowed)
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    const minDate = tomorrow.toISOString().split("T")[0];
+    const minDate = localDateStr(24 * 60 * 60 * 1000);
 
     const resetForm = () => {
         setEditing(false);

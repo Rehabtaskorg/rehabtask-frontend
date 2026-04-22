@@ -6,6 +6,7 @@ import {
     MdCalendarToday, MdSchedule, MdTaskAlt, MdEdit, MdEventBusy,
     MdLocationOff,
 } from "react-icons/md";
+import { localDateTimeStr } from "@/utils/dates";
 
 const STATUS_CONFIG = {
     pending_schedule: { icon: MdSchedule, color: "text-slate-400", bg: "bg-slate-100 dark:bg-slate-800", label: "Pending Schedule" },
@@ -89,7 +90,7 @@ export default function SessionList({
         : null;
     const attemptedFeatureEnabled = bookingAttemptedRate != null && bookingAttemptedRate > 0;
 
-    const todayStr = new Date().toISOString().slice(0, 16);
+    const todayStr = localDateTimeStr();
 
     const handleScheduleSubmit = async (sessionId) => {
         if (!scheduleDate) return;

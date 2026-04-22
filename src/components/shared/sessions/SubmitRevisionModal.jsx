@@ -4,6 +4,7 @@ import { useState } from "react";
 import { MdClose, MdInfo, MdReply } from "react-icons/md";
 import { bookingsApi } from "@/lib/bookings.api";
 import { showToast } from "@/lib/toast";
+import { localDateTimeStr } from "@/utils/dates";
 
 /**
  * SubmitRevisionModal - therapist-facing (Step 1 of revision response)
@@ -25,11 +26,7 @@ export default function SubmitRevisionModal({
 
     if (!isOpen) return null;
 
-    const minDateTime = (() => {
-        const d = new Date(Date.now() + 60 * 1000);
-        const pad = (n) => String(n).padStart(2, "0");
-        return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
-    })();
+    const minDateTime = localDateTimeStr(60_000);
 
     const isValid = dueBy && new Date(dueBy) > new Date();
 
