@@ -34,7 +34,13 @@ export default function ConversationListItem({ conversation, isSelected, onSelec
                 )}
                 <div className="flex items-center justify-between gap-2">
                     <p className={`text-xs truncate ${hasUnread ? 'text-text-main dark:text-gray-200 font-medium' : 'text-text-muted dark:text-gray-400'}`}>
-                        {conversation.lastMessage?.content || 'No messages yet'}
+                        {(() => {
+                            const lm = conversation.lastMessage;
+                            if (!lm) return 'No messages yet';
+                            if (lm.content) return lm.content;
+                            if (lm.hasAttachments) return 'Sent an attachment';
+                            return 'No messages yet';
+                        })()}
                     </p>
                     {hasUnread && (
                         <span className="shrink-0 min-w-5 h-5 px-1.5 rounded-full bg-primary text-white text-[10px] font-bold flex items-center justify-center">
