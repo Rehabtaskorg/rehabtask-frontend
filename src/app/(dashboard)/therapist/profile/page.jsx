@@ -12,8 +12,8 @@ import AvailabilityTab from "@/components/therapist/profile/AvailabilityTab";
 import Alert from "@/components/ui/Alert";
 import Button from "@/components/ui/Button";
 import { MdPerson, MdMap, MdSchedule, MdRefresh, MdInfo, MdError } from "react-icons/md";
-import Image from "next/image";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import UserAvatar from "@/components/ui/UserAvatar";
 
 const TABS = [
     { key: "profile", label: "Profile", icon: MdPerson },
@@ -79,14 +79,6 @@ function TherapistProfileContent() {
         );
     }
 
-    const initials = profile.fullName
-        ? profile.fullName
-            .split(" ")
-            .map((n) => n[0])
-            .join("")
-            .toUpperCase()
-            .slice(0, 2)
-        : "?";
 
     const approvalColor = {
         approved: "bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-200",
@@ -99,19 +91,12 @@ function TherapistProfileContent() {
         <div className="p-4 md:p-6 max-w-7xl mx-auto w-full">
             {/* Page Header */}
             <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-8">
-                {profile.profilePhotoUrl ? (
-                    <Image
-                        src={profile.profilePhotoUrl}
-                        alt={profile.fullName}
-                        width={64}
-                        height={64}
-                        className="w-16 h-16 rounded-full object-cover border-2 border-border-light dark:border-border-dark shrink-0"
-                    />
-                ) : (
-                    <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center border-2 border-border-light dark:border-border-dark shrink-0">
-                        <span className="text-primary text-xl font-bold">{initials}</span>
-                    </div>
-                )}
+                <UserAvatar
+                    name={profile.fullName}
+                    photoUrl={profile.profilePhotoUrl}
+                    size="xl"
+                    className="border-2 border-border-light dark:border-border-dark"
+                />
                 <div>
                     <h1 className="text-2xl font-bold text-text-main dark:text-white">
                         {profile.fullName || "My Profile"}

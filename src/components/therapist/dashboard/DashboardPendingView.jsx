@@ -14,7 +14,7 @@ import {
     MdEmail,
     MdArrowForward,
 } from "react-icons/md";
-import Image from "next/image";
+import UserAvatar from "@/components/ui/UserAvatar";
 
 function buildTimelineSteps(onboardingStep, onboardingComplete) {
     const profileDone = onboardingStep >= 2;
@@ -39,9 +39,6 @@ export default function DashboardPendingView() {
     const { onboardingStep, onboardingComplete } = useTherapistAccess();
 
     const firstName = profile?.fullName?.split(" ")[0] || "there";
-    const initials = profile?.fullName
-        ? profile.fullName.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
-        : "?";
 
     const quickActions = [
         { label: "Review My Profile", href: "/therapist/profile", icon: MdPerson, description: "Check your personal and professional details" },
@@ -79,19 +76,12 @@ export default function DashboardPendingView() {
             <div className="max-w-6xl mx-auto space-y-6 sm:space-y-8">
                 {/* Header */}
                 <header className="flex items-center gap-4">
-                    {profile?.profilePhotoUrl ? (
-                        <Image
-                            src={profile.profilePhotoUrl}
-                            alt={profile.fullName}
-                            width={48}
-                            height={48}
-                            className="w-12 h-12 rounded-full object-cover border-2 border-border-light dark:border-border-dark shrink-0"
-                        />
-                    ) : (
-                        <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center border-2 border-border-light dark:border-border-dark shrink-0">
-                            <span className="text-primary text-sm font-bold">{initials}</span>
-                        </div>
-                    )}
+                    <UserAvatar
+                        name={profile?.fullName}
+                        photoUrl={profile?.profilePhotoUrl}
+                        size="lg"
+                        className="border-2 border-border-light dark:border-border-dark"
+                    />
                     <div>
                         <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
                             Welcome, {firstName}
