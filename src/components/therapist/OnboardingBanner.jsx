@@ -45,12 +45,12 @@ export default function OnboardingBanner() {
 
             const { onboardingComplete, approvalStatus, progress: backendProgress, steps } = status;
 
+            // Rejection always takes priority regardless of onboarding completeness
             if (approvalStatus === "rejected") {
                 setRejectionReason(userData.profile?.rejectionReason ?? null);
-            }
-
-            // Determine banner type based on backend data
-            if (!onboardingComplete) {
+                setBannerType("rejected");
+                setShowBanner(true);
+            } else if (!onboardingComplete) {
                 // Check if only Stripe is missing (all essential steps done)
                 const essentialStepsDone = steps?.profile && steps?.credentials &&
                     steps?.availability && steps?.backgroundCheck;
