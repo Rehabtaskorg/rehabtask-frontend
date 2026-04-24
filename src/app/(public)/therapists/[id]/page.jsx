@@ -11,6 +11,7 @@ import {
 import { useTherapistPublicProfile, useTherapistReviews } from "@/hooks/usePublic";
 import AuthGateModal from "@/components/public/AuthGateModal";
 import UserAvatar from "@/components/ui/UserAvatar";
+import Footer from "@/components/landing/Footer";
 
 const TIER_LABELS = { basic: "Basic", pro: "Verified Pro", elite: "Elite" };
 
@@ -349,6 +350,7 @@ export default function TherapistPublicProfilePage() {
             </div>
 
             <AuthGateModal isOpen={gateOpen} onClose={() => setGateOpen(false)} trigger={gateTrigger} redirectPath={`/therapists/${params.id}`} />
+            <Footer />
         </>
     );
 }

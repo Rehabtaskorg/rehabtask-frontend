@@ -11,6 +11,7 @@ import RequestPublicCard from "@/components/public/RequestPublicCard";
 import LocationAutocomplete from "@/components/public/LocationAutocomplete";
 import AuthGateModal from "@/components/public/AuthGateModal";
 import CTABanner from "@/components/public/CTABanner";
+import Footer from "@/components/landing/Footer";
 
 const DISCIPLINE_MAP = {
     pt: "Physical Therapy",
@@ -219,6 +220,7 @@ function BrowseRequestsContent() {
             </div>
 
             <AuthGateModal isOpen={gateOpen} onClose={() => setGateOpen(false)} trigger={gateTrigger} redirectPath="/requests" userRole={userRole} />
+            <Footer />
         </>
     );
 }

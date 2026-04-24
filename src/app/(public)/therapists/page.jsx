@@ -118,7 +118,7 @@ function FindTherapistsContent() {
 
     return (
         <>
-            <div className="pt-14 min-h-screen bg-white">
+            <div className="pt-14 h-screen overflow-hidden bg-white flex flex-col">
                 <TherapistCompactHeader
                     searchQuery={searchInput}
                     setSearchQuery={setSearchInput}
@@ -164,7 +164,7 @@ function FindTherapistsContent() {
 export default function FindTherapistsPage() {
     return (
         <APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}>
-            <Suspense fallback={<div className="pt-14 min-h-screen bg-white" />}>
+            <Suspense fallback={<div className="pt-14 h-screen bg-white" />}>
                 <FindTherapistsContent />
             </Suspense>
         </APIProvider>

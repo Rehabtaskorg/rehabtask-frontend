@@ -116,13 +116,13 @@ export default function TherapistResultsLayout({
     const showList = mobileView === "list";
 
     return (
-        <section className="w-full">
-            <div className="max-w-400 mx-auto px-4 sm:px-6 lg:px-8 py-3">
-                <div className="lg:hidden mb-3">
+        <section className="flex-1 min-h-0 w-full overflow-hidden">
+            <div className="max-w-400 mx-auto px-4 sm:px-6 lg:px-8 py-3 h-full flex flex-col">
+                <div className="lg:hidden mb-3 shrink-0">
                     <MobileViewToggle view={mobileView} onChange={setMobileView} />
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.6fr)] gap-4 lg:h-[calc(100vh-11rem)]">
+                <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.6fr)] gap-4 flex-1 min-h-0">
                     <div
                         className={`flex flex-col lg:overflow-hidden ${showMap ? "hidden lg:flex" : "flex"}`}
                     >
@@ -141,7 +141,7 @@ export default function TherapistResultsLayout({
                             </span>
                         </div>
 
-                        <div className={`flex-1 lg:overflow-y-auto panel-scroll pr-1 ${isFetching ? "opacity-60 pointer-events-none" : ""}`}>
+                        <div className={`flex-1 min-h-0 lg:overflow-y-auto overscroll-contain panel-scroll pr-1 ${isFetching ? "opacity-60 pointer-events-none" : ""}`}>
                             {isLoading ? (
                                 <ListSkeleton />
                             ) : therapists.length === 0 ? (
