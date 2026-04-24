@@ -85,7 +85,7 @@ function Pagination({ currentPage, totalPages, onPageChange }) {
 
 export default function TherapistResultsLayout({
     therapists,
-    mapPins = [],
+    mapMarkers = [],
     isLoading,
     isFetching,
     sortBy,
@@ -97,47 +97,52 @@ export default function TherapistResultsLayout({
     searchCenter,
 }) {
     const [hoveredTherapistId, setHoveredTherapistId] = useState(null);
-    const [openPinId, setOpenPinId] = useState(null);
+    const [openMarkerId, setOpenMarkerId] = useState(null);
     const [mobileView, setMobileView] = useState("list");
     const cardRefs = useRef({});
 
     const hoveredIsValid = therapists.some((t) => t.id === hoveredTherapistId);
     const activeHoveredTherapistId = hoveredIsValid ? hoveredTherapistId : null;
 
-    const openPinIsValid = mapPins.some((p) => p.id === openPinId);
-    const activeOpenPinId = openPinIsValid ? openPinId : null;
-    const openPinTherapistId = activeOpenPinId
-        ? mapPins.find((p) => p.id === activeOpenPinId)?.therapistId || null
-        : null;
+    const openMarkerIsValid = mapMarkers.some((m) => m.id === openMarkerId);
+    const activeOpenMarkerId = openMarkerIsValid ? openMarkerId : null;
 
-    const highlightedTherapistId = openPinTherapistId || activeHoveredTherapistId;
+    const highlightedTherapistId = activeHoveredTherapistId;
+
+    const findMarkerForTherapist = (therapistId) =>
+        mapMarkers.find((m) => m.therapists.some((t) => t.id === therapistId));
 
     const handleHoverCard = (therapistId) => {
         setHoveredTherapistId(therapistId);
-        if (therapistId && openPinTherapistId && openPinTherapistId !== therapistId) {
-            setOpenPinId(null);
+        if (!therapistId) return;
+        const marker = findMarkerForTherapist(therapistId);
+        if (activeOpenMarkerId && (!marker || marker.id !== activeOpenMarkerId)) {
+            setOpenMarkerId(null);
         }
     };
 
     const handleSelectCard = (therapistId) => {
-        if (openPinTherapistId === therapistId) return;
-        const firstPin = mapPins.find((p) => p.therapistId === therapistId);
-        if (!firstPin) return;
+        const marker = findMarkerForTherapist(therapistId);
+        if (!marker) return;
+        if (activeOpenMarkerId === marker.id) return;
         setHoveredTherapistId(therapistId);
-        setOpenPinId(firstPin.id);
+        setOpenMarkerId(marker.id);
     };
 
-    const handleClickPin = (pin) => {
-        setHoveredTherapistId(pin.therapistId);
-        setOpenPinId(pin.id);
-        const el = cardRefs.current[pin.therapistId];
-        if (el?.scrollIntoView) {
-            el.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    const handleMarkerClick = (marker) => {
+        setOpenMarkerId(marker.id);
+        if (marker.therapists.length === 1) {
+            const therapistId = marker.therapists[0].id;
+            setHoveredTherapistId(therapistId);
+            const el = cardRefs.current[therapistId];
+            if (el?.scrollIntoView) {
+                el.scrollIntoView({ behavior: "smooth", block: "nearest" });
+            }
         }
     };
 
     const handleCloseInfoWindow = () => {
-        setOpenPinId(null);
+        setOpenMarkerId(null);
     };
 
     const showMap = mobileView === "map";
@@ -201,10 +206,10 @@ export default function TherapistResultsLayout({
 
                     <div className={`min-h-105 lg:min-h-0 ${showList ? "hidden lg:block" : "block"}`}>
                         <TherapistMapPanel
-                            pins={mapPins}
+                            markers={mapMarkers}
                             highlightedTherapistId={highlightedTherapistId}
-                            openPinId={activeOpenPinId}
-                            onPinClick={handleClickPin}
+                            openMarkerId={activeOpenMarkerId}
+                            onMarkerClick={handleMarkerClick}
                             onCloseInfoWindow={handleCloseInfoWindow}
                             onAuthGate={onAuthGate}
                             searchCenter={searchCenter}
