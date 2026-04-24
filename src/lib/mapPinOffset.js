@@ -1,5 +1,5 @@
 const EARTH_RADIUS_METERS = 6378137;
-const OFFSET_RADIUS_METERS = 20;
+const OFFSET_RADIUS_METERS = 40;
 const COORDINATE_PRECISION = 4;
 
 function offsetCoordinate(lat, lng, angleRadians, distanceMeters) {

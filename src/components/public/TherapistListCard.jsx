@@ -9,6 +9,7 @@ export default function TherapistListCard({
     index = 0,
     isHighlighted = false,
     onHover,
+    onSelect,
     onAuthGate,
     cardRef,
 }) {
@@ -26,7 +27,8 @@ export default function TherapistListCard({
             onMouseLeave={() => onHover?.(null)}
             onFocus={() => onHover?.(therapist.id)}
             onBlur={() => onHover?.(null)}
-            className={`bg-card-light rounded-xl p-4 sm:p-5 transition-all ${borderClass}`}
+            onClick={() => onSelect?.(therapist.id)}
+            className={`bg-card-light rounded-xl p-4 sm:p-5 transition-all cursor-pointer ${borderClass}`}
         >
             <div className="flex gap-4">
                 <UserAvatar
@@ -86,6 +88,7 @@ export default function TherapistListCard({
                     <div className="grid grid-cols-2 gap-2 mt-4">
                         <a
                             href={`/therapists/${therapist.id}`}
+                            onClick={(e) => e.stopPropagation()}
                             className="py-2 rounded-lg border border-border-light font-semibold text-xs text-text-main hover:bg-muted-light transition-colors text-center"
                         >
                             View Profile

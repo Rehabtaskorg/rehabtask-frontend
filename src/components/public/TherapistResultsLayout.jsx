@@ -119,6 +119,14 @@ export default function TherapistResultsLayout({
         }
     };
 
+    const handleSelectCard = (therapistId) => {
+        if (openPinTherapistId === therapistId) return;
+        const firstPin = mapPins.find((p) => p.therapistId === therapistId);
+        if (!firstPin) return;
+        setHoveredTherapistId(therapistId);
+        setOpenPinId(firstPin.id);
+    };
+
     const handleClickPin = (pin) => {
         setHoveredTherapistId(pin.therapistId);
         setOpenPinId(pin.id);
@@ -175,6 +183,7 @@ export default function TherapistResultsLayout({
                                             index={i}
                                             isHighlighted={highlightedTherapistId === t.id}
                                             onHover={handleHoverCard}
+                                            onSelect={handleSelectCard}
                                             onAuthGate={onAuthGate}
                                             cardRef={(el) => (cardRefs.current[t.id] = el)}
                                         />
