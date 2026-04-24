@@ -9,6 +9,7 @@ import TherapistAppNavbar from "@/components/public/TherapistAppNavbar";
 import TherapistCompactHeader from "@/components/public/TherapistCompactHeader";
 import TherapistResultsLayout from "@/components/public/TherapistResultsLayout";
 import AuthGateModal from "@/components/public/AuthGateModal";
+import { distributePinsOnOverlap } from "@/lib/mapPinOffset";
 
 const DISCIPLINE_MAP = { pt: "Physical Therapist", ot: "Occupational Therapist", slp: "Speech-Language Pathologist" };
 
@@ -131,7 +132,7 @@ function FindTherapistsContent() {
     const { data, isLoading, isFetching } = useSearchTherapists(params);
 
     const therapists = (data?.therapists || []).map(mapTherapist);
-    const mapPins = buildMapPins(data?.therapists);
+    const mapPins = distributePinsOnOverlap(buildMapPins(data?.therapists));
     const pagination = data?.pagination || { page: 1, totalPages: 1, total: 0 };
 
     const handleAuthGate = (trigger) => {
