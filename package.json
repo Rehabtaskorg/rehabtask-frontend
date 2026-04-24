@@ -9,7 +9,6 @@
     "lint": "eslint"
   },
   "dependencies": {
-    "@googlemaps/markerclusterer": "^2.6.2",
     "@hookform/resolvers": "^5.2.2",
     "@stripe/connect-js": "^3.3.35",
     "@stripe/react-connect-js": "^3.3.34",

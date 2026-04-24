@@ -1,14 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useRef } from "react";
-import {
-    Map,
-    AdvancedMarker,
-    InfoWindow,
-    useMap,
-    useAdvancedMarkerRef,
-} from "@vis.gl/react-google-maps";
-import { MarkerClusterer } from "@googlemaps/markerclusterer";
+import { useEffect, useMemo } from "react";
+import { Map, AdvancedMarker, InfoWindow, useMap } from "@vis.gl/react-google-maps";
 import { MdStar, MdLocationOn } from "react-icons/md";
 import UserAvatar from "@/components/ui/UserAvatar";
 import TherapistPriceMarker from "./TherapistPriceMarker";
@@ -40,79 +33,6 @@ function MapBoundsFitter({ pins }) {
     }, [map, pins]);
 
     return null;
-}
-
-function buildClusterRenderer() {
-    return {
-        render: ({ count, position }) => {
-            const div = document.createElement("div");
-            div.className =
-                "flex items-center justify-center font-bold text-sm text-white bg-primary border-2 border-white rounded-full shadow-lg cursor-pointer";
-            div.style.width = "40px";
-            div.style.height = "40px";
-            div.textContent = String(count);
-            return new window.google.maps.marker.AdvancedMarkerElement({
-                position,
-                content: div,
-                title: `${count} therapists`,
-            });
-        },
-    };
-}
-
-function ClusteredMarkers({ pins, highlightedTherapistId, onPinClick }) {
-    const googleMap = useMap();
-    const clustererRef = useRef(null);
-
-    useEffect(() => {
-        if (!googleMap) return;
-        clustererRef.current = new MarkerClusterer({
-            map: googleMap,
-            markers: [],
-            renderer: buildClusterRenderer(),
-        });
-        return () => {
-            clustererRef.current?.clearMarkers();
-            clustererRef.current = null;
-        };
-    }, [googleMap]);
-
-    return pins.map((pin) => (
-        <ClusteredPin
-            key={pin.id}
-            pin={pin}
-            isActive={highlightedTherapistId === pin.therapistId}
-            onPinClick={onPinClick}
-            clustererRef={clustererRef}
-        />
-    ));
-}
-
-function ClusteredPin({ pin, isActive, onPinClick, clustererRef }) {
-    const [markerRef, marker] = useAdvancedMarkerRef();
-
-    useEffect(() => {
-        if (!marker || !clustererRef.current) return;
-        const clusterer = clustererRef.current;
-        clusterer.addMarker(marker);
-        return () => {
-            clusterer.removeMarker(marker);
-        };
-    }, [marker, clustererRef]);
-
-    return (
-        <AdvancedMarker
-            ref={markerRef}
-            position={{ lat: pin.latitude, lng: pin.longitude }}
-            onClick={() => onPinClick?.(pin)}
-        >
-            <TherapistPriceMarker
-                rate={pin.rate}
-                isActive={isActive}
-                onClick={() => onPinClick?.(pin)}
-            />
-        </AdvancedMarker>
-    );
 }
 
 export default function TherapistMapPanel({
@@ -159,11 +79,19 @@ export default function TherapistMapPanel({
             >
                 <MapBoundsFitter pins={pins} />
 
-                <ClusteredMarkers
-                    pins={pins}
-                    highlightedTherapistId={highlightedTherapistId}
-                    onPinClick={onPinClick}
-                />
+                {pins.map((pin) => (
+                    <AdvancedMarker
+                        key={pin.id}
+                        position={{ lat: pin.latitude, lng: pin.longitude }}
+                        onClick={() => onPinClick?.(pin)}
+                    >
+                        <TherapistPriceMarker
+                            rate={pin.rate}
+                            isActive={highlightedTherapistId === pin.therapistId}
+                            onClick={() => onPinClick?.(pin)}
+                        />
+                    </AdvancedMarker>
+                ))}
 
                 {activePin && (
                     <InfoWindow
