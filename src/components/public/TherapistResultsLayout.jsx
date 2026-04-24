@@ -154,7 +154,7 @@ export default function TherapistResultsLayout({
                     <div
                         className={`flex flex-col bg-gray-50 lg:overflow-hidden ${showMap ? "hidden lg:flex" : "flex"}`}
                     >
-                        <div className="flex items-center justify-between px-4 sm:px-5 pt-3 pb-2">
+                        <div className="flex items-center justify-between px-5 sm:px-7 pt-3 pb-2">
                             <span className="text-xs text-text-muted">
                                 Sorted by{" "}
                                 <select
@@ -169,7 +169,7 @@ export default function TherapistResultsLayout({
                             </span>
                         </div>
 
-                        <div className={`flex-1 min-h-0 lg:overflow-y-auto overscroll-contain panel-scroll px-4 sm:px-5 pb-4 ${isFetching ? "opacity-60 pointer-events-none" : ""}`}>
+                        <div className={`flex-1 min-h-0 lg:overflow-y-auto overscroll-contain panel-scroll px-5 sm:px-7 pb-4 ${isFetching ? "opacity-60 pointer-events-none" : ""}`}>
                             {isLoading ? (
                                 <ListSkeleton />
                             ) : therapists.length === 0 ? (
