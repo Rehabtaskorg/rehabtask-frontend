@@ -84,6 +84,7 @@ export default function TherapistMapPanel({
                 mapTypeControl={false}
                 streetViewControl={false}
                 fullscreenControl={false}
+                onClick={() => onCloseInfoWindow?.()}
                 className="w-full h-full"
             >
                 <MapBoundsFitter therapists={therapistsWithCoords} />
