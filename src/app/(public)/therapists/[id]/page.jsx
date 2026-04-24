@@ -25,7 +25,7 @@ function formatTime(t) {
 
 function ProfileSkeleton() {
     return (
-        <div className="pt-16 min-h-screen bg-white">
+        <div className="pt-14 min-h-screen bg-white">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-pulse">
                 <div className="h-4 w-24 bg-gray-200 rounded mb-6" />
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
@@ -67,7 +67,7 @@ export default function TherapistPublicProfilePage() {
 
     if (error || !profile) {
         return (
-            <div className="pt-16 min-h-screen bg-white flex items-center justify-center">
+            <div className="pt-14 min-h-screen bg-white flex items-center justify-center">
                 <div className="text-center">
                     <p className="text-gray-500">Therapist profile not found.</p>
                     <Link href="/therapists" className="text-primary font-semibold text-sm mt-2 inline-block hover:underline">
@@ -84,7 +84,7 @@ export default function TherapistPublicProfilePage() {
 
     return (
         <>
-            <div className="pt-16 min-h-screen bg-white">
+            <div className="pt-14 min-h-screen bg-white">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                     <Link href="/therapists" className="inline-flex items-center gap-1 text-sm font-medium text-gray-500 hover:text-primary transition-colors mb-6">
                         <MdArrowBack className="text-base" /> Back to search

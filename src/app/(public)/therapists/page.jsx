@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { APIProvider } from "@vis.gl/react-google-maps";
 import { useSearchTherapists } from "@/hooks/usePublic";
 import { useAppRole } from "@/hooks/useAppRole";
-import TherapistSearchHeader from "@/components/public/TherapistSearchHeader";
+import TherapistCompactHeader from "@/components/public/TherapistCompactHeader";
 import TherapistResultsLayout from "@/components/public/TherapistResultsLayout";
 import AuthGateModal from "@/components/public/AuthGateModal";
 
@@ -53,18 +53,12 @@ function FindTherapistsContent() {
     // --- Discipline pills (applied immediately on click) ---
     const [activeDiscipline, setActiveDiscipline] = useState("all");
 
-    // --- Sidebar filter state (applied on "Apply Filters") ---
     const [specializations, setSpecializations] = useState([]);
     const [committedSpecializations, setCommittedSpecializations] = useState([]);
 
-    // --- Sort & pagination ---
     const [sortBy, setSortBy] = useState("rating");
     const [currentPage, setCurrentPage] = useState(1);
 
-    // --- Sidebar visibility ---
-    const [sidebarOpen, setSidebarOpen] = useState(false);
-
-    // --- Auth gate ---
     const [gateOpen, setGateOpen] = useState(false);
     const [gateTrigger, setGateTrigger] = useState("default");
 
@@ -124,8 +118,8 @@ function FindTherapistsContent() {
 
     return (
         <>
-            <div className="pt-16 min-h-screen bg-white">
-                <TherapistSearchHeader
+            <div className="pt-14 min-h-screen bg-white">
+                <TherapistCompactHeader
                     searchQuery={searchInput}
                     setSearchQuery={setSearchInput}
                     locationQuery={locationInput}
@@ -136,18 +130,16 @@ function FindTherapistsContent() {
                     setActiveDiscipline={handleDisciplineChange}
                     onSearch={handleSearch}
                     resultCount={pagination.total}
+                    specializations={specializations}
+                    onSpecializationsChange={setSpecializations}
+                    onApplyFilters={handleApplyFilters}
+                    committedSpecializationsCount={committedSpecializations.length}
                 />
 
                 <TherapistResultsLayout
                     therapists={therapists}
                     isLoading={isLoading}
                     isFetching={isFetching}
-                    sidebarOpen={sidebarOpen}
-                    onSidebarClose={setSidebarOpen}
-                    specializations={specializations}
-                    onSpecializationsChange={setSpecializations}
-                    onApplyFilters={handleApplyFilters}
-                    committedSpecializations={committedSpecializations}
                     sortBy={sortBy}
                     onSortChange={(v) => { setSortBy(v); setCurrentPage(1); }}
                     currentPage={currentPage}
@@ -172,7 +164,7 @@ function FindTherapistsContent() {
 export default function FindTherapistsPage() {
     return (
         <APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}>
-            <Suspense fallback={<div className="pt-16 min-h-screen bg-white" />}>
+            <Suspense fallback={<div className="pt-14 min-h-screen bg-white" />}>
                 <FindTherapistsContent />
             </Suspense>
         </APIProvider>

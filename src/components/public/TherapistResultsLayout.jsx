@@ -3,7 +3,6 @@
 import { useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { MdChevronLeft, MdChevronRight } from "react-icons/md";
-import TherapistFilterSidebar, { FilterToggleButton } from "./TherapistFilterSidebar";
 import TherapistListCard from "./TherapistListCard";
 import TherapistMapPanel from "./TherapistMapPanel";
 import MobileViewToggle from "./MobileViewToggle";
@@ -47,7 +46,7 @@ function Pagination({ currentPage, totalPages, onPageChange }) {
         <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="flex items-center justify-between pt-6 mt-6 border-t border-border-light"
+            className="flex items-center justify-between pt-4 mt-4 border-t border-border-light"
         >
             <button
                 onClick={() => onPageChange(Math.max(1, currentPage - 1))}
@@ -88,12 +87,6 @@ export default function TherapistResultsLayout({
     therapists,
     isLoading,
     isFetching,
-    sidebarOpen,
-    onSidebarClose,
-    specializations,
-    onSpecializationsChange,
-    onApplyFilters,
-    committedSpecializations,
     sortBy,
     onSortChange,
     currentPage,
@@ -124,30 +117,16 @@ export default function TherapistResultsLayout({
 
     return (
         <section className="w-full">
-            <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
-                <div className="flex items-center justify-between gap-3 mb-4 lg:hidden">
-                    <FilterToggleButton
-                        onClick={() => onSidebarClose(true)}
-                        activeCount={committedSpecializations.length}
-                    />
+            <div className="max-w-400 mx-auto px-4 sm:px-6 lg:px-8 py-3">
+                <div className="lg:hidden mb-3">
                     <MobileViewToggle view={mobileView} onChange={setMobileView} />
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-[260px_minmax(0,1fr)_minmax(0,1.4fr)] gap-6 lg:h-[calc(100vh-16rem)]">
-                    <div className={showMap ? "hidden lg:block" : ""}>
-                        <TherapistFilterSidebar
-                            isOpen={sidebarOpen}
-                            onClose={() => onSidebarClose(false)}
-                            specializations={specializations}
-                            onSpecializationsChange={onSpecializationsChange}
-                            onApply={onApplyFilters}
-                        />
-                    </div>
-
+                <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.6fr)] gap-4 lg:h-[calc(100vh-11rem)]">
                     <div
                         className={`flex flex-col lg:overflow-hidden ${showMap ? "hidden lg:flex" : "flex"}`}
                     >
-                        <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center justify-between mb-2">
                             <span className="text-xs text-text-muted">
                                 Sorted by{" "}
                                 <select
@@ -191,7 +170,7 @@ export default function TherapistResultsLayout({
                         </div>
                     </div>
 
-                    <div className={`min-h-[420px] lg:min-h-0 ${showList ? "hidden lg:block" : "block"}`}>
+                    <div className={`min-h-105 lg:min-h-0 ${showList ? "hidden lg:block" : "block"}`}>
                         <TherapistMapPanel
                             therapists={therapists}
                             selectedTherapistId={activeSelectedId}

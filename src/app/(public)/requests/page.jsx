@@ -87,7 +87,7 @@ function BrowseRequestsContent() {
 
     return (
         <>
-            <div className="pt-16 min-h-screen bg-white">
+            <div className="pt-14 min-h-screen bg-white">
                 {/* Header */}
                 <section className="bg-gray-50 border-b border-gray-200 py-10 px-4 sm:px-6 lg:px-8">
                     <div className="max-w-6xl mx-auto">
