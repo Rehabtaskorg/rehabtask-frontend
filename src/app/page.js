@@ -6,7 +6,6 @@ import Stats from "@/components/landing/Stats";
 import ForTherapists from "@/components/landing/ForTherapists";
 import TrustSignals from "@/components/landing/TrustSignals";
 import Footer from "@/components/landing/Footer";
-import { montserrat } from "@/lib/fonts";
 
 export const metadata = {
     title: "RehabTask — Find Licensed Rehabilitation Therapists",
@@ -15,7 +14,7 @@ export const metadata = {
 
 export default function LandingPage() {
     return (
-        <div className={montserrat.className}>
+        <>
             <Navbar />
             <main>
                 <Hero />
@@ -26,6 +25,6 @@ export default function LandingPage() {
                 <TrustSignals />
             </main>
             <Footer />
-        </div>
+        </>
     );
 }
