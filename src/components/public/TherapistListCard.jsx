@@ -28,7 +28,7 @@ export default function TherapistListCard({
             onFocus={() => onHover?.(therapist.id)}
             onBlur={() => onHover?.(null)}
             onClick={() => onSelect?.(therapist.id)}
-            className={`bg-card-light rounded-xl p-3 transition-all cursor-pointer ${borderClass}`}
+            className={`bg-card-light rounded-xl p-4 transition-all cursor-pointer ${borderClass}`}
         >
             <div className="flex gap-3">
                 <UserAvatar
@@ -43,28 +43,28 @@ export default function TherapistListCard({
                             <h3 className="text-sm font-bold text-text-main truncate">
                                 {therapist.fullName}
                             </h3>
-                            <span className="inline-flex items-center gap-1 mt-0.5 bg-emerald-50 text-emerald-700 text-[9px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-wider">
+                            <span className="inline-flex items-center gap-1 mt-1 bg-emerald-50 text-emerald-700 text-[9px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-wider">
                                 <MdVerified className="text-[11px]" />
                                 {therapist.licenseType || "Licensed"}
                             </span>
                         </div>
                         <div className="text-right shrink-0">
-                            <p className="text-base font-extrabold text-primary whitespace-nowrap leading-tight">
+                            <p className="text-lg font-extrabold text-primary whitespace-nowrap leading-tight">
                                 {therapist.rate ? `$${therapist.rate}` : "—"}
                             </p>
                             {therapist.rate > 0 && (
-                                <p className="text-[9px] text-text-muted">per visit</p>
+                                <p className="text-[10px] text-text-muted">per visit</p>
                             )}
                         </div>
                     </div>
 
                     {therapist.specialization && (
-                        <p className="text-xs text-text-muted mt-1.5 line-clamp-1">
+                        <p className="text-xs text-text-muted mt-2 line-clamp-1">
                             {therapist.specialization}
                         </p>
                     )}
 
-                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1.5 text-[11px] text-text-muted">
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2 text-[11px] text-text-muted">
                         {therapist.experience > 0 && (
                             <span className="flex items-center gap-0.5">
                                 <MdWorkHistory className="text-xs text-text-muted/70" />
@@ -85,11 +85,11 @@ export default function TherapistListCard({
                         )}
                     </div>
 
-                    <div className="flex items-center justify-end gap-2 mt-2">
+                    <div className="flex items-center justify-end gap-3 mt-3">
                         <a
                             href={`/therapists/${therapist.id}`}
                             onClick={(e) => e.stopPropagation()}
-                            className="text-[11px] font-semibold text-text-muted hover:text-primary transition-colors"
+                            className="text-xs font-semibold text-text-muted hover:text-primary transition-colors"
                         >
                             View Profile
                         </a>
@@ -99,9 +99,9 @@ export default function TherapistListCard({
                                 e.stopPropagation();
                                 onAuthGate?.("message");
                             }}
-                            className="px-3 py-1.5 rounded-lg bg-primary text-white font-semibold text-[11px] flex items-center gap-1 hover:bg-primary/90 transition-colors"
+                            className="px-4 py-2 rounded-lg bg-primary text-white font-bold text-xs flex items-center gap-1.5 hover:bg-primary/90 transition-colors"
                         >
-                            <MdLock className="text-[10px]" />
+                            <MdLock className="text-xs" />
                             Message
                         </button>
                     </div>

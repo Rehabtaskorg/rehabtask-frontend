@@ -155,7 +155,7 @@ export default function TherapistResultsLayout({
                     <MobileViewToggle view={mobileView} onChange={setMobileView} />
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.6fr)] flex-1 min-h-0">
+                <div className="grid grid-cols-1 lg:grid-cols-[360px_1fr] flex-1 min-h-0">
                     <div
                         className={`flex flex-col bg-gray-50 lg:overflow-hidden ${showMap ? "hidden lg:flex" : "flex"}`}
                     >
