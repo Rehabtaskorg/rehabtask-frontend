@@ -28,68 +28,68 @@ export default function TherapistListCard({
             onFocus={() => onHover?.(therapist.id)}
             onBlur={() => onHover?.(null)}
             onClick={() => onSelect?.(therapist.id)}
-            className={`bg-card-light rounded-xl p-4 sm:p-5 transition-all cursor-pointer ${borderClass}`}
+            className={`bg-card-light rounded-xl p-3 transition-all cursor-pointer ${borderClass}`}
         >
-            <div className="flex gap-4">
+            <div className="flex gap-3">
                 <UserAvatar
                     name={therapist.fullName || therapist.licenseType || "Therapist"}
                     photoUrl={therapist.photoUrl}
-                    size="xl"
+                    size="lg"
                 />
 
                 <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-start justify-between gap-2">
                         <div className="min-w-0">
-                            <h3 className="text-base sm:text-lg font-bold text-text-main truncate">
+                            <h3 className="text-sm font-bold text-text-main truncate">
                                 {therapist.fullName}
                             </h3>
-                            <span className="inline-flex items-center gap-1 mt-1 bg-emerald-50 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
-                                <MdVerified className="text-xs" />
+                            <span className="inline-flex items-center gap-1 mt-0.5 bg-emerald-50 text-emerald-700 text-[9px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-wider">
+                                <MdVerified className="text-[11px]" />
                                 {therapist.licenseType || "Licensed"}
                             </span>
                         </div>
                         <div className="text-right shrink-0">
-                            <p className="text-lg font-extrabold text-primary whitespace-nowrap">
+                            <p className="text-base font-extrabold text-primary whitespace-nowrap leading-tight">
                                 {therapist.rate ? `$${therapist.rate}` : "—"}
                             </p>
                             {therapist.rate > 0 && (
-                                <p className="text-[10px] text-text-muted">per visit</p>
+                                <p className="text-[9px] text-text-muted">per visit</p>
                             )}
                         </div>
                     </div>
 
                     {therapist.specialization && (
-                        <p className="text-xs sm:text-sm text-text-muted mt-2 line-clamp-1">
+                        <p className="text-xs text-text-muted mt-1.5 line-clamp-1">
                             {therapist.specialization}
                         </p>
                     )}
 
-                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 mt-3 text-xs text-text-muted">
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1.5 text-[11px] text-text-muted">
                         {therapist.experience > 0 && (
-                            <span className="flex items-center gap-1">
-                                <MdWorkHistory className="text-sm text-text-muted/70" />
+                            <span className="flex items-center gap-0.5">
+                                <MdWorkHistory className="text-xs text-text-muted/70" />
                                 {therapist.experience}y exp
                             </span>
                         )}
                         {therapist.location && (
-                            <span className="flex items-center gap-1">
-                                <MdLocationOn className="text-sm text-text-muted/70" />
+                            <span className="flex items-center gap-0.5">
+                                <MdLocationOn className="text-xs text-text-muted/70" />
                                 {therapist.location}
                             </span>
                         )}
                         {therapist.reviewCount > 0 && (
-                            <span className="flex items-center gap-1 font-semibold text-amber-500">
-                                <MdStar className="text-sm" />
+                            <span className="flex items-center gap-0.5 font-semibold text-amber-500">
+                                <MdStar className="text-xs" />
                                 {therapist.rating} ({therapist.reviewCount})
                             </span>
                         )}
                     </div>
 
-                    <div className="grid grid-cols-2 gap-2 mt-4">
+                    <div className="flex items-center justify-end gap-2 mt-2">
                         <a
                             href={`/therapists/${therapist.id}`}
                             onClick={(e) => e.stopPropagation()}
-                            className="py-2 rounded-lg border border-border-light font-semibold text-xs text-text-main hover:bg-muted-light transition-colors text-center"
+                            className="text-[11px] font-semibold text-text-muted hover:text-primary transition-colors"
                         >
                             View Profile
                         </a>
@@ -99,9 +99,9 @@ export default function TherapistListCard({
                                 e.stopPropagation();
                                 onAuthGate?.("message");
                             }}
-                            className="py-2 rounded-lg bg-primary text-white font-semibold text-xs flex items-center justify-center gap-1.5 hover:bg-primary/90 transition-colors"
+                            className="px-3 py-1.5 rounded-lg bg-primary text-white font-semibold text-[11px] flex items-center gap-1 hover:bg-primary/90 transition-colors"
                         >
-                            <MdLock className="text-xs" />
+                            <MdLock className="text-[10px]" />
                             Message
                         </button>
                     </div>
