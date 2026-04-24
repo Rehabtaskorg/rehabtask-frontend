@@ -22,13 +22,34 @@ function mapTherapist(t) {
         specialization: t.specialization || t.primaryLicenseType || "",
         experience: t.yearsOfExperience || 0,
         location,
-        latitude: firstArea?.latitude ? parseFloat(firstArea.latitude) : null,
-        longitude: firstArea?.longitude ? parseFloat(firstArea.longitude) : null,
         rating: t.averageRating || 0,
         reviewCount: t.reviewCount || 0,
         rate: t.ratePerVisit ? parseFloat(t.ratePerVisit) : 0,
         photoUrl: t.profilePhotoUrl || null,
     };
+}
+
+function buildMapPins(rawTherapists) {
+    const pins = [];
+    for (const t of rawTherapists || []) {
+        const areas = t.workAreas || [];
+        for (const area of areas) {
+            if (!area.latitude || !area.longitude) continue;
+            pins.push({
+                id: `${t.id}__${area.city}_${area.state}_${area.latitude}_${area.longitude}`,
+                therapistId: t.id,
+                fullName: t.fullName || "",
+                rate: t.ratePerVisit ? parseFloat(t.ratePerVisit) : 0,
+                photoUrl: t.profilePhotoUrl || null,
+                rating: t.averageRating || 0,
+                reviewCount: t.reviewCount || 0,
+                location: `${area.city}, ${area.state}`,
+                latitude: parseFloat(area.latitude),
+                longitude: parseFloat(area.longitude),
+            });
+        }
+    }
+    return pins;
 }
 
 function FindTherapistsContent() {
@@ -110,6 +131,7 @@ function FindTherapistsContent() {
     const { data, isLoading, isFetching } = useSearchTherapists(params);
 
     const therapists = (data?.therapists || []).map(mapTherapist);
+    const mapPins = buildMapPins(data?.therapists);
     const pagination = data?.pagination || { page: 1, totalPages: 1, total: 0 };
 
     const handleAuthGate = (trigger) => {
@@ -142,6 +164,7 @@ function FindTherapistsContent() {
 
                 <TherapistResultsLayout
                     therapists={therapists}
+                    mapPins={mapPins}
                     isLoading={isLoading}
                     isFetching={isFetching}
                     sortBy={sortBy}

@@ -85,6 +85,7 @@ function Pagination({ currentPage, totalPages, onPageChange }) {
 
 export default function TherapistResultsLayout({
     therapists,
+    mapPins = [],
     isLoading,
     isFetching,
     sortBy,
@@ -95,37 +96,40 @@ export default function TherapistResultsLayout({
     onAuthGate,
     searchCenter,
 }) {
-    const [hoveredId, setHoveredId] = useState(null);
-    const [openInfoWindowId, setOpenInfoWindowId] = useState(null);
+    const [hoveredTherapistId, setHoveredTherapistId] = useState(null);
+    const [openPinId, setOpenPinId] = useState(null);
     const [mobileView, setMobileView] = useState("list");
     const cardRefs = useRef({});
 
-    const hoveredIsValid = therapists.some((t) => t.id === hoveredId);
-    const activeHoveredId = hoveredIsValid ? hoveredId : null;
+    const hoveredIsValid = therapists.some((t) => t.id === hoveredTherapistId);
+    const activeHoveredTherapistId = hoveredIsValid ? hoveredTherapistId : null;
 
-    const infoWindowIsValid = therapists.some((t) => t.id === openInfoWindowId);
-    const activeInfoWindowId = infoWindowIsValid ? openInfoWindowId : null;
+    const openPinIsValid = mapPins.some((p) => p.id === openPinId);
+    const activeOpenPinId = openPinIsValid ? openPinId : null;
+    const openPinTherapistId = activeOpenPinId
+        ? mapPins.find((p) => p.id === activeOpenPinId)?.therapistId || null
+        : null;
 
-    const highlightedId = activeInfoWindowId || activeHoveredId;
+    const highlightedTherapistId = openPinTherapistId || activeHoveredTherapistId;
 
-    const handleHoverCard = (id) => {
-        setHoveredId(id);
-        if (id && openInfoWindowId && openInfoWindowId !== id) {
-            setOpenInfoWindowId(null);
+    const handleHoverCard = (therapistId) => {
+        setHoveredTherapistId(therapistId);
+        if (therapistId && openPinTherapistId && openPinTherapistId !== therapistId) {
+            setOpenPinId(null);
         }
     };
 
-    const handleClickPin = (id) => {
-        setHoveredId(id);
-        setOpenInfoWindowId(id);
-        const el = cardRefs.current[id];
+    const handleClickPin = (pin) => {
+        setHoveredTherapistId(pin.therapistId);
+        setOpenPinId(pin.id);
+        const el = cardRefs.current[pin.therapistId];
         if (el?.scrollIntoView) {
             el.scrollIntoView({ behavior: "smooth", block: "nearest" });
         }
     };
 
     const handleCloseInfoWindow = () => {
-        setOpenInfoWindowId(null);
+        setOpenPinId(null);
     };
 
     const showMap = mobileView === "map";
@@ -169,7 +173,7 @@ export default function TherapistResultsLayout({
                                             key={t.id}
                                             therapist={t}
                                             index={i}
-                                            isHighlighted={highlightedId === t.id}
+                                            isHighlighted={highlightedTherapistId === t.id}
                                             onHover={handleHoverCard}
                                             onAuthGate={onAuthGate}
                                             cardRef={(el) => (cardRefs.current[t.id] = el)}
@@ -188,9 +192,9 @@ export default function TherapistResultsLayout({
 
                     <div className={`min-h-105 lg:min-h-0 ${showList ? "hidden lg:block" : "block"}`}>
                         <TherapistMapPanel
-                            therapists={therapists}
-                            highlightedTherapistId={highlightedId}
-                            openInfoWindowId={activeInfoWindowId}
+                            pins={mapPins}
+                            highlightedTherapistId={highlightedTherapistId}
+                            openPinId={activeOpenPinId}
                             onPinClick={handleClickPin}
                             onCloseInfoWindow={handleCloseInfoWindow}
                             onAuthGate={onAuthGate}

@@ -1,7 +1,14 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
-import { Map, AdvancedMarker, InfoWindow, useMap } from "@vis.gl/react-google-maps";
+import { useEffect, useMemo, useRef } from "react";
+import {
+    Map,
+    AdvancedMarker,
+    InfoWindow,
+    useMap,
+    useAdvancedMarkerRef,
+} from "@vis.gl/react-google-maps";
+import { MarkerClusterer } from "@googlemaps/markerclusterer";
 import { MdStar, MdLocationOn } from "react-icons/md";
 import UserAvatar from "@/components/ui/UserAvatar";
 import TherapistPriceMarker from "./TherapistPriceMarker";
@@ -10,58 +17,121 @@ const DEFAULT_CENTER = { lat: 34.0522, lng: -118.2437 };
 const DEFAULT_ZOOM = 11;
 const MAP_ID = process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID || "rehabtask_map";
 
-function buildCenter(therapists, fallback) {
-    const withCoords = therapists.filter((t) => t.latitude && t.longitude);
-    if (withCoords.length === 0) return fallback || DEFAULT_CENTER;
-    const avgLat = withCoords.reduce((s, t) => s + Number(t.latitude), 0) / withCoords.length;
-    const avgLng = withCoords.reduce((s, t) => s + Number(t.longitude), 0) / withCoords.length;
+function buildCenter(pins, fallback) {
+    if (pins.length === 0) return fallback || DEFAULT_CENTER;
+    const avgLat = pins.reduce((s, p) => s + p.latitude, 0) / pins.length;
+    const avgLng = pins.reduce((s, p) => s + p.longitude, 0) / pins.length;
     return { lat: avgLat, lng: avgLng };
 }
 
-function MapBoundsFitter({ therapists }) {
+function MapBoundsFitter({ pins }) {
     const map = useMap();
 
     useEffect(() => {
-        if (!map || !therapists?.length) return;
-        const withCoords = therapists.filter((t) => t.latitude && t.longitude);
-        if (withCoords.length === 0) return;
-        if (withCoords.length === 1) {
-            map.setCenter({ lat: Number(withCoords[0].latitude), lng: Number(withCoords[0].longitude) });
+        if (!map || !pins?.length) return;
+        if (pins.length === 1) {
+            map.setCenter({ lat: pins[0].latitude, lng: pins[0].longitude });
             map.setZoom(13);
             return;
         }
         const bounds = new window.google.maps.LatLngBounds();
-        withCoords.forEach((t) => {
-            bounds.extend({ lat: Number(t.latitude), lng: Number(t.longitude) });
-        });
+        pins.forEach((p) => bounds.extend({ lat: p.latitude, lng: p.longitude }));
         map.fitBounds(bounds, 80);
-    }, [map, therapists]);
+    }, [map, pins]);
 
     return null;
 }
 
+function buildClusterRenderer() {
+    return {
+        render: ({ count, position }) => {
+            const div = document.createElement("div");
+            div.className =
+                "flex items-center justify-center font-bold text-sm text-white bg-primary border-2 border-white rounded-full shadow-lg cursor-pointer";
+            div.style.width = "40px";
+            div.style.height = "40px";
+            div.textContent = String(count);
+            return new window.google.maps.marker.AdvancedMarkerElement({
+                position,
+                content: div,
+                title: `${count} therapists`,
+            });
+        },
+    };
+}
+
+function ClusteredMarkers({ pins, highlightedTherapistId, onPinClick }) {
+    const googleMap = useMap();
+    const clustererRef = useRef(null);
+
+    useEffect(() => {
+        if (!googleMap) return;
+        clustererRef.current = new MarkerClusterer({
+            map: googleMap,
+            markers: [],
+            renderer: buildClusterRenderer(),
+        });
+        return () => {
+            clustererRef.current?.clearMarkers();
+            clustererRef.current = null;
+        };
+    }, [googleMap]);
+
+    return pins.map((pin) => (
+        <ClusteredPin
+            key={pin.id}
+            pin={pin}
+            isActive={highlightedTherapistId === pin.therapistId}
+            onPinClick={onPinClick}
+            clustererRef={clustererRef}
+        />
+    ));
+}
+
+function ClusteredPin({ pin, isActive, onPinClick, clustererRef }) {
+    const [markerRef, marker] = useAdvancedMarkerRef();
+
+    useEffect(() => {
+        if (!marker || !clustererRef.current) return;
+        const clusterer = clustererRef.current;
+        clusterer.addMarker(marker);
+        return () => {
+            clusterer.removeMarker(marker);
+        };
+    }, [marker, clustererRef]);
+
+    return (
+        <AdvancedMarker
+            ref={markerRef}
+            position={{ lat: pin.latitude, lng: pin.longitude }}
+            onClick={() => onPinClick?.(pin)}
+        >
+            <TherapistPriceMarker
+                rate={pin.rate}
+                isActive={isActive}
+                onClick={() => onPinClick?.(pin)}
+            />
+        </AdvancedMarker>
+    );
+}
+
 export default function TherapistMapPanel({
-    therapists,
+    pins,
     highlightedTherapistId,
-    openInfoWindowId,
+    openPinId,
     onPinClick,
     onCloseInfoWindow,
     onAuthGate,
     searchCenter,
 }) {
-    const therapistsWithCoords = useMemo(
-        () => therapists.filter((t) => t.latitude && t.longitude),
-        [therapists],
-    );
-
     const initialCenter = useMemo(
-        () => searchCenter || buildCenter(therapistsWithCoords, DEFAULT_CENTER),
-        [searchCenter, therapistsWithCoords],
+        () => searchCenter || buildCenter(pins, DEFAULT_CENTER),
+        [searchCenter, pins],
     );
 
-    const activeTherapist = therapistsWithCoords.find((t) => t.id === openInfoWindowId);
+    const activePin = pins.find((p) => p.id === openPinId);
 
-    if (therapistsWithCoords.length === 0) {
+    if (pins.length === 0) {
         return (
             <div className="h-full w-full flex items-center justify-center bg-muted-light">
                 <div className="text-center p-6">
@@ -87,28 +157,17 @@ export default function TherapistMapPanel({
                 onClick={() => onCloseInfoWindow?.()}
                 className="w-full h-full"
             >
-                <MapBoundsFitter therapists={therapistsWithCoords} />
+                <MapBoundsFitter pins={pins} />
 
-                {therapistsWithCoords.map((t) => (
-                    <AdvancedMarker
-                        key={t.id}
-                        position={{ lat: Number(t.latitude), lng: Number(t.longitude) }}
-                        onClick={() => onPinClick?.(t.id)}
-                    >
-                        <TherapistPriceMarker
-                            rate={t.rate}
-                            isActive={highlightedTherapistId === t.id}
-                            onClick={() => onPinClick?.(t.id)}
-                        />
-                    </AdvancedMarker>
-                ))}
+                <ClusteredMarkers
+                    pins={pins}
+                    highlightedTherapistId={highlightedTherapistId}
+                    onPinClick={onPinClick}
+                />
 
-                {activeTherapist && (
+                {activePin && (
                     <InfoWindow
-                        position={{
-                            lat: Number(activeTherapist.latitude),
-                            lng: Number(activeTherapist.longitude),
-                        }}
+                        position={{ lat: activePin.latitude, lng: activePin.longitude }}
                         pixelOffset={[0, -12]}
                         onCloseClick={() => onCloseInfoWindow?.()}
                         headerDisabled
@@ -116,33 +175,33 @@ export default function TherapistMapPanel({
                         <div className="w-60 p-1">
                             <div className="flex gap-3 mb-3">
                                 <UserAvatar
-                                    name={activeTherapist.fullName || "Therapist"}
-                                    photoUrl={activeTherapist.photoUrl}
+                                    name={activePin.fullName || "Therapist"}
+                                    photoUrl={activePin.photoUrl}
                                     size="md"
                                 />
                                 <div className="min-w-0">
                                     <p className="font-bold text-sm text-text-main truncate">
-                                        {activeTherapist.fullName}
+                                        {activePin.fullName}
                                     </p>
-                                    {activeTherapist.reviewCount > 0 && (
+                                    {activePin.reviewCount > 0 && (
                                         <div className="flex items-center text-amber-500 text-[11px] font-bold mt-0.5">
                                             <MdStar className="text-sm mr-0.5" />
-                                            {activeTherapist.rating} ({activeTherapist.reviewCount})
+                                            {activePin.rating} ({activePin.reviewCount})
                                         </div>
                                     )}
                                 </div>
                             </div>
-                            {activeTherapist.location && (
+                            {activePin.location && (
                                 <p className="text-xs text-text-muted mb-2 line-clamp-1">
-                                    {activeTherapist.location}
+                                    {activePin.location}
                                 </p>
                             )}
                             <p className="text-sm font-bold text-primary mb-3">
-                                {activeTherapist.rate ? `$${activeTherapist.rate}/visit` : "Rate on request"}
+                                {activePin.rate ? `$${activePin.rate}/visit` : "Rate on request"}
                             </p>
                             <div className="grid grid-cols-2 gap-2">
                                 <a
-                                    href={`/therapists/${activeTherapist.id}`}
+                                    href={`/therapists/${activePin.therapistId}`}
                                     className="py-1.5 text-center text-xs font-bold rounded-lg border border-border-light text-text-main hover:bg-muted-light transition-colors"
                                 >
                                     View Profile
