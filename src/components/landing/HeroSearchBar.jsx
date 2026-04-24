@@ -56,7 +56,7 @@ function HeroSearchBarInner() {
                 type="submit"
                 className="w-full px-6 py-4 bg-primary text-white font-bold rounded-xl hover:bg-primary/90 transition-colors text-base shadow-sm"
             >
-                Search
+                Find a Therapist
             </button>
         </form>
     );
