@@ -7,12 +7,12 @@ import UserAvatar from "@/components/ui/UserAvatar";
 export default function TherapistListCard({
     therapist,
     index = 0,
-    isSelected = false,
-    onSelect,
+    isHighlighted = false,
+    onHover,
     onAuthGate,
     cardRef,
 }) {
-    const borderClass = isSelected
+    const borderClass = isHighlighted
         ? "border-2 border-primary shadow-lg shadow-primary/10"
         : "border border-border-light hover:border-primary/30 hover:shadow-md";
 
@@ -22,9 +22,11 @@ export default function TherapistListCard({
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: Math.min(index * 0.04, 0.25) }}
-            onMouseEnter={() => onSelect?.(therapist.id)}
-            onFocus={() => onSelect?.(therapist.id)}
-            className={`bg-card-light rounded-xl p-4 sm:p-5 transition-all cursor-pointer ${borderClass}`}
+            onMouseEnter={() => onHover?.(therapist.id)}
+            onMouseLeave={() => onHover?.(null)}
+            onFocus={() => onHover?.(therapist.id)}
+            onBlur={() => onHover?.(null)}
+            className={`bg-card-light rounded-xl p-4 sm:p-5 transition-all ${borderClass}`}
         >
             <div className="flex gap-4">
                 <UserAvatar

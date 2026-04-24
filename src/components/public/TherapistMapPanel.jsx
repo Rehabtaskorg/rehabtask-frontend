@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 import { Map, AdvancedMarker, InfoWindow, useMap } from "@vis.gl/react-google-maps";
 import { MdStar, MdLocationOn } from "react-icons/md";
 import UserAvatar from "@/components/ui/UserAvatar";
@@ -42,13 +42,13 @@ function MapBoundsFitter({ therapists }) {
 
 export default function TherapistMapPanel({
     therapists,
-    selectedTherapistId,
-    onSelectTherapist,
+    highlightedTherapistId,
+    openInfoWindowId,
+    onPinClick,
+    onCloseInfoWindow,
     onAuthGate,
     searchCenter,
 }) {
-    const [dismissedId, setDismissedId] = useState(null);
-
     const therapistsWithCoords = useMemo(
         () => therapists.filter((t) => t.latitude && t.longitude),
         [therapists],
@@ -59,8 +59,7 @@ export default function TherapistMapPanel({
         [searchCenter, therapistsWithCoords],
     );
 
-    const infoWindowId = selectedTherapistId && selectedTherapistId !== dismissedId ? selectedTherapistId : null;
-    const activeTherapist = therapistsWithCoords.find((t) => t.id === infoWindowId);
+    const activeTherapist = therapistsWithCoords.find((t) => t.id === openInfoWindowId);
 
     if (therapistsWithCoords.length === 0) {
         return (
@@ -93,18 +92,12 @@ export default function TherapistMapPanel({
                     <AdvancedMarker
                         key={t.id}
                         position={{ lat: Number(t.latitude), lng: Number(t.longitude) }}
-                        onClick={() => {
-                            onSelectTherapist?.(t.id);
-                            setDismissedId(null);
-                        }}
+                        onClick={() => onPinClick?.(t.id)}
                     >
                         <TherapistPriceMarker
                             rate={t.rate}
-                            isActive={selectedTherapistId === t.id}
-                            onClick={() => {
-                                onSelectTherapist?.(t.id);
-                                setDismissedId(null);
-                            }}
+                            isActive={highlightedTherapistId === t.id}
+                            onClick={() => onPinClick?.(t.id)}
                         />
                     </AdvancedMarker>
                 ))}
@@ -116,7 +109,7 @@ export default function TherapistMapPanel({
                             lng: Number(activeTherapist.longitude),
                         }}
                         pixelOffset={[0, -12]}
-                        onCloseClick={() => setDismissedId(selectedTherapistId)}
+                        onCloseClick={() => onCloseInfoWindow?.()}
                         headerDisabled
                     >
                         <div className="w-60 p-1">

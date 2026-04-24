@@ -95,21 +95,37 @@ export default function TherapistResultsLayout({
     onAuthGate,
     searchCenter,
 }) {
-    const [selectedId, setSelectedIdState] = useState(null);
+    const [hoveredId, setHoveredId] = useState(null);
+    const [openInfoWindowId, setOpenInfoWindowId] = useState(null);
     const [mobileView, setMobileView] = useState("list");
     const cardRefs = useRef({});
 
-    const selectedIsValid = therapists.some((t) => t.id === selectedId);
-    const activeSelectedId = selectedIsValid ? selectedId : null;
+    const hoveredIsValid = therapists.some((t) => t.id === hoveredId);
+    const activeHoveredId = hoveredIsValid ? hoveredId : null;
 
-    const setSelectedId = (id) => {
-        setSelectedIdState(id);
-        if (id) {
-            const el = cardRefs.current[id];
-            if (el?.scrollIntoView) {
-                el.scrollIntoView({ behavior: "smooth", block: "nearest" });
-            }
+    const infoWindowIsValid = therapists.some((t) => t.id === openInfoWindowId);
+    const activeInfoWindowId = infoWindowIsValid ? openInfoWindowId : null;
+
+    const highlightedId = activeInfoWindowId || activeHoveredId;
+
+    const handleHoverCard = (id) => {
+        setHoveredId(id);
+        if (id && openInfoWindowId && openInfoWindowId !== id) {
+            setOpenInfoWindowId(null);
         }
+    };
+
+    const handleClickPin = (id) => {
+        setHoveredId(id);
+        setOpenInfoWindowId(id);
+        const el = cardRefs.current[id];
+        if (el?.scrollIntoView) {
+            el.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        }
+    };
+
+    const handleCloseInfoWindow = () => {
+        setOpenInfoWindowId(null);
     };
 
     const showMap = mobileView === "map";
@@ -153,8 +169,8 @@ export default function TherapistResultsLayout({
                                             key={t.id}
                                             therapist={t}
                                             index={i}
-                                            isSelected={activeSelectedId === t.id}
-                                            onSelect={setSelectedId}
+                                            isHighlighted={highlightedId === t.id}
+                                            onHover={handleHoverCard}
                                             onAuthGate={onAuthGate}
                                             cardRef={(el) => (cardRefs.current[t.id] = el)}
                                         />
@@ -173,8 +189,10 @@ export default function TherapistResultsLayout({
                     <div className={`min-h-105 lg:min-h-0 ${showList ? "hidden lg:block" : "block"}`}>
                         <TherapistMapPanel
                             therapists={therapists}
-                            selectedTherapistId={activeSelectedId}
-                            onSelectTherapist={setSelectedId}
+                            highlightedTherapistId={highlightedId}
+                            openInfoWindowId={activeInfoWindowId}
+                            onPinClick={handleClickPin}
+                            onCloseInfoWindow={handleCloseInfoWindow}
                             onAuthGate={onAuthGate}
                             searchCenter={searchCenter}
                         />
