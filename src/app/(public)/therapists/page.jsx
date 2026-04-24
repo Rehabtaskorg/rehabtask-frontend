@@ -8,10 +8,6 @@ import { useAppRole } from "@/hooks/useAppRole";
 import TherapistSearchHeader from "@/components/public/TherapistSearchHeader";
 import TherapistResultsLayout from "@/components/public/TherapistResultsLayout";
 import AuthGateModal from "@/components/public/AuthGateModal";
-import WhyChooseUs from "@/components/public/WhyChooseUs";
-import PublicStats from "@/components/public/PublicStats";
-import Testimonials from "@/components/public/Testimonials";
-import CTABanner from "@/components/public/CTABanner";
 
 const DISCIPLINE_MAP = { pt: "Physical Therapist", ot: "Occupational Therapist", slp: "Speech-Language Pathologist" };
 
@@ -160,11 +156,6 @@ function FindTherapistsContent() {
                     onAuthGate={handleAuthGate}
                     searchCenter={committedCoords ? { lat: committedCoords.latitude, lng: committedCoords.longitude } : null}
                 />
-
-                <WhyChooseUs />
-                <PublicStats />
-                <Testimonials />
-                <CTABanner />
             </div>
 
             <AuthGateModal
