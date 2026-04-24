@@ -11,7 +11,7 @@ function buildAggregateLabel(therapists) {
     const count = therapists.length;
 
     if (rates.length === 0) {
-        return { primary: `${count}`, suffix: "therapists" };
+        return { primary: `${count}`, suffix: count === 1 ? "therapist" : "therapists" };
     }
 
     const min = Math.min(...rates);
