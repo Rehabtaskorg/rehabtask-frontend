@@ -14,7 +14,7 @@ export default function TherapistListCard({
 }) {
     const borderClass = isSelected
         ? "border-2 border-primary shadow-lg shadow-primary/10"
-        : "border border-border-light dark:border-border-dark hover:border-primary/30 hover:shadow-md";
+        : "border border-border-light hover:border-primary/30 hover:shadow-md";
 
     return (
         <motion.div
@@ -24,7 +24,7 @@ export default function TherapistListCard({
             transition={{ duration: 0.3, delay: Math.min(index * 0.04, 0.25) }}
             onMouseEnter={() => onSelect?.(therapist.id)}
             onFocus={() => onSelect?.(therapist.id)}
-            className={`bg-card-light dark:bg-card-dark rounded-xl p-4 sm:p-5 transition-all cursor-pointer ${borderClass}`}
+            className={`bg-card-light rounded-xl p-4 sm:p-5 transition-all cursor-pointer ${borderClass}`}
         >
             <div className="flex gap-4">
                 <UserAvatar
@@ -36,10 +36,10 @@ export default function TherapistListCard({
                 <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between gap-3">
                         <div className="min-w-0">
-                            <h3 className="text-base sm:text-lg font-bold text-text-main dark:text-white truncate">
+                            <h3 className="text-base sm:text-lg font-bold text-text-main truncate">
                                 {therapist.fullName}
                             </h3>
-                            <span className="inline-flex items-center gap-1 mt-1 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
+                            <span className="inline-flex items-center gap-1 mt-1 bg-emerald-50 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
                                 <MdVerified className="text-xs" />
                                 {therapist.licenseType || "Licensed"}
                             </span>
@@ -84,7 +84,7 @@ export default function TherapistListCard({
                     <div className="grid grid-cols-2 gap-2 mt-4">
                         <a
                             href={`/therapists/${therapist.id}`}
-                            className="py-2 rounded-lg border border-border-light dark:border-border-dark font-semibold text-xs text-text-main dark:text-white hover:bg-muted-light dark:hover:bg-muted-dark transition-colors text-center"
+                            className="py-2 rounded-lg border border-border-light font-semibold text-xs text-text-main hover:bg-muted-light transition-colors text-center"
                         >
                             View Profile
                         </a>

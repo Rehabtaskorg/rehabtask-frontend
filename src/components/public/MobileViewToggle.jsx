@@ -11,7 +11,7 @@ export default function MobileViewToggle({ view, onChange }) {
         }`;
 
     return (
-        <div className="lg:hidden bg-muted-light dark:bg-muted-dark p-1 rounded-xl flex border border-border-light dark:border-border-dark">
+        <div className="lg:hidden bg-muted-light p-1 rounded-xl flex border border-border-light">
             <button type="button" onClick={() => onChange("list")} className={buttonClass("list")}>
                 <MdList className="text-base" />
                 List

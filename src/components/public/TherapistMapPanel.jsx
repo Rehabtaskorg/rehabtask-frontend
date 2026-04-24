@@ -64,7 +64,7 @@ export default function TherapistMapPanel({
 
     if (therapistsWithCoords.length === 0) {
         return (
-            <div className="h-full w-full flex items-center justify-center bg-muted-light dark:bg-muted-dark rounded-xl border border-border-light dark:border-border-dark">
+            <div className="h-full w-full flex items-center justify-center bg-muted-light rounded-xl border border-border-light">
                 <div className="text-center p-6">
                     <MdLocationOn className="text-4xl text-text-muted/40 mx-auto mb-2" />
                     <p className="text-sm text-text-muted">No therapists to display on map.</p>
@@ -75,7 +75,7 @@ export default function TherapistMapPanel({
     }
 
     return (
-        <div className="relative h-full w-full rounded-xl overflow-hidden border border-border-light dark:border-border-dark">
+        <div className="relative h-full w-full rounded-xl overflow-hidden border border-border-light">
             <Map
                 mapId={MAP_ID}
                 defaultCenter={initialCenter}
@@ -103,7 +103,7 @@ export default function TherapistMapPanel({
                             isActive={selectedTherapistId === t.id}
                             onClick={() => {
                                 onSelectTherapist?.(t.id);
-                                setInfoWindowId(t.id);
+                                setDismissedId(null);
                             }}
                         />
                     </AdvancedMarker>

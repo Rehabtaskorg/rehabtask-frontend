@@ -14,14 +14,14 @@ function ListSkeleton() {
             {[1, 2, 3, 4].map((i) => (
                 <div
                     key={i}
-                    className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl p-5 animate-pulse"
+                    className="bg-card-light border border-border-light rounded-xl p-5 animate-pulse"
                 >
                     <div className="flex gap-4">
-                        <div className="w-20 h-20 rounded-full bg-muted-light dark:bg-muted-dark" />
+                        <div className="w-20 h-20 rounded-full bg-muted-light" />
                         <div className="flex-1 space-y-2">
-                            <div className="h-4 w-32 bg-muted-light dark:bg-muted-dark rounded" />
-                            <div className="h-3 w-20 bg-muted-light dark:bg-muted-dark rounded" />
-                            <div className="h-3 w-48 bg-muted-light dark:bg-muted-dark rounded" />
+                            <div className="h-4 w-32 bg-muted-light rounded" />
+                            <div className="h-3 w-20 bg-muted-light rounded" />
+                            <div className="h-3 w-48 bg-muted-light rounded" />
                         </div>
                     </div>
                 </div>
@@ -47,7 +47,7 @@ function Pagination({ currentPage, totalPages, onPageChange }) {
         <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="flex items-center justify-between pt-6 mt-6 border-t border-border-light dark:border-border-dark"
+            className="flex items-center justify-between pt-6 mt-6 border-t border-border-light"
         >
             <button
                 onClick={() => onPageChange(Math.max(1, currentPage - 1))}
@@ -65,7 +65,7 @@ function Pagination({ currentPage, totalPages, onPageChange }) {
                         className={`w-9 h-9 rounded-lg text-sm font-bold transition-colors ${
                             currentPage === page
                                 ? "bg-primary text-white"
-                                : "bg-muted-light dark:bg-muted-dark text-text-muted hover:bg-muted-light/60"
+                                : "bg-muted-light text-text-muted hover:bg-muted-light/60"
                         }`}
                     >
                         {page}

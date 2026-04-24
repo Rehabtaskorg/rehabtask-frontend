@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import FadeIn from "@/components/ui/FadeIn";
+import HeroSearchBar from "./HeroSearchBar";
 import { MdBusiness, MdMedicalServices, MdArrowForward } from "react-icons/md";
 
 export default function Hero() {
@@ -13,43 +14,45 @@ export default function Hero() {
                             Where agencies and therapists connect
                         </h1>
                         <p className="mt-5 text-lg text-gray-600 max-w-lg leading-relaxed">
-                            The platform that matches licensed PTs, OTs, and SLPs with home health agencies that need their expertise. Post requests, send offers, and manage care — all in one place.
+                            The platform that matches licensed PTs, OTs, and SLPs with home health agencies that need their expertise.
                         </p>
 
-                        <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="mt-8">
+                            <HeroSearchBar />
+                        </div>
+
+                        <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
                             <Link href="/therapists" className="group">
-                                <FadeIn hover delay={0.1} className="bg-white border border-gray-200 rounded-xl p-5 hover:border-primary/30 hover:shadow-lg transition-all h-full">
-                                    <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mb-3">
+                                <div className="bg-white border border-gray-100 rounded-xl p-4 hover:border-primary/30 hover:shadow-md transition-all h-full flex items-center gap-3">
+                                    <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
                                         <MdBusiness className="text-primary text-xl" />
                                     </div>
-                                    <p className="text-sm font-bold text-gray-900 mb-1">I&apos;m a Home Health Agency</p>
-                                    <p className="text-xs text-gray-500 leading-relaxed mb-3">
-                                        Post therapy requests and connect with verified therapists in your area.
-                                    </p>
-                                    <span className="inline-flex items-center gap-1 text-xs font-semibold text-primary group-hover:gap-2 transition-all">
-                                        Find Therapists <MdArrowForward className="text-sm" />
-                                    </span>
-                                </FadeIn>
+                                    <div className="min-w-0">
+                                        <p className="text-sm font-bold text-gray-900 leading-tight">I&apos;m a Home Health Agency</p>
+                                        <span className="inline-flex items-center gap-1 text-xs font-semibold text-primary group-hover:gap-2 transition-all mt-0.5">
+                                            Find Therapists <MdArrowForward className="text-sm" />
+                                        </span>
+                                    </div>
+                                </div>
                             </Link>
 
                             <Link href="/requests" className="group">
-                                <FadeIn hover delay={0.2} className="bg-white border border-gray-200 rounded-xl p-5 hover:border-emerald-300 hover:shadow-lg transition-all h-full">
-                                    <div className="w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center mb-3">
+                                <div className="bg-white border border-gray-100 rounded-xl p-4 hover:border-emerald-300 hover:shadow-md transition-all h-full flex items-center gap-3">
+                                    <div className="w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center shrink-0">
                                         <MdMedicalServices className="text-emerald-600 text-xl" />
                                     </div>
-                                    <p className="text-sm font-bold text-gray-900 mb-1">I&apos;m a Licensed Therapist</p>
-                                    <p className="text-xs text-gray-500 leading-relaxed mb-3">
-                                        Set your own rates, choose your clients, and get paid securely for every session.
-                                    </p>
-                                    <span className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-600 group-hover:gap-2 transition-all">
-                                        Browse Requests <MdArrowForward className="text-sm" />
-                                    </span>
-                                </FadeIn>
+                                    <div className="min-w-0">
+                                        <p className="text-sm font-bold text-gray-900 leading-tight">I&apos;m a Licensed Therapist</p>
+                                        <span className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-600 group-hover:gap-2 transition-all mt-0.5">
+                                            Browse Requests <MdArrowForward className="text-sm" />
+                                        </span>
+                                    </div>
+                                </div>
                             </Link>
                         </div>
                     </FadeIn>
 
-                    <FadeIn delay={0.2} duration={0.7} className="relative">
+                    <FadeIn delay={0.2} duration={0.7} className="relative hidden lg:block">
                         <div className="relative rounded-2xl overflow-hidden shadow-2xl">
                             <Image
                                 src="https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=800&h=600&fit=crop"

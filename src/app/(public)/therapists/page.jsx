@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useCallback, useRef } from "react";
+import { Suspense, useState, useCallback, useRef } from "react";
+import { useSearchParams } from "next/navigation";
 import { APIProvider } from "@vis.gl/react-google-maps";
 import { useSearchTherapists } from "@/hooks/usePublic";
 import { useAppRole } from "@/hooks/useAppRole";
@@ -35,17 +36,23 @@ function mapTherapist(t) {
 
 function FindTherapistsContent() {
     const userRole = useAppRole();
+    const searchParams = useSearchParams();
 
-    // --- Search header inputs (draft state, not sent until submit) ---
-    const [searchInput, setSearchInput] = useState("");
-    const [locationInput, setLocationInput] = useState("");
+    const initialQuery = searchParams.get("q") || "";
+    const initialLocation = searchParams.get("location") || "";
+    const initialLat = searchParams.get("lat");
+    const initialLng = searchParams.get("lng");
+    const initialCoords = initialLat && initialLng
+        ? { latitude: parseFloat(initialLat), longitude: parseFloat(initialLng) }
+        : null;
 
-    // --- Location coordinates from Places Autocomplete ---
-    const locationCoords = useRef(null);
+    const [searchInput, setSearchInput] = useState(initialQuery);
+    const [locationInput, setLocationInput] = useState(initialLocation);
 
-    // --- Committed search values (sent to API) ---
-    const [committedSearch, setCommittedSearch] = useState("");
-    const [committedCoords, setCommittedCoords] = useState(null);
+    const locationCoords = useRef(initialCoords);
+
+    const [committedSearch, setCommittedSearch] = useState(initialQuery);
+    const [committedCoords, setCommittedCoords] = useState(initialCoords);
 
     // --- Discipline pills (applied immediately on click) ---
     const [activeDiscipline, setActiveDiscipline] = useState("all");
@@ -121,7 +128,7 @@ function FindTherapistsContent() {
 
     return (
         <>
-            <div className="pt-16 min-h-screen bg-background-light dark:bg-background-dark">
+            <div className="pt-16 min-h-screen bg-white">
                 <TherapistSearchHeader
                     searchQuery={searchInput}
                     setSearchQuery={setSearchInput}
@@ -174,7 +181,9 @@ function FindTherapistsContent() {
 export default function FindTherapistsPage() {
     return (
         <APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}>
-            <FindTherapistsContent />
+            <Suspense fallback={<div className="pt-16 min-h-screen bg-white" />}>
+                <FindTherapistsContent />
+            </Suspense>
         </APIProvider>
     );
 }
