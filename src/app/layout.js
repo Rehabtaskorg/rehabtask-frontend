@@ -2,6 +2,7 @@ import RecaptchaProvider from "@/components/providers/RecaptchaProvider";
 import QueryProvider from "@/components/providers/QueryProvider";
 import { PostHogProvider } from "@/components/providers/PostHogProvider";
 import ToastProvider from "@/components/providers/ToastProvider";
+import { montserrat } from "@/lib/fonts";
 import "./globals.css";
 import "react-datepicker/dist/react-datepicker.css";
 import "react-toastify/dist/ReactToastify.css";
@@ -60,7 +61,7 @@ export default function RootLayout({ children }) {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       </head>
-      <body>
+      <body className={montserrat.className}>
         <PostHogProvider>
           <QueryProvider>
             <RecaptchaProvider>

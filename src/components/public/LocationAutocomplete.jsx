@@ -253,11 +253,17 @@ export default function LocationAutocomplete({
         );
     }
 
-    // compact variant (public search headers)
+    // compact variant (public search headers) & stacked variant (hero search)
+    const isStacked = variant === "stacked";
+    const shellClass = isStacked
+        ? "flex items-center bg-white px-4 py-4 rounded-xl border border-gray-200 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/10 transition-all"
+        : "flex items-center bg-gray-50 px-4 py-3 rounded-lg border border-gray-100";
+    const iconClass = isStacked ? "text-gray-400 text-xl mr-3 shrink-0" : "text-gray-400 text-xl mr-3 shrink-0";
+
     return (
         <div className="flex-1 relative" ref={containerRef}>
-            <div className="flex items-center bg-gray-50 px-4 py-3 rounded-lg border border-gray-100">
-                <MdLocationOn className="text-gray-400 text-xl mr-3 shrink-0" />
+            <div className={shellClass}>
+                <MdLocationOn className={iconClass} />
                 <input
                     type="text"
                     value={value || ""}

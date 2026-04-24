@@ -1,55 +1,23 @@
-import Link from "next/link";
 import Image from "next/image";
 import FadeIn from "@/components/ui/FadeIn";
-import { MdBusiness, MdMedicalServices, MdArrowForward } from "react-icons/md";
+import HeroSearchBar from "./HeroSearchBar";
 
 export default function Hero() {
     return (
-        <section className="pt-28 pb-16 md:pt-36 md:pb-24 bg-gray-50">
+        <section className="pt-24 pb-16 md:pt-32 md:pb-24 bg-gray-50">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                     <FadeIn duration={0.6}>
                         <h1 className="text-4xl md:text-5xl lg:text-[52px] font-extrabold text-gray-900 leading-tight tracking-tight">
                             Where agencies and therapists connect
                         </h1>
-                        <p className="mt-5 text-lg text-gray-600 max-w-lg leading-relaxed">
-                            The platform that matches licensed PTs, OTs, and SLPs with home health agencies that need their expertise. Post requests, send offers, and manage care — all in one place.
-                        </p>
 
-                        <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <Link href="/therapists" className="group">
-                                <FadeIn hover delay={0.1} className="bg-white border border-gray-200 rounded-xl p-5 hover:border-primary/30 hover:shadow-lg transition-all h-full">
-                                    <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mb-3">
-                                        <MdBusiness className="text-primary text-xl" />
-                                    </div>
-                                    <p className="text-sm font-bold text-gray-900 mb-1">I&apos;m a Home Health Agency</p>
-                                    <p className="text-xs text-gray-500 leading-relaxed mb-3">
-                                        Post therapy requests and connect with verified therapists in your area.
-                                    </p>
-                                    <span className="inline-flex items-center gap-1 text-xs font-semibold text-primary group-hover:gap-2 transition-all">
-                                        Find Therapists <MdArrowForward className="text-sm" />
-                                    </span>
-                                </FadeIn>
-                            </Link>
-
-                            <Link href="/requests" className="group">
-                                <FadeIn hover delay={0.2} className="bg-white border border-gray-200 rounded-xl p-5 hover:border-emerald-300 hover:shadow-lg transition-all h-full">
-                                    <div className="w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center mb-3">
-                                        <MdMedicalServices className="text-emerald-600 text-xl" />
-                                    </div>
-                                    <p className="text-sm font-bold text-gray-900 mb-1">I&apos;m a Licensed Therapist</p>
-                                    <p className="text-xs text-gray-500 leading-relaxed mb-3">
-                                        Set your own rates, choose your clients, and get paid securely for every session.
-                                    </p>
-                                    <span className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-600 group-hover:gap-2 transition-all">
-                                        Browse Requests <MdArrowForward className="text-sm" />
-                                    </span>
-                                </FadeIn>
-                            </Link>
+                        <div className="mt-8">
+                            <HeroSearchBar />
                         </div>
                     </FadeIn>
 
-                    <FadeIn delay={0.2} duration={0.7} className="relative">
+                    <FadeIn delay={0.2} duration={0.7} className="relative hidden lg:block">
                         <div className="relative rounded-2xl overflow-hidden shadow-2xl">
                             <Image
                                 src="https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=800&h=600&fit=crop"
