@@ -2,15 +2,9 @@
 
 import { useEffect, useRef, useState } from "react";
 import { MdTune, MdClose } from "react-icons/md";
+import { SPECIALIZATIONS as ALL_SPECIALIZATIONS } from "@/lib/constants/specializations";
 
-const SPECIALIZATIONS = [
-    "Orthopedics",
-    "Neurology",
-    "Geriatrics",
-    "Sports Medicine",
-    "Aquatic Therapy",
-    "Pediatrics",
-];
+const SPECIALIZATIONS = ALL_SPECIALIZATIONS.filter((s) => s !== "Other");
 
 function FilterContent({ specializations, onToggle, onApply, onClear, hasActiveFilters }) {
     return (
