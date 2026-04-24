@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { APIProvider } from "@vis.gl/react-google-maps";
 import { useSearchTherapists } from "@/hooks/usePublic";
 import { useAppRole } from "@/hooks/useAppRole";
+import TherapistAppNavbar from "@/components/public/TherapistAppNavbar";
 import TherapistCompactHeader from "@/components/public/TherapistCompactHeader";
 import TherapistResultsLayout from "@/components/public/TherapistResultsLayout";
 import AuthGateModal from "@/components/public/AuthGateModal";
@@ -118,17 +119,20 @@ function FindTherapistsContent() {
 
     return (
         <>
-            <div className="pt-14 h-screen overflow-hidden bg-white flex flex-col">
+            <TherapistAppNavbar
+                searchQuery={searchInput}
+                setSearchQuery={setSearchInput}
+                locationQuery={locationInput}
+                setLocationQuery={setLocationInput}
+                onLocationSelect={handleLocationSelect}
+                onLocationClear={handleLocationClear}
+                onSearch={handleSearch}
+            />
+
+            <div className="min-h-screen md:h-screen md:pt-16 md:overflow-hidden bg-white flex flex-col">
                 <TherapistCompactHeader
-                    searchQuery={searchInput}
-                    setSearchQuery={setSearchInput}
-                    locationQuery={locationInput}
-                    setLocationQuery={setLocationInput}
-                    onLocationSelect={handleLocationSelect}
-                    onLocationClear={handleLocationClear}
                     activeDiscipline={activeDiscipline}
                     setActiveDiscipline={handleDisciplineChange}
-                    onSearch={handleSearch}
                     resultCount={pagination.total}
                     specializations={specializations}
                     onSpecializationsChange={setSpecializations}
@@ -164,7 +168,7 @@ function FindTherapistsContent() {
 export default function FindTherapistsPage() {
     return (
         <APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}>
-            <Suspense fallback={<div className="pt-14 h-screen bg-white" />}>
+            <Suspense fallback={<div className="h-screen bg-white" />}>
                 <FindTherapistsContent />
             </Suspense>
         </APIProvider>

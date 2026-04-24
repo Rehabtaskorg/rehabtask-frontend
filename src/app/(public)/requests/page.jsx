@@ -12,6 +12,7 @@ import LocationAutocomplete from "@/components/public/LocationAutocomplete";
 import AuthGateModal from "@/components/public/AuthGateModal";
 import CTABanner from "@/components/public/CTABanner";
 import Footer from "@/components/landing/Footer";
+import Navbar from "@/components/landing/Navbar";
 
 const DISCIPLINE_MAP = {
     pt: "Physical Therapy",
@@ -22,22 +23,17 @@ const DISCIPLINE_MAP = {
 function BrowseRequestsContent() {
     const userRole = useAppRole();
 
-    // --- Draft inputs (not sent until Find Jobs click) ---
     const [searchInput, setSearchInput] = useState("");
     const [locationInput, setLocationInput] = useState("");
     const locationCoords = useRef(null);
 
-    // --- Committed values (sent to API) ---
     const [committedSearch, setCommittedSearch] = useState("");
     const [committedCoords, setCommittedCoords] = useState(null);
 
-    // --- Discipline tabs (applied immediately) ---
     const [activeDiscipline, setActiveDiscipline] = useState("all");
 
-    // --- Pagination ---
     const [currentPage, setCurrentPage] = useState(1);
 
-    // --- Auth gate ---
     const [gateOpen, setGateOpen] = useState(false);
     const [gateTrigger, setGateTrigger] = useState("default");
 
@@ -88,6 +84,7 @@ function BrowseRequestsContent() {
 
     return (
         <>
+            <Navbar />
             <div className="pt-14 min-h-screen bg-white">
                 {/* Header */}
                 <section className="bg-gray-50 border-b border-gray-200 py-10 px-4 sm:px-6 lg:px-8">

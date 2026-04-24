@@ -1,7 +1,5 @@
 "use client";
 
-import LocationAutocomplete from "./LocationAutocomplete";
-import SpecializationAutocomplete from "./SpecializationAutocomplete";
 import TherapistFiltersPopover from "./TherapistFiltersPopover";
 
 const DISCIPLINES = [
@@ -12,59 +10,18 @@ const DISCIPLINES = [
 ];
 
 export default function TherapistCompactHeader({
-    searchQuery,
-    setSearchQuery,
-    locationQuery,
-    setLocationQuery,
-    onLocationSelect,
-    onLocationClear,
     activeDiscipline,
     setActiveDiscipline,
-    onSearch,
     resultCount,
     specializations,
     onSpecializationsChange,
     onApplyFilters,
     committedSpecializationsCount,
 }) {
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        onSearch();
-    };
-
     return (
-        <section className="sticky top-14 z-30 bg-white border-b border-gray-200 shadow-sm">
-            <div className="max-w-400 mx-auto px-4 sm:px-6 lg:px-8 py-3">
-                <form
-                    onSubmit={handleSubmit}
-                    className="flex flex-col md:flex-row items-stretch md:items-center gap-2 md:gap-3"
-                >
-                    <SpecializationAutocomplete
-                        value={searchQuery}
-                        onChange={setSearchQuery}
-                        placeholder="Specialization or keyword"
-                        variant="compact"
-                    />
-
-                    <div className="md:flex-1 md:max-w-sm">
-                        <LocationAutocomplete
-                            value={locationQuery}
-                            onChange={setLocationQuery}
-                            onSelect={onLocationSelect}
-                            onClear={onLocationClear}
-                            placeholder="City or zip code"
-                        />
-                    </div>
-
-                    <button
-                        type="submit"
-                        className="px-6 py-2.5 bg-primary text-white font-semibold rounded-lg hover:bg-primary/90 transition-colors text-sm shrink-0"
-                    >
-                        Search
-                    </button>
-                </form>
-
-                <div className="flex items-center justify-between gap-3 mt-3 relative">
+        <section className="bg-white border-b border-gray-200">
+            <div className="max-w-400 mx-auto px-4 sm:px-6 lg:px-8 py-2.5">
+                <div className="flex items-center justify-between gap-3 relative">
                     <div className="flex items-center gap-2 flex-wrap">
                         {DISCIPLINES.map((d) => (
                             <button
