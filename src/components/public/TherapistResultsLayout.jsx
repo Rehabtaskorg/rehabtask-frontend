@@ -133,7 +133,7 @@ export default function TherapistResultsLayout({
 
     return (
         <section className="flex-1 min-h-0 w-full overflow-hidden">
-            <div className="max-w-400 mx-auto px-4 sm:px-6 lg:px-8 py-3 h-full flex flex-col">
+            <div className="px-4 sm:px-6 lg:px-8 py-3 h-full flex flex-col">
                 <div className="lg:hidden mb-3 shrink-0">
                     <MobileViewToggle view={mobileView} onChange={setMobileView} />
                 </div>
