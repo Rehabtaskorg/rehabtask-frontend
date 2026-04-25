@@ -13,10 +13,6 @@ export default function TherapistCompactHeader({
     activeDiscipline,
     setActiveDiscipline,
     resultCount,
-    specializations,
-    onSpecializationsChange,
-    onApplyFilters,
-    committedSpecializationsCount,
 }) {
     return (
         <section className="bg-white border-b border-gray-200">
@@ -37,12 +33,7 @@ export default function TherapistCompactHeader({
                                 {d.label}
                             </button>
                         ))}
-                        <TherapistFiltersPopover
-                            specializations={specializations}
-                            onSpecializationsChange={onSpecializationsChange}
-                            onApply={onApplyFilters}
-                            activeCount={committedSpecializationsCount}
-                        />
+                        <TherapistFiltersPopover />
                     </div>
                     <span className="text-xs text-gray-500 font-medium whitespace-nowrap">
                         {resultCount} therapist{resultCount !== 1 ? "s" : ""} found

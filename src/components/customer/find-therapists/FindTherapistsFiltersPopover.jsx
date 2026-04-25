@@ -2,23 +2,12 @@
 
 import { useEffect, useRef, useState } from "react";
 import { MdTune, MdClose } from "react-icons/md";
-import { SPECIALIZATIONS as ALL_SPECIALIZATIONS } from "@/lib/constants/specializations";
 import {
     DEFAULT_SERVICE_RADIUS_MILES,
     MAX_SERVICE_RADIUS_MILES,
 } from "@/lib/constants";
 
-const SPECIALIZATIONS = ALL_SPECIALIZATIONS.filter((s) => s !== "Other");
-
-function FilterBody({
-    radiusMiles,
-    onRadiusChange,
-    specializations,
-    onToggleSpec,
-    onApply,
-    onClear,
-    hasActiveFilters,
-}) {
+function FilterBody({ radiusMiles, onRadiusChange, onApply, onClear, hasActiveFilters }) {
     return (
         <div className="p-5 space-y-5">
             <div>
@@ -46,27 +35,6 @@ function FilterBody({
                 </div>
             </div>
 
-            <div>
-                <h3 className="text-xs font-bold text-text-muted dark:text-gray-400 uppercase tracking-wider mb-3">
-                    Specialization
-                </h3>
-                <div className="space-y-2.5 max-h-56 overflow-y-auto pr-1">
-                    {SPECIALIZATIONS.map((s) => (
-                        <label key={s} className="flex items-center gap-3 cursor-pointer group">
-                            <input
-                                type="checkbox"
-                                checked={specializations.includes(s)}
-                                onChange={() => onToggleSpec(s)}
-                                className="rounded border-border-light dark:border-border-dark text-primary focus:ring-primary/20"
-                            />
-                            <span className="text-sm text-text-main dark:text-white group-hover:text-primary transition-colors">
-                                {s}
-                            </span>
-                        </label>
-                    ))}
-                </div>
-            </div>
-
             <div className="flex gap-2 pt-2 border-t border-border-light dark:border-border-dark">
                 <button
                     onClick={onApply}
@@ -90,8 +58,6 @@ function FilterBody({
 export default function FindTherapistsFiltersPopover({
     radiusMiles,
     onRadiusChange,
-    specializations,
-    onSpecializationsChange,
     onApply,
     activeCount = 0,
 }) {
@@ -113,26 +79,18 @@ export default function FindTherapistsFiltersPopover({
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, [open]);
 
-    const toggleSpec = (spec) => {
-        const next = specializations.includes(spec)
-            ? specializations.filter((s) => s !== spec)
-            : [...specializations, spec];
-        onSpecializationsChange(next);
-    };
-
     const handleApply = () => {
         onApply();
         setOpen(false);
     };
 
     const handleClear = () => {
-        onSpecializationsChange([]);
         onRadiusChange(DEFAULT_SERVICE_RADIUS_MILES);
         onApply();
         setOpen(false);
     };
 
-    const hasActiveFilters = activeCount > 0 || radiusMiles !== DEFAULT_SERVICE_RADIUS_MILES;
+    const hasActiveFilters = radiusMiles !== DEFAULT_SERVICE_RADIUS_MILES;
 
     return (
         <>
@@ -164,8 +122,6 @@ export default function FindTherapistsFiltersPopover({
                         <FilterBody
                             radiusMiles={radiusMiles}
                             onRadiusChange={onRadiusChange}
-                            specializations={specializations}
-                            onToggleSpec={toggleSpec}
                             onApply={handleApply}
                             onClear={handleClear}
                             hasActiveFilters={hasActiveFilters}

@@ -70,12 +70,6 @@ export default function FindTherapistsListCard({
                         </div>
                     </div>
 
-                    {therapist.specialization && (
-                        <p className="text-xs text-text-muted dark:text-gray-400 mt-2 line-clamp-1">
-                            {therapist.specialization}
-                        </p>
-                    )}
-
                     <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2 text-[11px] text-text-muted dark:text-gray-400">
                         {therapist.experience > 0 && (
                             <span className="flex items-center gap-0.5">

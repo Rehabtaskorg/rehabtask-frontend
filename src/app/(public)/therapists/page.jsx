@@ -20,7 +20,6 @@ function mapTherapist(t) {
         id: t.id,
         fullName: t.fullName || "",
         licenseType: t.primaryLicenseType || "",
-        specialization: t.specialization || t.primaryLicenseType || "",
         experience: t.yearsOfExperience || 0,
         location,
         rating: t.averageRating || 0,
@@ -76,8 +75,6 @@ function FindTherapistsContent() {
     // --- Discipline pills (applied immediately on click) ---
     const [activeDiscipline, setActiveDiscipline] = useState("all");
 
-    const [specializations, setSpecializations] = useState([]);
-    const [committedSpecializations, setCommittedSpecializations] = useState([]);
 
     const [sortBy, setSortBy] = useState("rating");
     const [currentPage, setCurrentPage] = useState(1);
@@ -102,11 +99,6 @@ function FindTherapistsContent() {
         setCurrentPage(1);
     }, [searchInput]);
 
-    // Commit sidebar filters on Apply Filters
-    const handleApplyFilters = useCallback(() => {
-        setCommittedSpecializations([...specializations]);
-        setCurrentPage(1);
-    }, [specializations]);
 
     // Discipline pills apply immediately
     const handleDisciplineChange = useCallback((d) => {
@@ -122,7 +114,6 @@ function FindTherapistsContent() {
             longitude: committedCoords.longitude,
             radiusMiles: 50,
         }),
-        ...(committedSpecializations.length > 0 && { specialization: committedSpecializations.join(",") }),
         ...(activeDiscipline !== "all" && { primaryLicenseType: DISCIPLINE_MAP[activeDiscipline] }),
         sortBy,
         page: currentPage,
@@ -157,10 +148,6 @@ function FindTherapistsContent() {
                     activeDiscipline={activeDiscipline}
                     setActiveDiscipline={handleDisciplineChange}
                     resultCount={pagination.total}
-                    specializations={specializations}
-                    onSpecializationsChange={setSpecializations}
-                    onApplyFilters={handleApplyFilters}
-                    committedSpecializationsCount={committedSpecializations.length}
                 />
 
                 <TherapistResultsLayout

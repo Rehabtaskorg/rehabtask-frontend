@@ -25,7 +25,6 @@ function mapTherapist(t) {
         id: t.id,
         fullName: t.fullName || "",
         licenseType: t.primaryLicenseType || "",
-        specialization: t.specialization || t.primaryLicenseType || "",
         experience: t.yearsOfExperience || 0,
         location,
         rating: t.averageRating || 0,
@@ -71,9 +70,7 @@ function FindTherapistsContent() {
     const [activeDiscipline, setActiveDiscipline] = useState("all");
 
     const [radiusMiles, setRadiusMiles] = useState(DEFAULT_SERVICE_RADIUS_MILES);
-    const [specializations, setSpecializations] = useState([]);
     const [committedRadius, setCommittedRadius] = useState(DEFAULT_SERVICE_RADIUS_MILES);
-    const [committedSpecializations, setCommittedSpecializations] = useState([]);
 
     const [sortBy, setSortBy] = useState("relevance");
     const [currentPage, setCurrentPage] = useState(1);
@@ -94,9 +91,8 @@ function FindTherapistsContent() {
 
     const handleApplyFilters = useCallback(() => {
         setCommittedRadius(radiusMiles);
-        setCommittedSpecializations([...specializations]);
         setCurrentPage(1);
-    }, [radiusMiles, specializations]);
+    }, [radiusMiles]);
 
     const handleClearFilters = useCallback(() => {
         setSearchInput("");
@@ -106,9 +102,7 @@ function FindTherapistsContent() {
         setCommittedCoords(null);
         setActiveDiscipline("all");
         setRadiusMiles(DEFAULT_SERVICE_RADIUS_MILES);
-        setSpecializations([]);
         setCommittedRadius(DEFAULT_SERVICE_RADIUS_MILES);
-        setCommittedSpecializations([]);
         setSortBy("relevance");
         setCurrentPage(1);
     }, []);
@@ -126,9 +120,6 @@ function FindTherapistsContent() {
             params.longitude = committedCoords.longitude;
             params.radiusMiles = committedRadius;
         }
-        if (committedSpecializations.length > 0) {
-            params.specialization = committedSpecializations.join(",");
-        }
         if (activeDiscipline !== "all") {
             params.primaryLicenseType = DISCIPLINE_MAP[activeDiscipline];
         }
@@ -136,7 +127,7 @@ function FindTherapistsContent() {
             params.sortBy = sortBy;
         }
         return params;
-    }, [committedSearch, committedCoords, committedRadius, committedSpecializations, activeDiscipline, sortBy, currentPage]);
+    }, [committedSearch, committedCoords, committedRadius, activeDiscipline, sortBy, currentPage]);
 
     const { therapists: rawTherapists, pagination, loading } = useTherapistSearch(searchParams);
 
@@ -150,7 +141,6 @@ function FindTherapistsContent() {
         !!committedSearch ||
         !!committedCoords ||
         activeDiscipline !== "all" ||
-        committedSpecializations.length > 0 ||
         committedRadius !== DEFAULT_SERVICE_RADIUS_MILES ||
         sortBy !== "relevance";
 
@@ -173,10 +163,7 @@ function FindTherapistsContent() {
                 setActiveDiscipline={handleDisciplineChange}
                 radiusMiles={radiusMiles}
                 onRadiusChange={setRadiusMiles}
-                specializations={specializations}
-                onSpecializationsChange={setSpecializations}
                 onApplyFilters={handleApplyFilters}
-                committedSpecializationsCount={committedSpecializations.length}
                 sortBy={sortBy}
                 onSortChange={(v) => { setSortBy(v); setCurrentPage(1); }}
             />
