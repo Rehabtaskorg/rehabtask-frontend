@@ -79,11 +79,13 @@ export default function ProfessionalProfilePage() {
     const onSubmit = async (data) => {
         setLoading(true);
         try {
+            const specialization = data.specialization || null;
+
             // Call backend API to save profile
             await onboardingAPI.saveProfessionalProfile({
                 yearsOfExperience: Number(data.yearsOfExperience),
                 primaryLicenseType: data.primaryLicenseType,
-                specialization: data.specialization,
+                specialization,
                 professionalSummary: data.professionalSummary,
                 profilePhotoUrl: data.profilePhotoUrl,
             });
@@ -92,7 +94,7 @@ export default function ProfessionalProfilePage() {
             updateProfessionalProfile({
                 yearsOfExperience: Number(data.yearsOfExperience),
                 primaryLicenseType: data.primaryLicenseType,
-                specialization: data.specialization,
+                specialization,
                 professionalSummary: data.professionalSummary,
                 profilePhotoUrl: data.profilePhotoUrl,
             })
@@ -223,7 +225,8 @@ export default function ProfessionalProfilePage() {
                             {/* Specialization Dropdown */}
                             <div className="flex flex-col gap-2">
                                 <label className="text-text-main dark:text-white text-base font-semibold">
-                                    Primary Specialization
+                                    Primary Specialization{" "}
+                                    <span className="text-text-muted dark:text-gray-400 font-normal text-sm">(optional)</span>
                                 </label>
                                 <select
                                     {...register("specialization")}

@@ -28,8 +28,9 @@ const profileEditSchema = z.object({
         .max(50, "Must be 50 or less"),
     specialization: z
         .string()
-        .min(1, "Please select a specialization")
-        .refine((val) => SPECIALIZATIONS.includes(val), {
+        .optional()
+        .nullable()
+        .refine((val) => !val || SPECIALIZATIONS.includes(val), {
             message: "Invalid specialization",
         }),
     ratePerVisit: z.coerce
@@ -124,6 +125,7 @@ const ProfileEditModal = ({ isOpen, onClose, profile, onSuccess }) => {
         try {
             await updateProfile.mutateAsync({
                 ...data,
+                specialization: data.specialization || null,
                 profilePhotoUrl: photoUrl,
             });
             onSuccess?.();
@@ -290,7 +292,8 @@ const ProfileEditModal = ({ isOpen, onClose, profile, onSuccess }) => {
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                         <div className="space-y-2">
                             <label className="block text-sm font-bold text-text-main dark:text-white uppercase tracking-wide">
-                                Specialization
+                                Specialization{" "}
+                                <span className="text-text-muted font-normal normal-case tracking-normal">(optional)</span>
                             </label>
                             <select
                                 {...register("specialization")}
