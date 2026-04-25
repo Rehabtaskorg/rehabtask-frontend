@@ -138,12 +138,16 @@ export default function TherapistAppNavbar({
                     onSubmit={handleSubmit}
                     className="md:hidden flex flex-col gap-2 pb-3"
                 >
-                    <SpecializationAutocomplete
-                        value={searchQuery}
-                        onChange={setSearchQuery}
-                        placeholder="Specialization or keyword"
-                        variant="compact"
-                    />
+                    <div className="flex items-center bg-gray-50 px-4 py-2.5 rounded-lg border border-gray-200 min-w-0">
+                        <MdSearch className="text-gray-400 text-lg mr-2 shrink-0" />
+                        <input
+                            type="text"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            placeholder="Search by name"
+                            className="bg-transparent border-none focus:ring-0 focus:outline-none text-gray-900 w-full placeholder:text-gray-400 text-sm"
+                        />
+                    </div>
                     <LocationAutocomplete
                         value={locationQuery}
                         onChange={setLocationQuery}
