@@ -3,13 +3,13 @@
 import { useRouter } from "next/navigation";
 import { MdAdd } from "react-icons/md";
 import LocationAutocomplete from "@/components/public/LocationAutocomplete";
-import SpecializationAutocomplete from "@/components/public/SpecializationAutocomplete";
+import LicenseTypeAutocomplete from "@/components/public/LicenseTypeAutocomplete";
 
 export default function FindTherapistsHeader({
     resultCount,
     isLoading,
-    searchInput,
-    setSearchInput,
+    licenseType,
+    onLicenseTypeChange,
     locationInput,
     setLocationInput,
     onLocationSelect,
@@ -42,10 +42,10 @@ export default function FindTherapistsHeader({
                         onSubmit={handleSubmit}
                         className="flex-1 flex flex-col md:flex-row items-stretch md:items-center gap-2 lg:mx-4"
                     >
-                        <SpecializationAutocomplete
-                            value={searchInput}
-                            onChange={setSearchInput}
-                            placeholder="Specialization or keyword"
+                        <LicenseTypeAutocomplete
+                            value={licenseType}
+                            onChange={onLicenseTypeChange}
+                            placeholder="License type"
                             variant="compact"
                         />
 

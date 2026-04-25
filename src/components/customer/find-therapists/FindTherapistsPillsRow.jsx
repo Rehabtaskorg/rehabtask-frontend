@@ -21,10 +21,7 @@ export default function FindTherapistsPillsRow({
     setActiveDiscipline,
     radiusMiles,
     onRadiusChange,
-    specializations,
-    onSpecializationsChange,
     onApplyFilters,
-    committedSpecializationsCount,
     sortBy,
     onSortChange,
 }) {
@@ -50,10 +47,7 @@ export default function FindTherapistsPillsRow({
                         <FindTherapistsFiltersPopover
                             radiusMiles={radiusMiles}
                             onRadiusChange={onRadiusChange}
-                            specializations={specializations}
-                            onSpecializationsChange={onSpecializationsChange}
                             onApply={onApplyFilters}
-                            activeCount={committedSpecializationsCount}
                         />
                     </div>
 

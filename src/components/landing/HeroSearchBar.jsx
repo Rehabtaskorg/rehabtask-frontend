@@ -4,11 +4,11 @@ import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { APIProvider } from "@vis.gl/react-google-maps";
 import LocationAutocomplete from "@/components/public/LocationAutocomplete";
-import SpecializationAutocomplete from "@/components/public/SpecializationAutocomplete";
+import LicenseTypeAutocomplete from "@/components/public/LicenseTypeAutocomplete";
 
 function HeroSearchBarInner() {
     const router = useRouter();
-    const [specialization, setSpecialization] = useState("");
+    const [licenseType, setLicenseType] = useState("");
     const [locationLabel, setLocationLabel] = useState("");
     const coordsRef = useRef(null);
 
@@ -23,23 +23,22 @@ function HeroSearchBarInner() {
     const handleSubmit = (e) => {
         e.preventDefault();
         const params = new URLSearchParams();
-        const trimmed = specialization.trim();
-        if (trimmed) params.set("q", trimmed);
+        if (licenseType) params.set("licenseType", licenseType);
         if (locationLabel.trim()) params.set("location", locationLabel.trim());
         if (coordsRef.current) {
             params.set("lat", String(coordsRef.current.latitude));
             params.set("lng", String(coordsRef.current.longitude));
         }
-        const query = params.toString();
-        router.push(query ? `/therapists?${query}` : "/therapists");
+        const qs = params.toString();
+        router.push(qs ? `/therapists?${qs}` : "/therapists");
     };
 
     return (
         <form onSubmit={handleSubmit} className="flex flex-col gap-3 w-full max-w-lg">
-            <SpecializationAutocomplete
-                value={specialization}
-                onChange={setSpecialization}
-                placeholder="Specialization or keyword"
+            <LicenseTypeAutocomplete
+                value={licenseType}
+                onChange={setLicenseType}
+                placeholder="License type"
                 variant="stacked"
             />
 

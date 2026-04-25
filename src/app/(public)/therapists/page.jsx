@@ -20,7 +20,6 @@ function mapTherapist(t) {
         id: t.id,
         fullName: t.fullName || "",
         licenseType: t.primaryLicenseType || "",
-        specialization: t.specialization || t.primaryLicenseType || "",
         experience: t.yearsOfExperience || 0,
         location,
         rating: t.averageRating || 0,
@@ -57,7 +56,7 @@ function FindTherapistsContent() {
     const userRole = useAppRole();
     const searchParams = useSearchParams();
 
-    const initialQuery = searchParams.get("q") || "";
+    const initialLicenseType = searchParams.get("licenseType") || "";
     const initialLocation = searchParams.get("location") || "";
     const initialLat = searchParams.get("lat");
     const initialLng = searchParams.get("lng");
@@ -65,19 +64,17 @@ function FindTherapistsContent() {
         ? { latitude: parseFloat(initialLat), longitude: parseFloat(initialLng) }
         : null;
 
-    const [searchInput, setSearchInput] = useState(initialQuery);
+    const [licenseType, setLicenseType] = useState(initialLicenseType);
     const [locationInput, setLocationInput] = useState(initialLocation);
 
     const locationCoords = useRef(initialCoords);
 
-    const [committedSearch, setCommittedSearch] = useState(initialQuery);
+    const [committedLicenseType, setCommittedLicenseType] = useState(initialLicenseType);
     const [committedCoords, setCommittedCoords] = useState(initialCoords);
 
     // --- Discipline pills (applied immediately on click) ---
     const [activeDiscipline, setActiveDiscipline] = useState("all");
 
-    const [specializations, setSpecializations] = useState([]);
-    const [committedSpecializations, setCommittedSpecializations] = useState([]);
 
     const [sortBy, setSortBy] = useState("rating");
     const [currentPage, setCurrentPage] = useState(1);
@@ -95,18 +92,12 @@ function FindTherapistsContent() {
         locationCoords.current = null;
     }, []);
 
-    // Commit search header values on explicit Search click / Enter
     const handleSearch = useCallback(() => {
-        setCommittedSearch(searchInput.trim());
+        setCommittedLicenseType(licenseType);
         setCommittedCoords(locationCoords.current ? { ...locationCoords.current } : null);
         setCurrentPage(1);
-    }, [searchInput]);
+    }, [licenseType]);
 
-    // Commit sidebar filters on Apply Filters
-    const handleApplyFilters = useCallback(() => {
-        setCommittedSpecializations([...specializations]);
-        setCurrentPage(1);
-    }, [specializations]);
 
     // Discipline pills apply immediately
     const handleDisciplineChange = useCallback((d) => {
@@ -114,16 +105,17 @@ function FindTherapistsContent() {
         setCurrentPage(1);
     }, []);
 
-    // Build API params from committed state only
     const params = {
-        ...(committedSearch && { search: committedSearch }),
         ...(committedCoords && {
             latitude: committedCoords.latitude,
             longitude: committedCoords.longitude,
             radiusMiles: 50,
         }),
-        ...(committedSpecializations.length > 0 && { specialization: committedSpecializations.join(",") }),
-        ...(activeDiscipline !== "all" && { primaryLicenseType: DISCIPLINE_MAP[activeDiscipline] }),
+        // License type selector takes precedence; discipline pill is a fallback
+        ...(committedLicenseType
+            ? { primaryLicenseType: committedLicenseType }
+            : activeDiscipline !== "all" && { primaryLicenseType: DISCIPLINE_MAP[activeDiscipline] }
+        ),
         sortBy,
         page: currentPage,
         limit: 9,
@@ -143,8 +135,8 @@ function FindTherapistsContent() {
     return (
         <>
             <TherapistAppNavbar
-                searchQuery={searchInput}
-                setSearchQuery={setSearchInput}
+                searchQuery={licenseType}
+                setSearchQuery={setLicenseType}
                 locationQuery={locationInput}
                 setLocationQuery={setLocationInput}
                 onLocationSelect={handleLocationSelect}
@@ -157,10 +149,6 @@ function FindTherapistsContent() {
                     activeDiscipline={activeDiscipline}
                     setActiveDiscipline={handleDisciplineChange}
                     resultCount={pagination.total}
-                    specializations={specializations}
-                    onSpecializationsChange={setSpecializations}
-                    onApplyFilters={handleApplyFilters}
-                    committedSpecializationsCount={committedSpecializations.length}
                 />
 
                 <TherapistResultsLayout

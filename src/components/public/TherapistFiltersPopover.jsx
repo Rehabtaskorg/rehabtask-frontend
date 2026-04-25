@@ -2,60 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { MdTune, MdClose } from "react-icons/md";
-import { SPECIALIZATIONS as ALL_SPECIALIZATIONS } from "@/lib/constants/specializations";
 
-const SPECIALIZATIONS = ALL_SPECIALIZATIONS.filter((s) => s !== "Other");
-
-function FilterContent({ specializations, onToggle, onApply, onClear, hasActiveFilters }) {
-    return (
-        <div className="p-5 space-y-5">
-            <div>
-                <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">
-                    Specialization
-                </h3>
-                <div className="space-y-2.5">
-                    {SPECIALIZATIONS.map((s) => (
-                        <label key={s} className="flex items-center gap-3 cursor-pointer group">
-                            <input
-                                type="checkbox"
-                                checked={specializations.includes(s)}
-                                onChange={() => onToggle(s)}
-                                className="rounded border-gray-300 text-primary focus:ring-primary/20"
-                            />
-                            <span className="text-sm text-gray-700 group-hover:text-gray-900 transition-colors">
-                                {s}
-                            </span>
-                        </label>
-                    ))}
-                </div>
-            </div>
-
-            <div className="flex gap-2 pt-2 border-t border-gray-100">
-                <button
-                    onClick={onApply}
-                    className="flex-1 py-2.5 bg-primary text-white font-semibold rounded-lg hover:bg-primary/90 transition-colors text-sm"
-                >
-                    Apply
-                </button>
-                {hasActiveFilters && (
-                    <button
-                        onClick={onClear}
-                        className="px-4 py-2.5 text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
-                    >
-                        Clear
-                    </button>
-                )}
-            </div>
-        </div>
-    );
-}
-
-export default function TherapistFiltersPopover({
-    specializations,
-    onSpecializationsChange,
-    onApply,
-    activeCount = 0,
-}) {
+export default function TherapistFiltersPopover({ onApply, activeCount = 0 }) {
     const [open, setOpen] = useState(false);
     const anchorRef = useRef(null);
     const popoverRef = useRef(null);
@@ -74,23 +22,22 @@ export default function TherapistFiltersPopover({
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, [open]);
 
-    const toggleSpecialization = (spec) => {
-        const next = specializations.includes(spec)
-            ? specializations.filter((s) => s !== spec)
-            : [...specializations, spec];
-        onSpecializationsChange(next);
-    };
-
     const handleApply = () => {
-        onApply();
+        onApply?.();
         setOpen(false);
     };
 
-    const handleClear = () => {
-        onSpecializationsChange([]);
-        onApply();
-        setOpen(false);
-    };
+    const FilterContent = () => (
+        <div className="p-5">
+            <p className="text-sm text-gray-500 mb-4">No additional filters available.</p>
+            <button
+                onClick={handleApply}
+                className="w-full py-2.5 bg-primary text-white font-semibold rounded-lg hover:bg-primary/90 transition-colors text-sm"
+            >
+                Apply
+            </button>
+        </div>
+    );
 
     return (
         <>
@@ -117,15 +64,9 @@ export default function TherapistFiltersPopover({
                 <>
                     <div
                         ref={popoverRef}
-                        className="hidden md:block absolute top-full left-0 mt-2 w-80 bg-white rounded-xl shadow-xl border border-gray-200 z-40"
+                        className="hidden md:block absolute top-full left-0 mt-2 w-72 bg-white rounded-xl shadow-xl border border-gray-200 z-40"
                     >
-                        <FilterContent
-                            specializations={specializations}
-                            onToggle={toggleSpecialization}
-                            onApply={handleApply}
-                            onClear={handleClear}
-                            hasActiveFilters={specializations.length > 0}
-                        />
+                        <FilterContent />
                     </div>
 
                     <div className="md:hidden fixed inset-0 z-50 flex flex-col">
@@ -143,13 +84,7 @@ export default function TherapistFiltersPopover({
                                     <MdClose className="text-xl" />
                                 </button>
                             </div>
-                            <FilterContent
-                                specializations={specializations}
-                                onToggle={toggleSpecialization}
-                                onApply={handleApply}
-                                onClear={handleClear}
-                                hasActiveFilters={specializations.length > 0}
-                            />
+                            <FilterContent />
                         </div>
                     </div>
                 </>

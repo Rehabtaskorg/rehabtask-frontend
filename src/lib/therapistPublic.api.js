@@ -2,7 +2,7 @@ import { api } from "./api";
 
 export const therapistsPublicApi = {
     searchTherapists: async (params) => {
-        // params: { latitude, longitude, radiusMiles, specialization, page, limit }
+        // params: { latitude, longitude, radiusMiles, primaryLicenseType, search, sortBy, page, limit }
         // Only include non-undefined params in query string
         const cleanParams = {};
         Object.entries(params).forEach(([key, value]) => {
