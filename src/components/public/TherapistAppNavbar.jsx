@@ -2,8 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { MdMenu, MdClose } from "react-icons/md";
-import { MdSearch } from "react-icons/md";
+import { MdMenu, MdClose, MdSearch } from "react-icons/md";
 import LocationAutocomplete from "./LocationAutocomplete";
 
 const MENU_ITEMS = [
