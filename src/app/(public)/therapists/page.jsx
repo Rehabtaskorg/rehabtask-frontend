@@ -56,7 +56,7 @@ function FindTherapistsContent() {
     const userRole = useAppRole();
     const searchParams = useSearchParams();
 
-    const initialQuery = searchParams.get("q") || "";
+    const initialLicenseType = searchParams.get("licenseType") || "";
     const initialLocation = searchParams.get("location") || "";
     const initialLat = searchParams.get("lat");
     const initialLng = searchParams.get("lng");
@@ -64,12 +64,12 @@ function FindTherapistsContent() {
         ? { latitude: parseFloat(initialLat), longitude: parseFloat(initialLng) }
         : null;
 
-    const [searchInput, setSearchInput] = useState(initialQuery);
+    const [licenseType, setLicenseType] = useState(initialLicenseType);
     const [locationInput, setLocationInput] = useState(initialLocation);
 
     const locationCoords = useRef(initialCoords);
 
-    const [committedSearch, setCommittedSearch] = useState(initialQuery);
+    const [committedLicenseType, setCommittedLicenseType] = useState(initialLicenseType);
     const [committedCoords, setCommittedCoords] = useState(initialCoords);
 
     // --- Discipline pills (applied immediately on click) ---
@@ -92,12 +92,11 @@ function FindTherapistsContent() {
         locationCoords.current = null;
     }, []);
 
-    // Commit search header values on explicit Search click / Enter
     const handleSearch = useCallback(() => {
-        setCommittedSearch(searchInput.trim());
+        setCommittedLicenseType(licenseType);
         setCommittedCoords(locationCoords.current ? { ...locationCoords.current } : null);
         setCurrentPage(1);
-    }, [searchInput]);
+    }, [licenseType]);
 
 
     // Discipline pills apply immediately
@@ -106,15 +105,17 @@ function FindTherapistsContent() {
         setCurrentPage(1);
     }, []);
 
-    // Build API params from committed state only
     const params = {
-        ...(committedSearch && { search: committedSearch }),
         ...(committedCoords && {
             latitude: committedCoords.latitude,
             longitude: committedCoords.longitude,
             radiusMiles: 50,
         }),
-        ...(activeDiscipline !== "all" && { primaryLicenseType: DISCIPLINE_MAP[activeDiscipline] }),
+        // License type selector takes precedence; discipline pill is a fallback
+        ...(committedLicenseType
+            ? { primaryLicenseType: committedLicenseType }
+            : activeDiscipline !== "all" && { primaryLicenseType: DISCIPLINE_MAP[activeDiscipline] }
+        ),
         sortBy,
         page: currentPage,
         limit: 9,
@@ -134,8 +135,8 @@ function FindTherapistsContent() {
     return (
         <>
             <TherapistAppNavbar
-                searchQuery={searchInput}
-                setSearchQuery={setSearchInput}
+                searchQuery={licenseType}
+                setSearchQuery={setLicenseType}
                 locationQuery={locationInput}
                 setLocationQuery={setLocationInput}
                 onLocationSelect={handleLocationSelect}

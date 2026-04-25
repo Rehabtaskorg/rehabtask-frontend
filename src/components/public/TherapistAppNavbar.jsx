@@ -2,8 +2,9 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { MdMenu, MdClose, MdSearch } from "react-icons/md";
+import { MdMenu, MdClose } from "react-icons/md";
 import LocationAutocomplete from "./LocationAutocomplete";
+import LicenseTypeAutocomplete from "./LicenseTypeAutocomplete";
 
 const MENU_ITEMS = [
     { label: "Sign up", href: "/register/customer", variant: "cta" },
@@ -83,16 +84,12 @@ export default function TherapistAppNavbar({
                         onSubmit={handleSubmit}
                         className="hidden md:flex flex-1 items-center gap-2 min-w-0"
                     >
-                        <div className="flex-1 flex items-center bg-gray-50 px-4 py-2.5 rounded-lg border border-gray-200 min-w-0">
-                            <MdSearch className="text-gray-400 text-lg mr-2 shrink-0" />
-                            <input
-                                type="text"
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                placeholder="Search by name"
-                                className="bg-transparent border-none focus:ring-0 focus:outline-none text-gray-900 w-full placeholder:text-gray-400 text-sm"
-                            />
-                        </div>
+                        <LicenseTypeAutocomplete
+                            value={searchQuery}
+                            onChange={setSearchQuery}
+                            placeholder="License type"
+                            variant="compact"
+                        />
 
                         <div className="flex-1 max-w-xs">
                             <LocationAutocomplete

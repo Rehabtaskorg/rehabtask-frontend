@@ -1,14 +1,15 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { MdAdd, MdSearch } from "react-icons/md";
+import { MdAdd } from "react-icons/md";
 import LocationAutocomplete from "@/components/public/LocationAutocomplete";
+import LicenseTypeAutocomplete from "@/components/public/LicenseTypeAutocomplete";
 
 export default function FindTherapistsHeader({
     resultCount,
     isLoading,
-    searchInput,
-    setSearchInput,
+    licenseType,
+    onLicenseTypeChange,
     locationInput,
     setLocationInput,
     onLocationSelect,
@@ -41,16 +42,12 @@ export default function FindTherapistsHeader({
                         onSubmit={handleSubmit}
                         className="flex-1 flex flex-col md:flex-row items-stretch md:items-center gap-2 lg:mx-4"
                     >
-                        <div className="flex-1 flex items-center bg-gray-50 px-4 py-2.5 rounded-lg border border-gray-200 min-w-0">
-                            <MdSearch className="text-gray-400 text-lg mr-2 shrink-0" />
-                            <input
-                                type="text"
-                                value={searchInput}
-                                onChange={(e) => setSearchInput(e.target.value)}
-                                placeholder="Search by name"
-                                className="bg-transparent border-none focus:ring-0 focus:outline-none text-gray-900 w-full placeholder:text-gray-400 text-sm"
-                            />
-                        </div>
+                        <LicenseTypeAutocomplete
+                            value={licenseType}
+                            onChange={onLicenseTypeChange}
+                            placeholder="License type"
+                            variant="compact"
+                        />
 
                         <div className="md:flex-1 md:max-w-sm">
                             <LocationAutocomplete

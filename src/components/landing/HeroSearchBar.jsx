@@ -2,13 +2,13 @@
 
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { MdSearch } from "react-icons/md";
 import { APIProvider } from "@vis.gl/react-google-maps";
 import LocationAutocomplete from "@/components/public/LocationAutocomplete";
+import LicenseTypeAutocomplete from "@/components/public/LicenseTypeAutocomplete";
 
 function HeroSearchBarInner() {
     const router = useRouter();
-    const [query, setQuery] = useState("");
+    const [licenseType, setLicenseType] = useState("");
     const [locationLabel, setLocationLabel] = useState("");
     const coordsRef = useRef(null);
 
@@ -23,8 +23,7 @@ function HeroSearchBarInner() {
     const handleSubmit = (e) => {
         e.preventDefault();
         const params = new URLSearchParams();
-        const trimmed = query.trim();
-        if (trimmed) params.set("q", trimmed);
+        if (licenseType) params.set("licenseType", licenseType);
         if (locationLabel.trim()) params.set("location", locationLabel.trim());
         if (coordsRef.current) {
             params.set("lat", String(coordsRef.current.latitude));
@@ -36,16 +35,12 @@ function HeroSearchBarInner() {
 
     return (
         <form onSubmit={handleSubmit} className="flex flex-col gap-3 w-full max-w-lg">
-            <div className="flex items-center bg-white px-4 py-4 rounded-xl border border-gray-200 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/10 transition-all">
-                <MdSearch className="text-gray-400 text-xl mr-3 shrink-0" />
-                <input
-                    type="text"
-                    value={query}
-                    onChange={(e) => setQuery(e.target.value)}
-                    placeholder="Search by name"
-                    className="bg-transparent border-none focus:ring-0 focus:outline-none text-gray-900 w-full placeholder:text-gray-400 text-sm"
-                />
-            </div>
+            <LicenseTypeAutocomplete
+                value={licenseType}
+                onChange={setLicenseType}
+                placeholder="License type"
+                variant="stacked"
+            />
 
             <LocationAutocomplete
                 value={locationLabel}
