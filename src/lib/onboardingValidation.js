@@ -47,9 +47,10 @@ export const professionalProfileSchema = z.object({
 
     specialization: z
         .string()
-        .min(1, "Please select your primary specialization")
-        .refine((val) => SPECIALIZATIONS.includes(val), {
-            error: "Selected specialization is invalid",
+        .optional()
+        .nullable()
+        .refine((val) => !val || SPECIALIZATIONS.includes(val), {
+            message: "Selected specialization is invalid",
         }),
 
     professionalSummary: z
