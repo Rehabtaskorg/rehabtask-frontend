@@ -85,10 +85,12 @@ export default function SessionList({
     const progressDenominator = deliverableCount > 0 ? deliverableCount : totalSessions;
     const progressPercent = progressDenominator > 0 ? Math.round((confirmedCount / progressDenominator) * 100) : 0;
 
-    const bookingAttemptedRate = booking?.attemptedVisitRate != null
-        ? parseFloat(booking.attemptedVisitRate)
-        : null;
-    const attemptedFeatureEnabled = bookingAttemptedRate != null && bookingAttemptedRate > 0;
+    // Distinguish "field missing from API response" (undefined) from "genuinely not
+    // configured" (null). Both hide the button, but only undefined is unexpected.
+    const attemptedRateRaw = booking?.attemptedVisitRate;
+    const attemptedRateFieldPresent = attemptedRateRaw !== undefined;
+    const bookingAttemptedRate = attemptedRateRaw != null ? parseFloat(attemptedRateRaw) : null;
+    const attemptedFeatureEnabled = attemptedRateFieldPresent && bookingAttemptedRate != null && bookingAttemptedRate > 0;
 
     const todayStr = localDateTimeStr();
 
@@ -426,6 +428,11 @@ export default function SessionList({
                                         >
                                             Mark Attempted
                                         </button>
+                                    )}
+                                    {!canMarkAttempted && !attemptedRateFieldPresent && role === "therapist" && session.status === "scheduled" && scheduledInPast && (
+                                        <span className="text-xs text-text-muted dark:text-gray-500">
+                                            Attempted visit unavailable — contact support.
+                                        </span>
                                     )}
                                     {canReportMissed && (
                                         <button

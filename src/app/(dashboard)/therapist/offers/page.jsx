@@ -105,6 +105,7 @@ function MyOffersContent() {
     const [withdrawingIds, setWithdrawingIds] = useState(new Set());
     const [revising, setRevising] = useState(false);
     const [reviseError, setReviseError] = useState("");
+    const [reviseWarnings, setReviseWarnings] = useState([]);
     const [withdrawConfirmId, setWithdrawConfirmId] = useState(null);
 
     // ─── Derived data ───────────────────────────────────────
@@ -152,6 +153,7 @@ function MyOffersContent() {
     const openReviseForm = (offer) => {
         setReviseOpenId(offer.id);
         setReviseError("");
+        setReviseWarnings([]);
         const hasOverride = !!(offer.visitTypeId || offer.visitType || offer.visitsPerWeek || offer.numberOfWeeks);
         setReviseData({
             rate: parseFloat(offer.rate) || "",
@@ -170,6 +172,7 @@ function MyOffersContent() {
     const closeReviseForm = () => {
         setReviseOpenId(null);
         setReviseError("");
+        setReviseWarnings([]);
     };
 
     const handleReviseSubmit = async (offerId) => {
@@ -178,7 +181,7 @@ function MyOffersContent() {
         try {
             const rateNum = parseFloat(reviseData.rate);
             const attemptedTrim = String(reviseData.attemptedVisitRate ?? "").trim();
-            const attemptedNum = attemptedTrim === "" ? null : parseFloat(attemptedTrim);
+            const attemptedNum = attemptedTrim === "" || parseFloat(attemptedTrim) === 0 ? null : parseFloat(attemptedTrim);
             if (attemptedNum != null && attemptedNum > rateNum) {
                 setReviseError("Attempted visit rate cannot be greater than the session rate.");
                 setRevising(false);
@@ -197,9 +200,13 @@ function MyOffersContent() {
                 if (reviseData.visitsPerWeek) payload.visitsPerWeek = parseInt(reviseData.visitsPerWeek, 10);
                 if (reviseData.numberOfWeeks) payload.numberOfWeeks = parseInt(reviseData.numberOfWeeks, 10);
             }
-            await offersApi.reviseOffer(offerId, payload);
+            const response = await offersApi.reviseOffer(offerId, payload);
+            const warnings = response?.data?.warnings;
             closeReviseForm();
             await refetch();
+            if (warnings?.length > 0) {
+                setReviseWarnings(warnings);
+            }
         } catch (err) {
             setReviseError(err?.response?.data?.message || "Failed to revise offer. Please try again.");
         } finally {
@@ -346,6 +353,25 @@ function MyOffersContent() {
                     </div>
                 )}
             </div>
+
+            {reviseWarnings.length > 0 && (
+                <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 w-full max-w-md px-4">
+                    <div className="bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-700 rounded-xl px-4 py-3 shadow-lg flex items-start gap-3">
+                        <MdWarning className="text-amber-500 text-lg shrink-0 mt-0.5" />
+                        <div className="flex-1 text-sm text-amber-800 dark:text-amber-300 space-y-1">
+                            {reviseWarnings.map((w, i) => <p key={i}>{w}</p>)}
+                        </div>
+                        <button
+                            type="button"
+                            onClick={() => setReviseWarnings([])}
+                            className="text-amber-500 hover:text-amber-700 dark:hover:text-amber-300 text-lg shrink-0"
+                            aria-label="Dismiss"
+                        >
+                            &times;
+                        </button>
+                    </div>
+                </div>
+            )}
 
             <ConfirmModal
                 isOpen={!!withdrawConfirmId}
