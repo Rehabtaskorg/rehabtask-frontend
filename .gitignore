@@ -43,3 +43,4 @@ test.ts
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+.claude/settings.local.json
