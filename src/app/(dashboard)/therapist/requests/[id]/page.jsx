@@ -110,7 +110,7 @@ export default function TherapistRequestDetailPage() {
         try {
             const rateNum = parseFloat(offerData.rate);
             const attemptedTrim = String(offerData.attemptedVisitRate ?? "").trim();
-            const attemptedNum = attemptedTrim === "" ? null : parseFloat(attemptedTrim);
+            const attemptedNum = attemptedTrim === "" || parseFloat(attemptedTrim) === 0 ? null : parseFloat(attemptedTrim);
 
             if (attemptedNum != null && attemptedNum > rateNum) {
                 setOfferError("Attempted visit rate cannot be greater than the session rate.");
