@@ -1,9 +1,11 @@
-import React from 'react'
+export const metadata = { title: "Reset Password" };
 
-const page = () => {
+import ResetPasswordForm from "@/components/forms/ResetPasswordForm";
+
+export default function ResetPasswordPage() {
     return (
-        <div>page</div>
-    )
+        <main className="flex-1 flex items-center justify-center p-6">
+            <ResetPasswordForm />
+        </main>
+    );
 }
-
-export default page

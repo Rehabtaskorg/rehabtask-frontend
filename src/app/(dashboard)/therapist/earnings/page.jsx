@@ -1,182 +1,332 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
+import { MdDownload, MdAccountBalanceWallet, MdError } from "react-icons/md";
+import { ConnectBalances, ConnectPayments } from "@stripe/react-connect-js";
 import { api } from "@/lib/api";
+import { usePageTitle } from "@/hooks/usePageTitle";
+import { useTherapistAccess } from "@/contexts/TherapistAccessContext";
+import { showToast } from "@/lib/toast";
+import { exportPayoutsCSV } from "@/lib/earnings.utils";
+import LockedPageOverlay from "@/components/therapist/LockedPageOverlay";
+import EarningsSummaryCards from "@/components/therapist/earnings/EarningsSummaryCards";
+import EarningsChart from "@/components/therapist/earnings/EarningsChart";
+import PayoutHistoryTable from "@/components/therapist/earnings/PayoutHistoryTable";
+import EscrowInfoBanner from "@/components/therapist/earnings/EscrowInfoBanner";
+import EarningsPageSkeleton from "@/components/therapist/earnings/EarningsPageSkeleton";
+import StripeConnectProvider from "@/components/stripe/StripeConnectProvider";
 
 export default function TherapistEarningsPage() {
+    const { canAccessMarketplace } = useTherapistAccess();
+    if (!canAccessMarketplace) return <LockedPageOverlay pageType="earnings" />;
+    return <TherapistEarningsContent />;
+}
+
+function TherapistEarningsContent() {
+    usePageTitle("Earnings");
+
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
 
+    // Stripe Connect account status — drives which panel is shown
+    // null = not yet fetched, object = fetched (connected/not connected)
+    const [stripeStatus, setStripeStatus] = useState(null);
+    const [stripeStatusLoading, setStripeStatusLoading] = useState(true);
+    const [stripeLoadError, setStripeLoadError] = useState(null);
+
     useEffect(() => {
-        fetchPayouts();
-    }, [])
+        // Run both fetches in parallel — earnings data and Stripe status are independent
+        Promise.all([fetchPayouts(), fetchStripeStatus()]);
+    }, []);
 
     const fetchPayouts = async () => {
         try {
             const res = await api.get("/payments/payouts");
             setData(res.data.data);
-        } catch (error) {
-            console.error('Error fetching payouts:', error);
+        } catch {
+            showToast.error("Failed to load earnings data. Please try again.");
         } finally {
             setLoading(false);
         }
-    }
-
-    const getStatusColor = (status) => {
-        const colors = {
-            escrowed: "bg-yellow-100 text-yellow-800",
-            released: "bg-green-100 text-green-800",
-        };
-        return colors[status] || "bg-gray-100 text-gray-800";
-    }
-
-    const getStatusText = (status) => {
-        const texts = {
-            escrowed: 'Pending Customer Confirmation',
-            released: 'Paid Out',
-        };
-        return texts[status] || status;
     };
 
-    if (loading) {
-        return (
-            <div className="py-8 px-4">
-                <h1 className="text-2xl font-bold mb-6">Earnings & Payouts</h1>
-                <div className="animate-pulse space-y-4">
-                    <div className="h-32 bg-gray-200 rounded"></div>
-                    <div className="h-24 bg-gray-200 rounded"></div>
-                </div>
-            </div>
-        )
-    }
+    const fetchStripeStatus = async () => {
+        try {
+            const res = await api.get("/payments/connect/status");
+            setStripeStatus(res.data.data);
+        } catch {
+            // Non-fatal: if status check fails we degrade gracefully to the CTA
+            setStripeStatus({ connected: false });
+        } finally {
+            setStripeStatusLoading(false);
+        }
+    };
+
+    const handleExportCSV = () => {
+        if (!data?.payments?.length) {
+            showToast.info("No payout data to export.");
+            return;
+        }
+        exportPayoutsCSV(data.payments);
+        showToast.success("CSV exported successfully.");
+    };
+
+    const handleStripeLoadError = useCallback((err) => {
+        console.error("[EarningsPage] Stripe SDK load error:", err);
+        setStripeLoadError(
+            "Failed to load the balance panel. Please refresh the page."
+        );
+    }, []);
+
+    if (loading) return <EarningsPageSkeleton />;
 
     if (!data) {
         return (
-            <div className="py-8 px-4">
-                <h1 className="text-2xl font-bold mb-6">Earnings & Payouts</h1>
-                <div className="bg-red-50 border border-red-200 rounded-lg p-6">
-                    <p className="text-red-800">Failed to load earnings data</p>
+            <div className="p-4 md:p-6 max-w-7xl mx-auto">
+                <h1 className="text-2xl font-extrabold tracking-tight text-text-main dark:text-white mb-6">Earnings</h1>
+                <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-6">
+                    <p className="text-red-800 dark:text-red-300">Failed to load earnings data. Please refresh the page.</p>
                 </div>
             </div>
-        )
+        );
     }
 
+    const hasEscrowedPayments = data.payments?.some((p) => p.status === "escrowed");
+    const isStripeReady =
+        stripeStatus?.connected &&
+        stripeStatus?.detailsSubmitted &&
+        stripeStatus?.chargesEnabled;
+
     return (
-        <div className="py-8 px-4">
-            <h1 className="text-2xl font-bold mb-6">Earnings & Payouts</h1>
+        <div className="p-4 md:p-6 max-w-7xl mx-auto space-y-6 sm:space-y-8">
+            {/* Header */}
+            <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <h1 className="text-2xl font-extrabold tracking-tight text-text-main dark:text-white">Earnings</h1>
+                <button
+                    onClick={handleExportCSV}
+                    className="flex items-center gap-1.5 px-4 py-2 border border-border-light dark:border-border-dark hover:bg-slate-50 dark:hover:bg-white/5 rounded-lg text-sm font-semibold text-text-main dark:text-white transition-colors"
+                >
+                    <MdDownload className="text-lg" />
+                    Export CSV
+                </button>
+            </header>
 
-            {/* Summary Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-                <div className="bg-white rounded-lg shadow p-6">
-                    <p className="text-sm text-gray-600 mb-1">Total Earnings</p>
-                    <p className="text-3xl font-bold text-green-600">
-                        ${data.totalEarnings?.toFixed(2) || '0.00'}
-                    </p>
-                    <p className="text-xs text-gray-500 mt-1">All time</p>
-                </div>
+            {/* Platform Earnings Summary — your DB data, always shown */}
+            <EarningsSummaryCards
+                totalEarnings={data.totalEarnings}
+                pendingEarnings={data.pendingEarnings}
+                pendingSessionCount={data.pendingSessionCount}
+                periodStats={data.periodStats}
+                commissionInfo={data.commissionInfo}
+            />
 
-                <div className="bg-white rounded-lg shadow p-6">
-                    <p className="text-sm text-gray-600 mb-1">Pending Earnings</p>
-                    <p className="text-3xl font-bold text-yellow-600">
-                        ${data.pendingEarnings?.toFixed(2) || '0.00'}
-                    </p>
-                    <p className="text-xs text-gray-500 mt-1">Awaiting confirmation</p>
-                </div>
+            {/* ── Stripe Balance Panel ─────────────────────────────────────────────
+                Rendered between summary cards and the chart.
+                Four states:
+                  1. Loading  — skeleton placeholder while status is being fetched
+                  2. Not connected — CTA directing to onboarding/stripe
+                  3. Connected + submitted but not yet charges_enabled — pending review
+                  4. Fully active — ConnectBalances + ConnectPayments components
+            ──────────────────────────────────────────────────────────────────── */}
+            <StripeBalancePanel
+                statusLoading={stripeStatusLoading}
+                stripeStatus={stripeStatus}
+                isStripeReady={isStripeReady}
+                stripeLoadError={stripeLoadError}
+                onLoadError={handleStripeLoadError}
+            />
 
-                <div className="bg-white rounded-lg shadow p-6">
-                    <p className="text-sm text-gray-600 mb-1">Completed Sessions</p>
-                    <p className="text-3xl font-bold text-blue-600">
-                        {data.payments?.filter((p) => p.status === 'released').length || 0}
-                    </p>
-                    <p className="text-xs text-gray-500 mt-1">Sessions paid out</p>
-                </div>
-            </div>
+            {/* Platform Earnings Chart — your DB data */}
+            <EarningsChart earningsByMonth={data.earningsByMonth} />
 
-            {/* Payout History */}
-            <div className="bg-white rounded-lg shadow p-6">
-                <h2 className="text-xl font-semibold mb-4">Payout History</h2>
+            {/* Platform Payout History — your DB data */}
+            <PayoutHistoryTable payments={data.payments || []} />
 
-                {data.payments.length === 0 ? (
-                    <div className="bg-gray-50 rounded-lg p-8 text-center">
-                        <p className="text-gray-600">No payout history yet</p>
-                        <p className="text-sm text-gray-500 mt-2">
-                            Complete sessions to start earning
-                        </p>
-                    </div>
-                ) : (
-                    <div className="space-y-4">
-                        {data.payments.map((payment) => (
-                            <div
-                                key={payment.id}
-                                className="border rounded-lg p-4 hover:bg-gray-50"
-                            >
-                                <div className="flex justify-between items-start mb-3">
-                                    <div>
-                                        <h3 className="font-semibold">
-                                            {payment.booking.customer.fullName}
-                                        </h3>
-                                        <p className="text-sm text-gray-600">
-                                            {payment.booking.offer.request.serviceType}
-                                        </p>
-                                        <p className="text-xs text-gray-500 mt-1">
-                                            Session: {new Date(payment.booking.scheduledDate).toLocaleDateString()}
-                                        </p>
-                                    </div>
-                                    <span
-                                        className={`px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(
-                                            payment.status
-                                        )}`}
-                                    >
-                                        {getStatusText(payment.status)}
-                                    </span>
-                                </div>
+            {/* Escrow Info */}
+            <EscrowInfoBanner hasEscrowedPayments={hasEscrowedPayments} />
+        </div>
+    );
+}
 
-                                <div className="border-t pt-3 grid grid-cols-4 gap-4 text-sm">
-                                    <div>
-                                        <p className="text-gray-600">Session Rate</p>
-                                        <p className="font-semibold">${payment.amount}</p>
-                                    </div>
-                                    <div>
-                                        <p className="text-gray-600">Platform Fee (10%)</p>
-                                        <p className="text-red-600">-${payment.platformFee}</p>
-                                    </div>
-                                    <div>
-                                        <p className="text-gray-600">Your Earnings</p>
-                                        <p className="font-semibold text-green-600">
-                                            ${payment.therapistPayout}
-                                        </p>
-                                    </div>
-                                    <div>
-                                        <p className="text-gray-600">
-                                            {payment.status === 'released' ? 'Paid On' : 'Created'}
-                                        </p>
-                                        <p className="text-xs">
-                                            {new Date(
-                                                payment.releasedAt || payment.createdAt
-                                            ).toLocaleDateString()}
-                                        </p>
-                                    </div>
-                                </div>
-
-                                {payment.status === 'escrowed' && (
-                                    <div className="mt-3 bg-yellow-50 border border-yellow-200 rounded p-2">
-                                        <p className="text-xs text-yellow-800">
-                                            💡 This payment is being held securely and will be released after the customer confirms session completion (or auto-confirms after 72 hours).
-                                        </p>
-                                    </div>
-                                )}
-
-                                {payment.stripeTransferId && (
-                                    <div className="mt-2 text-xs text-gray-500">
-                                        Transfer ID: {payment.stripeTransferId}
-                                    </div>
-                                )}
-                            </div>
-                        ))}
-                    </div>
-                )}
+/**
+ * EmbeddedComponentSkeleton
+ *
+ * Placeholder rendered inside a card wrapper while a Stripe embedded
+ * component is mounting but has not yet rendered any of its own UI.
+ * Stays mounted until the component fires its first onLoaderStart
+ * callback, at which point the real Stripe iframe (with its own
+ * internal loader) takes over visually.
+ *
+ * Sized to roughly match the embedded balances/payments components so
+ * the layout doesn't shift when the real content arrives.
+ */
+function EmbeddedComponentSkeleton({ rows = 3 }) {
+    return (
+        <div className="animate-pulse space-y-4">
+            {/* Section title placeholder */}
+            <div className="h-5 w-40 bg-slate-200 dark:bg-slate-700 rounded" />
+            {/* Body row placeholders */}
+            <div className="space-y-3 pt-2">
+                {Array.from({ length: rows }).map((_, i) => (
+                    <div
+                        key={i}
+                        className="h-12 w-full bg-slate-100 dark:bg-slate-800 rounded-lg"
+                    />
+                ))}
             </div>
         </div>
-    )
+    );
+}
 
+/**
+ * StripeBalancePanel
+ *
+ * Handles all four Stripe status states in a single isolated component.
+ * Kept separate from TherapistEarningsContent so the Stripe SDK lifecycle
+ * (loadConnectAndInitialize) is contained and doesn't affect the parent.
+ */
+function StripeBalancePanel({
+    statusLoading,
+    stripeStatus,
+    isStripeReady,
+    stripeLoadError,
+    onLoadError,
+}) {
+    const router = useRouter();
+
+    
+    const [balancesLoaded, setBalancesLoaded] = useState(false);
+    const [paymentsLoaded, setPaymentsLoaded] = useState(false);
+
+    const handleBalancesStart = useCallback(() => setBalancesLoaded(true), []);
+    const handlePaymentsStart = useCallback(() => setPaymentsLoaded(true), []);
+
+    // State 1 — still fetching status
+    if (statusLoading) {
+        return (
+            <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl p-6 animate-pulse">
+                <div className="h-5 w-36 bg-slate-200 dark:bg-slate-700 rounded mb-5" />
+                <div className="flex gap-6 mb-4">
+                    <div className="h-16 flex-1 bg-slate-200 dark:bg-slate-700 rounded-lg" />
+                    <div className="h-16 flex-1 bg-slate-200 dark:bg-slate-700 rounded-lg" />
+                    <div className="h-16 w-32 bg-slate-200 dark:bg-slate-700 rounded-lg" />
+                </div>
+            </div>
+        );
+    }
+
+    // State 2 — no Stripe account connected
+    if (!stripeStatus?.connected) {
+        return (
+            <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl p-6">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div className="flex items-start gap-4">
+                        <div className="w-11 h-11 bg-primary/10 rounded-full flex items-center justify-center shrink-0">
+                            <MdAccountBalanceWallet className="text-xl text-primary" />
+                        </div>
+                        <div>
+                            <p className="font-bold text-text-main dark:text-white">Set up payouts</p>
+                            <p className="text-sm text-text-muted dark:text-slate-400 mt-0.5">
+                                Connect your bank account to receive earnings directly. View your balance and cash out instantly.
+                            </p>
+                        </div>
+                    </div>
+                    <button
+                        onClick={() => router.push("/therapist/onboarding/stripe")}
+                        className="shrink-0 px-5 py-2.5 bg-primary hover:brightness-95 text-white rounded-lg font-semibold text-sm transition-all"
+                    >
+                        Set Up Payouts
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
+    // State 3 — account exists + details submitted, but charges not yet enabled.
+    // The review is async on the provider side and the account.updated webhook
+    // will flip stripeOnboardingComplete when it completes.
+    if (stripeStatus?.connected && stripeStatus?.detailsSubmitted && !stripeStatus?.chargesEnabled) {
+        return (
+            <div className="bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-500/30 rounded-xl shadow-sm p-6">
+                <div className="flex items-start gap-4">
+                    <div className="w-11 h-11 bg-amber-500/10 rounded-full flex items-center justify-center shrink-0">
+                        <MdAccountBalanceWallet className="text-xl text-amber-500" />
+                    </div>
+                    <div>
+                        <p className="font-bold text-text-main dark:text-white">Payout account under review</p>
+                        <p className="text-sm text-text-muted dark:text-slate-400 mt-0.5">
+                            Your details have been submitted and we&apos;re verifying your account. This usually takes a few minutes. You&apos;ll be notified once it&apos;s active.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    // State 4 — fully active.
+    // ConnectBalances renders the available/pending balance, instant payout
+    // ("Cash Out"), and bank account management UI. It ships with its own
+    // section heading so we don't add one on top.
+    // ConnectPayments renders the transfer history and dispute workflow.
+    // Both are wrapped in cards that match the visual language of the rest
+    // of the earnings page (p-6 md:p-8, shadow-sm, rounded-xl). onLoadError
+    // is passed per-component so a failure in one does not blank the other.
+    if (isStripeReady) {
+        if (stripeLoadError) {
+            return (
+                <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl shadow-sm p-6">
+                    <div className="flex items-start gap-3 text-red-600 dark:text-red-400">
+                        <MdError className="text-xl shrink-0 mt-0.5" />
+                        <div>
+                            <p className="font-semibold text-sm">Balance panel unavailable</p>
+                            <p className="text-xs text-text-muted dark:text-slate-400 mt-0.5">{stripeLoadError}</p>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        return (
+            <StripeConnectProvider>
+                <div className="space-y-6">
+                    <section
+                        aria-label="Balance and payouts"
+                        className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl shadow-sm p-6 md:p-8"
+                    >
+                        {/* Skeleton is shown until Stripe's iframe paints its
+                            first UI. The component itself is always mounted
+                            (even when hidden) so the iframe starts loading
+                            immediately — delaying the mount would just make
+                            the perceived wait longer. */}
+                        {!balancesLoaded && <EmbeddedComponentSkeleton rows={3} />}
+                        <div className={balancesLoaded ? "" : "hidden"}>
+                            {/* onLoadError + onLoaderStart passed directly —
+                                ConnectComponentsProvider does not accept them */}
+                            <ConnectBalances
+                                onLoadError={onLoadError}
+                                onLoaderStart={handleBalancesStart}
+                            />
+                        </div>
+                    </section>
+
+                    <section
+                        aria-label="Transaction history"
+                        className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl shadow-sm p-6 md:p-8"
+                    >
+                        {!paymentsLoaded && <EmbeddedComponentSkeleton rows={4} />}
+                        <div className={paymentsLoaded ? "" : "hidden"}>
+                            <ConnectPayments
+                                onLoadError={onLoadError}
+                                onLoaderStart={handlePaymentsStart}
+                            />
+                        </div>
+                    </section>
+                </div>
+            </StripeConnectProvider>
+        );
+    }
+
+    // Fallback — connected but unknown state (e.g. payoutsEnabled only)
+    return null;
 }

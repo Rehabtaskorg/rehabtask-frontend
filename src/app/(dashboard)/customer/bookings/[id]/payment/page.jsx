@@ -4,7 +4,9 @@ import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements, PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
+import { getStripeAppearance } from "@/lib/stripe.appearance";
 import { api } from "@/lib/api";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY);
 
@@ -95,6 +97,7 @@ function CheckoutForm({ booking }) {
 
 
 export default function PaymentPage() {
+    usePageTitle("Make Payment");
     const params = useParams();
     const router = useRouter();
     const [booking, setBooking] = useState(null);
@@ -115,7 +118,7 @@ export default function PaymentPage() {
             setBooking(bookingData);
 
             if (bookingData.payment) {
-                if (bookingData.payment.status === "escrowed" || bookingData.payment.status === "released") {
+                if (["escrowed", "partially_released", "released"].includes(bookingData.payment.status)) {
                     router.push(`/customers/bookings/${params.id}`);
                     return;
                 }
@@ -170,12 +173,7 @@ export default function PaymentPage() {
 
     const options = {
         clientSecret,
-        appearance: {
-            theme: "stripe",
-            variables: {
-                colorPrimary: "#2563eb",
-            },
-        },
+        appearance: getStripeAppearance(),
     };
 
     return (
