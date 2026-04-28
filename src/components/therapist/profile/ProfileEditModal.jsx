@@ -1,0 +1,405 @@
+"use client";
+
+import { useState, useRef } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { MdClose, MdEdit, MdCameraAlt, MdLock, MdInfo } from "react-icons/md";
+import { SPECIALIZATIONS } from "@/lib/constants/specializations";
+import { LICENSE_TYPES } from "@/lib/constants/credentials";
+import { onboardingAPI } from "@/lib/onboarding.api";
+import { useUpdateProfile } from "@/hooks/useTherapistProfile";
+import Input from "@/components/ui/Input";
+import PhoneInput from "@/components/ui/PhoneInput";
+import Button from "@/components/ui/Button";
+import Alert from "@/components/ui/Alert";
+import Image from "next/image";
+
+const profileEditSchema = z.object({
+    fullName: z.string().trim().min(2, "Name must be at least 2 characters"),
+    phone: z
+        .string()
+        .trim()
+        .min(1, "Phone is required")
+        .regex(/^\+1\d{10}$/, "Phone must be in format +1XXXXXXXXXX"),
+    yearsOfExperience: z.coerce
+        .number({ invalid_type_error: "Must be a number" })
+        .min(0, "Must be 0 or greater")
+        .max(50, "Must be 50 or less"),
+    specialization: z
+        .string()
+        .optional()
+        .nullable()
+        .refine((val) => !val || SPECIALIZATIONS.includes(val), {
+            message: "Invalid specialization",
+        }),
+    ratePerVisit: z.coerce
+        .number({ invalid_type_error: "Must be a number" })
+        .min(0, "Must be 0 or greater")
+        .max(10000, "Must be $10,000 or less")
+        .optional()
+        .nullable()
+        .transform(val => val === 0 ? null : val),
+    attemptedVisitRate: z.preprocess(
+        (val) => (val === "" || val === undefined ? null : val),
+        z.coerce
+            .number({ invalid_type_error: "Must be a number" })
+            .min(0, "Must be 0 or greater")
+            .max(10000, "Must be $10,000 or less")
+            .nullable()
+    ),
+    professionalSummary: z
+        .string()
+        .min(100, "Must be at least 100 characters")
+        .max(2000, "Cannot exceed 2000 characters"),
+}).refine(
+    (data) => {
+        if (data.attemptedVisitRate == null || data.ratePerVisit == null) return true;
+        return data.attemptedVisitRate <= data.ratePerVisit;
+    },
+    {
+        message: "Cannot be greater than your session rate",
+        path: ["attemptedVisitRate"],
+    }
+);
+
+const ProfileEditModal = ({ isOpen, onClose, profile, onSuccess }) => {
+    const [photoUrl, setPhotoUrl] = useState(profile?.profilePhotoUrl || null);
+    const [uploading, setUploading] = useState(false);
+    const [alert, setAlert] = useState(null);
+    const fileInputRef = useRef(null);
+
+    const updateProfile = useUpdateProfile();
+
+    const { register, handleSubmit, watch, control, formState: { errors } } = useForm({
+        resolver: zodResolver(profileEditSchema),
+        mode: "onChange",
+        reValidateMode: "onChange",
+        defaultValues: {
+            fullName: profile?.fullName || "",
+            phone: profile?.phone || "",
+            yearsOfExperience: profile?.yearsOfExperience || 0,
+            specialization: profile?.specialization || "",
+            ratePerVisit: profile?.ratePerVisit ? parseFloat(profile.ratePerVisit) : "",
+            attemptedVisitRate: profile?.attemptedVisitRate != null ? parseFloat(profile.attemptedVisitRate) : "",
+            professionalSummary: profile?.professionalSummary || "",
+        }
+    })
+
+    const summaryValue = watch("professionalSummary");
+    const summaryLength = summaryValue?.length || 0;
+
+    if (!isOpen) return null;
+
+    const handlePhotoChange = async (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        if (!file.type.startsWith("image/")) {
+            setAlert({ type: "error", message: "Please select an image file." });
+            return;
+        }
+        if (file.size > 5 * 1024 * 1024) {
+            setAlert({ type: "error", message: "Image must be less than 5MB." });
+            return;
+        }
+
+        setUploading(true);
+        setAlert(null);
+
+        try {
+            const result = await onboardingAPI.uploadProfilePhoto(file);
+            setPhotoUrl(result.url);
+        } catch (err) {
+            setAlert({
+                type: "error",
+                message: err.response?.data?.message || "Failed to upload photo.",
+            });
+        } finally {
+            setUploading(false);
+        }
+    }
+
+    const onSubmit = async (data) => {
+        setAlert(null);
+        try {
+            await updateProfile.mutateAsync({
+                ...data,
+                specialization: data.specialization || null,
+                profilePhotoUrl: photoUrl,
+            });
+            onSuccess?.();
+            onClose();
+        } catch (err) {
+            setAlert({
+                type: "error",
+                message: err.response?.data?.message || "Failed to update profile.",
+            });
+        }
+    }
+
+    const handleOverlayClick = (e) => {
+        if (e.target === e.currentTarget) onClose();
+    }
+
+    const initials = profile?.fullName
+        ? profile.fullName
+            .split(" ")
+            .map((n) => n[0])
+            .join("")
+            .toUpperCase()
+            .slice(0, 2)
+        : "?";
+
+    const licenseTypeLabel =
+        LICENSE_TYPES.find((lt) => lt.value === profile?.primaryLicenseType)?.label ||
+        profile?.primaryLicenseType ||
+        "—";
+
+    return (
+        <div
+            className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4"
+            onClick={handleOverlayClick}
+        >
+            <div className="bg-card-light dark:bg-card-dark rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-xl">
+                {/* Header */}
+                <div className="flex items-center justify-between p-6 border-b border-border-light dark:border-border-dark">
+                    <div className="flex items-center gap-3">
+                        <div className="p-2 bg-primary/10 rounded-lg">
+                            <MdEdit className="text-primary text-xl" />
+                        </div>
+                        <h2 className="text-lg font-bold text-text-main dark:text-white">
+                            Edit Profile
+                        </h2>
+                    </div>
+                    <button
+                        type="button"
+                        onClick={onClose}
+                        className="p-2 rounded-lg text-text-muted hover:bg-muted-light dark:hover:bg-muted-dark transition-colors"
+                    >
+                        <MdClose className="text-xl" />
+                    </button>
+                </div>
+
+                <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-6">
+                    {alert && (
+                        <Alert
+                            type={alert.type}
+                            message={alert.message}
+                            onClose={() => setAlert(null)}
+                        />
+                    )}
+
+                    {/* Profile Photo */}
+                    <div className="flex items-center gap-4">
+                        <div className="relative">
+                            {photoUrl ? (
+                                <Image
+                                    src={photoUrl}
+                                    alt="profile"
+                                    width={80}
+                                    height={80}
+                                    className="w-20 h-20 rounded-full object-cover border-2 border-border-light dark:border-border-dark"
+                                />
+
+                            ) : (
+                                <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center border-2 border-border-light dark:border-border-dark">
+                                    <span className="text-primary text-xl font-bold">
+                                        {initials}
+                                    </span>
+                                </div>
+                            )}
+                            <button
+                                type="button"
+                                onClick={() => fileInputRef.current?.click()}
+                                disabled={uploading}
+                                className="absolute -bottom-1 -right-1 p-1.5 bg-primary text-white rounded-full shadow-lg hover:opacity-90 transition-opacity disabled:opacity-50"
+                            >
+                                <MdCameraAlt className="text-sm" />
+                            </button>
+                            <input
+                                ref={fileInputRef}
+                                type="file"
+                                accept="image/*"
+                                onChange={handlePhotoChange}
+                                className="hidden"
+                            />
+                        </div>
+                        <div>
+                            <p className="text-sm font-medium text-text-main dark:text-white">
+                                Profile Photo
+                            </p>
+                            <p className="text-xs text-text-muted">
+                                {uploading ? "Uploading..." : "JPG, PNG. Max 5MB."}
+                            </p>
+                        </div>
+                    </div>
+
+                    {/* Editable Fields */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                        <Input
+                            label="Full Name"
+                            error={errors.fullName?.message}
+                            required
+                            {...register("fullName")}
+                        />
+                        <PhoneInput
+                            label="Phone"
+                            name="phone"
+                            control={control}
+                            error={errors.phone?.message}
+                            required
+                        />
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                        <Input
+                            label="Years of Experience"
+                            type="number"
+                            min={0}
+                            max={50}
+                            error={errors.yearsOfExperience?.message}
+                            {...register("yearsOfExperience")}
+                        />
+                        <Input
+                            label="Rate per Visit ($)"
+                            type="number"
+                            min={0}
+                            max={10000}
+                            step="0.01"
+                            placeholder="e.g. 85.00"
+                            error={errors.ratePerVisit?.message}
+                            {...register("ratePerVisit")}
+                        />
+                    </div>
+
+                    <div className="space-y-1">
+                        <Input
+                            label="Attempted Visit Rate ($) — optional"
+                            type="number"
+                            min={0}
+                            max={10000}
+                            step="0.01"
+                            placeholder="e.g. 40.00"
+                            error={errors.attemptedVisitRate?.message}
+                            {...register("attemptedVisitRate")}
+                        />
+                        <p className="text-xs text-text-muted dark:text-slate-400">
+                            Charged when you arrive but the patient isn&apos;t home. Must be less than or equal to your session rate. Leave blank if you won&apos;t charge for no-shows. Changes only apply to new offers — existing bookings keep their original rate.
+                        </p>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                        <div className="space-y-2">
+                            <label className="block text-sm font-bold text-text-main dark:text-white uppercase tracking-wide">
+                                Specialization{" "}
+                                <span className="text-text-muted font-normal normal-case tracking-normal">(optional)</span>
+                            </label>
+                            <select
+                                {...register("specialization")}
+                                className={`w-full px-4 py-3 rounded-xl bg-white dark:bg-background-dark border transition-all outline-none ${errors.specialization
+                                    ? "border-red-500 focus:ring-2 focus:ring-red-500/20"
+                                    : "border-border-subtle dark:border-[#2a3038] focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                                    } text-text-main dark:text-white`}
+                            >
+                                <option value="">Select specialization...</option>
+                                {SPECIALIZATIONS.map((s) => (
+                                    <option key={s} value={s}>
+                                        {s}
+                                    </option>
+                                ))}
+                            </select>
+                            {errors.specialization && (
+                                <p className="text-xs text-red-500 font-medium">
+                                    {errors.specialization.message}
+                                </p>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Professional Summary */}
+                    <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                            <label className="block text-sm font-bold text-text-main dark:text-white uppercase tracking-wide">
+                                Professional Summary <span className="text-red-500">*</span>
+                            </label>
+                            <span
+                                className={`text-xs font-medium ${summaryLength < 100
+                                    ? "text-red-500"
+                                    : summaryLength > 1800
+                                        ? "text-yellow-500"
+                                        : "text-text-muted"
+                                    }`}
+                            >
+                                {summaryLength}/2000
+                            </span>
+                        </div>
+                        <textarea
+                            {...register("professionalSummary")}
+                            rows={5}
+                            className={`w-full px-4 py-3 rounded-xl bg-white dark:bg-background-dark border transition-all outline-none resize-none ${errors.professionalSummary
+                                ? "border-red-500 focus:ring-2 focus:ring-red-500/20"
+                                : "border-border-subtle dark:border-[#2a3038] focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                                } text-text-main dark:text-white placeholder:text-text-muted/50`}
+                            placeholder="Describe your experience, approach, and areas of expertise..."
+                        />
+                        {errors.professionalSummary && (
+                            <p className="text-xs text-red-500 font-medium">
+                                {errors.professionalSummary.message}
+                            </p>
+                        )}
+                    </div>
+
+                    {/* Read-only credentials */}
+                    <div className="bg-muted-light dark:bg-muted-dark rounded-xl p-4 border border-border-light dark:border-border-dark">
+                        <div className="flex items-center gap-2 mb-3">
+                            <MdLock className="text-text-muted" />
+                            <span className="text-sm font-bold text-text-muted uppercase tracking-wide">
+                                Credentials (Read-Only)
+                            </span>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <div>
+                                <p className="text-xs text-text-muted">License Type</p>
+                                <p className="text-sm font-medium text-text-main dark:text-white">
+                                    {licenseTypeLabel}
+                                </p>
+                            </div>
+                            <div>
+                                <p className="text-xs text-text-muted">License Number</p>
+                                <p className="text-sm font-medium text-text-main dark:text-white">
+                                    {profile?.licenseNumber || "—"}
+                                </p>
+                            </div>
+                            <div>
+                                <p className="text-xs text-text-muted">License State</p>
+                                <p className="text-sm font-medium text-text-main dark:text-white">
+                                    {profile?.licenseState || "—"}
+                                </p>
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-1.5 mt-3">
+                            <MdInfo className="text-text-muted text-sm" />
+                            <p className="text-xs text-text-muted">
+                                Contact support to update your credentials
+                            </p>
+                        </div>
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex items-center justify-end gap-3 pt-2">
+                        <Button variant="secondary" onClick={onClose}>
+                            Cancel
+                        </Button>
+                        <Button type="submit" loading={updateProfile.isPending}>
+                            Save Changes
+                        </Button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    )
+
+};
+
+export default ProfileEditModal;

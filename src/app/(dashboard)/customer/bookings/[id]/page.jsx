@@ -1,459 +1,544 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
-import { api } from "@/lib/api";
+import Image from "next/image";
+import {
+    MdArrowBack, MdChat, MdCalendarToday, MdAccessTime, MdLocationOn, MdVideocam, MdPerson,
+    MdCheckCircle, MdClose, MdWarning, MdInfo, MdRefresh, MdSchedule, MdUpdate,
+} from "react-icons/md";
+import { useBookingDetail } from "@/hooks/useBookings";
+import { useBookingPolling, usePaymentRedirect } from "@/hooks/useBookingPolling";
+import { bookingsApi } from "@/lib/bookings.api";
+import { resolveVisitPlan, computeTotalVisits } from "@/lib/visitPlan";
+import { formatCurrency } from "@/utils/messages";
+import { formatDate, formatTime } from "@/utils/dates";
+import { usePageTitle } from "@/hooks/usePageTitle";
+import BookingStatusBadge from "@/components/bookings/BookingStatusBadge";
+import BookingTimeline from "@/components/bookings/BookingTimeline";
+import BookingSharedFiles from "@/components/bookings/BookingSharedFiles";
+import BookingEscrowInfo from "@/components/bookings/BookingEscrowInfo";
+import SessionList from "@/components/bookings/SessionList";
+import PaymentSummaryCard from "@/components/bookings/PaymentSummaryCard";
+import InlinePaymentSection from "@/components/bookings/InlinePaymentSection";
+import RequestRevisionModal from "@/components/shared/sessions/RequestRevisionModal";
+import MarkSessionMissedModal from "@/components/shared/sessions/MarkSessionMissedModal";
+import RevisionStatusBanner from "@/components/shared/sessions/RevisionStatusBanner";
+import PatientInfoBlock from "@/components/customer/PatientInfoBlock";
 
 export default function CustomerBookingDetailPage() {
+    usePageTitle("Booking Details");
     const params = useParams();
     const router = useRouter();
     const searchParams = useSearchParams();
-    const [booking, setBooking] = useState(null);
-    const [loading, setLoading] = useState(true);
+    const { booking, loading, error, refetch } = useBookingDetail(params.id);
+
     const [confirming, setConfirming] = useState(false);
-    const [cancelling, setCancelling] = useState(false);
+    const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+    const [showRevisionModal, setShowRevisionModal] = useState(false);
+    const [revisionSessionId, setRevisionSessionId] = useState(null);
+    const [reportMissedSession, setReportMissedSession] = useState(null);
+    const [showRefundForm, setShowRefundForm] = useState(false);
+    const [refundReason, setRefundReason] = useState("");
+    const [refunding, setRefunding] = useState(false);
+    const [showPaymentBanner, setShowPaymentBanner] = useState(false);
+    const [rescheduleResponding, setRescheduleResponding] = useState(null);
+    const [actionError, setActionError] = useState(null);
+    const [awaitingPaymentUpdate, setAwaitingPaymentUpdate] = useState(false);
 
-    useEffect(() => {
-        fetchBooking();
-
-        if (searchParams.get("payment") === "succcess") {
-            alert("Payment successful! Your session is confirmed.");
-            window.history.replaceState({}, "", `/customer/bookings/${params.id}`);
-        }
-
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [params.id, searchParams]);
-
-    const fetchBooking = async () => {
-        try {
-            const res = await api.get(`/bookings/${params.id}`);
-            setBooking(res.data.data);
-        } catch (error) {
-            console.error("Error fetching booking:", error);
-        } finally {
-            setLoading(false);
-        }
-    }
-
-    const handleProceedToPayment = () => {
-        router.push(`/customer/bookings/${params.id}/payment`);
-    }
+    useBookingPolling({ booking, refetch, awaitingPaymentUpdate, setAwaitingPaymentUpdate });
+    usePaymentRedirect({ params, searchParams, setShowPaymentBanner, setAwaitingPaymentUpdate });
 
     const handleConfirmCompletion = async () => {
-        if (!confirm("Are you sure you want to confirm session completion? Payment will be released to the therapist.")) {
-            return;
-        }
-
         setConfirming(true);
+        setActionError(null);
         try {
-            await api.post(`/sessions/${booking.session.id}/confirm`);
-            alert("Session confirmed! Payment has been released to the therapist.");
-            await fetchBooking();
-        } catch (error) {
-            alert("Error: " + (error.response?.data?.message || "Failed to confirm"));
+            await bookingsApi.confirmSession(booking.sessions?.[0]?.id);
+            setShowConfirmDialog(false);
+            await refetch();
+        } catch (err) {
+            setActionError(err.response?.data?.message || "Failed to confirm completion.");
         } finally {
             setConfirming(false);
         }
-    }
+    };
 
     const handleRequestRefund = async () => {
-        const reason = prompt("Please provide a reason for the refund request:");
-        if (!reason || reason.trim() === "") {
-            alert("Refund reason is required");
-            return;
-        }
-
-        if (!confirm(`Request fund for: "${reason}"?\n\nThis will cancel the booking and refund your payment.`)) {
-            return;
-        }
-
-        setCancelling(true);
+        if (!refundReason.trim()) return;
+        setRefunding(true);
+        setActionError(null);
         try {
-            await api.post("/payments/refund", {
-                bookingId: params.id,
-                reason,
-            });
-            alert("Refund processed successfully. Your payment will be returned to your card within 5-10 business days.");
-            await fetchBooking();
-        } catch (error) {
-            alert("Error: " + (error.response?.data?.message || "Failed to process refund"))
+            await bookingsApi.requestRefund(params.id, refundReason);
+            setShowRefundForm(false);
+            setRefundReason("");
+            await refetch();
+        } catch (err) {
+            setActionError(err.response?.data?.message || "Failed to process refund.");
+        } finally {
+            setRefunding(false);
         }
+    };
 
-    }
+    const handleRescheduleResponse = async (accept) => {
+        setRescheduleResponding(accept ? "accept" : "decline");
+        setActionError(null);
+        try {
+            await bookingsApi.respondToReschedule(params.id, accept);
+            await refetch();
+        } catch (err) {
+            setActionError(err.response?.data?.message || "Failed to respond to reschedule.");
+        } finally {
+            setRescheduleResponding(null);
+        }
+    };
+
+    const handlePaymentSuccess = () => {
+        setShowPaymentBanner(true);
+        setAwaitingPaymentUpdate(true);
+        refetch();
+        setTimeout(() => setShowPaymentBanner(false), 6000);
+    };
 
     if (loading) {
         return (
-            <div className="py-8 px-4">
+            <div className="p-4 md:p-6 max-w-6xl mx-auto">
                 <div className="animate-pulse space-y-4">
-                    <div className="h-8 bg-gray-200 rounded w-1/3"></div>
-                    <div className="h-64 bg-gray-200 rounded"></div>
+                    <div className="h-8 w-32 bg-slate-200 dark:bg-slate-700 rounded" />
+                    <div className="h-6 w-64 bg-slate-200 dark:bg-slate-700 rounded" />
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                        <div className="lg:col-span-8 space-y-4">
+                            <div className="h-40 bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl" />
+                            <div className="h-60 bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl" />
+                        </div>
+                        <div className="lg:col-span-4 space-y-4">
+                            <div className="h-48 bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl" />
+                        </div>
+                    </div>
                 </div>
             </div>
         );
     }
 
-    if (!booking) {
+    if (error || !booking) {
         return (
-            <div className="py-8 px-4">
-                <div className="bg-red-50 border border-red-200 rounded-lg p-6">
-                    <p className="text-red-800">Booking not found</p>
+            <div className="p-4 md:p-6 max-w-6xl mx-auto">
+                <button onClick={() => router.back()} className="flex items-center gap-1 text-sm text-text-muted dark:text-gray-400 hover:text-primary transition-colors mb-6">
+                    <MdArrowBack className="text-base" /> Back
+                </button>
+                <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-6 text-center">
+                    <p className="text-red-700 dark:text-red-400 font-semibold">Booking not found</p>
+                    <button onClick={refetch} className="text-primary hover:underline text-sm font-bold mt-2 flex items-center gap-1 mx-auto">
+                        <MdRefresh className="text-base" /> Retry
+                    </button>
                 </div>
             </div>
-        )
+        );
     }
 
-    const getPaymentStatusInfo = () => {
-        if (!booking.payment) return null;
+    const therapist = booking.therapist;
+    const sessions = booking.sessions || [];
+    const session = sessions[0];
+    const payment = booking.payment;
+    const offer = booking.offer;
+    const request = offer?.request;
+    const therapistInitial = therapist?.fullName?.charAt(0) || "?";
+    const sessionType = offer?.sessionType;
 
-        const status = booking.payment.status;
-        const statusMap = {
-            intent_created: {
-                color: 'bg-yellow-100 text-yellow-800 border-yellow-200',
-                icon: '⏳',
-                title: 'Payment Processing',
-                message: 'Payment intent created. Waiting for payment confirmation...',
-            },
-            escrowed: {
-                color: 'bg-blue-100 text-blue-800 border-blue-200',
-                icon: '🔒',
-                title: 'Payment Held Securely',
-                message: 'Your payment is held in escrow and will be released to the therapist after session completion.',
-            },
-            released: {
-                color: 'bg-green-100 text-green-800 border-green-200',
-                icon: '✅',
-                title: 'Payment Released',
-                message: `$${booking.payment.therapistPayout} has been transferred to the therapist.`,
-            },
-            refunded: {
-                color: 'bg-gray-100 text-gray-800 border-gray-200',
-                icon: '↩️',
-                title: 'Payment Refunded',
-                message: 'Your payment has been refunded to your original payment method.',
-            },
-            failed: {
-                color: 'bg-red-100 text-red-800 border-red-200',
-                icon: '❌',
-                title: 'Payment Failed',
-                message: 'Payment could not be processed. Please try again.',
-            },
-        };
+    const plan = resolveVisitPlan({ booking, offer, request });
+    const totalSessions = sessions.length > 1 ? sessions.length : (computeTotalVisits(plan) ?? 1);
+    const isMultiSession = totalSessions > 1;
+    const perSessionRate = parseFloat(booking.rate);
 
-        return statusMap[status] || null;
-    };
-
-    const paymentInfo = getPaymentStatusInfo();
+    const allConfirmed = isMultiSession
+        ? sessions.length > 0 && sessions.every(s => s.status === "confirmed_by_customer")
+        : session?.status === "confirmed_by_customer";
 
     return (
-        <div className="py-8 px-4 max-w-4xl mx-auto">
+        <div className="p-4 md:p-6 max-w-6xl mx-auto">
+            {showPaymentBanner && (
+                <div className="mb-4 flex items-center gap-3 px-4 py-3 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800">
+                    <MdCheckCircle className="text-emerald-600 dark:text-emerald-400 text-lg shrink-0" />
+                    <p className="text-sm text-emerald-800 dark:text-emerald-300 flex-1">
+                        Payment successful! Your session is confirmed.
+                    </p>
+                    <button onClick={() => setShowPaymentBanner(false)} className="text-emerald-600 dark:text-emerald-400 hover:text-emerald-800 dark:hover:text-emerald-200">
+                        <MdClose className="text-base" />
+                    </button>
+                </div>
+            )}
+
+            {actionError && (
+                <div className="mb-4 flex items-center gap-3 px-4 py-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
+                    <MdWarning className="text-red-600 dark:text-red-400 text-lg shrink-0" />
+                    <p className="text-sm text-red-800 dark:text-red-300 flex-1">{actionError}</p>
+                    <button onClick={() => setActionError(null)} className="text-red-600 dark:text-red-400 hover:text-red-800">
+                        <MdClose className="text-base" />
+                    </button>
+                </div>
+            )}
+
             <button
-                onClick={() => router.back()}
-                className="text-blue-600 hover:text-blue-700 mb-4"
+                onClick={() => router.push("/customer/bookings")}
+                className="flex items-center gap-1 text-sm text-text-muted dark:text-gray-400 hover:text-primary transition-colors mb-6"
             >
-                ← Back
+                <MdArrowBack className="text-base" /> Back to Bookings
             </button>
 
-            <div className="bg-white rounded-lg shadow p-6 mb-6">
-                <div className="flex justify-between items-start mb-6">
-                    <div>
-                        <h1 className="text-2xl font-bold mb-2">Booking Details</h1>
-                        <p className="text-sm text-gray-600">Booking ID: {booking.id.slice(0, 8)}...</p>
-                    </div>
-                    <span
-                        className={`px-3 py-1 rounded-full text-sm font-semibold ${booking.status === 'completed'
-                            ? 'bg-green-100 text-green-800'
-                            : booking.status === 'confirmed'
-                                ? 'bg-blue-100 text-blue-800'
-                                : booking.status === 'in_progress'
-                                    ? 'bg-purple-100 text-purple-800'
-                                    : booking.status === 'pending'
-                                        ? 'bg-yellow-100 text-yellow-800'
-                                        : 'bg-gray-100 text-gray-800'
-                            }`}
-                    >
-                        {booking.status.replace('_', ' ').toUpperCase()}
-                    </span>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+                <div>
+                    <h1 className="text-xl sm:text-2xl font-black tracking-tight text-text-main dark:text-white">
+                        Booking Details
+                    </h1>
+                    <p className="text-xs text-text-muted dark:text-gray-400 mt-0.5 font-mono">
+                        ID: {booking.id.slice(0, 8)}...
+                    </p>
                 </div>
+                <BookingStatusBadge status={booking.status} size="md" />
+            </div>
 
-                {/* Therapist Info */}
-                <div className="grid grid-cols-2 gap-6 mb-6">
-                    <div>
-                        <h3 className="font-semibold mb-2">Therapist</h3>
-                        <p className="text-lg">{booking.therapist.fullName}</p>
-                        <p className="text-sm text-gray-600">{booking.therapist.specialization}</p>
-                        <p className="text-sm text-gray-600">{booking.therapist.phone}</p>
-                    </div>
-                    <div>
-                        <h3 className="font-semibold mb-2">Session Details</h3>
-                        <p className="font-medium">{booking.offer.request.serviceType}</p>
-                        <p className="text-sm text-gray-600">
-                            📅 {new Date(booking.scheduledDate).toLocaleDateString()}
-                        </p>
-                        <p className="text-sm text-gray-600">
-                            🕐 {new Date(booking.scheduledDate).toLocaleTimeString()}
-                        </p>
-                        <p className="text-sm text-gray-600 mt-1">
-                            📍 {booking.offer.request.location}
-                        </p>
-                    </div>
-                </div>
-
-                {/* Payment Info */}
-                <div className="border-t pt-4 mb-6">
-                    <h3 className="font-semibold mb-3">Payment Information</h3>
-                    <div className="flex justify-between items-center mb-3">
-                        <span className="text-lg">Session Rate</span>
-                        <span className="text-2xl font-bold text-blue-600">${booking.rate}</span>
-                    </div>
-                    {booking.payment && (
-                        <div className="text-sm text-gray-600">
-                            <p>Payment ID: {booking.payment.id.slice(0, 8)}...</p>
-                            {booking.payment.stripePaymentIntentId && (
-                                <p>Stripe: {booking.payment.stripePaymentIntentId.slice(0, 20)}...</p>
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <div className="lg:col-span-8 space-y-6">
+                    {/* Therapist card */}
+                    <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl p-5">
+                        <div className="flex items-start gap-4">
+                            {therapist?.profilePhotoUrl ? (
+                                <Image
+                                    src={therapist.profilePhotoUrl}
+                                    alt={therapist.fullName}
+                                    width={56}
+                                    height={56}
+                                    className="w-14 h-14 rounded-xl object-cover shrink-0"
+                                />
+                            ) : (
+                                <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center text-primary font-bold text-xl shrink-0">
+                                    {therapistInitial}
+                                </div>
                             )}
-                        </div>
-                    )}
-                </div>
-
-                {/* Payment Status Banner */}
-                {paymentInfo && (
-                    <div className={`border rounded-lg p-4 mb-6 ${paymentInfo.color}`}>
-                        <p className="font-semibold mb-1">
-                            {paymentInfo.icon} {paymentInfo.title}
-                        </p>
-                        <p className="text-sm">{paymentInfo.message}</p>
-                        {booking.payment?.escrowedAt && (
-                            <p className="text-xs mt-2">
-                                Escrowed: {new Date(booking.payment.escrowedAt).toLocaleString()}
-                            </p>
-                        )}
-                        {booking.payment?.releasedAt && (
-                            <p className="text-xs mt-2">
-                                Released: {new Date(booking.payment.releasedAt).toLocaleString()}
-                            </p>
-                        )}
-                    </div>
-                )}
-
-                {/* Session Status */}
-                {booking.session && (
-                    <div className="border-t pt-4 mb-6">
-                        <h3 className="font-semibold mb-3">Session Status</h3>
-                        <div className="space-y-2">
-                            {/* Session Created */}
-                            <div className="flex items-center">
-                                <span className="text-green-500 mr-2">✓</span>
-                                <span className="text-sm">Session scheduled</span>
+                            <div className="flex-1 min-w-0">
+                                <h3 className="text-base font-bold text-text-main dark:text-white">
+                                    {therapist?.fullName || "Therapist"}
+                                </h3>
+                                {therapist?.specialization && (
+                                    <p className="text-sm text-text-muted dark:text-gray-400 mt-0.5">{therapist.specialization}</p>
+                                )}
+                                {therapist?.phone && (
+                                    <p className="text-xs text-text-muted dark:text-gray-500 mt-1">{therapist.phone}</p>
+                                )}
                             </div>
-
-                            {/* Therapist Completed */}
-                            {booking.session.status !== 'scheduled' && (
-                                <div className="flex items-center">
-                                    <span className="text-green-500 mr-2">✓</span>
-                                    <span className="text-sm">
-                                        Therapist marked complete ({new Date(booking.session.completedAt).toLocaleString()})
-                                    </span>
-                                </div>
-                            )}
-
-                            {/* Customer Confirmed */}
-                            {booking.session.status === 'confirmed_by_customer' && (
-                                <div className="flex items-center">
-                                    <span className="text-green-500 mr-2">✓</span>
-                                    <span className="text-sm">
-                                        You confirmed completion ({new Date(booking.session.confirmedByCustomerAt).toLocaleString()})
-                                    </span>
-                                </div>
-                            )}
-
-                            {/* Waiting for Confirmation */}
-                            {booking.session.status === 'completed_by_therapist' && (
-                                <div className="flex items-center">
-                                    <span className="text-yellow-500 mr-2">⏳</span>
-                                    <span className="text-sm">Waiting for your confirmation</span>
-                                </div>
+                            {["accepted", "confirmed", "in_progress", "completed", "reschedule_requested"].includes(booking.status) && (
+                                <button
+                                    onClick={() => router.push(`/customer/messages?c=booking:${params.id}`)}
+                                    className="flex items-center gap-1.5 px-3 py-2 border border-primary text-primary rounded-lg text-xs font-bold hover:bg-primary/5 transition-colors shrink-0"
+                                >
+                                    <MdChat className="text-sm" />
+                                    Message
+                                </button>
                             )}
                         </div>
                     </div>
-                )}
 
-                {/* Action Buttons */}
-                <div className="space-y-3">
-                    {/* CASE 1: Payment Not Made Yet */}
-                    {booking.status === 'pending' && !booking.payment && (
-                        <button
-                            onClick={handleProceedToPayment}
-                            className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700"
-                        >
-                            Proceed to Payment
-                        </button>
-                    )}
+                    {booking.patient && <PatientInfoBlock patient={booking.patient} />}
 
-                    {/* CASE 2: Payment Processing (intent_created) */}
-                    {booking.payment && booking.payment.status === 'intent_created' && (
-                        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                            <p className="text-yellow-900 font-semibold mb-2">⏳ Payment Processing</p>
-                            <p className="text-sm text-yellow-800">
-                                Your payment is being processed. This usually takes a few seconds.
-                            </p>
-                            <button
-                                onClick={fetchBooking}
-                                className="mt-3 text-sm text-yellow-700 underline hover:text-yellow-900"
-                            >
-                                Refresh Status
-                            </button>
-                        </div>
-                    )}
-
-                    {/* CASE 3: Payment Escrowed - Waiting for Session */}
-                    {booking.payment && booking.payment.status === 'escrowed' &&
-                        booking.session && booking.session.status === 'scheduled' && (
-                            <>
-                                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                                    <p className="text-blue-900 font-semibold mb-2">📅 Session Scheduled</p>
-                                    <p className="text-sm text-blue-800">
-                                        Your payment is secure. Please attend your session on the scheduled date.
-                                        After the session, the therapist will mark it as complete.
+                    {/* Session details */}
+                    <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl p-5">
+                        <h3 className="text-sm font-bold text-text-main dark:text-white mb-4">Session Details</h3>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div className="flex items-start gap-3">
+                                <MdSchedule className="text-primary text-lg mt-0.5 shrink-0" />
+                                <div>
+                                    <p className="text-xs text-text-muted dark:text-gray-400">Service</p>
+                                    <p className="text-sm font-medium text-text-main dark:text-white">{request?.serviceType || "—"}</p>
+                                </div>
+                            </div>
+                            <div className="flex items-start gap-3">
+                                <MdCalendarToday className="text-primary text-lg mt-0.5 shrink-0" />
+                                <div>
+                                    <p className="text-xs text-text-muted dark:text-gray-400">Date</p>
+                                    <p className="text-sm font-medium text-text-main dark:text-white">{formatDate(session?.scheduledDate || booking.scheduledDate)}</p>
+                                </div>
+                            </div>
+                            <div className="flex items-start gap-3">
+                                <MdAccessTime className="text-primary text-lg mt-0.5 shrink-0" />
+                                <div>
+                                    <p className="text-xs text-text-muted dark:text-gray-400">Time</p>
+                                    <p className="text-sm font-medium text-text-main dark:text-white">{formatTime(session?.scheduledDate || booking.scheduledDate)}</p>
+                                </div>
+                            </div>
+                            <div className="flex items-start gap-3">
+                                {sessionType === "virtual"
+                                    ? <MdVideocam className="text-primary text-lg mt-0.5 shrink-0" />
+                                    : <MdLocationOn className="text-primary text-lg mt-0.5 shrink-0" />
+                                }
+                                <div>
+                                    <p className="text-xs text-text-muted dark:text-gray-400">
+                                        {sessionType === "virtual" ? "Session Type" : "Location"}
+                                    </p>
+                                    <p className="text-sm font-medium text-text-main dark:text-white">
+                                        {sessionType === "virtual" ? "Virtual Session" : request?.location || "—"}
                                     </p>
                                 </div>
-                                <button
-                                    onClick={handleRequestRefund}
-                                    disabled={cancelling}
-                                    className="w-full border border-red-600 text-red-600 py-2 rounded-lg hover:bg-red-50 disabled:bg-gray-100 disabled:text-gray-400 disabled:border-gray-300"
-                                >
-                                    {cancelling ? 'Processing...' : 'Cancel & Request Refund'}
-                                </button>
-                            </>
-                        )}
-
-                    {/* CASE 4: Therapist Marked Complete - Confirm Now */}
-                    {booking.session && booking.session.status === 'completed_by_therapist' && (
-                        <div className="space-y-3">
-                            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                                <p className="text-yellow-900 font-semibold mb-2">
-                                    ✋ Therapist Has Marked Session Complete
-                                </p>
-                                <p className="text-sm text-yellow-800 mb-3">
-                                    Your therapist has indicated that the session is complete. Please confirm below to release the payment.
-                                </p>
-                                <p className="text-xs text-yellow-700">
-                                    💡 If you don&apos;t confirm within 72 hours, the payment will be automatically released.
-                                </p>
                             </div>
-                            <button
-                                onClick={handleConfirmCompletion}
-                                disabled={confirming}
-                                className="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 disabled:bg-gray-400"
-                            >
-                                {confirming ? 'Confirming...' : '✅ Confirm Session Completion'}
-                            </button>
                         </div>
-                    )}
-
-                    {/* CASE 5: Session Confirmed - Payment Released */}
-                    {booking.session && booking.session.status === 'confirmed_by_customer' && (
-                        <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                            <p className="text-green-900 font-semibold mb-2">✅ Session Completed!</p>
-                            <p className="text-sm text-green-800 mb-2">
-                                Thank you for confirming. Payment of ${booking.payment.therapistPayout} has been released to {booking.therapist.fullName}.
-                            </p>
-                            {booking.payment?.releasedAt && (
-                                <p className="text-xs text-green-700">
-                                    Released on: {new Date(booking.payment.releasedAt).toLocaleString()}
-                                </p>
-                            )}
-                            {booking.payment?.stripeTransferId && (
-                                <p className="text-xs text-green-700 mt-1">
-                                    Transfer ID: {booking.payment.stripeTransferId}
-                                </p>
-                            )}
-                        </div>
-                    )}
-
-                    {/* CASE 6: Cancelled/Refunded */}
-                    {booking.status === 'cancelled' && (
-                        <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                            <p className="text-gray-900 font-semibold mb-2">Booking Cancelled</p>
-                            <p className="text-sm text-gray-800">
-                                This booking has been cancelled.
-                            </p>
-                            {booking.session?.cancellationReason && (
-                                <p className="text-xs text-gray-600 mt-2">
-                                    Reason: {booking.session.cancellationReason}
-                                </p>
-                            )}
-                        </div>
-                    )}
-                </div>
-            </div>
-
-            {/* Timeline */}
-            <div className="bg-white rounded-lg shadow p-6">
-                <h3 className="font-semibold mb-4">Booking Timeline</h3>
-                <div className="space-y-3">
-                    <div className="flex">
-                        <div className="shrink-0 w-2 h-2 mt-2 bg-blue-500 rounded-full"></div>
-                        <div className="ml-4">
-                            <p className="text-sm font-medium">Booking Created</p>
-                            <p className="text-xs text-gray-500">{new Date(booking.createdAt).toLocaleString()}</p>
-                        </div>
+                        {sessionType && (
+                            <div className="mt-4 pt-4 border-t border-border-light dark:border-border-dark">
+                                <span className={`inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full ${
+                                    sessionType === "virtual"
+                                        ? "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
+                                        : "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300"
+                                }`}>
+                                    {sessionType === "virtual" ? <MdVideocam className="text-sm" /> : <MdPerson className="text-sm" />}
+                                    {sessionType === "virtual" ? "Virtual" : "In-Person"}
+                                </span>
+                            </div>
+                        )}
                     </div>
 
-                    {booking.payment && (
-                        <div className="flex">
-                            <div className={`shrink-0 w-2 h-2 mt-2 rounded-full ${booking.payment.status === 'escrowed' || booking.payment.status === 'released'
-                                ? 'bg-blue-500'
-                                : 'bg-gray-300'
-                                }`}></div>
-                            <div className="ml-4">
-                                <p className="text-sm font-medium">Payment Escrowed</p>
-                                <p className="text-xs text-gray-500">
-                                    {booking.payment.escrowedAt
-                                        ? new Date(booking.payment.escrowedAt).toLocaleString()
-                                        : 'Pending...'}
-                                </p>
-                            </div>
-                        </div>
+                    <BookingTimeline booking={booking} />
+
+                    {sessions.length > 1 && (
+                        <SessionList
+                            sessions={sessions}
+                            booking={booking}
+                            role="customer"
+                            onConfirm={async (sessionId) => {
+                                await bookingsApi.confirmSession(sessionId);
+                                await refetch();
+                            }}
+                            onRequestRevision={(sessionId) => {
+                                setRevisionSessionId(sessionId);
+                                setShowRevisionModal(true);
+                            }}
+                            onReportMissed={(s) => setReportMissedSession(s)}
+                        />
                     )}
 
-                    {booking.session && booking.session.completedAt && (
-                        <div className="flex">
-                            <div className="shrink-0 w-2 h-2 mt-2 bg-blue-500 rounded-full"></div>
-                            <div className="ml-4">
-                                <p className="text-sm font-medium">Therapist Marked Complete</p>
-                                <p className="text-xs text-gray-500">
-                                    {new Date(booking.session.completedAt).toLocaleString()}
-                                </p>
+                    {/* Action area */}
+                    <div className="space-y-4">
+                        {booking.status === "reschedule_requested" && booking.proposedNewDate && (
+                            <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-5">
+                                <div className="flex items-start gap-3 mb-3">
+                                    <MdUpdate className="text-amber-600 dark:text-amber-400 text-lg mt-0.5 shrink-0" />
+                                    <div>
+                                        <p className="text-sm font-bold text-amber-900 dark:text-amber-200">Reschedule Requested</p>
+                                        <p className="text-xs text-amber-700 dark:text-amber-300 mt-0.5">
+                                            Therapist proposed: {formatDate(booking.proposedNewDate)} at {formatTime(booking.proposedNewDate)}
+                                        </p>
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-2 ml-8">
+                                    <button
+                                        onClick={() => handleRescheduleResponse(true)}
+                                        disabled={!!rescheduleResponding}
+                                        className="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold rounded-lg transition-colors disabled:opacity-50"
+                                    >
+                                        {rescheduleResponding === "accept" ? "Accepting..." : "Accept"}
+                                    </button>
+                                    <button
+                                        onClick={() => handleRescheduleResponse(false)}
+                                        disabled={!!rescheduleResponding}
+                                        className="px-4 py-2 border border-red-300 dark:border-red-700 text-red-600 dark:text-red-400 text-xs font-bold rounded-lg hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors disabled:opacity-50"
+                                    >
+                                        {rescheduleResponding === "decline" ? "Declining..." : "Decline"}
+                                    </button>
+                                </div>
                             </div>
-                        </div>
-                    )}
+                        )}
 
-                    {booking.session && booking.session.confirmedByCustomerAt && (
-                        <div className="flex">
-                            <div className="shrink-0 w-2 h-2 mt-2 bg-green-500 rounded-full"></div>
-                            <div className="ml-4">
-                                <p className="text-sm font-medium">Customer Confirmed</p>
-                                <p className="text-xs text-gray-500">
-                                    {new Date(booking.session.confirmedByCustomerAt).toLocaleString()}
-                                </p>
+                        {["pending", "accepted"].includes(booking.status) && (!payment || ["intent_created", "requires_action", "failed"].includes(payment.status)) && (
+                            <div id="inline-payment">
+                                <InlinePaymentSection booking={booking} onPaymentSuccess={handlePaymentSuccess} />
                             </div>
-                        </div>
-                    )}
+                        )}
 
-                    {booking.payment && booking.payment.releasedAt && (
-                        <div className="flex">
-                            <div className="shrink-0 w-2 h-2 mt-2 bg-green-500 rounded-full"></div>
-                            <div className="ml-4">
-                                <p className="text-sm font-medium">Payment Released</p>
-                                <p className="text-xs text-gray-500">
-                                    {new Date(booking.payment.releasedAt).toLocaleString()}
-                                </p>
+                        {payment?.status === "escrowed" && session?.status === "scheduled" && !showRefundForm && (
+                            <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl p-5">
+                                <div className="flex items-start gap-3">
+                                    <MdInfo className="text-primary text-lg mt-0.5 shrink-0" />
+                                    <div className="flex-1">
+                                        <p className="text-sm font-bold text-text-main dark:text-white">Session Confirmed</p>
+                                        <p className="text-xs text-text-muted dark:text-gray-400 mt-0.5">
+                                            Your payment is held securely and will be released after session completion.
+                                        </p>
+                                    </div>
+                                </div>
+                                <button
+                                    onClick={() => setShowRefundForm(true)}
+                                    className="mt-3 ml-8 text-xs font-semibold text-red-500 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 transition-colors"
+                                >
+                                    Cancel & Request Refund
+                                </button>
                             </div>
-                        </div>
-                    )}
+                        )}
+
+                        {showRefundForm && (
+                            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-5">
+                                <p className="text-sm font-bold text-red-900 dark:text-red-200 mb-2">Request Refund</p>
+                                <p className="text-xs text-red-700 dark:text-red-300 mb-3">
+                                    This will cancel your booking and refund your payment.
+                                </p>
+                                <textarea
+                                    rows={2}
+                                    value={refundReason}
+                                    onChange={(e) => setRefundReason(e.target.value)}
+                                    placeholder="Please provide a reason for the refund..."
+                                    className="w-full text-sm rounded-lg bg-white dark:bg-slate-800 border border-red-200 dark:border-red-700 p-2 focus:ring-red-400 focus:outline-none resize-none text-text-main dark:text-white mb-3"
+                                />
+                                <div className="flex items-center gap-2 justify-end">
+                                    <button
+                                        onClick={() => { setShowRefundForm(false); setRefundReason(""); }}
+                                        className="text-sm text-slate-500 dark:text-slate-400 font-bold hover:text-text-main dark:hover:text-white transition-colors"
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        onClick={handleRequestRefund}
+                                        disabled={!refundReason.trim() || refunding}
+                                        className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-bold disabled:opacity-50 transition-colors"
+                                    >
+                                        {refunding ? "Processing..." : "Confirm Refund"}
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+
+                        {session?.status === "in_revision" && (
+                            <RevisionStatusBanner
+                                revisionRequestedAt={session.revisionRequestedAt}
+                                revisionReason={session.revisionReason}
+                                revisionDueBy={session.revisionDueBy}
+                                revisionCount={session.revisionCount}
+                                conversationHref={`/customer/messages?c=booking:${params.id}`}
+                                viewerRole="customer"
+                            />
+                        )}
+
+                        {sessions.length <= 1 && session?.status === "completed_by_therapist" && !showConfirmDialog && (
+                            <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-5">
+                                <div className="flex items-start gap-3">
+                                    <MdWarning className="text-amber-600 dark:text-amber-400 text-lg mt-0.5 shrink-0" />
+                                    <div className="flex-1">
+                                        <p className="text-sm font-bold text-amber-900 dark:text-amber-200">
+                                            {session.revisionCount > 0 ? "Session Resubmitted" : "Session Marked Complete"}
+                                        </p>
+                                        <p className="text-xs text-amber-700 dark:text-amber-300 mt-0.5">
+                                            {session.revisionCount > 0
+                                                ? "Your therapist has addressed your revision request and resubmitted the session. Please review and confirm, or request additional changes."
+                                                : "Your therapist has marked this session as complete. Please confirm to release payment, or request changes if something needs updating."}
+                                        </p>
+                                        <p className="text-xs text-amber-600 dark:text-amber-400 mt-1">
+                                            Payment auto-releases after 72 hours if not confirmed.
+                                        </p>
+                                    </div>
+                                </div>
+                                <div className="mt-3 ml-8 flex flex-wrap items-center gap-2">
+                                    <button
+                                        onClick={() => setShowConfirmDialog(true)}
+                                        className="bg-emerald-500 hover:bg-emerald-600 text-white px-5 py-2 rounded-lg text-sm font-bold transition-colors"
+                                    >
+                                        Confirm Completion
+                                    </button>
+                                    <button
+                                        onClick={() => { setRevisionSessionId(session?.id); setShowRevisionModal(true); }}
+                                        className="border border-amber-300 dark:border-amber-700 text-amber-700 dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-900/30 px-5 py-2 rounded-lg text-sm font-bold transition-colors"
+                                    >
+                                        Request Revision
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+
+                        {sessions.length <= 1 && showConfirmDialog && (
+                            <div className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl p-5">
+                                <p className="text-sm font-bold text-emerald-900 dark:text-emerald-200 mb-1">Confirm Session Completion?</p>
+                                <p className="text-xs text-emerald-700 dark:text-emerald-300 mb-4">
+                                    This will release {formatCurrency(perSessionRate)} to the therapist. This action cannot be undone.
+                                </p>
+                                <div className="flex items-center gap-2">
+                                    <button
+                                        onClick={handleConfirmCompletion}
+                                        disabled={confirming}
+                                        className="bg-emerald-500 hover:bg-emerald-600 text-white px-5 py-2 rounded-lg text-sm font-bold disabled:opacity-50 transition-colors"
+                                    >
+                                        {confirming ? "Confirming..." : "Yes, Confirm"}
+                                    </button>
+                                    <button
+                                        onClick={() => setShowConfirmDialog(false)}
+                                        className="text-sm text-slate-500 dark:text-slate-400 font-bold hover:text-text-main dark:hover:text-white transition-colors"
+                                    >
+                                        Cancel
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+
+                        {booking.status !== "finalized" && (allConfirmed || payment?.status === "released") && (
+                            <div className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl p-5">
+                                <div className="flex items-start gap-3">
+                                    <MdCheckCircle className="text-emerald-600 dark:text-emerald-400 text-lg mt-0.5 shrink-0" />
+                                    <div>
+                                        <p className="text-sm font-bold text-emerald-900 dark:text-emerald-200">
+                                            {isMultiSession ? "All Sessions Complete" : "Session Complete"}
+                                        </p>
+                                        <p className="text-xs text-emerald-700 dark:text-emerald-300 mt-0.5">
+                                            {payment?.status === "released"
+                                                ? `Payment of ${formatCurrency(parseFloat(payment.amount))} has been released to the therapist.`
+                                                : "Payment will be released shortly."
+                                            }
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {booking.status === "cancelled" && (
+                            <div className="bg-slate-50 dark:bg-slate-800/50 border border-border-light dark:border-border-dark rounded-xl p-5">
+                                <div className="flex items-start gap-3">
+                                    <MdInfo className="text-text-muted dark:text-gray-400 text-lg mt-0.5 shrink-0" />
+                                    <div>
+                                        <p className="text-sm font-bold text-text-main dark:text-white">Booking Cancelled</p>
+                                        {session?.cancellationReason && (
+                                            <p className="text-xs text-text-muted dark:text-gray-400 mt-0.5">
+                                                Reason: {session.cancellationReason}
+                                            </p>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+                <div className="lg:col-span-4 space-y-6">
+                    <PaymentSummaryCard
+                        booking={booking}
+                        role="customer"
+                        onAction={(action) => {
+                            if (action === "proceed_payment") {
+                                document.getElementById("inline-payment")?.scrollIntoView({ behavior: "smooth" });
+                            }
+                        }}
+                    />
+                    <BookingSharedFiles bookingId={booking.id} canUpload={false} />
+                    <BookingEscrowInfo booking={booking} payment={payment} />
                 </div>
             </div>
+
+            <RequestRevisionModal
+                isOpen={showRevisionModal}
+                onClose={() => { setShowRevisionModal(false); setRevisionSessionId(null); }}
+                sessionId={revisionSessionId || session?.id}
+                onSuccess={refetch}
+            />
+
+            <MarkSessionMissedModal
+                isOpen={!!reportMissedSession}
+                onClose={() => setReportMissedSession(null)}
+                sessionId={reportMissedSession?.id}
+                sessionNumber={reportMissedSession?.sessionNumber}
+                actorRole="customer"
+                refundAmount={booking?.rate}
+                onSuccess={refetch}
+            />
         </div>
     );
-
 }

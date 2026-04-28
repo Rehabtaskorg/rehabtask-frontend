@@ -1,26 +1,30 @@
-"use client";
+import Navbar from "@/components/landing/Navbar";
+import Hero from "@/components/landing/Hero";
+import HowItWorks from "@/components/landing/HowItWorks";
+import FeaturedTherapists from "@/components/landing/FeaturedTherapists";
+import Stats from "@/components/landing/Stats";
+import ForTherapists from "@/components/landing/ForTherapists";
+import TrustSignals from "@/components/landing/TrustSignals";
+import Footer from "@/components/landing/Footer";
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+export const metadata = {
+    title: "RehabTask — Find Licensed Rehabilitation Therapists",
+    description: "Connect with verified Physical Therapists, Occupational Therapists, and Speech-Language Pathologists for home health rehabilitation services.",
+};
 
-export default function HomePage() {
-  const router = useRouter();
-
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    const userStr = localStorage.getItem("user");
-
-    if (token && userStr) {
-      const user = JSON.parse(userStr);
-      if (user.role === "customer") {
-        router.push("/customer/requests");
-      } else if (user.role === "therapist") {
-        router.push("/therapist/requests");
-      }
-    } else {
-      router.push("/login");
-    }
-  }, [router]);
-
-  return <div>Loading...</div>;
+export default function LandingPage() {
+    return (
+        <>
+            <Navbar />
+            <main>
+                <Hero />
+                <HowItWorks />
+                <FeaturedTherapists />
+                <Stats />
+                <ForTherapists />
+                <TrustSignals />
+            </main>
+            <Footer />
+        </>
+    );
 }
