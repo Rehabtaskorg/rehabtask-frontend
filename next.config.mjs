@@ -1,8 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  /* config options here */
+  output: "standalone",
   reactCompiler: true,
-
   images: {
     remotePatterns: [
       {
@@ -16,7 +15,6 @@ const nextConfig = {
       },
     ],
   },
-
   async rewrites() {
     const backendUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
     return [
@@ -27,5 +25,4 @@ const nextConfig = {
     ];
   },
 };
-
 export default nextConfig;
