@@ -76,7 +76,8 @@ export default function AttachmentsModal({ isOpen, onClose, conversationId, book
                 cursor: pageParam || undefined,
                 bookingId,
             });
-            return res.data.data;
+            const result = res.data.data;
+            return { attachments: result?.attachments ?? [], hasMore: result?.hasMore ?? false };
         },
         getNextPageParam: (lastPage) => {
             const items = lastPage?.attachments;
@@ -86,7 +87,7 @@ export default function AttachmentsModal({ isOpen, onClose, conversationId, book
         enabled: isOpen && !!conversationId,
     });
 
-    const allAttachments = data?.pages?.flatMap((p) => p.attachments) ?? [];
+    const allAttachments = data?.pages?.flatMap((p) => p?.attachments ?? []) ?? [];
 
     // Apply client-side filter
     const filtered = filter === "all"

@@ -42,7 +42,8 @@ export default function SharedFiles({ conversationId, onViewAll, bookingId }) {
         queryKey: ["conversation-attachments", conversationId, bookingId ?? "all"],
         queryFn: async () => {
             const res = await messagesApi.getAttachments(conversationId, { limit: 3, bookingId });
-            return res.data.data;
+            const result = res.data.data;
+            return { attachments: result?.attachments ?? [], hasMore: result?.hasMore ?? false };
         },
         enabled: !!conversationId,
         staleTime: 30 * 1000,
