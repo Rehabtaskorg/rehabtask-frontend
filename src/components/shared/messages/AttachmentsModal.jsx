@@ -43,7 +43,7 @@ const FILTERS = [
  * @param {function} onClose
  * @param {string} conversationId
  */
-export default function AttachmentsModal({ isOpen, onClose, conversationId }) {
+export default function AttachmentsModal({ isOpen, onClose, conversationId, bookingId }) {
     const [filter, setFilter] = useState("all");
     const [urlLoading, setUrlLoading] = useState({});
 
@@ -69,22 +69,25 @@ export default function AttachmentsModal({ isOpen, onClose, conversationId }) {
         isFetchingNextPage,
         isLoading,
     } = useInfiniteQuery({
-        queryKey: ["conversation-attachments", conversationId, "all"],
+        queryKey: ["conversation-attachments-modal", conversationId, bookingId ?? "all"],
         queryFn: async ({ pageParam }) => {
             const res = await messagesApi.getAttachments(conversationId, {
                 limit: 20,
                 cursor: pageParam || undefined,
+                bookingId,
             });
-            return res.data.data;
+            const result = res.data.data;
+            return { attachments: result?.attachments ?? [], hasMore: result?.hasMore ?? false };
         },
         getNextPageParam: (lastPage) => {
-            if (!lastPage.hasMore || lastPage.attachments.length === 0) return undefined;
-            return lastPage.attachments[lastPage.attachments.length - 1].id;
+            const items = lastPage?.attachments;
+            if (!lastPage?.hasMore || !items?.length) return undefined;
+            return items[items.length - 1].id;
         },
         enabled: isOpen && !!conversationId,
     });
 
-    const allAttachments = data?.pages?.flatMap((p) => p.attachments) ?? [];
+    const allAttachments = data?.pages?.flatMap((p) => p?.attachments ?? []) ?? [];
 
     // Apply client-side filter
     const filtered = filter === "all"
