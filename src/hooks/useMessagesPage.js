@@ -320,6 +320,7 @@ export function useMessagesPage(basePath) {
                 queryClient.invalidateQueries({ queryKey: ["conversations"] });
                 queryClient.invalidateQueries({ queryKey: ["unreadCount"] });
                 queryClient.invalidateQueries({ queryKey: ["conversation-attachments", convId] });
+                queryClient.invalidateQueries({ queryKey: ["conversation-attachments-modal", convId] });
             } catch (err) {
                 console.error("Failed to upload attachments:", err);
                 // Mark optimistic message as failed

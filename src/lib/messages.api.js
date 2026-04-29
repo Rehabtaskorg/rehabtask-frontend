@@ -78,11 +78,12 @@ export const messagesApi = {
      * @param {File[]} files - Array of File objects
      * @param {string} content - Optional text content
      */
-    uploadAttachments: async (conversationId, files, content = "", replyToId = null) => {
+    uploadAttachments: async (conversationId, files, content = "", replyToId = null, bookingId = null) => {
         const formData = new FormData();
         files.forEach((file) => formData.append("files", file));
         if (content.trim()) formData.append("content", content.trim());
         if (replyToId) formData.append("replyToId", replyToId);
+        if (bookingId) formData.append("bookingId", bookingId);
 
         return api.post(`/messages/c/${conversationId}/attachments`, formData, {
             headers: { "Content-Type": "multipart/form-data" },
@@ -98,6 +99,7 @@ export const messagesApi = {
         const params = new URLSearchParams();
         if (options.limit) params.append("limit", options.limit);
         if (options.cursor) params.append("cursor", options.cursor);
+        if (options.bookingId) params.append("bookingId", options.bookingId);
         const query = params.toString() ? `?${params.toString()}` : "";
         return api.get(`/messages/c/${conversationId}/attachments${query}`);
     },
