@@ -79,8 +79,9 @@ export default function AttachmentsModal({ isOpen, onClose, conversationId, book
             return res.data.data;
         },
         getNextPageParam: (lastPage) => {
-            if (!lastPage.hasMore || lastPage.attachments.length === 0) return undefined;
-            return lastPage.attachments[lastPage.attachments.length - 1].id;
+            const items = lastPage?.attachments;
+            if (!lastPage?.hasMore || !items?.length) return undefined;
+            return items[items.length - 1].id;
         },
         enabled: isOpen && !!conversationId,
     });
