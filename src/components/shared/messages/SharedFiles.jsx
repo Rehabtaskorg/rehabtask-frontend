@@ -3,7 +3,7 @@
 import { useState, useCallback, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { messagesApi } from "@/lib/messages.api";
-import { MdDescription, MdInsertDriveFile, MdImage, MdOpenInNew, MdDownload } from "react-icons/md";
+import { MdDescription, MdInsertDriveFile, MdImage, MdDownload } from "react-icons/md";
 
 const isImageType = (mimeType) => mimeType?.startsWith("image/");
 
@@ -35,13 +35,15 @@ function DocIcon({ mimeType }) {
  *
  * @param {string} conversationId - DirectConversation UUID
  * @param {function} onViewAll - Called when "View all" is clicked (opens modal)
+ * @param {string} [bookingId] - When provided, only shows files from this booking
  */
-export default function SharedFiles({ conversationId, onViewAll }) {
+export default function SharedFiles({ conversationId, onViewAll, bookingId }) {
     const { data, isLoading } = useQuery({
-        queryKey: ["conversation-attachments", conversationId],
+        queryKey: ["conversation-attachments", conversationId, bookingId ?? "all"],
         queryFn: async () => {
-            const res = await messagesApi.getAttachments(conversationId, { limit: 3 });
-            return res.data.data;
+            const res = await messagesApi.getAttachments(conversationId, { limit: 3, bookingId });
+            const result = res.data.data;
+            return { attachments: result?.attachments ?? [], hasMore: result?.hasMore ?? false };
         },
         enabled: !!conversationId,
         staleTime: 30 * 1000,
