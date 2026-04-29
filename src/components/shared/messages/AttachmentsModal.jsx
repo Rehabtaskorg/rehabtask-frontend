@@ -69,7 +69,7 @@ export default function AttachmentsModal({ isOpen, onClose, conversationId, book
         isFetchingNextPage,
         isLoading,
     } = useInfiniteQuery({
-        queryKey: ["conversation-attachments", conversationId, bookingId ?? "all"],
+        queryKey: ["conversation-attachments-modal", conversationId, bookingId ?? "all"],
         queryFn: async ({ pageParam }) => {
             const res = await messagesApi.getAttachments(conversationId, {
                 limit: 20,
