@@ -43,7 +43,7 @@ const FILTERS = [
  * @param {function} onClose
  * @param {string} conversationId
  */
-export default function AttachmentsModal({ isOpen, onClose, conversationId }) {
+export default function AttachmentsModal({ isOpen, onClose, conversationId, bookingId }) {
     const [filter, setFilter] = useState("all");
     const [urlLoading, setUrlLoading] = useState({});
 
@@ -69,11 +69,12 @@ export default function AttachmentsModal({ isOpen, onClose, conversationId }) {
         isFetchingNextPage,
         isLoading,
     } = useInfiniteQuery({
-        queryKey: ["conversation-attachments", conversationId, "all"],
+        queryKey: ["conversation-attachments", conversationId, bookingId ?? "all"],
         queryFn: async ({ pageParam }) => {
             const res = await messagesApi.getAttachments(conversationId, {
                 limit: 20,
                 cursor: pageParam || undefined,
+                bookingId,
             });
             return res.data.data;
         },

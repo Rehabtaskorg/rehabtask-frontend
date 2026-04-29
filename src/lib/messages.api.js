@@ -98,6 +98,7 @@ export const messagesApi = {
         const params = new URLSearchParams();
         if (options.limit) params.append("limit", options.limit);
         if (options.cursor) params.append("cursor", options.cursor);
+        if (options.bookingId) params.append("bookingId", options.bookingId);
         const query = params.toString() ? `?${params.toString()}` : "";
         return api.get(`/messages/c/${conversationId}/attachments${query}`);
     },

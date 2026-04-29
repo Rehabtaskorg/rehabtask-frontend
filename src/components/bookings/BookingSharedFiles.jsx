@@ -57,7 +57,7 @@ export default function BookingSharedFiles({ bookingId, canUpload = false }) {
         setUploading(true);
         try {
             await messagesApi.uploadAttachments(conversationId, valid);
-            queryClient.invalidateQueries({ queryKey: ["conversation-attachments", conversationId] });
+            queryClient.invalidateQueries({ queryKey: ["conversation-attachments", conversationId, bookingId] });
             queryClient.invalidateQueries({ queryKey: ["messages"] });
             queryClient.invalidateQueries({ queryKey: ["conversations"] });
             showToast.success(`${valid.length} file${valid.length > 1 ? "s" : ""} sent`);
@@ -101,12 +101,14 @@ export default function BookingSharedFiles({ bookingId, canUpload = false }) {
             <SharedFiles
                 conversationId={conversationId}
                 onViewAll={() => setShowAllFiles(true)}
+                bookingId={bookingId}
             />
 
             <AttachmentsModal
                 isOpen={showAllFiles}
                 conversationId={conversationId}
                 onClose={() => setShowAllFiles(false)}
+                bookingId={bookingId}
             />
         </div>
     );
