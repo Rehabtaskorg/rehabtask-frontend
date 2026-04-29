@@ -6,6 +6,11 @@ on:
       - main
       - staging
       - development
+  pull_request:
+    branches:
+      - main
+      - staging
+      - development
 
 env:
   PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
@@ -14,13 +19,9 @@ env:
   REPOSITORY: rehabtask-repo
 
 jobs:
-  deploy:
-    name: Build and Deploy
+  lint:
+    name: Lint
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      id-token: write
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -34,9 +35,21 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run lint (main and staging only)
-        if: github.ref_name == 'main' || github.ref_name == 'staging'
+      - name: Run lint
         run: npm run lint
+
+  deploy:
+    name: Build and Deploy
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+    needs: lint
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
