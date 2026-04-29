@@ -56,7 +56,7 @@ export default function BookingSharedFiles({ bookingId, canUpload = false }) {
 
         setUploading(true);
         try {
-            await messagesApi.uploadAttachments(conversationId, valid);
+            await messagesApi.uploadAttachments(conversationId, valid, "", null, bookingId);
             queryClient.invalidateQueries({ queryKey: ["conversation-attachments", conversationId, bookingId] });
             queryClient.invalidateQueries({ queryKey: ["messages"] });
             queryClient.invalidateQueries({ queryKey: ["conversations"] });
