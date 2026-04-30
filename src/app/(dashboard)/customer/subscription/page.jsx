@@ -110,11 +110,11 @@ export default function SubscriptionPage() {
     const isCancelledButActive = status === "active" && !!subscription?.cancelledAt;
 
     const trialDaysLeft = isTrial && subscription?.trialEndsAt
-        ? Math.max(0, Math.ceil((new Date(subscription.trialEndsAt) - Date.now()) / (1000 * 60 * 60 * 24)))
+        ? Math.max(0, Math.ceil((new Date(subscription.trialEndsAt) - new Date()) / (1000 * 60 * 60 * 24)))
         : 0;
 
     const graceDaysLeft = isGracePeriod && subscription?.gracePeriodEndsAt
-        ? Math.max(0, Math.ceil((new Date(subscription.gracePeriodEndsAt) - Date.now()) / (1000 * 60 * 60 * 24)))
+        ? Math.max(0, Math.ceil((new Date(subscription.gracePeriodEndsAt) - new Date()) / (1000 * 60 * 60 * 24)))
         : 0;
 
     const currentPlanRank = PLANS.find(p => p.key === currentPlan)?.rank ?? 0;

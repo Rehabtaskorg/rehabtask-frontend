@@ -38,6 +38,7 @@ export default function TherapistRightSidebar({ selectedConversation }) {
 
     useEffect(() => {
         if (!otherUserId || !isCustomerConversation) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setCustomerRequests([]);
             return;
         }

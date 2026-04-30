@@ -45,6 +45,7 @@ export default function PayoutSetupPage() {
     useEffect(() => {
         if (connectStatus === undefined) return;
 
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         if (connectStatus?.connected && connectStatus?.onboardingComplete) {
             setStatus(STATUS.COMPLETE);
         } else if (connectStatus?.connected) {

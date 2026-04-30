@@ -385,7 +385,7 @@ function SubscriptionWidget() {
     const isFree = plan === "free" && !isTrial;
 
     const trialDays = isTrial && subscription?.trialEndsAt
-        ? Math.max(0, Math.ceil((new Date(subscription.trialEndsAt) - Date.now()) / (1000 * 60 * 60 * 24)))
+        ? Math.max(0, Math.ceil((new Date(subscription.trialEndsAt) - new Date()) / (1000 * 60 * 60 * 24)))
         : 0;
 
     if (isTrial) {

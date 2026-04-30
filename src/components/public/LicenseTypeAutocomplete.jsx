@@ -37,6 +37,7 @@ export default function LicenseTypeAutocomplete({
     // Keep display label in sync when value is changed externally (e.g. clear all)
     useEffect(() => {
         const match = LICENSE_TYPES.find((lt) => lt.value === value);
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setInputValue(match ? match.label : value || "");
     }, [value]);
 
