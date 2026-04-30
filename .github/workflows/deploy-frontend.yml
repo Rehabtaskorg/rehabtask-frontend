@@ -82,6 +82,11 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
+      - name: Sanitize branch name for image tag
+        run: |
+          BRANCH=$(echo "${{ github.ref_name }}" | sed 's/[^a-zA-Z0-9._-]/-/g')
+          echo "BRANCH_TAG=$BRANCH" >> $GITHUB_ENV
+
       - name: Cache Docker layers
         uses: actions/cache@v4
         with:
@@ -95,7 +100,7 @@ jobs:
 
       - name: Build and Push Docker image
         run: |
-          IMAGE="${{ env.ARTIFACT_REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.SERVICE_NAME }}:${{ github.sha }}"
+          IMAGE="${{ env.ARTIFACT_REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.SERVICE_NAME }}:${{ env.BRANCH_TAG }}-${{ github.sha }}"
           docker buildx build \
             --build-arg NEXT_PUBLIC_API_URL=${{ env.API_URL }} \
             --build-arg NEXT_PUBLIC_SUPABASE_URL=${{ env.SUPABASE_URL }} \
@@ -117,7 +122,7 @@ jobs:
 
       - name: Deploy to Cloud Run
         run: |
-          IMAGE="${{ env.ARTIFACT_REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.SERVICE_NAME }}:${{ github.sha }}"
+          IMAGE="${{ env.ARTIFACT_REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.SERVICE_NAME }}:${{ env.BRANCH_TAG }}-${{ github.sha }}"
           if [[ "${{ env.IS_PROD }}" == "true" ]]; then
             gcloud run deploy ${{ env.SERVICE_NAME }} \
               --image $IMAGE \
