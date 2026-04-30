@@ -64,6 +64,7 @@ export default function ChatThread({ messages, loading, error, currentUser, retr
         if (threadId !== prevThreadId.current) {
             isFirstLoad.current = true;
             prevThreadId.current = threadId;
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setShowScrollButton(false);
         }
     }, [threadId]);

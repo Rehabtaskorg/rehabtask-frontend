@@ -163,6 +163,7 @@ export default function AdminUserDetailPage() {
                 form.primaryLicenseType = user.therapistProfile.primaryLicenseType || '';
                 form.bio = user.therapistProfile.bio || '';
             }
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setEditForm(form);
         }
     }, [user, editing]);
