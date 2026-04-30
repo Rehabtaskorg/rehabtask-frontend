@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 /**
  * Reads the non-httpOnly `app_role` cookie set by the backend at login.
@@ -10,8 +10,14 @@ import { useState } from "react";
  * Possible values: "customer" | "therapist" | "admin" | "sub_admin" | null
  */
 export function useAppRole() {
-    const match = document.cookie.match(/(?:^|;\s*)app_role=([^;]+)/);
-    const [role] = useState(match ? match[1] : null);
+    const [role, setRole] = useState(null);
+
+    useEffect(() => {
+        const match = document.cookie.match(/(?:^|;\s*)app_role=([^;]+)/);
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setRole(match ? match[1] : null);
+    }, []);
+
     return role;
 }
 
