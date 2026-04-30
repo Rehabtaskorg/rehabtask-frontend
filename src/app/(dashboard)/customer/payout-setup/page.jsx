@@ -45,7 +45,7 @@ export default function PayoutSetupPage() {
     useEffect(() => {
         if (connectStatus === undefined) return;
 
-        // eslint-disable-next-line react-hooks/set-state-in-effect
+        /* eslint-disable react-hooks/set-state-in-effect */
         if (connectStatus?.connected && connectStatus?.onboardingComplete) {
             setStatus(STATUS.COMPLETE);
         } else if (connectStatus?.connected) {
@@ -53,6 +53,7 @@ export default function PayoutSetupPage() {
         } else {
             setStatus(STATUS.IDLE);
         }
+        /* eslint-enable react-hooks/set-state-in-effect */
     }, [connectStatus]);
 
     const handleCreateAccount = async () => {
