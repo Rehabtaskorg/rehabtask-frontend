@@ -206,7 +206,7 @@ export default function AdminVisitTypesPage() {
             {visitTypes.length === 0 && !loading && (
                 <div className="text-center py-12">
                     <p className="text-text-muted">No visit types configured yet.</p>
-                    <p className="text-sm text-text-muted mt-1">Click "Seed Default Types" to populate the standard clinical visit types.</p>
+                    <p className="text-sm text-text-muted mt-1">Click &ldquo;Seed Default Types&rdquo; to populate the standard clinical visit types.</p>
                 </div>
             )}
         </div>

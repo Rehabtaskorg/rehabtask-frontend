@@ -14,6 +14,7 @@ export function useAppRole() {
 
     useEffect(() => {
         const match = document.cookie.match(/(?:^|;\s*)app_role=([^;]+)/);
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setRole(match ? match[1] : null);
     }, []);
 

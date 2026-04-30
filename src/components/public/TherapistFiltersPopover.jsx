@@ -3,6 +3,20 @@
 import { useEffect, useRef, useState } from "react";
 import { MdTune, MdClose } from "react-icons/md";
 
+function FilterContent({ onApply }) {
+    return (
+        <div className="p-5">
+            <p className="text-sm text-gray-500 mb-4">No additional filters available.</p>
+            <button
+                onClick={onApply}
+                className="w-full py-2.5 bg-primary text-white font-semibold rounded-lg hover:bg-primary/90 transition-colors text-sm"
+            >
+                Apply
+            </button>
+        </div>
+    );
+}
+
 export default function TherapistFiltersPopover({ onApply, activeCount = 0 }) {
     const [open, setOpen] = useState(false);
     const anchorRef = useRef(null);
@@ -26,18 +40,6 @@ export default function TherapistFiltersPopover({ onApply, activeCount = 0 }) {
         onApply?.();
         setOpen(false);
     };
-
-    const FilterContent = () => (
-        <div className="p-5">
-            <p className="text-sm text-gray-500 mb-4">No additional filters available.</p>
-            <button
-                onClick={handleApply}
-                className="w-full py-2.5 bg-primary text-white font-semibold rounded-lg hover:bg-primary/90 transition-colors text-sm"
-            >
-                Apply
-            </button>
-        </div>
-    );
 
     return (
         <>
@@ -66,7 +68,7 @@ export default function TherapistFiltersPopover({ onApply, activeCount = 0 }) {
                         ref={popoverRef}
                         className="hidden md:block absolute top-full left-0 mt-2 w-72 bg-white rounded-xl shadow-xl border border-gray-200 z-40"
                     >
-                        <FilterContent />
+                        <FilterContent onApply={handleApply} />
                     </div>
 
                     <div className="md:hidden fixed inset-0 z-50 flex flex-col">
@@ -84,7 +86,7 @@ export default function TherapistFiltersPopover({ onApply, activeCount = 0 }) {
                                     <MdClose className="text-xl" />
                                 </button>
                             </div>
-                            <FilterContent />
+                            <FilterContent onApply={handleApply} />
                         </div>
                     </div>
                 </>
