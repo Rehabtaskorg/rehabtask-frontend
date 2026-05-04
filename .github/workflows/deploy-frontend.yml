@@ -136,6 +136,7 @@ jobs:
               --cpu 1 \
               --allow-unauthenticated \
               --no-traffic \
+              --cpu-boost \
               --timeout=300 \
               --quiet
           else
@@ -162,7 +163,7 @@ jobs:
             --format="value(name)" \
             --limit=1)
           echo "New revision: $REVISION"
-          for i in {1..5}; do
+          for i in {1..10}; do
             STATUS=$(gcloud run revisions describe $REVISION \
               --region=${{ env.REGION }} \
               --format="value(status.conditions[?type='Ready'].status)")
