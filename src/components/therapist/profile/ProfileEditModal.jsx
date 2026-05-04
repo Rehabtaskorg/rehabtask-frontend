@@ -360,7 +360,7 @@ const ProfileEditModal = ({ isOpen, onClose, profile, onSuccess }) => {
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                             <div>
-                                <p className="text-xs text-text-muted">License Type</p>
+                                <p className="text-xs text-text-muted">Discipline</p>
                                 <p className="text-sm font-medium text-text-main dark:text-white">
                                     {licenseTypeLabel}
                                 </p>

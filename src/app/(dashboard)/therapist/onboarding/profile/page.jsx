@@ -203,13 +203,13 @@ export default function ProfessionalProfilePage() {
                                 {/* Primary License Type */}
                                 <div className="flex flex-col gap-2">
                                     <label className="text-text-main dark:text-white text-base font-semibold">
-                                        Primary License Type
+                                        Primary Discipline
                                     </label>
                                     <select
                                         {...register("primaryLicenseType")}
                                         className="w-full px-4 py-3 rounded-lg border border-border-light dark:border-border-dark bg-input-light dark:bg-input-dark text-text-main dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none appearance-none"
                                     >
-                                        <option value="">Select License Type</option>
+                                        <option value="">Select Discipline</option>
                                         {LICENSE_TYPES.map((type) => (
                                             <option key={type.value} value={type.value}>
                                                 {type.label}

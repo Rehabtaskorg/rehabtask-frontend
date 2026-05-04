@@ -117,7 +117,7 @@ function UserSidePanel({ user, onClose, onDeactivate, onReactivate, mutating }) 
                         {user.therapistProfile && (
                             <>
                                 <div className="flex justify-between gap-3">
-                                    <dt className="text-text-muted dark:text-slate-400">License type</dt>
+                                    <dt className="text-text-muted dark:text-slate-400">Discipline</dt>
                                     <dd className="font-medium text-text-main dark:text-white">
                                         {user.therapistProfile.primaryLicenseType || '—'}
                                     </dd>

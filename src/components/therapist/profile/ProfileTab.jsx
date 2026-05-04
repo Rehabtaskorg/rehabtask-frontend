@@ -200,7 +200,7 @@ const ProfileTab = ({ profile, approvalStatus, onboardingComplete }) => {
                                         : "Not set"
                                 }
                             />
-                            <InfoRow label="License Type" value={licenseTypeLabel} />
+                            <InfoRow label="Discipline" value={licenseTypeLabel} />
                             <InfoRow
                                 label="License Number"
                                 value={profile?.licenseNumber}
