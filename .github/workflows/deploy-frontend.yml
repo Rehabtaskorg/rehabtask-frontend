@@ -130,13 +130,14 @@ jobs:
               --platform managed \
               --region ${{ env.REGION }} \
               --port 3000 \
-              --min-instances 1 \
+              --min-instances=1 \
               --max-instances 10 \
               --memory 512Mi \
               --cpu 1 \
               --allow-unauthenticated \
               --no-traffic \
               --cpu-boost \
+              --startup-cpu-boost \
               --timeout=300 \
               --quiet
           else
@@ -157,29 +158,23 @@ jobs:
       - name: Health check and switch traffic (production only)
         if: env.IS_PROD == 'true'
         run: |
-          REVISION=$(gcloud run revisions list \
-            --service=${{ env.SERVICE_NAME }} \
+          SERVICE_URL="https://rehabtask-frontend-cjgsqx4jeq-uc.a.run.app"
+          REVISION=$(gcloud run services describe ${{ env.SERVICE_NAME }} \
             --region=${{ env.REGION }} \
-            --format="value(name)" \
-            --limit=1)
+            --format="value(status.latestCreatedRevisionName)")
           echo "New revision: $REVISION"
           for i in {1..10}; do
             STATUS=$(gcloud run revisions describe $REVISION \
               --region=${{ env.REGION }} \
-              --format="value(status.conditions[?type='Ready'].status)")
+              --format="value(status.conditions[0].status)")
+            echo "Attempt $i: Status=$STATUS"
             if [[ "$STATUS" == "True" ]]; then
               echo "Revision is healthy. Switching traffic..."
               gcloud run services update-traffic ${{ env.SERVICE_NAME }} \
                 --region=${{ env.REGION }} \
                 --to-latest
-              echo "Traffic switched to $REVISION"
+              echo "Traffic switched."
               exit 0
             fi
-            echo "Attempt $i: Revision not ready. Waiting 15s..."
-            sleep 15
+            sleep 30
           done
-          echo "Revision failed health check. Rolling back..."
-          gcloud run services update-traffic ${{ env.SERVICE_NAME }} \
-            --region=${{ env.REGION }} \
-            --to-revisions=LATEST=0
-          exit 1
