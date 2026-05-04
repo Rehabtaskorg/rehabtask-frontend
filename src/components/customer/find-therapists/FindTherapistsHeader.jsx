@@ -45,7 +45,7 @@ export default function FindTherapistsHeader({
                         <LicenseTypeAutocomplete
                             value={licenseType}
                             onChange={onLicenseTypeChange}
-                            placeholder="Discipline"
+                            placeholder="Discipline type"
                             variant="compact"
                         />
 

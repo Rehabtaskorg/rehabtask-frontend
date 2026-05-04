@@ -22,7 +22,7 @@ const VARIANTS = {
 export default function LicenseTypeAutocomplete({
     value,
     onChange,
-    placeholder = "Discipline",
+    placeholder = "Discipline type",
     variant = "compact",
 }) {
     const [inputValue, setInputValue] = useState(

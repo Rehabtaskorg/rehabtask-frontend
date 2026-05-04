@@ -87,7 +87,7 @@ export default function TherapistAppNavbar({
                         <LicenseTypeAutocomplete
                             value={searchQuery}
                             onChange={setSearchQuery}
-                            placeholder="Discipline"
+                            placeholder="Discipline type"
                             variant="compact"
                         />
 
@@ -137,7 +137,7 @@ export default function TherapistAppNavbar({
                     <LicenseTypeAutocomplete
                         value={searchQuery}
                         onChange={setSearchQuery}
-                        placeholder="Discipline"
+                        placeholder="Discipline type"
                         variant="compact"
                     />
                     <LocationAutocomplete

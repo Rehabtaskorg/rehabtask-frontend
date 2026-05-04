@@ -38,7 +38,7 @@ function HeroSearchBarInner() {
             <LicenseTypeAutocomplete
                 value={licenseType}
                 onChange={setLicenseType}
-                placeholder="Discipline"
+                placeholder="Discipline type"
                 variant="stacked"
             />
 
