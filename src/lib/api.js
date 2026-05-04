@@ -49,6 +49,14 @@ api.interceptors.response.use(
             return Promise.reject(error);
         }
 
+        // Enrich rate limit errors so components can show a meaningful message
+        if (error?.response?.status === 429) {
+            const retryAfter = error.response.headers["retry-after"];
+            error.isRateLimit = true;
+            error.retryAfterSeconds = retryAfter ? parseInt(retryAfter) : 60;
+            return Promise.reject(error);
+        }
+
         if (error?.response?.status !== 401) {
             return Promise.reject(error);
         }
