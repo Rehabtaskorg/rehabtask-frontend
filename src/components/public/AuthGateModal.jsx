@@ -10,7 +10,7 @@ const CONTEXT_MESSAGES = {
     message: "Sign up to message this therapist directly",
     contact: "Sign up to see contact details",
     profile: "Sign up to view the full profile",
-    offer: "Sign up to send offers on therapy requests",
+    request: "Sign up to send a request to this therapist",
     default: "Create a free account to get started",
 };
 

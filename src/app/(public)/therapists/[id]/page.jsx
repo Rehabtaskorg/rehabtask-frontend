@@ -324,7 +324,7 @@ export default function TherapistPublicProfilePage() {
                                         </div>
                                     </div>
                                     <div className="space-y-3">
-                                        <button onClick={() => handleAuthGate("offer")} className="w-full bg-primary text-white font-bold py-3.5 rounded-xl hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20">Send Offer</button>
+                                        <button onClick={() => handleAuthGate("request")} className="w-full bg-primary text-white font-bold py-3.5 rounded-xl hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20">Send Request</button>
                                         <button onClick={() => handleAuthGate("message")} className="w-full bg-gray-50 text-gray-700 font-bold py-3.5 rounded-xl border border-gray-200 hover:bg-gray-100 transition-colors">Message Therapist</button>
                                     </div>
                                 </motion.div>
