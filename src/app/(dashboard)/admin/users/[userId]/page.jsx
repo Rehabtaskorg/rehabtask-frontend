@@ -441,13 +441,13 @@ export default function AdminUserDetailPage() {
                             placeholder="+1XXXXXXXXXX"
                         />
                         <div className="flex flex-col gap-1">
-                            <label className="text-sm font-medium text-text-muted">Primary license type</label>
+                            <label className="text-sm font-medium text-text-muted">Primary Discipline type</label>
                             <select
                                 value={editForm.primaryLicenseType || ''}
                                 onChange={(e) => setEditForm(f => ({ ...f, primaryLicenseType: e.target.value }))}
                                 className="w-full px-3 py-2 rounded-lg border border-border-light dark:border-border-dark bg-white dark:bg-card-dark text-text-main dark:text-white text-sm"
                             >
-                                <option value="">Select License Type</option>
+                                <option value="">Select Discipline type</option>
                                 <option value="Physical Therapist">Physical Therapist (PT)</option>
                                 <option value="Occupational Therapist">Occupational Therapist (OT)</option>
                                 <option value="Speech-Language Pathologist">Speech-Language Pathologist (SLP)</option>

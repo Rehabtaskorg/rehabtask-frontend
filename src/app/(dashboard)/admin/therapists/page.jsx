@@ -127,7 +127,7 @@ function TherapistSidePanel({ therapist, onClose, onApprove, onReject, loading, 
                 {/* Details */}
                 <dl className="space-y-3 text-sm">
                     <div className="flex justify-between gap-3">
-                        <dt className="text-text-muted dark:text-slate-400">License type</dt>
+                        <dt className="text-text-muted dark:text-slate-400">Discipline type</dt>
                         <dd className="font-medium text-text-main dark:text-white text-right">
                             {therapist.therapistProfile?.primaryLicenseType || '—'}
                         </dd>
@@ -404,7 +404,7 @@ function TherapistsContent() {
                                     <thead>
                                         <tr className="border-b border-border-light dark:border-border-dark bg-slate-50 dark:bg-slate-800/50">
                                             <th className="px-5 py-3 text-left text-xs font-semibold text-text-muted dark:text-slate-400 uppercase tracking-wide">Therapist</th>
-                                            <th className="px-5 py-3 text-left text-xs font-semibold text-text-muted dark:text-slate-400 uppercase tracking-wide hidden md:table-cell">License Type</th>
+                                            <th className="px-5 py-3 text-left text-xs font-semibold text-text-muted dark:text-slate-400 uppercase tracking-wide hidden md:table-cell">Discipline type</th>
                                             <th className="px-5 py-3 text-left text-xs font-semibold text-text-muted dark:text-slate-400 uppercase tracking-wide">Status</th>
                                             <th className="px-5 py-3 text-left text-xs font-semibold text-text-muted dark:text-slate-400 uppercase tracking-wide hidden lg:table-cell">Applied</th>
                                             <th className="px-5 py-3 text-left text-xs font-semibold text-text-muted dark:text-slate-400 uppercase tracking-wide hidden lg:table-cell">Docs</th>

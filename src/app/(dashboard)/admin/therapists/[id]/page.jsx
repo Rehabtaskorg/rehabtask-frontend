@@ -230,7 +230,7 @@ export default function AdminTherapistDetailPage() {
                 <SectionCard title="Professional Information">
                     <dl className="space-y-3 text-sm">
                         <div className="flex justify-between gap-3">
-                            <dt className="text-text-muted dark:text-slate-400">Primary license type</dt>
+                            <dt className="text-text-muted dark:text-slate-400">Primary Discipline type</dt>
                             <dd className="font-medium text-text-main dark:text-white text-right">
                                 {tp?.primaryLicenseType || '—'}
                             </dd>

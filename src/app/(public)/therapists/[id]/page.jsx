@@ -333,7 +333,7 @@ export default function TherapistPublicProfilePage() {
                                     <h4 className="text-sm font-bold text-gray-900 mb-5 flex items-center gap-2"><MdInfo className="text-primary text-lg" /> Quick Facts</h4>
                                     <div className="space-y-3">
                                         {[
-                                            { label: "License Type", value: profile.primaryLicenseType },
+                                            { label: "Discipline type", value: profile.primaryLicenseType },
                                             { label: "Experience", value: profile.yearsOfExperience ? `${profile.yearsOfExperience} Years` : "—" },
                                             { label: "Rate", value: rate ? `$${rate}/visit` : "—" },
                                             ...(profile.attemptedVisitRate != null ? [{
