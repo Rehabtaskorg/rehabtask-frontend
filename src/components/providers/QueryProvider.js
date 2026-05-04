@@ -8,7 +8,11 @@ export default function QueryProvider({ children }) {
         defaultOptions: {
             queries: {
                 staleTime: 30 * 1000,
-                retry: 1,
+                retry: (failureCount, error) => {
+                    if (error?.response?.status === 429) return false;
+                    return failureCount < 1;
+                },
+                retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 10000),
                 refetchOnWindowFocus: false,
             },
         },
