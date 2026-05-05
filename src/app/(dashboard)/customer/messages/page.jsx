@@ -97,11 +97,11 @@ function CustomerRightSidebar({ selectedConversation }) {
             </div>
 
             {/* Direct request CTA — shown on all conversation types with a known therapist */}
-            {otherUser?.id && otherUser?.role === 'therapist' && (
+            {otherUser?.role === 'therapist' && (otherUser?.therapistProfile?.id || otherUser?.id) && (
                 <div className="mt-4 space-y-2">
                     <p className="text-text-muted dark:text-gray-400 text-[10px] font-bold uppercase tracking-widest">Actions</p>
                     <Link
-                        href={`/customer/requests/new?directTo=${otherUser.id}`}
+                        href={`/customer/requests/new?directTo=${otherUser.therapistProfile?.id || otherUser.id}`}
                         className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-primary text-white text-sm font-bold hover:bg-primary/90 transition-colors"
                     >
                         <MdSend className="text-base" />
