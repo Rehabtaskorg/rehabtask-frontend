@@ -32,7 +32,7 @@ const getRefundPill = (session) => {
         return { label: `${formatCurrency(total)} pending refund`, color: "bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400" };
     }
     if (hasTransferred) {
-        return { label: `${formatCurrency(total)} sent to bank`, color: "bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400" };
+        return { label: `${formatCurrency(total)} returned to your account`, color: "bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400" };
     }
     if (hasCard) {
         return { label: `${formatCurrency(total)} returned to card`, color: "bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400" };

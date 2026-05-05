@@ -69,7 +69,7 @@ const getRefundDisplay = (customerRefunds, fallbackRefundedAmount) => {
             return { label: `${formatCurrency(pending)} pending refund`, color: "text-amber-600 dark:text-amber-400 font-semibold" };
         }
         if (transferred > 0 && card === 0) {
-            return { label: `${formatCurrency(transferred)} sent to bank`, color: "text-emerald-600 dark:text-emerald-400 font-semibold" };
+            return { label: `${formatCurrency(transferred)} returned to your account`, color: "text-emerald-600 dark:text-emerald-400 font-semibold" };
         }
         if (card > 0 && transferred === 0) {
             return { label: `${formatCurrency(card)} returned to card`, color: "text-emerald-600 dark:text-emerald-400 font-semibold" };
@@ -400,7 +400,7 @@ export default function CustomerPaymentsPage() {
                                                                                         )}
                                                                                         {transferredRefund > 0 && (
                                                                                             <div className="flex justify-between text-emerald-600 dark:text-emerald-400">
-                                                                                                <span>Refunded to your bank</span>
+                                                                                                <span>Returned to your account</span>
                                                                                                 <span>{formatCurrency(transferredRefund)}</span>
                                                                                             </div>
                                                                                         )}
@@ -470,7 +470,7 @@ export default function CustomerPaymentsPage() {
                                                                                         return (
                                                                                             <div key={cr.id} className="relative pl-5">
                                                                                                 <div className="absolute left-0 top-1 w-3 h-3 rounded-full bg-emerald-500" />
-                                                                                                <p className="text-xs text-text-main dark:text-white">Refund sent to bank ({formatCurrency(cr.amount)})</p>
+                                                                                                <p className="text-xs text-text-main dark:text-white">Refund returned to your account ({formatCurrency(cr.amount)})</p>
                                                                                                 <p className="text-[10px] text-text-muted dark:text-gray-400">{formatDate(cr.transferredAt)}</p>
                                                                                             </div>
                                                                                         );

@@ -333,7 +333,14 @@ function TherapistRequestsContent() {
                                                 }`}
                                             >
                                                 <div className="flex justify-between items-start mb-2">
-                                                    <span className={`px-2.5 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider ${getServiceTypeStyle(req.serviceType)}`}>{req.serviceType}</span>
+                                                    <div className="flex flex-wrap items-center gap-1.5">
+                                                        <span className={`px-2.5 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider ${getServiceTypeStyle(req.serviceType)}`}>{req.serviceType}</span>
+                                                        {req.requestType === "DIRECT" && (
+                                                            <span className="px-2.5 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300">
+                                                                Direct
+                                                            </span>
+                                                        )}
+                                                    </div>
                                                     <span className="text-[11px] text-text-muted dark:text-gray-400 font-medium shrink-0 ml-2">{timeAgo(req.createdAt)}</span>
                                                 </div>
                                                 <h4 className="font-bold text-text-main dark:text-white mb-1 leading-tight line-clamp-1">{req.description?.split("\n")[0] || req.serviceType}</h4>
