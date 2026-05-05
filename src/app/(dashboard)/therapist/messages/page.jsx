@@ -106,8 +106,12 @@ function TherapistMessagesContent() {
             </section>
 
             {/* Right Panel */}
-            <aside className={`hidden lg:flex w-72 shrink-0 flex-col border-l border-border-light dark:border-border-dark bg-background-light/30 dark:bg-background-dark/50 p-6 ${selectedConversation ? '' : 'lg:hidden'}`}>
-                {selectedConversation && <TherapistRightSidebar selectedConversation={selectedConversation} />}
+            <aside className={`hidden lg:flex w-72 shrink-0 flex-col border-l border-border-light dark:border-border-dark bg-background-light/30 dark:bg-background-dark/50 overflow-y-auto ${selectedConversation ? '' : 'lg:hidden'}`}>
+                {selectedConversation && (
+                    <div className="p-6">
+                        <TherapistRightSidebar selectedConversation={selectedConversation} />
+                    </div>
+                )}
             </aside>
         </div>
     );

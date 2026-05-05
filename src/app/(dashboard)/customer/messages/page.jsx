@@ -36,7 +36,7 @@ function CustomerRightSidebar({ selectedConversation }) {
     if (contextLoading && !otherUser) return <RightSidebarSkeleton />;
 
     return (
-        <div className="flex flex-col h-full">
+        <div className="flex flex-col">
             <div className="flex flex-col items-center text-center gap-3">
                 <UserAvatar
                     name={name}
@@ -201,8 +201,12 @@ export default function CustomerMessagesPage() {
             </section>
 
             {/* Right Panel */}
-            <aside className={`hidden lg:flex w-72 shrink-0 flex-col border-l border-border-light dark:border-border-dark bg-background-light/30 dark:bg-background-dark/50 p-6 ${selectedConversation ? '' : 'lg:hidden'}`}>
-                {selectedConversation && <CustomerRightSidebar selectedConversation={selectedConversation} />}
+            <aside className={`hidden lg:flex w-72 shrink-0 flex-col border-l border-border-light dark:border-border-dark bg-background-light/30 dark:bg-background-dark/50 overflow-y-auto ${selectedConversation ? '' : 'lg:hidden'}`}>
+                {selectedConversation && (
+                    <div className="p-6">
+                        <CustomerRightSidebar selectedConversation={selectedConversation} />
+                    </div>
+                )}
             </aside>
         </div>
     );
