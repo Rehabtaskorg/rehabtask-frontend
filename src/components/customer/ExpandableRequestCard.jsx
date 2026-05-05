@@ -88,6 +88,11 @@ export default function ExpandableRequestCard({
                         <span className={`px-2.5 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider ${getServiceTypeStyle(request.serviceType)}`}>
                             {request.serviceType}
                         </span>
+                        {request.requestType === "DIRECT" && (
+                            <span className="px-2.5 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300">
+                                Direct
+                            </span>
+                        )}
                         {offerCount > 0 && (
                             <span className="px-2.5 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-primary/10 text-primary dark:bg-primary/20 dark:text-blue-300">
                                 {offerCount} Offer{offerCount !== 1 ? "s" : ""}
@@ -131,6 +136,16 @@ export default function ExpandableRequestCard({
             {/* ── Expanded Content ── */}
             {isExpanded && (
                 <div className="px-5 sm:px-6 pb-6 border-t border-border-light dark:border-border-dark">
+                    {/* Direct request privacy notice */}
+                    {request.requestType === "DIRECT" && (
+                        <div className="mt-4 flex items-start gap-2 p-3 rounded-lg bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800">
+                            <MdVisibility className="text-indigo-500 text-base shrink-0 mt-0.5" />
+                            <p className="text-xs text-indigo-700 dark:text-indigo-300">
+                                This request is private — only visible to your selected therapist.
+                            </p>
+                        </div>
+                    )}
+
                     {/* Full description */}
                     {request.description && (
                         <div className="mt-5 bg-slate-50 dark:bg-slate-800/50 rounded-lg p-4">

@@ -11,6 +11,7 @@ import SharedFiles from "@/components/shared/messages/SharedFiles";
 import AttachmentsModal from "@/components/shared/messages/AttachmentsModal";
 import UserAvatar from "@/components/ui/UserAvatar";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import { MdSend } from "react-icons/md";
 
 function CustomerRightSidebar({ selectedConversation }) {
     // Use the conversationId (always a DirectConversation) for API context resolution
@@ -94,6 +95,20 @@ function CustomerRightSidebar({ selectedConversation }) {
                     <p className="text-text-main dark:text-white text-sm">Request Conversation</p>
                 )}
             </div>
+
+            {/* Direct request CTA — only on direct conversations with an approved therapist */}
+            {displayContextType === 'direct' && otherUser?.id && (
+                <div className="mt-4 space-y-2">
+                    <p className="text-text-muted dark:text-gray-400 text-[10px] font-bold uppercase tracking-widest">Actions</p>
+                    <Link
+                        href={`/customer/requests/new?directTo=${otherUser.id}`}
+                        className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-primary text-white text-sm font-bold hover:bg-primary/90 transition-colors"
+                    >
+                        <MdSend className="text-base" />
+                        Create Direct Request
+                    </Link>
+                </div>
+            )}
 
             {displayContextType === 'booking' && (() => {
                 const bookingStatus = selectedConversation?.currentContext?.data?.status;
