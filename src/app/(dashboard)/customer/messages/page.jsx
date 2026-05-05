@@ -96,8 +96,8 @@ function CustomerRightSidebar({ selectedConversation }) {
                 )}
             </div>
 
-            {/* Direct request CTA — only on direct conversations with an approved therapist */}
-            {displayContextType === 'direct' && otherUser?.id && (
+            {/* Direct request CTA — shown on all conversation types with a known therapist */}
+            {otherUser?.id && otherUser?.role === 'therapist' && (
                 <div className="mt-4 space-y-2">
                     <p className="text-text-muted dark:text-gray-400 text-[10px] font-bold uppercase tracking-widest">Actions</p>
                     <Link
