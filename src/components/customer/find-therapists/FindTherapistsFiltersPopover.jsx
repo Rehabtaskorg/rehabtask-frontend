@@ -146,8 +146,6 @@ export default function FindTherapistsFiltersPopover({
                             <FilterBody
                                 radiusMiles={radiusMiles}
                                 onRadiusChange={onRadiusChange}
-                                specializations={specializations}
-                                onToggleSpec={toggleSpec}
                                 onApply={handleApply}
                                 onClear={handleClear}
                                 hasActiveFilters={hasActiveFilters}
