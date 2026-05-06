@@ -1,7 +1,5 @@
 "use client";
 
-import FindTherapistsFiltersPopover from "./FindTherapistsFiltersPopover";
-
 const DISCIPLINES = [
     { key: "all", label: "All" },
     { key: "pt", label: "PT" },
@@ -19,9 +17,6 @@ const SORT_OPTIONS = [
 export default function FindTherapistsPillsRow({
     activeDiscipline,
     setActiveDiscipline,
-    radiusMiles,
-    onRadiusChange,
-    onApplyFilters,
     sortBy,
     onSortChange,
 }) {
@@ -44,11 +39,6 @@ export default function FindTherapistsPillsRow({
                                 {d.label}
                             </button>
                         ))}
-                        <FindTherapistsFiltersPopover
-                            radiusMiles={radiusMiles}
-                            onRadiusChange={onRadiusChange}
-                            onApply={onApplyFilters}
-                        />
                     </div>
 
                     <div className="flex items-center gap-1.5 text-xs text-text-muted dark:text-gray-400">
