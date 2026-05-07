@@ -200,46 +200,195 @@ export default function CustomerPaymentsPage() {
                     )}
 
                     {/* Payout Account Status (when Connect is active) */}
-                    {hasConnectAccount && connectStatus?.onboardingComplete && (
-                        <div className="bg-card-light dark:bg-card-dark rounded-xl border border-emerald-200 dark:border-emerald-500/20 p-5">
-                            <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-4">
-                                    <div className="w-12 h-12 rounded-xl bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
-                                        <MdAccountBalance className="text-2xl" />
+                    {hasConnectAccount && connectStatus?.onboardingComplete && (() => {
+                        const isPastDue = (connectStatus.pastDueCount ?? 0) > 0;
+                        const isCurrentlyDue = (connectStatus.currentlyDueCount ?? 0) > 0;
+                        const hasUpcoming = connectStatus.hasUpcomingRequirements;
+
+                        const deadlineDate = connectStatus.currentDeadline
+                            ? new Date(connectStatus.currentDeadline * 1000).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+                            : null;
+                        const futureDateStr = connectStatus.futureDeadline
+                            ? new Date(connectStatus.futureDeadline * 1000).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+                            : null;
+
+                        // Stage 3 — CRITICAL: payouts restricted
+                        if (isPastDue) {
+                            return (
+                                <div className="bg-red-50 dark:bg-red-900/10 rounded-xl border border-red-300 dark:border-red-500/40 p-5">
+                                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                        <div className="flex items-center gap-4">
+                                            <div className="w-12 h-12 rounded-xl bg-red-100 dark:bg-red-900/30 flex items-center justify-center text-red-600 dark:text-red-400">
+                                                <MdWarning className="text-2xl" />
+                                            </div>
+                                            <div>
+                                                <p className="text-sm font-bold text-red-700 dark:text-red-400">Refund Account Restricted</p>
+                                                <p className="text-xs text-red-600/80 dark:text-red-400/80 mt-0.5">
+                                                    Your refund account has been restricted. Complete the required information to restore it.
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <Link href="/customer/payout-setup" className="shrink-0 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-xs font-bold transition-colors text-center">
+                                            Restore Account
+                                        </Link>
                                     </div>
-                                    <div>
-                                        <p className="text-sm font-bold text-text-main dark:text-white">Payout Account</p>
-                                        <div className="flex items-center gap-2 mt-0.5">
-                                            <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                                            <span className="text-xs text-emerald-600 dark:text-emerald-400 font-semibold">Active</span>
+                                </div>
+                            );
+                        }
+
+                        // Stage 2 — WARNING: currently_due with deadline
+                        if (isCurrentlyDue) {
+                            return (
+                                <div className="bg-amber-50 dark:bg-amber-900/10 rounded-xl border border-amber-300 dark:border-amber-500/40 p-5">
+                                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                        <div className="flex items-center gap-4">
+                                            <div className="w-12 h-12 rounded-xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center text-amber-600 dark:text-amber-400">
+                                                <MdSchedule className="text-2xl" />
+                                            </div>
+                                            <div>
+                                                <p className="text-sm font-bold text-text-main dark:text-white">Action Required — Refund Account</p>
+                                                <p className="text-xs text-text-muted dark:text-gray-400 mt-0.5">
+                                                    {deadlineDate
+                                                        ? `Stripe requires updated information by ${deadlineDate} or your refunds will be paused.`
+                                                        : 'Stripe requires updated information to keep your refund account active.'}
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <Link href="/customer/payout-setup" className="shrink-0 bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-lg text-xs font-bold transition-colors text-center">
+                                            Complete Now
+                                        </Link>
+                                    </div>
+                                </div>
+                            );
+                        }
+
+                        // Stage 1 — PROACTIVE: upcoming future requirements
+                        if (hasUpcoming) {
+                            return (
+                                <div className="bg-blue-50 dark:bg-blue-900/10 rounded-xl border border-blue-200 dark:border-blue-500/20 p-5">
+                                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                        <div className="flex items-center gap-4">
+                                            <div className="w-12 h-12 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400">
+                                                <MdInfo className="text-2xl" />
+                                            </div>
+                                            <div>
+                                                <p className="text-sm font-bold text-text-main dark:text-white">Payout Account</p>
+                                                <div className="flex items-center gap-2 mt-0.5">
+                                                    <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                                                    <span className="text-xs text-emerald-600 dark:text-emerald-400 font-semibold">Active</span>
+                                                    <span className="text-xs text-blue-600 dark:text-blue-400 font-medium">
+                                                        — {futureDateStr ? `info required by ${futureDateStr}` : 'upcoming requirements'}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <Link href="/customer/payout-setup" className="shrink-0 text-blue-600 dark:text-blue-400 border border-blue-300 dark:border-blue-500/40 hover:bg-blue-50 dark:hover:bg-blue-900/20 px-4 py-2 rounded-lg text-xs font-bold transition-colors text-center">
+                                            Review
+                                        </Link>
+                                    </div>
+                                </div>
+                            );
+                        }
+
+                        // Fully active, no requirements — clean state
+                        return (
+                            <div className="bg-card-light dark:bg-card-dark rounded-xl border border-emerald-200 dark:border-emerald-500/20 p-5">
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-12 h-12 rounded-xl bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
+                                            <MdAccountBalance className="text-2xl" />
+                                        </div>
+                                        <div>
+                                            <p className="text-sm font-bold text-text-main dark:text-white">Payout Account</p>
+                                            <div className="flex items-center gap-2 mt-0.5">
+                                                <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                                                <span className="text-xs text-emerald-600 dark:text-emerald-400 font-semibold">Active</span>
+                                            </div>
                                         </div>
                                     </div>
+                                    {hasPendingRefunds && (
+                                        <p className="text-sm text-text-muted dark:text-gray-400">
+                                            {formatCurrency(summary.pendingRefundAmount)} pending
+                                        </p>
+                                    )}
                                 </div>
-                                {hasPendingRefunds && (
-                                    <p className="text-sm text-text-muted dark:text-gray-400">
-                                        {formatCurrency(summary.pendingRefundAmount)} pending
-                                    </p>
-                                )}
                             </div>
-                        </div>
-                    )}
+                        );
+                    })()}
 
-                    {/* Payout Account Under Review */}
-                    {hasConnectAccount && connectStatus?.detailsSubmitted && !connectStatus?.onboardingComplete && (
-                        <div className="bg-card-light dark:bg-card-dark rounded-xl border border-amber-200 dark:border-amber-500/20 p-5">
-                            <div className="flex items-center gap-4">
-                                <div className="w-12 h-12 rounded-xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center text-amber-600 dark:text-amber-400">
-                                    <MdSchedule className="text-2xl" />
+                    {/* Payout Account Not Active — not onboarding complete */}
+                    {hasConnectAccount && connectStatus?.detailsSubmitted && !connectStatus?.onboardingComplete && (() => {
+                        const isPastDue = (connectStatus.pastDueCount ?? 0) > 0;
+                        const isCurrentlyDue = (connectStatus.currentlyDueCount ?? 0) > 0;
+                        const deadlineDate = connectStatus.currentDeadline
+                            ? new Date(connectStatus.currentDeadline * 1000).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+                            : null;
+
+                        if (isPastDue) {
+                            return (
+                                <div className="bg-red-50 dark:bg-red-900/10 rounded-xl border border-red-300 dark:border-red-500/40 p-5">
+                                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                        <div className="flex items-center gap-4">
+                                            <div className="w-12 h-12 rounded-xl bg-red-100 dark:bg-red-900/30 flex items-center justify-center text-red-600 dark:text-red-400">
+                                                <MdWarning className="text-2xl" />
+                                            </div>
+                                            <div>
+                                                <p className="text-sm font-bold text-red-700 dark:text-red-400">Refund Account Restricted</p>
+                                                <p className="text-xs text-red-600/80 dark:text-red-400/80 mt-0.5">
+                                                    Your refund account requires overdue information. Complete it now to restore your ability to receive refunds.
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <Link href="/customer/payout-setup" className="shrink-0 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-xs font-bold transition-colors text-center">
+                                            Restore Account
+                                        </Link>
+                                    </div>
                                 </div>
-                                <div>
-                                    <p className="text-sm font-bold text-text-main dark:text-white">Payout Account Under Review</p>
-                                    <p className="text-xs text-text-muted dark:text-gray-400 mt-0.5">
-                                        Your details have been submitted. We are verifying your account — this usually takes a few minutes.
-                                    </p>
+                            );
+                        }
+
+                        if (isCurrentlyDue) {
+                            return (
+                                <div className="bg-amber-50 dark:bg-amber-900/10 rounded-xl border border-amber-300 dark:border-amber-500/40 p-5">
+                                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                        <div className="flex items-center gap-4">
+                                            <div className="w-12 h-12 rounded-xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center text-amber-600 dark:text-amber-400">
+                                                <MdSchedule className="text-2xl" />
+                                            </div>
+                                            <div>
+                                                <p className="text-sm font-bold text-text-main dark:text-white">Action Required — Refund Account</p>
+                                                <p className="text-xs text-text-muted dark:text-gray-400 mt-0.5">
+                                                    {deadlineDate
+                                                        ? `Complete required information by ${deadlineDate} to keep your refund account active.`
+                                                        : 'Stripe requires updated information to keep your refund account active.'}
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <Link href="/customer/payout-setup" className="shrink-0 bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-lg text-xs font-bold transition-colors text-center">
+                                            Complete Now
+                                        </Link>
+                                    </div>
+                                </div>
+                            );
+                        }
+
+                        // Genuine pending initial review
+                        return (
+                            <div className="bg-card-light dark:bg-card-dark rounded-xl border border-amber-200 dark:border-amber-500/20 p-5">
+                                <div className="flex items-center gap-4">
+                                    <div className="w-12 h-12 rounded-xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center text-amber-600 dark:text-amber-400">
+                                        <MdSchedule className="text-2xl" />
+                                    </div>
+                                    <div>
+                                        <p className="text-sm font-bold text-text-main dark:text-white">Payout Account Under Review</p>
+                                        <p className="text-xs text-text-muted dark:text-gray-400 mt-0.5">
+                                            Your details have been submitted. Stripe is verifying your account — this usually takes a few minutes.
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    )}
+                        );
+                    })()}
 
                     {/* Filter Tabs + Payment Table */}
                     <div className="bg-card-light dark:bg-card-dark rounded-xl border border-border-light dark:border-border-dark overflow-hidden shadow-sm">
