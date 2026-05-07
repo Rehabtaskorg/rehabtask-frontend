@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { MdDownload, MdAccountBalanceWallet, MdError } from "react-icons/md";
+import { MdDownload, MdAccountBalanceWallet, MdError, MdWarning, MdInfo } from "react-icons/md";
 import { ConnectBalances, ConnectPayments } from "@stripe/react-connect-js";
 import { api } from "@/lib/api";
 import { usePageTitle } from "@/hooks/usePageTitle";
@@ -243,10 +243,107 @@ function StripeBalancePanel({
         );
     }
 
-    // State 3 — account exists + details submitted, but charges not yet enabled.
-    // The review is async on the provider side and the account.updated webhook
-    // will flip stripeOnboardingComplete when it completes.
+    // States 3a / 3b / 3c — account exists + details submitted, charges not yet enabled.
+    // We distinguish three sub-states using the requirements data from Stripe so the
+    // therapist gets actionable information rather than a generic "under review" message.
     if (stripeStatus?.connected && stripeStatus?.detailsSubmitted && !stripeStatus?.chargesEnabled) {
+        const isPastDue = (stripeStatus.pastDueCount ?? 0) > 0;
+        const isCurrentlyDue = (stripeStatus.currentlyDueCount ?? 0) > 0;
+        const hasUpcoming = stripeStatus.hasUpcomingRequirements;
+
+        const deadlineDate = stripeStatus.currentDeadline
+            ? new Date(stripeStatus.currentDeadline * 1000).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+            : null;
+        const futureDateStr = stripeStatus.futureDeadline
+            ? new Date(stripeStatus.futureDeadline * 1000).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+            : null;
+
+        // Stage 3 — CRITICAL: account restricted due to past_due requirements
+        if (isPastDue) {
+            return (
+                <div className="bg-red-50 dark:bg-red-900/10 border border-red-300 dark:border-red-500/40 rounded-xl shadow-sm p-6">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div className="flex items-start gap-4">
+                            <div className="w-11 h-11 bg-red-500/10 rounded-full flex items-center justify-center shrink-0">
+                                <MdError className="text-xl text-red-500" />
+                            </div>
+                            <div>
+                                <p className="font-bold text-red-700 dark:text-red-400">Payout account restricted</p>
+                                <p className="text-sm text-red-600/80 dark:text-red-400/80 mt-0.5">
+                                    Stripe requires overdue information to restore your payouts and payments. Complete it now to reactivate your account.
+                                </p>
+                            </div>
+                        </div>
+                        <button
+                            onClick={() => router.push("/therapist/onboarding/stripe")}
+                            className="shrink-0 px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-lg font-semibold text-sm transition-colors"
+                        >
+                            Restore My Account
+                        </button>
+                    </div>
+                </div>
+            );
+        }
+
+        // Stage 2 — WARNING: currently_due with a deadline approaching
+        if (isCurrentlyDue) {
+            return (
+                <div className="bg-amber-50 dark:bg-amber-900/10 border border-amber-300 dark:border-amber-500/40 rounded-xl shadow-sm p-6">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div className="flex items-start gap-4">
+                            <div className="w-11 h-11 bg-amber-500/10 rounded-full flex items-center justify-center shrink-0">
+                                <MdWarning className="text-xl text-amber-500" />
+                            </div>
+                            <div>
+                                <p className="font-bold text-text-main dark:text-white">Action required for your payout account</p>
+                                <p className="text-sm text-text-muted dark:text-slate-400 mt-0.5">
+                                    {deadlineDate
+                                        ? `Stripe requires updated information by ${deadlineDate}. If not completed, your payouts will be paused.`
+                                        : 'Stripe requires updated information. Complete it soon to avoid interruption to your payouts.'}
+                                </p>
+                            </div>
+                        </div>
+                        <button
+                            onClick={() => router.push("/therapist/onboarding/stripe")}
+                            className="shrink-0 px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-white rounded-lg font-semibold text-sm transition-colors"
+                        >
+                            Complete Now
+                        </button>
+                    </div>
+                </div>
+            );
+        }
+
+        // Stage 1 — PROACTIVE: upcoming future requirements before they become due
+        if (hasUpcoming) {
+            return (
+                <div className="bg-blue-50 dark:bg-blue-900/10 border border-blue-200 dark:border-blue-500/30 rounded-xl shadow-sm p-6">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div className="flex items-start gap-4">
+                            <div className="w-11 h-11 bg-blue-500/10 rounded-full flex items-center justify-center shrink-0">
+                                <MdInfo className="text-xl text-blue-500" />
+                            </div>
+                            <div>
+                                <p className="font-bold text-text-main dark:text-white">Upcoming requirements for your payout account</p>
+                                <p className="text-sm text-text-muted dark:text-slate-400 mt-0.5">
+                                    {futureDateStr
+                                        ? `Stripe will require new information by ${futureDateStr}. Complete it now to avoid any interruption.`
+                                        : 'Stripe will require new information in the future. Complete it proactively to avoid any interruption.'}
+                                </p>
+                            </div>
+                        </div>
+                        <button
+                            onClick={() => router.push("/therapist/onboarding/stripe")}
+                            className="shrink-0 px-5 py-2.5 bg-primary hover:brightness-95 text-white rounded-lg font-semibold text-sm transition-colors"
+                        >
+                            Review Requirements
+                        </button>
+                    </div>
+                </div>
+            );
+        }
+
+        // Fallback: details submitted, no specific requirements flagged — genuinely pending initial review
         return (
             <div className="bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-500/30 rounded-xl shadow-sm p-6">
                 <div className="flex items-start gap-4">
@@ -256,7 +353,7 @@ function StripeBalancePanel({
                     <div>
                         <p className="font-bold text-text-main dark:text-white">Payout account under review</p>
                         <p className="text-sm text-text-muted dark:text-slate-400 mt-0.5">
-                            Your details have been submitted and we&apos;re verifying your account. This usually takes a few minutes. You&apos;ll be notified once it&apos;s active.
+                            Your details have been submitted and Stripe is verifying your account. This usually takes a few minutes. You&apos;ll be notified once it&apos;s active.
                         </p>
                     </div>
                 </div>
