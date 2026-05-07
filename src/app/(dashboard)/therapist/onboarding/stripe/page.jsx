@@ -367,6 +367,10 @@ export default function StripeOnboardingPage() {
                                                 onExit={handleOnboardingExit}
                                                 onLoadError={handleStripeLoadError}
                                                 onLoaderStart={handleEmbeddedFormStart}
+                                                collectionOptions={{
+                                                    fields: 'eventually_due',
+                                                    futureRequirements: 'include',
+                                                }}
                                             />
                                         </StripeConnectProvider>
                                     </div>
