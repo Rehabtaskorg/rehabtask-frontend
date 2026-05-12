@@ -18,7 +18,6 @@ export default function robots() {
                     "/customer/",
                     "/therapist/",
                     "/admin/",
-                    "/qa-admin",
                     "/invite/",
                 ],
             },

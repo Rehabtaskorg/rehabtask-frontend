@@ -22,7 +22,9 @@
       "Read(//c/Users/steve/Documents/work_projects/rehabtask-platform/backend/src/**)",
       "Bash(grep -r commission c:UserssteveDocumentswork_projectsrehabtask-platformbackendsrcroutes --include=*.js)",
       "Bash(grep -r \"SubscriptionPlan\\\\|BASIC\\\\|PREMIUM\\\\|ELITE\\\\|subscriptionPlan\" c:UserssteveDocumentswork_projectsrehabtask-platformbackend --include=*.js)",
-      "WebFetch(domain:stripe.com)"
+      "WebFetch(domain:stripe.com)",
+      "Bash(find /home/steve/projects/RehabTaskApp-Backend -type f -name \"*.js\" -o -name \"*.ts\" -o -name \"*.json\" -o -name \".env*\" | head -50)",
+      "Read(//home/steve/projects/RehabTaskApp-Backend/**)"
     ],
     "additionalDirectories": [
       "c:\\Users\\steve\\Documents\\work_projects\\rehabtask-platform\\backend\\src\\validators",
