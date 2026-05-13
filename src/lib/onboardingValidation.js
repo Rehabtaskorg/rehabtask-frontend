@@ -114,9 +114,7 @@ export const availabilitySchema = z.object({
                 state: z.string().min(1),
                 latitude: z.number().min(-90).max(90),
                 longitude: z.number().min(-180).max(180),
-                radiusMiles: z.number().int().refine((v) => [15, 30, 60].includes(v), {
-                    message: "Please select a valid coverage preset",
-                }),
+                radiusMiles: z.number().int().min(1).max(100),
             })
         )
         .min(1, "Please add at least one work area"),

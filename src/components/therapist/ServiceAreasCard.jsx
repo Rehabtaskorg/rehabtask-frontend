@@ -2,8 +2,13 @@
 
 import { MdLocationOn } from "react-icons/md";
 import { Map, AdvancedMarker } from "@vis.gl/react-google-maps";
-import { getPresetLabel, DEFAULT_RADIUS_PRESET } from "@/lib/constants";
 
+/**
+ * Displays a therapist's service areas with a map and city/state pills.
+ *
+ * @param {Object} props
+ * @param {Array} props.workAreas
+ */
 export default function ServiceAreasCard({ workAreas }) {
     if (!workAreas || workAreas.length === 0) {
         return (
@@ -21,13 +26,10 @@ export default function ServiceAreasCard({ workAreas }) {
         );
     }
 
-    // Parse coordinates
     const parsedAreas = workAreas.map((wa) => ({
         ...wa,
         lat: parseFloat(wa.latitude),
         lng: parseFloat(wa.longitude),
-        radius: wa.radiusMiles || DEFAULT_RADIUS_PRESET.miles,
-        presetLabel: getPresetLabel(wa.radiusMiles || DEFAULT_RADIUS_PRESET.miles),
     }));
 
     const center = {
@@ -37,7 +39,6 @@ export default function ServiceAreasCard({ workAreas }) {
 
     return (
         <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl p-6 shadow-sm">
-            {/* Header */}
             <div className="flex items-center gap-2 mb-4">
                 <MdLocationOn className="text-primary text-lg" />
                 <h3 className="text-base font-bold text-text-main dark:text-white">
@@ -45,19 +46,17 @@ export default function ServiceAreasCard({ workAreas }) {
                 </h3>
             </div>
 
-            {/* Work area pills */}
             <div className="flex flex-wrap gap-2 mb-4">
                 {parsedAreas.map((wa, i) => (
                     <span
                         key={wa.id || i}
                         className="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 text-text-main dark:text-white text-sm font-medium rounded-lg"
                     >
-                        {wa.city}, {wa.state} — {wa.presetLabel}
+                        {wa.city}, {wa.state}
                     </span>
                 ))}
             </div>
 
-            {/* Map */}
             <div className="aspect-video w-full rounded-lg overflow-hidden border border-border-light dark:border-border-dark">
                 <Map
                     defaultCenter={center}
@@ -77,6 +76,5 @@ export default function ServiceAreasCard({ workAreas }) {
                 </Map>
             </div>
         </div>
-    )
-
+    );
 }

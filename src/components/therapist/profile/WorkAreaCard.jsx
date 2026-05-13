@@ -1,8 +1,15 @@
 "use client";
 
 import { MdEdit, MdDelete, MdLocationOn } from "react-icons/md";
-import { getPresetLabel } from "@/lib/constants";
 
+/**
+ * Displays a single work area entry with edit and delete actions.
+ *
+ * @param {Object} props
+ * @param {Object} props.workArea
+ * @param {Function} props.onEdit
+ * @param {Function} props.onDelete
+ */
 const WorkAreaCard = ({ workArea, onEdit, onDelete }) => {
     return (
         <div className="bg-muted-light dark:bg-muted-dark rounded-lg p-4 border border-border-light dark:border-border-dark">
@@ -15,12 +22,9 @@ const WorkAreaCard = ({ workArea, onEdit, onDelete }) => {
                         <h3 className="text-base font-semibold text-text-main dark:text-white">
                             {workArea.city}, {workArea.state}
                         </h3>
-                        <span className="inline-block mt-1 text-xs font-medium text-primary bg-primary/10 px-2 py-0.5 rounded-full">
-                            {getPresetLabel(workArea.radiusMiles)}
-                        </span>
-                        <p className="text-xs text-text-muted mt-1">
-                            {parseFloat(workArea.latitude).toFixed(4)}, {parseFloat(workArea.longitude).toFixed(4)}
-                        </p>
+                        {workArea.zipCode && (
+                            <p className="text-xs text-text-muted mt-0.5">ZIP {workArea.zipCode}</p>
+                        )}
                     </div>
                 </div>
 
@@ -44,7 +48,7 @@ const WorkAreaCard = ({ workArea, onEdit, onDelete }) => {
                 </div>
             </div>
         </div>
-    )
-}
+    );
+};
 
 export default WorkAreaCard;

@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import { Map, AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
+import { useState } from "react";
+import { Map, AdvancedMarker } from "@vis.gl/react-google-maps";
 import {
     MdAdd,
     MdMap,
@@ -13,62 +13,19 @@ import {
 } from "react-icons/md";
 import WorkAreaFormModal from "./WorkAreaFormModal";
 import { useUpdateWorkAreas } from "@/hooks/useTherapistProfile";
-import { getPresetLabel } from "@/lib/constants";
 import Button from "@/components/ui/Button";
 import Alert from "@/components/ui/Alert";
 
 const DEFAULT_CENTER = { lat: 39.8283, lng: -98.5795 };
 const DEFAULT_ZOOM = 4;
 
-// Component to draw radius circles on the map
-const RadiusCircles = ({ workAreas }) => {
-    const map = useMap();
-    const circlesRef = useRef([]);
-
-    useEffect(() => {
-        // Clean up previous circles
-        circlesRef.current.forEach((c) => c.setMap(null));
-        circlesRef.current = [];
-
-        if (!map || !google?.maps || workAreas.length === 0) return;
-
-        workAreas.forEach((area) => {
-            const lat = parseFloat(area.latitude);
-            const lng = parseFloat(area.longitude);
-            if (isNaN(lat) || isNaN(lng)) return;
-
-            const circle = new google.maps.Circle({
-                map,
-                center: { lat, lng },
-                radius: (area.radiusMiles || 25) * 1609.34,
-                fillColor: "#137fec",
-                fillOpacity: 0.1,
-                strokeColor: "#137fec",
-                strokeOpacity: 0.3,
-                strokeWeight: 1,
-            });
-            circlesRef.current.push(circle);
-        });
-
-        // Fit bounds to show all circles
-        if (circlesRef.current.length > 0) {
-            const bounds = new google.maps.LatLngBounds();
-            circlesRef.current.forEach((c) => {
-                bounds.union(c.getBounds());
-            });
-            map.fitBounds(bounds, 40);
-        }
-
-        return () => {
-            circlesRef.current.forEach((c) => c.setMap(null));
-            circlesRef.current = [];
-        };
-    }, [map, workAreas]);
-
-    return null;
-}
-
-
+/**
+ * Work areas management tab on the therapist profile dashboard.
+ * Allows therapists to add, edit, and delete their service locations.
+ *
+ * @param {Object} props
+ * @param {Object} props.profile - Therapist profile with workAreas array
+ */
 const WorkAreasTab = ({ profile }) => {
     const [workAreas, setWorkAreas] = useState(() =>
         (profile.workAreas || []).map((wa, i) => ({ ...wa, _tempId: wa.id || `temp-${i}` }))
@@ -92,18 +49,15 @@ const WorkAreasTab = ({ profile }) => {
     const handleDelete = async (area) => {
         const remaining = workAreas.filter((wa) => wa._tempId !== area._tempId);
 
-        // Warn when deleting the last work area
         const message = remaining.length === 0
             ? `Remove ${area.city}, ${area.state}? This is your last work area — without any work areas, you won't appear in customer search results.`
             : `Remove ${area.city}, ${area.state} from your work areas?`;
 
         if (!confirm(message)) return;
 
-        // Optimistic UI update
         setWorkAreas(remaining);
         setAlert(null);
 
-        // Build payload and call API immediately
         const payload = remaining.map(({ zipCode, city, state, latitude, longitude, radiusMiles }) => ({
             zipCode,
             city,
@@ -117,7 +71,6 @@ const WorkAreasTab = ({ profile }) => {
             await updateWorkAreas.mutateAsync(payload);
             setAlert({ type: "success", message: "Work area removed successfully!" });
         } catch (err) {
-            // Revert on failure
             setWorkAreas((prev) => [...prev, area]);
             setAlert({
                 type: "error",
@@ -130,9 +83,7 @@ const WorkAreasTab = ({ profile }) => {
         if (editingArea) {
             setWorkAreas((prev) =>
                 prev.map((wa) =>
-                    wa._tempId === editingArea._tempId
-                        ? { ...wa, ...formData }
-                        : wa
+                    wa._tempId === editingArea._tempId ? { ...wa, ...formData } : wa
                 )
             );
         } else {
@@ -166,15 +117,12 @@ const WorkAreasTab = ({ profile }) => {
         }
     };
 
-    // Compute map center from first work area or default
     const firstArea = workAreas[0];
     const mapCenter =
         firstArea && !isNaN(parseFloat(firstArea.latitude))
             ? { lat: parseFloat(firstArea.latitude), lng: parseFloat(firstArea.longitude) }
             : DEFAULT_CENTER;
     const mapZoom = firstArea ? 7 : DEFAULT_ZOOM;
-
-
 
     return (
         <div className="space-y-6">
@@ -198,13 +146,13 @@ const WorkAreasTab = ({ profile }) => {
                                 Service Area Map
                             </h2>
                             <p className="text-sm text-text-muted">
-                                Your coverage areas
+                                Your active service locations
                             </p>
                         </div>
                     </div>
                     {workAreas.length > 0 && (
                         <span className="text-xs font-semibold text-primary bg-primary/10 px-2.5 py-1 rounded-full">
-                            {workAreas.length} Active Region{workAreas.length !== 1 ? "s" : ""}
+                            {workAreas.length} Active Location{workAreas.length !== 1 ? "s" : ""}
                         </span>
                     )}
                 </div>
@@ -230,7 +178,6 @@ const WorkAreasTab = ({ profile }) => {
                                 />
                             );
                         })}
-                        <RadiusCircles workAreas={workAreas} />
                     </Map>
                 </div>
             </div>
@@ -246,11 +193,7 @@ const WorkAreasTab = ({ profile }) => {
                             {workAreas.length} area{workAreas.length !== 1 ? "s" : ""} configured
                         </p>
                     </div>
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={handleAdd}
-                    >
+                    <Button variant="outline" size="sm" onClick={handleAdd}>
                         <MdAdd className="text-lg" />
                         Add Area
                     </Button>
@@ -261,7 +204,7 @@ const WorkAreasTab = ({ profile }) => {
                         <MdMap className="text-4xl text-text-muted mx-auto mb-3" />
                         <p className="text-text-muted font-medium">No work areas defined</p>
                         <p className="text-sm text-text-muted mt-1">
-                            Add areas where you&apos;re available to provide therapy services.
+                            Add the cities or areas where you provide therapy services.
                             Without work areas, you won&apos;t appear in customer search results.
                         </p>
                         <Button variant="outline" size="sm" onClick={handleAdd} className="mt-4">
@@ -279,8 +222,6 @@ const WorkAreasTab = ({ profile }) => {
                                         <th className="text-left text-xs font-bold text-text-muted uppercase tracking-wide px-6 py-3">City</th>
                                         <th className="text-left text-xs font-bold text-text-muted uppercase tracking-wide px-6 py-3">State</th>
                                         <th className="text-left text-xs font-bold text-text-muted uppercase tracking-wide px-6 py-3">ZIP</th>
-                                        <th className="text-left text-xs font-bold text-text-muted uppercase tracking-wide px-6 py-3">Coverage</th>
-                                        <th className="text-left text-xs font-bold text-text-muted uppercase tracking-wide px-6 py-3">Coordinates</th>
                                         <th className="text-right text-xs font-bold text-text-muted uppercase tracking-wide px-6 py-3">Actions</th>
                                     </tr>
                                 </thead>
@@ -297,13 +238,7 @@ const WorkAreasTab = ({ profile }) => {
                                                 </div>
                                             </td>
                                             <td className="px-6 py-4 text-sm text-text-main dark:text-white">{area.state}</td>
-                                            <td className="px-6 py-4 text-sm text-text-main dark:text-white font-mono">{area.zipCode}</td>
-                                            <td className="px-6 py-4">
-                                                <span className="text-xs font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-full">{getPresetLabel(area.radiusMiles)}</span>
-                                            </td>
-                                            <td className="px-6 py-4 text-xs text-text-muted font-mono">
-                                                {parseFloat(area.latitude).toFixed(4)}, {parseFloat(area.longitude).toFixed(4)}
-                                            </td>
+                                            <td className="px-6 py-4 text-sm text-text-main dark:text-white font-mono">{area.zipCode || "—"}</td>
                                             <td className="px-6 py-4">
                                                 <div className="flex items-center justify-end gap-1">
                                                     <button type="button" onClick={() => handleEdit(area)} className="p-2 rounded-lg text-text-muted hover:text-primary hover:bg-primary/5 transition-colors" aria-label="Edit work area">
@@ -331,11 +266,9 @@ const WorkAreasTab = ({ profile }) => {
                                             </div>
                                             <div>
                                                 <p className="text-sm font-semibold text-text-main dark:text-white">{area.city}, {area.state}</p>
-                                                <p className="text-xs text-text-muted mt-0.5">ZIP {area.zipCode}</p>
-                                                <span className="inline-block mt-1 text-xs font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-full">{getPresetLabel(area.radiusMiles)}</span>
-                                                <p className="text-xs text-text-muted mt-1 font-mono">
-                                                    {parseFloat(area.latitude).toFixed(4)}, {parseFloat(area.longitude).toFixed(4)}
-                                                </p>
+                                                {area.zipCode && (
+                                                    <p className="text-xs text-text-muted mt-0.5">ZIP {area.zipCode}</p>
+                                                )}
                                             </div>
                                         </div>
                                         <div className="flex items-center gap-1">
@@ -370,9 +303,8 @@ const WorkAreasTab = ({ profile }) => {
                         <div>
                             <h4 className="text-sm font-bold text-text-main dark:text-white mb-1">Coverage Tip</h4>
                             <p className="text-xs text-text-muted leading-relaxed">
-                                Add multiple work areas to appear in more patient searches. Patients
-                                within your coverage area will see you as a nearby provider. Choose
-                                a wider coverage to reach more patients, or a smaller one to stay local.
+                                Add multiple cities or areas to appear in more patient searches.
+                                Patients near your service locations will see you as a nearby provider.
                             </p>
                         </div>
                     </div>
@@ -385,16 +317,15 @@ const WorkAreasTab = ({ profile }) => {
                         <div>
                             <h4 className="text-sm font-bold text-text-main dark:text-white mb-1">Travel Preference</h4>
                             <p className="text-xs text-text-muted leading-relaxed">
-                                Your coverage preset determines how far you&apos;re willing to travel for
-                                in-person sessions. Start with &ldquo;My area&rdquo; and adjust based on your
-                                experience.
+                                Add the cities and areas you are willing to travel to for
+                                in-person sessions. You can add as many locations as you need.
                             </p>
                         </div>
                     </div>
                 </div>
             </div>
 
-            {/* ── Save Button (for add/edit — deletes auto-save) ── */}
+            {/* ── Save Button ── */}
             <div className="flex justify-end">
                 <Button
                     onClick={handleSaveAll}
@@ -413,8 +344,7 @@ const WorkAreasTab = ({ profile }) => {
                 onSave={handleSave}
             />
         </div>
-    )
-
-}
+    );
+};
 
 export default WorkAreasTab;
