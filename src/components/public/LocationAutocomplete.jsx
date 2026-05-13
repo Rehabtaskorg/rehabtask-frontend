@@ -162,7 +162,7 @@ export default function LocationAutocomplete({
                 }
             }
         );
-    }, [onChange, onSelect, places]);
+    }, [onChange, onSelect, onClear, places]);
 
     const handleClearClick = () => {
         onChange?.("");
