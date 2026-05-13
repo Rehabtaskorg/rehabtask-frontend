@@ -13,6 +13,7 @@ import {
 } from "react-icons/md";
 import WorkAreaFormModal from "./WorkAreaFormModal";
 import { useUpdateWorkAreas } from "@/hooks/useTherapistProfile";
+import { getPresetLabel } from "@/lib/constants";
 import Button from "@/components/ui/Button";
 import Alert from "@/components/ui/Alert";
 
@@ -197,7 +198,7 @@ const WorkAreasTab = ({ profile }) => {
                                 Service Area Map
                             </h2>
                             <p className="text-sm text-text-muted">
-                                Your coverage areas and service radii
+                                Your coverage areas
                             </p>
                         </div>
                     </div>
@@ -278,7 +279,7 @@ const WorkAreasTab = ({ profile }) => {
                                         <th className="text-left text-xs font-bold text-text-muted uppercase tracking-wide px-6 py-3">City</th>
                                         <th className="text-left text-xs font-bold text-text-muted uppercase tracking-wide px-6 py-3">State</th>
                                         <th className="text-left text-xs font-bold text-text-muted uppercase tracking-wide px-6 py-3">ZIP</th>
-                                        <th className="text-left text-xs font-bold text-text-muted uppercase tracking-wide px-6 py-3">Radius</th>
+                                        <th className="text-left text-xs font-bold text-text-muted uppercase tracking-wide px-6 py-3">Coverage</th>
                                         <th className="text-left text-xs font-bold text-text-muted uppercase tracking-wide px-6 py-3">Coordinates</th>
                                         <th className="text-right text-xs font-bold text-text-muted uppercase tracking-wide px-6 py-3">Actions</th>
                                     </tr>
@@ -298,7 +299,7 @@ const WorkAreasTab = ({ profile }) => {
                                             <td className="px-6 py-4 text-sm text-text-main dark:text-white">{area.state}</td>
                                             <td className="px-6 py-4 text-sm text-text-main dark:text-white font-mono">{area.zipCode}</td>
                                             <td className="px-6 py-4">
-                                                <span className="text-xs font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-full">{area.radiusMiles} mi</span>
+                                                <span className="text-xs font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-full">{getPresetLabel(area.radiusMiles)}</span>
                                             </td>
                                             <td className="px-6 py-4 text-xs text-text-muted font-mono">
                                                 {parseFloat(area.latitude).toFixed(4)}, {parseFloat(area.longitude).toFixed(4)}
@@ -331,7 +332,7 @@ const WorkAreasTab = ({ profile }) => {
                                             <div>
                                                 <p className="text-sm font-semibold text-text-main dark:text-white">{area.city}, {area.state}</p>
                                                 <p className="text-xs text-text-muted mt-0.5">ZIP {area.zipCode}</p>
-                                                <span className="inline-block mt-1 text-xs font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-full">{area.radiusMiles} mi radius</span>
+                                                <span className="inline-block mt-1 text-xs font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-full">{getPresetLabel(area.radiusMiles)}</span>
                                                 <p className="text-xs text-text-muted mt-1 font-mono">
                                                     {parseFloat(area.latitude).toFixed(4)}, {parseFloat(area.longitude).toFixed(4)}
                                                 </p>
@@ -370,8 +371,8 @@ const WorkAreasTab = ({ profile }) => {
                             <h4 className="text-sm font-bold text-text-main dark:text-white mb-1">Coverage Tip</h4>
                             <p className="text-xs text-text-muted leading-relaxed">
                                 Add multiple work areas to appear in more patient searches. Patients
-                                within your service radius will see you as a nearby provider. A larger
-                                radius means more visibility but longer travel times.
+                                within your coverage area will see you as a nearby provider. Choose
+                                a wider coverage to reach more patients, or a smaller one to stay local.
                             </p>
                         </div>
                     </div>
@@ -384,9 +385,9 @@ const WorkAreasTab = ({ profile }) => {
                         <div>
                             <h4 className="text-sm font-bold text-text-main dark:text-white mb-1">Travel Preference</h4>
                             <p className="text-xs text-text-muted leading-relaxed">
-                                Your service radius determines the maximum distance you&apos;re willing to
-                                travel for in-person sessions. We recommend starting with 15-25 miles
-                                and adjusting based on your experience.
+                                Your coverage preset determines how far you&apos;re willing to travel for
+                                in-person sessions. Start with &ldquo;My area&rdquo; and adjust based on your
+                                experience.
                             </p>
                         </div>
                     </div>

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { getPresetLabel } from "@/lib/constants";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
@@ -323,7 +324,7 @@ export default function AdminTherapistDetailPage() {
                                     {[area.city, area.state, area.zipCode].filter(Boolean).join(', ')}
                                     {area.radiusMiles && (
                                         <span className="text-text-muted dark:text-slate-400 ml-1.5">
-                                            ({area.radiusMiles} mi radius)
+                                            ({getPresetLabel(area.radiusMiles)})
                                         </span>
                                     )}
                                 </span>
