@@ -39,6 +39,7 @@ export default function LocationAutocomplete({
     const [predictions, setPredictions] = useState([]);
     const [isOpen, setIsOpen] = useState(false);
     const [activeIndex, setActiveIndex] = useState(-1);
+    const [broadLocationError, setBroadLocationError] = useState(false);
 
     const autocompleteService = useRef(null);
     const geocoder = useRef(null);
@@ -97,6 +98,7 @@ export default function LocationAutocomplete({
     const handleInputChange = (e) => {
         const text = e.target.value;
         onChange?.(text);
+        setBroadLocationError(false);
 
         if (!text.trim()) {
             onClear?.();
@@ -136,6 +138,17 @@ export default function LocationAutocomplete({
                         c.types.includes("postal_code")
                     );
 
+                    // Reject state, country, or county-level selections — their center
+                    // coordinates are too far from most cities to work with a 50-mile radius.
+                    if (!cityComp && !zipComp) {
+                        setBroadLocationError(true);
+                        onChange?.("");
+                        onClear?.();
+                        sessionToken.current = new places.AutocompleteSessionToken();
+                        return;
+                    }
+
+                    setBroadLocationError(false);
                     onSelect?.({
                         city: cityComp?.long_name || "",
                         state: stateComp?.short_name || "",
@@ -156,6 +169,7 @@ export default function LocationAutocomplete({
         onClear?.();
         setPredictions([]);
         setIsOpen(false);
+        setBroadLocationError(false);
     };
 
     const handleKeyDown = (e) => {
@@ -243,10 +257,12 @@ export default function LocationAutocomplete({
                     )}
                 </div>
 
-                {error && (
-                    <p className="text-xs text-red-500 font-medium">{error}</p>
+                {(error || broadLocationError) && (
+                    <p className="text-xs text-red-500 font-medium">
+                        {broadLocationError ? "Please select a city or ZIP code, not a state or country." : error}
+                    </p>
                 )}
-                {helperText && !error && (
+                {helperText && !error && !broadLocationError && (
                     <p className="text-xs text-text-muted dark:text-text-muted/80">{helperText}</p>
                 )}
             </div>
@@ -257,11 +273,16 @@ export default function LocationAutocomplete({
     const isStacked = variant === "stacked";
     const shellClass = isStacked
         ? "flex items-center bg-white px-4 py-4 rounded-xl border border-gray-200 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/10 transition-all"
-        : "flex items-center bg-gray-50 px-4 py-3 rounded-lg border border-gray-100";
+        : `flex items-center bg-gray-50 px-4 py-3 rounded-lg border ${broadLocationError ? "border-red-400" : "border-gray-100"}`;
     const iconClass = isStacked ? "text-gray-400 text-xl mr-3 shrink-0" : "text-gray-400 text-xl mr-3 shrink-0";
 
     return (
         <div className="flex-1 relative" ref={containerRef}>
+            {broadLocationError && (
+                <p className="absolute -top-6 left-0 text-xs text-red-500 font-medium whitespace-nowrap">
+                    Please select a city or ZIP code, not a state or country.
+                </p>
+            )}
             <div className={shellClass}>
                 <MdLocationOn className={iconClass} />
                 <input
