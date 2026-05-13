@@ -2,7 +2,7 @@ import { api } from "./api";
 
 /**
  * Get reCAPTCHA token for a specific action
- * @param {string} action - The action name (e.g "login", "register", "forgot_password")
+ * @param {string} action - The action name (UPPERCASE, e.g. "LOGIN", "REGISTER_CUSTOMER")
  * @return {Promise<string>} reCAPTCHA token
  */
 const getRecaptchaToken = async (action) => {
@@ -27,7 +27,6 @@ const getRecaptchaToken = async (action) => {
         console.error("reCAPTCHA token generation failed:", error);
         return null;
     }
-
 }
 
 /**
@@ -39,10 +38,12 @@ export const authAPi = {
      * Register a new customer
      */
     registerCustomer: async (data) => {
-        const recaptchaToken = await getRecaptchaToken("register_customer");
+        const recaptchaAction = "REGISTER_CUSTOMER";
+        const recaptchaToken = await getRecaptchaToken(recaptchaAction);
         return api.post("/auth/register/customer", {
             ...data,
             recaptchaToken,
+            recaptchaAction,
         });
     },
 
@@ -50,10 +51,12 @@ export const authAPi = {
      * Register a new therapist
      */
     registerTherapist: async (data) => {
-        const recaptchaToken = await getRecaptchaToken("register_therapist");
+        const recaptchaAction = "REGISTER_THERAPIST";
+        const recaptchaToken = await getRecaptchaToken(recaptchaAction);
         return api.post("/auth/register/therapist", {
             ...data,
             recaptchaToken,
+            recaptchaAction,
         });
     },
 
@@ -61,11 +64,13 @@ export const authAPi = {
      * Login with email and password
      */
     login: async (email, password) => {
-        const recaptchaToken = await getRecaptchaToken("login");
+        const recaptchaAction = "LOGIN";
+        const recaptchaToken = await getRecaptchaToken(recaptchaAction);
         return api.post("/auth/login", {
             email,
             password,
             recaptchaToken,
+            recaptchaAction,
         });
     },
 
@@ -87,10 +92,12 @@ export const authAPi = {
      * Request password reset mail
      */
     requestPasswordReset: async (email) => {
-        const recaptchaToken = await getRecaptchaToken("forgot_password");
+        const recaptchaAction = "FORGOT_PASSWORD";
+        const recaptchaToken = await getRecaptchaToken(recaptchaAction);
         return api.post("/auth/password/forgot", {
             email,
             recaptchaToken,
+            recaptchaAction,
         });
     },
 
@@ -111,10 +118,12 @@ export const authAPi = {
      * Resend email verification
      */
     resendVerificationEmail: async (email) => {
-        const recaptchaToken = await getRecaptchaToken("resend_verification");
+        const recaptchaAction = "RESEND_VERIFICATION";
+        const recaptchaToken = await getRecaptchaToken(recaptchaAction);
         return api.post("/auth/email/resend", {
             email,
             recaptchaToken,
+            recaptchaAction,
         });
     },
 
@@ -143,8 +152,8 @@ export const authAPi = {
     },
 
     /**
-         * Refresh access token
-         */
+     * Refresh access token
+     */
     refreshToken: async (refreshToken) => {
         return api.post("/auth/token/refresh", {
             refreshToken,
