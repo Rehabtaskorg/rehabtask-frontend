@@ -1,6 +1,7 @@
 "use client";
 
 import { MdEdit, MdDelete, MdLocationOn } from "react-icons/md";
+import { getPresetLabel } from "@/lib/constants";
 
 const WorkAreaCard = ({ workArea, onEdit, onDelete }) => {
     return (
@@ -15,7 +16,7 @@ const WorkAreaCard = ({ workArea, onEdit, onDelete }) => {
                             {workArea.city}, {workArea.state}
                         </h3>
                         <span className="inline-block mt-1 text-xs font-medium text-primary bg-primary/10 px-2 py-0.5 rounded-full">
-                            {workArea.radiusMiles} mi radius
+                            {getPresetLabel(workArea.radiusMiles)}
                         </span>
                         <p className="text-xs text-text-muted mt-1">
                             {parseFloat(workArea.latitude).toFixed(4)}, {parseFloat(workArea.longitude).toFixed(4)}

@@ -2,6 +2,7 @@
 
 import { MdLocationOn } from "react-icons/md";
 import { Map, AdvancedMarker } from "@vis.gl/react-google-maps";
+import { getPresetLabel, DEFAULT_RADIUS_PRESET } from "@/lib/constants";
 
 export default function ServiceAreasCard({ workAreas }) {
     if (!workAreas || workAreas.length === 0) {
@@ -25,7 +26,8 @@ export default function ServiceAreasCard({ workAreas }) {
         ...wa,
         lat: parseFloat(wa.latitude),
         lng: parseFloat(wa.longitude),
-        radius: wa.radiusMiles || 10,
+        radius: wa.radiusMiles || DEFAULT_RADIUS_PRESET.miles,
+        presetLabel: getPresetLabel(wa.radiusMiles || DEFAULT_RADIUS_PRESET.miles),
     }));
 
     const center = {
@@ -50,7 +52,7 @@ export default function ServiceAreasCard({ workAreas }) {
                         key={wa.id || i}
                         className="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 text-text-main dark:text-white text-sm font-medium rounded-lg"
                     >
-                        {wa.city}, {wa.state} — within {wa.radius} mi
+                        {wa.city}, {wa.state} — {wa.presetLabel}
                     </span>
                 ))}
             </div>

@@ -144,7 +144,7 @@ export default function TherapistPublicProfilePage() {
                                         {primaryArea && (
                                             <div className="mt-4 flex items-center text-gray-500 gap-2">
                                                 <MdLocationOn className="text-lg" />
-                                                <span className="text-sm">{primaryArea.city}, {primaryArea.state} · {primaryArea.radiusMiles}-mile radius</span>
+                                                <span className="text-sm">{primaryArea.city}, {primaryArea.state}</span>
                                             </div>
                                         )}
                                     </div>
@@ -342,7 +342,7 @@ export default function TherapistPublicProfilePage() {
                                                     ? `$${parseFloat(profile.attemptedVisitRate).toFixed(2)}`
                                                     : "No charge",
                                             }] : []),
-                                            { label: "Service Area", value: primaryArea ? `${primaryArea.city} (${primaryArea.radiusMiles}mi)` : "—" },
+                                            { label: "Service Area", value: primaryArea ? `${primaryArea.city}, ${primaryArea.state}` : "—" },
                                         ].map((fact, i, arr) => (
                                             <div key={fact.label} className={`flex justify-between items-center py-2 ${i < arr.length - 1 ? "border-b border-gray-100" : ""}`}>
                                                 <span className="text-xs text-gray-500">{fact.label}</span>
