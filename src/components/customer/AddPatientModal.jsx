@@ -4,7 +4,7 @@ import { useState } from "react";
 import { MdClose, MdPerson, MdCheck } from "react-icons/md";
 import { APIProvider, Map, AdvancedMarker } from "@vis.gl/react-google-maps";
 import { useCreatePatient } from "@/hooks/usePatients";
-import LocationAutocomplete from "@/components/public/LocationAutocomplete";
+import LocationAutocomplete from "@/components/maps/LocationAutocomplete";
 
 const inputBase =
     "w-full bg-background-light dark:bg-background-dark border border-border-light dark:border-border-dark rounded-lg px-4 py-2.5 text-sm text-text-main dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all";

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { MdLocationOn, MdCheck } from "react-icons/md";
 import { Map, AdvancedMarker } from "@vis.gl/react-google-maps";
 import useRequestStore from "@/store/requestStore";
-import LocationAutocomplete from "@/components/public/LocationAutocomplete";
+import LocationAutocomplete from "@/components/maps/LocationAutocomplete";
 
 const DEFAULT_CENTER = { lat: 39.8283, lng: -98.5795 };
 const DEFAULT_ZOOM = 4;

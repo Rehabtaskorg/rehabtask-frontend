@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import { Map, AdvancedMarker } from "@vis.gl/react-google-maps";
 import { MdClose, MdLocationOn } from "react-icons/md";
 import Button from "@/components/ui/Button";
-import LocationAutocomplete from "@/components/public/LocationAutocomplete";
+import LocationAutocomplete from "@/components/maps/LocationAutocomplete";
 import { DEFAULT_WORK_AREA_RADIUS_MILES } from "@/lib/constants";
 
 const DEFAULT_CENTER = { lat: 39.8283, lng: -98.5795 };

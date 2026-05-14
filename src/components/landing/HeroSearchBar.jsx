@@ -3,7 +3,7 @@
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { APIProvider } from "@vis.gl/react-google-maps";
-import LocationAutocomplete from "@/components/public/LocationAutocomplete";
+import LocationAutocomplete from "@/components/maps/LocationAutocomplete";
 import LicenseTypeAutocomplete from "@/components/public/LicenseTypeAutocomplete";
 
 function HeroSearchBarInner() {

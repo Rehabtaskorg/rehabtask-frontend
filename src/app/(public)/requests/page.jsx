@@ -8,7 +8,7 @@ import { MdSearch, MdChevronLeft, MdChevronRight, MdWork, MdInfo, MdArrowForward
 import { usePublicRequests } from "@/hooks/usePublic";
 import { useAppRole } from "@/hooks/useAppRole";
 import RequestPublicCard from "@/components/public/RequestPublicCard";
-import LocationAutocomplete from "@/components/public/LocationAutocomplete";
+import LocationAutocomplete from "@/components/maps/LocationAutocomplete";
 import AuthGateModal from "@/components/public/AuthGateModal";
 import CTABanner from "@/components/public/CTABanner";
 import Footer from "@/components/landing/Footer";

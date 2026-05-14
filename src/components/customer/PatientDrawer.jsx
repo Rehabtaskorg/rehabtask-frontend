@@ -7,7 +7,7 @@ import {
     MdLocationOn, MdCheck, MdAssignment, MdCake, MdVerified,
 } from "react-icons/md";
 import { usePatient, useUpdatePatient } from "@/hooks/usePatients";
-import LocationAutocomplete from "@/components/public/LocationAutocomplete";
+import LocationAutocomplete from "@/components/maps/LocationAutocomplete";
 import { formatShortDate } from "@/utils/dates";
 import { BOOKING_STATUS } from "@/lib/constants";
 
