@@ -61,8 +61,8 @@ function TherapistRequestsContent() {
     const [loading, setLoading] = useState(true);
     const [currentPage, setCurrentPage] = useState(1);
     const [sortBy, setSortBy] = useState("newest");
-    const [filters, setFilters] = useState({ serviceTypes: [], distance: "10", show: "all" });
-    const [committedFilters, setCommittedFilters] = useState({ serviceTypes: [], distance: "10", show: "all" });
+    const [filters, setFilters] = useState({ serviceTypes: [], show: "all" });
+    const [committedFilters, setCommittedFilters] = useState({ serviceTypes: [], show: "all" });
     const [showFilters, setShowFilters] = useState(false);
     const profileAttemptedRate = user?.profile?.attemptedVisitRate != null
         ? parseFloat(user.profile.attemptedVisitRate).toFixed(2) : '';
@@ -137,7 +137,7 @@ function TherapistRequestsContent() {
     };
 
     const resetFilters = () => {
-        const reset = { serviceTypes: [], distance: "10", show: "all" };
+        const reset = { serviceTypes: [], show: "all" };
         setFilters(reset);
         setCommittedFilters(reset);
         setCurrentPage(1);
@@ -273,7 +273,6 @@ function TherapistRequestsContent() {
                 filters={filters}
                 onToggleServiceType={toggleServiceType}
                 onSetShow={(val) => setFilters((prev) => ({ ...prev, show: val }))}
-                onSetDistance={(val) => setFilters((prev) => ({ ...prev, distance: val }))}
                 onApply={applyFilters}
                 onReset={resetFilters}
             />
@@ -294,7 +293,6 @@ function TherapistRequestsContent() {
                             className="text-sm border-none bg-transparent font-semibold text-primary focus:ring-0 cursor-pointer"
                         >
                             <option value="newest">Newest First</option>
-                            <option value="distance">Distance</option>
                         </select>
                         <FilterToggleButton onClick={() => setShowFilters(true)} activeCount={activeFilterCount} />
                     </div>

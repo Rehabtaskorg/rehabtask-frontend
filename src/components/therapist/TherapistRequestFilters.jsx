@@ -21,11 +21,9 @@ export default function TherapistRequestFilters({
     filters,
     onToggleServiceType,
     onSetShow,
-    onSetDistance,
     onApply,
     onReset,
 }) {
-    const activeCount = filters.serviceTypes.length + (filters.show !== "all" ? 1 : 0);
 
     return (
         <>
@@ -71,22 +69,6 @@ export default function TherapistRequestFilters({
                                 </label>
                             ))}
                         </div>
-                    </div>
-
-                    {/* Distance */}
-                    <div className="space-y-3">
-                        <p className="text-xs font-bold text-text-muted dark:text-gray-400 uppercase tracking-widest">Distance</p>
-                        <select
-                            value={filters.distance}
-                            onChange={(e) => onSetDistance(e.target.value)}
-                            className="w-full rounded-lg border-slate-300 dark:border-border-dark dark:bg-card-dark dark:text-white text-sm focus:ring-primary focus:border-primary"
-                        >
-                            <option value="5">Within 5 miles</option>
-                            <option value="10">Within 10 miles</option>
-                            <option value="25">Within 25 miles</option>
-                            <option value="50">Within 50 miles</option>
-                        </select>
-                        <p className="text-[10px] text-text-muted italic">Distance filtering coming soon</p>
                     </div>
 
                     {/* Show */}
