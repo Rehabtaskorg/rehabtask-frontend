@@ -63,9 +63,8 @@ export default function CustomerRequestDetailPage() {
         fetchRequest();
     }, [fetchRequest]);
 
-    const handleAcceptOffer = (offerId) => {
-        const offer = (request?.offers || []).find((o) => o.id === offerId);
-        setAcceptOfferTarget(offer || { id: offerId });
+    const handleAcceptOffer = (offer) => {
+        setAcceptOfferTarget(offer);
     };
 
     const handleAccepted = useCallback(() => {

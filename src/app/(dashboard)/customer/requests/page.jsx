@@ -95,11 +95,8 @@ export default function MyRequestsPage() {
 
     // ─── Offer Actions ──────────────────────────────────────
 
-    const handleAccept = (offerId) => {
-        const offer = requests
-            .flatMap((r) => r.offers || [])
-            .find((o) => o.id === offerId);
-        setAcceptOfferTarget(offer || { id: offerId });
+    const handleAccept = (offer) => {
+        setAcceptOfferTarget(offer);
     };
 
     const handleAccepted = useCallback(async () => {
