@@ -270,17 +270,7 @@ export default function TherapistBookingDetailPage() {
                                 <MdCalendarToday className="text-primary text-lg mt-0.5 shrink-0" />
                                 <div>
                                     <p className="text-xs text-text-muted dark:text-gray-400">Date</p>
-                                    <div className="flex items-center gap-2">
-                                        <p className="text-sm font-medium text-text-main dark:text-white">{formatDate(session?.scheduledDate || booking.scheduledDate)}</p>
-                                        {sessions.length <= 1 && ["accepted", "confirmed"].includes(booking.status) && !showRescheduleModal && (
-                                            <button
-                                                onClick={() => setShowRescheduleModal(true)}
-                                                className="text-xs font-bold text-primary hover:text-primary/80 flex items-center gap-0.5 transition-colors"
-                                            >
-                                                <MdEdit className="text-sm" /> Edit
-                                            </button>
-                                        )}
-                                    </div>
+                                    <p className="text-sm font-medium text-text-main dark:text-white">{formatDate(session?.scheduledDate || booking.scheduledDate)}</p>
                                 </div>
                             </div>
                             <div className="flex items-start gap-3">
@@ -396,6 +386,16 @@ export default function TherapistBookingDetailPage() {
                                     </div>
                                 </div>
                             </div>
+                        )}
+
+                        {/* Edit date button — single-session only */}
+                        {sessions.length <= 1 && ["accepted", "confirmed"].includes(booking.status) && !showRescheduleModal && (
+                            <button
+                                onClick={() => setShowRescheduleModal(true)}
+                                className="flex items-center gap-1.5 text-sm font-semibold text-primary hover:text-primary/80 transition-colors"
+                            >
+                                <MdEdit className="text-base" /> Edit
+                            </button>
                         )}
 
                         {/* Reschedule modal (inline) */}
