@@ -53,7 +53,7 @@ export default function TherapistRequestFilters({
                 <div className="flex-1 overflow-y-auto p-6 space-y-8">
                     {/* Service Type */}
                     <div className="space-y-3">
-                        <p className="text-xs font-bold text-text-muted dark:text-gray-400 uppercase tracking-widest">Service Type</p>
+                        <p className="text-xs font-bold text-text-muted dark:text-gray-400 uppercase tracking-widest">Discipline Type</p>
                         <div className="space-y-2.5">
                             {SERVICE_TYPE_OPTIONS.map((opt) => (
                                 <label key={opt.value} className="flex items-center gap-3 cursor-pointer group">
