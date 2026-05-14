@@ -152,11 +152,7 @@ export default function AcceptOfferModal({ isOpen, onClose, offer, onAccepted })
                     {/* ── pay: inline payment section ── */}
                     {step === "pay" && booking && (
                         <div className="p-6 space-y-4">
-                            <APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}>
-                                <Elements stripe={stripePromise} options={{ appearance: getStripeAppearance() }}>
-                                    <InlinePaymentSection booking={booking} onPaymentSuccess={handlePaymentSuccess} />
-                                </Elements>
-                            </APIProvider>
+                            <InlinePaymentSection booking={booking} onPaymentSuccess={handlePaymentSuccess} />
                             <button
                                 onClick={handleViewBooking}
                                 className="w-full text-xs text-text-muted dark:text-gray-400 hover:text-primary transition-colors py-1"
