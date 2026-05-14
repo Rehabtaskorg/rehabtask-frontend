@@ -108,6 +108,8 @@ export default function PatientDrawer({ patientId, onClose }) {
     const validateEdit = () => {
         const errs = {};
         if (!editData.fullName?.trim()) errs.fullName = "Name is required";
+        if (!editData.dateOfBirth) errs.dateOfBirth = "Date of birth is required";
+        if (!editData.certificationExpiry) errs.certificationExpiry = "Certification period is required";
         if (editData.email?.trim() && !/\S+@\S+\.\S+/.test(editData.email.trim()))
             errs.email = "Please enter a valid email";
         if (editData.phone?.trim() && !/^\+1\d{10}$/.test(editData.phone.trim()))
@@ -259,7 +261,7 @@ export default function PatientDrawer({ patientId, onClose }) {
                                             </div>
                                             <div className="flex gap-3">
                                                 <div className="flex-1">
-                                                    <label className="block text-xs font-semibold text-text-muted dark:text-gray-400 mb-1">Date of Birth</label>
+                                                    <label className="block text-xs font-semibold text-text-muted dark:text-gray-400 mb-1">Date of Birth <span className="text-red-500">*</span></label>
                                                     <input
                                                         type="date"
                                                         value={editData.dateOfBirth || ""}
@@ -273,7 +275,7 @@ export default function PatientDrawer({ patientId, onClose }) {
                                                     {editErrors.dateOfBirth && <p className="text-xs text-red-500 mt-1">{editErrors.dateOfBirth}</p>}
                                                 </div>
                                                 <div className="flex-1">
-                                                    <label className="block text-xs font-semibold text-text-muted dark:text-gray-400 mb-1">Certification Period</label>
+                                                    <label className="block text-xs font-semibold text-text-muted dark:text-gray-400 mb-1">Certification Period <span className="text-red-500">*</span></label>
                                                     <input
                                                         type="date"
                                                         value={editData.certificationExpiry || ""}
