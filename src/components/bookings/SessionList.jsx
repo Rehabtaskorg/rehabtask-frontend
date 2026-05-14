@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import {
-    MdCheckCircle, MdRadioButtonUnchecked, MdTimer, MdCancel,
+    MdCheckCircle, MdTimer, MdCancel,
     MdCalendarToday, MdSchedule, MdTaskAlt, MdEdit, MdEventBusy,
     MdLocationOff,
 } from "react-icons/md";
@@ -221,9 +221,20 @@ export default function SessionList({
                                             {isResubmitted ? "Resubmitted" : config.label}
                                         </span>
                                     </div>
-                                    <p className="text-xs text-text-muted dark:text-slate-400 mt-0.5">
-                                        {session.scheduledDate ? `${formatDate(session.scheduledDate)} · ${formatTime(session.scheduledDate)}` : "Date not set"}
-                                    </p>
+                                    <div className="flex items-center gap-2 mt-0.5">
+                                        <p className="text-xs text-text-muted dark:text-slate-400">
+                                            {session.scheduledDate ? `${formatDate(session.scheduledDate)} · ${formatTime(session.scheduledDate)}` : "Date not set"}
+                                        </p>
+                                        {isSchedulable && scheduleSessionId !== session.id && (
+                                            <button
+                                                onClick={() => openScheduleFor(session)}
+                                                disabled={isAnyLoading}
+                                                className="text-xs font-bold text-primary hover:text-primary/80 flex items-center gap-0.5 transition-colors disabled:opacity-50 disabled:pointer-events-none"
+                                            >
+                                                <MdEdit className="text-sm" /> Edit
+                                            </button>
+                                        )}
+                                    </div>
                                     {isResubmitted && role === "customer" && (
                                         <div className="mt-1 text-[10px] space-y-0.5">
                                             <p className="text-amber-600 dark:text-amber-400 font-medium">
@@ -347,16 +358,6 @@ export default function SessionList({
 
                                 {/* Actions */}
                                 <div className="shrink-0 flex items-center gap-2">
-                                    {isSchedulable && scheduleSessionId !== session.id && (
-                                        <button
-                                            onClick={() => openScheduleFor(session)}
-                                            disabled={isAnyLoading}
-                                            className="text-xs font-bold text-primary hover:underline flex items-center gap-1 disabled:opacity-50 disabled:pointer-events-none"
-                                        >
-                                            {session.status === "scheduled" ? <><MdEdit className="text-sm" /> Reschedule</> : "Schedule"}
-                                        </button>
-                                    )}
-
                                     {isCompletable && scheduleSessionId !== session.id && (
                                         <button
                                             onClick={() => handleComplete(session.id)}

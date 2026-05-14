@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import {
     MdArrowBack, MdChat, MdCalendarToday, MdAccessTime, MdLocationOn, MdVideocam, MdPerson,
-    MdCheckCircle, MdWarning, MdInfo, MdRefresh, MdSchedule, MdUpdate
+    MdCheckCircle, MdWarning, MdInfo, MdRefresh, MdSchedule, MdUpdate, MdEdit
 } from "react-icons/md";
 import { useBookingDetail } from "@/hooks/useBookings";
 import { bookingsApi } from "@/lib/bookings.api";
@@ -270,7 +270,17 @@ export default function TherapistBookingDetailPage() {
                                 <MdCalendarToday className="text-primary text-lg mt-0.5 shrink-0" />
                                 <div>
                                     <p className="text-xs text-text-muted dark:text-gray-400">Date</p>
-                                    <p className="text-sm font-medium text-text-main dark:text-white">{formatDate(session?.scheduledDate || booking.scheduledDate)}</p>
+                                    <div className="flex items-center gap-2">
+                                        <p className="text-sm font-medium text-text-main dark:text-white">{formatDate(session?.scheduledDate || booking.scheduledDate)}</p>
+                                        {sessions.length <= 1 && ["accepted", "confirmed"].includes(booking.status) && !showRescheduleModal && (
+                                            <button
+                                                onClick={() => setShowRescheduleModal(true)}
+                                                className="text-xs font-bold text-primary hover:text-primary/80 flex items-center gap-0.5 transition-colors"
+                                            >
+                                                <MdEdit className="text-sm" /> Edit
+                                            </button>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
                             <div className="flex items-start gap-3">
@@ -386,17 +396,6 @@ export default function TherapistBookingDetailPage() {
                                     </div>
                                 </div>
                             </div>
-                        )}
-
-                        {/* Reschedule button — single-session only (multi-session has per-session reschedule in SessionList) */}
-                        {sessions.length <= 1 && ["accepted", "confirmed"].includes(booking.status) && !showRescheduleModal && (
-                            <button
-                                onClick={() => setShowRescheduleModal(true)}
-                                className="flex items-center gap-2 text-sm font-semibold text-primary hover:text-primary/80 transition-colors"
-                            >
-                                <MdUpdate className="text-base" />
-                                Request Reschedule
-                            </button>
                         )}
 
                         {/* Reschedule modal (inline) */}
@@ -746,7 +745,6 @@ export default function TherapistBookingDetailPage() {
                             .filter(s => s.status === "attempted")
                             .reduce((sum, s) => sum + (s.attemptedRateCharged != null ? parseFloat(s.attemptedRateCharged) : 0), 0);
                         const deliverable = Math.max(0, totalSessionCount - missedOrCancelled);
-                        const fullPayout = parseFloat(payment.therapistPayout);
                         const perSessionValue = totalSessionCount > 0 ? parseFloat(payment.amount) / totalSessionCount : 0;
                         const feeRatio = parseFloat(payment.amount) > 0 ? parseFloat(payment.platformFee) / parseFloat(payment.amount) : 0;
                         // Discount from missed/cancelled (full loss) + attempted (partial loss)
