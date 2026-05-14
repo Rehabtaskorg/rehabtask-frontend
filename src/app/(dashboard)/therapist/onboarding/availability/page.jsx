@@ -6,7 +6,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { LuCalendar, LuPlus, LuX, LuMapPin } from "react-icons/lu";
 import { MdEdit, MdDelete, MdLocationOn } from "react-icons/md";
-import { getPresetLabel } from "@/lib/constants";
 
 import useOnboardingStore from "@/store/onboardingStore";
 import { availabilitySchema } from "@/lib/onboardingValidation";
@@ -386,7 +385,7 @@ export default function AvailabilityPage() {
                                                             {area.city}, {area.state}
                                                         </p>
                                                         <p className="text-xs text-text-muted">
-                                                            ZIP {area.zipCode} &middot; {getPresetLabel(area.radiusMiles)}
+                                                            {area.zipCode ? `ZIP ${area.zipCode}` : area.state}
                                                         </p>
                                                     </div>
                                                 </div>

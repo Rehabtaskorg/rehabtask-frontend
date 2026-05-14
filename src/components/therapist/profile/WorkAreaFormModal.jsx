@@ -6,12 +6,22 @@ import { Map, AdvancedMarker } from "@vis.gl/react-google-maps";
 import { MdClose, MdLocationOn } from "react-icons/md";
 import Button from "@/components/ui/Button";
 import LocationAutocomplete from "@/components/public/LocationAutocomplete";
-import { RADIUS_PRESETS, DEFAULT_RADIUS_PRESET } from "@/lib/constants";
+import { DEFAULT_WORK_AREA_RADIUS_MILES } from "@/lib/constants";
 
 const DEFAULT_CENTER = { lat: 39.8283, lng: -98.5795 };
 const DEFAULT_ZOOM = 4;
 const SELECTED_ZOOM = 10;
 
+/**
+ * Modal for adding or editing a therapist work area.
+ * Therapist types a city or address — radius is set silently in the background.
+ *
+ * @param {Object} props
+ * @param {boolean} props.isOpen
+ * @param {Function} props.onClose
+ * @param {Object|null} props.workArea - Existing work area when editing, null when adding
+ * @param {Function} props.onSave
+ */
 const WorkAreaFormModal = ({ isOpen, onClose, workArea, onSave }) => {
     const isEditing = !!workArea;
 
@@ -21,7 +31,6 @@ const WorkAreaFormModal = ({ isOpen, onClose, workArea, onSave }) => {
     const [state, setState] = useState("");
     const [latitude, setLatitude] = useState(null);
     const [longitude, setLongitude] = useState(null);
-    const [radiusMiles, setRadiusMiles] = useState(DEFAULT_RADIUS_PRESET.miles);
     const [error, setError] = useState(null);
 
     useEffect(() => {
@@ -35,14 +44,7 @@ const WorkAreaFormModal = ({ isOpen, onClose, workArea, onSave }) => {
                 setState(s);
                 setLatitude(parseFloat(workArea.latitude) || null);
                 setLongitude(parseFloat(workArea.longitude) || null);
-                // Snap to nearest preset when editing an existing work area
-                const nearest = RADIUS_PRESETS.reduce((prev, curr) =>
-                    Math.abs(curr.miles - (workArea.radiusMiles || DEFAULT_RADIUS_PRESET.miles)) <
-                    Math.abs(prev.miles - (workArea.radiusMiles || DEFAULT_RADIUS_PRESET.miles))
-                        ? curr : prev
-                );
-                setRadiusMiles(nearest.miles);
-                setLocationInput(z && c && s ? `${z}, ${c}, ${s}` : z);
+                setLocationInput(c && s ? `${c}, ${s}` : z);
             } else {
                 setLocationInput("");
                 setZipCode("");
@@ -50,7 +52,6 @@ const WorkAreaFormModal = ({ isOpen, onClose, workArea, onSave }) => {
                 setState("");
                 setLatitude(null);
                 setLongitude(null);
-                setRadiusMiles(DEFAULT_RADIUS_PRESET.miles);
             }
             setError(null);
         }
@@ -58,15 +59,9 @@ const WorkAreaFormModal = ({ isOpen, onClose, workArea, onSave }) => {
 
     const handleLocationSelect = (place) => {
         setError(null);
-
-        if (!place.zipCode) {
-            setError("Please select a result that includes a ZIP code.");
-            return;
-        }
-
-        setZipCode(place.zipCode);
-        setCity(place.city);
-        setState(place.state);
+        setZipCode(place.zipCode || "");
+        setCity(place.city || "");
+        setState(place.state || "");
         setLatitude(place.latitude);
         setLongitude(place.longitude);
     };
@@ -83,13 +78,13 @@ const WorkAreaFormModal = ({ isOpen, onClose, workArea, onSave }) => {
     const handleSave = () => {
         setError(null);
 
-        if (!zipCode || !/^\d{5}$/.test(zipCode)) {
-            setError("Please select a valid 5-digit US ZIP code.");
+        if (latitude === null || longitude === null) {
+            setError("Please select a location from the dropdown.");
             return;
         }
 
-        if (!city || !state || latitude === null || longitude === null) {
-            setError("Please select a ZIP code from the dropdown to set your work area.");
+        if (!city || !state) {
+            setError("Please select a city or address from the dropdown.");
             return;
         }
 
@@ -99,7 +94,7 @@ const WorkAreaFormModal = ({ isOpen, onClose, workArea, onSave }) => {
             state,
             latitude,
             longitude,
-            radiusMiles,
+            radiusMiles: DEFAULT_WORK_AREA_RADIUS_MILES,
         });
         onClose();
     };
@@ -151,32 +146,22 @@ const WorkAreaFormModal = ({ isOpen, onClose, workArea, onSave }) => {
 
                     <LocationAutocomplete
                         variant="form"
-                        label="ZIP Code"
+                        label="City or Address"
                         required
-                        placeholder="e.g. 77001"
+                        placeholder="e.g. Miami, FL or Houston, TX"
                         value={locationInput}
                         onChange={setLocationInput}
                         onSelect={handleLocationSelect}
                         onClear={handleLocationClear}
-                        restrictToPostalCode
-                        helperText={
-                            hasSelectedLocation
-                                ? null
-                                : "Search by a 5-digit US ZIP code"
-                        }
+                        helperText={hasSelectedLocation ? null : "Search by city, neighbourhood, or address"}
                     />
 
                     {hasSelectedLocation && city && state && (
                         <div className="flex items-center gap-2 bg-primary/5 border border-primary/20 rounded-lg px-3 py-2">
                             <MdLocationOn className="text-primary shrink-0" />
-                            <div className="text-sm">
-                                <span className="font-medium text-text-main dark:text-white">
-                                    {city}, {state}
-                                </span>
-                                <span className="text-text-muted ml-2">
-                                    ({latitude.toFixed(4)}, {longitude.toFixed(4)})
-                                </span>
-                            </div>
+                            <span className="text-sm font-medium text-text-main dark:text-white">
+                                {city}, {state}
+                            </span>
                         </div>
                     )}
 
@@ -197,37 +182,6 @@ const WorkAreaFormModal = ({ isOpen, onClose, workArea, onSave }) => {
                                 />
                             )}
                         </Map>
-                    </div>
-
-                    {/* Coverage preset buttons */}
-                    <div className="space-y-2">
-                        <label className="block text-sm font-bold text-text-main dark:text-white uppercase tracking-wide">
-                            Coverage
-                        </label>
-                        <div className="flex gap-2">
-                            {RADIUS_PRESETS.map((preset) => (
-                                <button
-                                    key={preset.miles}
-                                    type="button"
-                                    onClick={() => setRadiusMiles(preset.miles)}
-                                    className={`flex-1 py-2.5 rounded-lg text-sm font-semibold border transition-colors ${
-                                        radiusMiles === preset.miles
-                                            ? "bg-primary text-white border-primary"
-                                            : "bg-white dark:bg-background-dark text-text-main dark:text-white border-border-light dark:border-border-dark hover:border-primary"
-                                    }`}
-                                >
-                                    {preset.label}
-                                </button>
-                            ))}
-                        </div>
-                        <p className="text-xs text-text-muted">
-                            {RADIUS_PRESETS.find((p) => p.miles === radiusMiles)?.label === "My city" &&
-                                "Covers patients within a short drive — ideal for dense urban areas."}
-                            {RADIUS_PRESETS.find((p) => p.miles === radiusMiles)?.label === "My area" &&
-                                "Covers your city and surrounding neighbourhoods — the most common choice."}
-                            {RADIUS_PRESETS.find((p) => p.miles === radiusMiles)?.label === "My region" &&
-                                "Covers a wide metro area — best if you're willing to travel further."}
-                        </p>
                     </div>
 
                     <div className="flex items-center justify-end gap-3 pt-2">

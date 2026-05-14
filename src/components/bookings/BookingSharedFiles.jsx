@@ -67,6 +67,7 @@ export default function BookingSharedFiles({ bookingId, canUpload = false }) {
         } finally {
             setUploading(false);
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [conversationId, queryClient]);
 
     if (!conversationId) return null;

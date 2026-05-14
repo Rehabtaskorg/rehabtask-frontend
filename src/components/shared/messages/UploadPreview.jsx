@@ -16,9 +16,12 @@ function DocIcon({ type }) {
     return <MdInsertDriveFile className="text-slate-400 text-lg" />;
 }
 
+/* eslint-disable @next/next/no-img-element */
 /**
  * Upload preview bar — shows staged files before sending.
  * Rendered above the message input when files are selected.
+ * Uses <img> with blob URLs (URL.createObjectURL) for local file previews —
+ * next/image does not support blob: URLs.
  *
  * @param {File[]} files - Staged files
  * @param {function} onRemove - Called with index to remove a file
