@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { MdAdd } from "react-icons/md";
-import LocationAutocomplete from "@/components/public/LocationAutocomplete";
+import LocationAutocomplete from "@/components/maps/LocationAutocomplete";
 import LicenseTypeAutocomplete from "@/components/public/LicenseTypeAutocomplete";
 
 export default function FindTherapistsHeader({

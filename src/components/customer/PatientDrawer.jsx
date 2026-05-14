@@ -7,7 +7,7 @@ import {
     MdLocationOn, MdCheck, MdAssignment, MdCake, MdVerified,
 } from "react-icons/md";
 import { usePatient, useUpdatePatient } from "@/hooks/usePatients";
-import AddressAutocomplete from "@/components/maps/AddressAutocomplete";
+import LocationAutocomplete from "@/components/maps/LocationAutocomplete";
 import { formatShortDate } from "@/utils/dates";
 import { BOOKING_STATUS } from "@/lib/constants";
 
@@ -289,12 +289,14 @@ export default function PatientDrawer({ patientId, onClose }) {
                                                 </div>
                                             </div>
                                             <div>
-                                                <AddressAutocomplete
+                                                <LocationAutocomplete
+                                                    variant="form"
                                                     value={addressText}
                                                     onChange={handleEditAddressChange}
                                                     onSelect={handleEditAddressSelect}
+                                                    onClear={() => handleEditAddressChange("")}
                                                     label="Address"
-                                                    placeholder="Search for an address..."
+                                                    placeholder="e.g. Miami, FL or 123 Main St, Houston, TX"
                                                     error={editErrors.addressLine1}
                                                 />
                                             </div>

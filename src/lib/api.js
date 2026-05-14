@@ -81,6 +81,15 @@ api.interceptors.response.use(
             return Promise.reject(error);
         }
 
+        // Don't attempt token refresh on public auth pages — the user is not
+        // logged in intentionally (registering, resetting password, etc).
+        // Stale cookies from a previous session would otherwise trigger a
+        // failed refresh and redirect them away from the page they're on.
+        const publicAuthPaths = ["/register", "/login", "/forgot-password", "/reset-password", "/verify-email"];
+        if (publicAuthPaths.some((path) => window.location.pathname.startsWith(path))) {
+            return Promise.reject(error);
+        }
+
         if (originalRequest._retry) {
             return Promise.reject(error);
         }

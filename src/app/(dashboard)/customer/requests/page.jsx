@@ -2,11 +2,12 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { MdAdd, MdSchedule, MdChevronLeft, MdChevronRight, MdCheckCircle, MdClose } from "react-icons/md";
+import { MdAdd, MdSchedule, MdChevronLeft, MdChevronRight } from "react-icons/md";
 import { api } from "@/lib/api";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import ExpandableRequestCard from "@/components/customer/ExpandableRequestCard";
 import ConfirmModal from "@/components/ui/ConfirmModal";
+import AcceptOfferModal from "@/components/customer/AcceptOfferModal";
 
 const FILTER_TABS = [
     { key: "all", label: "All" },
@@ -28,7 +29,6 @@ export default function MyRequestsPage() {
     const [activeFilter, setActiveFilter] = useState("all");
     const [currentPage, setCurrentPage] = useState(1);
     const [expandedId, setExpandedId] = useState(null);
-    const [accepting, setAccepting] = useState(null);
     const [declining, setDeclining] = useState(null);
     const [changeOfferId, setChangeOfferId] = useState(null);
     const [changeNote, setChangeNote] = useState("");
@@ -36,10 +36,10 @@ export default function MyRequestsPage() {
     const [cancellingRequestId, setCancellingRequestId] = useState(null);
     const [showCancelConfirm, setShowCancelConfirm] = useState(false);
     const [cancelling, setCancelling] = useState(false);
-    const [acceptedBooking, setAcceptedBooking] = useState(null);
     const [confirmAction, setConfirmAction] = useState(null);
+    const [acceptOfferTarget, setAcceptOfferTarget] = useState(null);
 
-    // ─── Data Fetching (server-side filtered + paginated) ───
+    // ─── Data Fetching ──────────────────────────────────────
 
     const fetchRequests = useCallback(async (filter, page) => {
         setLoading(true);
@@ -47,7 +47,6 @@ export default function MyRequestsPage() {
             const tab = FILTER_TABS.find((t) => t.key === filter);
             const params = { page, limit: PAGE_LIMIT };
             if (tab?.status) params.status = tab.status;
-
             const res = await api.get("/requests/my-requests", { params });
             const data = res.data.data;
             setRequests(data.requests || []);
@@ -67,7 +66,7 @@ export default function MyRequestsPage() {
         try {
             const res = await api.get(`/requests/${id}`);
             const updated = res.data.data;
-            setRequests((prev) => prev.map((r) => r.id === id ? { ...r, ...updated } : r));
+            setRequests((prev) => prev.map((r) => (r.id === id ? { ...r, ...updated } : r)));
         } catch (err) {
             console.error("Failed to refresh request:", err);
         }
@@ -88,7 +87,6 @@ export default function MyRequestsPage() {
                 setChangeOfferId(null);
                 setChangeNote("");
                 setShowCancelConfirm(false);
-                setAcceptedBooking(null);
                 setCancellingRequestId(null);
             }
             return next;
@@ -97,16 +95,14 @@ export default function MyRequestsPage() {
 
     // ─── Offer Actions ──────────────────────────────────────
 
-    const handleAccept = (offerId) => {
-        setConfirmAction({
-            type: "accept",
-            offerId,
-            title: "Accept Offer",
-            message: "A booking will be created and you can pay when ready. This will also decline any other pending offers for this request.",
-            confirmLabel: "Accept Offer",
-            confirmClassName: "bg-emerald-600 hover:bg-emerald-700 text-white",
-        });
+    const handleAccept = (offer) => {
+        setAcceptOfferTarget(offer);
     };
+
+    const handleAccepted = useCallback(async () => {
+        const reqId = expandedId;
+        if (reqId) await refreshExpandedRequest(reqId);
+    }, [expandedId, refreshExpandedRequest]);
 
     const handleDecline = (offerId) => {
         setConfirmAction({
@@ -123,31 +119,7 @@ export default function MyRequestsPage() {
         if (!confirmAction) return;
         const { type, offerId } = confirmAction;
 
-        if (type === "accept") {
-            setAccepting(offerId);
-            try {
-                const res = await api.post(`/offers/${offerId}/accept`);
-                setAcceptedBooking(res.data.data.booking);
-                if (expandedId) await refreshExpandedRequest(expandedId);
-                setConfirmAction(null);
-            } catch (err) {
-                const code = err.response?.data?.code;
-                if (code === "THERAPIST_LIMIT_REACHED" || code === "REQUEST_LIMIT_REACHED") {
-                    setConfirmAction({
-                        type: "upgrade",
-                        title: "Limit Reached",
-                        message: err.response.data.message + " Would you like to upgrade your plan?",
-                        confirmLabel: "Upgrade Plan",
-                        confirmClassName: "bg-primary hover:bg-primary/90 text-white",
-                    });
-                } else {
-                    setConfirmAction(null);
-                    alert(err.response?.data?.message || "Failed to accept offer.");
-                }
-            } finally {
-                setAccepting(null);
-            }
-        } else if (type === "decline") {
+        if (type === "decline") {
             setDeclining(offerId);
             try {
                 await api.post(`/offers/${offerId}/decline`);
@@ -225,9 +197,10 @@ export default function MyRequestsPage() {
                                 <button
                                     key={tab.key}
                                     onClick={() => handleFilterChange(tab.key)}
-                                    className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-colors ${isActive
-                                        ? "bg-primary text-white shadow-sm"
-                                        : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700"
+                                    className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-colors ${
+                                        isActive
+                                            ? "bg-primary text-white shadow-sm"
+                                            : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700"
                                     }`}
                                 >
                                     {tab.label}
@@ -249,7 +222,10 @@ export default function MyRequestsPage() {
                     {loading ? (
                         <div className="space-y-4">
                             {[1, 2, 3].map((i) => (
-                                <div key={i} className="h-32 bg-white dark:bg-card-dark rounded-xl border border-border-light dark:border-border-dark animate-pulse" />
+                                <div
+                                    key={i}
+                                    className="h-32 bg-white dark:bg-card-dark rounded-xl border border-border-light dark:border-border-dark animate-pulse"
+                                />
                             ))}
                         </div>
                     ) : requests.length === 0 ? (
@@ -271,29 +247,13 @@ export default function MyRequestsPage() {
                         </div>
                     ) : (
                         <div className="space-y-4">
-                            {acceptedBooking && (
-                                <div className="flex items-start gap-3 p-4 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800">
-                                    <svg className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                    <div className="flex-1 min-w-0">
-                                        <p className="text-sm font-bold text-emerald-800 dark:text-emerald-200">Offer accepted — Booking created!</p>
-                                        <p className="text-xs text-emerald-700 dark:text-emerald-300 mt-0.5">You can pay when you&apos;re ready from the booking page.</p>
-                                        <button onClick={() => router.push(`/customer/bookings/${acceptedBooking.id}`)} className="mt-2 text-xs font-bold text-primary hover:underline inline-flex items-center gap-1">View Booking →</button>
-                                    </div>
-                                    <button onClick={() => setAcceptedBooking(null)} className="text-emerald-400 hover:text-emerald-600 dark:hover:text-emerald-300 shrink-0">
-                                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
-                                    </button>
-                                </div>
-                            )}
-
                             {requests.map((req) => (
                                 <ExpandableRequestCard
                                     key={req.id}
                                     request={req}
                                     isExpanded={expandedId === req.id}
                                     onToggle={() => handleToggle(req.id)}
-                                    accepting={accepting}
+                                    accepting={null}
                                     declining={declining}
                                     changeOfferId={changeOfferId}
                                     changeNote={changeNote}
@@ -312,7 +272,6 @@ export default function MyRequestsPage() {
                                 />
                             ))}
 
-                            {/* Pagination */}
                             {pagination.totalPages > 1 && (
                                 <div className="flex items-center justify-between pt-6 border-t border-border-light dark:border-border-dark">
                                     <button
@@ -347,7 +306,14 @@ export default function MyRequestsPage() {
                 message={confirmAction?.message || ""}
                 confirmLabel={confirmAction?.confirmLabel || "Confirm"}
                 confirmClassName={confirmAction?.confirmClassName}
-                loading={!!accepting || !!declining}
+                loading={!!declining}
+            />
+
+            <AcceptOfferModal
+                isOpen={!!acceptOfferTarget}
+                onClose={() => setAcceptOfferTarget(null)}
+                offer={acceptOfferTarget}
+                onAccepted={handleAccepted}
             />
         </div>
     );
