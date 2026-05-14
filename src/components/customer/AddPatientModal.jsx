@@ -9,6 +9,15 @@ import AddressAutocomplete from "@/components/maps/AddressAutocomplete";
 const inputBase =
     "w-full bg-background-light dark:bg-background-dark border border-border-light dark:border-border-dark rounded-lg px-4 py-2.5 text-sm text-text-main dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all";
 
+/**
+ * Modal for creating a new patient under an agency account.
+ * Includes address autocomplete with map preview, and optional email/phone fields.
+ *
+ * @param {Object} props
+ * @param {boolean} props.isOpen
+ * @param {Function} props.onClose
+ * @param {Function} [props.onSuccess] - Called after successful creation
+ */
 export default function AddPatientModal({ isOpen, onClose, onSuccess }) {
     const createPatient = useCreatePatient();
 
@@ -105,7 +114,7 @@ export default function AddPatientModal({ isOpen, onClose, onSuccess }) {
             if (data?.errors && Array.isArray(data.errors)) {
                 const fieldErrors = {};
                 for (const e of data.errors) {
-                    const field = e.path?.[0];
+                    const field = e.field || e.path?.[0];
                     if (field) fieldErrors[field] = e.message;
                     else fieldErrors.form = e.message;
                 }
