@@ -64,8 +64,9 @@ export default function AcceptOfferModal({ isOpen, onClose, offer, onAccepted })
     };
 
     const handleViewBooking = () => {
+        const id = booking?.id;
         handleClose();
-        router.push(`/customer/bookings/${booking.id}`);
+        if (id) router.push(`/customer/bookings/${id}`);
     };
 
     const handleUpgradePlan = () => {
