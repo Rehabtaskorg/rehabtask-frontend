@@ -238,7 +238,10 @@ export default function AddPatientModal({ isOpen, onClose, onSuccess }) {
                                 <input
                                     type="date"
                                     value={dateOfBirth}
-                                    onChange={(e) => setDateOfBirth(e.target.value)}
+                                    onChange={(e) => {
+                                        setDateOfBirth(e.target.value);
+                                        if (e.target.value) setErrors((prev) => { const { dateOfBirth: _, ...rest } = prev; return rest; });
+                                    }}
                                     max={new Date().toISOString().split("T")[0]}
                                     className={fieldClass(errors.dateOfBirth)}
                                 />
@@ -251,7 +254,10 @@ export default function AddPatientModal({ isOpen, onClose, onSuccess }) {
                                 <input
                                     type="date"
                                     value={certificationExpiry}
-                                    onChange={(e) => setCertificationExpiry(e.target.value)}
+                                    onChange={(e) => {
+                                        setCertificationExpiry(e.target.value);
+                                        if (e.target.value) setErrors((prev) => { const { certificationExpiry: _, ...rest } = prev; return rest; });
+                                    }}
                                     className={fieldClass(errors.certificationExpiry)}
                                 />
                                 {errors.certificationExpiry && <p className="text-xs text-red-500 mt-1">{errors.certificationExpiry}</p>}

@@ -8,7 +8,7 @@ import {
 } from "react-icons/md";
 import { usePatient, useUpdatePatient } from "@/hooks/usePatients";
 import AddressAutocomplete from "@/components/maps/AddressAutocomplete";
-import { formatShortDate, formatRelativeDate } from "@/utils/dates";
+import { formatShortDate } from "@/utils/dates";
 import { BOOKING_STATUS } from "@/lib/constants";
 
 const REQUEST_STATUS_CONFIG = {
@@ -263,7 +263,10 @@ export default function PatientDrawer({ patientId, onClose }) {
                                                     <input
                                                         type="date"
                                                         value={editData.dateOfBirth || ""}
-                                                        onChange={(e) => setEditData((d) => ({ ...d, dateOfBirth: e.target.value }))}
+                                                        onChange={(e) => {
+                                                            setEditData((d) => ({ ...d, dateOfBirth: e.target.value }));
+                                                            if (e.target.value) setEditErrors((prev) => { const { dateOfBirth: _, ...rest } = prev; return rest; });
+                                                        }}
                                                         max={new Date().toISOString().split("T")[0]}
                                                         className={inputClass}
                                                     />
@@ -274,7 +277,10 @@ export default function PatientDrawer({ patientId, onClose }) {
                                                     <input
                                                         type="date"
                                                         value={editData.certificationExpiry || ""}
-                                                        onChange={(e) => setEditData((d) => ({ ...d, certificationExpiry: e.target.value }))}
+                                                        onChange={(e) => {
+                                                            setEditData((d) => ({ ...d, certificationExpiry: e.target.value }));
+                                                            if (e.target.value) setEditErrors((prev) => { const { certificationExpiry: _, ...rest } = prev; return rest; });
+                                                        }}
                                                         className={inputClass}
                                                     />
                                                     {editErrors.certificationExpiry && <p className="text-xs text-red-500 mt-1">{editErrors.certificationExpiry}</p>}
