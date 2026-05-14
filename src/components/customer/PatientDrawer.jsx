@@ -4,7 +4,7 @@ import { useState } from "react";
 import { APIProvider } from "@vis.gl/react-google-maps";
 import {
     MdClose, MdEdit, MdEmail, MdPhone,
-    MdLocationOn, MdCheck, MdAssignment,
+    MdLocationOn, MdCheck, MdAssignment, MdCake, MdVerified,
 } from "react-icons/md";
 import { usePatient, useUpdatePatient } from "@/hooks/usePatients";
 import AddressAutocomplete from "@/components/maps/AddressAutocomplete";
@@ -52,15 +52,17 @@ export default function PatientDrawer({ patientId, onClose }) {
     const handleStartEdit = () => {
         if (!patient) return;
         setEditData({
-            fullName:    patient.fullName || "",
-            email:       patient.email || "",
-            phone:       patient.phone || "",
-            addressLine1: patient.addressLine1 || "",
-            city:        patient.city || "",
-            state:       patient.state || "",
-            zipCode:     patient.zipCode || "",
-            latitude:    patient.latitude != null ? parseFloat(patient.latitude) : null,
-            longitude:   patient.longitude != null ? parseFloat(patient.longitude) : null,
+            fullName:            patient.fullName || "",
+            dateOfBirth:         patient.dateOfBirth ? patient.dateOfBirth.split("T")[0] : "",
+            certificationExpiry: patient.certificationExpiry ? patient.certificationExpiry.split("T")[0] : "",
+            email:               patient.email || "",
+            phone:               patient.phone || "",
+            addressLine1:        patient.addressLine1 || "",
+            city:                patient.city || "",
+            state:               patient.state || "",
+            zipCode:             patient.zipCode || "",
+            latitude:            patient.latitude != null ? parseFloat(patient.latitude) : null,
+            longitude:           patient.longitude != null ? parseFloat(patient.longitude) : null,
         });
         setAddressText(
             patient.addressLine1
@@ -123,8 +125,10 @@ export default function PatientDrawer({ patientId, onClose }) {
             await updatePatient.mutateAsync({
                 id: patientId,
                 data: {
-                    fullName:     editData.fullName.trim(),
-                    email:        editData.email?.trim() || "",
+                    fullName:            editData.fullName.trim(),
+                    dateOfBirth:         editData.dateOfBirth || undefined,
+                    certificationExpiry: editData.certificationExpiry || undefined,
+                    email:               editData.email?.trim() || "",
                     phone:        editData.phone?.trim() || "",
                     addressLine1: editData.addressLine1?.trim() || "",
                     city:         editData.city?.trim() || "",
@@ -253,6 +257,29 @@ export default function PatientDrawer({ patientId, onClose }) {
                                                 <input type="text" value={editData.fullName} onChange={(e) => setEditData((d) => ({ ...d, fullName: e.target.value }))} className={inputClass} />
                                                 {editErrors.fullName && <p className="text-xs text-red-500 mt-1">{editErrors.fullName}</p>}
                                             </div>
+                                            <div className="flex gap-3">
+                                                <div className="flex-1">
+                                                    <label className="block text-xs font-semibold text-text-muted dark:text-gray-400 mb-1">Date of Birth</label>
+                                                    <input
+                                                        type="date"
+                                                        value={editData.dateOfBirth || ""}
+                                                        onChange={(e) => setEditData((d) => ({ ...d, dateOfBirth: e.target.value }))}
+                                                        max={new Date().toISOString().split("T")[0]}
+                                                        className={inputClass}
+                                                    />
+                                                    {editErrors.dateOfBirth && <p className="text-xs text-red-500 mt-1">{editErrors.dateOfBirth}</p>}
+                                                </div>
+                                                <div className="flex-1">
+                                                    <label className="block text-xs font-semibold text-text-muted dark:text-gray-400 mb-1">Certification Period</label>
+                                                    <input
+                                                        type="date"
+                                                        value={editData.certificationExpiry || ""}
+                                                        onChange={(e) => setEditData((d) => ({ ...d, certificationExpiry: e.target.value }))}
+                                                        className={inputClass}
+                                                    />
+                                                    {editErrors.certificationExpiry && <p className="text-xs text-red-500 mt-1">{editErrors.certificationExpiry}</p>}
+                                                </div>
+                                            </div>
                                             <div>
                                                 <AddressAutocomplete
                                                     value={addressText}
@@ -341,6 +368,24 @@ export default function PatientDrawer({ patientId, onClose }) {
                                                 </div>
                                             </div>
                                         )}
+                                        <div className="flex items-center gap-3">
+                                            <MdCake className="text-primary text-lg shrink-0" />
+                                            <div>
+                                                <p className="text-[10px] text-text-muted dark:text-gray-400 uppercase font-bold">Date of Birth</p>
+                                                <p className="text-sm text-text-main dark:text-white">
+                                                    {patient.dateOfBirth ? formatShortDate(patient.dateOfBirth) : "—"}
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center gap-3">
+                                            <MdVerified className="text-primary text-lg shrink-0" />
+                                            <div>
+                                                <p className="text-[10px] text-text-muted dark:text-gray-400 uppercase font-bold">Certification Period</p>
+                                                <p className="text-sm text-text-main dark:text-white">
+                                                    {patient.certificationExpiry ? formatShortDate(patient.certificationExpiry) : "—"}
+                                                </p>
+                                            </div>
+                                        </div>
                                         <div className="flex items-center gap-3">
                                             <MdEmail className="text-primary text-lg shrink-0" />
                                             <p className="text-sm text-text-main dark:text-white">{patient.email || "—"}</p>

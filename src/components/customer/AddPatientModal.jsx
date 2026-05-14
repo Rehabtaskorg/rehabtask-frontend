@@ -22,6 +22,8 @@ export default function AddPatientModal({ isOpen, onClose, onSuccess }) {
     const createPatient = useCreatePatient();
 
     const [fullName, setFullName] = useState("");
+    const [dateOfBirth, setDateOfBirth] = useState("");
+    const [certificationExpiry, setCertificationExpiry] = useState("");
     const [email, setEmail] = useState("");
     const [phone, setPhone] = useState("");
     const [addressText, setAddressText] = useState("");
@@ -40,6 +42,8 @@ export default function AddPatientModal({ isOpen, onClose, onSuccess }) {
 
     const resetForm = () => {
         setFullName("");
+        setDateOfBirth("");
+        setCertificationExpiry("");
         setEmail("");
         setPhone("");
         setAddressText("");
@@ -82,6 +86,8 @@ export default function AddPatientModal({ isOpen, onClose, onSuccess }) {
     const validate = () => {
         const newErrors = {};
         if (!fullName.trim()) newErrors.fullName = "Full name is required";
+        if (!dateOfBirth) newErrors.dateOfBirth = "Date of birth is required";
+        if (!certificationExpiry) newErrors.certificationExpiry = "Certification period is required";
         if (!addressLine1.trim()) newErrors.address = "Please select an address from the dropdown";
         if (!city.trim()) newErrors.city = "City is required";
         if (!state.trim()) newErrors.state = "State is required";
@@ -102,6 +108,8 @@ export default function AddPatientModal({ isOpen, onClose, onSuccess }) {
         try {
             await createPatient.mutateAsync({
                 fullName: fullName.trim(),
+                dateOfBirth,
+                certificationExpiry,
                 email: email.trim() || undefined,
                 phone: phone.trim() || undefined,
                 addressLine1: addressLine1.trim(),
@@ -219,6 +227,35 @@ export default function AddPatientModal({ isOpen, onClose, onSuccess }) {
                                 />
                             </div>
                             {errors.fullName && <p className="text-xs text-red-500 mt-1">{errors.fullName}</p>}
+                        </div>
+
+                        {/* Date of Birth + Certification Period */}
+                        <div className="flex gap-3">
+                            <div className="flex-1">
+                                <label className="block text-sm font-medium text-text-main dark:text-white mb-1.5">
+                                    Date of Birth <span className="text-red-500">*</span>
+                                </label>
+                                <input
+                                    type="date"
+                                    value={dateOfBirth}
+                                    onChange={(e) => setDateOfBirth(e.target.value)}
+                                    max={new Date().toISOString().split("T")[0]}
+                                    className={fieldClass(errors.dateOfBirth)}
+                                />
+                                {errors.dateOfBirth && <p className="text-xs text-red-500 mt-1">{errors.dateOfBirth}</p>}
+                            </div>
+                            <div className="flex-1">
+                                <label className="block text-sm font-medium text-text-main dark:text-white mb-1.5">
+                                    Certification Period <span className="text-red-500">*</span>
+                                </label>
+                                <input
+                                    type="date"
+                                    value={certificationExpiry}
+                                    onChange={(e) => setCertificationExpiry(e.target.value)}
+                                    className={fieldClass(errors.certificationExpiry)}
+                                />
+                                {errors.certificationExpiry && <p className="text-xs text-red-500 mt-1">{errors.certificationExpiry}</p>}
+                            </div>
                         </div>
 
                         {/* Address Autocomplete */}
