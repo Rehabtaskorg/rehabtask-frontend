@@ -61,6 +61,10 @@ export default function AddPatientModal({ isOpen, onClose, onSuccess }) {
         setZipCode(result.zipCode || "");
         setLatitude(result.latitude);
         setLongitude(result.longitude);
+        setErrors((prev) => {
+            const { address, city, state, zipCode, ...rest } = prev;
+            return rest;
+        });
     };
 
     const handleAddressChange = (text) => {

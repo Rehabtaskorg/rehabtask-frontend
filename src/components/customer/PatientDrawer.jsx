@@ -82,6 +82,10 @@ export default function PatientDrawer({ patientId, onClose }) {
             latitude:     result.latitude,
             longitude:    result.longitude,
         }));
+        setEditErrors((prev) => {
+            const { addressLine1, city, state, zipCode, ...rest } = prev;
+            return rest;
+        });
     };
 
     const handleEditAddressChange = (text) => {
