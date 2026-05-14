@@ -4,7 +4,7 @@ import { useState } from "react";
 import { MdClose, MdPerson, MdCheck } from "react-icons/md";
 import { APIProvider, Map, AdvancedMarker } from "@vis.gl/react-google-maps";
 import { useCreatePatient } from "@/hooks/usePatients";
-import AddressAutocomplete from "@/components/maps/AddressAutocomplete";
+import LocationAutocomplete from "@/components/public/LocationAutocomplete";
 
 const inputBase =
     "w-full bg-background-light dark:bg-background-dark border border-border-light dark:border-border-dark rounded-lg px-4 py-2.5 text-sm text-text-main dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all";
@@ -266,14 +266,17 @@ export default function AddPatientModal({ isOpen, onClose, onSuccess }) {
 
                         {/* Address Autocomplete */}
                         <div>
-                            <AddressAutocomplete
+                            <LocationAutocomplete
+                                variant="form"
                                 value={addressText}
                                 onChange={handleAddressChange}
                                 onSelect={handleAddressSelect}
+                                onClear={handleLocationClear}
                                 label="Address"
-                                placeholder="Start typing an address..."
+                                placeholder="e.g. Miami, FL or 123 Main St, Houston, TX"
                                 required
                                 error={errors.address}
+                                helperText={hasLocation ? null : "Enter a city or full address"}
                             />
                         </div>
 
