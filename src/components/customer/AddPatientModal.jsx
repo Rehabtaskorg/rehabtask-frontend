@@ -271,7 +271,7 @@ export default function AddPatientModal({ isOpen, onClose, onSuccess }) {
                                 value={addressText}
                                 onChange={handleAddressChange}
                                 onSelect={handleAddressSelect}
-                                onClear={handleLocationClear}
+                                onClear={() => handleAddressChange("")}
                                 label="Address"
                                 placeholder="e.g. Miami, FL or 123 Main St, Houston, TX"
                                 required

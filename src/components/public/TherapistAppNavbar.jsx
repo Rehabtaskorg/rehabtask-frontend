@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { MdMenu, MdClose } from "react-icons/md";
-import LocationAutocomplete from "./LocationAutocomplete";
+import LocationAutocomplete from "@/components/maps/LocationAutocomplete";
 import LicenseTypeAutocomplete from "./LicenseTypeAutocomplete";
 
 const MENU_ITEMS = [
