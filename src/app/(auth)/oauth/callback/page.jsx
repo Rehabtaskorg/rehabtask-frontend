@@ -22,34 +22,41 @@ const OAuthCallback = () => {
                 const errorDescription = params.get('error_description');
 
                 if (errorDescription?.includes("access_denied") || params.get('error')) {
+                    console.log("[OAuth] User cancelled or error param:", params.get('error'));
                     router.replace("/login?message=Login was cancelled");
                     return;
                 }
 
-                // 3. Exchange hash for session
+                console.log("[OAuth] Calling supabase.auth.getSession()...");
                 const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+                console.log("[OAuth] getSession result — session:", !!session, "error:", sessionError?.message);
 
                 if (sessionError) throw sessionError;
 
                 if (!session) {
+                    console.log("[OAuth] No session found — redirecting to login");
                     router.replace("/login");
                     return;
                 }
 
+                console.log("[OAuth] Session obtained. access_token prefix:", session.access_token?.slice(0, 20));
                 setStatusMessage("Signing you in...");
 
+                console.log("[OAuth] Calling processOAuth...");
                 const response = await authAPi.processOAuth(
                     session.access_token,
                     session.refresh_token
                 );
+                console.log("[OAuth] processOAuth success — user:", response.data.data.user?.role, "needsOnboarding:", response.data.data.user?.needsOnboarding);
 
                 const { user } = response.data.data;
 
-                // Clear localStorage session — httpOnly cookies are now the sole
-                // session store. scope:'local' does not revoke the server-side session.
-                await supabase.auth.signOut({ scope: "local" });
+                console.log("[OAuth] Calling supabase.auth.signOut scope:local...");
+                const { error: signOutError } = await supabase.auth.signOut({ scope: "local" });
+                console.log("[OAuth] signOut result — error:", signOutError?.message ?? "none");
 
                 if (user.needsOnboarding) {
+                    console.log("[OAuth] Redirecting to onboarding");
                     router.replace("/oauth/onboarding?provider=google");
                 } else {
                     const dashboardMap = {
@@ -57,13 +64,13 @@ const OAuthCallback = () => {
                         therapist: "/therapist/dashboard",
                         admin: "/admin/dashboard"
                     };
-
                     const target = dashboardMap[user.role] || "/dashboard";
+                    console.log("[OAuth] Redirecting to dashboard:", target);
                     router.replace(target);
                 }
 
             } catch (error) {
-                console.error("OAuth process failed:", error);
+                console.error("[OAuth] Process failed:", error?.response?.status, error?.response?.data || error?.message);
                 router.replace(`/login?error=${encodeURIComponent("Authentication failed. Please try again.")}`);
             }
         };
