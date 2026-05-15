@@ -5,10 +5,10 @@ export function getStripeAppearance() {
     return {
         theme: isDark ? "night" : "stripe",
         variables: {
-            colorPrimary: "#0A2540",
-            colorBackground: isDark ? "#112240" : "#FFFFFF",
-            colorText: isDark ? "#ffffff" : "#1A1A1A",
-            colorTextSecondary: isDark ? "#94a3b8" : "#6B7280",
+            colorPrimary: isDark ? "#2EC4B6" : "#0A2540",
+            colorBackground: isDark ? "#0D1E35" : "#FFFFFF",
+            colorText: isDark ? "#F0F4F8" : "#1A1A1A",
+            colorTextSecondary: isDark ? "#94A3B8" : "#6B7280",
             colorDanger: isDark ? "#f87171" : "#ef4444",
             fontFamily: "Inter, system-ui, sans-serif",
             borderRadius: "8px",
