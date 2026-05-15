@@ -1,36 +1,40 @@
 @import "tailwindcss";
 
 @theme {
-    --color-primary: #137fec;
-    --color-border-subtle: #f0f2f4;
-    --color-text-muted: #617589;
-    --color-text-main: #111418;
-    --color-success: #10b981;
+    --color-primary: #0A2540;
+    --color-accent: #2EC4B6;
+    --color-text-main: #1A1A1A;
+    --color-text-muted: #6B7280;
+    --color-border-subtle: #F0F2F4;
+    --color-success: #22C55E;
+    --color-error: #EF4444;
+    --color-warning: #F59E0B;
 
     /* Background colors */
-    --color-background-light: #f6f7f8;
-    --color-background-dark: #101922;
+    --color-background-light: #F5F7FA;
+    --color-background-dark: #0A2540;
 
     /* Card backgrounds */
-    --color-card-light: #ffffff;
-    --color-card-dark: #1a2633;
+    --color-card-light: #FFFFFF;
+    --color-card-dark: #112240;
 
     /* Input backgrounds */
-    --color-input-light: #ffffff;
-    --color-input-dark: #0d1109;
+    --color-input-light: #FFFFFF;
+    --color-input-dark: #0D1B2E;
 
     /* Border colors */
-    --color-border-light: #e5e7eb;
-    --color-border-dark: #2d3748;
+    --color-border-light: #E2E8F0;
+    --color-border-dark: #1E3A5F;
 
     /* Muted backgrounds */
-    --color-muted-light: #f9fafb;
-    --color-muted-dark: #131811;
+    --color-muted-light: #F9FAFB;
+    --color-muted-dark: #0D1B2E;
 }
 
 @layer base {
     body {
         @apply transition-colors duration-200;
+        font-family: var(--font-inter), Inter, system-ui, sans-serif;
     }
 }
 
