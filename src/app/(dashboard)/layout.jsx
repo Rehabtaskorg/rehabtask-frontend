@@ -213,12 +213,12 @@ export default function DashboardLayout({ children }) {
             console.error("Logout error:", error);
         } finally {
             useOnboardingStore.getState().reset();
-            await supabase.auth.signOut();
+            await supabase.auth.signOut({ scope: "local" });
             router.push(redirectTo);
         }
     };
 
-    useIdleTimeout(() => handleLogout(`/login?reason=${LOGOUT_REASON.IDLE_TIMEOUT}`));
+    useIdleTimeout(user ? () => handleLogout(`/login?reason=${LOGOUT_REASON.IDLE_TIMEOUT}`) : null);
 
     if (loading) {
         return (
