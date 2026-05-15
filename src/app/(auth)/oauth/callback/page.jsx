@@ -51,9 +51,10 @@ const OAuthCallback = () => {
 
                 const { user } = response.data.data;
 
-                console.log("[OAuth] Calling supabase.auth.signOut scope:local...");
-                const { error: signOutError } = await supabase.auth.signOut({ scope: "local" });
-                console.log("[OAuth] signOut result — error:", signOutError?.message ?? "none");
+                // No signOut call needed — persistSession:false means nothing
+                // was written to localStorage, so there is nothing to clear.
+                // Calling signOut here risks invalidating the Supabase session
+                // whose tokens are now stored in the backend httpOnly cookies.
 
                 if (user.needsOnboarding) {
                     console.log("[OAuth] Redirecting to onboarding");

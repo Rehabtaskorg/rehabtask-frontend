@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { authAPi } from '@/lib/auth.api';
-import { supabase } from '@/lib/supabase';
 import { getTherapistRedirect } from '@/lib/therapistRouteAccess';
 import { TherapistAccessProvider } from '@/contexts/TherapistAccessContext';
 import { AdminUserProvider } from '@/contexts/AdminUserContext';
@@ -213,7 +212,8 @@ export default function DashboardLayout({ children }) {
             console.error("Logout error:", error);
         } finally {
             useOnboardingStore.getState().reset();
-            await supabase.auth.signOut({ scope: "local" });
+            // persistSession:false — nothing in localStorage to clear.
+            // Avoid calling signOut which risks invalidating backend cookie tokens.
             router.push(redirectTo);
         }
     };
