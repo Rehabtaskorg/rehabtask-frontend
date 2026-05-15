@@ -146,6 +146,7 @@ export default function SessionList({
     };
 
     return (
+        <>
         <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl p-5">
             {/* Header with progress */}
             <div className="flex items-center justify-between mb-4">
@@ -508,5 +509,6 @@ export default function SessionList({
             confirmClassName="bg-emerald-600 hover:bg-emerald-700 text-white"
             loading={loadingAction === "resubmit" && !!loadingSessionId}
         />
+        </>
     );
 }
