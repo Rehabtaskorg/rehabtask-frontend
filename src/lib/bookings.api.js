@@ -46,6 +46,14 @@ export const bookingsApi = {
     resubmitSession: async (sessionId) => {
         return api.post(`/sessions/${sessionId}/revision-resubmit`);
     },
+    /**
+     * Extends the revision deadline by a fixed number of days.
+     * New deadline = max(currentDueBy, now) + REVISION_EXTEND_DAYS (set on backend).
+     * @param {string} sessionId
+     */
+    extendRevision: async (sessionId) => {
+        return api.post(`/sessions/${sessionId}/revision-extend`);
+    },
     markSessionMissedByTherapist: async (sessionId, reason) => {
         return api.post(`/sessions/${sessionId}/mark-missed-by-therapist`, { reason });
     },

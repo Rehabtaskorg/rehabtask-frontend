@@ -14,7 +14,7 @@ import BookingStatusBadge from "@/components/bookings/BookingStatusBadge";
 import BookingTimeline from "@/components/bookings/BookingTimeline";
 import SessionList from "@/components/bookings/SessionList";
 import PaymentSummaryCard from "@/components/bookings/PaymentSummaryCard";
-import SubmitRevisionModal from "@/components/shared/sessions/SubmitRevisionModal";
+import ConfirmModal from "@/components/ui/ConfirmModal";
 import MarkSessionMissedModal from "@/components/shared/sessions/MarkSessionMissedModal";
 import MarkSessionAttemptedModal from "@/components/shared/sessions/MarkSessionAttemptedModal";
 import RevisionStatusBanner from "@/components/shared/sessions/RevisionStatusBanner";
@@ -41,8 +41,6 @@ export default function TherapistBookingDetailPage() {
     // UI states
     const [completing, setCompleting] = useState(false);
     const [showCompleteDialog, setShowCompleteDialog] = useState(false);
-    const [showSubmitRevisionModal, setShowSubmitRevisionModal] = useState(false);
-    const [revisionSessionId, setRevisionSessionId] = useState(null);
     const [markMissedSession, setMarkMissedSession] = useState(null);
     const [markAttemptedSession, setMarkAttemptedSession] = useState(null);
 
@@ -55,6 +53,11 @@ export default function TherapistBookingDetailPage() {
     const [rescheduleDate, setRescheduleDate] = useState("");
     const [rescheduleTime, setRescheduleTime] = useState("");
     const [rescheduling, setRescheduling] = useState(false);
+
+    // Revision extend states
+    const [showExtendConfirm, setShowExtendConfirm] = useState(false);
+    const [extendSessionId, setExtendSessionId] = useState(null);
+    const [extending, setExtending] = useState(false);
 
     // Auto-refresh when waiting for customer confirmation or reschedule response
     useEffect(() => {
@@ -104,6 +107,23 @@ export default function TherapistBookingDetailPage() {
             showToast.error(err.response?.data?.message || "Failed to request reschedule.");
         } finally {
             setRescheduling(false);
+        }
+    };
+
+    const handleExtendRevision = async () => {
+        const sessionId = extendSessionId || session?.id;
+        if (!sessionId) return;
+        setExtending(true);
+        try {
+            await bookingsApi.extendRevision(sessionId);
+            showToast.success("Revision deadline extended by 3 days.");
+            setShowExtendConfirm(false);
+            setExtendSessionId(null);
+            await refetch();
+        } catch (err) {
+            showToast.error(err.response?.data?.message || "Failed to extend deadline.");
+        } finally {
+            setExtending(false);
         }
     };
 
@@ -350,9 +370,9 @@ export default function TherapistBookingDetailPage() {
                                 await bookingsApi.scheduleSession(sessionId, scheduledDate);
                                 await refetch();
                             }}
-                            onSubmitRevision={(sessionId) => {
-                                setRevisionSessionId(sessionId);
-                                setShowSubmitRevisionModal(true);
+                            onExtendRevision={(sessionId) => {
+                                setExtendSessionId(sessionId);
+                                setShowExtendConfirm(true);
                             }}
                             onResubmitSession={async (sessionId) => {
                                 try {
@@ -544,14 +564,12 @@ export default function TherapistBookingDetailPage() {
                                     viewerRole="therapist"
                                 />
                                 <div className="flex justify-end gap-2">
-                                    {!session.revisionDueBy && (
-                                        <button
-                                            onClick={() => { setRevisionSessionId(session?.id); setShowSubmitRevisionModal(true); }}
-                                            className="bg-primary hover:brightness-95 text-white px-5 py-2.5 rounded-lg text-sm font-bold transition-colors"
-                                        >
-                                            Set Response Date
-                                        </button>
-                                    )}
+                                    <button
+                                        onClick={() => { setExtendSessionId(session.id); setShowExtendConfirm(true); }}
+                                        className="border border-primary/30 text-primary hover:bg-primary/5 px-5 py-2.5 rounded-lg text-sm font-bold transition-colors"
+                                    >
+                                        Extend
+                                    </button>
                                     {session.revisionDueBy && (
                                         <button
                                             onClick={async () => {
@@ -776,13 +794,16 @@ export default function TherapistBookingDetailPage() {
                 </div>
             </div>
 
-            {/* Submit Revision modal — mounted at root */}
-            <SubmitRevisionModal
-                isOpen={showSubmitRevisionModal}
-                onClose={() => { setShowSubmitRevisionModal(false); setRevisionSessionId(null); }}
-                sessionId={revisionSessionId || session?.id}
-                revisionReason={revisionSessionId ? sessions.find(s => s.id === revisionSessionId)?.revisionReason : session?.revisionReason}
-                onSuccess={refetch}
+            {/* Extend revision deadline confirmation */}
+            <ConfirmModal
+                isOpen={showExtendConfirm}
+                onClose={() => { if (!extending) { setShowExtendConfirm(false); setExtendSessionId(null); } }}
+                onConfirm={handleExtendRevision}
+                title="Extend Revision Deadline"
+                message="This will add 3 days to the current revision deadline. The customer will be notified of the new date. You can extend as many times as needed."
+                confirmLabel="Extend by 3 Days"
+                confirmClassName="bg-primary hover:bg-primary/90 text-white"
+                loading={extending}
             />
 
             {/* Mark Missed modal (therapist self-report) */}

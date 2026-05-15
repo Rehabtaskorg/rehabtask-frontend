@@ -61,7 +61,7 @@ export default function SessionList({
     onConfirm,
     onSchedule,
     onRequestRevision,
-    onSubmitRevision,
+    onExtendRevision,
     onResubmitSession,
     onMarkMissed,
     onReportMissed,
@@ -177,7 +177,7 @@ export default function SessionList({
                     const isCompletable = role === "therapist" && session.status === "scheduled";
                     const isConfirmable = role === "customer" && session.status === "completed_by_therapist";
                     const canRequestRevision = role === "customer" && session.status === "completed_by_therapist" && onRequestRevision;
-                    const canRespondToRevision = role === "therapist" && session.status === "in_revision" && !session.revisionDueBy && onSubmitRevision;
+                    const canExtendRevision = role === "therapist" && session.status === "in_revision" && onExtendRevision;
                     const canResubmitSession = role === "therapist" && session.status === "in_revision" && session.revisionDueBy && onResubmitSession;
                     const isInRevision = session.status === "in_revision";
                     const wasRevised = session.revisionCount > 0;
@@ -393,13 +393,13 @@ export default function SessionList({
                                             {session.revisionDueBy ? "Therapist working on it" : "Awaiting therapist"}
                                         </span>
                                     )}
-                                    {canRespondToRevision && (
+                                    {canExtendRevision && (
                                         <button
-                                            onClick={() => onSubmitRevision(session.id)}
+                                            onClick={() => onExtendRevision(session.id)}
                                             disabled={isAnyLoading}
-                                            className="text-xs font-bold text-amber-600 dark:text-amber-400 border border-amber-300 dark:border-amber-700 px-3 py-1.5 rounded-lg hover:bg-amber-50 dark:hover:bg-amber-900/20 disabled:opacity-50"
+                                            className="text-xs font-bold text-primary border border-primary/30 px-3 py-1.5 rounded-lg hover:bg-primary/5 dark:hover:bg-primary/10 disabled:opacity-50 transition-colors"
                                         >
-                                            Respond
+                                            {isThisLoading && loadingAction === "extend" ? "Extending..." : "Extend"}
                                         </button>
                                     )}
                                     {canResubmitSession && (
