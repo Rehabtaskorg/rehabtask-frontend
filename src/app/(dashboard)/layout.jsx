@@ -13,6 +13,8 @@ import { SocketProvider } from '@/components/providers/SocketProvider';
 import OnboardingBanner from '@/components/therapist/OnboardingBanner';
 import useOnboardingStore from '@/store/onboardingStore';
 import { useUnreadCount } from '@/hooks/useMessages';
+import { useIdleTimeout } from '@/hooks/useIdleTimeout';
+import { LOGOUT_REASON } from '@/lib/constants';
 import {
     MdDashboard, MdSearch, MdSend, MdCalendarMonth,
     MdChatBubble, MdPayments, MdPerson,
@@ -203,18 +205,20 @@ export default function DashboardLayout({ children }) {
         return () => { isMounted = false; };
     }, [router, pathname]);
 
-    const handleLogout = async () => {
+    const handleLogout = async (redirectTo = "/") => {
         try {
             await authAPi.logout();
-            router.push("/");
+            router.push(redirectTo);
         } catch (error) {
             console.error("Logout error:", error);
         } finally {
             useOnboardingStore.getState().reset();
             await supabase.auth.signOut();
-            router.push("/");
+            router.push(redirectTo);
         }
     };
+
+    useIdleTimeout(() => handleLogout(`/login?reason=${LOGOUT_REASON.IDLE_TIMEOUT}`));
 
     if (loading) {
         return (

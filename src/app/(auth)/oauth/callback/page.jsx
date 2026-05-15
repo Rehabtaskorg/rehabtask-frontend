@@ -45,6 +45,10 @@ const OAuthCallback = () => {
 
                 const { user } = response.data.data;
 
+                // Clear localStorage session — httpOnly cookies are now the sole
+                // session store. scope:'local' does not revoke the server-side session.
+                await supabase.auth.signOut({ scope: "local" });
+
                 if (user.needsOnboarding) {
                     router.replace("/oauth/onboarding?provider=google");
                 } else {

@@ -1,4 +1,5 @@
 import axios from "axios";
+import { LOGOUT_REASON } from "@/lib/constants";
 
 export const api = axios.create({
     baseURL: "/api",
@@ -45,7 +46,7 @@ api.interceptors.response.use(
 
         // If account was deactivated, redirect immediately
         if (error?.response?.data?.code === "ACCOUNT_DEACTIVATED") {
-            window.location.href = "/login?reason=deactivated";
+            window.location.href = `/login?reason=${LOGOUT_REASON.DEACTIVATED}`;
             return Promise.reject(error);
         }
 
@@ -69,14 +70,14 @@ api.interceptors.response.use(
             url.includes("/auth/token/refresh");
 
         if (isAuthEndpoint) {
-            // The refresh endpoint itself failed (e.g. refresh_token_already_used,
-            // token expired, or revoked). Clear auth state and redirect to login
-            // so the user doesn't get stuck on an infinite loading screen.
             if (url.includes("/auth/token/refresh")) {
-                document.cookie = "sb_access_token=; Max-Age=0; path=/";
-                document.cookie = "sb_refresh_token=; Max-Age=0; path=/";
-                document.cookie = "app_role=; Max-Age=0; path=/";
-                window.location.href = "/login?reason=session_expired";
+                try {
+                    await axios.post("/api/auth/logout");
+                } catch (_) {
+                    // best-effort — cookies may already be invalid
+                } finally {
+                    window.location.href = `/login?reason=${LOGOUT_REASON.SESSION_EXPIRED}`;
+                }
             }
             return Promise.reject(error);
         }
@@ -115,11 +116,13 @@ api.interceptors.response.use(
         } catch (refreshError) {
             processQueue(refreshError);
 
-            // Refresh failed — clear stale auth cookies and redirect to login
-            document.cookie = "sb_access_token=; Max-Age=0; path=/";
-            document.cookie = "sb_refresh_token=; Max-Age=0; path=/";
-            document.cookie = "app_role=; Max-Age=0; path=/";
-            window.location.href = "/login?reason=session_expired";
+            try {
+                await axios.post("/api/auth/logout");
+            } catch (_) {
+                // best-effort — cookies may already be invalid
+            } finally {
+                window.location.href = `/login?reason=${LOGOUT_REASON.SESSION_EXPIRED}`;
+            }
             return Promise.reject(refreshError);
         } finally {
             isRefreshing = false;
