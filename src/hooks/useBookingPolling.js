@@ -16,7 +16,7 @@ export function useBookingPolling({ booking, refetch, awaitingPaymentUpdate, set
         const interval = setInterval(refetch, 2000);
         const timeout = setTimeout(() => setAwaitingPaymentUpdate(false), 30000);
         return () => { clearInterval(interval); clearTimeout(timeout); };
-    }, [awaitingPaymentUpdate, refetch]);
+    }, [awaitingPaymentUpdate, refetch, setAwaitingPaymentUpdate]);
 
     useEffect(() => {
         if (awaitingPaymentUpdate && booking && !["pending", "accepted"].includes(booking.status)) {
