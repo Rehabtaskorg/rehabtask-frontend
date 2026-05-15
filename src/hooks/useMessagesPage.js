@@ -351,7 +351,7 @@ export function useMessagesPage(basePath) {
             setReplyingTo(null);
             setScrollTrigger(t => t + 1);
         }
-    }, [pendingDirectRecipientId, sendMessage, replyingTo, selected?.conversationId, refetchConversations, updateUrlParam, queryClient]);
+    }, [pendingDirectRecipientId, sendMessage, replyingTo, selected?.conversationId, refetchConversations, updateUrlParam, queryClient, user?.id]);
 
     return {
         // Data
