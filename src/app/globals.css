@@ -47,8 +47,11 @@
     }
 
     /* Dark mode token overrides — components using light-mode token names
-       automatically receive correct dark values when .dark is active on <html> */
+       automatically receive correct dark values when .dark is active on <html>.
+       --color-primary remaps to teal so text-primary, border-primary, bg-primary/X
+       are all readable on dark surfaces without needing per-component dark: prefixes. */
     .dark {
+        --color-primary: #2EC4B6;
         --color-background-light: #060F1A;
         --color-card-light: #0D1E35;
         --color-text-main: #F0F4F8;
