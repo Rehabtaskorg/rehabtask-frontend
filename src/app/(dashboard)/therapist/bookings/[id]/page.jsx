@@ -552,8 +552,8 @@ export default function TherapistBookingDetailPage() {
                             </div>
                         )}
 
-                        {/* Session in revision — therapist needs to respond */}
-                        {session?.status === "in_revision" && (
+                        {/* Session in revision — single-session only; multi-session handles per-session in SessionList */}
+                        {sessions.length <= 1 && session?.status === "in_revision" && (
                             <div className="space-y-3">
                                 <RevisionStatusBanner
                                     revisionRequestedAt={session.revisionRequestedAt}
