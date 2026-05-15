@@ -7,7 +7,7 @@ const CustomerRegistrationSidebar = () => {
             <div
                 className="absolute inset-0 opacity-10 pointer-events-none"
                 style={{
-                    backgroundImage: "radial-gradient(circle at 2px 2px, #137fec 1px, transparent 0)",
+                    backgroundImage: "radial-gradient(circle at 2px 2px, #2EC4B6 1px, transparent 0)",
                     backgroundSize: "24px 24px"
                 }}
             />
