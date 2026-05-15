@@ -59,6 +59,10 @@ export default function TherapistBookingDetailPage() {
     const [extendSessionId, setExtendSessionId] = useState(null);
     const [extending, setExtending] = useState(false);
 
+    // Resubmit confirmation state
+    const [showResubmitConfirm, setShowResubmitConfirm] = useState(false);
+    const [resubmitting, setResubmitting] = useState(false);
+
     // Auto-refresh when waiting for customer confirmation or reschedule response
     useEffect(() => {
         if (booking?.sessions?.[0]?.status === "completed_by_therapist" || booking?.status === "reschedule_requested") {
@@ -124,6 +128,20 @@ export default function TherapistBookingDetailPage() {
             showToast.error(err.response?.data?.message || "Failed to extend deadline.");
         } finally {
             setExtending(false);
+        }
+    };
+
+    const handleResubmitSession = async () => {
+        setResubmitting(true);
+        try {
+            await bookingsApi.resubmitSession(session.id);
+            showToast.success("Session resubmitted. Customer has been notified and has 72 hours to review.");
+            setShowResubmitConfirm(false);
+            await refetch();
+        } catch (err) {
+            showToast.error(err.response?.data?.message || "Failed to resubmit session.");
+        } finally {
+            setResubmitting(false);
         }
     };
 
@@ -572,15 +590,7 @@ export default function TherapistBookingDetailPage() {
                                     </button>
                                     {session.revisionDueBy && (
                                         <button
-                                            onClick={async () => {
-                                                try {
-                                                    await bookingsApi.resubmitSession(session.id);
-                                                    showToast.success("Session resubmitted. Customer has been notified and has 72 hours to review.");
-                                                    await refetch();
-                                                } catch (err) {
-                                                    showToast.error(err.response?.data?.message || "Failed to resubmit session.");
-                                                }
-                                            }}
+                                            onClick={() => setShowResubmitConfirm(true)}
                                             className="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-lg text-sm font-bold transition-colors"
                                         >
                                             Resubmit Session
@@ -804,6 +814,18 @@ export default function TherapistBookingDetailPage() {
                 confirmLabel="Extend by 3 Days"
                 confirmClassName="bg-primary hover:bg-primary/90 text-white"
                 loading={extending}
+            />
+
+            {/* Resubmit session confirmation */}
+            <ConfirmModal
+                isOpen={showResubmitConfirm}
+                onClose={() => { if (!resubmitting) setShowResubmitConfirm(false); }}
+                onConfirm={handleResubmitSession}
+                title="Resubmit Session"
+                message="This will notify the customer that the session is ready for review. They will have 72 hours to confirm or request another revision."
+                confirmLabel="Resubmit"
+                confirmClassName="bg-emerald-600 hover:bg-emerald-700 text-white"
+                loading={resubmitting}
             />
 
             {/* Mark Missed modal (therapist self-report) */}

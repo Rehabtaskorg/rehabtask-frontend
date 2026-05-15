@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import ConfirmModal from "@/components/ui/ConfirmModal";
 import {
     MdCheckCircle, MdTimer, MdCancel,
     MdCalendarToday, MdSchedule, MdTaskAlt, MdEdit, MdEventBusy,
@@ -71,6 +72,8 @@ export default function SessionList({
     const [scheduleDate, setScheduleDate] = useState("");
     const [loadingSessionId, setLoadingSessionId] = useState(null);
     const [loadingAction, setLoadingAction] = useState(null);
+    const [showResubmitConfirm, setShowResubmitConfirm] = useState(false);
+    const [resubmitSessionId, setResubmitSessionId] = useState(null);
 
     if (!sessions || sessions.length <= 1) return null;
 
@@ -404,9 +407,9 @@ export default function SessionList({
                                     )}
                                     {canResubmitSession && (
                                         <button
-                                            onClick={() => onResubmitSession(session.id)}
+                                            onClick={() => { setResubmitSessionId(session.id); setShowResubmitConfirm(true); }}
                                             disabled={isAnyLoading}
-                                            className="text-xs font-bold text-white bg-primary px-3 py-1.5 rounded-lg hover:bg-primary/90 disabled:opacity-50"
+                                            className="text-xs font-bold text-white bg-emerald-600 px-3 py-1.5 rounded-lg hover:bg-emerald-700 disabled:opacity-50 transition-colors"
                                         >
                                             Resubmit
                                         </button>
@@ -482,5 +485,28 @@ export default function SessionList({
                 })}
             </div>
         </div>
+
+        <ConfirmModal
+            isOpen={showResubmitConfirm}
+            onClose={() => { if (!loadingSessionId) { setShowResubmitConfirm(false); setResubmitSessionId(null); } }}
+            onConfirm={async () => {
+                if (!resubmitSessionId) return;
+                setLoadingSessionId(resubmitSessionId);
+                setLoadingAction("resubmit");
+                try {
+                    await onResubmitSession(resubmitSessionId);
+                    setShowResubmitConfirm(false);
+                    setResubmitSessionId(null);
+                } finally {
+                    setLoadingSessionId(null);
+                    setLoadingAction(null);
+                }
+            }}
+            title="Resubmit Session"
+            message="This will notify the customer that the session is ready for review. They will have 72 hours to confirm or request another revision."
+            confirmLabel="Resubmit"
+            confirmClassName="bg-emerald-600 hover:bg-emerald-700 text-white"
+            loading={loadingAction === "resubmit" && !!loadingSessionId}
+        />
     );
 }
