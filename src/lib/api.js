@@ -64,10 +64,11 @@ api.interceptors.response.use(
 
         const url = originalRequest?.url || "";
 
-        // Don't attempt to refresh for login/refresh endpoints (prevents loops)
+        // Don't attempt to refresh for login/refresh/logout endpoints (prevents loops)
         const isAuthEndpoint =
             url.includes("/auth/login") ||
-            url.includes("/auth/token/refresh");
+            url.includes("/auth/token/refresh") ||
+            url.includes("/auth/logout");
 
         if (isAuthEndpoint) {
             if (url.includes("/auth/token/refresh")) {

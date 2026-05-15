@@ -207,15 +207,12 @@ export default function DashboardLayout({ children }) {
     const handleLogout = async (redirectTo = "/") => {
         try {
             await authAPi.logout();
-            router.push(redirectTo);
         } catch (error) {
             console.error("Logout error:", error);
         } finally {
             useOnboardingStore.getState().reset();
-            // persistSession:false — nothing in localStorage to clear.
-            // Avoid calling signOut which risks invalidating backend cookie tokens.
-            router.push(redirectTo);
         }
+        router.push(redirectTo);
     };
 
     useIdleTimeout(user ? () => handleLogout(`/login?reason=${LOGOUT_REASON.IDLE_TIMEOUT}`) : null);
