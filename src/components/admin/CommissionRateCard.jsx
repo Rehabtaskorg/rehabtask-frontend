@@ -43,7 +43,9 @@ export default function CommissionRateCard({ canWrite }) {
         try {
             await setRate.mutateAsync({
                 rate: parsed / 100,
-                effectiveFrom: effectiveFrom || undefined,
+                effectiveFrom: effectiveFrom
+                    ? new Date(effectiveFrom + ":00").toISOString()
+                    : undefined,
             });
             showToast.success("Commission rate updated successfully.");
             setEditing(false);
