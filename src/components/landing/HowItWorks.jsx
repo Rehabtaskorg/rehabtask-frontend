@@ -27,9 +27,8 @@ export default function HowItWorks() {
         <section className="py-20 bg-white">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <FadeIn className="text-center mb-14">
-                    <p className="text-sm font-semibold text-primary uppercase tracking-wider">Process</p>
-                    <h2 className="mt-2 text-3xl md:text-4xl font-bold text-gray-900">How it works</h2>
-                    <p className="mt-3 text-gray-500">Get started in three simple steps</p>
+                    <h2 className="mt-2 text-3xl md:text-4xl font-bold" style={{ color: "#2EC4B6" }}>How RehabTask Works</h2>
+                    <p className="mt-3 text-gray-500">From request to placement, in minutes</p>
                 </FadeIn>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

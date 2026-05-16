@@ -54,7 +54,7 @@ function OAuthOnboardingContent() {
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-background-dark p-4 transition-colors duration-300">
-            <div className="w-full max-w-2xl bg-white dark:bg-[#1a2632] shadow-xl rounded-xl overflow-hidden border border-border-subtle dark:border-[#2d3a4a]">
+            <div className="w-full max-w-2xl bg-white dark:bg-card-dark shadow-xl rounded-xl overflow-hidden border border-border-subtle dark:border-border-dark">
 
                 {/* Progress Indicator */}
                 <div className="px-8 pt-8">
@@ -77,7 +77,7 @@ function OAuthOnboardingContent() {
                     <h1 className="text-3xl font-bold text-text-main dark:text-white mb-2">
                         {selectedRole ? "Complete Your Details" : "Complete Your Profile"}
                     </h1>
-                    <p className="text-text-muted dark:text-[#a1b0c0]">
+                    <p className="text-text-muted dark:text-text-muted">
                         {selectedRole
                             ? `Please provide the following information for your ${selectedRole} account.`
                             : "To get started, please select your account type below."}
@@ -85,13 +85,13 @@ function OAuthOnboardingContent() {
                 </div>
 
                 {/* Step 1: Role Selection */}
-                <div className="px-8 py-8 grid grid-cols-1 md:grid-cols-2 gap-4 border-b border-border-subtle dark:border-[#2d3a4a]">
+                <div className="px-8 py-8 grid grid-cols-1 md:grid-cols-2 gap-4 border-b border-border-subtle dark:border-border-dark">
                     <button
                         type="button"
                         onClick={() => handleRoleSelection("customer")}
                         className={`group relative p-6 border-2 rounded-xl transition-all text-left ${selectedRole === "customer"
                             ? "border-primary bg-primary/5 ring-2 ring-primary/20"
-                            : "border-border-subtle dark:border-[#2d3a4a] hover:border-primary/50"
+                            : "border-border-subtle dark:border-border-dark hover:border-primary/50"
                             }`}
                     >
                         <div className="flex flex-col items-center text-center space-y-4">
@@ -100,7 +100,7 @@ function OAuthOnboardingContent() {
                             </div>
                             <div>
                                 <h3 className="text-xl font-bold text-text-main dark:text-white mb-1">Customer</h3>
-                                <p className="text-sm text-text-muted dark:text-[#a1b0c0]">Book therapy sessions</p>
+                                <p className="text-sm text-text-muted dark:text-text-muted">Book therapy sessions</p>
                             </div>
                         </div>
                     </button>
@@ -110,7 +110,7 @@ function OAuthOnboardingContent() {
                         onClick={() => handleRoleSelection("therapist")}
                         className={`group relative p-6 border-2 rounded-xl transition-all text-left ${selectedRole === "therapist"
                             ? "border-primary bg-primary/5 ring-2 ring-primary/20"
-                            : "border-border-subtle dark:border-[#2d3a4a] hover:border-primary/50"
+                            : "border-border-subtle dark:border-border-dark hover:border-primary/50"
                             }`}
                     >
                         <div className="flex flex-col items-center text-center space-y-4">
@@ -119,7 +119,7 @@ function OAuthOnboardingContent() {
                             </div>
                             <div>
                                 <h3 className="text-xl font-bold text-text-main dark:text-white mb-1">Therapist</h3>
-                                <p className="text-sm text-text-muted dark:text-[#a1b0c0]">Offer your services</p>
+                                <p className="text-sm text-text-muted dark:text-text-muted">Offer your services</p>
                             </div>
                         </div>
                     </button>
@@ -137,7 +137,7 @@ function OAuthOnboardingContent() {
                         >
                             <form
                                 onSubmit={handleSubmit(onSubmit)}
-                                className="px-8 py-8 space-y-4 bg-gray-50/50 dark:bg-[#151f28]"
+                                className="px-8 py-8 space-y-4 bg-gray-50/50 dark:bg-muted-dark"
                             >
                                 {error && <Alert type="error" message={error} onClose={clearError} />}
 
@@ -159,14 +159,14 @@ function OAuthOnboardingContent() {
                                             <div className="grid grid-cols-2 gap-3">
                                                 <label className="relative cursor-pointer">
                                                     <input type="radio" value="individual" {...register("customerType")} className="peer sr-only" />
-                                                    <div className="flex items-center gap-2 p-4 border-2 border-border-subtle dark:border-[#2d3a4a] rounded-lg peer-checked:border-primary peer-checked:bg-primary/5 transition-all">
+                                                    <div className="flex items-center gap-2 p-4 border-2 border-border-subtle dark:border-border-dark rounded-lg peer-checked:border-primary peer-checked:bg-primary/5 transition-all">
                                                         <MdPerson className="text-xl text-text-muted peer-checked:text-primary" />
                                                         <span className="font-semibold text-text-main dark:text-white">Individual</span>
                                                     </div>
                                                 </label>
                                                 <label className="relative cursor-pointer">
                                                     <input type="radio" value="agency" {...register("customerType")} className="peer sr-only" />
-                                                    <div className="flex items-center gap-2 p-4 border-2 border-border-subtle dark:border-[#2d3a4a] rounded-lg peer-checked:border-primary peer-checked:bg-primary/5 transition-all">
+                                                    <div className="flex items-center gap-2 p-4 border-2 border-border-subtle dark:border-border-dark rounded-lg peer-checked:border-primary peer-checked:bg-primary/5 transition-all">
                                                         <MdBusiness className="text-xl text-text-muted peer-checked:text-primary" />
                                                         <span className="font-semibold text-text-main dark:text-white">Agency</span>
                                                     </div>

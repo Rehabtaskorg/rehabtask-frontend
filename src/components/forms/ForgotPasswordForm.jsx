@@ -24,7 +24,7 @@ const ForgotPasswordForm = () => {
     }
 
     return (
-        <div className="flex flex-col max-w-120 w-full bg-white dark:bg-[#1a2632] shadow-xl rounded-xl overflow-hidden border border-border-subtle dark:border-gray-800">
+        <div className="flex flex-col max-w-120 w-full bg-white dark:bg-card-dark shadow-xl rounded-xl overflow-hidden border border-border-subtle dark:border-border-dark">
             <div className="w-full bg-primary/5 dark:bg-primary/10 aspect-21/9 flex items-center justify-center">
                 <MdLockReset className="text-primary text-6xl" />
             </div>
@@ -87,7 +87,7 @@ const ForgotPasswordForm = () => {
             </div>
 
             {/* Trust Footer Inside Card */}
-            <div className="px-8 py-4 bg-[#f8fafc] dark:bg-[#141d28] border-t border-border-subtle dark:border-gray-800 flex items-center justify-center gap-2">
+            <div className="px-8 py-4 bg-[#f8fafc] dark:bg-muted-dark border-t border-border-subtle dark:border-border-dark flex items-center justify-center gap-2">
                 <MdVerifiedUser className="text-text-muted text-sm" />
                 <span className="text-text-muted text-xs font-medium">
                     Secure verification process for therapists and patients.

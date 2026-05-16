@@ -10,9 +10,11 @@ const Button = ({
     ...props
 }) => {
     const variants = {
-        primary: "bg-primary text-white hover:opacity-95 shadow-lg shadow-primary/20",
-        secondary: "bg-gray-100 dark:bg-[#2a3038] text-[#111418] dark:text-white hover:bg-gray-200 dark:hover:bg-[#3a4048]",
-        outline: "border-2 border-primary text-primary hover:bg-primary/5",
+        primary:     "bg-primary text-white hover:bg-primary/90 shadow-lg shadow-primary/20 dark:bg-accent dark:text-primary dark:hover:bg-accent/90",
+        secondary:   "bg-gray-100 text-text-main hover:bg-gray-200 dark:bg-primary dark:text-white dark:hover:bg-primary/90",
+        outline:     "border-2 border-primary text-primary hover:bg-primary/5 dark:border-accent dark:text-accent dark:hover:bg-accent/10",
+        destructive: "bg-error text-white hover:bg-error/90 dark:bg-error-dark dark:text-white dark:hover:bg-error-dark/90",
+        ghost:       "hover:bg-gray-100 text-text-main dark:hover:bg-primary/20 dark:text-text-main",
     }
 
     const sizes = {

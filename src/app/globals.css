@@ -1,36 +1,67 @@
 @import "tailwindcss";
 
 @theme {
-    --color-primary: #137fec;
-    --color-border-subtle: #f0f2f4;
-    --color-text-muted: #617589;
-    --color-text-main: #111418;
-    --color-success: #10b981;
+    --color-primary: #0A2540;
+    --color-accent: #2EC4B6;
+    --color-text-main: #1A1A1A;
+    --color-text-muted: #6B7280;
+    --color-border-subtle: #F0F2F4;
+    --color-success: #22C55E;
+    --color-error: #EF4444;
+    --color-warning: #F59E0B;
 
     /* Background colors */
-    --color-background-light: #f6f7f8;
-    --color-background-dark: #101922;
+    --color-background-light: #F5F7FA;
+    --color-background-dark: #060F1A;
 
     /* Card backgrounds */
-    --color-card-light: #ffffff;
-    --color-card-dark: #1a2633;
+    --color-card-light: #FFFFFF;
+    --color-card-dark: #0D1E35;
 
     /* Input backgrounds */
-    --color-input-light: #ffffff;
-    --color-input-dark: #0d1109;
+    --color-input-light: #FFFFFF;
+    --color-input-dark: #0A1628;
 
     /* Border colors */
-    --color-border-light: #e5e7eb;
-    --color-border-dark: #2d3748;
+    --color-border-light: #E2E8F0;
+    --color-border-dark: #1E3A5F;
 
     /* Muted backgrounds */
-    --color-muted-light: #f9fafb;
-    --color-muted-dark: #131811;
+    --color-muted-light: #F9FAFB;
+    --color-muted-dark: #0A1628;
+
+    /* Dark mode text */
+    --color-text-main-dark: #F0F4F8;
+    --color-text-muted-dark: #94A3B8;
+
+    /* Dark mode semantic colors */
+    --color-success-dark: #4ADE80;
+    --color-error-dark: #FCA5A5;
+    --color-warning-dark: #FCD34D;
 }
 
 @layer base {
     body {
         @apply transition-colors duration-200;
+        font-family: var(--font-inter), Inter, system-ui, sans-serif;
+    }
+
+    /* Dark mode token overrides — components using light-mode token names
+       automatically receive correct dark values when .dark is active on <html>.
+       --color-primary remaps to teal so text-primary, border-primary, bg-primary/X
+       are all readable on dark surfaces without needing per-component dark: prefixes. */
+    .dark {
+        --color-primary: #2EC4B6;
+        --color-background-light: #060F1A;
+        --color-card-light: #0D1E35;
+        --color-text-main: #F0F4F8;
+        --color-text-muted: #94A3B8;
+        --color-border-light: #1E3A5F;
+        --color-muted-light: #0A1628;
+        --color-input-light: #0A1628;
+        --color-success: #4ADE80;
+        --color-error: #FCA5A5;
+        --color-warning: #FCD34D;
     }
 }
 

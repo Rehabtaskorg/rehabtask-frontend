@@ -132,7 +132,7 @@ function ResetPasswordForm() {
 
     if (isCheckingToken) {
         return (
-            <div className="max-w-120 w-full bg-white dark:bg-[#1a242f] shadow-xl rounded-xl p-8">
+            <div className="max-w-120 w-full bg-white dark:bg-card-dark shadow-xl rounded-xl p-8">
                 <div className="text-center">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
                     <p className="text-text-muted dark:text-gray-400">Verifying reset link...</p>
@@ -143,7 +143,7 @@ function ResetPasswordForm() {
 
     if (!isValidToken) {
         return (
-            <div className="max-w-120 w-full bg-white dark:bg-[#1a242f] shadow-xl rounded-xl p-8 border border-border-subtle dark:border-gray-800">
+            <div className="max-w-120 w-full bg-white dark:bg-card-dark shadow-xl rounded-xl p-8 border border-border-subtle dark:border-border-dark">
                 <Alert
                     type="error"
                     message={error || "Invalid or expired reset link. Please request a new password reset."}
@@ -161,7 +161,7 @@ function ResetPasswordForm() {
     }
 
     return (
-        <div className="w-full max-w-120 bg-white dark:bg-[#1a242f] rounded-xl shadow-xl border border-border-subtle dark:border-gray-800 overflow-hidden">
+        <div className="w-full max-w-120 bg-white dark:bg-card-dark rounded-xl shadow-xl border border-border-subtle dark:border-border-dark overflow-hidden">
             {/* Page Heading */}
             <div className="p-8 pb-4 text-center">
                 <h1 className="text-text-main dark:text-white text-3xl font-black leading-tight tracking-[-0.033em] mb-2">
@@ -223,7 +223,7 @@ function ResetPasswordForm() {
                 )}
 
                 {/* Checklist Requirements */}
-                <div className="bg-background-light dark:bg-background-dark rounded-lg p-4 space-y-3 border border-border-subtle dark:border-gray-800">
+                <div className="bg-background-light dark:bg-background-dark rounded-lg p-4 space-y-3 border border-border-subtle dark:border-border-dark">
                     {requirements.map((req, index) => (
                         <label key={index} className="flex items-center gap-x-3 cursor-default">
                             <div
@@ -267,7 +267,7 @@ function ResetPasswordForm() {
             </form>
 
             {/* Bottom Navigation */}
-            <div className="p-6 bg-background-light/50 dark:bg-background-dark/30 border-t border-border-subtle dark:border-gray-800 text-center">
+            <div className="p-6 bg-background-light/50 dark:bg-background-dark/30 border-t border-border-subtle dark:border-border-dark text-center">
                 <Link href="/login" className="text-primary text-sm font-semibold hover:underline">
                     Back to Login
                 </Link>

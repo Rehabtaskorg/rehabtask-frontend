@@ -1,18 +1,17 @@
 import Link from "next/link";
 
+// TODO: Add /about and /pricing pages — links stubbed until pages are built
 const FOOTER_LINKS = {
     Platform: [
-        { label: "About", href: "#" },
-        { label: "How it works", href: "#" },
-        { label: "Pricing", href: "#" },
+        { label: "How it works", href: "/#how-it-works" },
     ],
-    "For Customers": [
+    "For Agencies": [
         { label: "Find therapists", href: "/register/customer" },
-        { label: "Browse requests", href: "/register/therapist" },
+        { label: "Sign up free", href: "/register/customer" },
     ],
     "For Therapists": [
         { label: "Join network", href: "/register/therapist" },
-        { label: "How payouts work", href: "#" },
+        { label: "Browse open cases", href: "/requests" },
     ],
 };
 

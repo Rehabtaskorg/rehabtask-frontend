@@ -74,9 +74,9 @@ const OFFSET_BG_LIGHT = "#f9fafb";
 const OFFSET_BG_DARK = "#162232";
 
 // Brand — --color-primary
-const PRIMARY = "#137fec";
+const PRIMARY = "#0A2540";
 // Hover variant of primary (matches Tailwind's primary/90)
-const PRIMARY_BORDER = "#137fec";
+const PRIMARY_BORDER = "#0A2540";
 
 // Status colours (match badges used elsewhere in the app)
 const DANGER = "#ef4444";
