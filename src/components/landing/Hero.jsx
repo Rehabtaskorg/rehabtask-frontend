@@ -8,8 +8,8 @@ export default function Hero() {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                     <FadeIn duration={0.6}>
-                        <h1 className="text-4xl md:text-5xl lg:text-[52px] font-extrabold text-gray-900 leading-tight tracking-tight">
-                            Where agencies and therapists connect
+                        <h1 className="text-4xl md:text-5xl lg:text-[52px] font-extrabold text-black leading-tight tracking-tight">
+                            The marketplace for modern rehabilitation care
                         </h1>
 
                         <div className="mt-8">
