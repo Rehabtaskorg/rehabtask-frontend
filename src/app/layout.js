@@ -14,7 +14,7 @@ export const metadata = {
     template: "%s | RehabTask",
     default: "RehabTask — Find Licensed Rehabilitation Therapists",
   },
-  description: "Connect with verified Physical Therapists, Occupational Therapists, and Speech-Language Pathologists for home health rehabilitation services.",
+  description: "RehabTask is a real-time marketplace connecting home health agencies with available therapists instantly — reducing placement delays, improving care access, and unlocking flexible work opportunities.",
   metadataBase: new URL(SITE_URL),
   icons: {
     icon: [
