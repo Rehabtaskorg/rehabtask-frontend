@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { MdLogin } from "react-icons/md";
+import Image from "next/image";
 import { FaGoogle } from "react-icons/fa";
 import Input from "@/components/ui/Input";
 import PasswordInput from "@/components/ui/PasswordInput";
@@ -55,13 +56,15 @@ const LoginForm = () => {
         <div className="w-full max-w-120 bg-white dark:bg-[#1a2632] shadow-xl rounded-xl overflow-hidden border border-border-subtle dark:border-[#2d3a4a]">
             {/* Card Header/Branding */}
             <div className="px-8 pt-8 pb-4">
-                <div className="flex items-center gap-2 mb-6">
-                    <div className="bg-primary p-2 rounded-lg">
-                        <MdLogin className="text-white text-2xl" />
-                    </div>
-                    <span className="text-2xl font-black text-text-main dark:text-white tracking-tight">
-                        RehabTask
-                    </span>
+                <div className="mb-6">
+                    <Image
+                        src="/images/logo/rehabtask_horizontal.png"
+                        alt="RehabTask"
+                        width={160}
+                        height={49}
+                        className="h-10 w-auto"
+                        priority
+                    />
                 </div>
                 <div className="flex flex-col gap-1">
                     <h1 className="text-2xl font-bold text-text-main dark:text-white">

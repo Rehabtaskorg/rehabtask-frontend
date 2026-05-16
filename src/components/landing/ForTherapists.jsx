@@ -16,12 +16,12 @@ export default function ForTherapists() {
                 <FadeIn
                     delay={0.2}
                     duration={0.6}
-                    className="grid grid-cols-1 lg:grid-cols-2 gap-0 rounded-2xl overflow-hidden border border-gray-200 bg-white"
+                    className="grid grid-cols-1 lg:grid-cols-2 gap-0 rounded-2xl overflow-hidden bg-white"
                 >
                     <div className="relative min-h-75 lg:min-h-100">
                         <Image
-                            src="https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=800&h=600&fit=crop"
-                            alt="Therapist working with a patient in a home health setting"
+                            src="/images/therapist-matching.png"
+                            alt="Therapist reviewing real-time patient matching on a tablet"
                             fill
                             className="object-cover"
                         />

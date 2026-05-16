@@ -1,4 +1,5 @@
-import { MdVerifiedUser, MdSpeed, MdSecurity, MdHelpOutline, MdMedicalServices } from "react-icons/md";
+import Image from "next/image";
+import { MdVerifiedUser, MdSpeed, MdSecurity, MdHelpOutline } from "react-icons/md";
 
 const CustomerRegistrationSidebar = () => {
     return (
@@ -15,11 +16,15 @@ const CustomerRegistrationSidebar = () => {
 
             <div className="relative z-10">
                 {/* Brand */}
-                <div className="flex items-center gap-2 mb-12">
-                    <div className="bg-primary p-2 rounded-lg">
-                        <MdMedicalServices className="text-white text-2xl" />
-                    </div>
-                    <span className="text-white font-bold text-xl tracking-tight">RehabTask</span>
+                <div className="mb-12">
+                    <Image
+                        src="/images/logo/rehabtask_horizontal.png"
+                        alt="RehabTask"
+                        width={160}
+                        height={49}
+                        className="h-9 w-auto brightness-0 invert"
+                        priority
+                    />
                 </div>
 
                 {/* Heading */}

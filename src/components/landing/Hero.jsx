@@ -20,10 +20,10 @@ export default function Hero() {
                     <FadeIn delay={0.2} duration={0.7} className="relative hidden lg:block">
                         <div className="relative rounded-2xl overflow-hidden shadow-2xl">
                             <Image
-                                src="https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=800&h=600&fit=crop"
-                                alt="Physical therapist helping a patient with rehabilitation exercises"
-                                width={800}
-                                height={600}
+                                src="/images/hero-platform-preview.png"
+                                alt="RehabTask platform showing agency scheduling and therapist mobile app"
+                                width={1200}
+                                height={655}
                                 className="w-full h-auto object-cover"
                                 priority
                             />
