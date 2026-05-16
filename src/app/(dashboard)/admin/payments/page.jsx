@@ -9,9 +9,6 @@ import {
     MdReceipt,
     MdClose,
     MdCheckCircle,
-    MdHistory,
-    MdPercent,
-    MdWarning,
     MdSearch,
     MdSwapVert,
 } from "react-icons/md";
@@ -20,11 +17,7 @@ import {
     useAdminPayments,
     useReleaseAdminPayment,
     useRefundAdminPayment,
-    useAdminCommissionRate,
-    useAdminCommissionHistory,
-    useSetCommissionRate,
 } from "@/hooks/useAdmin";
-import { localDateStr } from "@/utils/dates";
 
 const fmt$ = (v) =>
     v == null
@@ -39,9 +32,6 @@ const fmtDate = (d) =>
             day: "numeric",
         })
         : "—";
-
-const fmtPct = (v) =>
-    v == null ? "—" : `${(Number(v) * 100).toFixed(1)}%`;
 
 const PAYMENT_STATUS_STYLES = {
     intent_created: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300",
@@ -480,232 +470,6 @@ function PaymentSidePanel({ payment, onClose }) {
     );
 }
 
-function CommissionRateCard({ rateData, onSave, isSaving }) {
-    const [editing, setEditing] = useState(false);
-    const [newRate, setNewRate] = useState("");
-    const [scheduleDate, setScheduleDate] = useState("");
-    const [useSchedule, setUseSchedule] = useState(false);
-    const [error, setError] = useState("");
-
-    // Minimum date for scheduler: tomorrow (no past dates allowed)
-    const minDate = localDateStr(24 * 60 * 60 * 1000);
-
-    const resetForm = () => {
-        setEditing(false);
-        setNewRate("");
-        setScheduleDate("");
-        setUseSchedule(false);
-        setError("");
-    };
-
-    const handleSave = async () => {
-        setError("");
-        const parsed = parseFloat(newRate);
-        if (isNaN(parsed) || parsed < 0 || parsed > 100) {
-            setError("Enter a valid percentage between 0 and 100.");
-            return;
-        }
-        if (useSchedule && !scheduleDate) {
-            setError("Select a future date or switch to Apply Now.");
-            return;
-        }
-        const payload = { rate: parsed / 100 };
-        if (useSchedule && scheduleDate) {
-            payload.effectiveFrom = new Date(scheduleDate + "T00:00:00").toISOString();
-        }
-        try {
-            await onSave(payload);
-            resetForm();
-        } catch (err) {
-            setError(err?.response?.data?.message ?? "Failed to update rate.");
-        }
-    };
-
-    return (
-        <div className="bg-card-light dark:bg-card-dark rounded-xl border-2 border-primary/30 dark:border-primary/40 p-5 flex flex-col gap-3 max-w-md">
-            {/* Header */}
-            <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                    <MdPercent className="text-primary text-lg" />
-                    <span className="text-sm font-semibold text-text-main dark:text-white">Platform Commission</span>
-                </div>
-                {rateData?.isDefault && (
-                    <span className="text-xs text-text-muted italic">Default</span>
-                )}
-            </div>
-
-            {/* Current Rate */}
-            <div>
-                <p className="text-xs text-text-muted mb-0.5">Commission Rate</p>
-                <p className="text-3xl font-bold text-text-main dark:text-white">
-                    {rateData ? (rateData.rate * 100).toFixed(1) : "—"}%
-                </p>
-                {rateData?.effectiveFrom && (
-                    <p className="text-xs text-text-muted mt-0.5">
-                        Since {fmtDate(rateData.effectiveFrom)}
-                        {rateData.createdByAdmin && ` · ${rateData.createdByAdmin.email}`}
-                    </p>
-                )}
-            </div>
-
-            {/* Edit */}
-            {editing ? (
-                <div className="space-y-2">
-                    <div className="relative">
-                        <input
-                            type="number"
-                            value={newRate}
-                            onChange={(e) => setNewRate(e.target.value)}
-                            placeholder={rateData ? `e.g. ${(rateData.rate * 100).toFixed(0)}` : "e.g. 20"}
-                            min="0"
-                            max="100"
-                            step="0.1"
-                            autoFocus
-                            className="w-full rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-main dark:text-white px-3 py-2 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-                        />
-                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted text-sm">%</span>
-                    </div>
-
-                    {/* Apply Now vs Schedule */}
-                    <div className="flex items-center gap-3">
-                        <label className="flex items-center gap-1.5 cursor-pointer">
-                            <input
-                                type="radio"
-                                name="schedule-commission"
-                                checked={!useSchedule}
-                                onChange={() => { setUseSchedule(false); setScheduleDate(""); }}
-                                className="accent-primary"
-                            />
-                            <span className="text-xs text-text-main dark:text-white">Apply now</span>
-                        </label>
-                        <label className="flex items-center gap-1.5 cursor-pointer">
-                            <input
-                                type="radio"
-                                name="schedule-commission"
-                                checked={useSchedule}
-                                onChange={() => setUseSchedule(true)}
-                                className="accent-primary"
-                            />
-                            <span className="text-xs text-text-main dark:text-white">Schedule</span>
-                        </label>
-                    </div>
-
-                    {useSchedule && (
-                        <input
-                            type="date"
-                            value={scheduleDate}
-                            onChange={(e) => setScheduleDate(e.target.value)}
-                            min={minDate}
-                            className="w-full rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-main dark:text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-                        />
-                    )}
-
-                    {error && (
-                        <p className="text-xs text-red-500 dark:text-red-400 flex items-center gap-1">
-                            <MdWarning size={13} />{error}
-                        </p>
-                    )}
-                    <div className="flex gap-2">
-                        <button
-                            onClick={handleSave}
-                            disabled={!newRate || isSaving}
-                            className="flex-1 py-1.5 rounded-lg bg-primary hover:bg-primary/90 text-white text-xs font-medium disabled:opacity-50"
-                        >
-                            {isSaving
-                                ? "Saving…"
-                                : useSchedule
-                                    ? "Schedule"
-                                    : "Save"
-                            }
-                        </button>
-                        <button
-                            onClick={resetForm}
-                            className="flex-1 py-1.5 rounded-lg border border-border-light dark:border-border-dark text-text-muted hover:text-text-main dark:hover:text-white text-xs"
-                        >
-                            Cancel
-                        </button>
-                    </div>
-                </div>
-            ) : (
-                <button
-                    onClick={() => setEditing(true)}
-                    className="w-full py-1.5 rounded-lg border border-primary text-primary hover:bg-primary hover:text-white transition-colors text-xs font-medium"
-                >
-                    Edit Rate
-                </button>
-            )}
-        </div>
-    );
-}
-
-function CommissionTab() {
-    const { data: rateData, isLoading: rateLoading } = useAdminCommissionRate();
-    const { data: histData, isLoading: histLoading } = useAdminCommissionHistory();
-    const setRateMutation = useSetCommissionRate();
-
-    const history = histData?.configs ?? [];
-
-    return (
-        <div className="space-y-6">
-            {/* Commission Rate Card */}
-            <div>
-                <h3 className="font-semibold text-text-main dark:text-white text-sm mb-3">
-                    Platform Commission Rate
-                </h3>
-                {rateLoading ? (
-                    <Skeleton className="h-40 max-w-md rounded-xl" />
-                ) : (
-                    <CommissionRateCard
-                        rateData={rateData}
-                        onSave={(data) => setRateMutation.mutateAsync(data)}
-                        isSaving={setRateMutation.isPending}
-                    />
-                )}
-            </div>
-
-            {/* Rate History */}
-            <div className="bg-card-light dark:bg-card-dark rounded-xl border border-border-light dark:border-border-dark overflow-hidden">
-                <div className="px-4 py-3 border-b border-border-light dark:border-border-dark flex items-center gap-2">
-                    <MdHistory size={18} className="text-text-muted" />
-                    <h3 className="font-semibold text-text-main dark:text-white text-sm">Rate Change History</h3>
-                </div>
-                {histLoading ? (
-                    <div className="p-4 space-y-3">
-                        {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-10 w-full" />)}
-                    </div>
-                ) : history.length === 0 ? (
-                    <p className="p-8 text-center text-sm text-text-muted">No rate history yet.</p>
-                ) : (
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-sm">
-                            <thead>
-                                <tr className="border-b border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark">
-                                    <th className="px-4 py-2.5 text-left text-xs font-medium text-text-muted">Rate</th>
-                                    <th className="px-4 py-2.5 text-left text-xs font-medium text-text-muted">Effective From</th>
-                                    <th className="px-4 py-2.5 text-left text-xs font-medium text-text-muted">Set By</th>
-                                    <th className="px-4 py-2.5 text-left text-xs font-medium text-text-muted">Created</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-border-light dark:divide-border-dark">
-                                {history.map((h) => (
-                                    <tr key={h.id} className="hover:bg-background-light dark:hover:bg-background-dark transition-colors">
-                                        <td className="px-4 py-3 font-semibold text-text-main dark:text-white">
-                                            {fmtPct(h.rate)}
-                                        </td>
-                                        <td className="px-4 py-3 text-text-muted">{fmtDate(h.effectiveFrom)}</td>
-                                        <td className="px-4 py-3 text-text-muted">{h.createdByAdmin?.email ?? "—"}</td>
-                                        <td className="px-4 py-3 text-text-muted">{fmtDate(h.createdAt)}</td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                )}
-            </div>
-        </div>
-    );
-}
-
 const STATUS_TABS = [
     { key: "all", label: "All" },
     { key: "intent_created", label: "Pending" },
@@ -717,7 +481,6 @@ const STATUS_TABS = [
 
 export default function AdminPaymentsPage() {
     usePageTitle("Payments");
-    const [activeTab, setActiveTab] = useState("payments");
     const [statusFilter, setStatusFilter] = useState("all");
     const [selectedPayment, setSelectedPayment] = useState(null);
 
@@ -760,7 +523,7 @@ export default function AdminPaymentsPage() {
     const stats = statsData ?? {};
     const payments = paymentsData?.payments ?? [];
 
-    const panelOpen = selectedPayment && activeTab === "payments";
+    const panelOpen = !!selectedPayment;
 
     return (
         <div
@@ -768,41 +531,17 @@ export default function AdminPaymentsPage() {
         >
             <div className="p-4 lg:p-6 space-y-6">
                 {/* Page Header */}
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                    <div>
-                        <h1 className="text-xl font-bold text-text-main dark:text-white">
-                            Payments & Commission
-                        </h1>
-                        <p className="text-sm text-text-muted mt-0.5">
-                            Monitor transactions and platform commission
-                        </p>
-                    </div>
-                    {/* Tab switcher */}
-                    <div className="flex bg-background-light dark:bg-background-dark rounded-lg p-1 border border-border-light dark:border-border-dark">
-                        {[
-                            { key: "payments", label: "Payments" },
-                            { key: "commission", label: "Commission" },
-                        ].map((t) => (
-                            <button
-                                key={t.key}
-                                onClick={() => {
-                                    setActiveTab(t.key);
-                                    if (t.key !== "payments") setSelectedPayment(null);
-                                }}
-                                className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${activeTab === t.key
-                                    ? "bg-card-light dark:bg-card-dark text-text-main dark:text-white shadow-sm"
-                                    : "text-text-muted hover:text-text-main dark:hover:text-white"
-                                    }`}
-                            >
-                                {t.label}
-                            </button>
-                        ))}
-                    </div>
+                <div>
+                    <h1 className="text-xl font-bold text-text-main dark:text-white">
+                        Payments
+                    </h1>
+                    <p className="text-sm text-text-muted mt-0.5">
+                        Monitor transactions and manage payouts
+                    </p>
                 </div>
 
-                {activeTab === "payments" ? (
-                    <>
-                        {/* Stats */}
+                <>
+                    {/* Stats */}
                         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                             <StatCard
                                 icon={MdAttachMoney}
@@ -992,9 +731,6 @@ export default function AdminPaymentsPage() {
                             </div>
                         </div>
                     </>
-                ) : (
-                    <CommissionTab />
-                )}
             </div>
 
             {/* Side panel */}
