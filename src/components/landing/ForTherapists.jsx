@@ -16,7 +16,7 @@ export default function ForTherapists() {
                 <FadeIn
                     delay={0.2}
                     duration={0.6}
-                    className="grid grid-cols-1 lg:grid-cols-2 gap-0 rounded-2xl overflow-hidden bg-white"
+                    className="grid grid-cols-1 lg:grid-cols-2 gap-0 rounded-2xl overflow-hidden bg-[#0A2540]"
                 >
                     <div className="relative min-h-75 lg:min-h-100">
                         <Image
@@ -27,7 +27,7 @@ export default function ForTherapists() {
                         />
                     </div>
                     <div className="p-8 md:p-12 flex flex-col justify-center">
-                        <p className="mt-4 text-gray-500 leading-relaxed">
+                        <p className="mt-4 text-slate-300 leading-relaxed">
                             Get matched with the right cases in real time. Set your availability, accept opportunities instantly, and manage your entire workflow, from one platform.
                         </p>
                         <div className="mt-6 flex flex-wrap items-center gap-4">

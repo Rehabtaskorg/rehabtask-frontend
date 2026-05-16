@@ -6,7 +6,7 @@ export default function Hero() {
     return (
         <section className="pt-24 pb-16 md:pt-32 md:pb-24 bg-gray-50">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.2fr] gap-8 xl:gap-12 items-center">
                     <FadeIn duration={0.6}>
                         <h1 className="text-4xl md:text-5xl lg:text-[52px] font-extrabold text-black leading-tight tracking-tight">
                             The marketplace for modern rehabilitation care
@@ -18,7 +18,7 @@ export default function Hero() {
                     </FadeIn>
 
                     <FadeIn delay={0.2} duration={0.7} className="relative hidden lg:block">
-                        <div className="relative rounded-2xl overflow-hidden shadow-2xl">
+                        <div className="relative rounded-2xl overflow-hidden shadow-2xl min-h-[380px] xl:min-h-[460px]">
                             <Image
                                 src="/images/hero-platform-preview.png"
                                 alt="RehabTask platform showing agency scheduling and therapist mobile app"
