@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { authAPi } from '@/lib/auth.api';
 import { getTherapistRedirect } from '@/lib/therapistRouteAccess';
 import { TherapistAccessProvider } from '@/contexts/TherapistAccessContext';
@@ -367,7 +368,13 @@ function DashboardInner({ user, pathname, sidebarOpen, setSidebarOpen, handleLog
                 >
                     <MdMenu className="text-xl" />
                 </button>
-                <span className="ml-3 text-primary font-bold text-lg leading-none">RehabTask</span>
+                <Image
+                    src="/images/logo/rehabtask_horizontal.png"
+                    alt="RehabTask"
+                    height={28}
+                    width={105}
+                    className="ml-3 h-7 w-auto"
+                />
             </div>
 
             {/* ── THERAPIST SIDEBAR ── */}
@@ -380,7 +387,11 @@ function DashboardInner({ user, pathname, sidebarOpen, setSidebarOpen, handleLog
                         <div className={`${c ? 'p-3' : 'p-6'} flex flex-col`}>
                             <div className={`flex items-center ${c ? 'justify-center mb-4' : 'justify-between mb-8'}`}>
                                 <div>
-                                    <h1 className={`text-primary font-bold leading-none ${c ? 'text-sm' : 'text-xl'}`}>{c ? 'RT' : 'RehabTask'}</h1>
+                                    {c ? (
+                                        <Image src="/images/logo/rehabtask_icon.png" alt="RehabTask" width={28} height={28} className="w-7 h-7" />
+                                    ) : (
+                                        <Image src="/images/logo/rehabtask_horizontal.png" alt="RehabTask" height={28} width={105} className="h-7 w-auto" />
+                                    )}
                                     {!c && <p className="text-slate-500 dark:text-slate-400 text-xs mt-1 font-medium">Therapist Portal</p>}
                                 </div>
                                 {!c && <CollapseToggle collapsed={c} />}
@@ -429,7 +440,11 @@ function DashboardInner({ user, pathname, sidebarOpen, setSidebarOpen, handleLog
                             <MdClose className="text-xl" />
                         </button>
                         <div className={`${c ? 'p-3' : 'p-6'} flex ${c ? 'flex-col items-center gap-2' : 'items-center justify-between'}`}>
-                            <h1 className={`text-primary font-bold leading-none ${c ? 'text-sm' : 'text-xl'}`}>{c ? 'RT' : 'RehabTask'}</h1>
+                            {c ? (
+                                <Image src="/images/logo/rehabtask_icon.png" alt="RehabTask" width={28} height={28} className="w-7 h-7" />
+                            ) : (
+                                <Image src="/images/logo/rehabtask_horizontal.png" alt="RehabTask" height={28} width={105} className="h-7 w-auto" />
+                            )}
                             <CollapseToggle collapsed={c} />
                         </div>
                         <nav className={`flex-1 ${c ? 'px-2' : 'px-4'} space-y-1 overflow-y-auto`}>
@@ -485,7 +500,7 @@ function DashboardInner({ user, pathname, sidebarOpen, setSidebarOpen, handleLog
                             <MdClose className="text-xl" />
                         </button>
                         <div className="p-6">
-                            <h1 className="text-primary text-xl font-bold leading-none">RehabTask</h1>
+                            <Image src="/images/logo/rehabtask_horizontal.png" alt="RehabTask" height={28} width={105} className="h-7 w-auto" />
                             <p className="text-slate-500 text-xs mt-1">Setup your profile</p>
                         </div>
                     </aside>
@@ -502,7 +517,11 @@ function DashboardInner({ user, pathname, sidebarOpen, setSidebarOpen, handleLog
                         </button>
                         <div className={`${c ? 'p-3' : 'p-5'} flex ${c ? 'flex-col items-center gap-2' : 'items-start justify-between'} border-b border-slate-100 dark:border-slate-800`}>
                             <div>
-                                <h1 className={`text-primary font-bold leading-none ${c ? 'text-sm' : 'text-xl'}`}>{c ? 'RT' : 'RehabTask'}</h1>
+                                {c ? (
+                                    <Image src="/images/logo/rehabtask_icon.png" alt="RehabTask" width={28} height={28} className="w-7 h-7" />
+                                ) : (
+                                    <Image src="/images/logo/rehabtask_horizontal.png" alt="RehabTask" height={28} width={105} className="h-7 w-auto" />
+                                )}
                                 {!c && (
                                     <p className="text-slate-500 dark:text-slate-400 text-xs mt-1 font-medium flex items-center gap-1">
                                         <MdAdminPanelSettings className="text-sm" />
