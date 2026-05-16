@@ -4,7 +4,7 @@ import FadeIn from "@/components/ui/FadeIn";
 
 export default function ForTherapists() {
     return (
-        <section className="py-20 bg-gray-50">
+        <section className="py-20">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <FadeIn className="text-center mb-10">
                     <h2 className="mt-2 text-3xl md:text-4xl font-bold" style={{ color: "#2EC4B6" }}>Get Matched. Get Booked. Get to Work.</h2>
@@ -16,7 +16,7 @@ export default function ForTherapists() {
                 <FadeIn
                     delay={0.2}
                     duration={0.6}
-                    className="grid grid-cols-1 lg:grid-cols-2 gap-0 rounded-2xl overflow-hidden bg-[#0A2540]"
+                    className="grid grid-cols-1 lg:grid-cols-2 gap-0 rounded-2xl overflow-hidden bg-white"
                 >
                     <div className="relative min-h-75 lg:min-h-100">
                         <Image
@@ -27,7 +27,7 @@ export default function ForTherapists() {
                         />
                     </div>
                     <div className="p-8 md:p-12 flex flex-col justify-center">
-                        <p className="mt-4 text-slate-300 leading-relaxed">
+                        <p className="mt-4 text-gray-500 leading-relaxed">
                             Get matched with the right cases in real time. Set your availability, accept opportunities instantly, and manage your entire workflow, from one platform.
                         </p>
                         <div className="mt-6 flex flex-wrap items-center gap-4">
