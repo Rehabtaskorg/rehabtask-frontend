@@ -79,8 +79,8 @@ export default function MarkSessionAttemptedModal({
             className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
             onClick={handleBackdropClick}
         >
-            <div className="bg-card-light dark:bg-card-dark rounded-xl w-full max-w-lg shadow-2xl overflow-hidden">
-                <div className="px-6 py-4 border-b border-border-light dark:border-border-dark flex items-center justify-between">
+            <div className="bg-card-light dark:bg-card-dark rounded-xl w-full max-w-lg shadow-2xl flex flex-col max-h-[90vh]">
+                <div className="px-6 py-4 border-b border-border-light dark:border-border-dark flex items-center justify-between shrink-0">
                     <div className="flex items-center gap-2">
                         <MdLocationOff className="text-amber-500 text-xl" />
                         <h2 className="text-lg font-semibold text-text-main dark:text-white">
@@ -98,7 +98,7 @@ export default function MarkSessionAttemptedModal({
                     </button>
                 </div>
 
-                <form onSubmit={handleSubmit} className="p-6 space-y-5">
+                <form onSubmit={handleSubmit} className="p-6 space-y-5 overflow-y-auto">
                     <div>
                         <p className="text-sm text-text-muted dark:text-gray-400">
                             You arrived but the patient wasn&apos;t home. This will close the session and
