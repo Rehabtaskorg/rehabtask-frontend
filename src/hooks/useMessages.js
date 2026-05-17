@@ -53,14 +53,13 @@ export function useConversations(pollInterval) {
 }
 
 /**
- * Hook to manage messages in an active conversation thread
- * Phase 3: takes conversationId only. sendContext is used for the legacy send path.
+ * Hook to manage messages in an active conversation thread.
+ * Phase 3: all sends go through POST /messages/c/:conversationId.
  *
  * @param {string} conversationId - UUID of the DirectConversation
- * @param {object} sendContext - { contextType, contextId } for the legacy POST /messages endpoint
  * @param {number} pollInterval - optional poll interval in ms
  */
-export function useMessages(conversationId, sendContext = {}, pollInterval) {
+export function useMessages(conversationId, pollInterval) {
     const queryClient = useQueryClient();
     const { user } = useAuth();
     const { connected } = useSocketContext();
@@ -125,18 +124,9 @@ export function useMessages(conversationId, sendContext = {}, pollInterval) {
         return () => { lastReadCountRef.current = 0; };
     }, [conversationId, data, user?.id, queryClient]);
 
-    // Send message — uses the legacy POST /messages with contextType/contextId
-    // which dual-writes to the DirectConversation automatically
-    const { contextType, contextId } = sendContext;
-
     const { mutateAsync: sendMessageMutation } = useMutation({
         mutationFn: ({ content, replyToId }) =>
-            messagesApi.sendMessage({
-                content: content.trim(),
-                contextType: contextType || "direct",
-                contextId: contextId || conversationId,
-                replyToId: replyToId || undefined,
-            }),
+            messagesApi.sendMessage(conversationId, content.trim(), replyToId || undefined),
 
         onMutate: async ({ content, replyToId, _replyPreview }) => {
             await queryClient.cancelQueries({ queryKey: messagesQueryKey });
@@ -261,28 +251,39 @@ export function useMessages(conversationId, sendContext = {}, pollInterval) {
 }
 
 /**
- * Hook to get the other party's info for a conversation
- * Fetches directly from offer/booking record — works even when no messages exist yet
- * @param {string} contextType - "offer" | "booking" | "direct"
- * @param {string} contextId - UUID
+ * Hook to get the other party's info for a pending new direct conversation.
+ * Phase 3: resolves from the conversations list if a conversation already exists,
+ * otherwise fetches basic public info from GET /messages/users/:userId/info.
+ *
+ * @param {string|null} userId - The other user's ID (null when no pending conversation)
  */
-export function useConversationContext(contextType, contextId) {
-    const { data, isLoading, error } = useQuery({
-        queryKey: ["conversationContext", contextType, contextId],
+export function useConversationContext(userId) {
+    const { conversations } = useConversations();
+
+    const existingConv = userId
+        ? conversations.find(c => c.otherUser?.id === userId)
+        : null;
+
+    const { data: fetchedInfo, isLoading } = useQuery({
+        queryKey: ["userPublicInfo", userId],
         queryFn: async () => {
-            const res = await messagesApi.getConversationContext(contextType, contextId);
+            const res = await messagesApi.getUserPublicInfo(userId);
             return res.data.data;
         },
-        enabled: !!contextType && !!contextId,
+        enabled: !!userId && !existingConv,
         staleTime: 5 * 60 * 1000,
     });
 
-    return {
-        otherUser: data?.otherUser ?? null,
-        patient: data?.patient ?? null,
-        loading: isLoading,
-        error: !!error,
+    if (existingConv) {
+        return { otherUser: existingConv.otherUser, patient: existingConv.patient, loading: false, error: false };
     }
+
+    return {
+        otherUser: fetchedInfo ?? null,
+        patient: null,
+        loading: isLoading,
+        error: false,
+    };
 }
 
 /**

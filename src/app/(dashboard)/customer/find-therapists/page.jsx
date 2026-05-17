@@ -22,6 +22,7 @@ function mapTherapist(t) {
     const location = firstArea ? `${firstArea.city}, ${firstArea.state}` : "Location not specified";
     return {
         id: t.id,
+        userId: t.userId,
         fullName: t.fullName || "",
         licenseType: t.primaryLicenseType || "",
         experience: t.yearsOfExperience || 0,
@@ -42,6 +43,7 @@ function buildMapPins(rawTherapists) {
             pins.push({
                 id: `${t.id}__${area.city}_${area.state}_${area.latitude}_${area.longitude}`,
                 therapistId: t.id,
+                userId: t.userId,
                 fullName: t.fullName || "",
                 rate: t.ratePerVisit ? parseFloat(t.ratePerVisit) : 0,
                 photoUrl: t.profilePhotoUrl || null,

@@ -32,7 +32,7 @@ export default function TherapistProfilePage() {
 
     const handleMessage = () => {
         if (!therapist?.userId) return;
-        router.push(`/customer/messages?c=direct:${therapist.userId}`);
+        router.push(`/customer/messages?c=new:${therapist.userId}`);
     };
 
     const handleReviewSuccess = () => {

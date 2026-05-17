@@ -47,6 +47,7 @@ export function aggregatePinsByLocation(pins) {
             location: first.location,
             therapists: bucket.map((p) => ({
                 id: p.therapistId,
+                userId: p.userId,
                 pinId: p.id,
                 fullName: p.fullName,
                 rate: p.rate,
