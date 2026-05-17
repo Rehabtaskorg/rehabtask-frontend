@@ -192,9 +192,10 @@ export default function TherapistRequestDetailPage() {
     }
 
     const myOffer = getMyOffer();
-    // Allow resubmit if the previous offer was rejected, withdrawn, or expired
-    const offerIsTerminal = myOffer && ["rejected", "withdrawn", "expired"].includes(myOffer.status);
-    const canSendOffer = request.status !== "offers_accepted" && (!myOffer || offerIsTerminal) && !offerSuccess;
+    // Withdrawn/expired offers allow a fresh submission; rejected offers permanently block resubmission.
+    const offerIsTerminal = myOffer && ["withdrawn", "expired"].includes(myOffer.status);
+    const offerIsRejected = myOffer?.status === "rejected";
+    const canSendOffer = request.status !== "offers_accepted" && (!myOffer || offerIsTerminal) && !offerIsRejected && !offerSuccess;
     const isOpen = ["created", "offers_received"].includes(request.status);
 
     return (
@@ -360,7 +361,7 @@ export default function TherapistRequestDetailPage() {
                     )}
 
                     {/* Offer Status — shows current state of the therapist's offer */}
-                    {(myOffer && !offerIsTerminal) && (
+                    {(myOffer && !offerIsTerminal && !offerIsRejected) && (
                         <section className="bg-card-light dark:bg-card-dark rounded-xl p-6 shadow-sm border border-border-light dark:border-border-dark space-y-4">
                             {myOffer.status === "pending" && (
                                 <div className="flex items-center gap-3 p-4 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-lg">
@@ -416,7 +417,22 @@ export default function TherapistRequestDetailPage() {
                         </section>
                     )}
 
-                    {/* Previous offer was rejected/withdrawn/expired — show info and allow resubmit */}
+                    {/* Offer declined — blocked from resubmitting */}
+                    {offerIsRejected && (
+                        <section className="bg-card-light dark:bg-card-dark rounded-xl p-6 shadow-sm border border-border-light dark:border-border-dark space-y-3">
+                            <div className="flex items-center gap-3 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+                                <MdWarning className="text-red-500 dark:text-red-400 text-lg shrink-0" />
+                                <div>
+                                    <p className="text-xs font-bold text-red-700 dark:text-red-300">Offer Declined</p>
+                                    <p className="text-xs text-red-600 dark:text-red-400 mt-0.5">
+                                        The customer has declined your offer. You cannot submit another offer on this request.
+                                    </p>
+                                </div>
+                            </div>
+                        </section>
+                    )}
+
+                    {/* Previous offer was withdrawn/expired — show info and allow resubmit */}
                     {offerIsTerminal && (
                         <section className="bg-card-light dark:bg-card-dark rounded-xl p-6 shadow-sm border border-border-light dark:border-border-dark space-y-3">
                             <div className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-800 rounded-lg">
