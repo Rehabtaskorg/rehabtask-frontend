@@ -55,6 +55,15 @@ export const messagesApi = {
     },
 
     /**
+     * Get basic public info for a user by userId.
+     * Used to resolve a pending direct recipient's name before any conversation exists.
+     * @param {string} userId - The target user's UUID
+     */
+    getUserPublicInfo: async (userId) => {
+        return api.get(`/messages/users/${userId}/info`);
+    },
+
+    /**
      * Send a direct message (creates conversation if needed)
      * @param {string} recipientId - UUID of the recipient user
      * @param {string} content - Message text

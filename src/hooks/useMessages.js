@@ -252,9 +252,8 @@ export function useMessages(conversationId, pollInterval) {
 
 /**
  * Hook to get the other party's info for a pending new direct conversation.
- * Phase 3: resolves from the conversations list if a conversation already exists.
- * Returns null for otherUser if no existing conversation found — the UI handles
- * this gracefully and the name populates once the first message is sent.
+ * Phase 3: resolves from the conversations list if a conversation already exists,
+ * otherwise fetches basic public info from GET /messages/users/:userId/info.
  *
  * @param {string|null} userId - The other user's ID (null when no pending conversation)
  */
@@ -265,10 +264,24 @@ export function useConversationContext(userId) {
         ? conversations.find(c => c.otherUser?.id === userId)
         : null;
 
+    const { data: fetchedInfo, isLoading } = useQuery({
+        queryKey: ["userPublicInfo", userId],
+        queryFn: async () => {
+            const res = await messagesApi.getUserPublicInfo(userId);
+            return res.data.data;
+        },
+        enabled: !!userId && !existingConv,
+        staleTime: 5 * 60 * 1000,
+    });
+
+    if (existingConv) {
+        return { otherUser: existingConv.otherUser, patient: existingConv.patient, loading: false, error: false };
+    }
+
     return {
-        otherUser: existingConv?.otherUser ?? null,
-        patient: existingConv?.patient ?? null,
-        loading: false,
+        otherUser: fetchedInfo ?? null,
+        patient: null,
+        loading: isLoading,
         error: false,
     };
 }
