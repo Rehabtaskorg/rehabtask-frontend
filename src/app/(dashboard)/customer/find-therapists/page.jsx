@@ -22,6 +22,7 @@ function mapTherapist(t) {
     const location = firstArea ? `${firstArea.city}, ${firstArea.state}` : "Location not specified";
     return {
         id: t.id,
+        userId: t.userId,
         fullName: t.fullName || "",
         licenseType: t.primaryLicenseType || "",
         experience: t.yearsOfExperience || 0,
