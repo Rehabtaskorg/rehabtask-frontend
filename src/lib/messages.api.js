@@ -27,13 +27,16 @@ export const messagesApi = {
     },
 
     /**
-     * Send a new message in a conversation
-     * @param {object} data - { content, contextType, contextId }
-     * contextType/contextId still used for the legacy createMessage path
-     * which dual-writes to the DirectConversation automatically
+     * Send a new message in a conversation (Phase 3 — conversationId only)
+     * @param {string} conversationId - DirectConversation UUID
+     * @param {string} content - Message text
+     * @param {string} [replyToId] - Optional reply target message UUID
      */
-    sendMessage: async ({ content, contextType, contextId, replyToId }) => {
-        return api.post("/messages", { content, contextType, contextId, ...(replyToId && { replyToId }) });
+    sendMessage: async (conversationId, content, replyToId) => {
+        return api.post(`/messages/c/${conversationId}`, {
+            content,
+            ...(replyToId && { replyToId }),
+        });
     },
 
     /**
@@ -49,16 +52,6 @@ export const messagesApi = {
      */
     getUnreadCount: async () => {
         return api.get("/messages/unread-count");
-    },
-
-    /**
-     * Get the other party's info for a conversation
-     * Used when no messages exist yet to resolve the other user's name
-     * @param {string} contextType - "offer" | "booking" | "direct"
-     * @param {string} contextId - UUID of the context
-     */
-    getConversationContext: async (contextType, contextId) => {
-        return api.get(`/messages/${contextType}/${contextId}/context`);
     },
 
     /**

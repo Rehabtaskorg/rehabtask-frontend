@@ -38,16 +38,6 @@ export function useMessagesPage(basePath) {
         }
         : null;
 
-    // Build the sendContext from the selected conversation's current context
-    // This feeds the legacy POST /messages endpoint which still needs contextType/contextId
-    const sendContext = selected
-        ? {
-            contextType: selected.contextType,
-            contextId: selected.contextType === "direct"
-                ? selected.conversationId
-                : selected.contextId,
-        }
-        : {};
 
     // Join/leave Socket.io conversation room when selection changes
     useEffect(() => {
@@ -100,10 +90,7 @@ export function useMessagesPage(basePath) {
     const pendingUserId = isPendingNewDirect ? urlSuffix : null;
 
     // For pending direct messages, fetch the recipient's info for sidebar/header display
-    const { otherUser: pendingOtherUser } = useConversationContext(
-        pendingUserId ? "direct" : null,
-        pendingUserId
-    );
+    const { otherUser: pendingOtherUser } = useConversationContext(pendingUserId);
 
     // Don't fetch messages when we have a pending direct recipient
     const isPendingDirect = !!pendingDirectRecipientId;
@@ -111,10 +98,7 @@ export function useMessagesPage(basePath) {
         messages, loading: msgLoading, error: msgError,
         sendMessage, retryMessage,
         hasMore, loadOlderMessages, loadingMore
-    } = useMessages(
-        isPendingDirect ? null : selected?.conversationId,
-        isPendingDirect ? {} : sendContext
-    );
+    } = useMessages(isPendingDirect ? null : selected?.conversationId);
 
     // ── URL → Selection sync ────────────────────────────────
     const updateUrlParam = useCallback((value) => {

@@ -1,5 +1,11 @@
 export const DEFAULT_WORK_AREA_RADIUS_MILES = 25;
 
+export const MESSAGE_CONTEXT = {
+    OFFER:   "offer",
+    BOOKING: "booking",
+    DIRECT:  "direct",
+};
+
 export const LOGOUT_REASON = {
     SESSION_EXPIRED: "session_expired",
     IDLE_TIMEOUT:    "idle_timeout",
