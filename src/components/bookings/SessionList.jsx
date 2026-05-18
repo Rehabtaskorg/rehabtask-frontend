@@ -207,16 +207,16 @@ export default function SessionList({
                     return (
                         <div key={session.id}>
                             <div
-                                className={`flex items-center gap-3 p-3 rounded-lg border ${session.status === "confirmed_by_customer"
+                                className={`flex flex-wrap items-start gap-3 p-3 rounded-lg border ${session.status === "confirmed_by_customer"
                                     ? "border-emerald-200 dark:border-emerald-800/30 bg-emerald-50/50 dark:bg-emerald-900/10"
                                     : "border-border-light dark:border-border-dark"
                                     }`}
                             >
                                 {/* Status icon */}
-                                <StatusIcon className={`text-xl shrink-0 ${config.color}`} />
+                                <StatusIcon className={`text-xl shrink-0 mt-0.5 ${config.color}`} />
 
                                 {/* Session info */}
-                                <div className="flex-1 min-w-0">
+                                <div className="flex-1 min-w-0" style={{ minWidth: "140px" }}>
                                     <div className="flex items-center gap-2">
                                         <span className="text-sm font-bold text-text-main dark:text-white">
                                             Session {session.sessionNumber}
@@ -361,7 +361,7 @@ export default function SessionList({
                                 </div>
 
                                 {/* Actions */}
-                                <div className="shrink-0 flex items-center gap-2">
+                                <div className="shrink-0 flex items-center flex-wrap gap-2 ml-auto">
                                     {isCompletable && scheduleSessionId !== session.id && (
                                         <button
                                             onClick={() => handleComplete(session.id)}
