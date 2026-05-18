@@ -114,7 +114,7 @@ export default function CustomerPaymentsPage() {
     const isLoading = paymentsLoading || summaryLoading;
 
     const hasPendingRefunds = summary?.pendingRefundAmount > 0;
-    const hasConnectAccount = connectStatus?.connected;
+    const hasConnectAccount = connectStatus?.connected && connectStatus?.onboardingComplete;
 
     return (
         <div className="flex-1 flex flex-col overflow-hidden">
@@ -193,6 +193,38 @@ export default function CustomerPaymentsPage() {
                                         className="bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-xl font-bold text-sm transition-colors shrink-0 text-center"
                                     >
                                         Set Up Payout Account
+                                    </Link>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Incomplete onboarding banner — account created but KYC not finished */}
+                    {hasPendingRefunds && connectStatus?.connected && !connectStatus?.onboardingComplete && (
+                        <div className="bg-card-light dark:bg-card-dark rounded-xl border border-amber-300 dark:border-amber-500/30 overflow-hidden">
+                            <div className="border-l-4 border-l-amber-500 p-5">
+                                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                                    <div className="flex gap-4">
+                                        <div className="w-12 h-12 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center text-amber-600 dark:text-amber-400 shrink-0">
+                                            <MdWarning className="text-2xl" />
+                                        </div>
+                                        <div>
+                                            <span className="inline-block px-2 py-0.5 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 text-[10px] font-bold rounded uppercase tracking-wider mb-1">
+                                                Setup Incomplete
+                                            </span>
+                                            <h4 className="text-text-main dark:text-white font-bold">
+                                                Finish setting up your payout account
+                                            </h4>
+                                            <p className="text-sm text-text-muted dark:text-gray-400 mt-0.5">
+                                                You have {formatCurrency(summary.pendingRefundAmount)} in pending refunds. Complete your account setup to receive them.
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <Link
+                                        href="/customer/payout-setup"
+                                        className="bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-xl font-bold text-sm transition-colors shrink-0 text-center"
+                                    >
+                                        Complete Setup
                                     </Link>
                                 </div>
                             </div>
