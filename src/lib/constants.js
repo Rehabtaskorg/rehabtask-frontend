@@ -10,6 +10,7 @@ export const LOGOUT_REASON = {
     SESSION_EXPIRED: "session_expired",
     IDLE_TIMEOUT:    "idle_timeout",
     DEACTIVATED:     "deactivated",
+    INVITED:         "invited",
 };
 
 export const PUBLIC_SEARCH_RADIUS_MILES = 50;
