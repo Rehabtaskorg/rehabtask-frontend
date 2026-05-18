@@ -1,12 +1,11 @@
 "use client";
 
 import { useState, useMemo, Fragment } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { usePaymentHistory, useRefundSummary, useCustomerConnectStatus } from "@/hooks/usePayments";
 import {
-    MdPayments, MdLock, MdAccountBalance, MdArrowForward,
+    MdPayments, MdLock, MdAccountBalance,
     MdChevronLeft, MdChevronRight, MdExpandMore, MdExpandLess,
     MdCheckCircle, MdSchedule, MdWarning, MdInfo,
 } from "react-icons/md";
@@ -88,7 +87,6 @@ const getRefundDisplay = (customerRefunds, fallbackRefundedAmount) => {
 
 export default function CustomerPaymentsPage() {
     usePageTitle("Payments & Refunds");
-    const router = useRouter();
 
     const { data: payments, isLoading: paymentsLoading } = usePaymentHistory();
     const { data: summary, isLoading: summaryLoading } = useRefundSummary();
@@ -168,7 +166,7 @@ export default function CustomerPaymentsPage() {
                     ) : null}
 
                     {/* Pending Refund Banner */}
-                    {hasPendingRefunds && !hasConnectAccount && (
+                    {hasPendingRefunds && !connectStatus?.connected && (
                         <div className="bg-card-light dark:bg-card-dark rounded-xl border border-amber-300 dark:border-amber-500/30 overflow-hidden">
                             <div className="border-l-4 border-l-amber-500 p-5">
                                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
