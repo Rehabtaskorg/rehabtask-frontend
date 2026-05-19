@@ -6,7 +6,7 @@ const UNSAFE_INLINE = "'unsafe-inline'";
 
 // External domains used by the app — keep in sync with actual integrations.
 const SUPABASE = "https://*.supabase.co";
-const STRIPE_JS = "https://js.stripe.com";
+const STRIPE_JS = "https://js.stripe.com https://connect-js.stripe.com";
 const STRIPE_API = "https://*.stripe.com";
 const STRIPE_NETWORK = "https://*.stripe.network";
 const GOOGLE_RECAPTCHA = "https://www.google.com";
