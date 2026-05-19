@@ -6,20 +6,20 @@ const VARIANTS = {
     pending: {
         icon: MdHourglassTop,
         iconColor: "text-yellow-500",
-        bg: "bg-yellow-50/80 dark:bg-yellow-900/10",
-        border: "border-yellow-200 dark:border-yellow-800",
+        bg: "bg-yellow-50/80 ",
+        border: "border-yellow-200 ",
     },
     rejected: {
         icon: MdError,
         iconColor: "text-red-500",
-        bg: "bg-red-50/80 dark:bg-red-900/10",
-        border: "border-red-200 dark:border-red-800",
+        bg: "bg-red-50/80 ",
+        border: "border-red-200 ",
     },
     locked: {
         icon: MdLock,
         iconColor: "text-text-muted",
-        bg: "bg-muted-light/80 dark:bg-muted-dark/80",
-        border: "border-border-light dark:border-border-dark",
+        bg: "bg-muted-light/80 ",
+        border: "border-border-light ",
     },
 };
 
@@ -30,8 +30,8 @@ export default function RestrictedFeatureOverlay({ variant = "pending", title, m
     return (
         <div className={`flex flex-col items-center justify-center text-center py-12 px-6 rounded-xl border ${config.bg} ${config.border}`}>
             <Icon className={`text-4xl ${config.iconColor}`} />
-            <h3 className="text-lg font-bold text-text-main dark:text-white mt-4">{title}</h3>
-            <p className="text-sm text-text-muted dark:text-gray-400 mt-2 max-w-md">{message}</p>
+            <h3 className="text-lg font-bold text-text-main  mt-4">{title}</h3>
+            <p className="text-sm text-text-muted  mt-2 max-w-md">{message}</p>
             {actionLabel && onAction && (
                 <button
                     onClick={onAction}

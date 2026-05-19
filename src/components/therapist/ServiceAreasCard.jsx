@@ -12,14 +12,14 @@ import { Map, AdvancedMarker } from "@vis.gl/react-google-maps";
 export default function ServiceAreasCard({ workAreas }) {
     if (!workAreas || workAreas.length === 0) {
         return (
-            <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl p-6 shadow-sm">
+            <div className="bg-card-light  border border-border-light  rounded-xl p-6 shadow-sm">
                 <div className="flex items-center gap-2 mb-4">
                     <MdLocationOn className="text-primary text-lg" />
-                    <h3 className="text-base font-bold text-text-main dark:text-white">
+                    <h3 className="text-base font-bold text-text-main ">
                         Service Areas
                     </h3>
                 </div>
-                <p className="text-sm text-text-muted dark:text-gray-400">
+                <p className="text-sm text-text-muted ">
                     No service areas listed.
                 </p>
             </div>
@@ -38,10 +38,10 @@ export default function ServiceAreasCard({ workAreas }) {
     };
 
     return (
-        <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl p-6 shadow-sm">
+        <div className="bg-card-light  border border-border-light  rounded-xl p-6 shadow-sm">
             <div className="flex items-center gap-2 mb-4">
                 <MdLocationOn className="text-primary text-lg" />
-                <h3 className="text-base font-bold text-text-main dark:text-white">
+                <h3 className="text-base font-bold text-text-main ">
                     Service Areas
                 </h3>
             </div>
@@ -50,14 +50,14 @@ export default function ServiceAreasCard({ workAreas }) {
                 {parsedAreas.map((wa, i) => (
                     <span
                         key={wa.id || i}
-                        className="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 text-text-main dark:text-white text-sm font-medium rounded-lg"
+                        className="px-3 py-1.5 bg-slate-100  text-text-main  text-sm font-medium rounded-lg"
                     >
                         {wa.city}, {wa.state}
                     </span>
                 ))}
             </div>
 
-            <div className="aspect-video w-full rounded-lg overflow-hidden border border-border-light dark:border-border-dark">
+            <div className="aspect-video w-full rounded-lg overflow-hidden border border-border-light ">
                 <Map
                     defaultCenter={center}
                     defaultZoom={10}

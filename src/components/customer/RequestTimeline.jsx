@@ -13,9 +13,9 @@ export default function RequestTimeline({ request, offers }) {
     const currentIdx = statusOrder.indexOf(request.status);
 
     return (
-        <section className="bg-card-light dark:bg-card-dark rounded-xl p-6 shadow-sm border border-border-light dark:border-border-dark">
-            <h3 className="text-lg font-bold text-text-main dark:text-white mb-6">Request Timeline</h3>
-            <div className="relative space-y-8 before:absolute before:left-[11px] before:top-2 before:h-[calc(100%-16px)] before:w-0.5 before:bg-slate-100 dark:before:bg-slate-800">
+        <section className="bg-card-light  rounded-xl p-6 shadow-sm border border-border-light ">
+            <h3 className="text-lg font-bold text-text-main  mb-6">Request Timeline</h3>
+            <div className="relative space-y-8 before:absolute before:left-[11px] before:top-2 before:h-[calc(100%-16px)] before:w-0.5 before:bg-slate-100 ">
                 <TimelineStep
                     completed={currentIdx >= 0}
                     label="Request Created"
@@ -57,21 +57,21 @@ export default function RequestTimeline({ request, offers }) {
 function TimelineStep({ completed, current, label, date }) {
     return (
         <div className="relative flex items-start gap-4">
-            <div className={`z-10 h-6 w-6 rounded-full flex items-center justify-center ring-4 ring-card-light dark:ring-card-dark shrink-0 ${
+            <div className={`z-10 h-6 w-6 rounded-full flex items-center justify-center ring-4 ring-card-light  shrink-0 ${
                 completed
                     ? "bg-emerald-500 text-white"
                     : current
                         ? "bg-primary text-white"
-                        : "bg-slate-200 dark:bg-slate-700 border-2 border-slate-300 dark:border-slate-600"
+                        : "bg-slate-200  border-2 border-slate-300 "
             }`}>
                 {completed && <MdCheckCircle className="text-sm" />}
                 {current && !completed && <div className="h-2 w-2 rounded-full bg-white" />}
             </div>
             <div>
-                <p className={`font-bold text-sm ${completed ? "text-text-main dark:text-white" : current ? "text-primary" : "text-slate-400 dark:text-slate-500"}`}>
+                <p className={`font-bold text-sm ${completed ? "text-text-main " : current ? "text-primary" : "text-slate-400 "}`}>
                     {label}
                 </p>
-                {date && <p className="text-xs text-text-muted dark:text-gray-400 mt-0.5">{date}</p>}
+                {date && <p className="text-xs text-text-muted  mt-0.5">{date}</p>}
                 {current && !date && <p className="text-xs text-slate-400 italic mt-0.5">Pending...</p>}
             </div>
         </div>

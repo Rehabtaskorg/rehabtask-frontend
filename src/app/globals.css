@@ -12,56 +12,23 @@
 
     /* Background colors */
     --color-background-light: #F5F7FA;
-    --color-background-dark: #060F1A;
 
     /* Card backgrounds */
     --color-card-light: #FFFFFF;
-    --color-card-dark: #0D1E35;
 
     /* Input backgrounds */
     --color-input-light: #FFFFFF;
-    --color-input-dark: #0A1628;
 
     /* Border colors */
     --color-border-light: #E2E8F0;
-    --color-border-dark: #1E3A5F;
 
     /* Muted backgrounds */
     --color-muted-light: #F9FAFB;
-    --color-muted-dark: #0A1628;
-
-    /* Dark mode text */
-    --color-text-main-dark: #F0F4F8;
-    --color-text-muted-dark: #94A3B8;
-
-    /* Dark mode semantic colors */
-    --color-success-dark: #4ADE80;
-    --color-error-dark: #FCA5A5;
-    --color-warning-dark: #FCD34D;
 }
 
 @layer base {
     body {
-        @apply transition-colors duration-200;
         font-family: var(--font-inter), Inter, system-ui, sans-serif;
-    }
-
-    /* Dark mode token overrides — components using light-mode token names
-       automatically receive correct dark values when .dark is active on <html>.
-       --color-primary remaps to teal so text-primary, border-primary, bg-primary/X
-       are all readable on dark surfaces without needing per-component dark: prefixes. */
-    .dark {
-        --color-primary: #2EC4B6;
-        --color-background-light: #060F1A;
-        --color-card-light: #0D1E35;
-        --color-text-main: #F0F4F8;
-        --color-text-muted: #94A3B8;
-        --color-border-light: #1E3A5F;
-        --color-muted-light: #0A1628;
-        --color-input-light: #0A1628;
-        --color-success: #4ADE80;
-        --color-error: #FCA5A5;
-        --color-warning: #FCD34D;
     }
 }
 
@@ -79,7 +46,7 @@
 
 /* Sidebar navigation link base */
 .sidebar-nav-link {
-    @apply flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-sm font-medium;
+    @apply flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-100 transition-colors text-sm font-medium;
 }
 
 .sidebar-nav-link-active {
@@ -107,13 +74,9 @@
     border-radius: 10px;
 }
 
-.dark .panel-scroll::-webkit-scrollbar-thumb {
-    background: #374151;
-}
-
 /* Active request card highlight */
 .request-card-active {
-    @apply border-l-4 border-l-primary bg-primary/5 border border-slate-200 dark:border-border-dark;
+    @apply border-l-4 border-l-primary bg-primary/5 border border-slate-200;
 }
 
 /* Message highlight flash — used when scrolling to a replied message */

@@ -195,7 +195,7 @@ export default function LocationAutocomplete({
         return (
             <div className="space-y-2" ref={containerRef}>
                 {label && (
-                    <label className="block text-sm font-bold text-text-main dark:text-white uppercase tracking-wide">
+                    <label className="block text-sm font-bold text-text-main  uppercase tracking-wide">
                         {label}
                         {required && <span className="text-red-500 ml-1">*</span>}
                     </label>
@@ -214,14 +214,14 @@ export default function LocationAutocomplete({
                         autoComplete="off"
                         className={`
                             w-full pl-10 pr-10 py-3 rounded-xl
-                            bg-white dark:bg-background-dark
+                            bg-white 
                             border transition-all outline-none
                             ${
                                 error
                                     ? "border-red-500 focus:ring-2 focus:ring-red-500/20 focus:border-red-500"
-                                    : "border-border-subtle dark:border-[#2a3038] focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                                    : "border-border-subtle  focus:ring-2 focus:ring-primary/20 focus:border-primary"
                             }
-                            text-text-main dark:text-white
+                            text-text-main 
                             placeholder:text-text-muted/50
                             disabled:opacity-50 disabled:cursor-not-allowed
                         `}
@@ -237,7 +237,7 @@ export default function LocationAutocomplete({
                     )}
 
                     {isOpen && predictions.length > 0 && (
-                        <ul className="absolute left-0 right-0 top-full mt-1 z-50 bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl shadow-lg overflow-hidden max-h-60 overflow-y-auto">
+                        <ul className="absolute left-0 right-0 top-full mt-1 z-50 bg-card-light  border border-border-light  rounded-xl shadow-lg overflow-hidden max-h-60 overflow-y-auto">
                             {predictions.map((prediction, index) => (
                                 <li
                                     key={prediction.place_id}
@@ -246,7 +246,7 @@ export default function LocationAutocomplete({
                                     className={`flex items-center gap-2.5 px-4 py-3 cursor-pointer text-sm transition-colors ${
                                         index === activeIndex
                                             ? "bg-primary/10 text-primary"
-                                            : "text-text-main dark:text-white hover:bg-muted-light dark:hover:bg-muted-dark"
+                                            : "text-text-main  hover:bg-muted-light "
                                     }`}
                                 >
                                     <MdLocationOn className={`shrink-0 ${index === activeIndex ? "text-primary" : "text-text-muted"}`} />
@@ -263,7 +263,7 @@ export default function LocationAutocomplete({
                     </p>
                 )}
                 {helperText && !error && !broadLocationError && (
-                    <p className="text-xs text-text-muted dark:text-text-muted/80">{helperText}</p>
+                    <p className="text-xs text-text-muted ">{helperText}</p>
                 )}
             </div>
         );

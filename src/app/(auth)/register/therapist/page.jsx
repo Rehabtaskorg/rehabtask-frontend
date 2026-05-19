@@ -9,7 +9,7 @@ import { usePageTitle } from "@/hooks/usePageTitle";
 export default function TherapistRegisterPage() {
     usePageTitle("Therapist Registration");
     return (
-        <div className="flex min-h-screen flex-col transition-colors duration-200 dark:text-white">
+        <div className="flex min-h-screen flex-col transition-colors duration-200 ">
             {/* Top Navigation */}
             <Header />
 
@@ -17,7 +17,7 @@ export default function TherapistRegisterPage() {
                 <RegistrationSidebar />
 
                 {/* Registration Form */}
-                <section className="flex-1 overflow-y-auto bg-background-light dark:bg-background-dark p-6 md:p-12">
+                <section className="flex-1 overflow-y-auto bg-background-light  p-6 md:p-12">
                     <TherapistRegistrationForm />
                     <Footer />
                 </section>

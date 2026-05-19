@@ -129,17 +129,17 @@ export default function AttachmentsModal({ isOpen, onClose, conversationId, book
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 16, scale: 0.97 }}
                         transition={{ duration: 0.25 }}
-                        className="relative bg-card-light dark:bg-card-dark rounded-2xl max-w-2xl w-full max-h-[80vh] flex flex-col shadow-2xl overflow-hidden"
+                        className="relative bg-card-light  rounded-2xl max-w-2xl w-full max-h-[80vh] flex flex-col shadow-2xl overflow-hidden"
                         onClick={(e) => e.stopPropagation()}
                     >
                         {/* Header */}
-                        <div className="flex items-center justify-between px-6 py-4 border-b border-border-light dark:border-border-dark shrink-0">
-                            <h2 className="text-lg font-bold text-text-main dark:text-white">
+                        <div className="flex items-center justify-between px-6 py-4 border-b border-border-light  shrink-0">
+                            <h2 className="text-lg font-bold text-text-main ">
                                 Shared Files {allAttachments.length > 0 && `(${allAttachments.length})`}
                             </h2>
                             <button
                                 onClick={onClose}
-                                className="p-1.5 rounded-lg text-text-muted hover:text-text-main dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                                className="p-1.5 rounded-lg text-text-muted hover:text-text-main  hover:bg-slate-100  transition-colors"
                             >
                                 <MdClose className="text-xl" />
                             </button>
@@ -147,15 +147,15 @@ export default function AttachmentsModal({ isOpen, onClose, conversationId, book
 
                         {/* Filter tabs */}
                         <div className="px-6 pt-4 shrink-0">
-                            <div className="flex items-center gap-1 bg-background-light dark:bg-background-dark p-1 rounded-xl w-fit">
+                            <div className="flex items-center gap-1 bg-background-light  p-1 rounded-xl w-fit">
                                 {FILTERS.map((f) => (
                                     <button
                                         key={f.key}
                                         onClick={() => setFilter(f.key)}
                                         className={`px-4 py-1.5 text-xs font-bold rounded-lg transition-colors ${
                                             filter === f.key
-                                                ? "bg-card-light dark:bg-card-dark shadow-sm text-primary"
-                                                : "text-text-muted dark:text-gray-400 hover:text-text-main dark:hover:text-white"
+                                                ? "bg-card-light  shadow-sm text-primary"
+                                                : "text-text-muted  hover:text-text-main "
                                         }`}
                                     >
                                         {f.label}
@@ -169,13 +169,13 @@ export default function AttachmentsModal({ isOpen, onClose, conversationId, book
                             {isLoading ? (
                                 <div className="space-y-3">
                                     {[1, 2, 3, 4, 5, 6].map((i) => (
-                                        <div key={i} className="animate-pulse h-14 bg-slate-100 dark:bg-slate-800 rounded-lg" />
+                                        <div key={i} className="animate-pulse h-14 bg-slate-100  rounded-lg" />
                                     ))}
                                 </div>
                             ) : filtered.length === 0 ? (
                                 <div className="text-center py-12">
-                                    <MdFilterList className="text-3xl text-text-muted dark:text-gray-500 mx-auto mb-2" />
-                                    <p className="text-sm text-text-muted dark:text-gray-400">
+                                    <MdFilterList className="text-3xl text-text-muted  mx-auto mb-2" />
+                                    <p className="text-sm text-text-muted ">
                                         {filter === "all" ? "No files shared yet." : `No ${filter} found.`}
                                     </p>
                                 </div>
@@ -185,7 +185,7 @@ export default function AttachmentsModal({ isOpen, onClose, conversationId, book
                                     {(filter === "all" || filter === "images") && images.length > 0 && (
                                         <div>
                                             {filter === "all" && (
-                                                <p className="text-[10px] font-bold tracking-widest text-text-muted dark:text-gray-400 mb-3 uppercase">
+                                                <p className="text-[10px] font-bold tracking-widest text-text-muted  mb-3 uppercase">
                                                     Images
                                                 </p>
                                             )}
@@ -206,7 +206,7 @@ export default function AttachmentsModal({ isOpen, onClose, conversationId, book
                                     {(filter === "all" || filter === "documents") && documents.length > 0 && (
                                         <div>
                                             {filter === "all" && (
-                                                <p className="text-[10px] font-bold tracking-widest text-text-muted dark:text-gray-400 mb-3 uppercase">
+                                                <p className="text-[10px] font-bold tracking-widest text-text-muted  mb-3 uppercase">
                                                     Documents
                                                 </p>
                                             )}
@@ -267,7 +267,7 @@ function ImageGridItem({ attachment, onOpen, isLoading }) {
         <button
             onClick={() => onOpen(attachment.id)}
             disabled={isLoading}
-            className="aspect-square rounded-lg overflow-hidden bg-slate-100 dark:bg-slate-800 relative group cursor-pointer"
+            className="aspect-square rounded-lg overflow-hidden bg-slate-100  relative group cursor-pointer"
             title={attachment.fileName}
         >
             {src ? (
@@ -299,16 +299,16 @@ function DocumentListItem({ attachment, onOpen, isLoading }) {
     return (
         <div
             onClick={() => onOpen(attachment.id)}
-            className="flex items-center gap-4 p-3 rounded-xl hover:bg-background-light dark:hover:bg-background-dark transition-colors group cursor-pointer"
+            className="flex items-center gap-4 p-3 rounded-xl hover:bg-background-light  transition-colors group cursor-pointer"
         >
-            <div className="w-10 h-10 flex items-center justify-center bg-primary/5 dark:bg-primary/10 rounded-lg shrink-0">
+            <div className="w-10 h-10 flex items-center justify-center bg-primary/5  rounded-lg shrink-0">
                 <DocIcon mimeType={attachment.mimeType} />
             </div>
             <div className="flex-1 min-w-0">
-                <p className="text-xs font-semibold text-text-main dark:text-white truncate">
+                <p className="text-xs font-semibold text-text-main  truncate">
                     {attachment.fileName}
                 </p>
-                <p className="text-[10px] text-text-muted dark:text-gray-400">
+                <p className="text-[10px] text-text-muted ">
                     {formatFileSize(attachment.fileSize)} · {formatDate(attachment.createdAt)}
                     {uploaderName && ` · ${uploaderName}`}
                 </p>

@@ -73,14 +73,14 @@ export default function SharedFiles({ conversationId, onViewAll, bookingId }) {
 
     return (
         <div className="mt-6 space-y-3">
-            <p className="text-text-muted dark:text-gray-400 text-[10px] font-bold uppercase tracking-widest">
+            <p className="text-text-muted  text-[10px] font-bold uppercase tracking-widest">
                 Shared Files {attachments.length > 0 && `(${totalCount})`}
             </p>
 
             {isLoading ? (
                 <div className="space-y-2">
                     {[1, 2].map((i) => (
-                        <div key={i} className="animate-pulse rounded-lg bg-slate-100 dark:bg-slate-800 p-3 h-12" />
+                        <div key={i} className="animate-pulse rounded-lg bg-slate-100  p-3 h-12" />
                     ))}
                 </div>
             ) : (
@@ -90,24 +90,24 @@ export default function SharedFiles({ conversationId, onViewAll, bookingId }) {
                             key={att.id}
                             onClick={() => handleOpen(att.id)}
                             disabled={urlLoading[att.id]}
-                            className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors cursor-pointer w-full text-left group"
+                            className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-50  transition-colors cursor-pointer w-full text-left group"
                         >
                             {isImageType(att.mimeType) ? (
                                 <ImageThumb attachmentId={att.id} fileName={att.fileName} />
                             ) : (
-                                <div className="w-10 h-10 flex items-center justify-center bg-background-light dark:bg-background-dark rounded-lg shrink-0">
+                                <div className="w-10 h-10 flex items-center justify-center bg-background-light  rounded-lg shrink-0">
                                     <DocIcon mimeType={att.mimeType} />
                                 </div>
                             )}
                             <div className="flex-1 min-w-0">
-                                <p className="text-xs font-semibold text-text-main dark:text-white truncate">
+                                <p className="text-xs font-semibold text-text-main  truncate">
                                     {att.fileName}
                                 </p>
-                                <p className="text-[10px] text-text-muted dark:text-gray-400">
+                                <p className="text-[10px] text-text-muted ">
                                     {formatFileSize(att.fileSize)} · {formatRelativeDate(att.createdAt)}
                                 </p>
                             </div>
-                            <MdDownload className="text-sm text-text-muted dark:text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
+                            <MdDownload className="text-sm text-text-muted  opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
                         </button>
                     ))}
                 </div>
@@ -117,7 +117,7 @@ export default function SharedFiles({ conversationId, onViewAll, bookingId }) {
             {(hasMore || attachments.length > 0) && onViewAll && (
                 <button
                     onClick={onViewAll}
-                    className="w-full py-2 text-xs font-bold text-primary hover:bg-primary/5 rounded-lg transition-colors border border-border-light dark:border-border-dark"
+                    className="w-full py-2 text-xs font-bold text-primary hover:bg-primary/5 rounded-lg transition-colors border border-border-light "
                 >
                     VIEW ALL
                 </button>
@@ -149,7 +149,7 @@ function ImageThumb({ attachmentId, fileName }) {
     }, [attachmentId]);
 
     return (
-        <div className="w-10 h-10 rounded-lg overflow-hidden bg-slate-100 dark:bg-slate-800 shrink-0">
+        <div className="w-10 h-10 rounded-lg overflow-hidden bg-slate-100  shrink-0">
             {src ? (
                 <img src={src} alt={fileName} className="w-full h-full object-cover" loading="lazy" />
             ) : error ? (

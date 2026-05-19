@@ -92,9 +92,9 @@ function InviteAcceptContent() {
     }, [passwordStrength]);
 
     const strengthColor = useMemo(() => {
-        if (passwordStrength >= 75) return "text-green-600 dark:text-green-400";
-        if (passwordStrength >= 50) return "text-yellow-600 dark:text-yellow-400";
-        return "text-red-600 dark:text-red-400";
+        if (passwordStrength >= 75) return "text-green-600 ";
+        if (passwordStrength >= 50) return "text-yellow-600 ";
+        return "text-red-600 ";
     }, [passwordStrength]);
 
     const barColor = useMemo(() => {
@@ -150,10 +150,10 @@ function InviteAcceptContent() {
 
     if (isChecking) {
         return (
-            <div className="max-w-120 w-full bg-white dark:bg-card-dark shadow-xl rounded-xl p-8">
+            <div className="max-w-120 w-full bg-white  shadow-xl rounded-xl p-8">
                 <div className="text-center">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-                    <p className="text-text-muted dark:text-gray-400">Verifying your invite...</p>
+                    <p className="text-text-muted ">Verifying your invite...</p>
                 </div>
             </div>
         );
@@ -161,7 +161,7 @@ function InviteAcceptContent() {
 
     if (!isValidSession) {
         return (
-            <div className="max-w-120 w-full bg-white dark:bg-card-dark shadow-xl rounded-xl p-8 border border-border-subtle dark:border-border-dark">
+            <div className="max-w-120 w-full bg-white  shadow-xl rounded-xl p-8 border border-border-subtle ">
                 <Alert
                     type="error"
                     message={error || "Invalid or expired invite link. Please ask your administrator to resend the invitation."}
@@ -176,13 +176,13 @@ function InviteAcceptContent() {
     }
 
     return (
-        <div className="w-full max-w-120 bg-white dark:bg-card-dark rounded-xl shadow-xl border border-border-subtle dark:border-border-dark overflow-hidden">
+        <div className="w-full max-w-120 bg-white  rounded-xl shadow-xl border border-border-subtle  overflow-hidden">
             {/* Page Heading */}
             <div className="p-8 pb-4 text-center">
-                <h1 className="text-text-main dark:text-white text-3xl font-black leading-tight tracking-[-0.033em] mb-2">
+                <h1 className="text-text-main  text-3xl font-black leading-tight tracking-[-0.033em] mb-2">
                     Welcome to RehabTask
                 </h1>
-                <p className="text-text-muted dark:text-gray-400 text-base font-normal">
+                <p className="text-text-muted  text-base font-normal">
                     Set a password to complete your account setup.
                 </p>
             </div>
@@ -197,14 +197,14 @@ function InviteAcceptContent() {
                 )}
 
                 <div>
-                    <label className="block text-sm font-medium text-text-main dark:text-gray-200 mb-1">
+                    <label className="block text-sm font-medium text-text-main  mb-1">
                         Full Name <span className="text-red-500">*</span>
                     </label>
                     <input
                         type="text"
                         placeholder="Your full name"
                         {...register("fullName")}
-                        className="w-full rounded-lg border border-border-subtle dark:border-border-dark bg-white dark:bg-card-dark text-text-main dark:text-white text-sm px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary"
+                        className="w-full rounded-lg border border-border-subtle  bg-white  text-text-main  text-sm px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary"
                     />
                     {errors.fullName && (
                         <p className="mt-1 text-xs text-red-500">{errors.fullName.message}</p>
@@ -231,12 +231,12 @@ function InviteAcceptContent() {
                 {password && (
                     <div className="flex flex-col gap-3 py-2">
                         <div className="flex gap-6 justify-between items-center">
-                            <p className="text-text-main dark:text-gray-200 text-sm font-medium">
+                            <p className="text-text-main  text-sm font-medium">
                                 Password Strength: <span className={strengthColor}>{strengthLabel}</span>
                             </p>
-                            <p className="text-text-main dark:text-gray-200 text-sm font-normal">{passwordStrength}%</p>
+                            <p className="text-text-main  text-sm font-normal">{passwordStrength}%</p>
                         </div>
-                        <div className="rounded-full bg-border-subtle dark:bg-gray-700 h-2 overflow-hidden">
+                        <div className="rounded-full bg-border-subtle  h-2 overflow-hidden">
                             <div
                                 className={`h-2 rounded-full ${barColor} transition-all duration-300`}
                                 style={{ width: `${passwordStrength}%` }}
@@ -246,21 +246,21 @@ function InviteAcceptContent() {
                 )}
 
                 {/* Requirements Checklist */}
-                <div className="bg-background-light dark:bg-background-dark rounded-lg p-4 space-y-3 border border-border-subtle dark:border-border-dark">
+                <div className="bg-background-light  rounded-lg p-4 space-y-3 border border-border-subtle ">
                     {requirements.map((req, index) => (
                         <label key={index} className="flex items-center gap-x-3 cursor-default">
                             <div
                                 className={`h-5 w-5 flex items-center justify-center rounded border-2 transition-all ${req.met
                                     ? "border-primary bg-primary text-white"
-                                    : "border-border-subtle dark:border-gray-600"
+                                    : "border-border-subtle "
                                     }`}
                             >
                                 {req.met && <MdCheck className="text-[16px] font-bold" />}
                             </div>
                             <p
                                 className={`text-sm ${req.met
-                                    ? "text-text-main dark:text-gray-300 font-medium"
-                                    : "text-text-main dark:text-gray-300 font-normal opacity-60"
+                                    ? "text-text-main  font-medium"
+                                    : "text-text-main  font-normal opacity-60"
                                     }`}
                             >
                                 {req.label}
@@ -281,14 +281,14 @@ function InviteAcceptContent() {
                     >
                         <span>Set Password & Continue</span>
                     </Button>
-                    <div className="mt-6 flex items-center justify-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+                    <div className="mt-6 flex items-center justify-center gap-2 text-sm text-gray-500 ">
                         <MdLock className="text-sm" />
                         <p>Secure, encrypted connection</p>
                     </div>
                 </div>
             </form>
 
-            <div className="p-6 bg-background-light/50 dark:bg-background-dark/30 border-t border-border-subtle dark:border-border-dark text-center">
+            <div className="p-6 bg-background-light/50  border-t border-border-subtle  text-center">
                 <Link href="/login" className="text-primary text-sm font-semibold hover:underline">
                     Back to Login
                 </Link>
@@ -300,7 +300,7 @@ function InviteAcceptContent() {
 export default function InviteAcceptPage() {
     return (
         <div className="flex min-h-screen flex-col transition-colors duration-200">
-            <main className="flex-1 flex items-center justify-center px-4 py-12 bg-background-light dark:bg-background-dark">
+            <main className="flex-1 flex items-center justify-center px-4 py-12 bg-background-light ">
                 <InviteAcceptContent />
             </main>
             <Footer />

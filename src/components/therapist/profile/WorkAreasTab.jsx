@@ -135,14 +135,14 @@ const WorkAreasTab = ({ profile }) => {
             )}
 
             {/* ── Service Area Map Preview ── */}
-            <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl shadow-sm overflow-hidden">
+            <div className="bg-card-light  border border-border-light  rounded-xl shadow-sm overflow-hidden">
                 <div className="flex items-center justify-between px-6 pt-5 pb-3">
                     <div className="flex items-center gap-3">
                         <div className="p-2 bg-primary/10 rounded-lg">
                             <MdMap className="text-primary text-xl" />
                         </div>
                         <div>
-                            <h2 className="text-lg font-bold text-text-main dark:text-white">
+                            <h2 className="text-lg font-bold text-text-main ">
                                 Service Area Map
                             </h2>
                             <p className="text-sm text-text-muted">
@@ -183,10 +183,10 @@ const WorkAreasTab = ({ profile }) => {
             </div>
 
             {/* ── Work Areas Table ── */}
-            <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl shadow-sm">
-                <div className="flex items-center justify-between px-6 py-5 border-b border-border-light dark:border-border-dark">
+            <div className="bg-card-light  border border-border-light  rounded-xl shadow-sm">
+                <div className="flex items-center justify-between px-6 py-5 border-b border-border-light ">
                     <div>
-                        <h3 className="text-base font-bold text-text-main dark:text-white">
+                        <h3 className="text-base font-bold text-text-main ">
                             Work Areas
                         </h3>
                         <p className="text-sm text-text-muted">
@@ -218,7 +218,7 @@ const WorkAreasTab = ({ profile }) => {
                         <div className="hidden md:block">
                             <table className="w-full">
                                 <thead>
-                                    <tr className="border-b border-border-light dark:border-border-dark">
+                                    <tr className="border-b border-border-light ">
                                         <th className="text-left text-xs font-bold text-text-muted uppercase tracking-wide px-6 py-3">City</th>
                                         <th className="text-left text-xs font-bold text-text-muted uppercase tracking-wide px-6 py-3">State</th>
                                         <th className="text-left text-xs font-bold text-text-muted uppercase tracking-wide px-6 py-3">ZIP</th>
@@ -229,22 +229,22 @@ const WorkAreasTab = ({ profile }) => {
                                     {workAreas.map((area) => (
                                         <tr
                                             key={area._tempId}
-                                            className="border-b border-border-light dark:border-border-dark last:border-b-0 hover:bg-muted-light dark:hover:bg-muted-dark transition-colors"
+                                            className="border-b border-border-light  last:border-b-0 hover:bg-muted-light  transition-colors"
                                         >
                                             <td className="px-6 py-4">
                                                 <div className="flex items-center gap-2">
                                                     <MdLocationOn className="text-primary text-base shrink-0" />
-                                                    <span className="text-sm font-medium text-text-main dark:text-white">{area.city}</span>
+                                                    <span className="text-sm font-medium text-text-main ">{area.city}</span>
                                                 </div>
                                             </td>
-                                            <td className="px-6 py-4 text-sm text-text-main dark:text-white">{area.state}</td>
-                                            <td className="px-6 py-4 text-sm text-text-main dark:text-white font-mono">{area.zipCode || "—"}</td>
+                                            <td className="px-6 py-4 text-sm text-text-main ">{area.state}</td>
+                                            <td className="px-6 py-4 text-sm text-text-main  font-mono">{area.zipCode || "—"}</td>
                                             <td className="px-6 py-4">
                                                 <div className="flex items-center justify-end gap-1">
                                                     <button type="button" onClick={() => handleEdit(area)} className="p-2 rounded-lg text-text-muted hover:text-primary hover:bg-primary/5 transition-colors" aria-label="Edit work area">
                                                         <MdEdit className="text-lg" />
                                                     </button>
-                                                    <button type="button" onClick={() => handleDelete(area)} className="p-2 rounded-lg text-text-muted hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors" aria-label="Delete work area">
+                                                    <button type="button" onClick={() => handleDelete(area)} className="p-2 rounded-lg text-text-muted hover:text-red-500 hover:bg-red-50  transition-colors" aria-label="Delete work area">
                                                         <MdDelete className="text-lg" />
                                                     </button>
                                                 </div>
@@ -256,7 +256,7 @@ const WorkAreasTab = ({ profile }) => {
                         </div>
 
                         {/* ── Mobile Cards ── */}
-                        <div className="md:hidden divide-y divide-border-light dark:divide-border-dark">
+                        <div className="md:hidden divide-y divide-border-light ">
                             {workAreas.map((area) => (
                                 <div key={area._tempId} className="px-6 py-4">
                                     <div className="flex items-start justify-between">
@@ -265,7 +265,7 @@ const WorkAreasTab = ({ profile }) => {
                                                 <MdLocationOn className="text-primary text-base" />
                                             </div>
                                             <div>
-                                                <p className="text-sm font-semibold text-text-main dark:text-white">{area.city}, {area.state}</p>
+                                                <p className="text-sm font-semibold text-text-main ">{area.city}, {area.state}</p>
                                                 {area.zipCode && (
                                                     <p className="text-xs text-text-muted mt-0.5">ZIP {area.zipCode}</p>
                                                 )}
@@ -275,7 +275,7 @@ const WorkAreasTab = ({ profile }) => {
                                             <button type="button" onClick={() => handleEdit(area)} className="p-2 rounded-lg text-text-muted hover:text-primary hover:bg-primary/5 transition-colors" aria-label="Edit">
                                                 <MdEdit className="text-lg" />
                                             </button>
-                                            <button type="button" onClick={() => handleDelete(area)} className="p-2 rounded-lg text-text-muted hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors" aria-label="Delete">
+                                            <button type="button" onClick={() => handleDelete(area)} className="p-2 rounded-lg text-text-muted hover:text-red-500 hover:bg-red-50  transition-colors" aria-label="Delete">
                                                 <MdDelete className="text-lg" />
                                             </button>
                                         </div>
@@ -284,7 +284,7 @@ const WorkAreasTab = ({ profile }) => {
                             ))}
                         </div>
 
-                        <div className="px-6 py-3 border-t border-border-light dark:border-border-dark">
+                        <div className="px-6 py-3 border-t border-border-light ">
                             <p className="text-xs text-text-muted">
                                 Showing {workAreas.length} work area{workAreas.length !== 1 ? "s" : ""}
                             </p>
@@ -295,13 +295,13 @@ const WorkAreasTab = ({ profile }) => {
 
             {/* ── Helper Cards ── */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl p-5">
+                <div className="bg-card-light  border border-border-light  rounded-xl p-5">
                     <div className="flex items-start gap-3">
-                        <div className="p-2 bg-yellow-100 dark:bg-yellow-900/20 rounded-lg shrink-0">
-                            <MdTipsAndUpdates className="text-yellow-600 dark:text-yellow-400 text-lg" />
+                        <div className="p-2 bg-yellow-100  rounded-lg shrink-0">
+                            <MdTipsAndUpdates className="text-yellow-600  text-lg" />
                         </div>
                         <div>
-                            <h4 className="text-sm font-bold text-text-main dark:text-white mb-1">Coverage Tip</h4>
+                            <h4 className="text-sm font-bold text-text-main  mb-1">Coverage Tip</h4>
                             <p className="text-xs text-text-muted leading-relaxed">
                                 Add multiple cities or areas to appear in more patient searches.
                                 Patients near your service locations will see you as a nearby provider.
@@ -309,13 +309,13 @@ const WorkAreasTab = ({ profile }) => {
                         </div>
                     </div>
                 </div>
-                <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl p-5">
+                <div className="bg-card-light  border border-border-light  rounded-xl p-5">
                     <div className="flex items-start gap-3">
-                        <div className="p-2 bg-blue-100 dark:bg-blue-900/20 rounded-lg shrink-0">
-                            <MdDirectionsCar className="text-blue-600 dark:text-blue-400 text-lg" />
+                        <div className="p-2 bg-blue-100  rounded-lg shrink-0">
+                            <MdDirectionsCar className="text-blue-600  text-lg" />
                         </div>
                         <div>
-                            <h4 className="text-sm font-bold text-text-main dark:text-white mb-1">Travel Preference</h4>
+                            <h4 className="text-sm font-bold text-text-main  mb-1">Travel Preference</h4>
                             <p className="text-xs text-text-muted leading-relaxed">
                                 Add the cities and areas you are willing to travel to for
                                 in-person sessions. You can add as many locations as you need.

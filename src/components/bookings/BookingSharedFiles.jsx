@@ -73,9 +73,9 @@ export default function BookingSharedFiles({ bookingId, canUpload = false }) {
     if (!conversationId) return null;
 
     return (
-        <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl p-5">
+        <div className="bg-card-light  border border-border-light  rounded-xl p-5">
             <div className="flex items-center justify-between">
-                <h3 className="text-sm font-bold text-text-main dark:text-white flex items-center gap-2">
+                <h3 className="text-sm font-bold text-text-main  flex items-center gap-2">
                     <MdAttachFile className="text-primary text-lg" />
                     Shared Files
                 </h3>

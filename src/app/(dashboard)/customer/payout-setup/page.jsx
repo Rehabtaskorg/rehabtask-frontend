@@ -119,12 +119,12 @@ export default function PayoutSetupPage() {
     const isOnboardingStep = status === STATUS.ONBOARDING;
 
     return (
-        <div className="flex-1 overflow-auto bg-background-light dark:bg-background-dark py-8 px-4">
+        <div className="flex-1 overflow-auto bg-background-light  py-8 px-4">
             <div className={isOnboardingStep ? "max-w-4xl mx-auto" : "max-w-2xl mx-auto"}>
                 {/* Back link */}
                 <Link
                     href="/customer/payments"
-                    className="flex items-center gap-1.5 text-text-muted dark:text-gray-400 hover:text-primary text-sm font-medium mb-6 transition-colors"
+                    className="flex items-center gap-1.5 text-text-muted  hover:text-primary text-sm font-medium mb-6 transition-colors"
                 >
                     <MdArrowBack className="text-base" />
                     Back to Payments
@@ -132,42 +132,42 @@ export default function PayoutSetupPage() {
 
                 {/* INITIALIZING */}
                 {status === STATUS.INITIALIZING && (
-                    <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl p-12 flex flex-col items-center gap-4">
+                    <div className="bg-card-light  border border-border-light  rounded-xl p-12 flex flex-col items-center gap-4">
                         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" />
-                        <p className="text-text-muted dark:text-slate-400 text-sm">Loading payout setup...</p>
+                        <p className="text-text-muted  text-sm">Loading payout setup...</p>
                     </div>
                 )}
 
                 {/* IDLE */}
                 {status === STATUS.IDLE && (
-                    <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl shadow-sm overflow-hidden">
+                    <div className="bg-card-light  border border-border-light  rounded-xl shadow-sm overflow-hidden">
                         <div className="p-8 text-center">
                             <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
                                 <MdAccountBalance className="text-primary text-4xl" />
                             </div>
-                            <h1 className="text-xl font-bold text-text-main dark:text-white mb-2">
+                            <h1 className="text-xl font-bold text-text-main  mb-2">
                                 Set Up Your Payout Account
                             </h1>
-                            <p className="text-text-muted dark:text-gray-400 text-sm max-w-md mx-auto leading-relaxed">
+                            <p className="text-text-muted  text-sm max-w-md mx-auto leading-relaxed">
                                 Connect your bank account to receive refunds directly. This is a one-time setup — all future refunds will be deposited automatically.
                             </p>
                         </div>
 
                         {/* Pending refund context */}
                         {pendingAmount > 0 && (
-                            <div className="mx-8 mb-6 bg-primary/5 dark:bg-primary/10 border border-primary/20 rounded-xl p-5">
+                            <div className="mx-8 mb-6 bg-primary/5  border border-primary/20 rounded-xl p-5">
                                 <div className="flex items-center justify-between mb-1">
-                                    <span className="text-lg font-bold text-text-main dark:text-white">{formatCurrency(pendingAmount)} in pending refunds</span>
+                                    <span className="text-lg font-bold text-text-main ">{formatCurrency(pendingAmount)} in pending refunds</span>
                                 </div>
-                                <p className="text-xs text-text-muted dark:text-gray-400 leading-relaxed">
+                                <p className="text-xs text-text-muted  leading-relaxed">
                                     Once your account is verified, these funds will be processed automatically within 2-3 business days.
                                 </p>
                             </div>
                         )}
 
                         <div className="px-8 pb-8">
-                            <div className="bg-muted-light dark:bg-muted-dark rounded-lg p-5 border border-border-light dark:border-border-dark mb-6">
-                                <p className="text-sm font-semibold text-text-main dark:text-white mb-3">What you will need:</p>
+                            <div className="bg-muted-light  rounded-lg p-5 border border-border-light  mb-6">
+                                <p className="text-sm font-semibold text-text-main  mb-3">What you will need:</p>
                                 {[
                                     "Bank account or debit card for direct deposits",
                                     "Government-issued photo ID",
@@ -176,7 +176,7 @@ export default function PayoutSetupPage() {
                                 ].map((item, idx) => (
                                     <div key={idx} className="flex items-start gap-3 mb-2 last:mb-0">
                                         <MdCheckCircle className="text-primary text-sm shrink-0 mt-0.5" />
-                                        <span className="text-sm text-text-muted dark:text-gray-300">{item}</span>
+                                        <span className="text-sm text-text-muted ">{item}</span>
                                     </div>
                                 ))}
                             </div>
@@ -191,33 +191,33 @@ export default function PayoutSetupPage() {
 
                             <Link
                                 href="/customer/payments"
-                                className="block w-full text-center text-text-muted dark:text-gray-400 hover:text-text-main dark:hover:text-white mt-3 py-2 text-sm font-semibold transition-colors"
+                                className="block w-full text-center text-text-muted  hover:text-text-main  mt-3 py-2 text-sm font-semibold transition-colors"
                             >
                                 Skip for now
                             </Link>
 
-                            <div className="flex items-center gap-2 text-text-muted dark:text-gray-500 text-xs mt-4 justify-center">
+                            <div className="flex items-center gap-2 text-text-muted  text-xs mt-4 justify-center">
                                 <MdLock className="text-sm shrink-0" />
                                 <span>All financial data is encrypted and processed securely. RehabTask never stores your bank details.</span>
                             </div>
                         </div>
 
                         {/* Info footer */}
-                        <div className="grid grid-cols-3 border-t border-border-light dark:border-border-dark">
-                            <div className="p-5 text-center border-r border-border-light dark:border-border-dark">
+                        <div className="grid grid-cols-3 border-t border-border-light ">
+                            <div className="p-5 text-center border-r border-border-light ">
                                 <MdShield className="text-primary text-lg mx-auto mb-1" />
-                                <p className="text-xs font-bold text-text-main dark:text-white">Secure</p>
-                                <p className="text-[10px] text-text-muted dark:text-gray-400">Bank-level encryption</p>
+                                <p className="text-xs font-bold text-text-main ">Secure</p>
+                                <p className="text-[10px] text-text-muted ">Bank-level encryption</p>
                             </div>
-                            <div className="p-5 text-center border-r border-border-light dark:border-border-dark">
+                            <div className="p-5 text-center border-r border-border-light ">
                                 <MdBolt className="text-primary text-lg mx-auto mb-1" />
-                                <p className="text-xs font-bold text-text-main dark:text-white">Fast</p>
-                                <p className="text-[10px] text-text-muted dark:text-gray-400">2-3 business days</p>
+                                <p className="text-xs font-bold text-text-main ">Fast</p>
+                                <p className="text-[10px] text-text-muted ">2-3 business days</p>
                             </div>
                             <div className="p-5 text-center">
                                 <MdAutorenew className="text-primary text-lg mx-auto mb-1" />
-                                <p className="text-xs font-bold text-text-main dark:text-white">Automatic</p>
-                                <p className="text-[10px] text-text-muted dark:text-gray-400">No manual requests</p>
+                                <p className="text-xs font-bold text-text-main ">Automatic</p>
+                                <p className="text-[10px] text-text-muted ">No manual requests</p>
                             </div>
                         </div>
                     </div>
@@ -225,10 +225,10 @@ export default function PayoutSetupPage() {
 
                 {/* CREATING */}
                 {status === STATUS.CREATING && (
-                    <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl p-12 flex flex-col items-center gap-4">
+                    <div className="bg-card-light  border border-border-light  rounded-xl p-12 flex flex-col items-center gap-4">
                         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" />
-                        <p className="text-text-main dark:text-white font-semibold">Setting up your payout account...</p>
-                        <p className="text-text-muted dark:text-slate-400 text-sm">This only takes a moment.</p>
+                        <p className="text-text-main  font-semibold">Setting up your payout account...</p>
+                        <p className="text-text-muted  text-sm">This only takes a moment.</p>
                     </div>
                 )}
 
@@ -236,36 +236,36 @@ export default function PayoutSetupPage() {
                 {status === STATUS.ONBOARDING && (
                     <div className="space-y-4">
                         {error && (
-                            <div className="flex items-start gap-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-500/40 rounded-xl p-4">
+                            <div className="flex items-start gap-3 bg-amber-50  border border-amber-200  rounded-xl p-4">
                                 <MdError className="text-amber-500 text-xl shrink-0 mt-0.5" />
-                                <p className="text-amber-700 dark:text-amber-300 text-sm">{error}</p>
+                                <p className="text-amber-700  text-sm">{error}</p>
                             </div>
                         )}
 
                         {stripeLoadError ? (
-                            <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl p-8 text-center space-y-4">
+                            <div className="bg-card-light  border border-border-light  rounded-xl p-8 text-center space-y-4">
                                 <MdError className="text-red-500 text-4xl mx-auto" />
-                                <p className="text-text-main dark:text-white font-semibold">Failed to load payout setup</p>
-                                <p className="text-text-muted dark:text-slate-400 text-sm">{stripeLoadError}</p>
+                                <p className="text-text-main  font-semibold">Failed to load payout setup</p>
+                                <p className="text-text-muted  text-sm">{stripeLoadError}</p>
                                 <button onClick={handleRetry} className="px-6 py-2.5 bg-primary text-white rounded-lg font-semibold text-sm hover:bg-primary/90 transition-colors">
                                     Try again
                                 </button>
                             </div>
                         ) : (
-                            <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl shadow-sm p-6 md:p-8">
+                            <div className="bg-card-light  border border-border-light  rounded-xl shadow-sm p-6 md:p-8">
                                 {!embeddedFormLoaded && (
                                     <div className="animate-pulse space-y-5">
-                                        <div className="h-6 w-48 bg-slate-200 dark:bg-slate-700 rounded" />
+                                        <div className="h-6 w-48 bg-slate-200  rounded" />
                                         <div className="space-y-3 pt-2">
-                                            <div className="h-4 w-32 bg-slate-200 dark:bg-slate-700 rounded" />
-                                            <div className="h-11 w-full bg-slate-100 dark:bg-slate-800 rounded-lg" />
+                                            <div className="h-4 w-32 bg-slate-200  rounded" />
+                                            <div className="h-11 w-full bg-slate-100  rounded-lg" />
                                         </div>
                                         <div className="space-y-3">
-                                            <div className="h-4 w-40 bg-slate-200 dark:bg-slate-700 rounded" />
-                                            <div className="h-11 w-full bg-slate-100 dark:bg-slate-800 rounded-lg" />
+                                            <div className="h-4 w-40 bg-slate-200  rounded" />
+                                            <div className="h-11 w-full bg-slate-100  rounded-lg" />
                                         </div>
                                         <div className="flex justify-end pt-2">
-                                            <div className="h-10 w-28 bg-slate-200 dark:bg-slate-700 rounded-lg" />
+                                            <div className="h-10 w-28 bg-slate-200  rounded-lg" />
                                         </div>
                                     </div>
                                 )}
@@ -288,7 +288,7 @@ export default function PayoutSetupPage() {
                         <div className="text-center">
                             <Link
                                 href="/customer/payments"
-                                className="text-text-muted dark:text-gray-400 hover:text-text-main dark:hover:text-white text-sm font-semibold transition-colors"
+                                className="text-text-muted  hover:text-text-main  text-sm font-semibold transition-colors"
                             >
                                 I will finish this later
                             </Link>
@@ -298,21 +298,21 @@ export default function PayoutSetupPage() {
 
                 {/* VERIFYING */}
                 {status === STATUS.VERIFYING && (
-                    <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl p-12 flex flex-col items-center gap-4">
+                    <div className="bg-card-light  border border-border-light  rounded-xl p-12 flex flex-col items-center gap-4">
                         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" />
-                        <p className="text-text-main dark:text-white font-semibold">Verifying your account...</p>
-                        <p className="text-text-muted dark:text-slate-400 text-sm">Just a moment while we confirm everything is in order.</p>
+                        <p className="text-text-main  font-semibold">Verifying your account...</p>
+                        <p className="text-text-muted  text-sm">Just a moment while we confirm everything is in order.</p>
                     </div>
                 )}
 
                 {/* COMPLETE */}
                 {status === STATUS.COMPLETE && (
-                    <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl p-12 flex flex-col items-center gap-4">
-                        <div className="w-16 h-16 bg-emerald-100 dark:bg-emerald-900/30 rounded-full flex items-center justify-center">
+                    <div className="bg-card-light  border border-border-light  rounded-xl p-12 flex flex-col items-center gap-4">
+                        <div className="w-16 h-16 bg-emerald-100  rounded-full flex items-center justify-center">
                             <MdCheckCircle className="text-emerald-500 text-4xl" />
                         </div>
-                        <p className="text-text-main dark:text-white font-bold text-xl">Payout Account Connected!</p>
-                        <p className="text-text-muted dark:text-slate-400 text-sm text-center max-w-sm">
+                        <p className="text-text-main  font-bold text-xl">Payout Account Connected!</p>
+                        <p className="text-text-muted  text-sm text-center max-w-sm">
                             {pendingAmount > 0
                                 ? `Your pending refund of ${formatCurrency(pendingAmount)} is being processed and will arrive in 2-3 business days.`
                                 : "Future refunds will be deposited directly to your bank account."
@@ -329,16 +329,16 @@ export default function PayoutSetupPage() {
 
                 {/* ERROR */}
                 {status === STATUS.ERROR && (
-                    <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl p-8 space-y-5">
-                        <div className="flex items-start gap-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-500/40 rounded-xl p-4">
+                    <div className="bg-card-light  border border-border-light  rounded-xl p-8 space-y-5">
+                        <div className="flex items-start gap-3 bg-red-50  border border-red-200  rounded-xl p-4">
                             <MdError className="text-red-500 text-xl shrink-0 mt-0.5" />
-                            <p className="text-red-700 dark:text-red-300 text-sm">{error}</p>
+                            <p className="text-red-700  text-sm">{error}</p>
                         </div>
                         <div className="flex flex-col gap-3">
                             <button onClick={handleRetry} className="w-full bg-primary hover:bg-primary/90 text-white px-8 py-3 rounded-lg font-bold transition-colors">
                                 Try again
                             </button>
-                            <Link href="/customer/payments" className="w-full text-center text-text-muted dark:text-gray-400 hover:text-text-main dark:hover:text-white px-8 py-3 rounded-lg font-semibold transition-colors">
+                            <Link href="/customer/payments" className="w-full text-center text-text-muted  hover:text-text-main  px-8 py-3 rounded-lg font-semibold transition-colors">
                                 Back to Payments
                             </Link>
                         </div>

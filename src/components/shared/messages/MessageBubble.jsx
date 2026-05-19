@@ -7,9 +7,9 @@ import { getDisplayName, getPhotoUrl, formatMessageTime, formatDateSeparator, sh
 function DateSeparator({ label }) {
     return (
         <div className="flex items-center justify-center my-4">
-            <div className="h-px bg-border-light dark:bg-border-dark flex-1" />
-            <span className="mx-3 text-[10px] font-semibold text-text-muted dark:text-gray-500 uppercase tracking-widest">{label}</span>
-            <div className="h-px bg-border-light dark:bg-border-dark flex-1" />
+            <div className="h-px bg-border-light  flex-1" />
+            <span className="mx-3 text-[10px] font-semibold text-text-muted  uppercase tracking-widest">{label}</span>
+            <div className="h-px bg-border-light  flex-1" />
         </div>
     );
 }
@@ -17,9 +17,9 @@ function DateSeparator({ label }) {
 function SystemMessage({ content }) {
     return (
         <div className="flex items-center justify-center my-4">
-            <div className="h-px bg-border-light dark:bg-border-dark flex-1" />
-            <span className="mx-3 text-[10px] font-semibold text-text-muted dark:text-gray-500 uppercase tracking-widest bg-primary/10 px-2 py-1 rounded-full">{content}</span>
-            <div className="h-px bg-border-light dark:bg-border-dark flex-1" />
+            <div className="h-px bg-border-light  flex-1" />
+            <span className="mx-3 text-[10px] font-semibold text-text-muted  uppercase tracking-widest bg-primary/10 px-2 py-1 rounded-full">{content}</span>
+            <div className="h-px bg-border-light  flex-1" />
         </div>
     )
 }
@@ -30,19 +30,19 @@ function MessageStatus({ isFailed, isSending, isSender, readAt, createdAt, onRet
             <>
                 <svg className="w-3 h-3 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                 <span className="text-[10px] text-red-500 font-medium">Not delivered</span>
-                <span className="text-[10px] text-text-muted dark:text-gray-500">&middot;</span>
+                <span className="text-[10px] text-text-muted ">&middot;</span>
                 <button onClick={onRetry} className="text-[10px] text-primary font-semibold hover:underline">Try again</button>
             </>
         )
     }
 
     if (isSending) {
-        return <span className="text-[10px] text-text-muted dark:text-gray-500 italic">Sending…</span>;
+        return <span className="text-[10px] text-text-muted  italic">Sending…</span>;
     }
 
     return (
         <>
-            <span className="text-[10px] text-text-muted dark:text-gray-500">{formatMessageTime(createdAt)}</span>
+            <span className="text-[10px] text-text-muted ">{formatMessageTime(createdAt)}</span>
             {isSender && readAt && (
                 <svg className="w-3 h-3 text-primary" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
             )}
@@ -61,9 +61,9 @@ export default function MessageBubble({ msg, messages, index, currentUser, onRet
                 return (
                     <div>
                         <div className="flex items-center justify-center my-3">
-                            <div className="h-px bg-border-light dark:bg-border-dark flex-1" />
-                            <span className="mx-3 text-[10px] font-semibold text-text-muted dark:text-gray-500 uppercase tracking-widest">Offer</span>
-                            <div className="h-px bg-border-light dark:bg-border-dark flex-1" />
+                            <div className="h-px bg-border-light  flex-1" />
+                            <span className="mx-3 text-[10px] font-semibold text-text-muted  uppercase tracking-widest">Offer</span>
+                            <div className="h-px bg-border-light  flex-1" />
                         </div>
                         <SessionOfferWidget offerId={offerId} />
                     </div>
@@ -113,7 +113,7 @@ export default function MessageBubble({ msg, messages, index, currentUser, onRet
                     {replyToData && replyToPreview && (
                         <button
                             onClick={handleScrollToOriginal}
-                            className="px-3 py-1.5 rounded-lg text-[11px] border-l-2 border-primary max-w-full text-left cursor-pointer hover:opacity-80 transition-opacity bg-slate-100 dark:bg-slate-800 text-text-main dark:text-gray-300"
+                            className="px-3 py-1.5 rounded-lg text-[11px] border-l-2 border-primary max-w-full text-left cursor-pointer hover:opacity-80 transition-opacity bg-slate-100  text-text-main "
                         >
                             <p className="font-bold text-primary text-[10px]">{replyToSenderName}</p>
                             <p className="truncate">
@@ -127,7 +127,7 @@ export default function MessageBubble({ msg, messages, index, currentUser, onRet
 
                     {/* Message bubble */}
                     <div className="relative">
-                        <div className={`px-3.5 py-2.5 rounded-2xl text-sm leading-relaxed shadow-sm transition-opacity ${isSender ? (isFailed ? 'bg-primary text-white rounded-br-sm border-2 border-red-400' : 'bg-primary text-white rounded-br-sm') : 'bg-card-light dark:bg-card-dark text-text-main dark:text-white border border-border-light dark:border-border-dark rounded-bl-sm'} ${isSending ? 'opacity-60' : ''}`}>
+                        <div className={`px-3.5 py-2.5 rounded-2xl text-sm leading-relaxed shadow-sm transition-opacity ${isSender ? (isFailed ? 'bg-primary text-white rounded-br-sm border-2 border-red-400' : 'bg-primary text-white rounded-br-sm') : 'bg-card-light  text-text-main  border border-border-light  rounded-bl-sm'} ${isSending ? 'opacity-60' : ''}`}>
                             {msg.content && <span>{msg.content}</span>}
                             {msg.attachments?.length > 0 && (
                                 <MessageAttachments attachments={msg.attachments} isSender={isSender} />
@@ -141,7 +141,7 @@ export default function MessageBubble({ msg, messages, index, currentUser, onRet
                         {canReply && (
                             <button
                                 onClick={() => onReply(msg)}
-                                className={`absolute top-1/2 -translate-y-1/2 opacity-0 group-hover/msg:opacity-100 transition-opacity p-1.5 rounded-full bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark shadow-sm hover:bg-slate-100 dark:hover:bg-slate-700 text-text-muted dark:text-gray-400 hover:text-primary ${
+                                className={`absolute top-1/2 -translate-y-1/2 opacity-0 group-hover/msg:opacity-100 transition-opacity p-1.5 rounded-full bg-card-light  border border-border-light  shadow-sm hover:bg-slate-100  text-text-muted  hover:text-primary ${
                                     isSender ? '-left-9' : '-right-9'
                                 }`}
                                 title="Reply"

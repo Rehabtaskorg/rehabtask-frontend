@@ -105,10 +105,10 @@ export default function FindTherapistsMapPanel({
 
     if (markers.length === 0) {
         return (
-            <div className="h-full w-full flex items-center justify-center bg-muted-light dark:bg-muted-dark">
+            <div className="h-full w-full flex items-center justify-center bg-muted-light ">
                 <div className="text-center p-6">
                     <MdLocationOn className="text-4xl text-text-muted/40 mx-auto mb-2" />
-                    <p className="text-sm text-text-muted dark:text-gray-400">No therapists to display on map.</p>
+                    <p className="text-sm text-text-muted ">No therapists to display on map.</p>
                     <p className="text-xs text-text-muted/70 mt-1">Try adjusting your search.</p>
                 </div>
             </div>

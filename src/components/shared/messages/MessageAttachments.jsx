@@ -104,7 +104,7 @@ function AttachmentRow({ attachment, openAttachment, isLoading, isSender }) {
             className={`flex items-center gap-3 p-2.5 rounded-lg transition-colors w-full text-left ${
                 isSender
                     ? "bg-white/10 hover:bg-white/20 border border-white/10"
-                    : "bg-background-light dark:bg-background-dark hover:bg-slate-100 dark:hover:bg-slate-700 border border-border-light dark:border-border-dark"
+                    : "bg-background-light  hover:bg-slate-100  border border-border-light "
             }`}
             title={`Open ${attachment.fileName}`}
         >
@@ -118,18 +118,18 @@ function AttachmentRow({ attachment, openAttachment, isLoading, isSender }) {
             </div>
             <div className="flex-1 min-w-0">
                 <p className={`text-xs font-semibold truncate ${
-                    isSender ? "text-white" : "text-text-main dark:text-white"
+                    isSender ? "text-white" : "text-text-main "
                 }`}>
                     {attachment.fileName}
                 </p>
                 <p className={`text-[10px] ${
-                    isSender ? "text-white/70" : "text-text-muted dark:text-gray-400"
+                    isSender ? "text-white/70" : "text-text-muted "
                 }`}>
                     {formatFileSize(attachment.fileSize)} · {getExtension(attachment.fileName)}
                 </p>
             </div>
             <MdDownload className={`text-sm shrink-0 ${
-                isSender ? "text-white/60" : "text-text-muted dark:text-gray-500"
+                isSender ? "text-white/60" : "text-text-muted "
             }`} />
         </button>
     );

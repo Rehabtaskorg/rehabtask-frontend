@@ -95,14 +95,14 @@ function TherapistBookingsContent() {
     if (loading) {
         return (
             <div className="flex-1 flex flex-col">
-                <header className="h-16 border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md sticky top-14 lg:top-0 z-10 flex items-center justify-between px-4 sm:px-8 shrink-0">
-                    <h2 className="text-xl sm:text-2xl font-black tracking-tight text-text-main dark:text-white">
+                <header className="h-16 border-b border-slate-200  bg-white/80  backdrop-blur-md sticky top-14 lg:top-0 z-10 flex items-center justify-between px-4 sm:px-8 shrink-0">
+                    <h2 className="text-xl sm:text-2xl font-black tracking-tight text-text-main ">
                         My Bookings
                     </h2>
                 </header>
                 <div className="p-4 sm:p-6 space-y-3">
                     {[1, 2, 3, 4].map((i) => (
-                        <div key={i} className="h-20 bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl animate-pulse" />
+                        <div key={i} className="h-20 bg-card-light  border border-border-light  rounded-xl animate-pulse" />
                     ))}
                 </div>
             </div>
@@ -113,12 +113,12 @@ function TherapistBookingsContent() {
     if (error) {
         return (
             <div className="flex-1 flex flex-col">
-                <header className="h-16 border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md sticky top-14 lg:top-0 z-10 flex items-center px-4 sm:px-8 shrink-0">
-                    <h2 className="text-xl sm:text-2xl font-black tracking-tight text-text-main dark:text-white">My Bookings</h2>
+                <header className="h-16 border-b border-slate-200  bg-white/80  backdrop-blur-md sticky top-14 lg:top-0 z-10 flex items-center px-4 sm:px-8 shrink-0">
+                    <h2 className="text-xl sm:text-2xl font-black tracking-tight text-text-main ">My Bookings</h2>
                 </header>
                 <div className="flex-1 flex items-center justify-center">
                     <div className="text-center space-y-2">
-                        <p className="text-text-muted dark:text-gray-400 text-sm">Failed to load bookings.</p>
+                        <p className="text-text-muted  text-sm">Failed to load bookings.</p>
                         <button onClick={refetch} className="text-primary hover:underline text-sm font-bold flex items-center gap-1 mx-auto">
                             <MdRefresh className="text-base" /> Retry
                         </button>
@@ -131,8 +131,8 @@ function TherapistBookingsContent() {
     return (
         <div className="flex-1 flex flex-col">
             {/* Sticky Header */}
-            <header className="h-16 border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md sticky top-14 lg:top-0 z-10 flex items-center justify-between px-4 sm:px-8 shrink-0">
-                <h2 className="text-xl sm:text-2xl font-black tracking-tight text-text-main dark:text-white">
+            <header className="h-16 border-b border-slate-200  bg-white/80  backdrop-blur-md sticky top-14 lg:top-0 z-10 flex items-center justify-between px-4 sm:px-8 shrink-0">
+                <h2 className="text-xl sm:text-2xl font-black tracking-tight text-text-main ">
                     My Bookings
                 </h2>
                 <button
@@ -146,9 +146,9 @@ function TherapistBookingsContent() {
 
             {/* Ready to complete banner */}
             {readyToComplete && (
-                <div className="mx-4 sm:mx-8 mt-4 flex items-center gap-3 px-4 py-3 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800">
-                    <MdWarning className="text-amber-600 dark:text-amber-400 text-lg shrink-0" />
-                    <p className="text-sm text-amber-800 dark:text-amber-300 flex-1">
+                <div className="mx-4 sm:mx-8 mt-4 flex items-center gap-3 px-4 py-3 rounded-lg bg-amber-50  border border-amber-200 ">
+                    <MdWarning className="text-amber-600  text-lg shrink-0" />
+                    <p className="text-sm text-amber-800  flex-1">
                         You have a session ready to be marked complete.
                     </p>
                     <button
@@ -156,7 +156,7 @@ function TherapistBookingsContent() {
                             const b = bookings.find((b) => b.status === "confirmed" && b.sessions?.[0]?.status === "scheduled");
                             if (b) router.push(`/therapist/bookings/${b.id}`);
                         }}
-                        className="text-xs font-bold text-amber-700 dark:text-amber-300 hover:underline whitespace-nowrap"
+                        className="text-xs font-bold text-amber-700  hover:underline whitespace-nowrap"
                     >
                         View Booking
                     </button>
@@ -164,7 +164,7 @@ function TherapistBookingsContent() {
             )}
 
             {/* Filter Tabs */}
-            <div className="flex flex-wrap items-center gap-2 px-4 sm:px-8 py-3 border-b border-border-light dark:border-border-dark shrink-0">
+            <div className="flex flex-wrap items-center gap-2 px-4 sm:px-8 py-3 border-b border-border-light  shrink-0">
                 {FILTER_TABS.map((tab) => {
                     const isActive = activeFilter === tab.key;
                     const count = counts[tab.key];
@@ -174,7 +174,7 @@ function TherapistBookingsContent() {
                             onClick={() => handleFilterChange(tab.key)}
                             className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${isActive
                                 ? "bg-primary text-white"
-                                : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700"
+                                : "bg-slate-100  text-slate-600  hover:bg-slate-200 "
                                 }`}
                         >
                             {tab.label} ({count})
@@ -188,8 +188,8 @@ function TherapistBookingsContent() {
                 {filtered.length === 0 ? (
                     <div className="flex-1 flex items-center justify-center py-16">
                         <div className="text-center space-y-3">
-                            <MdCalendarMonth className="text-5xl text-slate-200 dark:text-slate-700 mx-auto" />
-                            <p className="text-text-muted dark:text-gray-400 text-sm">
+                            <MdCalendarMonth className="text-5xl text-slate-200  mx-auto" />
+                            <p className="text-text-muted  text-sm">
                                 {bookings.length === 0 ? "No bookings yet." : "No bookings match this filter."}
                             </p>
                             {bookings.length === 0 && (
@@ -205,7 +205,7 @@ function TherapistBookingsContent() {
                         <div className="hidden lg:block px-8 py-4">
                             <table className="w-full">
                                 <thead>
-                                    <tr className="text-left text-xs font-semibold uppercase tracking-wider text-text-muted dark:text-gray-400 border-b border-border-light dark:border-border-dark">
+                                    <tr className="text-left text-xs font-semibold uppercase tracking-wider text-text-muted  border-b border-border-light ">
                                         <th className="pb-3 pr-4">Customer</th>
                                         <th className="pb-3 pr-4">Service</th>
                                         <th className="pb-3 pr-4">Date & Time</th>
@@ -223,7 +223,7 @@ function TherapistBookingsContent() {
                                             <tr
                                                 key={booking.id}
                                                 onClick={() => handleRowClick(booking.id)}
-                                                className="border-b border-border-light dark:border-border-dark hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer transition-colors"
+                                                className="border-b border-border-light  hover:bg-slate-50  cursor-pointer transition-colors"
                                             >
                                                 <td className="py-3.5 pr-4">
                                                     <div className="flex items-center gap-3">
@@ -231,36 +231,36 @@ function TherapistBookingsContent() {
                                                             {initial}
                                                         </div>
                                                         <div className="min-w-0">
-                                                            <p className="text-sm font-semibold text-text-main dark:text-white truncate">
+                                                            <p className="text-sm font-semibold text-text-main  truncate">
                                                                 {customer?.fullName || "Customer"}
                                                             </p>
                                                         </div>
                                                     </div>
                                                 </td>
                                                 <td className="py-3.5 pr-4">
-                                                    <span className="text-sm text-text-main dark:text-white">
+                                                    <span className="text-sm text-text-main ">
                                                         {booking.offer?.request?.serviceType || "—"}
                                                     </span>
                                                     {/* Patient identity hidden from therapist */}
                                                 </td>
                                                 <td className="py-3.5 pr-4">
-                                                    <p className="text-sm text-text-main dark:text-white">
+                                                    <p className="text-sm text-text-main ">
                                                         {formatDate(booking.scheduledDate)}
                                                     </p>
-                                                    <p className="text-xs text-text-muted dark:text-gray-400">
+                                                    <p className="text-xs text-text-muted ">
                                                         {formatTime(booking.scheduledDate)}
                                                     </p>
                                                 </td>
                                                 <td className="py-3.5 pr-4">
-                                                    <span className="text-sm font-bold text-emerald-600 dark:text-emerald-400 font-mono">
-                                                        {earnings != null ? formatCurrency(earnings) : <>{formatCurrency(parseFloat(booking.rate))} <span className="text-xs font-normal text-text-muted dark:text-gray-400">(rate)</span></>}
+                                                    <span className="text-sm font-bold text-emerald-600  font-mono">
+                                                        {earnings != null ? formatCurrency(earnings) : <>{formatCurrency(parseFloat(booking.rate))} <span className="text-xs font-normal text-text-muted ">(rate)</span></>}
                                                     </span>
                                                 </td>
                                                 <td className="py-3.5 pr-4">
                                                     <BookingStatusBadge status={booking.status} />
                                                 </td>
                                                 <td className="py-3.5">
-                                                    <MdChevronRight className="text-lg text-text-muted dark:text-gray-500" />
+                                                    <MdChevronRight className="text-lg text-text-muted " />
                                                 </td>
                                             </tr>
                                         );
@@ -279,7 +279,7 @@ function TherapistBookingsContent() {
                                     <button
                                         key={booking.id}
                                         onClick={() => handleRowClick(booking.id)}
-                                        className="w-full text-left p-4 rounded-xl border border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark hover:shadow-sm transition-all"
+                                        className="w-full text-left p-4 rounded-xl border border-border-light  bg-card-light  hover:shadow-sm transition-all"
                                     >
                                         <div className="flex items-start gap-3">
                                             <div className="w-11 h-11 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-base shrink-0">
@@ -287,22 +287,22 @@ function TherapistBookingsContent() {
                                             </div>
                                             <div className="flex-1 min-w-0">
                                                 <div className="flex items-start justify-between gap-2 mb-1">
-                                                    <h3 className="text-sm font-bold text-text-main dark:text-white truncate">
+                                                    <h3 className="text-sm font-bold text-text-main  truncate">
                                                         {customer?.fullName || "Customer"}
                                                     </h3>
                                                     <BookingStatusBadge status={booking.status} />
                                                 </div>
-                                                <p className="text-xs text-text-muted dark:text-gray-400 mb-2">
+                                                <p className="text-xs text-text-muted  mb-2">
                                                     {booking.offer?.request?.serviceType || "—"}
                                                 </p>
                                                 {/* Patient identity hidden from therapist */}
-                                                <div className="flex items-center gap-4 text-xs text-text-muted dark:text-gray-400">
+                                                <div className="flex items-center gap-4 text-xs text-text-muted ">
                                                     <span className="flex items-center gap-1">
                                                         <MdCalendarToday className="text-sm" />
                                                         {formatDate(booking.scheduledDate)}
                                                     </span>
-                                                    <span className="font-bold text-emerald-600 dark:text-emerald-400 font-mono">
-                                                        {earnings != null ? formatCurrency(earnings) : <>{formatCurrency(parseFloat(booking.rate))} <span className="font-normal text-text-muted dark:text-gray-400">(rate)</span></>}
+                                                    <span className="font-bold text-emerald-600  font-mono">
+                                                        {earnings != null ? formatCurrency(earnings) : <>{formatCurrency(parseFloat(booking.rate))} <span className="font-normal text-text-muted ">(rate)</span></>}
                                                     </span>
                                                 </div>
                                             </div>
@@ -314,21 +314,21 @@ function TherapistBookingsContent() {
 
                         {/* Pagination */}
                         {totalPages > 1 && (
-                            <div className="flex items-center justify-between px-4 sm:px-8 py-4 border-t border-border-light dark:border-border-dark">
+                            <div className="flex items-center justify-between px-4 sm:px-8 py-4 border-t border-border-light ">
                                 <button
                                     onClick={() => setPage((p) => Math.max(1, p - 1))}
                                     disabled={page === 1}
-                                    className="flex items-center gap-1 text-sm font-medium text-text-muted dark:text-gray-400 hover:text-text-main dark:hover:text-white disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                                    className="flex items-center gap-1 text-sm font-medium text-text-muted  hover:text-text-main  disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                                 >
                                     <MdChevronLeft className="text-lg" /> Previous
                                 </button>
-                                <span className="text-xs text-text-muted dark:text-gray-400">
+                                <span className="text-xs text-text-muted ">
                                     Page {page} of {totalPages}
                                 </span>
                                 <button
                                     onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                                     disabled={page === totalPages}
-                                    className="flex items-center gap-1 text-sm font-medium text-text-muted dark:text-gray-400 hover:text-text-main dark:hover:text-white disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                                    className="flex items-center gap-1 text-sm font-medium text-text-muted  hover:text-text-main  disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                                 >
                                     Next <MdChevronRight className="text-lg" />
                                 </button>

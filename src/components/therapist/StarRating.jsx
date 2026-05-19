@@ -66,17 +66,17 @@ export default function StarRating({
                 {[0, 1, 2, 3, 4].map(renderStar)}
             </div>
             {showValue && rating > 0 && (
-                <span className="text-sm font-bold text-text-main dark:text-white ml-1">
+                <span className="text-sm font-bold text-text-main  ml-1">
                     {Number(rating).toFixed(1)}
                 </span>
             )}
             {reviewCount != null && (
-                <span className="text-xs text-text-muted dark:text-gray-400 ml-0.5">
+                <span className="text-xs text-text-muted  ml-0.5">
                     ({reviewCount} {reviewCount === 1 ? "review" : "reviews"})
                 </span>
             )}
             {!showValue && rating === 0 && reviewCount == null && !interactive && (
-                <span className="text-xs text-text-muted dark:text-gray-400 ml-1">
+                <span className="text-xs text-text-muted  ml-1">
                     No reviews yet
                 </span>
             )}

@@ -17,7 +17,7 @@ export default function FindTherapistsListCard({
 
     const borderClass = isHighlighted
         ? "border-2 border-primary shadow-lg shadow-primary/10"
-        : "border border-border-light dark:border-border-dark hover:border-primary/30 hover:shadow-md";
+        : "border border-border-light  hover:border-primary/30 hover:shadow-md";
 
     const handleMessage = (e) => {
         e.stopPropagation();
@@ -40,7 +40,7 @@ export default function FindTherapistsListCard({
             onFocus={() => onHover?.(therapist.id)}
             onBlur={() => onHover?.(null)}
             onClick={() => onSelect?.(therapist.id)}
-            className={`bg-card-light dark:bg-card-dark rounded-xl p-4 transition-all cursor-pointer ${borderClass}`}
+            className={`bg-card-light  rounded-xl p-4 transition-all cursor-pointer ${borderClass}`}
         >
             <div className="flex gap-3">
                 <UserAvatar
@@ -52,10 +52,10 @@ export default function FindTherapistsListCard({
                 <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between gap-2">
                         <div className="min-w-0">
-                            <h3 className="text-sm font-bold text-text-main dark:text-white truncate">
+                            <h3 className="text-sm font-bold text-text-main  truncate">
                                 {therapist.fullName}
                             </h3>
-                            <span className="inline-flex items-center gap-1 mt-1 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 text-[9px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-wider">
+                            <span className="inline-flex items-center gap-1 mt-1 bg-emerald-50  text-emerald-700  text-[9px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-wider">
                                 <MdVerified className="text-[11px]" />
                                 {therapist.licenseType || "Licensed"}
                             </span>
@@ -65,12 +65,12 @@ export default function FindTherapistsListCard({
                                 {therapist.rate ? `$${therapist.rate}` : "—"}
                             </p>
                             {therapist.rate > 0 && (
-                                <p className="text-[10px] text-text-muted dark:text-gray-400">per visit</p>
+                                <p className="text-[10px] text-text-muted ">per visit</p>
                             )}
                         </div>
                     </div>
 
-                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2 text-[11px] text-text-muted dark:text-gray-400">
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2 text-[11px] text-text-muted ">
                         {therapist.experience > 0 && (
                             <span className="flex items-center gap-0.5">
                                 <MdWorkHistory className="text-xs text-text-muted/70" />
@@ -95,7 +95,7 @@ export default function FindTherapistsListCard({
                         <button
                             type="button"
                             onClick={handleViewProfile}
-                            className="text-xs font-semibold text-text-muted dark:text-gray-400 hover:text-primary transition-colors"
+                            className="text-xs font-semibold text-text-muted  hover:text-primary transition-colors"
                         >
                             View Profile
                         </button>

@@ -78,9 +78,9 @@ function ResetPasswordForm() {
     }, [passwordStrength]);
 
     const strengthColor = useMemo(() => {
-        if (passwordStrength >= 75) return "text-green-600 dark:text-green-400";
-        if (passwordStrength >= 50) return "text-yellow-600 dark:text-yellow-400";
-        return "text-red-600 dark:text-red-400";
+        if (passwordStrength >= 75) return "text-green-600 ";
+        if (passwordStrength >= 50) return "text-yellow-600 ";
+        return "text-red-600 ";
     }, [passwordStrength]);
 
     const barColor = useMemo(() => {
@@ -132,10 +132,10 @@ function ResetPasswordForm() {
 
     if (isCheckingToken) {
         return (
-            <div className="max-w-120 w-full bg-white dark:bg-card-dark shadow-xl rounded-xl p-8">
+            <div className="max-w-120 w-full bg-white  shadow-xl rounded-xl p-8">
                 <div className="text-center">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-                    <p className="text-text-muted dark:text-gray-400">Verifying reset link...</p>
+                    <p className="text-text-muted ">Verifying reset link...</p>
                 </div>
             </div>
         );
@@ -143,7 +143,7 @@ function ResetPasswordForm() {
 
     if (!isValidToken) {
         return (
-            <div className="max-w-120 w-full bg-white dark:bg-card-dark shadow-xl rounded-xl p-8 border border-border-subtle dark:border-border-dark">
+            <div className="max-w-120 w-full bg-white  shadow-xl rounded-xl p-8 border border-border-subtle ">
                 <Alert
                     type="error"
                     message={error || "Invalid or expired reset link. Please request a new password reset."}
@@ -161,13 +161,13 @@ function ResetPasswordForm() {
     }
 
     return (
-        <div className="w-full max-w-120 bg-white dark:bg-card-dark rounded-xl shadow-xl border border-border-subtle dark:border-border-dark overflow-hidden">
+        <div className="w-full max-w-120 bg-white  rounded-xl shadow-xl border border-border-subtle  overflow-hidden">
             {/* Page Heading */}
             <div className="p-8 pb-4 text-center">
-                <h1 className="text-text-main dark:text-white text-3xl font-black leading-tight tracking-[-0.033em] mb-2">
+                <h1 className="text-text-main  text-3xl font-black leading-tight tracking-[-0.033em] mb-2">
                     Create New Password
                 </h1>
-                <p className="text-text-muted dark:text-gray-400 text-base font-normal">
+                <p className="text-text-muted  text-base font-normal">
                     Choose a strong password to secure your personal health records.
                 </p>
             </div>
@@ -205,39 +205,39 @@ function ResetPasswordForm() {
                 {password && (
                     <div className="flex flex-col gap-3 py-2">
                         <div className="flex gap-6 justify-between items-center">
-                            <p className="text-text-main dark:text-gray-200 text-sm font-medium">
+                            <p className="text-text-main  text-sm font-medium">
                                 Password Strength: <span className={strengthColor}>{strengthLabel}</span>
                             </p>
-                            <p className="text-text-main dark:text-gray-200 text-sm font-normal">{passwordStrength}%</p>
+                            <p className="text-text-main  text-sm font-normal">{passwordStrength}%</p>
                         </div>
-                        <div className="rounded-full bg-border-subtle dark:bg-gray-700 h-2 overflow-hidden">
+                        <div className="rounded-full bg-border-subtle  h-2 overflow-hidden">
                             <div
                                 className={`h-2 rounded-full ${barColor} transition-all duration-300`}
                                 style={{ width: `${passwordStrength}%` }}
                             />
                         </div>
-                        <p className="text-text-muted dark:text-gray-400 text-xs font-normal italic">
+                        <p className="text-text-muted  text-xs font-normal italic">
                             Stronger passwords help protect your sensitive medical information.
                         </p>
                     </div>
                 )}
 
                 {/* Checklist Requirements */}
-                <div className="bg-background-light dark:bg-background-dark rounded-lg p-4 space-y-3 border border-border-subtle dark:border-border-dark">
+                <div className="bg-background-light  rounded-lg p-4 space-y-3 border border-border-subtle ">
                     {requirements.map((req, index) => (
                         <label key={index} className="flex items-center gap-x-3 cursor-default">
                             <div
                                 className={`h-5 w-5 flex items-center justify-center rounded border-2 transition-all ${req.met
                                     ? "border-primary bg-primary text-white"
-                                    : "border-border-subtle dark:border-gray-600"
+                                    : "border-border-subtle "
                                     }`}
                             >
                                 {req.met && <MdCheck className="text-[16px] font-bold" />}
                             </div>
                             <p
                                 className={`text-sm ${req.met
-                                    ? "text-text-main dark:text-gray-300 font-medium"
-                                    : "text-text-main dark:text-gray-300 font-normal opacity-60"
+                                    ? "text-text-main  font-medium"
+                                    : "text-text-main  font-normal opacity-60"
                                     }`}
                             >
                                 {req.label}
@@ -259,7 +259,7 @@ function ResetPasswordForm() {
                     >
                         <span>Update Password</span>
                     </Button>
-                    <div className="mt-6 flex items-center justify-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+                    <div className="mt-6 flex items-center justify-center gap-2 text-sm text-gray-500 ">
                         <MdLock className="text-sm" />
                         <p>Secure, encrypted connection</p>
                     </div>
@@ -267,7 +267,7 @@ function ResetPasswordForm() {
             </form>
 
             {/* Bottom Navigation */}
-            <div className="p-6 bg-background-light/50 dark:bg-background-dark/30 border-t border-border-subtle dark:border-border-dark text-center">
+            <div className="p-6 bg-background-light/50  border-t border-border-subtle  text-center">
                 <Link href="/login" className="text-primary text-sm font-semibold hover:underline">
                     Back to Login
                 </Link>

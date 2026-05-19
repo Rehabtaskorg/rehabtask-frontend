@@ -80,17 +80,17 @@ const OAuthCallback = () => {
     }, [router]);
 
     return (
-        <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 dark:bg-background-dark p-4">
+        <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50  p-4">
             <div className="flex flex-col items-center max-w-sm w-full text-center">
                 <div className="relative mb-6">
                     <div className="h-16 w-16 rounded-full border-4 border-primary/20 animate-pulse"></div>
                     <div className="absolute top-0 left-0 h-16 w-16 rounded-full border-t-4 border-primary animate-spin"></div>
                 </div>
 
-                <h1 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+                <h1 className="text-xl font-bold text-gray-900  mb-2">
                     Just a moment
                 </h1>
-                <p className="text-gray-600 dark:text-gray-400 animate-pulse text-sm">
+                <p className="text-gray-600  animate-pulse text-sm">
                     {statusMessage}
                 </p>
             </div>

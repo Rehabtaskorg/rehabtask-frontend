@@ -34,17 +34,17 @@ export default function TherapistRequestFilters({
 
             {/* Sidebar — slides from left */}
             <aside className={`
-                fixed top-0 left-0 h-full w-80 z-50 bg-white dark:bg-card-dark shadow-2xl
+                fixed top-0 left-0 h-full w-80 z-50 bg-white  shadow-2xl
                 flex flex-col transform transition-transform duration-300 ease-in-out
                 ${isOpen ? "translate-x-0" : "-translate-x-full"}
             `}>
                 {/* Header */}
-                <div className="flex items-center justify-between p-6 border-b border-border-light dark:border-border-dark shrink-0">
+                <div className="flex items-center justify-between p-6 border-b border-border-light  shrink-0">
                     <div>
-                        <h3 className="text-lg font-bold text-text-main dark:text-white">Filter Requests</h3>
-                        <p className="text-[10px] text-text-muted dark:text-gray-400 uppercase tracking-widest mt-0.5">Refine your results</p>
+                        <h3 className="text-lg font-bold text-text-main ">Filter Requests</h3>
+                        <p className="text-[10px] text-text-muted  uppercase tracking-widest mt-0.5">Refine your results</p>
                     </div>
-                    <button onClick={onClose} className="w-9 h-9 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center justify-center text-text-muted transition-colors">
+                    <button onClick={onClose} className="w-9 h-9 rounded-full hover:bg-slate-100  flex items-center justify-center text-text-muted transition-colors">
                         <MdClose className="text-xl" />
                     </button>
                 </div>
@@ -53,7 +53,7 @@ export default function TherapistRequestFilters({
                 <div className="flex-1 overflow-y-auto p-6 space-y-8">
                     {/* Service Type */}
                     <div className="space-y-3">
-                        <p className="text-xs font-bold text-text-muted dark:text-gray-400 uppercase tracking-widest">Discipline Type</p>
+                        <p className="text-xs font-bold text-text-muted  uppercase tracking-widest">Discipline Type</p>
                         <div className="space-y-2.5">
                             {SERVICE_TYPE_OPTIONS.map((opt) => (
                                 <label key={opt.value} className="flex items-center gap-3 cursor-pointer group">
@@ -61,9 +61,9 @@ export default function TherapistRequestFilters({
                                         type="checkbox"
                                         checked={filters.serviceTypes.includes(opt.value)}
                                         onChange={() => onToggleServiceType(opt.value)}
-                                        className="rounded border-slate-300 dark:border-slate-600 text-primary focus:ring-primary"
+                                        className="rounded border-slate-300  text-primary focus:ring-primary"
                                     />
-                                    <span className="text-sm text-text-muted dark:text-gray-400 group-hover:text-text-main dark:group-hover:text-white transition-colors">
+                                    <span className="text-sm text-text-muted  group-hover:text-text-main  transition-colors">
                                         {opt.label}
                                     </span>
                                 </label>
@@ -73,7 +73,7 @@ export default function TherapistRequestFilters({
 
                     {/* Show */}
                     <div className="space-y-3">
-                        <p className="text-xs font-bold text-text-muted dark:text-gray-400 uppercase tracking-widest">Show</p>
+                        <p className="text-xs font-bold text-text-muted  uppercase tracking-widest">Show</p>
                         <div className="space-y-2.5">
                             {SHOW_OPTIONS.map((opt) => (
                                 <label key={opt.value} className="flex items-center gap-3 cursor-pointer group">
@@ -83,9 +83,9 @@ export default function TherapistRequestFilters({
                                         value={opt.value}
                                         checked={filters.show === opt.value}
                                         onChange={() => onSetShow(opt.value)}
-                                        className="border-slate-300 dark:border-slate-600 text-primary focus:ring-primary"
+                                        className="border-slate-300  text-primary focus:ring-primary"
                                     />
-                                    <span className="text-sm text-text-muted dark:text-gray-400 group-hover:text-text-main dark:group-hover:text-white transition-colors">
+                                    <span className="text-sm text-text-muted  group-hover:text-text-main  transition-colors">
                                         {opt.label}
                                     </span>
                                 </label>
@@ -95,7 +95,7 @@ export default function TherapistRequestFilters({
                 </div>
 
                 {/* Actions */}
-                <div className="p-6 border-t border-border-light dark:border-border-dark space-y-3 shrink-0">
+                <div className="p-6 border-t border-border-light  space-y-3 shrink-0">
                     <button
                         onClick={() => { onApply(); onClose(); }}
                         className="w-full bg-primary text-white py-3 rounded-lg font-bold text-sm hover:bg-primary/90 transition-colors shadow-sm"
@@ -104,7 +104,7 @@ export default function TherapistRequestFilters({
                     </button>
                     <button
                         onClick={() => { onReset(); onClose(); }}
-                        className="w-full bg-slate-100 dark:bg-slate-800 text-text-muted dark:text-gray-400 py-2.5 rounded-lg font-medium text-sm hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                        className="w-full bg-slate-100  text-text-muted  py-2.5 rounded-lg font-medium text-sm hover:bg-slate-200  transition-colors"
                     >
                         Reset All
                     </button>
@@ -118,7 +118,7 @@ export function FilterToggleButton({ onClick, activeCount }) {
     return (
         <button
             onClick={onClick}
-            className="flex items-center gap-2 bg-slate-100 dark:bg-slate-800 text-text-main dark:text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+            className="flex items-center gap-2 bg-slate-100  text-text-main  px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-200  transition-colors"
         >
             <MdFilterList className="text-lg" />
             Filters

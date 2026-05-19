@@ -24,7 +24,10 @@
       "Bash(grep -r \"SubscriptionPlan\\\\|BASIC\\\\|PREMIUM\\\\|ELITE\\\\|subscriptionPlan\" c:UserssteveDocumentswork_projectsrehabtask-platformbackend --include=*.js)",
       "WebFetch(domain:stripe.com)",
       "Bash(find /home/steve/projects/RehabTaskApp-Backend -type f -name \"*.js\" -o -name \"*.ts\" -o -name \"*.json\" -o -name \".env*\" | head -50)",
-      "Read(//home/steve/projects/RehabTaskApp-Backend/**)"
+      "Read(//home/steve/projects/RehabTaskApp-Backend/**)",
+      "Bash(xargs sed -i 's/ dark:[a-zA-Z0-9_/\\\\[\\\\]:.%\\(\\)-]*//g')",
+      "Bash(xargs sed -i 's/dark:[a-zA-Z0-9_/\\\\[\\\\]:.%\\(\\)-]*//g')",
+      "Bash(xargs perl -pi -e 's/dark:[a-zA-Z0-9_\\\\/\\\\[\\\\]:.%\\(\\)!?#-]+//g')"
     ],
     "additionalDirectories": [
       "c:\\Users\\steve\\Documents\\work_projects\\rehabtask-platform\\backend\\src\\validators",
@@ -32,7 +35,8 @@
       "c:\\Users\\steve\\Documents\\work_projects\\rehabtask-platform\\backend\\emails",
       "c:\\Users\\steve\\Documents\\work_projects\\rehabtask-platform\\backend\\src\\services",
       "c:\\Users\\steve\\Documents\\work_projects\\rehabtask-platform\\backend\\src\\config",
-      "c:\\Users\\steve\\Documents\\work_projects\\rehabtask-platform\\backend\\src\\routes"
+      "c:\\Users\\steve\\Documents\\work_projects\\rehabtask-platform\\backend\\src\\routes",
+      "/home/steve/projects/RehabTaskApp-Backend/src/utils"
     ]
   }
 }

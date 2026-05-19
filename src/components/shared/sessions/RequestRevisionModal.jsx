@@ -66,12 +66,12 @@ export default function RequestRevisionModal({ isOpen, onClose, sessionId, onSuc
             className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
             onClick={handleBackdropClick}
         >
-            <div className="bg-card-light dark:bg-card-dark rounded-xl w-full max-w-md shadow-2xl overflow-hidden">
+            <div className="bg-card-light  rounded-xl w-full max-w-md shadow-2xl overflow-hidden">
                 {/* Header */}
-                <div className="px-6 py-4 border-b border-border-light dark:border-border-dark flex items-center justify-between">
+                <div className="px-6 py-4 border-b border-border-light  flex items-center justify-between">
                     <div className="flex items-center gap-2">
                         <MdEdit className="text-primary text-xl" />
-                        <h2 className="text-lg font-semibold text-text-main dark:text-white">
+                        <h2 className="text-lg font-semibold text-text-main ">
                             Request Revision
                         </h2>
                     </div>
@@ -79,7 +79,7 @@ export default function RequestRevisionModal({ isOpen, onClose, sessionId, onSuc
                         type="button"
                         onClick={handleClose}
                         disabled={submitting}
-                        className="text-text-muted dark:text-gray-400 hover:text-text-main dark:hover:text-white transition-colors p-1 disabled:opacity-50"
+                        className="text-text-muted  hover:text-text-main  transition-colors p-1 disabled:opacity-50"
                         aria-label="Close"
                     >
                         <MdClose className="text-xl" />
@@ -88,12 +88,12 @@ export default function RequestRevisionModal({ isOpen, onClose, sessionId, onSuc
 
                 {/* Body */}
                 <form onSubmit={handleSubmit} className="p-6 space-y-4">
-                    <p className="text-sm text-text-muted dark:text-gray-400">
+                    <p className="text-sm text-text-muted ">
                         Tell the therapist what needs to change. They&apos;ll review your feedback and resubmit the session.
                     </p>
 
                     {error && (
-                        <div className="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-4 py-3 rounded-lg text-sm">
+                        <div className="bg-red-50  border border-red-200  text-red-700  px-4 py-3 rounded-lg text-sm">
                             {error}
                         </div>
                     )}
@@ -101,7 +101,7 @@ export default function RequestRevisionModal({ isOpen, onClose, sessionId, onSuc
                     <div>
                         <label
                             htmlFor="revision-reason"
-                            className="block text-sm font-semibold text-text-main dark:text-white mb-1.5"
+                            className="block text-sm font-semibold text-text-main  mb-1.5"
                         >
                             What needs to change? <span className="text-red-500">*</span>
                         </label>
@@ -112,9 +112,9 @@ export default function RequestRevisionModal({ isOpen, onClose, sessionId, onSuc
                             placeholder="Be specific so the therapist knows exactly what to update — e.g. 'The exercise sheet is missing the home exercises we discussed.'"
                             disabled={submitting}
                             rows={5}
-                            className="w-full px-4 py-3 rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-main dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary transition-all resize-none placeholder:text-text-muted dark:placeholder:text-gray-500"
+                            className="w-full px-4 py-3 rounded-lg border border-border-light  bg-background-light  text-text-main  text-sm focus:outline-none focus:ring-2 focus:ring-primary transition-all resize-none placeholder:text-text-muted "
                         />
-                        <p className="text-xs text-text-muted dark:text-gray-500 mt-1.5">
+                        <p className="text-xs text-text-muted  mt-1.5">
                             Minimum {MIN_REASON_LENGTH} characters
                             {reasonTrimmed.length > 0 && ` — ${reasonTrimmed.length}/${MIN_REASON_LENGTH}`}
                         </p>
@@ -125,7 +125,7 @@ export default function RequestRevisionModal({ isOpen, onClose, sessionId, onSuc
                             type="button"
                             onClick={handleClose}
                             disabled={submitting}
-                            className="px-5 py-2.5 text-sm font-semibold text-text-muted dark:text-gray-400 hover:text-text-main dark:hover:text-white border border-border-light dark:border-border-dark rounded-lg transition-colors disabled:opacity-50"
+                            className="px-5 py-2.5 text-sm font-semibold text-text-muted  hover:text-text-main  border border-border-light  rounded-lg transition-colors disabled:opacity-50"
                         >
                             Cancel
                         </button>

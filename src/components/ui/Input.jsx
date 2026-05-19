@@ -6,7 +6,7 @@ const Input = forwardRef(
         return (
             <div className="space-y-2">
                 {label && (
-                    <label className="block text-sm font-bold text-text-main dark:text-white uppercase tracking-wide">
+                    <label className="block text-sm font-bold text-text-main  uppercase tracking-wide">
                         {label}
                         {props.required && (
                             <span className="text-red-500 ml-1">*</span>
@@ -18,15 +18,15 @@ const Input = forwardRef(
                         ref={ref}
                         className={`
                             w-full px-4 py-3 rounded-xl
-                            bg-white dark:bg-background-dark
+                            bg-white 
                             border transition-all outline-none
                             /* Border Logic: Light vs Dark vs Error */
                             ${error
                                 ? "border-red-500 focus:ring-2 focus:ring-red-500/20 focus:border-red-500"
-                                : "border-border-subtle dark:border-[#2a3038] focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                                : "border-border-subtle  focus:ring-2 focus:ring-primary/20 focus:border-primary"
                             }
                             /* Text Colors */
-                            text-text-main dark:text-white
+                            text-text-main 
                             placeholder:text-text-muted/50
                             ${icon ? "pr-10" : ""}
                             ${className}
@@ -48,7 +48,7 @@ const Input = forwardRef(
                     )}
 
                     {helperText && !error && (
-                        <p className="text-xs text-text-muted dark:text-text-muted/80">
+                        <p className="text-xs text-text-muted ">
                             {helperText}
                         </p>
                     )}

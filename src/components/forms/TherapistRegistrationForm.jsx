@@ -45,10 +45,10 @@ const TherapistRegistrationForm = () => {
     };
 
     return (
-        <div className="max-w-160 mx-auto bg-white dark:bg-background-dark rounded-xl shadow-sm border border-border-subtle dark:border-border-dark overflow-hidden">
+        <div className="max-w-160 mx-auto bg-white  rounded-xl shadow-sm border border-border-subtle  overflow-hidden">
             {/* Form Header */}
-            <div className="p-8 border-b border-border-subtle dark:border-border-dark">
-                <h2 className="text-3xl font-black leading-tight tracking-tight dark:text-white">
+            <div className="p-8 border-b border-border-subtle ">
+                <h2 className="text-3xl font-black leading-tight tracking-tight ">
                     Create your professional profile
                 </h2>
                 <p className="text-text-muted mt-2">
@@ -74,9 +74,9 @@ const TherapistRegistrationForm = () => {
                 )}
 
                 {/* Info Banner */}
-                <div className="bg-primary/5 dark:bg-primary/10 p-4 rounded-lg flex items-start gap-3">
+                <div className="bg-primary/5  p-4 rounded-lg flex items-start gap-3">
                     <MdInfo className="text-primary mt-1" size={20} />
-                    <p className="text-sm text-primary dark:text-primary/90 leading-relaxed">
+                    <p className="text-sm text-primary  leading-relaxed">
                         You will be asked to upload your medical license and NPI number in the
                         next step to verify your professional status.
                     </p>
@@ -155,11 +155,11 @@ const TherapistRegistrationForm = () => {
 
                 {/* Divider */}
                 <div className="relative flex py-5 items-center">
-                    <div className="grow border-t border-border-subtle dark:border-border-dark" />
+                    <div className="grow border-t border-border-subtle " />
                     <span className="mx-4 text-xs uppercase font-bold text-text-muted">
                         Or continue with
                     </span>
-                    <div className="grow border-t border-border-subtle dark:border-border-dark" />
+                    <div className="grow border-t border-border-subtle " />
                 </div>
 
                 {/* Google Signup */}
@@ -167,7 +167,7 @@ const TherapistRegistrationForm = () => {
                     type="button"
                     onClick={handleGoogleSignup}
                     disabled={googleLoading || isSubmitting}
-                    className="w-full flex items-center justify-center gap-2 py-3 border border-border-subtle dark:border-border-dark rounded-xl hover:bg-gray-50 dark:hover:bg-background-dark transition-colors disabled:opacity-50"
+                    className="w-full flex items-center justify-center gap-2 py-3 border border-border-subtle  rounded-xl hover:bg-gray-50  transition-colors disabled:opacity-50"
                 >
                     {googleLoading ? (
                         <>

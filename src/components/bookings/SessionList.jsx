@@ -10,14 +10,14 @@ import {
 import { localDateTimeStr } from "@/utils/dates";
 
 const STATUS_CONFIG = {
-    pending_schedule: { icon: MdSchedule, color: "text-slate-400", bg: "bg-slate-100 dark:bg-slate-800", label: "Pending Schedule" },
-    scheduled: { icon: MdCalendarToday, color: "text-blue-500", bg: "bg-blue-50 dark:bg-blue-900/20", label: "Scheduled" },
-    completed_by_therapist: { icon: MdTimer, color: "text-amber-500", bg: "bg-amber-50 dark:bg-amber-900/20", label: "Awaiting Confirmation" },
-    in_revision: { icon: MdEdit, color: "text-amber-600", bg: "bg-amber-50 dark:bg-amber-900/20", label: "In Revision" },
-    confirmed_by_customer: { icon: MdCheckCircle, color: "text-emerald-500", bg: "bg-emerald-50 dark:bg-emerald-900/20", label: "Confirmed" },
-    cancelled: { icon: MdCancel, color: "text-red-500", bg: "bg-red-50 dark:bg-red-900/20", label: "Cancelled" },
-    missed: { icon: MdEventBusy, color: "text-red-500", bg: "bg-red-50 dark:bg-red-900/20", label: "Missed" },
-    attempted: { icon: MdLocationOff, color: "text-amber-600", bg: "bg-amber-50 dark:bg-amber-900/20", label: "Attempted Visit" },
+    pending_schedule: { icon: MdSchedule, color: "text-slate-400", bg: "bg-slate-100 ", label: "Pending Schedule" },
+    scheduled: { icon: MdCalendarToday, color: "text-blue-500", bg: "bg-blue-50 ", label: "Scheduled" },
+    completed_by_therapist: { icon: MdTimer, color: "text-amber-500", bg: "bg-amber-50 ", label: "Awaiting Confirmation" },
+    in_revision: { icon: MdEdit, color: "text-amber-600", bg: "bg-amber-50 ", label: "In Revision" },
+    confirmed_by_customer: { icon: MdCheckCircle, color: "text-emerald-500", bg: "bg-emerald-50 ", label: "Confirmed" },
+    cancelled: { icon: MdCancel, color: "text-red-500", bg: "bg-red-50 ", label: "Cancelled" },
+    missed: { icon: MdEventBusy, color: "text-red-500", bg: "bg-red-50 ", label: "Missed" },
+    attempted: { icon: MdLocationOff, color: "text-amber-600", bg: "bg-amber-50 ", label: "Attempted Visit" },
 };
 
 const formatCurrency = (amount) => `$${parseFloat(amount).toFixed(2)}`;
@@ -30,18 +30,18 @@ const getRefundPill = (session) => {
     const hasTransferred = refunds.some((r) => r.status === "transferred");
     const hasCard = refunds.some((r) => r.status === "refunded_to_card");
     if (hasPending) {
-        return { label: `${formatCurrency(total)} pending refund`, color: "bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400" };
+        return { label: `${formatCurrency(total)} pending refund`, color: "bg-amber-50  text-amber-600 " };
     }
     if (hasTransferred) {
-        return { label: `${formatCurrency(total)} returned to your account`, color: "bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400" };
+        return { label: `${formatCurrency(total)} returned to your account`, color: "bg-emerald-50  text-emerald-600 " };
     }
     if (hasCard) {
-        return { label: `${formatCurrency(total)} returned to card`, color: "bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400" };
+        return { label: `${formatCurrency(total)} returned to card`, color: "bg-emerald-50  text-emerald-600 " };
     }
     return null;
 };
 
-const INPUT_CLASS = "w-full bg-muted-light dark:bg-muted-dark border border-border-light dark:border-border-dark rounded-lg px-3 py-2 text-sm text-text-main dark:text-white focus:ring-2 focus:ring-primary focus:border-primary focus:outline-none";
+const INPUT_CLASS = "w-full bg-muted-light  border border-border-light  rounded-lg px-3 py-2 text-sm text-text-main  focus:ring-2 focus:ring-primary focus:border-primary focus:outline-none";
 
 const formatDate = (dateStr) => {
     if (!dateStr) return "Not scheduled";
@@ -147,17 +147,17 @@ export default function SessionList({
 
     return (
         <>
-        <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl p-5">
+        <div className="bg-card-light  border border-border-light  rounded-xl p-5">
             {/* Header with progress */}
             <div className="flex items-center justify-between mb-4">
-                <h3 className="text-base font-bold text-text-main dark:text-white flex items-center gap-2">
+                <h3 className="text-base font-bold text-text-main  flex items-center gap-2">
                     <MdTaskAlt className="text-primary text-lg" />
                     Treatment Plan
                 </h3>
-                <span className="text-sm font-semibold text-text-muted dark:text-slate-400">
+                <span className="text-sm font-semibold text-text-muted ">
                     {confirmedCount} of {progressDenominator} completed
                     {missedOrCancelledCount > 0 && (
-                        <span className="text-xs text-text-muted/70 dark:text-slate-500 ml-1">
+                        <span className="text-xs text-text-muted/70  ml-1">
                             ({missedOrCancelledCount} {sessions.some(s => s.status === "missed") ? "missed" : "cancelled"})
                         </span>
                     )}
@@ -165,7 +165,7 @@ export default function SessionList({
             </div>
 
             {/* Progress bar */}
-            <div className="w-full h-2 bg-slate-100 dark:bg-slate-700 rounded-full mb-5">
+            <div className="w-full h-2 bg-slate-100  rounded-full mb-5">
                 <div
                     className="h-full bg-emerald-500 rounded-full transition-all duration-500"
                     style={{ width: `${progressPercent}%` }}
@@ -208,8 +208,8 @@ export default function SessionList({
                         <div key={session.id}>
                             <div
                                 className={`flex flex-wrap items-start gap-3 p-3 rounded-lg border ${session.status === "confirmed_by_customer"
-                                    ? "border-emerald-200 dark:border-emerald-800/30 bg-emerald-50/50 dark:bg-emerald-900/10"
-                                    : "border-border-light dark:border-border-dark"
+                                    ? "border-emerald-200  bg-emerald-50/50 "
+                                    : "border-border-light "
                                     }`}
                             >
                                 {/* Status icon */}
@@ -218,7 +218,7 @@ export default function SessionList({
                                 {/* Session info */}
                                 <div className="flex-1 min-w-0" style={{ minWidth: "140px" }}>
                                     <div className="flex items-center gap-2">
-                                        <span className="text-sm font-bold text-text-main dark:text-white">
+                                        <span className="text-sm font-bold text-text-main ">
                                             Session {session.sessionNumber}
                                         </span>
                                         <span className={`text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded ${config.bg} ${config.color}`}>
@@ -226,7 +226,7 @@ export default function SessionList({
                                         </span>
                                     </div>
                                     <div className="flex items-center gap-2 mt-0.5">
-                                        <p className="text-xs text-text-muted dark:text-slate-400">
+                                        <p className="text-xs text-text-muted ">
                                             {session.scheduledDate ? `${formatDate(session.scheduledDate)} · ${formatTime(session.scheduledDate)}` : "Date not set"}
                                         </p>
                                         {isSchedulable && scheduleSessionId !== session.id && (
@@ -241,45 +241,45 @@ export default function SessionList({
                                     </div>
                                     {isResubmitted && role === "customer" && (
                                         <div className="mt-1 text-[10px] space-y-0.5">
-                                            <p className="text-amber-600 dark:text-amber-400 font-medium">
+                                            <p className="text-amber-600  font-medium">
                                                 Therapist resubmitted this session after your revision request. Please review and confirm.
                                             </p>
                                             {session.revisionLastSubmittedAt && (
-                                                <p className="text-text-muted dark:text-slate-500">
+                                                <p className="text-text-muted ">
                                                     Resubmitted on {formatDate(session.revisionLastSubmittedAt)} · {formatTime(session.revisionLastSubmittedAt)}
                                                 </p>
                                             )}
                                             {session.revisionDueBy && (
-                                                <p className="text-text-muted dark:text-slate-500">
+                                                <p className="text-text-muted ">
                                                     Therapist committed to: {formatDate(session.revisionDueBy)} · {formatTime(session.revisionDueBy)}
                                                 </p>
                                             )}
                                             {session.revisionReason && (
-                                                <p className="text-text-muted dark:text-slate-500 italic">
+                                                <p className="text-text-muted  italic">
                                                     Your request: &quot;{session.revisionReason.length > 80 ? session.revisionReason.slice(0, 80) + "..." : session.revisionReason}&quot;
                                                 </p>
                                             )}
                                         </div>
                                     )}
                                     {isResubmitted && role === "therapist" && (
-                                        <p className="text-[10px] text-amber-600 dark:text-amber-400 mt-0.5 font-medium">
+                                        <p className="text-[10px] text-amber-600  mt-0.5 font-medium">
                                             Resubmitted · Awaiting customer confirmation
                                         </p>
                                     )}
                                     {isInRevision && role === "customer" && (
                                         <div className="mt-1 text-[10px] space-y-0.5">
                                             {session.revisionReason && (
-                                                <p className="text-amber-600 dark:text-amber-400 italic">
+                                                <p className="text-amber-600  italic">
                                                     Your revision: &quot;{session.revisionReason.length > 60 ? session.revisionReason.slice(0, 60) + "..." : session.revisionReason}&quot;
                                                 </p>
                                             )}
                                             {session.revisionDueBy && (
-                                                <p className="text-text-muted dark:text-slate-500">
+                                                <p className="text-text-muted ">
                                                     Therapist will resubmit by {formatDate(session.revisionDueBy)} · {formatTime(session.revisionDueBy)}
                                                 </p>
                                             )}
                                             {!session.revisionDueBy && (
-                                                <p className="text-text-muted dark:text-slate-500">
+                                                <p className="text-text-muted ">
                                                     Waiting for therapist to respond
                                                 </p>
                                             )}
@@ -288,12 +288,12 @@ export default function SessionList({
                                     {isInRevision && role === "therapist" && (
                                         <div className="mt-1 text-[10px] space-y-0.5">
                                             {session.revisionReason && (
-                                                <p className="text-amber-600 dark:text-amber-400 italic">
+                                                <p className="text-amber-600  italic">
                                                     Requested: &quot;{session.revisionReason.length > 60 ? session.revisionReason.slice(0, 60) + "..." : session.revisionReason}&quot;
                                                 </p>
                                             )}
                                             {session.revisionDueBy && (
-                                                <p className="text-text-muted dark:text-slate-500">
+                                                <p className="text-text-muted ">
                                                     You committed to resubmit by {formatDate(session.revisionDueBy)} · {formatTime(session.revisionDueBy)}
                                                 </p>
                                             )}
@@ -303,18 +303,18 @@ export default function SessionList({
                                     {/* Missed visit details (both roles see this) */}
                                     {isMissed && (
                                         <div className="mt-1 text-[10px] space-y-0.5">
-                                            <p className="text-red-600 dark:text-red-400 font-medium">
+                                            <p className="text-red-600  font-medium">
                                                 {session.missedBy === "therapist"
                                                     ? (role === "therapist" ? "You marked this session as missed." : "Missed by therapist.")
                                                     : (role === "customer" ? "You reported this as a missed visit." : "Reported as missed by customer.")}
                                             </p>
                                             {session.missedReason && (
-                                                <p className="text-text-muted dark:text-slate-500 italic">
+                                                <p className="text-text-muted  italic">
                                                     Reason: &quot;{session.missedReason.length > 80 ? session.missedReason.slice(0, 80) + "..." : session.missedReason}&quot;
                                                 </p>
                                             )}
                                             {session.missedAt && (
-                                                <p className="text-text-muted dark:text-slate-500">
+                                                <p className="text-text-muted ">
                                                     Marked on {formatDate(session.missedAt)} · {formatTime(session.missedAt)}
                                                 </p>
                                             )}
@@ -329,25 +329,25 @@ export default function SessionList({
                                     {/* Attempted visit details (both roles) */}
                                     {isAttempted && (
                                         <div className="mt-1 text-[10px] space-y-0.5">
-                                            <p className="text-amber-700 dark:text-amber-400 font-medium">
+                                            <p className="text-amber-700  font-medium">
                                                 {role === "therapist"
                                                     ? "You recorded an attempted visit (patient not home)."
                                                     : "Therapist recorded an attempted visit (you weren't home)."}
                                             </p>
                                             {session.attemptedRateCharged != null && (
-                                                <p className="text-text-muted dark:text-slate-500">
+                                                <p className="text-text-muted ">
                                                     {role === "therapist"
                                                         ? `Released to you: ${formatCurrency(session.attemptedRateCharged)} (before commission)`
                                                         : `Charged: ${formatCurrency(session.attemptedRateCharged)} of session rate`}
                                                 </p>
                                             )}
                                             {session.attemptedReason && (
-                                                <p className="text-text-muted dark:text-slate-500 italic">
+                                                <p className="text-text-muted  italic">
                                                     Reason: &quot;{session.attemptedReason.length > 80 ? session.attemptedReason.slice(0, 80) + "..." : session.attemptedReason}&quot;
                                                 </p>
                                             )}
                                             {session.attemptedAt && (
-                                                <p className="text-text-muted dark:text-slate-500">
+                                                <p className="text-text-muted ">
                                                     Recorded on {formatDate(session.attemptedAt)} · {formatTime(session.attemptedAt)}
                                                 </p>
                                             )}
@@ -385,7 +385,7 @@ export default function SessionList({
                                                 <button
                                                     onClick={() => onRequestRevision(session.id)}
                                                     disabled={isAnyLoading}
-                                                    className="text-xs font-bold text-amber-600 dark:text-amber-400 hover:underline disabled:opacity-50"
+                                                    className="text-xs font-bold text-amber-600  hover:underline disabled:opacity-50"
                                                 >
                                                     Revision
                                                 </button>
@@ -393,7 +393,7 @@ export default function SessionList({
                                         </>
                                     )}
                                     {isInRevision && role === "customer" && (
-                                        <span className="text-[10px] font-bold text-amber-600 dark:text-amber-400 italic">
+                                        <span className="text-[10px] font-bold text-amber-600  italic">
                                             {session.revisionDueBy ? "Therapist working on it" : "Awaiting therapist"}
                                         </span>
                                     )}
@@ -401,7 +401,7 @@ export default function SessionList({
                                         <button
                                             onClick={() => onExtendRevision(session.id)}
                                             disabled={isAnyLoading}
-                                            className="text-xs font-bold text-primary border border-primary/30 px-3 py-1.5 rounded-lg hover:bg-primary/5 dark:hover:bg-primary/10 disabled:opacity-50 transition-colors"
+                                            className="text-xs font-bold text-primary border border-primary/30 px-3 py-1.5 rounded-lg hover:bg-primary/5  disabled:opacity-50 transition-colors"
                                         >
                                             {isThisLoading && loadingAction === "extend" ? "Extending..." : "Extend"}
                                         </button>
@@ -419,7 +419,7 @@ export default function SessionList({
                                         <button
                                             onClick={() => onMarkMissed(session)}
                                             disabled={isAnyLoading}
-                                            className="text-xs font-bold text-red-500 dark:text-red-400 hover:underline disabled:opacity-50"
+                                            className="text-xs font-bold text-red-500  hover:underline disabled:opacity-50"
                                         >
                                             Mark Missed
                                         </button>
@@ -428,14 +428,14 @@ export default function SessionList({
                                         <button
                                             onClick={() => onMarkAttempted(session)}
                                             disabled={isAnyLoading}
-                                            className="text-xs font-bold text-amber-600 dark:text-amber-400 border border-amber-300 dark:border-amber-700 px-3 py-1.5 rounded-lg hover:bg-amber-50 dark:hover:bg-amber-900/20 disabled:opacity-50"
+                                            className="text-xs font-bold text-amber-600  border border-amber-300  px-3 py-1.5 rounded-lg hover:bg-amber-50  disabled:opacity-50"
                                             title={`Patient not home — record attempted visit (${formatCurrency(bookingAttemptedRate)} fee)`}
                                         >
                                             Mark Attempted
                                         </button>
                                     )}
                                     {!canMarkAttempted && !attemptedRateFieldPresent && role === "therapist" && session.status === "scheduled" && scheduledInPast && (
-                                        <span className="text-xs text-text-muted dark:text-gray-500">
+                                        <span className="text-xs text-text-muted ">
                                             Attempted visit unavailable — contact support.
                                         </span>
                                     )}
@@ -443,7 +443,7 @@ export default function SessionList({
                                         <button
                                             onClick={() => onReportMissed(session)}
                                             disabled={isAnyLoading}
-                                            className="text-xs font-bold text-red-500 dark:text-red-400 border border-red-300 dark:border-red-800 px-3 py-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 disabled:opacity-50"
+                                            className="text-xs font-bold text-red-500  border border-red-300  px-3 py-1.5 rounded-lg hover:bg-red-50  disabled:opacity-50"
                                         >
                                             Report Missed
                                         </button>
@@ -453,8 +453,8 @@ export default function SessionList({
 
                             {/* Schedule date picker (inline below the session row) */}
                             {scheduleSessionId === session.id && (
-                                <div className="ml-9 mt-2 p-3 rounded-lg border border-primary/20 bg-primary/5 dark:bg-primary/10">
-                                    <label className="block text-xs font-semibold text-text-muted dark:text-slate-400 mb-1.5">
+                                <div className="ml-9 mt-2 p-3 rounded-lg border border-primary/20 bg-primary/5 ">
+                                    <label className="block text-xs font-semibold text-text-muted  mb-1.5">
                                         {session.status === "scheduled" ? "Reschedule to:" : "Schedule for:"}
                                     </label>
                                     <div className="flex items-center gap-2">

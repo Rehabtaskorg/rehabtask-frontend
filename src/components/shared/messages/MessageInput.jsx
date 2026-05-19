@@ -150,20 +150,20 @@ export default function MessageInput({ inputValue, setInputValue, onSend, placeh
 
             {/* File error */}
             {fileError && (
-                <div className="px-3 md:px-6 pt-2 bg-card-light dark:bg-card-dark">
+                <div className="px-3 md:px-6 pt-2 bg-card-light ">
                     <p className="text-[11px] text-red-500 font-medium">{fileError}</p>
                 </div>
             )}
 
             {/* Input area */}
-            <div className="px-3 md:px-6 py-3 border-t border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark">
+            <div className="px-3 md:px-6 py-3 border-t border-border-light  bg-card-light ">
                 <div className="flex items-end gap-2 md:gap-3">
                     {/* Attach button */}
                     <button
                         type="button"
                         onClick={handleAttachClick}
                         disabled={uploading}
-                        className="flex items-center justify-center h-11 w-11 rounded-full text-text-muted dark:text-gray-500 hover:bg-muted-light dark:hover:bg-muted-dark hover:text-primary transition-colors shrink-0 disabled:opacity-40"
+                        className="flex items-center justify-center h-11 w-11 rounded-full text-text-muted  hover:bg-muted-light  hover:text-primary transition-colors shrink-0 disabled:opacity-40"
                         aria-label="Add attachment"
                     >
                         <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -172,7 +172,7 @@ export default function MessageInput({ inputValue, setInputValue, onSend, placeh
                     </button>
 
                     {/* Input field */}
-                    <div className="flex-1 min-w-0 rounded-2xl border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary transition-all">
+                    <div className="flex-1 min-w-0 rounded-2xl border border-border-light  bg-background-light  focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary transition-all">
                         <textarea
                             ref={inputRef}
                             value={inputValue}
@@ -182,7 +182,7 @@ export default function MessageInput({ inputValue, setInputValue, onSend, placeh
                             rows={1}
                             maxLength={2000}
                             disabled={uploading}
-                            className="w-full resize-none border-none bg-transparent focus:outline-none focus:ring-0 text-sm text-text-main dark:text-white placeholder:text-text-muted dark:placeholder:text-gray-500 px-4 py-3 leading-relaxed disabled:opacity-50"
+                            className="w-full resize-none border-none bg-transparent focus:outline-none focus:ring-0 text-sm text-text-main  placeholder:text-text-muted  px-4 py-3 leading-relaxed disabled:opacity-50"
                             style={{ minHeight: "44px", maxHeight: "120px" }}
                             onInput={(e) => { e.target.style.height = "auto"; e.target.style.height = `${Math.min(e.target.scrollHeight, 120)}px`; }}
                         />
@@ -207,10 +207,10 @@ export default function MessageInput({ inputValue, setInputValue, onSend, placeh
                 </div>
 
                 <div className="flex items-center justify-between px-12 mt-1.5">
-                    <span className="text-[10px] text-text-muted dark:text-gray-500">
+                    <span className="text-[10px] text-text-muted ">
                         {uploading ? "Uploading..." : "Enter to send · Shift+Enter for new line"}
                     </span>
-                    <span className="text-[10px] text-text-muted dark:text-gray-500">{inputValue.length}/2000</span>
+                    <span className="text-[10px] text-text-muted ">{inputValue.length}/2000</span>
                 </div>
             </div>
         </div>

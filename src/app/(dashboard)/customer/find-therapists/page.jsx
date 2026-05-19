@@ -136,7 +136,7 @@ function FindTherapistsContent() {
         sortBy !== "relevance";
 
     return (
-        <div className="h-[calc(100vh-3.5rem)] lg:h-screen flex flex-col overflow-hidden bg-background-light dark:bg-background-dark">
+        <div className="h-[calc(100vh-3.5rem)] lg:h-screen flex flex-col overflow-hidden bg-background-light ">
             <FindTherapistsHeader
                 resultCount={total}
                 isLoading={loading}

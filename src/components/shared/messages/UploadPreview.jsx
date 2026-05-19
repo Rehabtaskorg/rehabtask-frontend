@@ -47,13 +47,13 @@ export default function UploadPreview({ files, onRemove, onAddMore }) {
     const canAddMore = files.length < 5;
 
     return (
-        <div className="px-3 md:px-6 pt-3 bg-card-light dark:bg-card-dark border-t border-border-light dark:border-border-dark">
+        <div className="px-3 md:px-6 pt-3 bg-card-light  border-t border-border-light ">
             <div className="flex items-center justify-between gap-3">
                 <div className="flex items-center gap-2 overflow-x-auto no-scrollbar flex-1">
                     {files.map((file, idx) => (
                         <div key={`${file.name}-${idx}`} className="relative flex-shrink-0">
                             {isImageType(file.type) ? (
-                                <div className="w-14 h-14 rounded-lg overflow-hidden bg-slate-100 dark:bg-slate-800">
+                                <div className="w-14 h-14 rounded-lg overflow-hidden bg-slate-100 ">
                                     <img
                                         src={previewUrls[idx]}
                                         alt={file.name}
@@ -61,9 +61,9 @@ export default function UploadPreview({ files, onRemove, onAddMore }) {
                                     />
                                 </div>
                             ) : (
-                                <div className="w-14 h-14 rounded-lg bg-background-light dark:bg-background-dark border border-border-light dark:border-border-dark flex flex-col items-center justify-center gap-0.5">
+                                <div className="w-14 h-14 rounded-lg bg-background-light  border border-border-light  flex flex-col items-center justify-center gap-0.5">
                                     <DocIcon type={file.type} />
-                                    <span className="text-[8px] font-bold text-text-muted dark:text-gray-500 uppercase truncate max-w-[48px]">
+                                    <span className="text-[8px] font-bold text-text-muted  uppercase truncate max-w-[48px]">
                                         {file.name.split(".").pop()}
                                     </span>
                                 </div>
@@ -82,7 +82,7 @@ export default function UploadPreview({ files, onRemove, onAddMore }) {
                     {canAddMore && (
                         <button
                             onClick={onAddMore}
-                            className="w-14 h-14 flex-shrink-0 rounded-lg border-2 border-dashed border-border-light dark:border-border-dark flex items-center justify-center text-text-muted dark:text-gray-500 hover:border-primary hover:text-primary transition-colors"
+                            className="w-14 h-14 flex-shrink-0 rounded-lg border-2 border-dashed border-border-light  flex items-center justify-center text-text-muted  hover:border-primary hover:text-primary transition-colors"
                             aria-label="Add more files"
                         >
                             <MdAdd className="text-xl" />

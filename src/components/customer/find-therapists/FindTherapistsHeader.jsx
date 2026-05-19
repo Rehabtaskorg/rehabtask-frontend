@@ -24,15 +24,15 @@ export default function FindTherapistsHeader({
     };
 
     return (
-        <section className="bg-card-light dark:bg-card-dark border-b border-border-light dark:border-border-dark">
+        <section className="bg-card-light  border-b border-border-light ">
             <div className="px-4 sm:px-6 lg:px-8 py-3">
                 <div className="flex flex-col lg:flex-row lg:items-center gap-3">
                     <div className="shrink-0">
-                        <h2 className="text-xl font-black tracking-tight text-text-main dark:text-white">
+                        <h2 className="text-xl font-black tracking-tight text-text-main ">
                             Find Therapists
                         </h2>
                         {!isLoading && (
-                            <p className="text-xs text-text-muted dark:text-gray-400 -mt-0.5">
+                            <p className="text-xs text-text-muted  -mt-0.5">
                                 {resultCount} therapist{resultCount !== 1 ? "s" : ""} found
                             </p>
                         )}

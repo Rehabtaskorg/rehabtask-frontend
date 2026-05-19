@@ -95,12 +95,12 @@ export default function MarkSessionMissedModal({
             className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
             onClick={handleBackdropClick}
         >
-            <div className="bg-card-light dark:bg-card-dark rounded-xl w-full max-w-lg shadow-2xl flex flex-col max-h-[90vh]">
+            <div className="bg-card-light  rounded-xl w-full max-w-lg shadow-2xl flex flex-col max-h-[90vh]">
                 {/* Header */}
-                <div className="px-6 py-4 border-b border-border-light dark:border-border-dark flex items-center justify-between shrink-0">
+                <div className="px-6 py-4 border-b border-border-light  flex items-center justify-between shrink-0">
                     <div className="flex items-center gap-2">
                         <MdWarning className="text-amber-500 text-xl" />
-                        <h2 className="text-lg font-semibold text-text-main dark:text-white">
+                        <h2 className="text-lg font-semibold text-text-main ">
                             {copy.title}
                         </h2>
                     </div>
@@ -108,7 +108,7 @@ export default function MarkSessionMissedModal({
                         type="button"
                         onClick={handleClose}
                         disabled={submitting}
-                        className="text-text-muted dark:text-gray-400 hover:text-text-main dark:hover:text-white transition-colors p-1 disabled:opacity-50"
+                        className="text-text-muted  hover:text-text-main  transition-colors p-1 disabled:opacity-50"
                         aria-label="Close"
                     >
                         <MdClose className="text-xl" />
@@ -118,18 +118,18 @@ export default function MarkSessionMissedModal({
                 {/* Body */}
                 <form onSubmit={handleSubmit} className="p-6 space-y-5 overflow-y-auto">
                     <div>
-                        <p className="text-sm text-text-muted dark:text-gray-400">
+                        <p className="text-sm text-text-muted ">
                             {copy.subtitle}
                         </p>
                         {sessionNumber && (
-                            <p className="text-xs text-text-muted dark:text-gray-500 mt-1">
+                            <p className="text-xs text-text-muted  mt-1">
                                 Session {sessionNumber}
                             </p>
                         )}
                     </div>
 
                     {error && (
-                        <div className="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-4 py-3 rounded-lg text-sm">
+                        <div className="bg-red-50  border border-red-200  text-red-700  px-4 py-3 rounded-lg text-sm">
                             {error}
                         </div>
                     )}
@@ -137,7 +137,7 @@ export default function MarkSessionMissedModal({
                     <div>
                         <label
                             htmlFor="missed-reason"
-                            className="block text-sm font-semibold text-text-main dark:text-white mb-1.5"
+                            className="block text-sm font-semibold text-text-main  mb-1.5"
                         >
                             Reason <span className="text-red-500">*</span>
                         </label>
@@ -149,9 +149,9 @@ export default function MarkSessionMissedModal({
                             rows={4}
                             maxLength={500}
                             placeholder={copy.placeholder}
-                            className="w-full px-4 py-2.5 rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-main dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary transition-all resize-none"
+                            className="w-full px-4 py-2.5 rounded-lg border border-border-light  bg-background-light  text-text-main  text-sm focus:outline-none focus:ring-2 focus:ring-primary transition-all resize-none"
                         />
-                        <p className="text-xs text-text-muted dark:text-gray-500 mt-1.5">
+                        <p className="text-xs text-text-muted  mt-1.5">
                             {trimmedReason.length < 10
                                 ? `At least 10 characters (${trimmedReason.length}/10)`
                                 : `${trimmedReason.length}/500 characters`}
@@ -159,15 +159,15 @@ export default function MarkSessionMissedModal({
                     </div>
 
                     {/* Refund info */}
-                    <div className="flex gap-3 p-4 bg-primary/5 dark:bg-primary/10 border border-primary/20 dark:border-primary/30 rounded-lg">
+                    <div className="flex gap-3 p-4 bg-primary/5  border border-primary/20  rounded-lg">
                         <MdInfo className="text-primary text-lg shrink-0 mt-0.5" />
-                        <div className="text-xs text-text-main dark:text-white leading-relaxed space-y-1">
+                        <div className="text-xs text-text-main  leading-relaxed space-y-1">
                             {refundAmount != null && (
                                 <p>
                                     <span className="font-bold">${parseFloat(refundAmount).toFixed(2)}</span> will be refunded to the customer for this session.
                                 </p>
                             )}
-                            <p className="text-text-muted dark:text-gray-400">
+                            <p className="text-text-muted ">
                                 {copy.infoText}
                             </p>
                         </div>
@@ -178,7 +178,7 @@ export default function MarkSessionMissedModal({
                             type="button"
                             onClick={handleClose}
                             disabled={submitting}
-                            className="px-5 py-2.5 text-sm font-semibold text-text-muted dark:text-gray-400 hover:text-text-main dark:hover:text-white border border-border-light dark:border-border-dark rounded-lg transition-colors disabled:opacity-50 order-2 sm:order-1"
+                            className="px-5 py-2.5 text-sm font-semibold text-text-muted  hover:text-text-main  border border-border-light  rounded-lg transition-colors disabled:opacity-50 order-2 sm:order-1"
                         >
                             Cancel
                         </button>

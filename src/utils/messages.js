@@ -49,12 +49,12 @@ export const shouldShowDateSeparator = (messages, index) => {
 
 export const getContextBadge = (type) => {
     if (type === 'booking') {
-        return { label: 'Booking', className: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300' };
+        return { label: 'Booking', className: 'bg-green-100 text-green-700  ' };
     }
     if (type === 'direct') {
         return null; // no badge for direct conversations
     }
-    return { label: 'Offer', className: 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300' };
+    return { label: 'Offer', className: 'bg-orange-100 text-orange-700  ' };
 };
 
 /** Parse "booking:uuid" → { type, id } or null */

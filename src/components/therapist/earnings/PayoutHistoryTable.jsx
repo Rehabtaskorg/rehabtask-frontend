@@ -15,10 +15,10 @@ const FILTER_TABS = [
 ];
 
 const STATUS_STYLES = {
-    released: "bg-emerald-100 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400",
-    escrowed: "bg-amber-100 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400",
-    partially_released: "bg-orange-100 dark:bg-orange-500/10 text-orange-700 dark:text-orange-400",
-    refunded: "bg-slate-100 dark:bg-slate-500/10 text-slate-600 dark:text-slate-400",
+    released: "bg-emerald-100  text-emerald-700 ",
+    escrowed: "bg-amber-100  text-amber-700 ",
+    partially_released: "bg-orange-100  text-orange-700 ",
+    refunded: "bg-slate-100  text-slate-600 ",
 };
 
 const STATUS_TEXT = {
@@ -112,8 +112,8 @@ function CustomerCell({ payment }) {
                 {initial}
             </div>
             <div className="min-w-0">
-                <p className="text-sm font-semibold text-text-main dark:text-white truncate">{name}</p>
-                {service && <p className="text-[10px] text-text-muted dark:text-slate-500 uppercase font-semibold tracking-tight">{service}</p>}
+                <p className="text-sm font-semibold text-text-main  truncate">{name}</p>
+                {service && <p className="text-[10px] text-text-muted  uppercase font-semibold tracking-tight">{service}</p>}
             </div>
         </div>
     );
@@ -121,7 +121,7 @@ function CustomerCell({ payment }) {
 
 function StatusBadge({ status }) {
     return (
-        <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${STATUS_STYLES[status] || "bg-slate-100 dark:bg-slate-800 text-slate-500"}`}>
+        <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${STATUS_STYLES[status] || "bg-slate-100  text-slate-500"}`}>
             {STATUS_TEXT[status] || status}
         </span>
     );
@@ -142,13 +142,13 @@ function SessionProgress({ payment }) {
     return (
         <div className="mt-1.5">
             <div className="flex items-center gap-1.5">
-                <div className="flex-1 h-1.5 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
+                <div className="flex-1 h-1.5 bg-slate-100  rounded-full overflow-hidden">
                     <div
                         className={`h-full rounded-full transition-all ${confirmed === denominator ? "bg-emerald-500" : "bg-primary"}`}
                         style={{ width: `${pct}%` }}
                     />
                 </div>
-                <span className="text-[10px] font-bold text-text-muted dark:text-slate-500 whitespace-nowrap">
+                <span className="text-[10px] font-bold text-text-muted  whitespace-nowrap">
                     {confirmed}/{denominator}
                 </span>
             </div>
@@ -179,23 +179,23 @@ export default function PayoutHistoryTable({ payments }) {
     };
 
     return (
-        <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl overflow-hidden">
+        <div className="bg-card-light  border border-border-light  rounded-xl overflow-hidden">
             <div className="p-6 pb-0">
                 <div className="flex items-center gap-3 mb-6">
-                    <h2 className="text-lg font-bold text-text-main dark:text-white">Payout History</h2>
-                    <span className="bg-slate-100 dark:bg-slate-800 text-text-muted dark:text-slate-400 text-xs font-bold px-2.5 py-0.5 rounded-full">
+                    <h2 className="text-lg font-bold text-text-main ">Payout History</h2>
+                    <span className="bg-slate-100  text-text-muted  text-xs font-bold px-2.5 py-0.5 rounded-full">
                         {payments.length}
                     </span>
                 </div>
 
-                <div className="flex flex-wrap gap-2 mb-4 border-b border-border-light dark:border-border-dark pb-4">
+                <div className="flex flex-wrap gap-2 mb-4 border-b border-border-light  pb-4">
                     {FILTER_TABS.map((tab) => (
                         <button
                             key={tab.key}
                             onClick={() => handleFilterChange(tab.key)}
                             className={`flex items-center gap-1.5 px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-lg transition-colors ${activeFilter === tab.key
                                 ? "bg-primary/10 text-primary"
-                                : "text-text-muted dark:text-slate-500 hover:text-text-main dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800"
+                                : "text-text-muted  hover:text-text-main  hover:bg-slate-100 "
                                 }`}
                         >
                             {tab.dotColor && <div className={`w-1.5 h-1.5 rounded-full ${tab.dotColor}`} />}
@@ -207,20 +207,20 @@ export default function PayoutHistoryTable({ payments }) {
 
             {filtered.length === 0 ? (
                 <div className="px-6 pb-8 pt-4 text-center">
-                    <MdAccountBalanceWallet className="text-4xl text-text-muted dark:text-slate-600 mx-auto mb-3" />
+                    <MdAccountBalanceWallet className="text-4xl text-text-muted  mx-auto mb-3" />
                     {payments.length === 0 ? (
                         <>
-                            <p className="text-sm font-semibold text-text-main dark:text-white">No earnings yet</p>
-                            <p className="text-xs text-text-muted dark:text-slate-400 mt-1">
+                            <p className="text-sm font-semibold text-text-main ">No earnings yet</p>
+                            <p className="text-xs text-text-muted  mt-1">
                                 Complete your first session to start earning. Your payout history will appear here.
                             </p>
                         </>
                     ) : (
                         <>
-                            <p className="text-sm font-semibold text-text-main dark:text-white">
+                            <p className="text-sm font-semibold text-text-main ">
                                 No {FILTER_TABS.find((t) => t.key === activeFilter)?.label?.toLowerCase() || ""} payments
                             </p>
-                            <p className="text-xs text-text-muted dark:text-slate-400 mt-1">
+                            <p className="text-xs text-text-muted  mt-1">
                                 You don&apos;t have any payments with this status right now.
                             </p>
                         </>
@@ -232,7 +232,7 @@ export default function PayoutHistoryTable({ payments }) {
                     <div className="hidden lg:block overflow-x-auto">
                         <table className="w-full text-left">
                             <thead>
-                                <tr className="bg-slate-50 dark:bg-background-dark/50 text-text-muted dark:text-slate-500 text-[10px] font-bold uppercase tracking-wider">
+                                <tr className="bg-slate-50  text-text-muted  text-[10px] font-bold uppercase tracking-wider">
                                     <th className="px-6 py-3">Customer</th>
                                     <th className="px-4 py-3">Rate</th>
                                     <th className="px-4 py-3">Sessions</th>
@@ -242,7 +242,7 @@ export default function PayoutHistoryTable({ payments }) {
                                     <th className="px-6 py-3">Date Paid</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-border-light dark:divide-border-dark">
+                            <tbody className="divide-y divide-border-light ">
                                 {paginated.map((p) => {
                                     const totalAmount = parseFloat(p.amount);
                                     const perSessionRate = p.booking?.rate ? parseFloat(p.booking.rate) : totalAmount;
@@ -253,25 +253,25 @@ export default function PayoutHistoryTable({ payments }) {
                                         <tr
                                             key={p.id}
                                             onClick={() => handleRowClick(p.bookingId)}
-                                            className="hover:bg-slate-50 dark:hover:bg-white/3 transition-colors cursor-pointer"
+                                            className="hover:bg-slate-50  transition-colors cursor-pointer"
                                         >
                                             <td className="px-6 py-4"><CustomerCell payment={p} /></td>
                                             <td className="px-4 py-4">
-                                                <span className="text-sm text-text-main dark:text-white">
+                                                <span className="text-sm text-text-main ">
                                                     {formatCurrency(perSessionRate)}
                                                 </span>
                                                 {isMultiSession && (
-                                                    <span className="text-[10px] text-text-muted dark:text-slate-500">/session</span>
+                                                    <span className="text-[10px] text-text-muted ">/session</span>
                                                 )}
                                             </td>
                                             <td className="px-4 py-4">
                                                 {isMultiSession ? (
                                                     <div>
-                                                        <span className="text-sm text-text-main dark:text-white">
+                                                        <span className="text-sm text-text-main ">
                                                             {figures.confirmedCount} of {figures.deliverableCount}
                                                         </span>
                                                         {figures.hasReducedScope && (
-                                                            <p className="text-[10px] text-text-muted dark:text-slate-500 mt-0.5">
+                                                            <p className="text-[10px] text-text-muted  mt-0.5">
                                                                 {[
                                                                     figures.missedOrCancelledCount > 0 && `${figures.missedOrCancelledCount} missed/cancelled`,
                                                                     figures.attemptedCount > 0 && `${figures.attemptedCount} attempted`,
@@ -281,29 +281,29 @@ export default function PayoutHistoryTable({ payments }) {
                                                         <SessionProgress payment={p} />
                                                     </div>
                                                 ) : (
-                                                    <span className="text-sm text-text-muted dark:text-slate-400">1</span>
+                                                    <span className="text-sm text-text-muted ">1</span>
                                                 )}
                                             </td>
                                             <td className="px-4 py-4 text-sm text-red-500">-{formatCurrency(figures.fee)} ({figures.feePercent}%)</td>
                                             <td className="px-4 py-4">
-                                                <span className="text-sm font-bold text-emerald-600 dark:text-emerald-400">
+                                                <span className="text-sm font-bold text-emerald-600 ">
                                                     {formatCurrency(figures.effectiveStatus === "escrowed" ? figures.totalPayout : figures.released)}
                                                 </span>
                                                 {figures.effectiveStatus === "partially_released" && (
-                                                    <p className="text-[10px] text-text-muted dark:text-slate-500 mt-0.5">
+                                                    <p className="text-[10px] text-text-muted  mt-0.5">
                                                         of {formatCurrency(figures.totalPayout)}
                                                     </p>
                                                 )}
                                             </td>
                                             <td className="px-4 py-4"><StatusBadge status={figures.effectiveStatus} /></td>
-                                            <td className="px-6 py-4 text-sm text-text-muted dark:text-slate-400">
+                                            <td className="px-6 py-4 text-sm text-text-muted ">
                                                 {figures.effectiveStatus === "released"
                                                     ? formatDate(p.releasedAt)
                                                     : figures.effectiveStatus === "partially_released"
                                                         ? <span className="text-orange-500 font-medium">In progress</span>
                                                         : figures.effectiveStatus === "refunded"
                                                             ? <span className="text-slate-500">Refunded</span>
-                                                            : <span className="italic text-text-muted dark:text-slate-500">Pending</span>
+                                                            : <span className="italic text-text-muted ">Pending</span>
                                                 }
                                             </td>
                                         </tr>
@@ -314,7 +314,7 @@ export default function PayoutHistoryTable({ payments }) {
                     </div>
 
                     {/* Mobile cards */}
-                    <div className="lg:hidden divide-y divide-border-light dark:divide-border-dark">
+                    <div className="lg:hidden divide-y divide-border-light ">
                         {paginated.map((p) => {
                             const totalAmount = parseFloat(p.amount);
                             const perSessionRate = p.booking?.rate ? parseFloat(p.booking.rate) : totalAmount;
@@ -325,7 +325,7 @@ export default function PayoutHistoryTable({ payments }) {
                                 <div
                                     key={p.id}
                                     onClick={() => handleRowClick(p.bookingId)}
-                                    className="p-4 hover:bg-slate-50 dark:hover:bg-white/3 transition-colors cursor-pointer"
+                                    className="p-4 hover:bg-slate-50  transition-colors cursor-pointer"
                                 >
                                     <div className="flex justify-between items-start mb-3">
                                         <CustomerCell payment={p} />
@@ -333,19 +333,19 @@ export default function PayoutHistoryTable({ payments }) {
                                     </div>
                                     <div className="grid grid-cols-3 gap-3 text-sm">
                                         <div>
-                                            <p className="text-[10px] text-text-muted dark:text-slate-500 uppercase font-bold">Rate</p>
-                                            <p className="text-text-main dark:text-white">
+                                            <p className="text-[10px] text-text-muted  uppercase font-bold">Rate</p>
+                                            <p className="text-text-main ">
                                                 {formatCurrency(perSessionRate)}
                                                 {isMultiSession && <span className="text-[10px] text-text-muted">/session</span>}
                                             </p>
                                         </div>
                                         <div>
-                                            <p className="text-[10px] text-text-muted dark:text-slate-500 uppercase font-bold">Fee ({figures.feePercent}%)</p>
+                                            <p className="text-[10px] text-text-muted  uppercase font-bold">Fee ({figures.feePercent}%)</p>
                                             <p className="text-red-500">-{formatCurrency(figures.fee)}</p>
                                         </div>
                                         <div>
-                                            <p className="text-[10px] text-text-muted dark:text-slate-500 uppercase font-bold">Released</p>
-                                            <p className="font-bold text-emerald-600 dark:text-emerald-400">
+                                            <p className="text-[10px] text-text-muted  uppercase font-bold">Released</p>
+                                            <p className="font-bold text-emerald-600 ">
                                                 {formatCurrency(figures.effectiveStatus === "escrowed" ? figures.totalPayout : figures.released)}
                                             </p>
                                             {figures.effectiveStatus === "partially_released" && (
@@ -355,7 +355,7 @@ export default function PayoutHistoryTable({ payments }) {
                                     </div>
                                     {isMultiSession && (
                                         <div className="mt-2">
-                                            <p className="text-[10px] text-text-muted dark:text-slate-500">
+                                            <p className="text-[10px] text-text-muted ">
                                                 {figures.confirmedCount} of {figures.deliverableCount} sessions confirmed
                                                 {figures.hasReducedScope && ` (${[
                                                     figures.missedOrCancelledCount > 0 && `${figures.missedOrCancelledCount} missed/cancelled`,
@@ -372,15 +372,15 @@ export default function PayoutHistoryTable({ payments }) {
 
                     {/* Pagination */}
                     {totalPages > 1 && (
-                        <div className="p-4 sm:p-6 border-t border-border-light dark:border-border-dark flex items-center justify-between">
-                            <p className="text-xs text-text-muted dark:text-slate-500">
+                        <div className="p-4 sm:p-6 border-t border-border-light  flex items-center justify-between">
+                            <p className="text-xs text-text-muted ">
                                 Showing {(currentPage - 1) * ITEMS_PER_PAGE + 1}–{Math.min(currentPage * ITEMS_PER_PAGE, filtered.length)} of {filtered.length}
                             </p>
                             <div className="flex items-center gap-1">
                                 <button
                                     onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                                     disabled={currentPage === 1}
-                                    className="p-1.5 rounded border border-border-light dark:border-border-dark text-text-muted dark:text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-30 transition-colors"
+                                    className="p-1.5 rounded border border-border-light  text-text-muted  hover:bg-slate-100  disabled:opacity-30 transition-colors"
                                 >
                                     <MdChevronLeft className="text-lg" />
                                 </button>
@@ -390,7 +390,7 @@ export default function PayoutHistoryTable({ payments }) {
                                         onClick={() => setCurrentPage(page)}
                                         className={`px-3 py-1 rounded text-xs font-bold transition-colors ${currentPage === page
                                             ? "bg-primary text-white"
-                                            : "border border-border-light dark:border-border-dark text-text-muted dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
+                                            : "border border-border-light  text-text-muted  hover:bg-slate-100 "
                                             }`}
                                     >
                                         {page}
@@ -399,7 +399,7 @@ export default function PayoutHistoryTable({ payments }) {
                                 <button
                                     onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                                     disabled={currentPage === totalPages}
-                                    className="p-1.5 rounded border border-border-light dark:border-border-dark text-text-muted dark:text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-30 transition-colors"
+                                    className="p-1.5 rounded border border-border-light  text-text-muted  hover:bg-slate-100  disabled:opacity-30 transition-colors"
                                 >
                                     <MdChevronRight className="text-lg" />
                                 </button>

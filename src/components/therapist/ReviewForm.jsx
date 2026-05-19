@@ -59,12 +59,12 @@ export default function ReviewForm({ reviewableBookings, therapistName, onSucces
 
     if (showSuccess) {
         return (
-            <div className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl p-6 text-center">
-                <MdCheckCircle className="text-3xl text-emerald-600 dark:text-emerald-400 mx-auto mb-2" />
-                <p className="text-sm font-bold text-emerald-900 dark:text-emerald-200">
+            <div className="bg-emerald-50  border border-emerald-200  rounded-xl p-6 text-center">
+                <MdCheckCircle className="text-3xl text-emerald-600  mx-auto mb-2" />
+                <p className="text-sm font-bold text-emerald-900 ">
                     Review submitted!
                 </p>
-                <p className="text-xs text-emerald-700 dark:text-emerald-300 mt-1">
+                <p className="text-xs text-emerald-700  mt-1">
                     Thank you for sharing your experience.
                 </p>
             </div>
@@ -72,25 +72,25 @@ export default function ReviewForm({ reviewableBookings, therapistName, onSucces
     }
 
     return (
-        <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl p-6">
+        <div className="bg-card-light  border border-border-light  rounded-xl p-6">
             {/* Header */}
-            <h4 className="text-base font-bold text-text-main dark:text-white mb-1">
+            <h4 className="text-base font-bold text-text-main  mb-1">
                 Write a Review
             </h4>
-            <p className="text-sm text-text-muted dark:text-gray-400 mb-5">
+            <p className="text-sm text-text-muted  mb-5">
                 Share your experience with {therapistName}
             </p>
 
             {/* Booking selector */}
             {reviewableBookings && reviewableBookings.length > 1 && (
                 <div className="mb-5">
-                    <label className="text-xs font-semibold text-text-muted dark:text-gray-400 uppercase tracking-wider block mb-1.5">
+                    <label className="text-xs font-semibold text-text-muted  uppercase tracking-wider block mb-1.5">
                         Session
                     </label>
                     <select
                         value={selectedBookingId}
                         onChange={(e) => setSelectedBookingId(e.target.value)}
-                        className="w-full px-4 py-3 rounded-xl bg-white dark:bg-background-dark border border-border-light dark:border-border-dark focus:ring-2 focus:ring-primary/20 focus:border-primary text-text-main dark:text-white transition-all outline-none text-sm"
+                        className="w-full px-4 py-3 rounded-xl bg-white  border border-border-light  focus:ring-2 focus:ring-primary/20 focus:border-primary text-text-main  transition-all outline-none text-sm"
                     >
                         <option value="">Select a session...</option>
                         {reviewableBookings.map((b) => (
@@ -104,7 +104,7 @@ export default function ReviewForm({ reviewableBookings, therapistName, onSucces
 
             {/* Star Rating */}
             <div className="mb-5">
-                <label className="text-xs font-semibold text-text-muted dark:text-gray-400 uppercase tracking-wider block mb-2">
+                <label className="text-xs font-semibold text-text-muted  uppercase tracking-wider block mb-2">
                     Your Rating
                 </label>
                 <StarRating
@@ -117,7 +117,7 @@ export default function ReviewForm({ reviewableBookings, therapistName, onSucces
 
             {/* Comment */}
             <div className="mb-5">
-                <label className="text-xs font-semibold text-text-muted dark:text-gray-400 uppercase tracking-wider block mb-1.5">
+                <label className="text-xs font-semibold text-text-muted  uppercase tracking-wider block mb-1.5">
                     Your Review
                 </label>
                 <textarea
@@ -125,16 +125,16 @@ export default function ReviewForm({ reviewableBookings, therapistName, onSucces
                     onChange={(e) => setComment(e.target.value.slice(0, 2000))}
                     placeholder="Tell others about your experience... (optional)"
                     rows={4}
-                    className="w-full px-4 py-3 rounded-xl bg-white dark:bg-background-dark border border-border-light dark:border-border-dark focus:ring-2 focus:ring-primary/20 focus:border-primary text-text-main dark:text-white placeholder:text-text-muted/50 transition-all outline-none resize-none text-sm"
+                    className="w-full px-4 py-3 rounded-xl bg-white  border border-border-light  focus:ring-2 focus:ring-primary/20 focus:border-primary text-text-main  placeholder:text-text-muted/50 transition-all outline-none resize-none text-sm"
                 />
-                <p className="text-xs text-text-muted dark:text-gray-500 mt-1 text-right">
+                <p className="text-xs text-text-muted  mt-1 text-right">
                     {comment.length}/2000
                 </p>
             </div>
 
             {/* Error */}
             {error && (
-                <p className="text-sm text-red-600 dark:text-red-400 mb-4">
+                <p className="text-sm text-red-600  mb-4">
                     {error}
                 </p>
             )}

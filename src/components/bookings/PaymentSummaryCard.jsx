@@ -9,38 +9,38 @@ import { resolveVisitPlan, computeTotalVisits } from "@/lib/visitPlan";
 const PAYMENT_STATUS_CONFIG = {
     intent_created: {
         icon: MdRefresh,
-        color: "text-amber-600 dark:text-amber-400",
-        bg: "bg-amber-50 dark:bg-amber-900/20",
+        color: "text-amber-600 ",
+        bg: "bg-amber-50 ",
         label: { therapist: "Processing", customer: "Processing" },
     },
     escrowed: {
         icon: MdLock,
-        color: "text-blue-600 dark:text-blue-400",
-        bg: "bg-blue-50 dark:bg-blue-900/20",
+        color: "text-blue-600 ",
+        bg: "bg-blue-50 ",
         label: { therapist: "Held in Escrow", customer: "Payment Secured" },
     },
     partially_released: {
         icon: MdLock,
-        color: "text-orange-600 dark:text-orange-400",
-        bg: "bg-orange-50 dark:bg-orange-900/20",
+        color: "text-orange-600 ",
+        bg: "bg-orange-50 ",
         label: { therapist: "Partially Released", customer: "Payment Active" },
     },
     released: {
         icon: MdCheckCircle,
-        color: "text-emerald-600 dark:text-emerald-400",
-        bg: "bg-emerald-50 dark:bg-emerald-900/20",
+        color: "text-emerald-600 ",
+        bg: "bg-emerald-50 ",
         label: { therapist: "Released", customer: "Payment Complete" },
     },
     refunded: {
         icon: MdRefresh,
-        color: "text-slate-600 dark:text-slate-400",
-        bg: "bg-slate-50 dark:bg-slate-800",
+        color: "text-slate-600 ",
+        bg: "bg-slate-50 ",
         label: { therapist: "Refunded", customer: "Refunded" },
     },
     failed: {
         icon: MdError,
-        color: "text-red-600 dark:text-red-400",
-        bg: "bg-red-50 dark:bg-red-900/20",
+        color: "text-red-600 ",
+        bg: "bg-red-50 ",
         label: { therapist: "Failed", customer: "Payment Failed" },
     },
 }
@@ -128,12 +128,12 @@ export default function PaymentSummaryCard({ booking, role, onAction }) {
     }
 
     return (
-        <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl shadow-sm overflow-hidden">
+        <div className="bg-card-light  border border-border-light  rounded-xl shadow-sm overflow-hidden">
             {/* Header */}
-            <div className="px-5 py-4 border-b border-border-light dark:border-border-dark">
+            <div className="px-5 py-4 border-b border-border-light ">
                 <div className="flex items-center gap-2">
                     <MdPayments className="text-primary text-lg" />
-                    <h3 className="text-sm font-bold text-text-main dark:text-white">
+                    <h3 className="text-sm font-bold text-text-main ">
                         Payment Summary
                     </h3>
                 </div>
@@ -145,19 +145,19 @@ export default function PaymentSummaryCard({ booking, role, onAction }) {
                 {isMultiSession ? (
                     <>
                         <div className="flex items-center justify-between">
-                            <span className="text-sm text-text-muted dark:text-gray-400">Rate per Session</span>
-                            <span className="text-sm font-medium text-text-main dark:text-white">
+                            <span className="text-sm text-text-muted ">Rate per Session</span>
+                            <span className="text-sm font-medium text-text-main ">
                                 {formatCurrency(perSessionRate)} × {totalSessions} sessions
                             </span>
                         </div>
                         <div className="flex items-center justify-between">
-                            <span className="text-sm font-semibold text-text-main dark:text-white">Total Amount</span>
-                            <span className="text-sm font-bold text-text-main dark:text-white">
+                            <span className="text-sm font-semibold text-text-main ">Total Amount</span>
+                            <span className="text-sm font-bold text-text-main ">
                                 {formatCurrency(totalAmount)}
                             </span>
                         </div>
                         {hasReducedScope && (
-                            <div className="flex items-center justify-between text-xs text-text-muted dark:text-gray-400">
+                            <div className="flex items-center justify-between text-xs text-text-muted ">
                                 <span>
                                     {(() => {
                                         const parts = [];
@@ -177,8 +177,8 @@ export default function PaymentSummaryCard({ booking, role, onAction }) {
                     </>
                 ) : (
                     <div className="flex items-center justify-between">
-                        <span className="text-sm text-text-muted dark:text-gray-400">Session Rate</span>
-                        <span className="text-sm font-semibold text-text-main dark:text-white">
+                        <span className="text-sm text-text-muted ">Session Rate</span>
+                        <span className="text-sm font-semibold text-text-main ">
                             {formatCurrency(perSessionRate)}
                         </span>
                     </div>
@@ -188,22 +188,22 @@ export default function PaymentSummaryCard({ booking, role, onAction }) {
                 {isTherapist && payment && (
                     <>
                         <div className="flex items-center justify-between">
-                            <span className="text-sm text-text-muted dark:text-gray-400">Platform Fee</span>
-                            <span className="text-sm font-medium text-red-500 dark:text-red-400">
+                            <span className="text-sm text-text-muted ">Platform Fee</span>
+                            <span className="text-sm font-medium text-red-500 ">
                                 -{formatCurrency(platformFee)}
                             </span>
                         </div>
-                        <div className="border-t border-border-light dark:border-border-dark pt-3">
+                        <div className="border-t border-border-light  pt-3">
                             <div className="flex items-center justify-between">
-                                <span className="text-sm font-semibold text-text-main dark:text-white">
+                                <span className="text-sm font-semibold text-text-main ">
                                     {hasReducedScope ? "Max Earnings" : "Your Earnings"}
                                 </span>
-                                <span className="text-lg font-bold text-emerald-600 dark:text-emerald-400">
+                                <span className="text-lg font-bold text-emerald-600 ">
                                     {formatCurrency(payout)}
                                 </span>
                             </div>
                             {hasReducedScope && (
-                                <p className="text-[11px] text-text-muted dark:text-gray-400 mt-0.5">
+                                <p className="text-[11px] text-text-muted  mt-0.5">
                                     Adjusted for {(() => {
                                         const parts = [];
                                         if (missedOrCancelledCount > 0) {
@@ -217,11 +217,11 @@ export default function PaymentSummaryCard({ booking, role, onAction }) {
                                 </p>
                             )}
                             {isPartialRelease && releasedAmount !== null && (
-                                <div className="mt-2 bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg px-3 py-2">
-                                    <p className="text-xs font-medium text-orange-700 dark:text-orange-300">
+                                <div className="mt-2 bg-orange-50  border border-orange-200  rounded-lg px-3 py-2">
+                                    <p className="text-xs font-medium text-orange-700 ">
                                         Released so far: {formatCurrency(releasedAmount)} of {formatCurrency(payout)}
                                     </p>
-                                    <p className="text-xs text-orange-600 dark:text-orange-400 mt-0.5">
+                                    <p className="text-xs text-orange-600  mt-0.5">
                                         Remaining {formatCurrency(Math.max(0, payout - releasedAmount))} held in escrow
                                     </p>
                                 </div>
@@ -230,8 +230,8 @@ export default function PaymentSummaryCard({ booking, role, onAction }) {
                     </>
                 )}
                 {isTherapist && !payment && (
-                    <div className="border-t border-border-light dark:border-border-dark pt-3">
-                        <p className="text-xs text-text-muted dark:text-gray-400">
+                    <div className="border-t border-border-light  pt-3">
+                        <p className="text-xs text-text-muted ">
                             Commission applied at payment
                         </p>
                     </div>
@@ -239,9 +239,9 @@ export default function PaymentSummaryCard({ booking, role, onAction }) {
 
                 {/* Customer view: total */}
                 {isCustomer && !isMultiSession && (
-                    <div className="border-t border-border-light dark:border-border-dark pt-3 flex items-center justify-between">
-                        <span className="text-sm font-semibold text-text-main dark:text-white">Total</span>
-                        <span className="text-lg font-bold text-primary dark:text-blue-400">
+                    <div className="border-t border-border-light  pt-3 flex items-center justify-between">
+                        <span className="text-sm font-semibold text-text-main ">Total</span>
+                        <span className="text-lg font-bold text-primary ">
                             {formatCurrency(totalAmount)}
                         </span>
                     </div>

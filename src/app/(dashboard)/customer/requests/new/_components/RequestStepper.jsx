@@ -25,7 +25,7 @@ export default function RequestStepper({ currentStep }) {
                                     ? "bg-emerald-500 text-white"
                                     : isActive
                                         ? "bg-primary text-white"
-                                        : "bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-600 text-slate-400 dark:text-slate-500"
+                                        : "bg-white  border-2 border-slate-200  text-slate-400 "
                                     }`}
                             >
                                 {isCompleted ? <MdCheck className="text-lg" /> : step.num}
@@ -35,8 +35,8 @@ export default function RequestStepper({ currentStep }) {
                                 className={`hidden sm:block mt-2 text-xs font-medium text-center ${isActive
                                     ? "text-primary font-bold"
                                     : isCompleted
-                                        ? "text-emerald-600 dark:text-emerald-400"
-                                        : "text-text-muted dark:text-gray-500"
+                                        ? "text-emerald-600 "
+                                        : "text-text-muted "
                                     }`}
                             >
                                 {step.label}
@@ -48,7 +48,7 @@ export default function RequestStepper({ currentStep }) {
                             <div
                                 className={`flex-1 h-0.5 mx-2 sm:mx-4 mt-4.5 ${step.num < currentStep
                                     ? "bg-emerald-500"
-                                    : "bg-slate-200 dark:bg-slate-700"
+                                    : "bg-slate-200 "
                                     }`}
                             />
                         )}

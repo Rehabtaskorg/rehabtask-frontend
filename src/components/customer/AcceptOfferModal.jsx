@@ -78,16 +78,16 @@ export default function AcceptOfferModal({ isOpen, onClose, offer, onAccepted })
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
             <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={step === "accepting" ? undefined : handleClose} />
 
-            <div className="relative w-full max-w-lg bg-card-light dark:bg-card-dark rounded-2xl shadow-2xl border border-border-light dark:border-border-dark flex flex-col max-h-[90vh] overflow-hidden">
+            <div className="relative w-full max-w-lg bg-card-light  rounded-2xl shadow-2xl border border-border-light  flex flex-col max-h-[90vh] overflow-hidden">
                 {/* Header */}
-                <div className="flex items-center justify-between px-6 py-4 border-b border-border-light dark:border-border-dark shrink-0">
-                    <h2 className="text-base font-bold text-text-main dark:text-white">
+                <div className="flex items-center justify-between px-6 py-4 border-b border-border-light  shrink-0">
+                    <h2 className="text-base font-bold text-text-main ">
                         {step === "success" ? "Payment Confirmed" : step === "pay" ? "Complete Payment" : "Accept & Fund Offer"}
                     </h2>
                     {step !== "accepting" && (
                         <button
                             onClick={handleClose}
-                            className="p-1.5 text-text-muted dark:text-gray-400 hover:text-text-main dark:hover:text-white rounded-lg hover:bg-muted-light dark:hover:bg-muted-dark transition-colors"
+                            className="p-1.5 text-text-muted  hover:text-text-main  rounded-lg hover:bg-muted-light  transition-colors"
                         >
                             <MdClose className="text-xl" />
                         </button>
@@ -99,19 +99,19 @@ export default function AcceptOfferModal({ isOpen, onClose, offer, onAccepted })
                     {/* ── idle: confirmation screen ── */}
                     {step === "idle" && (
                         <div className="p-6 space-y-5">
-                            <div className="bg-muted-light dark:bg-muted-dark rounded-xl p-4 space-y-2 border border-border-light dark:border-border-dark">
+                            <div className="bg-muted-light  rounded-xl p-4 space-y-2 border border-border-light ">
                                 <div className="flex justify-between text-sm">
-                                    <span className="text-text-muted dark:text-gray-400">Therapist</span>
-                                    <span className="font-bold text-text-main dark:text-white">{therapistName}</span>
+                                    <span className="text-text-muted ">Therapist</span>
+                                    <span className="font-bold text-text-main ">{therapistName}</span>
                                 </div>
                                 <div className="flex justify-between text-sm">
-                                    <span className="text-text-muted dark:text-gray-400">Rate</span>
+                                    <span className="text-text-muted ">Rate</span>
                                     <span className="font-bold text-primary">{rate}/session</span>
                                 </div>
                                 {offer.proposedDate && (
                                     <div className="flex justify-between text-sm">
-                                        <span className="text-text-muted dark:text-gray-400">Proposed date</span>
-                                        <span className="font-medium text-text-main dark:text-white">
+                                        <span className="text-text-muted ">Proposed date</span>
+                                        <span className="font-medium text-text-main ">
                                             {new Date(offer.proposedDate).toLocaleDateString([], {
                                                 month: "short", day: "numeric", year: "numeric",
                                             })}
@@ -120,7 +120,7 @@ export default function AcceptOfferModal({ isOpen, onClose, offer, onAccepted })
                                 )}
                             </div>
 
-                            <p className="text-xs text-text-muted dark:text-gray-400 leading-relaxed">
+                            <p className="text-xs text-text-muted  leading-relaxed">
                                 Accepting this offer will create a booking and decline all other pending offers for this request.
                                 You can complete payment now or from the booking page at any time.
                             </p>
@@ -128,7 +128,7 @@ export default function AcceptOfferModal({ isOpen, onClose, offer, onAccepted })
                             <div className="flex gap-3 pt-1">
                                 <button
                                     onClick={handleClose}
-                                    className="flex-1 px-4 py-2.5 rounded-xl border border-border-light dark:border-border-dark text-sm font-bold text-text-muted dark:text-gray-400 hover:text-text-main dark:hover:text-white transition-colors"
+                                    className="flex-1 px-4 py-2.5 rounded-xl border border-border-light  text-sm font-bold text-text-muted  hover:text-text-main  transition-colors"
                                 >
                                     Cancel
                                 </button>
@@ -146,7 +146,7 @@ export default function AcceptOfferModal({ isOpen, onClose, offer, onAccepted })
                     {step === "accepting" && (
                         <div className="p-10 flex flex-col items-center gap-4">
                             <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-                            <p className="text-sm font-medium text-text-muted dark:text-gray-400">Creating your booking…</p>
+                            <p className="text-sm font-medium text-text-muted ">Creating your booking…</p>
                         </div>
                     )}
 
@@ -156,7 +156,7 @@ export default function AcceptOfferModal({ isOpen, onClose, offer, onAccepted })
                             <InlinePaymentSection booking={booking} onPaymentSuccess={handlePaymentSuccess} />
                             <button
                                 onClick={handleViewBooking}
-                                className="w-full text-xs text-text-muted dark:text-gray-400 hover:text-primary transition-colors py-1"
+                                className="w-full text-xs text-text-muted  hover:text-primary transition-colors py-1"
                             >
                                 Skip — I&apos;ll pay from the booking page
                             </button>
@@ -168,8 +168,8 @@ export default function AcceptOfferModal({ isOpen, onClose, offer, onAccepted })
                         <div className="p-6 flex flex-col items-center gap-4 text-center">
                             <MdCheckCircle className="text-5xl text-emerald-500" />
                             <div>
-                                <p className="text-base font-bold text-text-main dark:text-white">Payment confirmed!</p>
-                                <p className="text-xs text-text-muted dark:text-gray-400 mt-1">
+                                <p className="text-base font-bold text-text-main ">Payment confirmed!</p>
+                                <p className="text-xs text-text-muted  mt-1">
                                     Your session with {therapistName} is booked and paid.
                                 </p>
                             </div>
@@ -185,14 +185,14 @@ export default function AcceptOfferModal({ isOpen, onClose, offer, onAccepted })
                     {/* ── error: accept failed ── */}
                     {step === "error" && (
                         <div className="p-6 space-y-5">
-                            <div className="flex items-start gap-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl px-4 py-3">
+                            <div className="flex items-start gap-3 bg-red-50  border border-red-200  rounded-xl px-4 py-3">
                                 <MdWarning className="text-red-500 text-lg shrink-0 mt-0.5" />
-                                <p className="text-sm text-red-700 dark:text-red-300">{errorMsg}</p>
+                                <p className="text-sm text-red-700 ">{errorMsg}</p>
                             </div>
                             <div className="flex gap-3">
                                 <button
                                     onClick={handleClose}
-                                    className="flex-1 px-4 py-2.5 rounded-xl border border-border-light dark:border-border-dark text-sm font-bold text-text-muted dark:text-gray-400 hover:text-text-main dark:hover:text-white transition-colors"
+                                    className="flex-1 px-4 py-2.5 rounded-xl border border-border-light  text-sm font-bold text-text-muted  hover:text-text-main  transition-colors"
                                 >
                                     Close
                                 </button>

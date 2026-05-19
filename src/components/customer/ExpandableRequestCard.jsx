@@ -18,20 +18,20 @@ const formatDate = (dateStr) => {
 const getServiceTypeStyle = (serviceType) => {
     const st = serviceType?.toLowerCase() || "";
     if (st.includes("physical") || st.includes("pt"))
-        return "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300";
+        return "bg-blue-100 text-blue-700  ";
     if (st.includes("occupational") || st.includes("ot"))
-        return "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300";
+        return "bg-purple-100 text-purple-700  ";
     if (st.includes("speech") || st.includes("slp"))
-        return "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300";
-    return "bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300";
+        return "bg-emerald-100 text-emerald-700  ";
+    return "bg-slate-100 text-slate-700  ";
 };
 
 const STATUS_BADGE = {
-    created: { bg: "bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400", label: "Open" },
-    offers_received: { bg: "bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-400", label: "Offers Received" },
-    offers_accepted: { bg: "bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400", label: "Accepted" },
-    completed: { bg: "bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400", label: "Completed" },
-    cancelled: { bg: "bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-400", label: "Cancelled" },
+    created: { bg: "bg-slate-100  text-slate-600 ", label: "Open" },
+    offers_received: { bg: "bg-amber-100  text-amber-700 ", label: "Offers Received" },
+    offers_accepted: { bg: "bg-emerald-100  text-emerald-700 ", label: "Accepted" },
+    completed: { bg: "bg-slate-100  text-slate-600 ", label: "Completed" },
+    cancelled: { bg: "bg-red-100  text-red-600 ", label: "Cancelled" },
 };
 
 const INITIAL_OFFERS_SHOWN = 2;
@@ -72,10 +72,10 @@ export default function ExpandableRequestCard({
 
     return (
         <div
-            className={`bg-white dark:bg-card-dark rounded-xl border transition-all duration-200 ${
+            className={`bg-white  rounded-xl border transition-all duration-200 ${
                 isExpanded
                     ? "border-l-4 border-l-primary border-primary/20 shadow-md"
-                    : "border-border-light dark:border-border-dark hover:shadow-sm hover:border-slate-300 dark:hover:border-slate-600"
+                    : "border-border-light  hover:shadow-sm hover:border-slate-300 "
             }`}
         >
             {/* ── Collapsed Header (always visible, clickable) ── */}
@@ -89,12 +89,12 @@ export default function ExpandableRequestCard({
                             {request.serviceType}
                         </span>
                         {request.requestType === "DIRECT" && (
-                            <span className="px-2.5 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300">
+                            <span className="px-2.5 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-indigo-100 text-indigo-700  ">
                                 Direct
                             </span>
                         )}
                         {offerCount > 0 && (
-                            <span className="px-2.5 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-primary/10 text-primary dark:bg-primary/20 dark:text-blue-300">
+                            <span className="px-2.5 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-primary/10 text-primary  ">
                                 {offerCount} Offer{offerCount !== 1 ? "s" : ""}
                             </span>
                         )}
@@ -107,11 +107,11 @@ export default function ExpandableRequestCard({
                     </div>
                 </div>
 
-                <p className={`text-sm font-semibold text-text-main dark:text-white mb-2 ${isExpanded ? "" : "line-clamp-1"}`}>
+                <p className={`text-sm font-semibold text-text-main  mb-2 ${isExpanded ? "" : "line-clamp-1"}`}>
                     {request.description || request.serviceType}
                 </p>
 
-                <div className="flex flex-wrap items-center gap-4 text-xs text-text-muted dark:text-gray-400 mb-2">
+                <div className="flex flex-wrap items-center gap-4 text-xs text-text-muted  mb-2">
                     {request.location && (
                         <span className="flex items-center gap-1">
                             <MdLocationOn className="text-sm" />
@@ -123,7 +123,7 @@ export default function ExpandableRequestCard({
                         {formatDate(request.preferredDate)}
                     </span>
                     {request.visitsPerWeek && request.numberOfWeeks && (
-                        <span className="flex items-center gap-1 text-indigo-600 dark:text-indigo-400">
+                        <span className="flex items-center gap-1 text-indigo-600 ">
                             <MdRefresh className="text-sm" />
                             {request.visitsPerWeek}x/week · {request.numberOfWeeks} wk
                         </span>
@@ -135,12 +135,12 @@ export default function ExpandableRequestCard({
 
             {/* ── Expanded Content ── */}
             {isExpanded && (
-                <div className="px-5 sm:px-6 pb-6 border-t border-border-light dark:border-border-dark">
+                <div className="px-5 sm:px-6 pb-6 border-t border-border-light ">
                     {/* Direct request privacy notice */}
                     {request.requestType === "DIRECT" && (
-                        <div className="mt-4 flex items-start gap-2 p-3 rounded-lg bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800">
+                        <div className="mt-4 flex items-start gap-2 p-3 rounded-lg bg-indigo-50  border border-indigo-200 ">
                             <MdVisibility className="text-indigo-500 text-base shrink-0 mt-0.5" />
-                            <p className="text-xs text-indigo-700 dark:text-indigo-300">
+                            <p className="text-xs text-indigo-700 ">
                                 This request is private — only visible to your selected therapist.
                             </p>
                         </div>
@@ -148,9 +148,9 @@ export default function ExpandableRequestCard({
 
                     {/* Full description */}
                     {request.description && (
-                        <div className="mt-5 bg-slate-50 dark:bg-slate-800/50 rounded-lg p-4">
-                            <p className="text-[10px] font-bold uppercase tracking-wider text-text-muted dark:text-gray-400 mb-1">Description</p>
-                            <p className="text-sm text-text-main dark:text-gray-300 leading-relaxed">{request.description}</p>
+                        <div className="mt-5 bg-slate-50  rounded-lg p-4">
+                            <p className="text-[10px] font-bold uppercase tracking-wider text-text-muted  mb-1">Description</p>
+                            <p className="text-sm text-text-main  leading-relaxed">{request.description}</p>
                         </div>
                     )}
 
@@ -158,56 +158,56 @@ export default function ExpandableRequestCard({
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-5">
                         {request.preferredDate && (
                             <div className="flex items-center gap-3">
-                                <div className="w-9 h-9 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-primary shrink-0">
+                                <div className="w-9 h-9 rounded-lg bg-slate-100  flex items-center justify-center text-primary shrink-0">
                                     <MdCalendarToday className="text-lg" />
                                 </div>
                                 <div>
-                                    <p className="text-[10px] font-bold uppercase tracking-wider text-text-muted dark:text-gray-500">Preferred Date</p>
-                                    <p className="text-sm font-semibold text-text-main dark:text-white">{formatDate(request.preferredDate)}</p>
+                                    <p className="text-[10px] font-bold uppercase tracking-wider text-text-muted ">Preferred Date</p>
+                                    <p className="text-sm font-semibold text-text-main ">{formatDate(request.preferredDate)}</p>
                                 </div>
                             </div>
                         )}
                         {request.location && (
                             <div className="flex items-center gap-3">
-                                <div className="w-9 h-9 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-primary shrink-0">
+                                <div className="w-9 h-9 rounded-lg bg-slate-100  flex items-center justify-center text-primary shrink-0">
                                     <MdLocationOn className="text-lg" />
                                 </div>
                                 <div>
-                                    <p className="text-[10px] font-bold uppercase tracking-wider text-text-muted dark:text-gray-500">Location</p>
-                                    <p className="text-sm font-semibold text-text-main dark:text-white">{request.location}</p>
+                                    <p className="text-[10px] font-bold uppercase tracking-wider text-text-muted ">Location</p>
+                                    <p className="text-sm font-semibold text-text-main ">{request.location}</p>
                                 </div>
                             </div>
                         )}
                         {request.visitType && (
                             <div className="flex items-center gap-3">
-                                <div className="w-9 h-9 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-primary shrink-0">
+                                <div className="w-9 h-9 rounded-lg bg-slate-100  flex items-center justify-center text-primary shrink-0">
                                     <MdVisibility className="text-lg" />
                                 </div>
                                 <div>
-                                    <p className="text-[10px] font-bold uppercase tracking-wider text-text-muted dark:text-gray-500">Visit Type</p>
-                                    <p className="text-sm font-semibold text-text-main dark:text-white">{request.visitType}</p>
+                                    <p className="text-[10px] font-bold uppercase tracking-wider text-text-muted ">Visit Type</p>
+                                    <p className="text-sm font-semibold text-text-main ">{request.visitType}</p>
                                 </div>
                             </div>
                         )}
                         {request.emr && (
                             <div className="flex items-center gap-3">
-                                <div className="w-9 h-9 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-primary shrink-0">
+                                <div className="w-9 h-9 rounded-lg bg-slate-100  flex items-center justify-center text-primary shrink-0">
                                     <MdOpenInNew className="text-lg" />
                                 </div>
                                 <div>
-                                    <p className="text-[10px] font-bold uppercase tracking-wider text-text-muted dark:text-gray-500">EMR System</p>
-                                    <p className="text-sm font-semibold text-text-main dark:text-white">{request.emr}</p>
+                                    <p className="text-[10px] font-bold uppercase tracking-wider text-text-muted ">EMR System</p>
+                                    <p className="text-sm font-semibold text-text-main ">{request.emr}</p>
                                 </div>
                             </div>
                         )}
                         {request.visitsPerWeek && request.numberOfWeeks && (
                             <div className="flex items-center gap-3">
-                                <div className="w-9 h-9 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-primary shrink-0">
+                                <div className="w-9 h-9 rounded-lg bg-slate-100  flex items-center justify-center text-primary shrink-0">
                                     <MdSchedule className="text-lg" />
                                 </div>
                                 <div>
-                                    <p className="text-[10px] font-bold uppercase tracking-wider text-text-muted dark:text-gray-500">Frequency</p>
-                                    <p className="text-sm font-semibold text-text-main dark:text-white">
+                                    <p className="text-[10px] font-bold uppercase tracking-wider text-text-muted ">Frequency</p>
+                                    <p className="text-sm font-semibold text-text-main ">
                                         {request.visitsPerWeek}x/week · {request.numberOfWeeks} weeks ({request.visitsPerWeek * request.numberOfWeeks} visits)
                                     </p>
                                 </div>
@@ -246,9 +246,9 @@ export default function ExpandableRequestCard({
 
                     {/* Cancel confirmation */}
                     {showCancelConfirm && (
-                        <div className="mt-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-                            <p className="text-sm font-bold text-red-800 dark:text-red-200 mb-1">Cancel this request?</p>
-                            <p className="text-xs text-red-700 dark:text-red-300 mb-3">
+                        <div className="mt-4 p-4 bg-red-50  border border-red-200  rounded-lg">
+                            <p className="text-sm font-bold text-red-800  mb-1">Cancel this request?</p>
+                            <p className="text-xs text-red-700  mb-3">
                                 {offerCount > 0
                                     ? `This will withdraw ${pendingOffers.length} pending offer(s) and notify therapists.`
                                     : "This action cannot be undone."}
@@ -271,16 +271,16 @@ export default function ExpandableRequestCard({
                     {/* ── Offers Section ── */}
                     <div className="mt-6">
                         <div className="flex items-center gap-3 mb-4">
-                            <h4 className="text-sm font-bold text-text-main dark:text-white">
+                            <h4 className="text-sm font-bold text-text-main ">
                                 Offers ({offerCount})
                             </h4>
-                            <div className="h-px flex-1 bg-border-light dark:bg-border-dark" />
+                            <div className="h-px flex-1 bg-border-light " />
                         </div>
 
                         {offerCount === 0 ? (
                             <div className="text-center py-8">
-                                <MdSchedule className="text-3xl text-slate-200 dark:text-slate-700 mx-auto mb-2" />
-                                <p className="text-text-muted dark:text-gray-400 text-sm">
+                                <MdSchedule className="text-3xl text-slate-200  mx-auto mb-2" />
+                                <p className="text-text-muted  text-sm">
                                     No offers yet. Therapists in your area will be notified.
                                 </p>
                             </div>

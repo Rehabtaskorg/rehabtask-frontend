@@ -64,10 +64,10 @@ export default function SessionOfferWidget({ offerId }) {
     if (loading) {
         return (
             <div className="flex flex-col items-center py-2">
-                <div className="w-full max-w-sm bg-card-light dark:bg-card-dark border-2 border-primary/20 rounded-xl p-5 animate-pulse">
-                    <div className="h-4 w-32 bg-gray-200 dark:bg-gray-700 rounded mb-4" />
-                    <div className="h-6 w-48 bg-gray-200 dark:bg-gray-700 rounded mb-3" />
-                    <div className="h-12 w-full bg-gray-200 dark:bg-gray-700 rounded" />
+                <div className="w-full max-w-sm bg-card-light  border-2 border-primary/20 rounded-xl p-5 animate-pulse">
+                    <div className="h-4 w-32 bg-gray-200  rounded mb-4" />
+                    <div className="h-6 w-48 bg-gray-200  rounded mb-3" />
+                    <div className="h-12 w-full bg-gray-200  rounded" />
                 </div>
             </div>
         );
@@ -164,9 +164,9 @@ export default function SessionOfferWidget({ offerId }) {
 
     return (
         <div className="flex flex-col items-center py-2">
-            <div className="w-full max-w-sm bg-card-light dark:bg-card-dark border-2 border-primary/30 dark:border-primary/50 rounded-xl overflow-hidden shadow-lg">
+            <div className="w-full max-w-sm bg-card-light  border-2 border-primary/30  rounded-xl overflow-hidden shadow-lg">
                 {/* Header */}
-                <div className="bg-primary/10 dark:bg-primary/20 px-4 py-3 border-b border-primary/20 flex justify-between items-center">
+                <div className="bg-primary/10  px-4 py-3 border-b border-primary/20 flex justify-between items-center">
                     <div className="flex items-center gap-2">
                         <svg className="w-5 h-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -182,51 +182,51 @@ export default function SessionOfferWidget({ offerId }) {
                 <div className="p-5 space-y-4">
                     <div className="flex justify-between items-start">
                         <div className="space-y-1">
-                            <p className="text-text-muted dark:text-gray-400 text-[10px] font-bold uppercase">Session Type</p>
-                            <p className="text-text-main dark:text-white font-bold text-base">
+                            <p className="text-text-muted  text-[10px] font-bold uppercase">Session Type</p>
+                            <p className="text-text-main  font-bold text-base">
                                 {offer.sessionType || 'Session'}{offer.description ? ` - ${offer.description}` : ''}
                             </p>
                         </div>
                         <div className="text-right">
-                            <p className="text-text-muted dark:text-gray-400 text-[10px] font-bold uppercase">Rate</p>
+                            <p className="text-text-muted  text-[10px] font-bold uppercase">Rate</p>
                             <p className="text-primary font-bold text-xl">{formatCurrency(offer.rate)}</p>
                         </div>
                     </div>
 
                     {offer.request?.patient?.fullName && (
-                        <div className="flex items-center gap-2 bg-background-light dark:bg-background-dark px-3 py-2 rounded-lg">
-                            <svg className="w-4 h-4 text-text-muted dark:text-gray-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+                        <div className="flex items-center gap-2 bg-background-light  px-3 py-2 rounded-lg">
+                            <svg className="w-4 h-4 text-text-muted  shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
                             <div>
-                                <p className="text-text-muted dark:text-gray-400 text-[10px] font-bold uppercase">Patient</p>
-                                <p className="text-text-main dark:text-white text-sm font-medium">{offer.request.patient.fullName}</p>
+                                <p className="text-text-muted  text-[10px] font-bold uppercase">Patient</p>
+                                <p className="text-text-main  text-sm font-medium">{offer.request.patient.fullName}</p>
                             </div>
                         </div>
                     )}
 
                     {offer.proposedDate && (
-                        <div className="flex items-center gap-4 bg-background-light dark:bg-background-dark p-3 rounded-lg">
-                            <div className="flex flex-col flex-1 border-r border-border-light dark:border-border-dark">
-                                <p className="text-text-muted dark:text-gray-400 text-[10px] font-bold uppercase">Date</p>
-                                <p className="text-text-main dark:text-white text-sm font-medium">{formatOfferDate(offer.proposedDate)}</p>
+                        <div className="flex items-center gap-4 bg-background-light  p-3 rounded-lg">
+                            <div className="flex flex-col flex-1 border-r border-border-light ">
+                                <p className="text-text-muted  text-[10px] font-bold uppercase">Date</p>
+                                <p className="text-text-main  text-sm font-medium">{formatOfferDate(offer.proposedDate)}</p>
                             </div>
                             <div className="flex flex-col flex-1 pl-2">
-                                <p className="text-text-muted dark:text-gray-400 text-[10px] font-bold uppercase">Time</p>
-                                <p className="text-text-main dark:text-white text-sm font-medium">{formatOfferTime(offer.proposedDate)}</p>
+                                <p className="text-text-muted  text-[10px] font-bold uppercase">Time</p>
+                                <p className="text-text-main  text-sm font-medium">{formatOfferTime(offer.proposedDate)}</p>
                             </div>
                         </div>
                     )}
 
                     {offer.attemptedVisitRate != null && (
                         parseFloat(offer.attemptedVisitRate) > 0 ? (
-                            <div className="px-3 py-2 rounded-lg bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/40">
-                                <p className="text-[11px] text-amber-800 dark:text-amber-300">
+                            <div className="px-3 py-2 rounded-lg bg-amber-50  border border-amber-200 ">
+                                <p className="text-[11px] text-amber-800 ">
                                     <span className="font-semibold">Not home when therapist arrives?</span>{" "}
                                     {formatCurrency(offer.attemptedVisitRate)} attempted visit fee
                                 </p>
                             </div>
                         ) : (
-                            <div className="px-3 py-2 rounded-lg bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/40">
-                                <p className="text-[11px] text-emerald-800 dark:text-emerald-300 font-medium">
+                            <div className="px-3 py-2 rounded-lg bg-emerald-50  border border-emerald-200 ">
+                                <p className="text-[11px] text-emerald-800  font-medium">
                                     ✓ No charge for missed visits
                                 </p>
                             </div>
@@ -234,14 +234,14 @@ export default function SessionOfferWidget({ offerId }) {
                     )}
 
                     {/* Status text */}
-                    <p className="text-center text-[10px] text-text-muted dark:text-gray-500 italic">
+                    <p className="text-center text-[10px] text-text-muted  italic">
                         {STATUS_TEXT[offer.status] ?? 'Offer expired'}
                     </p>
 
                     {/* Error message */}
                     {actionError && (
-                        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg px-3 py-2">
-                            <p className="text-xs text-red-700 dark:text-red-300">{actionError}</p>
+                        <div className="bg-red-50  border border-red-200  rounded-lg px-3 py-2">
+                            <p className="text-xs text-red-700 ">{actionError}</p>
                         </div>
                     )}
 
@@ -263,7 +263,7 @@ export default function SessionOfferWidget({ offerId }) {
                                 <button
                                     onClick={handleDecline}
                                     disabled={!!actionLoading}
-                                    className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-lg border border-red-300 dark:border-red-700 text-red-600 dark:text-red-400 text-xs font-bold hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-lg border border-red-300  text-red-600  text-xs font-bold hover:bg-red-50  transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     {actionLoading === "decline" ? (
                                         <span className="animate-pulse">Declining...</span>
@@ -277,7 +277,7 @@ export default function SessionOfferWidget({ offerId }) {
                                 <button
                                     onClick={() => setShowChangeInput(true)}
                                     disabled={!!actionLoading}
-                                    className="w-full flex items-center justify-center gap-1.5 py-2 text-xs font-semibold text-text-muted dark:text-gray-400 hover:text-primary dark:hover:text-primary transition-colors disabled:opacity-50"
+                                    className="w-full flex items-center justify-center gap-1.5 py-2 text-xs font-semibold text-text-muted  hover:text-primary  transition-colors disabled:opacity-50"
                                 >
                                     <MdEdit className="text-sm" /> Request Changes
                                 </button>
@@ -289,7 +289,7 @@ export default function SessionOfferWidget({ offerId }) {
                                         placeholder="Describe the changes you'd like..."
                                         maxLength={500}
                                         rows={2}
-                                        className="w-full text-xs bg-background-light dark:bg-background-dark border border-border-light dark:border-border-dark rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none resize-none text-text-main dark:text-white placeholder:text-text-muted"
+                                        className="w-full text-xs bg-background-light  border border-border-light  rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none resize-none text-text-main  placeholder:text-text-muted"
                                     />
                                     <div className="flex gap-2">
                                         <button
@@ -302,7 +302,7 @@ export default function SessionOfferWidget({ offerId }) {
                                         <button
                                             onClick={() => { setShowChangeInput(false); setChangeNote(""); }}
                                             disabled={!!actionLoading}
-                                            className="px-3 py-2 rounded-lg text-xs font-medium text-text-muted hover:text-text-main dark:hover:text-white transition-colors"
+                                            className="px-3 py-2 rounded-lg text-xs font-medium text-text-muted hover:text-text-main  transition-colors"
                                         >
                                             Cancel
                                         </button>
@@ -324,7 +324,7 @@ export default function SessionOfferWidget({ offerId }) {
                 </div>
             </div>
             {offer.createdAt && (
-                <p className="text-[10px] text-text-muted dark:text-gray-500 mt-2">
+                <p className="text-[10px] text-text-muted  mt-2">
                     Offer sent at {formatMessageTime(offer.createdAt)}
                 </p>
             )}

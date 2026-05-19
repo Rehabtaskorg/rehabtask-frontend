@@ -126,27 +126,27 @@ export default function AvailabilityPage() {
 
     return (
         <APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}>
-            <div className="min-h-screen bg-background-light dark:bg-background-dark py-10 px-4">
+            <div className="min-h-screen bg-background-light  py-10 px-4">
                 <div className="max-w-6xl mx-auto">
                     <OnboardingProgressBar />
 
                     <header className="mb-8 px-4">
                         <div className="flex flex-wrap justify-between items-end gap-6 mb-4">
                             <div className="flex min-w-75 flex-col gap-2">
-                                <h1 className="text-text-main dark:text-white text-4xl font-black leading-tight tracking-[-0.033em]">
+                                <h1 className="text-text-main  text-4xl font-black leading-tight tracking-[-0.033em]">
                                     Set Your Availability & Reach
                                 </h1>
-                                <p className="text-text-muted dark:text-gray-400 text-lg font-normal leading-normal max-w-2xl">
+                                <p className="text-text-muted  text-lg font-normal leading-normal max-w-2xl">
                                     Define when you&apos;re available and how far you&apos;re willing to
                                     travel to treat patients.
                                 </p>
                             </div>
-                            <div className="flex items-center gap-4 bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark p-4 rounded-xl shadow-sm">
+                            <div className="flex items-center gap-4 bg-card-light  border border-border-light  p-4 rounded-xl shadow-sm">
                                 <div className="flex flex-col">
-                                    <span className="text-sm font-bold text-text-main dark:text-white">
+                                    <span className="text-sm font-bold text-text-main ">
                                         Accepting New Patients
                                     </span>
-                                    <span className="text-xs text-green-600 dark:text-green-400 font-medium">
+                                    <span className="text-xs text-green-600  font-medium">
                                         Profile will be live instantly
                                     </span>
                                 </div>
@@ -165,7 +165,7 @@ export default function AvailabilityPage() {
                                                 }}
                                                 className="sr-only peer"
                                             />
-                                            <div className="w-11 h-6 bg-gray-200 dark:bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                                            <div className="w-11 h-6 bg-gray-200  peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
                                         </label>
                                     )}
                                 />
@@ -178,9 +178,9 @@ export default function AvailabilityPage() {
                         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                             {/* Weekly Schedule - Takes 2 columns */}
                             <div className="lg:col-span-2">
-                                <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl p-6 md:p-8 flex flex-col gap-6 shadow-sm">
-                                    <div className="flex justify-between items-center border-b border-border-light dark:border-border-dark pb-6">
-                                        <h3 className="text-xl font-bold text-text-main dark:text-white flex items-center gap-2">
+                                <div className="bg-card-light  border border-border-light  rounded-xl p-6 md:p-8 flex flex-col gap-6 shadow-sm">
+                                    <div className="flex justify-between items-center border-b border-border-light  pb-6">
+                                        <h3 className="text-xl font-bold text-text-main  flex items-center gap-2">
                                             <LuCalendar size={20} className="text-primary" />
                                             Weekly Schedule
                                         </h3>
@@ -205,14 +205,14 @@ export default function AvailabilityPage() {
                                                     key={day}
                                                     className={`flex flex-col gap-4 p-4 rounded-xl border transition-all ${isEnabled
                                                         ? "bg-primary/5 border-primary/20"
-                                                        : "bg-muted-light dark:bg-muted-dark border-border-light dark:border-border-dark"
+                                                        : "bg-muted-light  border-border-light "
                                                         }`}
                                                 >
                                                     <div className="flex items-center justify-between">
                                                         <span
                                                             className={`font-semibold text-base ${isEnabled
                                                                 ? "text-primary"
-                                                                : "text-text-muted dark:text-gray-400"
+                                                                : "text-text-muted "
                                                                 }`}
                                                         >
                                                             {DAY_LABELS[day]}
@@ -224,7 +224,7 @@ export default function AvailabilityPage() {
                                                                 onChange={() => handleToggleDay(day)}
                                                                 className="sr-only peer"
                                                             />
-                                                            <div className="w-11 h-6 bg-gray-200 dark:bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                                                            <div className="w-11 h-6 bg-gray-200  peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
                                                         </label>
                                                     </div>
 
@@ -260,12 +260,12 @@ export default function AvailabilityPage() {
                                                                                 timeIntervals={15}
                                                                                 timeCaption="Time"
                                                                                 dateFormat="hh:mm aa"
-                                                                                className="flex-1 bg-input-light dark:bg-input-dark border border-border-light dark:border-border-dark rounded-lg px-3 py-2 text-text-main dark:text-white text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+                                                                                className="flex-1 bg-input-light  border border-border-light  rounded-lg px-3 py-2 text-text-main  text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
                                                                             />
                                                                         )}
                                                                     />
 
-                                                                    <span className="text-text-muted dark:text-gray-500 text-sm">
+                                                                    <span className="text-text-muted  text-sm">
                                                                         to
                                                                     </span>
 
@@ -294,7 +294,7 @@ export default function AvailabilityPage() {
                                                                                 timeIntervals={15}
                                                                                 timeCaption="Time"
                                                                                 dateFormat="hh:mm aa"
-                                                                                className="flex-1 bg-input-light dark:bg-input-dark border border-border-light dark:border-border-dark rounded-lg px-3 py-2 text-text-main dark:text-white text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+                                                                                className="flex-1 bg-input-light  border border-border-light  rounded-lg px-3 py-2 text-text-main  text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
                                                                             />
                                                                         )}
                                                                     />
@@ -302,7 +302,7 @@ export default function AvailabilityPage() {
                                                                     <button
                                                                         type="button"
                                                                         onClick={() => removeTimeBlock(day, index)}
-                                                                        className="text-text-muted dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400 transition-colors p-1"
+                                                                        className="text-text-muted  hover:text-red-500  transition-colors p-1"
                                                                     >
                                                                         <LuX size={20} />
                                                                     </button>
@@ -312,7 +312,7 @@ export default function AvailabilityPage() {
                                                             <button
                                                                 type="button"
                                                                 onClick={() => addTimeBlock(day)}
-                                                                className="flex items-center gap-2 text-sm text-primary font-semibold hover:text-blue-600 dark:hover:text-blue-400 mt-1 self-start py-1 px-2 rounded hover:bg-primary/10 transition-colors"
+                                                                className="flex items-center gap-2 text-sm text-primary font-semibold hover:text-blue-600  mt-1 self-start py-1 px-2 rounded hover:bg-primary/10 transition-colors"
                                                             >
                                                                 <LuPlus size={16} />
                                                                 Add time block
@@ -333,7 +333,7 @@ export default function AvailabilityPage() {
                                                 setValidationError("");
                                                 clearErrors("schedule");
                                             }}
-                                            className="text-sm font-semibold text-primary hover:text-text-main dark:hover:text-white border border-primary/20 hover:border-primary hover:bg-primary/10 rounded-lg px-4 py-2 transition-all"
+                                            className="text-sm font-semibold text-primary hover:text-text-main  border border-primary/20 hover:border-primary hover:bg-primary/10 rounded-lg px-4 py-2 transition-all"
                                         >
                                             Apply to weekdays
                                         </button>
@@ -344,7 +344,7 @@ export default function AvailabilityPage() {
                                                 setValidationError("");
                                                 clearErrors("schedule");
                                             }}
-                                            className="text-sm font-semibold text-primary hover:text-text-main dark:hover:text-white border border-primary/20 hover:border-primary hover:bg-primary/10 rounded-lg px-4 py-2 transition-all"
+                                            className="text-sm font-semibold text-primary hover:text-text-main  border border-primary/20 hover:border-primary hover:bg-primary/10 rounded-lg px-4 py-2 transition-all"
                                         >
                                             Apply to all days
                                         </button>
@@ -354,9 +354,9 @@ export default function AvailabilityPage() {
 
                             {/* Work Areas - Takes 1 column */}
                             <div className="flex flex-col gap-6">
-                                <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl p-6 flex flex-col gap-6 shadow-sm">
+                                <div className="bg-card-light  border border-border-light  rounded-xl p-6 flex flex-col gap-6 shadow-sm">
                                     <div className="flex justify-between items-center">
-                                        <h3 className="text-xl font-bold text-text-main dark:text-white flex items-center gap-2">
+                                        <h3 className="text-xl font-bold text-text-main  flex items-center gap-2">
                                             <LuMapPin size={20} className="text-primary" />
                                             Work Areas
                                         </h3>
@@ -376,12 +376,12 @@ export default function AvailabilityPage() {
                                         {(formData.workAreas || []).map((area, index) => (
                                             <div
                                                 key={index}
-                                                className="flex items-center justify-between p-3 rounded-lg border border-border-light dark:border-border-dark bg-muted-light dark:bg-muted-dark"
+                                                className="flex items-center justify-between p-3 rounded-lg border border-border-light  bg-muted-light "
                                             >
                                                 <div className="flex items-center gap-2.5 min-w-0">
                                                     <MdLocationOn className="text-primary shrink-0" />
                                                     <div className="min-w-0">
-                                                        <p className="text-sm font-medium text-text-main dark:text-white truncate">
+                                                        <p className="text-sm font-medium text-text-main  truncate">
                                                             {area.city}, {area.state}
                                                         </p>
                                                         <p className="text-xs text-text-muted">
@@ -403,7 +403,7 @@ export default function AvailabilityPage() {
                                                     <button
                                                         type="button"
                                                         onClick={() => handleRemoveWorkArea(index)}
-                                                        className="p-1.5 rounded-lg text-text-muted hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                                                        className="p-1.5 rounded-lg text-text-muted hover:text-red-500 hover:bg-red-50  transition-colors"
                                                     >
                                                         <MdDelete size={16} />
                                                     </button>
@@ -432,12 +432,12 @@ export default function AvailabilityPage() {
                                 </div>
 
                                 {/* Preview Card */}
-                                <div className="bg-primary/5 dark:bg-primary/10 border border-primary/10 dark:border-primary/20 p-6 rounded-xl">
+                                <div className="bg-primary/5  border border-primary/10  p-6 rounded-xl">
                                     <h3 className="text-sm font-bold text-primary mb-2 flex items-center gap-2">
                                         <LuMapPin size={14} />
                                         Marketplace Preview
                                     </h3>
-                                    <p className="text-xs text-primary/80 dark:text-primary/70 leading-relaxed">
+                                    <p className="text-xs text-primary/80  leading-relaxed">
                                         Patients will see your availability and work areas when searching for therapists in their area.
                                     </p>
                                 </div>
@@ -446,11 +446,11 @@ export default function AvailabilityPage() {
                         </div>
 
                         {/* Navigation */}
-                        <div className="flex flex-col sm:flex-row justify-between items-center gap-4 pt-4 border-t border-border-light dark:border-border-dark">
+                        <div className="flex flex-col sm:flex-row justify-between items-center gap-4 pt-4 border-t border-border-light ">
                             <button
                                 type="button"
                                 onClick={() => router.push("/therapist/onboarding/credentials")}
-                                className="w-full sm:w-auto flex items-center gap-2 px-8 h-12 text-text-muted dark:text-gray-400 font-bold hover:text-text-main dark:hover:text-white transition-colors"
+                                className="w-full sm:w-auto flex items-center gap-2 px-8 h-12 text-text-muted  font-bold hover:text-text-main  transition-colors"
                             >
                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path

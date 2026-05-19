@@ -9,12 +9,12 @@ import { usePageTitle } from "@/hooks/usePageTitle";
 export default function CustomerRegisterPage() {
     usePageTitle("Create Account");
     return (
-        <div className="flex min-h-screen flex-col transition-colors duration-200 dark:text-white">
+        <div className="flex min-h-screen flex-col transition-colors duration-200 ">
             <Header />
 
             <main className="flex flex-1 flex-col lg:flex-row">
                 <CustomerRegistrationSidebar />
-                <section className="flex-1 overflow-y-auto bg-background-light dark:bg-background-dark p-6 md:p-16 flex flex-col justify-center">
+                <section className="flex-1 overflow-y-auto bg-background-light  p-6 md:p-16 flex flex-col justify-center">
                     <CustomerRegistrationForm />
                     <Footer />
                 </section>

@@ -12,50 +12,50 @@ import {
 
 const STATUS_CONFIG = {
     pending: {
-        bg: "bg-amber-100 dark:bg-amber-900/30",
-        text: "text-amber-800 dark:text-amber-300",
+        bg: "bg-amber-100 ",
+        text: "text-amber-800 ",
         icon: MdPending,
         label: "Pending Payment",
     },
     accepted: {
-        bg: "bg-teal-100 dark:bg-teal-900/30",
-        text: "text-teal-800 dark:text-teal-300",
+        bg: "bg-teal-100 ",
+        text: "text-teal-800 ",
         icon: MdPayment,
         label: "Accepted — Awaiting Payment",
     },
     confirmed: {
-        bg: "bg-blue-100 dark:bg-blue-900/30",
-        text: "text-blue-800 dark:text-blue-300",
+        bg: "bg-blue-100 ",
+        text: "text-blue-800 ",
         icon: MdCheckCircle,
         label: "Confirmed",
     },
     in_progress: {
-        bg: "bg-purple-100 dark:bg-purple-900/30",
-        text: "text-purple-800 dark:text-purple-300",
+        bg: "bg-purple-100 ",
+        text: "text-purple-800 ",
         icon: MdPlayCircle,
         label: "In Progress",
     },
     completed: {
-        bg: "bg-emerald-100 dark:bg-emerald-900/30",
-        text: "text-emerald-700 dark:text-emerald-300",
+        bg: "bg-emerald-100 ",
+        text: "text-emerald-700 ",
         icon: MdTaskAlt,
         label: "Completed",
     },
     cancelled: {
-        bg: "bg-red-100 dark:bg-red-900/30",
-        text: "text-red-700 dark:text-red-400",
+        bg: "bg-red-100 ",
+        text: "text-red-700 ",
         icon: MdCancel,
         label: "Cancelled",
     },
     reschedule_requested: {
-        bg: "bg-amber-100 dark:bg-amber-900/30",
-        text: "text-amber-800 dark:text-amber-300",
+        bg: "bg-amber-100 ",
+        text: "text-amber-800 ",
         icon: MdUpdate,
         label: "Reschedule Requested",
     },
     finalized: {
-        bg: "bg-slate-100 dark:bg-slate-800/50",
-        text: "text-slate-700 dark:text-slate-300",
+        bg: "bg-slate-100 ",
+        text: "text-slate-700 ",
         icon: MdTaskAlt,
         label: "Finalized",
     },
@@ -68,8 +68,8 @@ const SIZE_CLASSES = {
 
 export default function BookingStatusBadge({ status, size = "sm" }) {
     const config = STATUS_CONFIG[status] || {
-        bg: "bg-slate-100 dark:bg-slate-800",
-        text: "text-slate-600 dark:text-slate-400",
+        bg: "bg-slate-100 ",
+        text: "text-slate-600 ",
         icon: MdPending,
         label: status?.replace(/_/g, " ").toUpperCase() || "Unknown",
     };
