@@ -56,7 +56,7 @@ const securityHeaders = [
     // — img-src: self + Supabase storage + Unsplash + Google Maps static tiles
     //   + data URIs (inline SVGs / base64 images used throughout the app).
     {
-        key: "Content-Security-Policy",
+        key: "Content-Security-Policy-Report-Only",
         value: [
             `default-src ${SELF}`,
             `script-src ${SELF} ${UNSAFE_INLINE} ${STRIPE_JS} ${STRIPE_API} ${STRIPE_NETWORK} ${GOOGLE_RECAPTCHA} ${GOOGLE_GSTATIC} ${GOOGLE_MAPS}`,
