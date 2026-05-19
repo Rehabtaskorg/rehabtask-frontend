@@ -137,7 +137,6 @@ jobs:
               --allow-unauthenticated \
               --no-traffic \
               --cpu-boost \
-              --startup-cpu-boost \
               --timeout=300 \
               --quiet
           else
