@@ -13,6 +13,7 @@ const GOOGLE_RECAPTCHA = "https://www.google.com";
 const GOOGLE_GSTATIC = "https://www.gstatic.com";
 const GOOGLE_MAPS = "https://maps.googleapis.com https://maps.gstatic.com https://*.googleapis.com";
 const UNSPLASH = "https://images.unsplash.com";
+const COUNTRY_FLAGS = "https://purecatamphetamine.github.io";
 
 const securityHeaders = [
     // Force HTTPS for 2 years; include subdomains; allow preload submission.
@@ -60,7 +61,7 @@ const securityHeaders = [
             `default-src ${SELF}`,
             `script-src ${SELF} ${UNSAFE_INLINE} ${STRIPE_JS} ${GOOGLE_RECAPTCHA} ${GOOGLE_GSTATIC} ${GOOGLE_MAPS}`,
             `style-src ${SELF} ${UNSAFE_INLINE} ${GOOGLE_GSTATIC}`,
-            `img-src ${SELF} data: blob: ${SUPABASE} ${UNSPLASH} ${GOOGLE_MAPS} ${GOOGLE_GSTATIC}`,
+            `img-src ${SELF} data: blob: ${SUPABASE} ${UNSPLASH} ${GOOGLE_MAPS} ${GOOGLE_GSTATIC} ${COUNTRY_FLAGS}`,
             `font-src ${SELF} ${GOOGLE_GSTATIC}`,
             `connect-src ${SELF} ${SUPABASE} ${STRIPE_API} ${GOOGLE_MAPS} ${GOOGLE_RECAPTCHA} wss://*.rehabtask.com`,
             `frame-src ${SELF} ${STRIPE_JS} ${STRIPE_API} ${STRIPE_NETWORK} ${GOOGLE_RECAPTCHA}`,
