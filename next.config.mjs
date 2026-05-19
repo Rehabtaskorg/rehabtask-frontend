@@ -63,7 +63,7 @@ const securityHeaders = [
             `style-src ${SELF} ${UNSAFE_INLINE} ${GOOGLE_GSTATIC}`,
             `img-src ${SELF} data: blob: ${SUPABASE} ${UNSPLASH} ${GOOGLE_MAPS} ${GOOGLE_GSTATIC} ${COUNTRY_FLAGS}`,
             `font-src ${SELF} ${GOOGLE_GSTATIC}`,
-            `connect-src ${SELF} ${SUPABASE} ${STRIPE_API} ${GOOGLE_MAPS} ${GOOGLE_RECAPTCHA} wss://*.rehabtask.com`,
+            `connect-src ${SELF} ${SUPABASE} ${STRIPE_API} ${GOOGLE_MAPS} ${GOOGLE_RECAPTCHA} https://*.rehabtask.com wss://*.rehabtask.com`,
             `frame-src ${SELF} ${STRIPE_JS} ${STRIPE_API} ${STRIPE_NETWORK} ${GOOGLE_RECAPTCHA}`,
             `worker-src blob:`,
             `object-src ${NONE}`,
