@@ -61,8 +61,8 @@ function TherapistRequestsContent() {
     const [loading, setLoading] = useState(true);
     const [currentPage, setCurrentPage] = useState(1);
     const [sortBy, setSortBy] = useState("newest");
-    const [filters, setFilters] = useState({ serviceTypes: [], distance: "10", show: "all" });
-    const [committedFilters, setCommittedFilters] = useState({ serviceTypes: [], distance: "10", show: "all" });
+    const [filters, setFilters] = useState({ serviceTypes: [], show: "all" });
+    const [committedFilters, setCommittedFilters] = useState({ serviceTypes: [], show: "all" });
     const [showFilters, setShowFilters] = useState(false);
     const profileAttemptedRate = user?.profile?.attemptedVisitRate != null
         ? parseFloat(user.profile.attemptedVisitRate).toFixed(2) : '';
@@ -137,7 +137,7 @@ function TherapistRequestsContent() {
     };
 
     const resetFilters = () => {
-        const reset = { serviceTypes: [], distance: "10", show: "all" };
+        const reset = { serviceTypes: [], show: "all" };
         setFilters(reset);
         setCommittedFilters(reset);
         setCurrentPage(1);
@@ -273,7 +273,6 @@ function TherapistRequestsContent() {
                 filters={filters}
                 onToggleServiceType={toggleServiceType}
                 onSetShow={(val) => setFilters((prev) => ({ ...prev, show: val }))}
-                onSetDistance={(val) => setFilters((prev) => ({ ...prev, distance: val }))}
                 onApply={applyFilters}
                 onReset={resetFilters}
             />
@@ -294,7 +293,6 @@ function TherapistRequestsContent() {
                             className="text-sm border-none bg-transparent font-semibold text-primary focus:ring-0 cursor-pointer"
                         >
                             <option value="newest">Newest First</option>
-                            <option value="distance">Distance</option>
                         </select>
                         <FilterToggleButton onClick={() => setShowFilters(true)} activeCount={activeFilterCount} />
                     </div>
@@ -333,7 +331,14 @@ function TherapistRequestsContent() {
                                                 }`}
                                             >
                                                 <div className="flex justify-between items-start mb-2">
-                                                    <span className={`px-2.5 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider ${getServiceTypeStyle(req.serviceType)}`}>{req.serviceType}</span>
+                                                    <div className="flex flex-wrap items-center gap-1.5">
+                                                        <span className={`px-2.5 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider ${getServiceTypeStyle(req.serviceType)}`}>{req.serviceType}</span>
+                                                        {req.requestType === "DIRECT" && (
+                                                            <span className="px-2.5 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300">
+                                                                Direct
+                                                            </span>
+                                                        )}
+                                                    </div>
                                                     <span className="text-[11px] text-text-muted dark:text-gray-400 font-medium shrink-0 ml-2">{timeAgo(req.createdAt)}</span>
                                                 </div>
                                                 <h4 className="font-bold text-text-main dark:text-white mb-1 leading-tight line-clamp-1">{req.description?.split("\n")[0] || req.serviceType}</h4>

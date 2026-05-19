@@ -4,7 +4,6 @@ import { useCallback, useMemo, useRef, useState } from "react";
 import { APIProvider } from "@vis.gl/react-google-maps";
 import { useTherapistSearch } from "@/hooks/useTherapistSearch";
 import { usePageTitle } from "@/hooks/usePageTitle";
-import { DEFAULT_SERVICE_RADIUS_MILES } from "@/lib/constants";
 import { aggregatePinsByLocation } from "@/lib/mapPinAggregation";
 import FindTherapistsHeader from "@/components/customer/find-therapists/FindTherapistsHeader";
 import FindTherapistsPillsRow from "@/components/customer/find-therapists/FindTherapistsPillsRow";
@@ -23,6 +22,7 @@ function mapTherapist(t) {
     const location = firstArea ? `${firstArea.city}, ${firstArea.state}` : "Location not specified";
     return {
         id: t.id,
+        userId: t.userId,
         fullName: t.fullName || "",
         licenseType: t.primaryLicenseType || "",
         experience: t.yearsOfExperience || 0,
@@ -43,6 +43,7 @@ function buildMapPins(rawTherapists) {
             pins.push({
                 id: `${t.id}__${area.city}_${area.state}_${area.latitude}_${area.longitude}`,
                 therapistId: t.id,
+                userId: t.userId,
                 fullName: t.fullName || "",
                 rate: t.ratePerVisit ? parseFloat(t.ratePerVisit) : 0,
                 photoUrl: t.profilePhotoUrl || null,
@@ -69,9 +70,6 @@ function FindTherapistsContent() {
 
     const [activeDiscipline, setActiveDiscipline] = useState("all");
 
-    const [radiusMiles, setRadiusMiles] = useState(DEFAULT_SERVICE_RADIUS_MILES);
-    const [committedRadius, setCommittedRadius] = useState(DEFAULT_SERVICE_RADIUS_MILES);
-
     const [sortBy, setSortBy] = useState("relevance");
     const [currentPage, setCurrentPage] = useState(1);
 
@@ -89,11 +87,6 @@ function FindTherapistsContent() {
         setCurrentPage(1);
     }, [licenseType]);
 
-    const handleApplyFilters = useCallback(() => {
-        setCommittedRadius(radiusMiles);
-        setCurrentPage(1);
-    }, [radiusMiles]);
-
     const handleClearFilters = useCallback(() => {
         setLicenseType("");
         setLocationInput("");
@@ -101,8 +94,6 @@ function FindTherapistsContent() {
         setCommittedLicenseType("");
         setCommittedCoords(null);
         setActiveDiscipline("all");
-        setRadiusMiles(DEFAULT_SERVICE_RADIUS_MILES);
-        setCommittedRadius(DEFAULT_SERVICE_RADIUS_MILES);
         setSortBy("relevance");
         setCurrentPage(1);
     }, []);
@@ -117,7 +108,6 @@ function FindTherapistsContent() {
         if (committedCoords) {
             params.latitude = committedCoords.latitude;
             params.longitude = committedCoords.longitude;
-            params.radiusMiles = committedRadius;
         }
         // License type selector takes precedence; discipline pill is a fallback
         if (committedLicenseType) {
@@ -129,7 +119,7 @@ function FindTherapistsContent() {
             params.sortBy = sortBy;
         }
         return params;
-    }, [committedLicenseType, committedCoords, committedRadius, activeDiscipline, sortBy, currentPage]);
+    }, [committedLicenseType, committedCoords, activeDiscipline, sortBy, currentPage]);
 
     const { therapists: rawTherapists, pagination, loading } = useTherapistSearch(searchParams);
 
@@ -143,7 +133,6 @@ function FindTherapistsContent() {
         !!committedLicenseType ||
         !!committedCoords ||
         activeDiscipline !== "all" ||
-        committedRadius !== DEFAULT_SERVICE_RADIUS_MILES ||
         sortBy !== "relevance";
 
     return (
@@ -163,9 +152,6 @@ function FindTherapistsContent() {
             <FindTherapistsPillsRow
                 activeDiscipline={activeDiscipline}
                 setActiveDiscipline={handleDisciplineChange}
-                radiusMiles={radiusMiles}
-                onRadiusChange={setRadiusMiles}
-                onApplyFilters={handleApplyFilters}
                 sortBy={sortBy}
                 onSortChange={(v) => { setSortBy(v); setCurrentPage(1); }}
             />

@@ -2,8 +2,9 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { MdMenu, MdClose } from "react-icons/md";
-import LocationAutocomplete from "./LocationAutocomplete";
+import LocationAutocomplete from "@/components/maps/LocationAutocomplete";
 import LicenseTypeAutocomplete from "./LicenseTypeAutocomplete";
 
 const MENU_ITEMS = [
@@ -76,8 +77,15 @@ export default function TherapistAppNavbar({
         <nav className="relative md:fixed md:top-0 md:left-0 md:right-0 z-40 bg-white border-b border-gray-200 shadow-sm">
             <div className="max-w-400 mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex items-center gap-3 md:gap-6 py-3">
-                    <Link href="/" className="text-lg md:text-xl font-bold text-primary shrink-0">
-                        RehabTask
+                    <Link href="/" className="flex items-center shrink-0">
+                        <Image
+                            src="/images/logo/rehabtask_horizontal.png"
+                            alt="RehabTask"
+                            height={32}
+                            width={120}
+                            priority
+                            className="h-8 w-auto"
+                        />
                     </Link>
 
                     <form

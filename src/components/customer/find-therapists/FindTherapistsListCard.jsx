@@ -21,7 +21,7 @@ export default function FindTherapistsListCard({
 
     const handleMessage = (e) => {
         e.stopPropagation();
-        router.push(`/customer/messages?with=${therapist.id}`);
+        router.push(`/customer/messages?c=new:${therapist.userId}`);
     };
 
     const handleViewProfile = (e) => {

@@ -126,8 +126,11 @@ export default function SharedFiles({ conversationId, onViewAll, bookingId }) {
     );
 }
 
+/* eslint-disable @next/next/no-img-element */
 /**
- * Small image thumbnail for the sidebar — lazy loads signed URL
+ * Small image thumbnail for the sidebar — lazy loads signed URL.
+ * Uses <img> instead of next/image because src is a runtime signed URL
+ * with an expiring token — next/image requires a static, configurable hostname.
  */
 function ImageThumb({ attachmentId, fileName }) {
     const [src, setSrc] = useState(null);

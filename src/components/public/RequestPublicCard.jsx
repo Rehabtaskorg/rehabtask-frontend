@@ -33,7 +33,7 @@ export default function RequestPublicCard({ request, index = 0, onAuthGate }) {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.4, delay: index * 0.06 }}
-            className="bg-white border border-gray-200 rounded-xl p-6 hover:border-[#137fec]/30 hover:shadow-md transition-all"
+            className="bg-white border border-gray-200 rounded-xl p-6 hover:border-primary/30 hover:shadow-md transition-all"
         >
             {/* Top row */}
             <div className="flex justify-between items-start mb-3">
@@ -96,7 +96,7 @@ export default function RequestPublicCard({ request, index = 0, onAuthGate }) {
                 <div className="flex items-center gap-2">
                     <button
                         onClick={() => onAuthGate("offer")}
-                        className="flex items-center gap-1.5 bg-[#137fec] text-white font-semibold text-xs px-5 py-2.5 rounded-lg hover:bg-[#137fec]/90 transition-colors"
+                        className="flex items-center gap-1.5 bg-primary text-white font-semibold text-xs px-5 py-2.5 rounded-lg hover:bg-primary/90 transition-colors"
                     >
                         <MdLock className="text-xs" /> Send Offer
                     </button>

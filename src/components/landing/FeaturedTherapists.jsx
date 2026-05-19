@@ -43,9 +43,8 @@ export default async function FeaturedTherapists() {
         <section className="py-20 bg-gray-50">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <FadeIn className="text-center mb-14">
-                    <p className="text-sm font-semibold text-primary uppercase tracking-wider">Featured</p>
-                    <h2 className="mt-2 text-3xl md:text-4xl font-bold text-gray-900">Top rated therapists</h2>
-                    <p className="mt-3 text-gray-500">Work with the most trusted rehabilitation professionals</p>
+                    <h2 className="mt-2 text-3xl md:text-4xl font-bold" style={{ color: "#2EC4B6" }}>Available Therapists, right now</h2>
+                    <p className="mt-3 text-gray-500">Browse verified professionals ready to take cases</p>
                 </FadeIn>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

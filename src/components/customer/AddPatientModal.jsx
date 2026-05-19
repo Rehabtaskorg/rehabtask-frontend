@@ -4,15 +4,26 @@ import { useState } from "react";
 import { MdClose, MdPerson, MdCheck } from "react-icons/md";
 import { APIProvider, Map, AdvancedMarker } from "@vis.gl/react-google-maps";
 import { useCreatePatient } from "@/hooks/usePatients";
-import AddressAutocomplete from "@/components/maps/AddressAutocomplete";
+import LocationAutocomplete from "@/components/maps/LocationAutocomplete";
 
 const inputBase =
     "w-full bg-background-light dark:bg-background-dark border border-border-light dark:border-border-dark rounded-lg px-4 py-2.5 text-sm text-text-main dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all";
 
+/**
+ * Modal for creating a new patient under an agency account.
+ * Includes address autocomplete with map preview, and optional email/phone fields.
+ *
+ * @param {Object} props
+ * @param {boolean} props.isOpen
+ * @param {Function} props.onClose
+ * @param {Function} [props.onSuccess] - Called after successful creation
+ */
 export default function AddPatientModal({ isOpen, onClose, onSuccess }) {
     const createPatient = useCreatePatient();
 
     const [fullName, setFullName] = useState("");
+    const [dateOfBirth, setDateOfBirth] = useState("");
+    const [certificationExpiry, setCertificationExpiry] = useState("");
     const [email, setEmail] = useState("");
     const [phone, setPhone] = useState("");
     const [addressText, setAddressText] = useState("");
@@ -31,6 +42,8 @@ export default function AddPatientModal({ isOpen, onClose, onSuccess }) {
 
     const resetForm = () => {
         setFullName("");
+        setDateOfBirth("");
+        setCertificationExpiry("");
         setEmail("");
         setPhone("");
         setAddressText("");
@@ -52,6 +65,10 @@ export default function AddPatientModal({ isOpen, onClose, onSuccess }) {
         setZipCode(result.zipCode || "");
         setLatitude(result.latitude);
         setLongitude(result.longitude);
+        setErrors((prev) => {
+            const { address, city, state, zipCode, ...rest } = prev;
+            return rest;
+        });
     };
 
     const handleAddressChange = (text) => {
@@ -69,6 +86,8 @@ export default function AddPatientModal({ isOpen, onClose, onSuccess }) {
     const validate = () => {
         const newErrors = {};
         if (!fullName.trim()) newErrors.fullName = "Full name is required";
+        if (!dateOfBirth) newErrors.dateOfBirth = "Date of birth is required";
+        if (!certificationExpiry) newErrors.certificationExpiry = "Certification period is required";
         if (!addressLine1.trim()) newErrors.address = "Please select an address from the dropdown";
         if (!city.trim()) newErrors.city = "City is required";
         if (!state.trim()) newErrors.state = "State is required";
@@ -89,6 +108,8 @@ export default function AddPatientModal({ isOpen, onClose, onSuccess }) {
         try {
             await createPatient.mutateAsync({
                 fullName: fullName.trim(),
+                dateOfBirth,
+                certificationExpiry,
                 email: email.trim() || undefined,
                 phone: phone.trim() || undefined,
                 addressLine1: addressLine1.trim(),
@@ -105,7 +126,7 @@ export default function AddPatientModal({ isOpen, onClose, onSuccess }) {
             if (data?.errors && Array.isArray(data.errors)) {
                 const fieldErrors = {};
                 for (const e of data.errors) {
-                    const field = e.path?.[0];
+                    const field = e.field || e.path?.[0];
                     if (field) fieldErrors[field] = e.message;
                     else fieldErrors.form = e.message;
                 }
@@ -208,16 +229,54 @@ export default function AddPatientModal({ isOpen, onClose, onSuccess }) {
                             {errors.fullName && <p className="text-xs text-red-500 mt-1">{errors.fullName}</p>}
                         </div>
 
+                        {/* Date of Birth + Certification Period */}
+                        <div className="flex gap-3">
+                            <div className="flex-1">
+                                <label className="block text-sm font-medium text-text-main dark:text-white mb-1.5">
+                                    Date of Birth <span className="text-red-500">*</span>
+                                </label>
+                                <input
+                                    type="date"
+                                    value={dateOfBirth}
+                                    onChange={(e) => {
+                                        setDateOfBirth(e.target.value);
+                                        if (e.target.value) setErrors((prev) => { const { dateOfBirth: _, ...rest } = prev; return rest; });
+                                    }}
+                                    max={new Date().toISOString().split("T")[0]}
+                                    className={fieldClass(errors.dateOfBirth)}
+                                />
+                                {errors.dateOfBirth && <p className="text-xs text-red-500 mt-1">{errors.dateOfBirth}</p>}
+                            </div>
+                            <div className="flex-1">
+                                <label className="block text-sm font-medium text-text-main dark:text-white mb-1.5">
+                                    Certification Period <span className="text-red-500">*</span>
+                                </label>
+                                <input
+                                    type="date"
+                                    value={certificationExpiry}
+                                    onChange={(e) => {
+                                        setCertificationExpiry(e.target.value);
+                                        if (e.target.value) setErrors((prev) => { const { certificationExpiry: _, ...rest } = prev; return rest; });
+                                    }}
+                                    className={fieldClass(errors.certificationExpiry)}
+                                />
+                                {errors.certificationExpiry && <p className="text-xs text-red-500 mt-1">{errors.certificationExpiry}</p>}
+                            </div>
+                        </div>
+
                         {/* Address Autocomplete */}
                         <div>
-                            <AddressAutocomplete
+                            <LocationAutocomplete
+                                variant="form"
                                 value={addressText}
                                 onChange={handleAddressChange}
                                 onSelect={handleAddressSelect}
+                                onClear={() => handleAddressChange("")}
                                 label="Address"
-                                placeholder="Start typing an address..."
+                                placeholder="e.g. Miami, FL or 123 Main St, Houston, TX"
                                 required
                                 error={errors.address}
+                                helperText={hasLocation ? null : "Enter a city or full address"}
                             />
                         </div>
 

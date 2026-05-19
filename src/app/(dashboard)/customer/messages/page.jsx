@@ -11,6 +11,7 @@ import SharedFiles from "@/components/shared/messages/SharedFiles";
 import AttachmentsModal from "@/components/shared/messages/AttachmentsModal";
 import UserAvatar from "@/components/ui/UserAvatar";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import { MdSend } from "react-icons/md";
 
 function CustomerRightSidebar({ selectedConversation }) {
     // Use the conversationId (always a DirectConversation) for API context resolution
@@ -35,7 +36,7 @@ function CustomerRightSidebar({ selectedConversation }) {
     if (contextLoading && !otherUser) return <RightSidebarSkeleton />;
 
     return (
-        <div className="flex flex-col h-full">
+        <div className="flex flex-col">
             <div className="flex flex-col items-center text-center gap-3">
                 <UserAvatar
                     name={name}
@@ -94,6 +95,20 @@ function CustomerRightSidebar({ selectedConversation }) {
                     <p className="text-text-main dark:text-white text-sm">Request Conversation</p>
                 )}
             </div>
+
+            {/* Direct request CTA — shown on all conversation types with a known therapist */}
+            {otherUser?.role === 'therapist' && (otherUser?.therapistProfile?.id || otherUser?.id) && (
+                <div className="mt-4 space-y-2">
+                    <p className="text-text-muted dark:text-gray-400 text-[10px] font-bold uppercase tracking-widest">Actions</p>
+                    <Link
+                        href={`/customer/requests/new?directTo=${otherUser.therapistProfile?.id || otherUser.id}`}
+                        className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-primary text-white text-sm font-bold hover:bg-primary/90 transition-colors"
+                    >
+                        <MdSend className="text-base" />
+                        Create Direct Request
+                    </Link>
+                </div>
+            )}
 
             {displayContextType === 'booking' && (() => {
                 const bookingStatus = selectedConversation?.currentContext?.data?.status;
@@ -157,7 +172,7 @@ export default function CustomerMessagesPage() {
     ) : null;
 
     return (
-        <div className="flex h-[calc(100vh-4rem)] lg:h-[calc(100vh-2rem)] min-h-125 rounded-xl border border-border-light dark:border-border-dark overflow-hidden shadow-sm">
+        <div className="flex h-[calc(100vh-4rem)] lg:h-[calc(100vh-112px)] min-h-125 rounded-xl border border-border-light dark:border-border-dark overflow-hidden shadow-sm">
             {/* Left Panel */}
             <aside className={`w-full md:w-80 shrink-0 flex flex-col border-r border-border-light dark:border-border-dark bg-background-light/30 dark:bg-background-dark/50 ${mobileView === 'chat' ? 'hidden md:flex' : 'flex'}`}>
                 <ConversationList
@@ -186,8 +201,12 @@ export default function CustomerMessagesPage() {
             </section>
 
             {/* Right Panel */}
-            <aside className={`hidden lg:flex w-72 shrink-0 flex-col border-l border-border-light dark:border-border-dark bg-background-light/30 dark:bg-background-dark/50 p-6 ${selectedConversation ? '' : 'lg:hidden'}`}>
-                {selectedConversation && <CustomerRightSidebar selectedConversation={selectedConversation} />}
+            <aside className={`hidden lg:flex w-72 shrink-0 flex-col border-l border-border-light dark:border-border-dark bg-background-light/30 dark:bg-background-dark/50 overflow-y-auto ${selectedConversation ? '' : 'lg:hidden'}`}>
+                {selectedConversation && (
+                    <div className="p-6">
+                        <CustomerRightSidebar selectedConversation={selectedConversation} />
+                    </div>
+                )}
             </aside>
         </div>
     );

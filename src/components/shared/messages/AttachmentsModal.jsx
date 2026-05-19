@@ -245,8 +245,11 @@ export default function AttachmentsModal({ isOpen, onClose, conversationId, book
     );
 }
 
+/* eslint-disable @next/next/no-img-element */
 /**
- * Image grid item for the modal — 3-column square thumbnails
+ * Image grid item for the modal — 3-column square thumbnails.
+ * Uses <img> instead of next/image because src is a runtime signed URL
+ * with an expiring token — next/image requires a static, configurable hostname.
  */
 function ImageGridItem({ attachment, onOpen, isLoading }) {
     const [src, setSrc] = useState(null);

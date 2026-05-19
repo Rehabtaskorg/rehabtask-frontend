@@ -46,9 +46,12 @@ export default function PayoutSetupPage() {
         if (connectStatus === undefined) return;
 
         /* eslint-disable react-hooks/set-state-in-effect */
-        if (connectStatus?.connected && connectStatus?.onboardingComplete) {
+        if (connectStatus?.connected && connectStatus?.onboardingComplete && !connectStatus?.hasUpcomingRequirements && !connectStatus?.currentlyDueCount && !connectStatus?.pastDueCount) {
             setStatus(STATUS.COMPLETE);
         } else if (connectStatus?.connected) {
+            // Show the embedded onboarding component when there are any requirements
+            // (past_due, currently_due, or upcoming eventually_due) — the component
+            // surfaces exactly what Stripe needs with collectionOptions: eventually_due.
             setStatus(STATUS.ONBOARDING);
         } else {
             setStatus(STATUS.IDLE);
@@ -272,6 +275,10 @@ export default function PayoutSetupPage() {
                                             onExit={handleOnboardingExit}
                                             onLoadError={handleStripeLoadError}
                                             onLoaderStart={handleEmbeddedFormStart}
+                                            collectionOptions={{
+                                                fields: 'eventually_due',
+                                                futureRequirements: 'include',
+                                            }}
                                         />
                                     </StripeConnectProvider>
                                 </div>

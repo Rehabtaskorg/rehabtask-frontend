@@ -5,10 +5,10 @@ export function getStripeAppearance() {
     return {
         theme: isDark ? "night" : "stripe",
         variables: {
-            colorPrimary: "#137fec",
-            colorBackground: isDark ? "#1a2633" : "#ffffff",
-            colorText: isDark ? "#ffffff" : "#111418",
-            colorTextSecondary: isDark ? "#94a3b8" : "#617589",
+            colorPrimary: isDark ? "#2EC4B6" : "#0A2540",
+            colorBackground: isDark ? "#0D1E35" : "#FFFFFF",
+            colorText: isDark ? "#F0F4F8" : "#1A1A1A",
+            colorTextSecondary: isDark ? "#94A3B8" : "#6B7280",
             colorDanger: isDark ? "#f87171" : "#ef4444",
             fontFamily: "Inter, system-ui, sans-serif",
             borderRadius: "8px",
@@ -16,25 +16,25 @@ export function getStripeAppearance() {
         },
         rules: {
             ".Input": {
-                border: isDark ? "1px solid #2d3748" : "1px solid #e5e7eb",
+                border: isDark ? "1px solid #1E3A5F" : "1px solid #E2E8F0",
                 boxShadow: "none",
-                backgroundColor: isDark ? "#101922" : "#ffffff",
+                backgroundColor: isDark ? "#0D1B2E" : "#FFFFFF",
             },
             ".Input:focus": {
-                border: "1px solid #137fec",
-                boxShadow: "0 0 0 2px rgba(19, 127, 236, 0.2)",
+                border: "1px solid #0A2540",
+                boxShadow: "0 0 0 2px rgba(10, 37, 64, 0.2)",
             },
             ".Label": {
-                color: isDark ? "#94a3b8" : "#617589",
+                color: isDark ? "#94a3b8" : "#6B7280",
                 fontWeight: "500",
             },
             ".Tab": {
-                border: isDark ? "1px solid #2d3748" : "1px solid #e5e7eb",
-                backgroundColor: isDark ? "#1a2633" : "#ffffff",
+                border: isDark ? "1px solid #1E3A5F" : "1px solid #E2E8F0",
+                backgroundColor: isDark ? "#112240" : "#FFFFFF",
             },
             ".Tab--selected": {
-                borderColor: "#137fec",
-                backgroundColor: isDark ? "#101922" : "#f0f7ff",
+                borderColor: "#0A2540",
+                backgroundColor: isDark ? "#0D1B2E" : "#F5F7FA",
             },
         },
     };

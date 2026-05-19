@@ -25,6 +25,7 @@ import RequestRevisionModal from "@/components/shared/sessions/RequestRevisionMo
 import MarkSessionMissedModal from "@/components/shared/sessions/MarkSessionMissedModal";
 import RevisionStatusBanner from "@/components/shared/sessions/RevisionStatusBanner";
 import PatientInfoBlock from "@/components/customer/PatientInfoBlock";
+import ConfirmModal from "@/components/ui/ConfirmModal";
 
 export default function CustomerBookingDetailPage() {
     usePageTitle("Booking Details");
@@ -43,6 +44,7 @@ export default function CustomerBookingDetailPage() {
     const [refunding, setRefunding] = useState(false);
     const [showPaymentBanner, setShowPaymentBanner] = useState(false);
     const [rescheduleResponding, setRescheduleResponding] = useState(null);
+    const [rescheduleConfirm, setRescheduleConfirm] = useState(null);
     const [actionError, setActionError] = useState(null);
     const [awaitingPaymentUpdate, setAwaitingPaymentUpdate] = useState(false);
 
@@ -327,14 +329,14 @@ export default function CustomerBookingDetailPage() {
                                 </div>
                                 <div className="flex items-center gap-2 ml-8">
                                     <button
-                                        onClick={() => handleRescheduleResponse(true)}
+                                        onClick={() => setRescheduleConfirm("accept")}
                                         disabled={!!rescheduleResponding}
                                         className="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold rounded-lg transition-colors disabled:opacity-50"
                                     >
                                         {rescheduleResponding === "accept" ? "Accepting..." : "Accept"}
                                     </button>
                                     <button
-                                        onClick={() => handleRescheduleResponse(false)}
+                                        onClick={() => setRescheduleConfirm("decline")}
                                         disabled={!!rescheduleResponding}
                                         className="px-4 py-2 border border-red-300 dark:border-red-700 text-red-600 dark:text-red-400 text-xs font-bold rounded-lg hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors disabled:opacity-50"
                                     >
@@ -522,6 +524,29 @@ export default function CustomerBookingDetailPage() {
                     <BookingEscrowInfo booking={booking} payment={payment} />
                 </div>
             </div>
+
+            <ConfirmModal
+                isOpen={!!rescheduleConfirm}
+                onClose={() => { if (!rescheduleResponding) setRescheduleConfirm(null); }}
+                onConfirm={() => {
+                    const isAccept = rescheduleConfirm === "accept";
+                    setRescheduleConfirm(null);
+                    handleRescheduleResponse(isAccept);
+                }}
+                title={rescheduleConfirm === "accept" ? "Accept Reschedule" : "Decline Reschedule"}
+                message={
+                    rescheduleConfirm === "accept"
+                        ? "The session will be moved to the new proposed date. The therapist will be notified."
+                        : "The session will stay at its original date. The therapist will be notified."
+                }
+                confirmLabel={rescheduleConfirm === "accept" ? "Accept" : "Decline"}
+                confirmClassName={
+                    rescheduleConfirm === "accept"
+                        ? "bg-emerald-600 hover:bg-emerald-700 text-white"
+                        : "bg-red-600 hover:bg-red-700 text-white"
+                }
+                loading={!!rescheduleResponding}
+            />
 
             <RequestRevisionModal
                 isOpen={showRevisionModal}

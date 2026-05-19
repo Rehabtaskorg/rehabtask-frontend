@@ -4,7 +4,7 @@ import { useState } from "react";
 import { MdLocationOn, MdCheck } from "react-icons/md";
 import { Map, AdvancedMarker } from "@vis.gl/react-google-maps";
 import useRequestStore from "@/store/requestStore";
-import AddressAutocomplete from "@/components/maps/AddressAutocomplete";
+import LocationAutocomplete from "@/components/maps/LocationAutocomplete";
 
 const DEFAULT_CENTER = { lat: 39.8283, lng: -98.5795 };
 const DEFAULT_ZOOM = 4;
@@ -26,10 +26,14 @@ export default function Step2Location() {
 
     const handleChange = (text) => {
         setAddressText(text);
-        // Clear stored location when user types (selection cleared)
         if (step2.latitude !== null) {
             setStep2({ address: "", latitude: null, longitude: null });
         }
+    };
+
+    const handleClear = () => {
+        setAddressText("");
+        setStep2({ address: "", latitude: null, longitude: null });
     };
 
     const hasLocation = step2.latitude !== null && step2.longitude !== null;
@@ -43,17 +47,18 @@ export default function Step2Location() {
                 Step 2: Location
             </h3>
 
-            {/* Address Input */}
-            <AddressAutocomplete
+            <LocationAutocomplete
+                variant="form"
+                label="Service Address"
+                required
+                placeholder="e.g. Miami, FL or 123 Main St, Houston, TX"
                 value={addressText}
                 onChange={handleChange}
                 onSelect={handleSelect}
-                label="Service Address"
-                placeholder="e.g. 123 Main St, Los Angeles, CA"
-                required
+                onClear={handleClear}
+                helperText={hasLocation ? null : "Enter a city or full address where you need therapy"}
             />
 
-            {/* Resolved location badge */}
             {hasLocation && step2.address && (
                 <div className="flex items-center gap-2 bg-primary/5 border border-primary/20 rounded-lg px-3 py-2">
                     <MdLocationOn className="text-primary shrink-0" />
@@ -69,7 +74,6 @@ export default function Step2Location() {
                 </div>
             )}
 
-            {/* Map Preview */}
             <div>
                 <div className="flex items-center justify-between mb-2">
                     <label className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">

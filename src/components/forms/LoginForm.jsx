@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { MdLogin } from "react-icons/md";
+import Image from "next/image";
 import { FaGoogle } from "react-icons/fa";
 import Input from "@/components/ui/Input";
 import PasswordInput from "@/components/ui/PasswordInput";
@@ -52,22 +53,24 @@ const LoginForm = () => {
     };
 
     return (
-        <div className="w-full max-w-120 bg-white dark:bg-[#1a2632] shadow-xl rounded-xl overflow-hidden border border-border-subtle dark:border-[#2d3a4a]">
+        <div className="w-full max-w-120 bg-white dark:bg-card-dark shadow-xl rounded-xl overflow-hidden border border-border-subtle dark:border-border-dark">
             {/* Card Header/Branding */}
             <div className="px-8 pt-8 pb-4">
-                <div className="flex items-center gap-2 mb-6">
-                    <div className="bg-primary p-2 rounded-lg">
-                        <MdLogin className="text-white text-2xl" />
-                    </div>
-                    <span className="text-2xl font-black text-text-main dark:text-white tracking-tight">
-                        RehabTask
-                    </span>
+                <div className="mb-6">
+                    <Image
+                        src="/images/logo/rehabtask_horizontal.png"
+                        alt="RehabTask"
+                        width={160}
+                        height={49}
+                        className="h-10 w-auto"
+                        priority
+                    />
                 </div>
                 <div className="flex flex-col gap-1">
                     <h1 className="text-2xl font-bold text-text-main dark:text-white">
                         Welcome back
                     </h1>
-                    <p className="text-text-muted dark:text-[#a1b0c0] text-sm">
+                    <p className="text-text-muted dark:text-text-muted text-sm">
                         Please enter your details to sign in to your account.
                     </p>
                 </div>
@@ -149,10 +152,10 @@ const LoginForm = () => {
                 {/* Separator */}
                 <div className="relative py-4">
                     <div className="absolute inset-0 flex items-center">
-                        <div className="w-full border-t border-border-subtle dark:border-[#2d3a4a]" />
+                        <div className="w-full border-t border-border-subtle dark:border-border-dark" />
                     </div>
                     <div className="relative flex justify-center text-xs uppercase">
-                        <span className="bg-white dark:bg-[#1a2632] px-2 text-text-muted font-medium">
+                        <span className="bg-white dark:bg-card-dark px-2 text-text-muted font-medium">
                             Or continue with
                         </span>
                     </div>
@@ -163,7 +166,7 @@ const LoginForm = () => {
                     type="button"
                     onClick={handleGoogleLogin}
                     disabled={isSubmitting || googleLoading}
-                    className="w-full flex items-center justify-center gap-2 px-4 py-3 border border-border-subtle dark:border-[#2d3a4a] rounded-lg hover:bg-gray-50 dark:hover:bg-background-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full flex items-center justify-center gap-2 px-4 py-3 border border-border-subtle dark:border-border-dark rounded-lg hover:bg-gray-50 dark:hover:bg-background-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                     {googleLoading ? (
                         <>
@@ -203,8 +206,8 @@ const LoginForm = () => {
             </form>
 
             {/* Card Footer */}
-            <div className="px-8 py-6 bg-gray-50 dark:bg-background-dark/50 text-center border-t border-border-subtle dark:border-[#2d3a4a]">
-                <p className="text-sm text-text-muted dark:text-[#a1b0c0] mb-2">
+            <div className="px-8 py-6 bg-gray-50 dark:bg-background-dark/50 text-center border-t border-border-subtle dark:border-border-dark">
+                <p className="text-sm text-text-muted dark:text-text-muted mb-2">
                     Don&apos;t have an account?
                 </p>
                 <div className="flex items-center justify-center gap-4">

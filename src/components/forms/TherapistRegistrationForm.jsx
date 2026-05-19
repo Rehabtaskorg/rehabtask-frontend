@@ -45,9 +45,9 @@ const TherapistRegistrationForm = () => {
     };
 
     return (
-        <div className="max-w-160 mx-auto bg-white dark:bg-background-dark rounded-xl shadow-sm border border-border-subtle dark:border-[#2a3038] overflow-hidden">
+        <div className="max-w-160 mx-auto bg-white dark:bg-background-dark rounded-xl shadow-sm border border-border-subtle dark:border-border-dark overflow-hidden">
             {/* Form Header */}
-            <div className="p-8 border-b border-border-subtle dark:border-[#2a3038]">
+            <div className="p-8 border-b border-border-subtle dark:border-border-dark">
                 <h2 className="text-3xl font-black leading-tight tracking-tight dark:text-white">
                     Create your professional profile
                 </h2>
@@ -155,11 +155,11 @@ const TherapistRegistrationForm = () => {
 
                 {/* Divider */}
                 <div className="relative flex py-5 items-center">
-                    <div className="grow border-t border-border-subtle dark:border-[#2a3038]" />
+                    <div className="grow border-t border-border-subtle dark:border-border-dark" />
                     <span className="mx-4 text-xs uppercase font-bold text-text-muted">
                         Or continue with
                     </span>
-                    <div className="grow border-t border-border-subtle dark:border-[#2a3038]" />
+                    <div className="grow border-t border-border-subtle dark:border-border-dark" />
                 </div>
 
                 {/* Google Signup */}
@@ -167,7 +167,7 @@ const TherapistRegistrationForm = () => {
                     type="button"
                     onClick={handleGoogleSignup}
                     disabled={googleLoading || isSubmitting}
-                    className="w-full flex items-center justify-center gap-2 py-3 border border-border-subtle dark:border-[#2a3038] rounded-xl hover:bg-gray-50 dark:hover:bg-background-dark transition-colors disabled:opacity-50"
+                    className="w-full flex items-center justify-center gap-2 py-3 border border-border-subtle dark:border-border-dark rounded-xl hover:bg-gray-50 dark:hover:bg-background-dark transition-colors disabled:opacity-50"
                 >
                     {googleLoading ? (
                         <>

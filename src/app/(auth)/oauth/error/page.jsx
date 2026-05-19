@@ -16,7 +16,7 @@ function OAuthErrorContent() {
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-background-dark p-4">
-            <div className="w-full max-w-md bg-white dark:bg-[#1a2632] shadow-xl rounded-xl overflow-hidden border border-border-subtle dark:border-[#2d3a4a]">
+            <div className="w-full max-w-md bg-white dark:bg-card-dark shadow-xl rounded-xl overflow-hidden border border-border-subtle dark:border-border-dark">
                 <div className="px-8 py-12 text-center">
                     <div className="flex justify-center mb-6">
                         <div className="p-4 bg-red-100 dark:bg-red-900/20 rounded-full">
@@ -28,7 +28,7 @@ function OAuthErrorContent() {
                         Authentication Failed
                     </h1>
 
-                    <p className="text-text-muted dark:text-[#a1b0c0] mb-8">
+                    <p className="text-text-muted dark:text-text-muted mb-8">
                         {errorMessage}
                     </p>
 
@@ -39,7 +39,7 @@ function OAuthErrorContent() {
                             </Button>
                         </Link>
 
-                        <p className="text-sm text-text-muted dark:text-[#a1b0c0]">
+                        <p className="text-sm text-text-muted dark:text-text-muted">
                             Need help?{" "}
                             <Link
                                 href="/support"

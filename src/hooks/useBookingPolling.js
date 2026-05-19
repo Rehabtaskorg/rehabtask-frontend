@@ -8,6 +8,7 @@ export function useBookingPolling({ booking, refetch, awaitingPaymentUpdate, set
             const interval = setInterval(refetch, 5000);
             return () => clearInterval(interval);
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [booking?.status, refetch]);
 
     useEffect(() => {
@@ -15,12 +16,13 @@ export function useBookingPolling({ booking, refetch, awaitingPaymentUpdate, set
         const interval = setInterval(refetch, 2000);
         const timeout = setTimeout(() => setAwaitingPaymentUpdate(false), 30000);
         return () => { clearInterval(interval); clearTimeout(timeout); };
-    }, [awaitingPaymentUpdate, refetch]);
+    }, [awaitingPaymentUpdate, refetch, setAwaitingPaymentUpdate]);
 
     useEffect(() => {
         if (awaitingPaymentUpdate && booking && !["pending", "accepted"].includes(booking.status)) {
             setAwaitingPaymentUpdate(false);
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [awaitingPaymentUpdate, booking?.status]);
 }
 
@@ -40,5 +42,6 @@ export function usePaymentRedirect({ params, searchParams, setShowPaymentBanner,
         if (redirectStatus === "failed") {
             window.history.replaceState({}, "", `/customer/bookings/${params.id}`);
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [searchParams, params.id]);
 }

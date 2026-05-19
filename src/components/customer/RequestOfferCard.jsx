@@ -147,11 +147,11 @@ export default function RequestOfferCard({
             {isPending && !isClientExpired && (
                 <div className="flex items-center gap-2 mt-4">
                     <button
-                        onClick={() => onAccept(offer.id)}
+                        onClick={() => onAccept(offer)}
                         disabled={accepting === offer.id}
                         className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white py-2 rounded-lg text-xs font-bold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                        {accepting === offer.id ? "Accepting..." : "Accept Offer"}
+                        {accepting === offer.id ? "Accepting..." : "Accept & Fund Offer"}
                     </button>
                     <button
                         onClick={() => onDecline(offer.id)}

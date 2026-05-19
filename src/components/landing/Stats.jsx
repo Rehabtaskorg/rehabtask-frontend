@@ -34,12 +34,11 @@ export default async function Stats() {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 items-start">
                     <FadeIn>
-                        <p className="text-sm font-semibold text-primary uppercase tracking-wider">Impact</p>
-                        <h2 className="mt-2 text-3xl md:text-4xl font-bold text-gray-900 leading-tight">
-                            Trusted by agencies across the country
+                        <h2 className="mt-2 text-3xl md:text-4xl font-bold leading-tight" style={{ color: "#2EC4B6" }}>
+                            Faster patient placement nationwide
                         </h2>
                         <p className="mt-4 text-gray-500 leading-relaxed">
-                            RehabTask connects home health agencies with qualified therapists every day. Our platform has grown to serve hundreds of agencies and thousands of patients nationwide.
+                            RehabTask connects agencies with available therapists instantly, helping patients begin care sooner. From first match to first visit, the platform is built to remove bottlenecks and keep rehabilitation moving forward.
                         </p>
                     </FadeIn>
 

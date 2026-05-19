@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import ConfirmModal from "@/components/ui/ConfirmModal";
 import {
-    MdCheckCircle, MdRadioButtonUnchecked, MdTimer, MdCancel,
+    MdCheckCircle, MdTimer, MdCancel,
     MdCalendarToday, MdSchedule, MdTaskAlt, MdEdit, MdEventBusy,
     MdLocationOff,
 } from "react-icons/md";
@@ -32,7 +33,7 @@ const getRefundPill = (session) => {
         return { label: `${formatCurrency(total)} pending refund`, color: "bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400" };
     }
     if (hasTransferred) {
-        return { label: `${formatCurrency(total)} sent to bank`, color: "bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400" };
+        return { label: `${formatCurrency(total)} returned to your account`, color: "bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400" };
     }
     if (hasCard) {
         return { label: `${formatCurrency(total)} returned to card`, color: "bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400" };
@@ -61,7 +62,7 @@ export default function SessionList({
     onConfirm,
     onSchedule,
     onRequestRevision,
-    onSubmitRevision,
+    onExtendRevision,
     onResubmitSession,
     onMarkMissed,
     onReportMissed,
@@ -71,6 +72,8 @@ export default function SessionList({
     const [scheduleDate, setScheduleDate] = useState("");
     const [loadingSessionId, setLoadingSessionId] = useState(null);
     const [loadingAction, setLoadingAction] = useState(null);
+    const [showResubmitConfirm, setShowResubmitConfirm] = useState(false);
+    const [resubmitSessionId, setResubmitSessionId] = useState(null);
 
     if (!sessions || sessions.length <= 1) return null;
 
@@ -143,6 +146,7 @@ export default function SessionList({
     };
 
     return (
+        <>
         <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl p-5">
             {/* Header with progress */}
             <div className="flex items-center justify-between mb-4">
@@ -177,7 +181,7 @@ export default function SessionList({
                     const isCompletable = role === "therapist" && session.status === "scheduled";
                     const isConfirmable = role === "customer" && session.status === "completed_by_therapist";
                     const canRequestRevision = role === "customer" && session.status === "completed_by_therapist" && onRequestRevision;
-                    const canRespondToRevision = role === "therapist" && session.status === "in_revision" && !session.revisionDueBy && onSubmitRevision;
+                    const canExtendRevision = role === "therapist" && session.status === "in_revision" && onExtendRevision;
                     const canResubmitSession = role === "therapist" && session.status === "in_revision" && session.revisionDueBy && onResubmitSession;
                     const isInRevision = session.status === "in_revision";
                     const wasRevised = session.revisionCount > 0;
@@ -203,16 +207,16 @@ export default function SessionList({
                     return (
                         <div key={session.id}>
                             <div
-                                className={`flex items-center gap-3 p-3 rounded-lg border ${session.status === "confirmed_by_customer"
+                                className={`flex flex-wrap items-start gap-3 p-3 rounded-lg border ${session.status === "confirmed_by_customer"
                                     ? "border-emerald-200 dark:border-emerald-800/30 bg-emerald-50/50 dark:bg-emerald-900/10"
                                     : "border-border-light dark:border-border-dark"
                                     }`}
                             >
                                 {/* Status icon */}
-                                <StatusIcon className={`text-xl shrink-0 ${config.color}`} />
+                                <StatusIcon className={`text-xl shrink-0 mt-0.5 ${config.color}`} />
 
                                 {/* Session info */}
-                                <div className="flex-1 min-w-0">
+                                <div className="flex-1 min-w-0" style={{ minWidth: "140px" }}>
                                     <div className="flex items-center gap-2">
                                         <span className="text-sm font-bold text-text-main dark:text-white">
                                             Session {session.sessionNumber}
@@ -221,9 +225,20 @@ export default function SessionList({
                                             {isResubmitted ? "Resubmitted" : config.label}
                                         </span>
                                     </div>
-                                    <p className="text-xs text-text-muted dark:text-slate-400 mt-0.5">
-                                        {session.scheduledDate ? `${formatDate(session.scheduledDate)} · ${formatTime(session.scheduledDate)}` : "Date not set"}
-                                    </p>
+                                    <div className="flex items-center gap-2 mt-0.5">
+                                        <p className="text-xs text-text-muted dark:text-slate-400">
+                                            {session.scheduledDate ? `${formatDate(session.scheduledDate)} · ${formatTime(session.scheduledDate)}` : "Date not set"}
+                                        </p>
+                                        {isSchedulable && scheduleSessionId !== session.id && (
+                                            <button
+                                                onClick={() => openScheduleFor(session)}
+                                                disabled={isAnyLoading}
+                                                className="text-xs font-bold text-primary hover:text-primary/80 flex items-center gap-0.5 transition-colors disabled:opacity-50 disabled:pointer-events-none"
+                                            >
+                                                <MdEdit className="text-sm" /> Edit
+                                            </button>
+                                        )}
+                                    </div>
                                     {isResubmitted && role === "customer" && (
                                         <div className="mt-1 text-[10px] space-y-0.5">
                                             <p className="text-amber-600 dark:text-amber-400 font-medium">
@@ -346,17 +361,7 @@ export default function SessionList({
                                 </div>
 
                                 {/* Actions */}
-                                <div className="shrink-0 flex items-center gap-2">
-                                    {isSchedulable && scheduleSessionId !== session.id && (
-                                        <button
-                                            onClick={() => openScheduleFor(session)}
-                                            disabled={isAnyLoading}
-                                            className="text-xs font-bold text-primary hover:underline flex items-center gap-1 disabled:opacity-50 disabled:pointer-events-none"
-                                        >
-                                            {session.status === "scheduled" ? <><MdEdit className="text-sm" /> Reschedule</> : "Schedule"}
-                                        </button>
-                                    )}
-
+                                <div className="shrink-0 flex items-center flex-wrap gap-2 ml-auto">
                                     {isCompletable && scheduleSessionId !== session.id && (
                                         <button
                                             onClick={() => handleComplete(session.id)}
@@ -392,20 +397,20 @@ export default function SessionList({
                                             {session.revisionDueBy ? "Therapist working on it" : "Awaiting therapist"}
                                         </span>
                                     )}
-                                    {canRespondToRevision && (
+                                    {canExtendRevision && (
                                         <button
-                                            onClick={() => onSubmitRevision(session.id)}
+                                            onClick={() => onExtendRevision(session.id)}
                                             disabled={isAnyLoading}
-                                            className="text-xs font-bold text-amber-600 dark:text-amber-400 border border-amber-300 dark:border-amber-700 px-3 py-1.5 rounded-lg hover:bg-amber-50 dark:hover:bg-amber-900/20 disabled:opacity-50"
+                                            className="text-xs font-bold text-primary border border-primary/30 px-3 py-1.5 rounded-lg hover:bg-primary/5 dark:hover:bg-primary/10 disabled:opacity-50 transition-colors"
                                         >
-                                            Respond
+                                            {isThisLoading && loadingAction === "extend" ? "Extending..." : "Extend"}
                                         </button>
                                     )}
                                     {canResubmitSession && (
                                         <button
-                                            onClick={() => onResubmitSession(session.id)}
+                                            onClick={() => { setResubmitSessionId(session.id); setShowResubmitConfirm(true); }}
                                             disabled={isAnyLoading}
-                                            className="text-xs font-bold text-white bg-primary px-3 py-1.5 rounded-lg hover:bg-primary/90 disabled:opacity-50"
+                                            className="text-xs font-bold text-white bg-emerald-600 px-3 py-1.5 rounded-lg hover:bg-emerald-700 disabled:opacity-50 transition-colors"
                                         >
                                             Resubmit
                                         </button>
@@ -481,5 +486,29 @@ export default function SessionList({
                 })}
             </div>
         </div>
+
+        <ConfirmModal
+            isOpen={showResubmitConfirm}
+            onClose={() => { if (!loadingSessionId) { setShowResubmitConfirm(false); setResubmitSessionId(null); } }}
+            onConfirm={async () => {
+                if (!resubmitSessionId) return;
+                setLoadingSessionId(resubmitSessionId);
+                setLoadingAction("resubmit");
+                try {
+                    await onResubmitSession(resubmitSessionId);
+                    setShowResubmitConfirm(false);
+                    setResubmitSessionId(null);
+                } finally {
+                    setLoadingSessionId(null);
+                    setLoadingAction(null);
+                }
+            }}
+            title="Resubmit Session"
+            message="This will notify the customer that the session is ready for review. They will have 72 hours to confirm or request another revision."
+            confirmLabel="Resubmit"
+            confirmClassName="bg-emerald-600 hover:bg-emerald-700 text-white"
+            loading={loadingAction === "resubmit" && !!loadingSessionId}
+        />
+        </>
     );
 }

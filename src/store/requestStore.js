@@ -8,6 +8,7 @@ const useRequestStore = create(
         (set, get) => ({
             currentStep: 1,
             patientId: null,
+            targetTherapistId: null,
             editingRequestId: null,
             step1: {
                 serviceType: "",
@@ -32,6 +33,7 @@ const useRequestStore = create(
 
             // Actions
             setPatientId: (id) => set({ patientId: id }),
+            setTargetTherapistId: (id) => set({ targetTherapistId: id }),
             setStep1: (data) => set((s) => ({ step1: { ...s.step1, ...data } })),
             setStep2: (data) => set((s) => ({ step2: { ...s.step2, ...data } })),
             nextStep: () => set((s) => ({ currentStep: Math.min(s.currentStep + 1, 3) })),
@@ -41,6 +43,7 @@ const useRequestStore = create(
                 set({
                     currentStep: 1,
                     patientId: null,
+                    targetTherapistId: null,
                     editingRequestId: null,
                     step1: { serviceType: "", description: "", preferredDate: "", preferredTime: "", rate: "", visitType: "", visitTypeId: "", visitTypeName: "", emr: "", emrOther: "", visitTypeOther: "", visitsPerWeek: "", numberOfWeeks: "" },
                     step2: { address: "", latitude: null, longitude: null },
@@ -95,6 +98,7 @@ const useRequestStore = create(
             partialize: (state) => ({
                 currentStep: state.currentStep,
                 patientId: state.patientId,
+                targetTherapistId: state.targetTherapistId,
                 editingRequestId: state.editingRequestId,
                 step1: state.step1,
                 step2: state.step2,

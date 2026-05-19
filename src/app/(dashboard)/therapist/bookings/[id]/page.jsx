@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import {
     MdArrowBack, MdChat, MdCalendarToday, MdAccessTime, MdLocationOn, MdVideocam, MdPerson,
-    MdCheckCircle, MdWarning, MdInfo, MdRefresh, MdSchedule, MdUpdate
+    MdCheckCircle, MdWarning, MdInfo, MdRefresh, MdSchedule, MdUpdate, MdEdit
 } from "react-icons/md";
 import { useBookingDetail } from "@/hooks/useBookings";
 import { bookingsApi } from "@/lib/bookings.api";
@@ -14,7 +14,7 @@ import BookingStatusBadge from "@/components/bookings/BookingStatusBadge";
 import BookingTimeline from "@/components/bookings/BookingTimeline";
 import SessionList from "@/components/bookings/SessionList";
 import PaymentSummaryCard from "@/components/bookings/PaymentSummaryCard";
-import SubmitRevisionModal from "@/components/shared/sessions/SubmitRevisionModal";
+import ConfirmModal from "@/components/ui/ConfirmModal";
 import MarkSessionMissedModal from "@/components/shared/sessions/MarkSessionMissedModal";
 import MarkSessionAttemptedModal from "@/components/shared/sessions/MarkSessionAttemptedModal";
 import RevisionStatusBanner from "@/components/shared/sessions/RevisionStatusBanner";
@@ -41,8 +41,6 @@ export default function TherapistBookingDetailPage() {
     // UI states
     const [completing, setCompleting] = useState(false);
     const [showCompleteDialog, setShowCompleteDialog] = useState(false);
-    const [showSubmitRevisionModal, setShowSubmitRevisionModal] = useState(false);
-    const [revisionSessionId, setRevisionSessionId] = useState(null);
     const [markMissedSession, setMarkMissedSession] = useState(null);
     const [markAttemptedSession, setMarkAttemptedSession] = useState(null);
 
@@ -55,6 +53,15 @@ export default function TherapistBookingDetailPage() {
     const [rescheduleDate, setRescheduleDate] = useState("");
     const [rescheduleTime, setRescheduleTime] = useState("");
     const [rescheduling, setRescheduling] = useState(false);
+
+    // Revision extend states
+    const [showExtendConfirm, setShowExtendConfirm] = useState(false);
+    const [extendSessionId, setExtendSessionId] = useState(null);
+    const [extending, setExtending] = useState(false);
+
+    // Resubmit confirmation state
+    const [showResubmitConfirm, setShowResubmitConfirm] = useState(false);
+    const [resubmitting, setResubmitting] = useState(false);
 
     // Auto-refresh when waiting for customer confirmation or reschedule response
     useEffect(() => {
@@ -104,6 +111,37 @@ export default function TherapistBookingDetailPage() {
             showToast.error(err.response?.data?.message || "Failed to request reschedule.");
         } finally {
             setRescheduling(false);
+        }
+    };
+
+    const handleExtendRevision = async () => {
+        const sessionId = extendSessionId || session?.id;
+        if (!sessionId) return;
+        setExtending(true);
+        try {
+            await bookingsApi.extendRevision(sessionId);
+            showToast.success("Revision deadline extended by 3 days.");
+            setShowExtendConfirm(false);
+            setExtendSessionId(null);
+            await refetch();
+        } catch (err) {
+            showToast.error(err.response?.data?.message || "Failed to extend deadline.");
+        } finally {
+            setExtending(false);
+        }
+    };
+
+    const handleResubmitSession = async () => {
+        setResubmitting(true);
+        try {
+            await bookingsApi.resubmitSession(session.id);
+            showToast.success("Session resubmitted. Customer has been notified and has 72 hours to review.");
+            setShowResubmitConfirm(false);
+            await refetch();
+        } catch (err) {
+            showToast.error(err.response?.data?.message || "Failed to resubmit session.");
+        } finally {
+            setResubmitting(false);
         }
     };
 
@@ -350,9 +388,9 @@ export default function TherapistBookingDetailPage() {
                                 await bookingsApi.scheduleSession(sessionId, scheduledDate);
                                 await refetch();
                             }}
-                            onSubmitRevision={(sessionId) => {
-                                setRevisionSessionId(sessionId);
-                                setShowSubmitRevisionModal(true);
+                            onExtendRevision={(sessionId) => {
+                                setExtendSessionId(sessionId);
+                                setShowExtendConfirm(true);
                             }}
                             onResubmitSession={async (sessionId) => {
                                 try {
@@ -388,14 +426,13 @@ export default function TherapistBookingDetailPage() {
                             </div>
                         )}
 
-                        {/* Reschedule button — single-session only (multi-session has per-session reschedule in SessionList) */}
+                        {/* Edit date button — single-session only */}
                         {sessions.length <= 1 && ["accepted", "confirmed"].includes(booking.status) && !showRescheduleModal && (
                             <button
                                 onClick={() => setShowRescheduleModal(true)}
-                                className="flex items-center gap-2 text-sm font-semibold text-primary hover:text-primary/80 transition-colors"
+                                className="flex items-center gap-1.5 text-sm font-semibold text-primary hover:text-primary/80 transition-colors"
                             >
-                                <MdUpdate className="text-base" />
-                                Request Reschedule
+                                <MdEdit className="text-base" /> Edit
                             </button>
                         )}
 
@@ -533,8 +570,8 @@ export default function TherapistBookingDetailPage() {
                             </div>
                         )}
 
-                        {/* Session in revision — therapist needs to respond */}
-                        {session?.status === "in_revision" && (
+                        {/* Session in revision — single-session only; multi-session handles per-session in SessionList */}
+                        {sessions.length <= 1 && session?.status === "in_revision" && (
                             <div className="space-y-3">
                                 <RevisionStatusBanner
                                     revisionRequestedAt={session.revisionRequestedAt}
@@ -545,25 +582,15 @@ export default function TherapistBookingDetailPage() {
                                     viewerRole="therapist"
                                 />
                                 <div className="flex justify-end gap-2">
-                                    {!session.revisionDueBy && (
-                                        <button
-                                            onClick={() => { setRevisionSessionId(session?.id); setShowSubmitRevisionModal(true); }}
-                                            className="bg-primary hover:brightness-95 text-white px-5 py-2.5 rounded-lg text-sm font-bold transition-colors"
-                                        >
-                                            Set Response Date
-                                        </button>
-                                    )}
+                                    <button
+                                        onClick={() => { setExtendSessionId(session.id); setShowExtendConfirm(true); }}
+                                        className="border border-primary/30 text-primary hover:bg-primary/5 px-5 py-2.5 rounded-lg text-sm font-bold transition-colors"
+                                    >
+                                        Extend
+                                    </button>
                                     {session.revisionDueBy && (
                                         <button
-                                            onClick={async () => {
-                                                try {
-                                                    await bookingsApi.resubmitSession(session.id);
-                                                    showToast.success("Session resubmitted. Customer has been notified and has 72 hours to review.");
-                                                    await refetch();
-                                                } catch (err) {
-                                                    showToast.error(err.response?.data?.message || "Failed to resubmit session.");
-                                                }
-                                            }}
+                                            onClick={() => setShowResubmitConfirm(true)}
                                             className="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-lg text-sm font-bold transition-colors"
                                         >
                                             Resubmit Session
@@ -746,7 +773,6 @@ export default function TherapistBookingDetailPage() {
                             .filter(s => s.status === "attempted")
                             .reduce((sum, s) => sum + (s.attemptedRateCharged != null ? parseFloat(s.attemptedRateCharged) : 0), 0);
                         const deliverable = Math.max(0, totalSessionCount - missedOrCancelled);
-                        const fullPayout = parseFloat(payment.therapistPayout);
                         const perSessionValue = totalSessionCount > 0 ? parseFloat(payment.amount) / totalSessionCount : 0;
                         const feeRatio = parseFloat(payment.amount) > 0 ? parseFloat(payment.platformFee) / parseFloat(payment.amount) : 0;
                         // Discount from missed/cancelled (full loss) + attempted (partial loss)
@@ -778,13 +804,28 @@ export default function TherapistBookingDetailPage() {
                 </div>
             </div>
 
-            {/* Submit Revision modal — mounted at root */}
-            <SubmitRevisionModal
-                isOpen={showSubmitRevisionModal}
-                onClose={() => { setShowSubmitRevisionModal(false); setRevisionSessionId(null); }}
-                sessionId={revisionSessionId || session?.id}
-                revisionReason={revisionSessionId ? sessions.find(s => s.id === revisionSessionId)?.revisionReason : session?.revisionReason}
-                onSuccess={refetch}
+            {/* Extend revision deadline confirmation */}
+            <ConfirmModal
+                isOpen={showExtendConfirm}
+                onClose={() => { if (!extending) { setShowExtendConfirm(false); setExtendSessionId(null); } }}
+                onConfirm={handleExtendRevision}
+                title="Extend Revision Deadline"
+                message="This will add 3 days to the current revision deadline. The customer will be notified of the new date. You can extend as many times as needed."
+                confirmLabel="Extend by 3 Days"
+                confirmClassName="bg-primary hover:bg-primary/90 text-white"
+                loading={extending}
+            />
+
+            {/* Resubmit session confirmation */}
+            <ConfirmModal
+                isOpen={showResubmitConfirm}
+                onClose={() => { if (!resubmitting) setShowResubmitConfirm(false); }}
+                onConfirm={handleResubmitSession}
+                title="Resubmit Session"
+                message="This will notify the customer that the session is ready for review. They will have 72 hours to confirm or request another revision."
+                confirmLabel="Resubmit"
+                confirmClassName="bg-emerald-600 hover:bg-emerald-700 text-white"
+                loading={resubmitting}
             />
 
             {/* Mark Missed modal (therapist self-report) */}

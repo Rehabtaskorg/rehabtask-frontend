@@ -40,6 +40,7 @@ export default function InlinePaymentSection({ booking, onPaymentSuccess }) {
             const defaultCard = methods.find((m) => m.isDefault) || methods[0];
             setSelectedPmId(defaultCard.id);
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [methods.length]);
 
     const handlePayWithSavedCard = async () => {

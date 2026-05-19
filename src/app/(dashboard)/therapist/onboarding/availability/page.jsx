@@ -385,7 +385,7 @@ export default function AvailabilityPage() {
                                                             {area.city}, {area.state}
                                                         </p>
                                                         <p className="text-xs text-text-muted">
-                                                            ZIP {area.zipCode} &middot; {area.radiusMiles} mi radius
+                                                            {area.zipCode ? `ZIP ${area.zipCode}` : area.state}
                                                         </p>
                                                     </div>
                                                 </div>

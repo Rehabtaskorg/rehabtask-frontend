@@ -321,11 +321,6 @@ export default function AdminTherapistDetailPage() {
                                 <MdLocationOn className="text-base text-text-muted dark:text-slate-400 mt-0.5 shrink-0" />
                                 <span className="text-text-main dark:text-slate-200">
                                     {[area.city, area.state, area.zipCode].filter(Boolean).join(', ')}
-                                    {area.radiusMiles && (
-                                        <span className="text-text-muted dark:text-slate-400 ml-1.5">
-                                            ({area.radiusMiles} mi radius)
-                                        </span>
-                                    )}
                                 </span>
                             </div>
                         ))}

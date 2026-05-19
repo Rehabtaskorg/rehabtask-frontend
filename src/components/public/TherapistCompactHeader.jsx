@@ -1,7 +1,5 @@
 "use client";
 
-import TherapistFiltersPopover from "./TherapistFiltersPopover";
-
 const DISCIPLINES = [
     { key: "all", label: "All" },
     { key: "pt", label: "PT" },
@@ -33,7 +31,6 @@ export default function TherapistCompactHeader({
                                 {d.label}
                             </button>
                         ))}
-                        <TherapistFiltersPopover />
                     </div>
                     <span className="text-xs text-gray-500 font-medium whitespace-nowrap">
                         {resultCount} therapist{resultCount !== 1 ? "s" : ""} found

@@ -5,17 +5,23 @@ import { useState, useEffect } from "react";
 import { Map, AdvancedMarker } from "@vis.gl/react-google-maps";
 import { MdClose, MdLocationOn } from "react-icons/md";
 import Button from "@/components/ui/Button";
-import LocationAutocomplete from "@/components/public/LocationAutocomplete";
-import {
-    DEFAULT_SERVICE_RADIUS_MILES,
-    MIN_SERVICE_RADIUS_MILES,
-    MAX_SERVICE_RADIUS_MILES,
-} from "@/lib/constants";
+import LocationAutocomplete from "@/components/maps/LocationAutocomplete";
+import { DEFAULT_WORK_AREA_RADIUS_MILES } from "@/lib/constants";
 
 const DEFAULT_CENTER = { lat: 39.8283, lng: -98.5795 };
 const DEFAULT_ZOOM = 4;
 const SELECTED_ZOOM = 10;
 
+/**
+ * Modal for adding or editing a therapist work area.
+ * Therapist types a city or address — radius is set silently in the background.
+ *
+ * @param {Object} props
+ * @param {boolean} props.isOpen
+ * @param {Function} props.onClose
+ * @param {Object|null} props.workArea - Existing work area when editing, null when adding
+ * @param {Function} props.onSave
+ */
 const WorkAreaFormModal = ({ isOpen, onClose, workArea, onSave }) => {
     const isEditing = !!workArea;
 
@@ -25,7 +31,6 @@ const WorkAreaFormModal = ({ isOpen, onClose, workArea, onSave }) => {
     const [state, setState] = useState("");
     const [latitude, setLatitude] = useState(null);
     const [longitude, setLongitude] = useState(null);
-    const [radiusMiles, setRadiusMiles] = useState(DEFAULT_SERVICE_RADIUS_MILES);
     const [error, setError] = useState(null);
 
     useEffect(() => {
@@ -39,8 +44,7 @@ const WorkAreaFormModal = ({ isOpen, onClose, workArea, onSave }) => {
                 setState(s);
                 setLatitude(parseFloat(workArea.latitude) || null);
                 setLongitude(parseFloat(workArea.longitude) || null);
-                setRadiusMiles(workArea.radiusMiles || DEFAULT_SERVICE_RADIUS_MILES);
-                setLocationInput(z && c && s ? `${z}, ${c}, ${s}` : z);
+                setLocationInput(c && s ? `${c}, ${s}` : z);
             } else {
                 setLocationInput("");
                 setZipCode("");
@@ -48,7 +52,6 @@ const WorkAreaFormModal = ({ isOpen, onClose, workArea, onSave }) => {
                 setState("");
                 setLatitude(null);
                 setLongitude(null);
-                setRadiusMiles(DEFAULT_SERVICE_RADIUS_MILES);
             }
             setError(null);
         }
@@ -56,15 +59,9 @@ const WorkAreaFormModal = ({ isOpen, onClose, workArea, onSave }) => {
 
     const handleLocationSelect = (place) => {
         setError(null);
-
-        if (!place.zipCode) {
-            setError("Please select a result that includes a ZIP code.");
-            return;
-        }
-
-        setZipCode(place.zipCode);
-        setCity(place.city);
-        setState(place.state);
+        setZipCode(place.zipCode || "");
+        setCity(place.city || "");
+        setState(place.state || "");
         setLatitude(place.latitude);
         setLongitude(place.longitude);
     };
@@ -81,23 +78,13 @@ const WorkAreaFormModal = ({ isOpen, onClose, workArea, onSave }) => {
     const handleSave = () => {
         setError(null);
 
-        if (!zipCode || !/^\d{5}$/.test(zipCode)) {
-            setError("Please select a valid 5-digit US ZIP code.");
+        if (latitude === null || longitude === null) {
+            setError("Please select a location from the dropdown.");
             return;
         }
 
-        if (!city || !state || latitude === null || longitude === null) {
-            setError("Please select a ZIP code from the dropdown to set your work area.");
-            return;
-        }
-
-        if (
-            radiusMiles < MIN_SERVICE_RADIUS_MILES ||
-            radiusMiles > MAX_SERVICE_RADIUS_MILES
-        ) {
-            setError(
-                `Radius must be between ${MIN_SERVICE_RADIUS_MILES} and ${MAX_SERVICE_RADIUS_MILES} miles.`
-            );
+        if (!city || !state) {
+            setError("Please select a city or address from the dropdown.");
             return;
         }
 
@@ -107,7 +94,7 @@ const WorkAreaFormModal = ({ isOpen, onClose, workArea, onSave }) => {
             state,
             latitude,
             longitude,
-            radiusMiles: parseInt(radiusMiles, 10),
+            radiusMiles: DEFAULT_WORK_AREA_RADIUS_MILES,
         });
         onClose();
     };
@@ -159,32 +146,22 @@ const WorkAreaFormModal = ({ isOpen, onClose, workArea, onSave }) => {
 
                     <LocationAutocomplete
                         variant="form"
-                        label="ZIP Code"
+                        label="City or Address"
                         required
-                        placeholder="e.g. 77001"
+                        placeholder="e.g. Miami, FL or Houston, TX"
                         value={locationInput}
                         onChange={setLocationInput}
                         onSelect={handleLocationSelect}
                         onClear={handleLocationClear}
-                        restrictToPostalCode
-                        helperText={
-                            hasSelectedLocation
-                                ? null
-                                : "Search by a 5-digit US ZIP code"
-                        }
+                        helperText={hasSelectedLocation ? null : "Search by city, neighbourhood, or address"}
                     />
 
                     {hasSelectedLocation && city && state && (
                         <div className="flex items-center gap-2 bg-primary/5 border border-primary/20 rounded-lg px-3 py-2">
                             <MdLocationOn className="text-primary shrink-0" />
-                            <div className="text-sm">
-                                <span className="font-medium text-text-main dark:text-white">
-                                    {city}, {state}
-                                </span>
-                                <span className="text-text-muted ml-2">
-                                    ({latitude.toFixed(4)}, {longitude.toFixed(4)})
-                                </span>
-                            </div>
+                            <span className="text-sm font-medium text-text-main dark:text-white">
+                                {city}, {state}
+                            </span>
                         </div>
                     )}
 
@@ -205,29 +182,6 @@ const WorkAreaFormModal = ({ isOpen, onClose, workArea, onSave }) => {
                                 />
                             )}
                         </Map>
-                    </div>
-
-                    <div className="space-y-2">
-                        <div className="flex items-center justify-between">
-                            <label className="block text-sm font-bold text-text-main dark:text-white uppercase tracking-wide">
-                                Service Radius
-                            </label>
-                            <span className="text-sm font-semibold text-primary bg-primary/10 px-2.5 py-0.5 rounded-full">
-                                {radiusMiles} mi
-                            </span>
-                        </div>
-                        <input
-                            type="range"
-                            min={MIN_SERVICE_RADIUS_MILES}
-                            max={MAX_SERVICE_RADIUS_MILES}
-                            value={radiusMiles}
-                            onChange={(e) => setRadiusMiles(parseInt(e.target.value, 10))}
-                            className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-primary"
-                        />
-                        <div className="flex justify-between text-xs text-text-muted">
-                            <span>{MIN_SERVICE_RADIUS_MILES} mi</span>
-                            <span>{MAX_SERVICE_RADIUS_MILES} mi</span>
-                        </div>
                     </div>
 
                     <div className="flex items-center justify-end gap-3 pt-2">

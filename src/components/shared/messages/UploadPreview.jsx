@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo, useEffect } from "react";
 import { MdClose, MdAdd, MdDescription, MdInsertDriveFile } from "react-icons/md";
 
 const isImageType = (type) => type?.startsWith("image/");
@@ -16,15 +17,30 @@ function DocIcon({ type }) {
     return <MdInsertDriveFile className="text-slate-400 text-lg" />;
 }
 
+/* eslint-disable @next/next/no-img-element */
 /**
  * Upload preview bar — shows staged files before sending.
  * Rendered above the message input when files are selected.
+ * Uses <img> with blob URLs (URL.createObjectURL) for local file previews —
+ * next/image does not support blob: URLs.
  *
  * @param {File[]} files - Staged files
  * @param {function} onRemove - Called with index to remove a file
  * @param {function} onAddMore - Opens file picker to add more files
  */
 export default function UploadPreview({ files, onRemove, onAddMore }) {
+    // Create blob URLs once per file list change — inline URL.createObjectURL()
+    // in render leaks memory because each render creates a new URL that is never revoked.
+    const previewUrls = useMemo(
+        () => files.map(f => (isImageType(f.type) ? URL.createObjectURL(f) : null)),
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        [files]
+    );
+
+    useEffect(() => {
+        return () => previewUrls.forEach(url => url && URL.revokeObjectURL(url));
+    }, [previewUrls]);
+
     if (!files || files.length === 0) return null;
 
     const totalSize = files.reduce((sum, f) => sum + f.size, 0);
@@ -39,7 +55,7 @@ export default function UploadPreview({ files, onRemove, onAddMore }) {
                             {isImageType(file.type) ? (
                                 <div className="w-14 h-14 rounded-lg overflow-hidden bg-slate-100 dark:bg-slate-800">
                                     <img
-                                        src={URL.createObjectURL(file)}
+                                        src={previewUrls[idx]}
                                         alt={file.name}
                                         className="w-full h-full object-cover"
                                     />

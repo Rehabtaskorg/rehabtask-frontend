@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { MdMenu, MdClose } from "react-icons/md";
 
 const NAV_LINKS = [
@@ -17,8 +18,15 @@ export default function Navbar() {
         <nav className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-100">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex items-center justify-between h-14">
-                    <Link href="/" className="text-xl font-bold text-primary">
-                        RehabTask
+                    <Link href="/" className="flex items-center shrink-0">
+                        <Image
+                            src="/images/logo/rehabtask_horizontal.png"
+                            alt="RehabTask"
+                            height={32}
+                            width={120}
+                            priority
+                            className="h-8 w-auto"
+                        />
                     </Link>
 
                     <div className="hidden md:flex items-center gap-8">

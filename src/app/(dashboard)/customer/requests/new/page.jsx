@@ -21,14 +21,29 @@ export default function NewRequestPage() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const editId = searchParams.get("edit");
+    const directTo = searchParams.get("directTo"); // therapistProfile.id for direct requests
 
     const {
         currentStep, nextStep, prevStep, reset, getPreferredDateISO,
-        step1, step2, patientId, setPatientId, setStep2, editingRequestId, setEditData
+        step1, step2, patientId, setPatientId, setStep2, editingRequestId, setEditData,
+        targetTherapistId, setTargetTherapistId,
     } = useRequestStore();
 
     const isEditMode = !!editId;
-    usePageTitle(isEditMode ? "Edit Request" : "Create New Request");
+    const isDirectMode = !!directTo;
+
+    // Sync directTo param into store when navigating from messages page
+    useEffect(() => {
+        if (directTo && targetTherapistId !== directTo) {
+            setTargetTherapistId(directTo);
+        }
+        if (!directTo && !editId && targetTherapistId) {
+            setTargetTherapistId(null);
+        }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [directTo]);
+
+    usePageTitle(isEditMode ? "Edit Request" : isDirectMode ? "Create Direct Request" : "Create New Request");
 
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState("");
@@ -146,7 +161,11 @@ export default function NewRequestPage() {
             if (isEditMode) {
                 await api.put(`/requests/${editId}`, payload);
             } else {
-                payload.patientId = isAgency ? patientId : undefined;
+                payload.patientId = isAgency && !isDirectMode ? patientId : undefined;
+                if (isDirectMode && targetTherapistId) {
+                    payload.requestType = "DIRECT";
+                    payload.targetTherapistId = targetTherapistId;
+                }
                 await api.post("/requests", payload);
             }
 
@@ -170,7 +189,7 @@ export default function NewRequestPage() {
     const isStep2Valid =
         step2.address && step2.latitude !== null && step2.longitude !== null;
 
-    // Agency users must select a patient before proceeding (create mode only)
+    // Agency users must select a patient before proceeding (create or direct mode)
     const isPatientValid = isEditMode || !isAgency || patientId;
 
     if (isAtRequestLimit) {
@@ -229,7 +248,7 @@ export default function NewRequestPage() {
                             My Requests
                         </button>
                         <h2 className="text-xl sm:text-2xl font-bold text-text-main dark:text-white">
-                            {isEditMode ? "Edit Request" : "Create New Request"}
+                            {isEditMode ? "Edit Request" : isDirectMode ? "Create Direct Request" : "Create New Request"}
                         </h2>
                     </div>
                 </header>
@@ -238,6 +257,21 @@ export default function NewRequestPage() {
                 <div className="flex-1 overflow-y-auto px-4 sm:px-8 py-6 pb-28">
                     <div className="max-w-170 mx-auto space-y-8">
                         <RequestStepper currentStep={currentStep} />
+
+                        {/* Direct request info banner */}
+                        {isDirectMode && currentStep === 1 && (
+                            <div className="flex items-start gap-3 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800 rounded-xl p-4">
+                                <MdPerson className="text-indigo-500 text-xl shrink-0 mt-0.5" />
+                                <div>
+                                    <p className="text-sm font-semibold text-indigo-800 dark:text-indigo-200">
+                                        This is a direct request
+                                    </p>
+                                    <p className="text-xs text-indigo-700 dark:text-indigo-300 mt-0.5">
+                                        Only the therapist you selected from your conversation will see this request. It will not be visible to any other therapists.
+                                    </p>
+                                </div>
+                            </div>
+                        )}
 
                         {/* Warning banner: editing will withdraw offers */}
                         {isEditMode && hasOffers && currentStep === 1 && (

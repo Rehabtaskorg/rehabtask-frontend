@@ -144,7 +144,7 @@ export default function TherapistPublicProfilePage() {
                                         {primaryArea && (
                                             <div className="mt-4 flex items-center text-gray-500 gap-2">
                                                 <MdLocationOn className="text-lg" />
-                                                <span className="text-sm">{primaryArea.city}, {primaryArea.state} · {primaryArea.radiusMiles}-mile radius</span>
+                                                <span className="text-sm">{primaryArea.city}, {primaryArea.state}</span>
                                             </div>
                                         )}
                                     </div>
@@ -324,7 +324,7 @@ export default function TherapistPublicProfilePage() {
                                         </div>
                                     </div>
                                     <div className="space-y-3">
-                                        <button onClick={() => handleAuthGate("offer")} className="w-full bg-primary text-white font-bold py-3.5 rounded-xl hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20">Send Offer</button>
+                                        <button onClick={() => handleAuthGate("request")} className="w-full bg-primary text-white font-bold py-3.5 rounded-xl hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20">Send Request</button>
                                         <button onClick={() => handleAuthGate("message")} className="w-full bg-gray-50 text-gray-700 font-bold py-3.5 rounded-xl border border-gray-200 hover:bg-gray-100 transition-colors">Message Therapist</button>
                                     </div>
                                 </motion.div>
@@ -342,7 +342,7 @@ export default function TherapistPublicProfilePage() {
                                                     ? `$${parseFloat(profile.attemptedVisitRate).toFixed(2)}`
                                                     : "No charge",
                                             }] : []),
-                                            { label: "Service Area", value: primaryArea ? `${primaryArea.city} (${primaryArea.radiusMiles}mi)` : "—" },
+                                            { label: "Service Area", value: primaryArea ? `${primaryArea.city}, ${primaryArea.state}` : "—" },
                                         ].map((fact, i, arr) => (
                                             <div key={fact.label} className={`flex justify-between items-center py-2 ${i < arr.length - 1 ? "border-b border-gray-100" : ""}`}>
                                                 <span className="text-xs text-gray-500">{fact.label}</span>
