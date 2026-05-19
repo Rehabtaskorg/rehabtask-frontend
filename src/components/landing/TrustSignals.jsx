@@ -1,13 +1,10 @@
 import FadeIn from "@/components/ui/FadeIn";
-import { MdShield, MdVerified, MdLock, MdHealthAndSafety, MdGppGood, MdSecurity } from "react-icons/md";
+import { MdVerified, MdLock, MdHealthAndSafety } from "react-icons/md";
 
 const BADGES = [
-    { icon: MdShield, label: "HIPAA Compliant" },
     { icon: MdVerified, label: "Background Checked" },
     { icon: MdHealthAndSafety, label: "Licensed Professionals" },
     { icon: MdLock, label: "Secure Payments" },
-    { icon: MdSecurity, label: "Data Encrypted" },
-    { icon: MdGppGood, label: "SOC 2 Ready" },
 ];
 
 export default function TrustSignals() {

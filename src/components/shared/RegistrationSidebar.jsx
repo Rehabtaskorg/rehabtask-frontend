@@ -60,7 +60,7 @@ const RegistrationSidebar = () => {
                 <div className="flex items-center gap-3 text-text-muted">
                     <MdLock className="text-green-500 text-lg" />
                     <p className="text-xs font-medium uppercase tracking-wider">
-                        HIPAA Compliant &amp; Secure
+                        Secure Platform
                     </p>
                 </div>
             </div>

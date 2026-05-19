@@ -50,7 +50,7 @@ const VerificationSuccess = ({ userName, onContinue }) => {
 
                 <p className="text-sm text-slate-500  flex items-center gap-2">
                     <MdLock className="text-base" />
-                    Secure HIPAA-compliant portal
+                    Secure portal
                 </p>
             </div>
 

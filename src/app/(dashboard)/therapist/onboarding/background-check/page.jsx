@@ -198,7 +198,7 @@ export default function BackgroundCheckPage() {
                                     understood your rights under the Fair Credit Reporting Act and
                                     authorize RehabTask to obtain a consumer report for
                                     professional vetting purposes. All personal information is encrypted
-                                    and handled in strict accordance with HIPAA and privacy guidelines.
+                                    and handled in accordance with applicable privacy guidelines.
                                 </p>
                             </div>
 
@@ -310,17 +310,6 @@ export default function BackgroundCheckPage() {
                         </div>
                     </div>
 
-                    {/* Trust Badges */}
-                    <div className="mt-8 flex justify-center gap-12 opacity-50 grayscale hover:grayscale-0 transition-all duration-500">
-                        {["Verified Provider", "HIPAA Compliant", "SOC2 Certified"].map((badge) => (
-                            <div key={badge} className="flex flex-col items-center">
-                                <div className="w-24 h-8 bg-gray-300  rounded mb-1"></div>
-                                <span className="text-[10px] uppercase tracking-widest font-bold text-gray-500 ">
-                                    {badge}
-                                </span>
-                            </div>
-                        ))}
-                    </div>
                 </form>
             </div>
         </div>

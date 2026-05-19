@@ -13,7 +13,7 @@ const BENEFITS = [
     },
     {
         icon: MdSecurity,
-        title: "Secure & HIPAA Compliant",
+        title: "Secure Platform",
         description: "Your data and privacy are protected by industry-leading security.",
     },
 ];
@@ -60,7 +60,7 @@ const CustomerRegistrationSidebar = () => {
                 <div className="flex items-center gap-3 text-text-muted">
                     <MdLock className="text-green-500 text-lg" />
                     <p className="text-xs font-medium uppercase tracking-wider">
-                        HIPAA Compliant &amp; Secure
+                        Secure Platform
                     </p>
                 </div>
             </div>
