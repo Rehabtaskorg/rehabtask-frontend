@@ -13,12 +13,12 @@ import {
 const ROWS_PER_PAGE = 10;
 
 const STATUS_CONFIG = {
-    intent_created: { label: "Pending", color: "bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400" },
-    escrowed: { label: "In Escrow", color: "bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400" },
-    partially_released: { label: "In Escrow", color: "bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400" },
-    released: { label: "Completed", color: "bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400" },
-    refunded: { label: "Refunded", color: "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400" },
-    failed: { label: "Failed", color: "bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400" },
+    intent_created: { label: "Pending", color: "bg-amber-50  text-amber-600 " },
+    escrowed: { label: "In Escrow", color: "bg-blue-50  text-blue-600 " },
+    partially_released: { label: "In Escrow", color: "bg-blue-50  text-blue-600 " },
+    released: { label: "Completed", color: "bg-emerald-50  text-emerald-600 " },
+    refunded: { label: "Refunded", color: "bg-slate-100  text-slate-600 " },
+    failed: { label: "Failed", color: "bg-red-50  text-red-600 " },
 };
 
 const getEffectiveStatus = (payment) => {
@@ -61,26 +61,26 @@ const getRefundDisplay = (customerRefunds, fallbackRefundedAmount) => {
         if (pending > 0 && completed > 0) {
             return {
                 label: `${formatCurrency(completed)} sent · ${formatCurrency(pending)} pending`,
-                color: "text-amber-600 dark:text-amber-400 font-semibold",
+                color: "text-amber-600  font-semibold",
             };
         }
         if (pending > 0) {
-            return { label: `${formatCurrency(pending)} pending refund`, color: "text-amber-600 dark:text-amber-400 font-semibold" };
+            return { label: `${formatCurrency(pending)} pending refund`, color: "text-amber-600  font-semibold" };
         }
         if (transferred > 0 && card === 0) {
-            return { label: `${formatCurrency(transferred)} returned to your account`, color: "text-emerald-600 dark:text-emerald-400 font-semibold" };
+            return { label: `${formatCurrency(transferred)} returned to your account`, color: "text-emerald-600  font-semibold" };
         }
         if (card > 0 && transferred === 0) {
-            return { label: `${formatCurrency(card)} returned to card`, color: "text-emerald-600 dark:text-emerald-400 font-semibold" };
+            return { label: `${formatCurrency(card)} returned to card`, color: "text-emerald-600  font-semibold" };
         }
         if (completed > 0) {
-            return { label: `${formatCurrency(completed)} refunded`, color: "text-emerald-600 dark:text-emerald-400 font-semibold" };
+            return { label: `${formatCurrency(completed)} refunded`, color: "text-emerald-600  font-semibold" };
         }
     }
 
     // Legacy: payment.refundedAmount set via old card refund path (no CustomerRefund row)
     if (fallbackRefundedAmount && refunds.length === 0) {
-        return { label: `${formatCurrency(fallbackRefundedAmount)} refunded`, color: "text-emerald-600 dark:text-emerald-400 font-semibold" };
+        return { label: `${formatCurrency(fallbackRefundedAmount)} refunded`, color: "text-emerald-600  font-semibold" };
     }
     return null;
 };
@@ -117,9 +117,9 @@ export default function CustomerPaymentsPage() {
     return (
         <div className="flex-1 flex flex-col overflow-hidden">
             {/* Header */}
-            <header className="border-b border-border-light dark:border-border-dark bg-white/80 dark:bg-slate-900/80 backdrop-blur-md sticky top-0 z-10 shrink-0">
+            <header className="border-b border-border-light  bg-white/80  backdrop-blur-md sticky top-0 z-10 shrink-0">
                 <div className="flex justify-between items-center px-4 sm:px-8 py-4">
-                    <h2 className="text-xl sm:text-2xl font-black tracking-tight text-text-main dark:text-white">
+                    <h2 className="text-xl sm:text-2xl font-black tracking-tight text-text-main ">
                         Payments & Refunds
                     </h2>
                 </div>
@@ -133,55 +133,55 @@ export default function CustomerPaymentsPage() {
                     {isLoading ? (
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             {[1, 2, 3].map((i) => (
-                                <div key={i} className="h-28 bg-card-light dark:bg-card-dark rounded-xl border border-border-light dark:border-border-dark animate-pulse" />
+                                <div key={i} className="h-28 bg-card-light  rounded-xl border border-border-light  animate-pulse" />
                             ))}
                         </div>
                     ) : summary ? (
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl p-5">
+                            <div className="bg-card-light  border border-border-light  rounded-xl p-5">
                                 <div className="flex items-center gap-2 mb-2">
-                                    <MdPayments className="text-text-muted dark:text-gray-400" />
-                                    <p className="text-xs font-bold text-text-muted dark:text-gray-400 uppercase tracking-widest">Total Paid</p>
+                                    <MdPayments className="text-text-muted " />
+                                    <p className="text-xs font-bold text-text-muted  uppercase tracking-widest">Total Paid</p>
                                 </div>
-                                <p className="text-2xl font-black text-text-main dark:text-white">{formatCurrency(summary.totalPaid)}</p>
-                                <p className="text-xs text-text-muted dark:text-gray-400 mt-1">All time</p>
+                                <p className="text-2xl font-black text-text-main ">{formatCurrency(summary.totalPaid)}</p>
+                                <p className="text-xs text-text-muted  mt-1">All time</p>
                             </div>
-                            <div className="bg-card-light dark:bg-card-dark border-l-4 border-l-blue-500 border border-border-light dark:border-border-dark rounded-xl p-5">
+                            <div className="bg-card-light  border-l-4 border-l-blue-500 border border-border-light  rounded-xl p-5">
                                 <div className="flex items-center gap-2 mb-2">
                                     <MdLock className="text-blue-500" />
-                                    <p className="text-xs font-bold text-text-muted dark:text-gray-400 uppercase tracking-widest">In Escrow</p>
+                                    <p className="text-xs font-bold text-text-muted  uppercase tracking-widest">In Escrow</p>
                                 </div>
                                 <p className="text-2xl font-black text-blue-500">{formatCurrency(summary.inEscrow)}</p>
-                                <p className="text-xs text-text-muted dark:text-gray-400 mt-1">Held for active bookings</p>
+                                <p className="text-xs text-text-muted  mt-1">Held for active bookings</p>
                             </div>
-                            <div className="bg-card-light dark:bg-card-dark border-l-4 border-l-emerald-500 border border-border-light dark:border-border-dark rounded-xl p-5">
+                            <div className="bg-card-light  border-l-4 border-l-emerald-500 border border-border-light  rounded-xl p-5">
                                 <div className="flex items-center gap-2 mb-2">
                                     <MdCheckCircle className="text-emerald-500" />
-                                    <p className="text-xs font-bold text-text-muted dark:text-gray-400 uppercase tracking-widest">Refunded</p>
+                                    <p className="text-xs font-bold text-text-muted  uppercase tracking-widest">Refunded</p>
                                 </div>
                                 <p className="text-2xl font-black text-emerald-500">{formatCurrency(summary.totalRefunded)}</p>
-                                <p className="text-xs text-text-muted dark:text-gray-400 mt-1">Returned to you</p>
+                                <p className="text-xs text-text-muted  mt-1">Returned to you</p>
                             </div>
                         </div>
                     ) : null}
 
                     {/* Pending Refund Banner */}
                     {hasPendingRefunds && !connectStatus?.connected && (
-                        <div className="bg-card-light dark:bg-card-dark rounded-xl border border-amber-300 dark:border-amber-500/30 overflow-hidden">
+                        <div className="bg-card-light  rounded-xl border border-amber-300  overflow-hidden">
                             <div className="border-l-4 border-l-amber-500 p-5">
                                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                                     <div className="flex gap-4">
-                                        <div className="w-12 h-12 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center text-amber-600 dark:text-amber-400 shrink-0">
+                                        <div className="w-12 h-12 rounded-full bg-amber-100  flex items-center justify-center text-amber-600  shrink-0">
                                             <MdWarning className="text-2xl" />
                                         </div>
                                         <div>
-                                            <span className="inline-block px-2 py-0.5 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 text-[10px] font-bold rounded uppercase tracking-wider mb-1">
+                                            <span className="inline-block px-2 py-0.5 bg-amber-100  text-amber-700  text-[10px] font-bold rounded uppercase tracking-wider mb-1">
                                                 Action Required
                                             </span>
-                                            <h4 className="text-text-main dark:text-white font-bold">
+                                            <h4 className="text-text-main  font-bold">
                                                 You have {formatCurrency(summary.pendingRefundAmount)} in pending refunds
                                             </h4>
-                                            <p className="text-sm text-text-muted dark:text-gray-400 mt-0.5">
+                                            <p className="text-sm text-text-muted  mt-0.5">
                                                 Set up your payout account to receive refunds directly to your bank account.
                                             </p>
                                         </div>
@@ -199,21 +199,21 @@ export default function CustomerPaymentsPage() {
 
                     {/* Incomplete onboarding banner — account created but KYC not finished */}
                     {hasPendingRefunds && connectStatus?.connected && !connectStatus?.onboardingComplete && (
-                        <div className="bg-card-light dark:bg-card-dark rounded-xl border border-amber-300 dark:border-amber-500/30 overflow-hidden">
+                        <div className="bg-card-light  rounded-xl border border-amber-300  overflow-hidden">
                             <div className="border-l-4 border-l-amber-500 p-5">
                                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                                     <div className="flex gap-4">
-                                        <div className="w-12 h-12 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center text-amber-600 dark:text-amber-400 shrink-0">
+                                        <div className="w-12 h-12 rounded-full bg-amber-100  flex items-center justify-center text-amber-600  shrink-0">
                                             <MdWarning className="text-2xl" />
                                         </div>
                                         <div>
-                                            <span className="inline-block px-2 py-0.5 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 text-[10px] font-bold rounded uppercase tracking-wider mb-1">
+                                            <span className="inline-block px-2 py-0.5 bg-amber-100  text-amber-700  text-[10px] font-bold rounded uppercase tracking-wider mb-1">
                                                 Setup Incomplete
                                             </span>
-                                            <h4 className="text-text-main dark:text-white font-bold">
+                                            <h4 className="text-text-main  font-bold">
                                                 Finish setting up your payout account
                                             </h4>
-                                            <p className="text-sm text-text-muted dark:text-gray-400 mt-0.5">
+                                            <p className="text-sm text-text-muted  mt-0.5">
                                                 You have {formatCurrency(summary.pendingRefundAmount)} in pending refunds. Complete your account setup to receive them.
                                             </p>
                                         </div>
@@ -245,15 +245,15 @@ export default function CustomerPaymentsPage() {
                         // Stage 3 — CRITICAL: payouts restricted
                         if (isPastDue) {
                             return (
-                                <div className="bg-red-50 dark:bg-red-900/10 rounded-xl border border-red-300 dark:border-red-500/40 p-5">
+                                <div className="bg-red-50  rounded-xl border border-red-300  p-5">
                                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                                         <div className="flex items-center gap-4">
-                                            <div className="w-12 h-12 rounded-xl bg-red-100 dark:bg-red-900/30 flex items-center justify-center text-red-600 dark:text-red-400">
+                                            <div className="w-12 h-12 rounded-xl bg-red-100  flex items-center justify-center text-red-600 ">
                                                 <MdWarning className="text-2xl" />
                                             </div>
                                             <div>
-                                                <p className="text-sm font-bold text-red-700 dark:text-red-400">Refund Account Restricted</p>
-                                                <p className="text-xs text-red-600/80 dark:text-red-400/80 mt-0.5">
+                                                <p className="text-sm font-bold text-red-700 ">Refund Account Restricted</p>
+                                                <p className="text-xs text-red-600/80  mt-0.5">
                                                     Your refund account has been restricted. Complete the required information to restore it.
                                                 </p>
                                             </div>
@@ -269,15 +269,15 @@ export default function CustomerPaymentsPage() {
                         // Stage 2 — WARNING: currently_due with deadline
                         if (isCurrentlyDue) {
                             return (
-                                <div className="bg-amber-50 dark:bg-amber-900/10 rounded-xl border border-amber-300 dark:border-amber-500/40 p-5">
+                                <div className="bg-amber-50  rounded-xl border border-amber-300  p-5">
                                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                                         <div className="flex items-center gap-4">
-                                            <div className="w-12 h-12 rounded-xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center text-amber-600 dark:text-amber-400">
+                                            <div className="w-12 h-12 rounded-xl bg-amber-100  flex items-center justify-center text-amber-600 ">
                                                 <MdSchedule className="text-2xl" />
                                             </div>
                                             <div>
-                                                <p className="text-sm font-bold text-text-main dark:text-white">Action Required — Refund Account</p>
-                                                <p className="text-xs text-text-muted dark:text-gray-400 mt-0.5">
+                                                <p className="text-sm font-bold text-text-main ">Action Required — Refund Account</p>
+                                                <p className="text-xs text-text-muted  mt-0.5">
                                                     {deadlineDate
                                                         ? `Stripe requires updated information by ${deadlineDate} or your refunds will be paused.`
                                                         : 'Stripe requires updated information to keep your refund account active.'}
@@ -295,24 +295,24 @@ export default function CustomerPaymentsPage() {
                         // Stage 1 — PROACTIVE: upcoming future requirements
                         if (hasUpcoming) {
                             return (
-                                <div className="bg-blue-50 dark:bg-blue-900/10 rounded-xl border border-blue-200 dark:border-blue-500/20 p-5">
+                                <div className="bg-blue-50  rounded-xl border border-blue-200  p-5">
                                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                                         <div className="flex items-center gap-4">
-                                            <div className="w-12 h-12 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400">
+                                            <div className="w-12 h-12 rounded-xl bg-blue-100  flex items-center justify-center text-blue-600 ">
                                                 <MdInfo className="text-2xl" />
                                             </div>
                                             <div>
-                                                <p className="text-sm font-bold text-text-main dark:text-white">Payout Account</p>
+                                                <p className="text-sm font-bold text-text-main ">Payout Account</p>
                                                 <div className="flex items-center gap-2 mt-0.5">
                                                     <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                                                    <span className="text-xs text-emerald-600 dark:text-emerald-400 font-semibold">Active</span>
-                                                    <span className="text-xs text-blue-600 dark:text-blue-400 font-medium">
+                                                    <span className="text-xs text-emerald-600  font-semibold">Active</span>
+                                                    <span className="text-xs text-blue-600  font-medium">
                                                         — {futureDateStr ? `info required by ${futureDateStr}` : 'upcoming requirements'}
                                                     </span>
                                                 </div>
                                             </div>
                                         </div>
-                                        <Link href="/customer/payout-setup" className="shrink-0 text-blue-600 dark:text-blue-400 border border-blue-300 dark:border-blue-500/40 hover:bg-blue-50 dark:hover:bg-blue-900/20 px-4 py-2 rounded-lg text-xs font-bold transition-colors text-center">
+                                        <Link href="/customer/payout-setup" className="shrink-0 text-blue-600  border border-blue-300  hover:bg-blue-50  px-4 py-2 rounded-lg text-xs font-bold transition-colors text-center">
                                             Review
                                         </Link>
                                     </div>
@@ -322,22 +322,22 @@ export default function CustomerPaymentsPage() {
 
                         // Fully active, no requirements — clean state
                         return (
-                            <div className="bg-card-light dark:bg-card-dark rounded-xl border border-emerald-200 dark:border-emerald-500/20 p-5">
+                            <div className="bg-card-light  rounded-xl border border-emerald-200  p-5">
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-4">
-                                        <div className="w-12 h-12 rounded-xl bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
+                                        <div className="w-12 h-12 rounded-xl bg-emerald-100  flex items-center justify-center text-emerald-600 ">
                                             <MdAccountBalance className="text-2xl" />
                                         </div>
                                         <div>
-                                            <p className="text-sm font-bold text-text-main dark:text-white">Payout Account</p>
+                                            <p className="text-sm font-bold text-text-main ">Payout Account</p>
                                             <div className="flex items-center gap-2 mt-0.5">
                                                 <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                                                <span className="text-xs text-emerald-600 dark:text-emerald-400 font-semibold">Active</span>
+                                                <span className="text-xs text-emerald-600  font-semibold">Active</span>
                                             </div>
                                         </div>
                                     </div>
                                     {hasPendingRefunds && (
-                                        <p className="text-sm text-text-muted dark:text-gray-400">
+                                        <p className="text-sm text-text-muted ">
                                             {formatCurrency(summary.pendingRefundAmount)} pending
                                         </p>
                                     )}
@@ -356,15 +356,15 @@ export default function CustomerPaymentsPage() {
 
                         if (isPastDue) {
                             return (
-                                <div className="bg-red-50 dark:bg-red-900/10 rounded-xl border border-red-300 dark:border-red-500/40 p-5">
+                                <div className="bg-red-50  rounded-xl border border-red-300  p-5">
                                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                                         <div className="flex items-center gap-4">
-                                            <div className="w-12 h-12 rounded-xl bg-red-100 dark:bg-red-900/30 flex items-center justify-center text-red-600 dark:text-red-400">
+                                            <div className="w-12 h-12 rounded-xl bg-red-100  flex items-center justify-center text-red-600 ">
                                                 <MdWarning className="text-2xl" />
                                             </div>
                                             <div>
-                                                <p className="text-sm font-bold text-red-700 dark:text-red-400">Refund Account Restricted</p>
-                                                <p className="text-xs text-red-600/80 dark:text-red-400/80 mt-0.5">
+                                                <p className="text-sm font-bold text-red-700 ">Refund Account Restricted</p>
+                                                <p className="text-xs text-red-600/80  mt-0.5">
                                                     Your refund account requires overdue information. Complete it now to restore your ability to receive refunds.
                                                 </p>
                                             </div>
@@ -379,15 +379,15 @@ export default function CustomerPaymentsPage() {
 
                         if (isCurrentlyDue) {
                             return (
-                                <div className="bg-amber-50 dark:bg-amber-900/10 rounded-xl border border-amber-300 dark:border-amber-500/40 p-5">
+                                <div className="bg-amber-50  rounded-xl border border-amber-300  p-5">
                                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                                         <div className="flex items-center gap-4">
-                                            <div className="w-12 h-12 rounded-xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center text-amber-600 dark:text-amber-400">
+                                            <div className="w-12 h-12 rounded-xl bg-amber-100  flex items-center justify-center text-amber-600 ">
                                                 <MdSchedule className="text-2xl" />
                                             </div>
                                             <div>
-                                                <p className="text-sm font-bold text-text-main dark:text-white">Action Required — Refund Account</p>
-                                                <p className="text-xs text-text-muted dark:text-gray-400 mt-0.5">
+                                                <p className="text-sm font-bold text-text-main ">Action Required — Refund Account</p>
+                                                <p className="text-xs text-text-muted  mt-0.5">
                                                     {deadlineDate
                                                         ? `Complete required information by ${deadlineDate} to keep your refund account active.`
                                                         : 'Stripe requires updated information to keep your refund account active.'}
@@ -404,14 +404,14 @@ export default function CustomerPaymentsPage() {
 
                         // Genuine pending initial review
                         return (
-                            <div className="bg-card-light dark:bg-card-dark rounded-xl border border-amber-200 dark:border-amber-500/20 p-5">
+                            <div className="bg-card-light  rounded-xl border border-amber-200  p-5">
                                 <div className="flex items-center gap-4">
-                                    <div className="w-12 h-12 rounded-xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center text-amber-600 dark:text-amber-400">
+                                    <div className="w-12 h-12 rounded-xl bg-amber-100  flex items-center justify-center text-amber-600 ">
                                         <MdSchedule className="text-2xl" />
                                     </div>
                                     <div>
-                                        <p className="text-sm font-bold text-text-main dark:text-white">Payout Account Under Review</p>
-                                        <p className="text-xs text-text-muted dark:text-gray-400 mt-0.5">
+                                        <p className="text-sm font-bold text-text-main ">Payout Account Under Review</p>
+                                        <p className="text-xs text-text-muted  mt-0.5">
                                             Your details have been submitted. Stripe is verifying your account — this usually takes a few minutes.
                                         </p>
                                     </div>
@@ -421,9 +421,9 @@ export default function CustomerPaymentsPage() {
                     })()}
 
                     {/* Filter Tabs + Payment Table */}
-                    <div className="bg-card-light dark:bg-card-dark rounded-xl border border-border-light dark:border-border-dark overflow-hidden shadow-sm">
+                    <div className="bg-card-light  rounded-xl border border-border-light  overflow-hidden shadow-sm">
                         {/* Filter tabs */}
-                        <div className="px-5 pt-5 pb-3 border-b border-border-light dark:border-border-dark flex items-center gap-2">
+                        <div className="px-5 pt-5 pb-3 border-b border-border-light  flex items-center gap-2">
                             {[
                                 { key: "all", label: "All" },
                                 { key: "escrow", label: "In Escrow" },
@@ -435,7 +435,7 @@ export default function CustomerPaymentsPage() {
                                     onClick={() => { setFilter(tab.key); setPage(1); }}
                                     className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-colors ${filter === tab.key
                                         ? "bg-primary text-white"
-                                        : "text-text-muted dark:text-gray-400 hover:bg-muted-light dark:hover:bg-muted-dark"
+                                        : "text-text-muted  hover:bg-muted-light "
                                         }`}
                                 >
                                     {tab.label}
@@ -446,18 +446,18 @@ export default function CustomerPaymentsPage() {
                         {paymentsLoading ? (
                             <div className="animate-pulse space-y-0">
                                 {[1, 2, 3, 4].map((i) => (
-                                    <div key={i} className="h-16 border-b border-border-light dark:border-border-dark" />
+                                    <div key={i} className="h-16 border-b border-border-light " />
                                 ))}
                             </div>
                         ) : !payments || payments.length === 0 ? (
                             <div className="py-16 text-center">
-                                <MdPayments className="text-5xl text-slate-200 dark:text-slate-700 mx-auto mb-2" />
-                                <p className="text-text-muted dark:text-gray-400 text-sm">No payment history yet</p>
-                                <p className="text-xs text-text-muted/60 dark:text-gray-500 mt-1">Your payment history will appear here once you book a therapist.</p>
+                                <MdPayments className="text-5xl text-slate-200  mx-auto mb-2" />
+                                <p className="text-text-muted  text-sm">No payment history yet</p>
+                                <p className="text-xs text-text-muted/60  mt-1">Your payment history will appear here once you book a therapist.</p>
                             </div>
                         ) : filtered.length === 0 ? (
                             <div className="py-16 text-center">
-                                <p className="text-text-muted dark:text-gray-400 text-sm">No payments match this filter.</p>
+                                <p className="text-text-muted  text-sm">No payments match this filter.</p>
                                 <button onClick={() => setFilter("all")} className="text-primary text-sm font-bold hover:underline mt-1">
                                     Show all
                                 </button>
@@ -467,18 +467,18 @@ export default function CustomerPaymentsPage() {
                                 {/* Desktop table */}
                                 <div className="hidden lg:block">
                                     <table className="w-full text-left">
-                                        <thead className="bg-muted-light dark:bg-muted-dark border-b border-border-light dark:border-border-dark">
+                                        <thead className="bg-muted-light  border-b border-border-light ">
                                             <tr>
-                                                <th className="px-5 py-3 text-[10px] font-bold text-text-muted dark:text-gray-400 uppercase tracking-widest">Therapist</th>
-                                                <th className="px-5 py-3 text-[10px] font-bold text-text-muted dark:text-gray-400 uppercase tracking-widest">Booking</th>
-                                                <th className="px-5 py-3 text-[10px] font-bold text-text-muted dark:text-gray-400 uppercase tracking-widest">Amount</th>
-                                                <th className="px-5 py-3 text-[10px] font-bold text-text-muted dark:text-gray-400 uppercase tracking-widest">Date</th>
-                                                <th className="px-5 py-3 text-[10px] font-bold text-text-muted dark:text-gray-400 uppercase tracking-widest">Status</th>
-                                                <th className="px-5 py-3 text-[10px] font-bold text-text-muted dark:text-gray-400 uppercase tracking-widest">Refund</th>
+                                                <th className="px-5 py-3 text-[10px] font-bold text-text-muted  uppercase tracking-widest">Therapist</th>
+                                                <th className="px-5 py-3 text-[10px] font-bold text-text-muted  uppercase tracking-widest">Booking</th>
+                                                <th className="px-5 py-3 text-[10px] font-bold text-text-muted  uppercase tracking-widest">Amount</th>
+                                                <th className="px-5 py-3 text-[10px] font-bold text-text-muted  uppercase tracking-widest">Date</th>
+                                                <th className="px-5 py-3 text-[10px] font-bold text-text-muted  uppercase tracking-widest">Status</th>
+                                                <th className="px-5 py-3 text-[10px] font-bold text-text-muted  uppercase tracking-widest">Refund</th>
                                                 <th className="px-5 py-3"></th>
                                             </tr>
                                         </thead>
-                                        <tbody className="divide-y divide-border-light dark:divide-border-dark">
+                                        <tbody className="divide-y divide-border-light ">
                                             {paginated.map((payment) => {
                                                 const config = STATUS_CONFIG[getEffectiveStatus(payment)] || STATUS_CONFIG.escrowed;
                                                 const isExpanded = expandedId === payment.id;
@@ -497,18 +497,18 @@ export default function CustomerPaymentsPage() {
                                                                         {getInitials(therapist?.fullName)}
                                                                     </div>
                                                                     <div>
-                                                                        <p className="text-sm font-bold text-text-main dark:text-white">{therapist?.fullName || "—"}</p>
-                                                                        <p className="text-[11px] text-text-muted dark:text-gray-400">{serviceType}</p>
+                                                                        <p className="text-sm font-bold text-text-main ">{therapist?.fullName || "—"}</p>
+                                                                        <p className="text-[11px] text-text-muted ">{serviceType}</p>
                                                                     </div>
                                                                 </div>
                                                             </td>
-                                                            <td className="px-5 py-4 text-sm text-text-muted dark:text-gray-400">
+                                                            <td className="px-5 py-4 text-sm text-text-muted ">
                                                                 {sessionCount ? `${sessionCount} session${sessionCount > 1 ? "s" : ""}` : "—"}
                                                             </td>
-                                                            <td className="px-5 py-4 text-sm font-bold text-text-main dark:text-white">
+                                                            <td className="px-5 py-4 text-sm font-bold text-text-main ">
                                                                 {formatCurrency(payment.amount)}
                                                             </td>
-                                                            <td className="px-5 py-4 text-sm text-text-muted dark:text-gray-400">
+                                                            <td className="px-5 py-4 text-sm text-text-muted ">
                                                                 {formatDate(payment.createdAt)}
                                                             </td>
                                                             <td className="px-5 py-4">
@@ -521,7 +521,7 @@ export default function CustomerPaymentsPage() {
                                                                     const refundDisplay = getRefundDisplay(payment.customerRefunds, payment.refundedAmount);
                                                                     return refundDisplay ? (
                                                                         <span className={refundDisplay.color}>{refundDisplay.label}</span>
-                                                                    ) : <span className="text-text-muted dark:text-gray-400">—</span>;
+                                                                    ) : <span className="text-text-muted ">—</span>;
                                                                 })()}
                                                             </td>
                                                             <td className="px-5 py-4 text-right">
@@ -530,18 +530,18 @@ export default function CustomerPaymentsPage() {
                                                         </tr>
 
                                                         {isExpanded && (
-                                                            <tr className="bg-muted-light dark:bg-muted-dark">
+                                                            <tr className="bg-muted-light ">
                                                                 <td className="px-5 py-5" colSpan={7}>
                                                                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                                                         {/* Session Progress */}
                                                                         {sessions.length > 0 && (
                                                                             <div>
-                                                                                <p className="text-[10px] font-bold text-text-muted dark:text-gray-400 uppercase tracking-widest mb-2">Session Progress</p>
-                                                                                <div className="flex justify-between text-xs text-text-main dark:text-white mb-1">
+                                                                                <p className="text-[10px] font-bold text-text-muted  uppercase tracking-widest mb-2">Session Progress</p>
+                                                                                <div className="flex justify-between text-xs text-text-main  mb-1">
                                                                                     <span>{confirmedCount} of {sessions.length} completed</span>
                                                                                     <span>{Math.round((confirmedCount / sessions.length) * 100)}%</span>
                                                                                 </div>
-                                                                                <div className="h-2 w-full bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                                                                                <div className="h-2 w-full bg-slate-200  rounded-full overflow-hidden">
                                                                                     <div className="h-full bg-primary rounded-full transition-all" style={{ width: `${(confirmedCount / sessions.length) * 100}%` }} />
                                                                                 </div>
                                                                             </div>
@@ -549,7 +549,7 @@ export default function CustomerPaymentsPage() {
 
                                                                         {/* Financial Breakdown */}
                                                                         <div>
-                                                                            <p className="text-[10px] font-bold text-text-muted dark:text-gray-400 uppercase tracking-widest mb-2">Financial Breakdown</p>
+                                                                            <p className="text-[10px] font-bold text-text-muted  uppercase tracking-widest mb-2">Financial Breakdown</p>
                                                                             {(() => {
                                                                                 const total = parseFloat(payment.amount);
                                                                                 const feeRatio = total > 0 ? parseFloat(payment.platformFee) / total : 0;
@@ -567,42 +567,42 @@ export default function CustomerPaymentsPage() {
 
                                                                                 return (
                                                                                     <div className="space-y-1.5 text-xs">
-                                                                                        <div className="flex justify-between font-semibold text-text-main dark:text-white">
+                                                                                        <div className="flex justify-between font-semibold text-text-main ">
                                                                                             <span>Total Paid</span>
                                                                                             <span>{formatCurrency(total)}</span>
                                                                                         </div>
                                                                                         {effectiveReleased > 0 && (
-                                                                                            <div className="flex justify-between text-text-muted dark:text-gray-400">
+                                                                                            <div className="flex justify-between text-text-muted ">
                                                                                                 <span>Released to therapist</span>
                                                                                                 <span>{formatCurrency(effectiveReleased)}</span>
                                                                                             </div>
                                                                                         )}
                                                                                         {transferredRefund > 0 && (
-                                                                                            <div className="flex justify-between text-emerald-600 dark:text-emerald-400">
+                                                                                            <div className="flex justify-between text-emerald-600 ">
                                                                                                 <span>Returned to your account</span>
                                                                                                 <span>{formatCurrency(transferredRefund)}</span>
                                                                                             </div>
                                                                                         )}
                                                                                         {cardRefund > 0 && (
-                                                                                            <div className="flex justify-between text-emerald-600 dark:text-emerald-400">
+                                                                                            <div className="flex justify-between text-emerald-600 ">
                                                                                                 <span>Returned to card</span>
                                                                                                 <span>{formatCurrency(cardRefund)}</span>
                                                                                             </div>
                                                                                         )}
                                                                                         {pendingRefund > 0 && (
-                                                                                            <div className="flex justify-between text-amber-600 dark:text-amber-400">
+                                                                                            <div className="flex justify-between text-amber-600 ">
                                                                                                 <span>Refund pending</span>
                                                                                                 <span>{formatCurrency(pendingRefund)}</span>
                                                                                             </div>
                                                                                         )}
                                                                                         {legacyRefund > 0 && (
-                                                                                            <div className="flex justify-between text-emerald-600 dark:text-emerald-400">
+                                                                                            <div className="flex justify-between text-emerald-600 ">
                                                                                                 <span>Refunded</span>
                                                                                                 <span>{formatCurrency(legacyRefund)}</span>
                                                                                             </div>
                                                                                         )}
                                                                                         {remaining > 0 && (
-                                                                                            <div className="flex justify-between text-text-muted dark:text-gray-400 pt-1 border-t border-border-light dark:border-border-dark">
+                                                                                            <div className="flex justify-between text-text-muted  pt-1 border-t border-border-light ">
                                                                                                 <span>Held in escrow</span>
                                                                                                 <span>{formatCurrency(remaining)}</span>
                                                                                             </div>
@@ -614,25 +614,25 @@ export default function CustomerPaymentsPage() {
 
                                                                         {/* Timeline */}
                                                                         <div>
-                                                                            <p className="text-[10px] font-bold text-text-muted dark:text-gray-400 uppercase tracking-widest mb-2">Timeline</p>
-                                                                            <div className="space-y-3 relative before:absolute before:left-1.5 before:top-2 before:bottom-2 before:w-px before:bg-border-light dark:before:bg-border-dark">
+                                                                            <p className="text-[10px] font-bold text-text-muted  uppercase tracking-widest mb-2">Timeline</p>
+                                                                            <div className="space-y-3 relative before:absolute before:left-1.5 before:top-2 before:bottom-2 before:w-px before:bg-border-light ">
                                                                                 <div className="relative pl-5">
                                                                                     <div className="absolute left-0 top-1 w-3 h-3 rounded-full bg-primary" />
-                                                                                    <p className="text-xs text-text-main dark:text-white">Payment received</p>
-                                                                                    <p className="text-[10px] text-text-muted dark:text-gray-400">{formatDate(payment.createdAt)}</p>
+                                                                                    <p className="text-xs text-text-main ">Payment received</p>
+                                                                                    <p className="text-[10px] text-text-muted ">{formatDate(payment.createdAt)}</p>
                                                                                 </div>
                                                                                 {payment.escrowedAt && (
                                                                                     <div className="relative pl-5">
                                                                                         <div className="absolute left-0 top-1 w-3 h-3 rounded-full bg-blue-500" />
-                                                                                        <p className="text-xs text-text-main dark:text-white">Funds escrowed</p>
-                                                                                        <p className="text-[10px] text-text-muted dark:text-gray-400">{formatDate(payment.escrowedAt)}</p>
+                                                                                        <p className="text-xs text-text-main ">Funds escrowed</p>
+                                                                                        <p className="text-[10px] text-text-muted ">{formatDate(payment.escrowedAt)}</p>
                                                                                     </div>
                                                                                 )}
                                                                                 {payment.releasedAt && (
                                                                                     <div className="relative pl-5">
                                                                                         <div className="absolute left-0 top-1 w-3 h-3 rounded-full bg-emerald-500" />
-                                                                                        <p className="text-xs text-text-main dark:text-white">Therapist paid</p>
-                                                                                        <p className="text-[10px] text-text-muted dark:text-gray-400">{formatDate(payment.releasedAt)}</p>
+                                                                                        <p className="text-xs text-text-main ">Therapist paid</p>
+                                                                                        <p className="text-[10px] text-text-muted ">{formatDate(payment.releasedAt)}</p>
                                                                                     </div>
                                                                                 )}
                                                                                 {(payment.customerRefunds || []).map((cr) => {
@@ -640,8 +640,8 @@ export default function CustomerPaymentsPage() {
                                                                                         return (
                                                                                             <div key={cr.id} className="relative pl-5">
                                                                                                 <div className="absolute left-0 top-1 w-3 h-3 rounded-full bg-amber-500 animate-pulse" />
-                                                                                                <p className="text-xs text-text-main dark:text-white">Refund pending ({formatCurrency(cr.amount)}) — awaiting payout setup</p>
-                                                                                                <p className="text-[10px] text-text-muted dark:text-gray-400">{formatDate(cr.createdAt)}</p>
+                                                                                                <p className="text-xs text-text-main ">Refund pending ({formatCurrency(cr.amount)}) — awaiting payout setup</p>
+                                                                                                <p className="text-[10px] text-text-muted ">{formatDate(cr.createdAt)}</p>
                                                                                             </div>
                                                                                         );
                                                                                     }
@@ -649,8 +649,8 @@ export default function CustomerPaymentsPage() {
                                                                                         return (
                                                                                             <div key={cr.id} className="relative pl-5">
                                                                                                 <div className="absolute left-0 top-1 w-3 h-3 rounded-full bg-emerald-500" />
-                                                                                                <p className="text-xs text-text-main dark:text-white">Refund returned to your account ({formatCurrency(cr.amount)})</p>
-                                                                                                <p className="text-[10px] text-text-muted dark:text-gray-400">{formatDate(cr.transferredAt)}</p>
+                                                                                                <p className="text-xs text-text-main ">Refund returned to your account ({formatCurrency(cr.amount)})</p>
+                                                                                                <p className="text-[10px] text-text-muted ">{formatDate(cr.transferredAt)}</p>
                                                                                             </div>
                                                                                         );
                                                                                     }
@@ -658,8 +658,8 @@ export default function CustomerPaymentsPage() {
                                                                                         return (
                                                                                             <div key={cr.id} className="relative pl-5">
                                                                                                 <div className="absolute left-0 top-1 w-3 h-3 rounded-full bg-emerald-500" />
-                                                                                                <p className="text-xs text-text-main dark:text-white">Refund returned to card ({formatCurrency(cr.amount)})</p>
-                                                                                                <p className="text-[10px] text-text-muted dark:text-gray-400">{formatDate(cr.fallbackRefundAt)}</p>
+                                                                                                <p className="text-xs text-text-main ">Refund returned to card ({formatCurrency(cr.amount)})</p>
+                                                                                                <p className="text-[10px] text-text-muted ">{formatDate(cr.fallbackRefundAt)}</p>
                                                                                             </div>
                                                                                         );
                                                                                     }
@@ -668,8 +668,8 @@ export default function CustomerPaymentsPage() {
                                                                                 {!payment.customerRefunds?.[0] && payment.refundedAt && (
                                                                                     <div className="relative pl-5">
                                                                                         <div className="absolute left-0 top-1 w-3 h-3 rounded-full bg-amber-500" />
-                                                                                        <p className="text-xs text-text-main dark:text-white">Refund issued</p>
-                                                                                        <p className="text-[10px] text-text-muted dark:text-gray-400">{formatDate(payment.refundedAt)}</p>
+                                                                                        <p className="text-xs text-text-main ">Refund issued</p>
+                                                                                        <p className="text-[10px] text-text-muted ">{formatDate(payment.refundedAt)}</p>
                                                                                     </div>
                                                                                 )}
                                                                             </div>
@@ -686,7 +686,7 @@ export default function CustomerPaymentsPage() {
                                 </div>
 
                                 {/* Mobile card list */}
-                                <div className="lg:hidden divide-y divide-border-light dark:divide-border-dark">
+                                <div className="lg:hidden divide-y divide-border-light ">
                                     {paginated.map((payment) => {
                                         const config = STATUS_CONFIG[getEffectiveStatus(payment)] || STATUS_CONFIG.escrowed;
                                         const therapist = payment.booking?.therapist;
@@ -698,12 +698,12 @@ export default function CustomerPaymentsPage() {
                                                             {getInitials(therapist?.fullName)}
                                                         </div>
                                                         <div>
-                                                            <p className="text-sm font-bold text-text-main dark:text-white">{therapist?.fullName || "—"}</p>
-                                                            <p className="text-xs text-text-muted dark:text-gray-400">{formatDate(payment.createdAt)}</p>
+                                                            <p className="text-sm font-bold text-text-main ">{therapist?.fullName || "—"}</p>
+                                                            <p className="text-xs text-text-muted ">{formatDate(payment.createdAt)}</p>
                                                         </div>
                                                     </div>
                                                     <div className="text-right">
-                                                        <p className="text-sm font-bold text-text-main dark:text-white">{formatCurrency(payment.amount)}</p>
+                                                        <p className="text-sm font-bold text-text-main ">{formatCurrency(payment.amount)}</p>
                                                         <span className={`px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded ${config.color}`}>
                                                             {config.label}
                                                         </span>
@@ -724,15 +724,15 @@ export default function CustomerPaymentsPage() {
 
                                 {/* Pagination */}
                                 {filtered.length > ROWS_PER_PAGE && (
-                                    <div className="px-5 py-3 bg-muted-light dark:bg-muted-dark border-t border-border-light dark:border-border-dark flex justify-between items-center">
-                                        <p className="text-xs text-text-muted dark:text-gray-400">
-                                            Showing <span className="font-bold text-text-main dark:text-white">{(safePage - 1) * ROWS_PER_PAGE + 1}-{Math.min(safePage * ROWS_PER_PAGE, filtered.length)}</span> of <span className="font-bold text-text-main dark:text-white">{filtered.length}</span>
+                                    <div className="px-5 py-3 bg-muted-light  border-t border-border-light  flex justify-between items-center">
+                                        <p className="text-xs text-text-muted ">
+                                            Showing <span className="font-bold text-text-main ">{(safePage - 1) * ROWS_PER_PAGE + 1}-{Math.min(safePage * ROWS_PER_PAGE, filtered.length)}</span> of <span className="font-bold text-text-main ">{filtered.length}</span>
                                         </p>
                                         <div className="flex items-center gap-1">
                                             <button
                                                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                                                 disabled={safePage <= 1}
-                                                className="p-1.5 rounded-lg bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark hover:bg-muted-light dark:hover:bg-muted-dark transition-colors disabled:opacity-40"
+                                                className="p-1.5 rounded-lg bg-card-light  border border-border-light  hover:bg-muted-light  transition-colors disabled:opacity-40"
                                             >
                                                 <MdChevronLeft className="text-base" />
                                             </button>
@@ -742,7 +742,7 @@ export default function CustomerPaymentsPage() {
                                                     <button
                                                         key={pageNum}
                                                         onClick={() => setPage(pageNum)}
-                                                        className={`px-3 py-1 text-xs font-bold rounded-lg transition-colors ${safePage === pageNum ? "bg-primary text-white" : "text-text-muted dark:text-gray-400 hover:bg-muted-light dark:hover:bg-muted-dark"}`}
+                                                        className={`px-3 py-1 text-xs font-bold rounded-lg transition-colors ${safePage === pageNum ? "bg-primary text-white" : "text-text-muted  hover:bg-muted-light "}`}
                                                     >
                                                         {pageNum}
                                                     </button>
@@ -751,7 +751,7 @@ export default function CustomerPaymentsPage() {
                                             <button
                                                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                                                 disabled={safePage >= totalPages}
-                                                className="p-1.5 rounded-lg bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark hover:bg-muted-light dark:hover:bg-muted-dark transition-colors disabled:opacity-40"
+                                                className="p-1.5 rounded-lg bg-card-light  border border-border-light  hover:bg-muted-light  transition-colors disabled:opacity-40"
                                             >
                                                 <MdChevronRight className="text-base" />
                                             </button>
@@ -764,9 +764,9 @@ export default function CustomerPaymentsPage() {
 
                     {/* Escrow info */}
                     {payments?.some(p => ["escrowed", "partially_released"].includes(p.status)) && (
-                        <div className="flex items-start gap-3 bg-blue-50 dark:bg-blue-900/10 border border-blue-200 dark:border-blue-500/20 rounded-xl p-4">
+                        <div className="flex items-start gap-3 bg-blue-50  border border-blue-200  rounded-xl p-4">
                             <MdInfo className="text-blue-500 text-lg shrink-0 mt-0.5" />
-                            <p className="text-xs text-blue-700 dark:text-blue-300 leading-relaxed">
+                            <p className="text-xs text-blue-700  leading-relaxed">
                                 Payments marked &quot;In Escrow&quot; are held securely until you confirm session completion. Funds are released to the therapist after each confirmed session.
                             </p>
                         </div>

@@ -3,7 +3,7 @@ import Image from "next/image";
 
 const Header = () => {
     return (
-        <header className="flex items-center justify-between whitespace-nowrap border-b border-solid border-border-subtle dark:border-[#2a3038] px-10 py-3 bg-white dark:bg-background-dark transition-colors duration-200">
+        <header className="flex items-center justify-between whitespace-nowrap border-b border-solid border-border-subtle  px-10 py-3 bg-white  transition-colors duration-200">
             <Link href="/" className="flex items-center shrink-0">
                 <Image
                     src="/images/logo/rehabtask_horizontal.png"

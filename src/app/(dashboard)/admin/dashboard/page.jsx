@@ -28,38 +28,38 @@ const fmtDate = (d) =>
 
 function StatusBadge({ status }) {
     const styles = {
-        active: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
-        confirmed: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
-        approved: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
-        released: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
-        pending: 'bg-amber-100  text-amber-700  dark:bg-amber-900/30  dark:text-amber-400',
-        open: 'bg-blue-100   text-blue-700   dark:bg-blue-900/30   dark:text-blue-400',
-        under_review: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400',
-        escrowed: 'bg-cyan-100   text-cyan-700   dark:bg-cyan-900/30   dark:text-cyan-400',
-        cancelled: 'bg-red-100    text-red-700    dark:bg-red-900/30    dark:text-red-400',
-        rejected: 'bg-red-100    text-red-700    dark:bg-red-900/30    dark:text-red-400',
-        resolved: 'bg-slate-100  text-slate-500  dark:bg-slate-700     dark:text-slate-300',
+        active: 'bg-emerald-100 text-emerald-700  ',
+        confirmed: 'bg-emerald-100 text-emerald-700  ',
+        approved: 'bg-emerald-100 text-emerald-700  ',
+        released: 'bg-emerald-100 text-emerald-700  ',
+        pending: 'bg-amber-100  text-amber-700    ',
+        open: 'bg-blue-100   text-blue-700      ',
+        under_review: 'bg-purple-100 text-purple-700  ',
+        escrowed: 'bg-cyan-100   text-cyan-700      ',
+        cancelled: 'bg-red-100    text-red-700        ',
+        rejected: 'bg-red-100    text-red-700        ',
+        resolved: 'bg-slate-100  text-slate-500       ',
     };
     return (
-        <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium capitalize whitespace-nowrap ${styles[status] ?? 'bg-slate-100 text-slate-500 dark:bg-slate-700 dark:text-slate-300'}`}>
+        <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium capitalize whitespace-nowrap ${styles[status] ?? 'bg-slate-100 text-slate-500  '}`}>
             {status?.replace(/_/g, ' ')}
         </span>
     );
 }
 
 function Skeleton({ className }) {
-    return <div className={`animate-pulse rounded bg-slate-200 dark:bg-slate-700 ${className}`} />;
+    return <div className={`animate-pulse rounded bg-slate-200  ${className}`} />;
 }
 
 // Stat Card
 function StatCard({ icon: Icon, label, value, sub, iconBg, href, loading }) {
     const inner = (
-        <div className={`bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl p-5 h-full ${href ? 'hover:shadow-md hover:border-primary/30 transition-all' : ''}`}>
+        <div className={`bg-card-light  border border-border-light  rounded-xl p-5 h-full ${href ? 'hover:shadow-md hover:border-primary/30 transition-all' : ''}`}>
             <div className="flex items-start justify-between mb-3">
                 <div className={`p-2.5 rounded-xl ${iconBg}`}>
                     <Icon className="text-xl text-white" />
                 </div>
-                {href && <MdArrowForward className="text-slate-300 dark:text-slate-600 text-lg mt-0.5" />}
+                {href && <MdArrowForward className="text-slate-300  text-lg mt-0.5" />}
             </div>
             {loading ? (
                 <>
@@ -68,9 +68,9 @@ function StatCard({ icon: Icon, label, value, sub, iconBg, href, loading }) {
                 </>
             ) : (
                 <>
-                    <p className="text-2xl font-bold text-text-main dark:text-white">{value ?? '—'}</p>
-                    <p className="text-sm text-text-muted dark:text-slate-400 mt-0.5">{label}</p>
-                    {sub && <p className="text-xs text-text-muted dark:text-slate-500 mt-1">{sub}</p>}
+                    <p className="text-2xl font-bold text-text-main ">{value ?? '—'}</p>
+                    <p className="text-sm text-text-muted  mt-0.5">{label}</p>
+                    {sub && <p className="text-xs text-text-muted  mt-1">{sub}</p>}
                 </>
             )}
         </div>
@@ -81,9 +81,9 @@ function StatCard({ icon: Icon, label, value, sub, iconBg, href, loading }) {
 // Section Card
 function SectionCard({ title, viewAllHref, children }) {
     return (
-        <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl overflow-hidden">
-            <div className="flex items-center justify-between px-5 py-4 border-b border-border-light dark:border-border-dark">
-                <h3 className="font-semibold text-text-main dark:text-white text-sm">{title}</h3>
+        <div className="bg-card-light  border border-border-light  rounded-xl overflow-hidden">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-border-light ">
+                <h3 className="font-semibold text-text-main  text-sm">{title}</h3>
                 {viewAllHref && (
                     <Link
                         href={viewAllHref}
@@ -101,8 +101,8 @@ function SectionCard({ title, viewAllHref, children }) {
 function EmptyRow({ icon: Icon, message }) {
     return (
         <div className="py-10 text-center">
-            <Icon className="text-3xl text-slate-300 dark:text-slate-600 mx-auto mb-2" />
-            <p className="text-sm text-text-muted dark:text-slate-500">{message}</p>
+            <Icon className="text-3xl text-slate-300  mx-auto mb-2" />
+            <p className="text-sm text-text-muted ">{message}</p>
         </div>
     );
 }
@@ -134,10 +134,10 @@ export default function AdminDashboardPage() {
 
             {/* Page header */}
             <div>
-                <h1 className="text-xl md:text-2xl font-bold text-text-main dark:text-white">
+                <h1 className="text-xl md:text-2xl font-bold text-text-main ">
                     Admin Dashboard
                 </h1>
-                <p className="text-text-muted dark:text-slate-400 text-sm mt-0.5">
+                <p className="text-text-muted  text-sm mt-0.5">
                     Platform overview and key metrics
                 </p>
             </div>
@@ -244,18 +244,18 @@ export default function AdminDashboardPage() {
                             ) : !disputesData?.disputes?.length ? (
                                 <EmptyRow icon={MdGavel} message="No open disputes" />
                             ) : (
-                                <ul className="divide-y divide-border-light dark:divide-border-dark">
+                                <ul className="divide-y divide-border-light ">
                                     {disputesData.disputes.map(d => (
                                         <li key={d.id}>
                                             <Link
                                                 href="/admin/disputes"
-                                                className="flex items-center justify-between px-5 py-3.5 hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors"
+                                                className="flex items-center justify-between px-5 py-3.5 hover:bg-slate-50  transition-colors"
                                             >
                                                 <div className="min-w-0 mr-3">
-                                                    <p className="text-sm font-medium text-text-main dark:text-white truncate">
+                                                    <p className="text-sm font-medium text-text-main  truncate">
                                                         {d.title || `Dispute #${d.ticketId}`}
                                                     </p>
-                                                    <p className="text-xs text-text-muted dark:text-slate-500 mt-0.5">
+                                                    <p className="text-xs text-text-muted  mt-0.5">
                                                         {fmtDate(d.createdAt)}
                                                         {d.assignedAdmin ? ` · Assigned to ${d.assignedAdmin.email}` : ' · Unassigned'}
                                                     </p>
@@ -282,21 +282,21 @@ export default function AdminDashboardPage() {
                             ) : !pendingData?.therapists?.length ? (
                                 <EmptyRow icon={MdPendingActions} message="No pending applications" />
                             ) : (
-                                <ul className="divide-y divide-border-light dark:divide-border-dark">
+                                <ul className="divide-y divide-border-light ">
                                     {pendingData.therapists.map(t => (
                                         <li key={t.id}>
                                             <Link
                                                 href={`/admin/therapists/${t.id}`}
-                                                className="flex items-center gap-3 px-5 py-3.5 hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors"
+                                                className="flex items-center gap-3 px-5 py-3.5 hover:bg-slate-50  transition-colors"
                                             >
-                                                <div className="h-9 w-9 rounded-full bg-primary/10 dark:bg-primary/20 flex items-center justify-center text-sm font-bold text-primary shrink-0">
+                                                <div className="h-9 w-9 rounded-full bg-primary/10  flex items-center justify-center text-sm font-bold text-primary shrink-0">
                                                     {t.therapistProfile?.fullName?.charAt(0)?.toUpperCase() || 'T'}
                                                 </div>
                                                 <div className="flex-1 min-w-0">
-                                                    <p className="text-sm font-medium text-text-main dark:text-white truncate">
+                                                    <p className="text-sm font-medium text-text-main  truncate">
                                                         {t.therapistProfile?.fullName ?? '—'}
                                                     </p>
-                                                    <p className="text-xs text-text-muted dark:text-slate-500 truncate">
+                                                    <p className="text-xs text-text-muted  truncate">
                                                         {t.therapistProfile?.primaryLicenseType || 'Therapist'} · Applied {fmtDate(t.createdAt)}
                                                     </p>
                                                 </div>
@@ -324,11 +324,11 @@ export default function AdminDashboardPage() {
                         <div className="overflow-x-auto">
                             <table className="w-full text-sm">
                                 <thead>
-                                    <tr className="border-b border-border-light dark:border-border-dark">
+                                    <tr className="border-b border-border-light ">
                                         {['Customer', 'Therapist', 'Date', 'Status', 'Amount'].map((h, i) => (
                                             <th
                                                 key={h}
-                                                className={`px-5 py-3 text-left text-xs font-semibold text-text-muted dark:text-slate-400 uppercase tracking-wide
+                                                className={`px-5 py-3 text-left text-xs font-semibold text-text-muted  uppercase tracking-wide
                                                     ${i === 1 ? 'hidden md:table-cell' : ''}
                                                     ${i === 2 ? 'hidden lg:table-cell' : ''}
                                                     ${i === 4 ? 'text-right' : ''}`}
@@ -338,22 +338,22 @@ export default function AdminDashboardPage() {
                                         ))}
                                     </tr>
                                 </thead>
-                                <tbody className="divide-y divide-border-light dark:divide-border-dark">
+                                <tbody className="divide-y divide-border-light ">
                                     {bookingsData.bookings.map(b => (
-                                        <tr key={b.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
-                                            <td className="px-5 py-3.5 font-medium text-text-main dark:text-white">
+                                        <tr key={b.id} className="hover:bg-slate-50  transition-colors">
+                                            <td className="px-5 py-3.5 font-medium text-text-main ">
                                                 {b.customer?.fullName || '—'}
                                             </td>
-                                            <td className="px-5 py-3.5 text-text-muted dark:text-slate-400 hidden md:table-cell">
+                                            <td className="px-5 py-3.5 text-text-muted  hidden md:table-cell">
                                                 {b.therapist?.fullName || '—'}
                                             </td>
-                                            <td className="px-5 py-3.5 text-text-muted dark:text-slate-400 hidden lg:table-cell">
+                                            <td className="px-5 py-3.5 text-text-muted  hidden lg:table-cell">
                                                 {fmtDate(b.scheduledDate)}
                                             </td>
                                             <td className="px-5 py-3.5">
                                                 <StatusBadge status={b.status} />
                                             </td>
-                                            <td className="px-5 py-3.5 text-right font-medium text-text-main dark:text-white">
+                                            <td className="px-5 py-3.5 text-right font-medium text-text-main ">
                                                 {fmt$(b.payment?.amount)}
                                             </td>
                                         </tr>

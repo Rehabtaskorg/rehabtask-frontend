@@ -50,13 +50,13 @@ function EmailCollectForm() {
     }
 
     return (
-        <div className="max-w-md w-full bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 p-8">
+        <div className="max-w-md w-full bg-white  rounded-xl shadow-sm border border-gray-100  p-8">
             <div className="flex flex-col items-center mb-6">
                 <div className="w-16 h-16 flex items-center justify-center bg-primary/10 rounded-full mb-4">
                     <MdMail className="text-primary text-3xl" />
                 </div>
-                <h1 className="text-xl font-bold text-text-main dark:text-white text-center">Resend Verification Link</h1>
-                <p className="text-sm text-text-muted dark:text-gray-400 text-center mt-2">
+                <h1 className="text-xl font-bold text-text-main  text-center">Resend Verification Link</h1>
+                <p className="text-sm text-text-muted  text-center mt-2">
                     Enter your email address and we&apos;ll send you a new verification link.
                 </p>
             </div>
@@ -68,7 +68,7 @@ function EmailCollectForm() {
                         value={input}
                         onChange={(e) => { setInput(e.target.value); setError(""); }}
                         placeholder="you@example.com"
-                        className="w-full px-4 py-2.5 text-sm rounded-xl border border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark text-text-main dark:text-white placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                        className="w-full px-4 py-2.5 text-sm rounded-xl border border-border-light  bg-card-light  text-text-main  placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                         autoFocus
                     />
                     {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
@@ -105,7 +105,7 @@ function VerifyEmailContent() {
     };
 
     return (
-        <main className="flex-1 flex items-center justify-center px-4 py-12 bg-background-light dark:bg-background-dark">
+        <main className="flex-1 flex items-center justify-center px-4 py-12 bg-background-light ">
             {email
                 ? <EmailVerificationCard email={email} onResend={handleResendVerification} />
                 : <EmailCollectForm />

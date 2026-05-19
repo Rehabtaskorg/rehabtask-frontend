@@ -22,23 +22,23 @@ const formatTimestamp = (dateStr) => {
 function TimelineStep({ icon: Icon, iconColor, title, subtitle, timestamp, isCompleted, isWaiting, isCancelled, isLast, nextCompleted }) {
     const lineColor = isCompleted && nextCompleted
         ? "border-primary"
-        : "border-dashed border-slate-300 dark:border-slate-600";
+        : "border-dashed border-slate-300 ";
 
     let StatusIcon;
     let statusColor;
 
     if (isCancelled) {
         StatusIcon = MdCancel;
-        statusColor = "text-red-500 dark:text-red-400";
+        statusColor = "text-red-500 ";
     } else if (isCompleted) {
         StatusIcon = MdCheckCircle;
         statusColor = "text-primary";
     } else if (isWaiting) {
         StatusIcon = MdTimer;
-        statusColor = "text-amber-500 dark:text-amber-400";
+        statusColor = "text-amber-500 ";
     } else {
         StatusIcon = MdRadioButtonUnchecked;
-        statusColor = "text-slate-300 dark:text-slate-600";
+        statusColor = "text-slate-300 ";
     }
 
     return (
@@ -56,18 +56,18 @@ function TimelineStep({ icon: Icon, iconColor, title, subtitle, timestamp, isCom
             {/* Content */}
             <div className={`pb-5 ${isLast ? "pb-0" : ""}`}>
                 <div className="flex items-center gap-2">
-                    <Icon className={`text-sm ${isCompleted || isWaiting ? "text-text-main dark:text-white" : "text-text-muted dark:text-gray-500"}`} />
-                    <p className={`text-sm font-semibold ${isCancelled ? "text-red-600 dark:text-red-400" : isCompleted || isWaiting ? "text-text-main dark:text-white" : "text-text-muted dark:text-gray-500"}`}>
+                    <Icon className={`text-sm ${isCompleted || isWaiting ? "text-text-main " : "text-text-muted "}`} />
+                    <p className={`text-sm font-semibold ${isCancelled ? "text-red-600 " : isCompleted || isWaiting ? "text-text-main " : "text-text-muted "}`}>
                         {title}
                     </p>
                 </div>
                 {subtitle && (
-                    <p className="text-xs text-text-muted dark:text-gray-400 mt-0.5 ml-6">
+                    <p className="text-xs text-text-muted  mt-0.5 ml-6">
                         {subtitle}
                     </p>
                 )}
                 {timestamp && (
-                    <p className="text-xs text-text-muted dark:text-gray-500 mt-0.5 ml-6">
+                    <p className="text-xs text-text-muted  mt-0.5 ml-6">
                         {formatTimestamp(timestamp)}
                     </p>
                 )}
@@ -265,8 +265,8 @@ export default function BookingTimeline({ booking }) {
     }));
 
     return (
-        <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl p-5">
-            <h3 className="text-sm font-bold text-text-main dark:text-white mb-4">
+        <div className="bg-card-light  border border-border-light  rounded-xl p-5">
+            <h3 className="text-sm font-bold text-text-main  mb-4">
                 Booking Timeline
             </h3>
             <div>

@@ -18,18 +18,18 @@ const fmtDate = (d) =>
 
 // DB enum values: active | inactive | cancelled | past_due | trialing | grace_period
 const SUB_STATUS_STYLES = {
-    active:       'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
-    inactive:     'bg-slate-100  text-slate-600  dark:bg-slate-700     dark:text-slate-300',
-    cancelled:    'bg-red-100    text-red-700    dark:bg-red-900/30    dark:text-red-400',
-    past_due:     'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400',
-    trialing:     'bg-blue-100   text-blue-700   dark:bg-blue-900/30   dark:text-blue-400',
-    grace_period: 'bg-amber-100  text-amber-700  dark:bg-amber-900/30  dark:text-amber-400',
+    active:       'bg-emerald-100 text-emerald-700  ',
+    inactive:     'bg-slate-100  text-slate-600       ',
+    cancelled:    'bg-red-100    text-red-700        ',
+    past_due:     'bg-orange-100 text-orange-700  ',
+    trialing:     'bg-blue-100   text-blue-700      ',
+    grace_period: 'bg-amber-100  text-amber-700    ',
 };
 
 const PLAN_STYLES = {
-    free:     'bg-slate-100  text-slate-700  dark:bg-slate-700    dark:text-slate-300',
-    standard: 'bg-blue-100   text-blue-700   dark:bg-blue-900/30  dark:text-blue-400',
-    premium:  'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400',
+    free:     'bg-slate-100  text-slate-700      ',
+    standard: 'bg-blue-100   text-blue-700     ',
+    premium:  'bg-purple-100 text-purple-700  ',
 };
 
 
@@ -41,19 +41,19 @@ const SORT_OPTIONS = [
 
 function StatusBadge({ status, styleMap }) {
     return (
-        <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium capitalize whitespace-nowrap ${styleMap?.[status] ?? 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300'}`}>
+        <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium capitalize whitespace-nowrap ${styleMap?.[status] ?? 'bg-slate-100 text-slate-600  '}`}>
             {status?.replace(/_/g, ' ') || '—'}
         </span>
     );
 }
 
 function Skeleton({ className }) {
-    return <div className={`animate-pulse rounded bg-slate-200 dark:bg-slate-700 ${className}`} />;
+    return <div className={`animate-pulse rounded bg-slate-200  ${className}`} />;
 }
 
 function StatCard({ icon: Icon, label, value, iconBg, loading }) {
     return (
-        <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl p-5">
+        <div className="bg-card-light  border border-border-light  rounded-xl p-5">
             <div className={`p-2.5 rounded-xl ${iconBg} w-fit mb-3`}>
                 <Icon className="text-xl text-white" />
             </div>
@@ -64,8 +64,8 @@ function StatCard({ icon: Icon, label, value, iconBg, loading }) {
                 </>
             ) : (
                 <>
-                    <p className="text-2xl font-bold text-text-main dark:text-white">{value ?? '—'}</p>
-                    <p className="text-sm text-text-muted dark:text-slate-400 mt-0.5">{label}</p>
+                    <p className="text-2xl font-bold text-text-main ">{value ?? '—'}</p>
+                    <p className="text-sm text-text-muted  mt-0.5">{label}</p>
                 </>
             )}
         </div>
@@ -88,9 +88,9 @@ function SubscriptionSidePanel({ subscription, onClose, onCancel, loading, error
 
     return (
         <div className="flex flex-col h-full">
-            <div className="flex items-center justify-between px-5 py-4 border-b border-border-light dark:border-border-dark shrink-0">
-                <h3 className="font-semibold text-text-main dark:text-white text-sm">Subscription Details</h3>
-                <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-border-light  shrink-0">
+                <h3 className="font-semibold text-text-main  text-sm">Subscription Details</h3>
+                <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-slate-100  text-slate-400 hover:text-slate-600 ">
                     <MdClose className="text-xl" />
                 </button>
             </div>
@@ -100,21 +100,21 @@ function SubscriptionSidePanel({ subscription, onClose, onCancel, loading, error
                     <StatusBadge status={subscription.planType} styleMap={PLAN_STYLES} />
                 </div>
                 {error && (
-                    <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-sm">
+                    <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-red-50  text-red-600  text-sm">
                         <MdWarning className="shrink-0 text-base" /> {error}
                     </div>
                 )}
                 {success && (
-                    <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 text-sm">
+                    <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-emerald-50  text-emerald-600  text-sm">
                         <MdCheckCircle className="shrink-0 text-base" /> {success}
                     </div>
                 )}
                 {isCancelledButActive && (
-                    <div className="flex items-start gap-2 px-3 py-2.5 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
+                    <div className="flex items-start gap-2 px-3 py-2.5 rounded-xl bg-red-50  border border-red-200 ">
                         <MdWarning className="shrink-0 text-red-500 mt-0.5" />
                         <div>
-                            <p className="text-sm font-medium text-red-700 dark:text-red-400">Cancellation Scheduled</p>
-                            <p className="text-xs text-red-600 dark:text-red-300 mt-0.5">
+                            <p className="text-sm font-medium text-red-700 ">Cancellation Scheduled</p>
+                            <p className="text-xs text-red-600  mt-0.5">
                                 Customer cancelled — plan ends {subscription.currentPeriodEnd ? fmtDate(subscription.currentPeriodEnd) : 'at period end'}
                             </p>
                         </div>
@@ -122,76 +122,76 @@ function SubscriptionSidePanel({ subscription, onClose, onCancel, loading, error
                 )}
                 <dl className="space-y-3 text-sm">
                     <div className="flex justify-between gap-3">
-                        <dt className="text-text-muted dark:text-slate-400 flex items-center gap-1"><MdPerson className="text-sm" /> Customer</dt>
-                        <dd className="font-medium text-text-main dark:text-white text-right">{subscription.customer?.fullName || '—'}</dd>
+                        <dt className="text-text-muted  flex items-center gap-1"><MdPerson className="text-sm" /> Customer</dt>
+                        <dd className="font-medium text-text-main  text-right">{subscription.customer?.fullName || '—'}</dd>
                     </div>
                     {subscription.customer?.user?.email && (
                         <div className="flex justify-between gap-3">
-                            <dt className="text-text-muted dark:text-slate-400">Email</dt>
-                            <dd className="text-text-main dark:text-white text-right truncate max-w-45">{subscription.customer.user.email}</dd>
+                            <dt className="text-text-muted ">Email</dt>
+                            <dd className="text-text-main  text-right truncate max-w-45">{subscription.customer.user.email}</dd>
                         </div>
                     )}
                     <div className="flex justify-between gap-3">
-                        <dt className="text-text-muted dark:text-slate-400">Plan</dt>
-                        <dd className="font-medium text-text-main dark:text-white capitalize">{subscription.planType}</dd>
+                        <dt className="text-text-muted ">Plan</dt>
+                        <dd className="font-medium text-text-main  capitalize">{subscription.planType}</dd>
                     </div>
                     <div className="flex justify-between gap-3">
-                        <dt className="text-text-muted dark:text-slate-400">Therapist Limit</dt>
-                        <dd className="font-medium text-text-main dark:text-white">{subscription.therapistLimit >= 999999 ? 'Unlimited' : subscription.therapistLimit ?? '—'}</dd>
+                        <dt className="text-text-muted ">Therapist Limit</dt>
+                        <dd className="font-medium text-text-main ">{subscription.therapistLimit >= 999999 ? 'Unlimited' : subscription.therapistLimit ?? '—'}</dd>
                     </div>
                     <div className="flex justify-between gap-3">
-                        <dt className="text-text-muted dark:text-slate-400">Request Limit</dt>
-                        <dd className="font-medium text-text-main dark:text-white">{subscription.requestLimit >= 999999 ? 'Unlimited' : subscription.requestLimit ?? '—'}</dd>
+                        <dt className="text-text-muted ">Request Limit</dt>
+                        <dd className="font-medium text-text-main ">{subscription.requestLimit >= 999999 ? 'Unlimited' : subscription.requestLimit ?? '—'}</dd>
                     </div>
                     {subscription.currentPeriodStart && (
                         <div className="flex justify-between gap-3">
-                            <dt className="text-text-muted dark:text-slate-400">Started</dt>
-                            <dd className="font-medium text-text-main dark:text-white">{fmtDate(subscription.currentPeriodStart)}</dd>
+                            <dt className="text-text-muted ">Started</dt>
+                            <dd className="font-medium text-text-main ">{fmtDate(subscription.currentPeriodStart)}</dd>
                         </div>
                     )}
                     {subscription.currentPeriodEnd && (
                         <div className="flex justify-between gap-3">
-                            <dt className="text-text-muted dark:text-slate-400">{isCancelledButActive ? 'Ends' : isActive ? 'Renews' : 'Ended'}</dt>
-                            <dd className={`font-medium ${isCancelledButActive ? 'text-red-500' : 'text-text-main dark:text-white'}`}>{fmtDate(subscription.currentPeriodEnd)}</dd>
+                            <dt className="text-text-muted ">{isCancelledButActive ? 'Ends' : isActive ? 'Renews' : 'Ended'}</dt>
+                            <dd className={`font-medium ${isCancelledButActive ? 'text-red-500' : 'text-text-main '}`}>{fmtDate(subscription.currentPeriodEnd)}</dd>
                         </div>
                     )}
                     {subscription.trialEndsAt && (
                         <div className="flex justify-between gap-3">
-                            <dt className="text-text-muted dark:text-slate-400">Trial Ends</dt>
-                            <dd className="font-medium text-blue-600 dark:text-blue-400">{fmtDate(subscription.trialEndsAt)}</dd>
+                            <dt className="text-text-muted ">Trial Ends</dt>
+                            <dd className="font-medium text-blue-600 ">{fmtDate(subscription.trialEndsAt)}</dd>
                         </div>
                     )}
                     {subscription.gracePeriodEndsAt && (
                         <div className="flex justify-between gap-3">
-                            <dt className="text-text-muted dark:text-slate-400">Grace Period Ends</dt>
-                            <dd className="font-medium text-amber-600 dark:text-amber-400">{fmtDate(subscription.gracePeriodEndsAt)}</dd>
+                            <dt className="text-text-muted ">Grace Period Ends</dt>
+                            <dd className="font-medium text-amber-600 ">{fmtDate(subscription.gracePeriodEndsAt)}</dd>
                         </div>
                     )}
                     <div className="flex justify-between gap-3">
-                        <dt className="text-text-muted dark:text-slate-400">Created</dt>
-                        <dd className="font-medium text-text-main dark:text-white">{fmtDate(subscription.createdAt)}</dd>
+                        <dt className="text-text-muted ">Created</dt>
+                        <dd className="font-medium text-text-main ">{fmtDate(subscription.createdAt)}</dd>
                     </div>
                     {subscription.stripeSubscriptionId && (
                         <div className="flex justify-between gap-3">
-                            <dt className="text-text-muted dark:text-slate-400">Stripe ID</dt>
-                            <dd className="font-mono text-xs text-text-muted dark:text-slate-400 text-right truncate max-w-40">{subscription.stripeSubscriptionId}</dd>
+                            <dt className="text-text-muted ">Stripe ID</dt>
+                            <dd className="font-mono text-xs text-text-muted  text-right truncate max-w-40">{subscription.stripeSubscriptionId}</dd>
                         </div>
                     )}
                 </dl>
                 {isCancellable && (
-                    <div className="border border-border-light dark:border-border-dark rounded-xl overflow-hidden">
-                        <button onClick={() => setConfirmCancel(v => !v)} className="w-full flex items-center justify-between px-4 py-3 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors">
+                    <div className="border border-border-light  rounded-xl overflow-hidden">
+                        <button onClick={() => setConfirmCancel(v => !v)} className="w-full flex items-center justify-between px-4 py-3 text-sm font-medium text-red-600  hover:bg-red-50  transition-colors">
                             {cancelLabel}
                             <span className="text-text-muted text-xs">{confirmCancel ? '▲' : '▼'}</span>
                         </button>
                         {confirmCancel && (
-                            <div className="px-4 pb-4 space-y-3 border-t border-border-light dark:border-border-dark pt-3">
-                                <p className="text-xs text-text-muted dark:text-slate-400">{cancelDescription}</p>
+                            <div className="px-4 pb-4 space-y-3 border-t border-border-light  pt-3">
+                                <p className="text-xs text-text-muted ">{cancelDescription}</p>
                                 <div className="flex gap-2">
                                     <button onClick={() => onCancel(subscription.id)} disabled={loading} className="flex-1 py-2.5 rounded-xl bg-red-600 text-white text-sm font-medium hover:bg-red-700 disabled:opacity-50 transition-colors">
                                         {loading ? 'Cancelling…' : 'Confirm Cancellation'}
                                     </button>
-                                    <button onClick={() => setConfirmCancel(false)} disabled={loading} className="px-4 py-2.5 rounded-xl border border-border-light dark:border-border-dark text-sm text-text-main dark:text-white hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+                                    <button onClick={() => setConfirmCancel(false)} disabled={loading} className="px-4 py-2.5 rounded-xl border border-border-light  text-sm text-text-main  hover:bg-slate-50  transition-colors">
                                         Back
                                     </button>
                                 </div>
@@ -200,21 +200,21 @@ function SubscriptionSidePanel({ subscription, onClose, onCancel, loading, error
                     </div>
                 )}
                 {isCancelledButActive && !success && (
-                    <div className="border border-border-light dark:border-border-dark rounded-xl overflow-hidden">
-                        <button onClick={() => setConfirmCancel(v => !v)} className="w-full flex items-center justify-between px-4 py-3 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors">
+                    <div className="border border-border-light  rounded-xl overflow-hidden">
+                        <button onClick={() => setConfirmCancel(v => !v)} className="w-full flex items-center justify-between px-4 py-3 text-sm font-medium text-red-600  hover:bg-red-50  transition-colors">
                             Force Cancel Now
                             <span className="text-text-muted text-xs">{confirmCancel ? '▲' : '▼'}</span>
                         </button>
                         {confirmCancel && (
-                            <div className="px-4 pb-4 space-y-3 border-t border-border-light dark:border-border-dark pt-3">
-                                <p className="text-xs text-text-muted dark:text-slate-400">
+                            <div className="px-4 pb-4 space-y-3 border-t border-border-light  pt-3">
+                                <p className="text-xs text-text-muted ">
                                     Customer has already scheduled cancellation at period end. This will cancel immediately in Stripe and enter grace period.
                                 </p>
                                 <div className="flex gap-2">
                                     <button onClick={() => onCancel(subscription.id)} disabled={loading} className="flex-1 py-2.5 rounded-xl bg-red-600 text-white text-sm font-medium hover:bg-red-700 disabled:opacity-50 transition-colors">
                                         {loading ? 'Cancelling…' : 'Force Cancel'}
                                     </button>
-                                    <button onClick={() => setConfirmCancel(false)} disabled={loading} className="px-4 py-2.5 rounded-xl border border-border-light dark:border-border-dark text-sm text-text-main dark:text-white hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+                                    <button onClick={() => setConfirmCancel(false)} disabled={loading} className="px-4 py-2.5 rounded-xl border border-border-light  text-sm text-text-main  hover:bg-slate-50  transition-colors">
                                         Back
                                     </button>
                                 </div>
@@ -295,7 +295,7 @@ function CustomerSubscriptionsTab() {
         setPage(1); setSelected(null); setActionError(''); setActionSuccess('');
     };
 
-    const inputCls = 'px-3 py-2.5 text-sm rounded-xl border border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark text-text-main dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary';
+    const inputCls = 'px-3 py-2.5 text-sm rounded-xl border border-border-light  bg-card-light  text-text-main  focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary';
 
     return (
         <div className="flex min-h-0 relative">
@@ -310,10 +310,10 @@ function CustomerSubscriptionsTab() {
                 </div>
 
                 {/* Filters */}
-                <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl p-4 mb-5 space-y-3">
+                <div className="bg-card-light  border border-border-light  rounded-xl p-4 mb-5 space-y-3">
                     <div className="flex flex-wrap gap-3 items-center">
                         <div className="relative flex-1 min-w-48">
-                            <MdSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted dark:text-slate-400 text-lg pointer-events-none" />
+                            <MdSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted  text-lg pointer-events-none" />
                             <input type="text" placeholder="Search customer name or email…" value={searchInput}
                                 onChange={e => setSearchInput(e.target.value)}
                                 onKeyDown={e => { if (e.key === 'Enter') commitSearch(e.target.value); }}
@@ -338,7 +338,7 @@ function CustomerSubscriptionsTab() {
                     </div>
                     <div className="flex flex-wrap gap-3 items-center">
                         <div className="flex items-center gap-2">
-                            <MdSwapVert className="text-text-muted dark:text-slate-400 text-lg shrink-0" />
+                            <MdSwapVert className="text-text-muted  text-lg shrink-0" />
                             <select value={sortBy} onChange={e => { setSortBy(e.target.value); setPage(1); }} className={inputCls}>
                                 {SORT_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
                             </select>
@@ -349,13 +349,13 @@ function CustomerSubscriptionsTab() {
                             </button>
                         </div>
                         <div className="flex items-center gap-2">
-                            <MdFilterList className="text-text-muted dark:text-slate-400 text-lg shrink-0" />
+                            <MdFilterList className="text-text-muted  text-lg shrink-0" />
                             <input type="date" value={startDate} onChange={e => { setStartDate(e.target.value); setPage(1); setSelected(null); }} title="Created from" className={inputCls} />
-                            <span className="text-text-muted dark:text-slate-400 text-sm shrink-0">to</span>
+                            <span className="text-text-muted  text-sm shrink-0">to</span>
                             <input type="date" value={endDate} min={startDate || undefined} onChange={e => { setEndDate(e.target.value); setPage(1); setSelected(null); }} title="Created until" className={inputCls} />
                         </div>
                         {hasActiveFilters && (
-                            <button onClick={resetFilters} className="px-3 py-2.5 text-sm rounded-xl border border-border-light dark:border-border-dark text-text-muted dark:text-slate-400 hover:text-text-main dark:hover:text-white hover:border-primary/40 transition-colors">
+                            <button onClick={resetFilters} className="px-3 py-2.5 text-sm rounded-xl border border-border-light  text-text-muted  hover:text-text-main  hover:border-primary/40 transition-colors">
                                 Clear all
                             </button>
                         )}
@@ -363,39 +363,39 @@ function CustomerSubscriptionsTab() {
                 </div>
 
                 {/* Table */}
-                <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl overflow-hidden">
+                <div className="bg-card-light  border border-border-light  rounded-xl overflow-hidden">
                     {isLoading ? (
                         <div className="p-5 space-y-3">{[...Array(6)].map((_, i) => <Skeleton key={i} className="h-16" />)}</div>
                     ) : error ? (
                         <div className="p-12 text-center text-sm text-red-500">Failed to load subscriptions. Please refresh.</div>
                     ) : !subscriptions.length ? (
                         <div className="p-12 text-center">
-                            <MdCardMembership className="text-4xl text-slate-300 dark:text-slate-600 mx-auto mb-2" />
-                            <p className="text-sm text-text-muted dark:text-slate-400">No subscriptions found</p>
+                            <MdCardMembership className="text-4xl text-slate-300  mx-auto mb-2" />
+                            <p className="text-sm text-text-muted ">No subscriptions found</p>
                         </div>
                     ) : (
                         <>
                             <div className="overflow-x-auto">
                                 <table className="w-full text-sm">
                                     <thead>
-                                        <tr className="border-b border-border-light dark:border-border-dark bg-slate-50 dark:bg-slate-800/50">
-                                            <th className="px-5 py-3 text-left text-xs font-semibold text-text-muted dark:text-slate-400 uppercase tracking-wide">Customer</th>
-                                            <th className="px-5 py-3 text-left text-xs font-semibold text-text-muted dark:text-slate-400 uppercase tracking-wide">Plan</th>
-                                            <th className="px-5 py-3 text-left text-xs font-semibold text-text-muted dark:text-slate-400 uppercase tracking-wide">Status</th>
-                                            <th className="px-5 py-3 text-left text-xs font-semibold text-text-muted dark:text-slate-400 uppercase tracking-wide hidden md:table-cell">
+                                        <tr className="border-b border-border-light  bg-slate-50 ">
+                                            <th className="px-5 py-3 text-left text-xs font-semibold text-text-muted  uppercase tracking-wide">Customer</th>
+                                            <th className="px-5 py-3 text-left text-xs font-semibold text-text-muted  uppercase tracking-wide">Plan</th>
+                                            <th className="px-5 py-3 text-left text-xs font-semibold text-text-muted  uppercase tracking-wide">Status</th>
+                                            <th className="px-5 py-3 text-left text-xs font-semibold text-text-muted  uppercase tracking-wide hidden md:table-cell">
                                                 {sortBy === 'currentPeriodStart' ? 'Billing Cycle Start' : sortBy === 'currentPeriodEnd' ? 'Billing Cycle End' : 'Created'}
                                             </th>
-                                            <th className="px-5 py-3 text-left text-xs font-semibold text-text-muted dark:text-slate-400 uppercase tracking-wide hidden lg:table-cell">Renews / Ends</th>
+                                            <th className="px-5 py-3 text-left text-xs font-semibold text-text-muted  uppercase tracking-wide hidden lg:table-cell">Renews / Ends</th>
                                         </tr>
                                     </thead>
-                                    <tbody className="divide-y divide-border-light dark:divide-border-dark">
+                                    <tbody className="divide-y divide-border-light ">
                                         {subscriptions.map(sub => (
                                             <tr key={sub.id}
                                                 onClick={() => { setSelected(prev => prev?.id === sub.id ? null : sub); setActionError(''); setActionSuccess(''); }}
-                                                className={`cursor-pointer transition-colors ${selected?.id === sub.id ? 'bg-primary/5 dark:bg-primary/10' : 'hover:bg-slate-50 dark:hover:bg-slate-800/40'}`}>
+                                                className={`cursor-pointer transition-colors ${selected?.id === sub.id ? 'bg-primary/5 ' : 'hover:bg-slate-50 '}`}>
                                                 <td className="px-5 py-3.5">
-                                                    <p className="font-medium text-text-main dark:text-white">{sub.customer?.fullName || '—'}</p>
-                                                    <p className="text-xs text-text-muted dark:text-slate-400 hidden sm:block">{sub.customer?.user?.email}</p>
+                                                    <p className="font-medium text-text-main ">{sub.customer?.fullName || '—'}</p>
+                                                    <p className="text-xs text-text-muted  hidden sm:block">{sub.customer?.user?.email}</p>
                                                 </td>
                                                 <td className="px-5 py-3.5"><StatusBadge status={sub.planType} styleMap={PLAN_STYLES} /></td>
                                                 <td className="px-5 py-3.5">
@@ -406,10 +406,10 @@ function CustomerSubscriptionsTab() {
                                                         )}
                                                     </div>
                                                 </td>
-                                                <td className="px-5 py-3.5 text-text-muted dark:text-slate-400 hidden md:table-cell">
+                                                <td className="px-5 py-3.5 text-text-muted  hidden md:table-cell">
                                                     {fmtDate(sortBy === 'currentPeriodStart' ? sub.currentPeriodStart : sortBy === 'currentPeriodEnd' ? sub.currentPeriodEnd : sub.createdAt)}
                                                 </td>
-                                                <td className="px-5 py-3.5 text-text-muted dark:text-slate-400 hidden lg:table-cell">
+                                                <td className="px-5 py-3.5 text-text-muted  hidden lg:table-cell">
                                                     {fmtDate(sub.currentPeriodEnd || (sub.status === 'trialing' ? sub.trialEndsAt : sub.gracePeriodEndsAt))}
                                                 </td>
                                             </tr>
@@ -418,17 +418,17 @@ function CustomerSubscriptionsTab() {
                                 </table>
                             </div>
                             {pagination && pagination.totalPages > 1 && (
-                                <div className="flex items-center justify-between px-5 py-4 border-t border-border-light dark:border-border-dark">
-                                    <p className="text-sm text-text-muted dark:text-slate-400">
+                                <div className="flex items-center justify-between px-5 py-4 border-t border-border-light ">
+                                    <p className="text-sm text-text-muted ">
                                         {(page - 1) * pagination.limit + 1}–{Math.min(page * pagination.limit, pagination.total)} of {pagination.total.toLocaleString()}
                                     </p>
                                     <div className="flex items-center gap-2">
-                                        <button onClick={() => setPage(p => p - 1)} disabled={page === 1} className="p-1.5 rounded-lg border border-border-light dark:border-border-dark hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed">
-                                            <MdChevronLeft className="text-xl text-slate-600 dark:text-slate-300" />
+                                        <button onClick={() => setPage(p => p - 1)} disabled={page === 1} className="p-1.5 rounded-lg border border-border-light  hover:bg-slate-50  disabled:opacity-40 disabled:cursor-not-allowed">
+                                            <MdChevronLeft className="text-xl text-slate-600 " />
                                         </button>
-                                        <span className="text-sm font-medium text-text-main dark:text-white min-w-15 text-center">{page} / {pagination.totalPages}</span>
-                                        <button onClick={() => setPage(p => p + 1)} disabled={page === pagination.totalPages} className="p-1.5 rounded-lg border border-border-light dark:border-border-dark hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed">
-                                            <MdChevronRight className="text-xl text-slate-600 dark:text-slate-300" />
+                                        <span className="text-sm font-medium text-text-main  min-w-15 text-center">{page} / {pagination.totalPages}</span>
+                                        <button onClick={() => setPage(p => p + 1)} disabled={page === pagination.totalPages} className="p-1.5 rounded-lg border border-border-light  hover:bg-slate-50  disabled:opacity-40 disabled:cursor-not-allowed">
+                                            <MdChevronRight className="text-xl text-slate-600 " />
                                         </button>
                                     </div>
                                 </div>
@@ -442,7 +442,7 @@ function CustomerSubscriptionsTab() {
             {selected && (
                 <>
                     <div className="fixed inset-0 bg-black/40 z-30 lg:hidden" onClick={() => setSelected(null)} />
-                    <div className="fixed right-0 top-14 lg:top-0 h-[calc(100dvh-3.5rem)] lg:h-dvh w-full max-w-95 bg-card-light dark:bg-card-dark border-l border-border-light dark:border-border-dark z-40 lg:z-20 shadow-xl flex flex-col overflow-hidden">
+                    <div className="fixed right-0 top-14 lg:top-0 h-[calc(100dvh-3.5rem)] lg:h-dvh w-full max-w-95 bg-card-light  border-l border-border-light  z-40 lg:z-20 shadow-xl flex flex-col overflow-hidden">
                         <SubscriptionSidePanel subscription={selected}
                             onClose={() => { setSelected(null); setActionError(''); setActionSuccess(''); }}
                             onCancel={handleCancel} loading={mutating} error={actionError} success={actionSuccess} />
@@ -460,8 +460,8 @@ export default function AdminSubscriptionsPage() {
         <div className="p-4 md:p-6">
             {/* Header */}
             <div className="mb-5">
-                <h1 className="text-xl md:text-2xl font-bold text-text-main dark:text-white">Customer Subscriptions</h1>
-                <p className="text-text-muted dark:text-slate-400 text-sm mt-0.5">
+                <h1 className="text-xl md:text-2xl font-bold text-text-main ">Customer Subscriptions</h1>
+                <p className="text-text-muted  text-sm mt-0.5">
                     Manage customer subscriptions
                 </p>
             </div>

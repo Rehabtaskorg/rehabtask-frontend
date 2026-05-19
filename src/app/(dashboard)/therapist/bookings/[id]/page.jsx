@@ -168,15 +168,15 @@ export default function TherapistBookingDetailPage() {
         return (
             <div className="p-4 md:p-6 max-w-6xl mx-auto">
                 <div className="animate-pulse space-y-4">
-                    <div className="h-8 w-32 bg-slate-200 dark:bg-slate-700 rounded" />
-                    <div className="h-6 w-64 bg-slate-200 dark:bg-slate-700 rounded" />
+                    <div className="h-8 w-32 bg-slate-200  rounded" />
+                    <div className="h-6 w-64 bg-slate-200  rounded" />
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
                         <div className="lg:col-span-8 space-y-4">
-                            <div className="h-40 bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl" />
-                            <div className="h-60 bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl" />
+                            <div className="h-40 bg-card-light  border border-border-light  rounded-xl" />
+                            <div className="h-60 bg-card-light  border border-border-light  rounded-xl" />
                         </div>
                         <div className="lg:col-span-4 space-y-4">
-                            <div className="h-48 bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl" />
+                            <div className="h-48 bg-card-light  border border-border-light  rounded-xl" />
                         </div>
                     </div>
                 </div>
@@ -188,11 +188,11 @@ export default function TherapistBookingDetailPage() {
     if (error || !booking) {
         return (
             <div className="p-4 md:p-6 max-w-6xl mx-auto">
-                <button onClick={() => router.back()} className="flex items-center gap-1 text-sm text-text-muted dark:text-gray-400 hover:text-primary transition-colors mb-6">
+                <button onClick={() => router.back()} className="flex items-center gap-1 text-sm text-text-muted  hover:text-primary transition-colors mb-6">
                     <MdArrowBack className="text-base" /> Back
                 </button>
-                <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-6 text-center">
-                    <p className="text-red-700 dark:text-red-400 font-semibold">Booking not found</p>
+                <div className="bg-red-50  border border-red-200  rounded-xl p-6 text-center">
+                    <p className="text-red-700  font-semibold">Booking not found</p>
                     <button onClick={refetch} className="text-primary hover:underline text-sm font-bold mt-2 flex items-center gap-1 mx-auto">
                         <MdRefresh className="text-base" /> Retry
                     </button>
@@ -235,7 +235,7 @@ export default function TherapistBookingDetailPage() {
             {/* Back button */}
             <button
                 onClick={() => router.push("/therapist/bookings")}
-                className="flex items-center gap-1 text-sm text-text-muted dark:text-gray-400 hover:text-primary transition-colors mb-6"
+                className="flex items-center gap-1 text-sm text-text-muted  hover:text-primary transition-colors mb-6"
             >
                 <MdArrowBack className="text-base" /> Back to Bookings
             </button>
@@ -243,10 +243,10 @@ export default function TherapistBookingDetailPage() {
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
                 <div>
-                    <h1 className="text-xl sm:text-2xl font-black tracking-tight text-text-main dark:text-white">
+                    <h1 className="text-xl sm:text-2xl font-black tracking-tight text-text-main ">
                         Booking Details
                     </h1>
-                    <p className="text-xs text-text-muted dark:text-gray-400 mt-0.5 font-mono">
+                    <p className="text-xs text-text-muted  mt-0.5 font-mono">
                         ID: {booking.id.slice(0, 8)}...
                     </p>
                 </div>
@@ -258,22 +258,22 @@ export default function TherapistBookingDetailPage() {
                 {/* ── Left Column ── */}
                 <div className="lg:col-span-8 space-y-6">
                     {/* Customer Card */}
-                    <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl p-5">
+                    <div className="bg-card-light  border border-border-light  rounded-xl p-5">
                         <div className="flex items-start gap-4">
                             <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center text-primary font-bold text-xl shrink-0">
                                 {customerInitial}
                             </div>
                             <div className="flex-1 min-w-0">
-                                <h3 className="text-base font-bold text-text-main dark:text-white">
+                                <h3 className="text-base font-bold text-text-main ">
                                     {customer?.fullName || "Customer"}
                                 </h3>
                                 {customer?.phone && (
-                                    <p className="text-sm text-text-muted dark:text-gray-400 mt-0.5">
+                                    <p className="text-sm text-text-muted  mt-0.5">
                                         {customer.phone}
                                     </p>
                                 )}
                                 {customer?.location && (
-                                    <p className="text-xs text-text-muted dark:text-gray-500 mt-0.5 flex items-center gap-1">
+                                    <p className="text-xs text-text-muted  mt-0.5 flex items-center gap-1">
                                         <MdLocationOn className="text-sm" />
                                         {customer.location}
                                     </p>
@@ -294,28 +294,28 @@ export default function TherapistBookingDetailPage() {
                     {/* Patient identity hidden from therapist */}
 
                     {/* Session Details */}
-                    <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl p-5">
-                        <h3 className="text-sm font-bold text-text-main dark:text-white mb-4">Session Details</h3>
+                    <div className="bg-card-light  border border-border-light  rounded-xl p-5">
+                        <h3 className="text-sm font-bold text-text-main  mb-4">Session Details</h3>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div className="flex items-start gap-3">
                                 <MdSchedule className="text-primary text-lg mt-0.5 shrink-0" />
                                 <div>
-                                    <p className="text-xs text-text-muted dark:text-gray-400">Service</p>
-                                    <p className="text-sm font-medium text-text-main dark:text-white">{request?.serviceType || "—"}</p>
+                                    <p className="text-xs text-text-muted ">Service</p>
+                                    <p className="text-sm font-medium text-text-main ">{request?.serviceType || "—"}</p>
                                 </div>
                             </div>
                             <div className="flex items-start gap-3">
                                 <MdCalendarToday className="text-primary text-lg mt-0.5 shrink-0" />
                                 <div>
-                                    <p className="text-xs text-text-muted dark:text-gray-400">Date</p>
-                                    <p className="text-sm font-medium text-text-main dark:text-white">{formatDate(session?.scheduledDate || booking.scheduledDate)}</p>
+                                    <p className="text-xs text-text-muted ">Date</p>
+                                    <p className="text-sm font-medium text-text-main ">{formatDate(session?.scheduledDate || booking.scheduledDate)}</p>
                                 </div>
                             </div>
                             <div className="flex items-start gap-3">
                                 <MdAccessTime className="text-primary text-lg mt-0.5 shrink-0" />
                                 <div>
-                                    <p className="text-xs text-text-muted dark:text-gray-400">Time</p>
-                                    <p className="text-sm font-medium text-text-main dark:text-white">{formatTime(session?.scheduledDate || booking.scheduledDate)}</p>
+                                    <p className="text-xs text-text-muted ">Time</p>
+                                    <p className="text-sm font-medium text-text-main ">{formatTime(session?.scheduledDate || booking.scheduledDate)}</p>
                                 </div>
                             </div>
                             <div className="flex items-start gap-3">
@@ -325,10 +325,10 @@ export default function TherapistBookingDetailPage() {
                                     <MdLocationOn className="text-primary text-lg mt-0.5 shrink-0" />
                                 )}
                                 <div>
-                                    <p className="text-xs text-text-muted dark:text-gray-400">
+                                    <p className="text-xs text-text-muted ">
                                         {sessionType === "virtual" ? "Session Type" : "Location"}
                                     </p>
-                                    <p className="text-sm font-medium text-text-main dark:text-white">
+                                    <p className="text-sm font-medium text-text-main ">
                                         {sessionType === "virtual" ? "Virtual Session" : request?.location || "—"}
                                     </p>
                                 </div>
@@ -336,10 +336,10 @@ export default function TherapistBookingDetailPage() {
                         </div>
 
                         {sessionType && (
-                            <div className="mt-4 pt-4 border-t border-border-light dark:border-border-dark">
+                            <div className="mt-4 pt-4 border-t border-border-light ">
                                 <span className={`inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full ${sessionType === "virtual"
-                                    ? "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
-                                    : "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300"
+                                    ? "bg-blue-100  text-blue-700 "
+                                    : "bg-emerald-100  text-emerald-700 "
                                     }`}>
                                     {sessionType === "virtual" ? <MdVideocam className="text-sm" /> : <MdPerson className="text-sm" />}
                                     {sessionType === "virtual" ? "Virtual" : "In-Person"}
@@ -350,9 +350,9 @@ export default function TherapistBookingDetailPage() {
 
                     {/* Customer's Request Description */}
                     {request?.description && (
-                        <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl p-5">
-                            <h3 className="text-sm font-bold text-text-main dark:text-white mb-2">Customer&apos;s Request</h3>
-                            <p className="text-sm text-text-muted dark:text-gray-400 leading-relaxed">
+                        <div className="bg-card-light  border border-border-light  rounded-xl p-5">
+                            <h3 className="text-sm font-bold text-text-main  mb-2">Customer&apos;s Request</h3>
+                            <p className="text-sm text-text-muted  leading-relaxed">
                                 {request.description}
                             </p>
                         </div>
@@ -410,15 +410,15 @@ export default function TherapistBookingDetailPage() {
                     <div className="space-y-4">
                         {/* Reschedule requested — waiting for customer response */}
                         {booking.status === "reschedule_requested" && (
-                            <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-5">
+                            <div className="bg-amber-50  border border-amber-200  rounded-xl p-5">
                                 <div className="flex items-start gap-3">
-                                    <MdUpdate className="text-amber-600 dark:text-amber-400 text-lg mt-0.5 shrink-0" />
+                                    <MdUpdate className="text-amber-600  text-lg mt-0.5 shrink-0" />
                                     <div className="flex-1">
-                                        <p className="text-sm font-bold text-amber-900 dark:text-amber-200">Reschedule Requested</p>
-                                        <p className="text-xs text-amber-700 dark:text-amber-300 mt-0.5">
+                                        <p className="text-sm font-bold text-amber-900 ">Reschedule Requested</p>
+                                        <p className="text-xs text-amber-700  mt-0.5">
                                             You proposed: {formatDate(booking.proposedNewDate)} at {formatTime(booking.proposedNewDate)}
                                         </p>
-                                        <p className="text-xs text-amber-600 dark:text-amber-400 mt-1 italic">
+                                        <p className="text-xs text-amber-600  mt-1 italic">
                                             Waiting for customer response...
                                         </p>
                                     </div>
@@ -438,29 +438,29 @@ export default function TherapistBookingDetailPage() {
 
                         {/* Reschedule modal (inline) */}
                         {showRescheduleModal && (
-                            <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl p-5">
-                                <h4 className="text-sm font-bold text-text-main dark:text-white mb-1">Request Reschedule</h4>
-                                <p className="text-xs text-text-muted dark:text-gray-400 mb-4">
+                            <div className="bg-card-light  border border-border-light  rounded-xl p-5">
+                                <h4 className="text-sm font-bold text-text-main  mb-1">Request Reschedule</h4>
+                                <p className="text-xs text-text-muted  mb-4">
                                     Propose a new date and time. The customer will be notified and can accept or decline.
                                 </p>
                                 <div className="grid grid-cols-2 gap-3 mb-4">
                                     <div>
-                                        <label className="text-xs font-bold text-text-muted dark:text-gray-400 block mb-1">Date</label>
+                                        <label className="text-xs font-bold text-text-muted  block mb-1">Date</label>
                                         <input
                                             type="date"
                                             value={rescheduleDate}
                                             onChange={(e) => setRescheduleDate(e.target.value)}
                                             min={localDateStr()}
-                                            className="w-full text-sm rounded-lg bg-white dark:bg-slate-800 border border-border-light dark:border-border-dark p-2 focus:ring-primary focus:outline-none text-text-main dark:text-white"
+                                            className="w-full text-sm rounded-lg bg-white  border border-border-light  p-2 focus:ring-primary focus:outline-none text-text-main "
                                         />
                                     </div>
                                     <div>
-                                        <label className="text-xs font-bold text-text-muted dark:text-gray-400 block mb-1">Time</label>
+                                        <label className="text-xs font-bold text-text-muted  block mb-1">Time</label>
                                         <input
                                             type="time"
                                             value={rescheduleTime}
                                             onChange={(e) => setRescheduleTime(e.target.value)}
-                                            className="w-full text-sm rounded-lg bg-white dark:bg-slate-800 border border-border-light dark:border-border-dark p-2 focus:ring-primary focus:outline-none text-text-main dark:text-white"
+                                            className="w-full text-sm rounded-lg bg-white  border border-border-light  p-2 focus:ring-primary focus:outline-none text-text-main "
                                         />
                                     </div>
                                 </div>
@@ -474,7 +474,7 @@ export default function TherapistBookingDetailPage() {
                                     </button>
                                     <button
                                         onClick={() => { setShowRescheduleModal(false); setRescheduleDate(""); setRescheduleTime(""); }}
-                                        className="text-sm text-slate-500 dark:text-slate-400 font-bold hover:text-text-main dark:hover:text-white transition-colors"
+                                        className="text-sm text-slate-500  font-bold hover:text-text-main  transition-colors"
                                     >
                                         Cancel
                                     </button>
@@ -484,12 +484,12 @@ export default function TherapistBookingDetailPage() {
 
                         {/* Pending/Accepted — waiting for customer payment */}
                         {["pending", "accepted"].includes(booking.status) && (
-                            <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-5">
+                            <div className="bg-amber-50  border border-amber-200  rounded-xl p-5">
                                 <div className="flex items-start gap-3">
-                                    <MdInfo className="text-amber-600 dark:text-amber-400 text-lg mt-0.5 shrink-0" />
+                                    <MdInfo className="text-amber-600  text-lg mt-0.5 shrink-0" />
                                     <div>
-                                        <p className="text-sm font-bold text-amber-900 dark:text-amber-200">Waiting for Customer Payment</p>
-                                        <p className="text-xs text-amber-700 dark:text-amber-300 mt-0.5">
+                                        <p className="text-sm font-bold text-amber-900 ">Waiting for Customer Payment</p>
+                                        <p className="text-xs text-amber-700  mt-0.5">
                                             The customer needs to complete payment before this session is confirmed.
                                         </p>
                                     </div>
@@ -499,12 +499,12 @@ export default function TherapistBookingDetailPage() {
 
                         {/* Confirmed + scheduled — mark complete (single-session only; multi-session has per-session buttons in SessionList) */}
                         {sessions.length <= 1 && booking.status === "confirmed" && session?.status === "scheduled" && !showCompleteDialog && (
-                            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-5">
+                            <div className="bg-blue-50  border border-blue-200  rounded-xl p-5">
                                 <div className="flex items-start gap-3">
-                                    <MdInfo className="text-blue-600 dark:text-blue-400 text-lg mt-0.5 shrink-0" />
+                                    <MdInfo className="text-blue-600  text-lg mt-0.5 shrink-0" />
                                     <div>
-                                        <p className="text-sm font-bold text-blue-900 dark:text-blue-200">Session Confirmed</p>
-                                        <p className="text-xs text-blue-700 dark:text-blue-300 mt-0.5">
+                                        <p className="text-sm font-bold text-blue-900 ">Session Confirmed</p>
+                                        <p className="text-xs text-blue-700  mt-0.5">
                                             Mark the session as complete after your appointment.
                                         </p>
                                     </div>
@@ -528,14 +528,14 @@ export default function TherapistBookingDetailPage() {
                                     <div className="flex items-center gap-3">
                                         <button
                                             onClick={() => setMarkMissedSession(session)}
-                                            className="text-sm font-bold text-red-500 dark:text-red-400 border border-red-300 dark:border-red-800 px-4 py-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                                            className="text-sm font-bold text-red-500  border border-red-300  px-4 py-2 rounded-lg hover:bg-red-50  transition-colors"
                                         >
                                             Mark Missed
                                         </button>
                                         {hasAttemptedRate && (
                                             <button
                                                 onClick={() => setMarkAttemptedSession(session)}
-                                                className="text-sm font-bold text-amber-600 dark:text-amber-400 border border-amber-300 dark:border-amber-700 px-4 py-2 rounded-lg hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-colors"
+                                                className="text-sm font-bold text-amber-600  border border-amber-300  px-4 py-2 rounded-lg hover:bg-amber-50  transition-colors"
                                             >
                                                 Mark Attempted
                                             </button>
@@ -547,9 +547,9 @@ export default function TherapistBookingDetailPage() {
 
                         {/* Complete dialog (inline) */}
                         {sessions.length <= 1 && showCompleteDialog && (
-                            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-5">
-                                <p className="text-sm font-bold text-blue-900 dark:text-blue-200 mb-1">Mark Session as Complete?</p>
-                                <p className="text-xs text-blue-700 dark:text-blue-300 mb-4">
+                            <div className="bg-blue-50  border border-blue-200  rounded-xl p-5">
+                                <p className="text-sm font-bold text-blue-900  mb-1">Mark Session as Complete?</p>
+                                <p className="text-xs text-blue-700  mb-4">
                                     The customer will be notified to confirm completion. {earnings != null ? <>Payment of {formatCurrency(earnings)} will be released</> : <>Payment will be released</>} after their confirmation.
                                 </p>
                                 <div className="flex items-center gap-2">
@@ -562,7 +562,7 @@ export default function TherapistBookingDetailPage() {
                                     </button>
                                     <button
                                         onClick={() => setShowCompleteDialog(false)}
-                                        className="text-sm text-slate-500 dark:text-slate-400 font-bold hover:text-text-main dark:hover:text-white transition-colors"
+                                        className="text-sm text-slate-500  font-bold hover:text-text-main  transition-colors"
                                     >
                                         Cancel
                                     </button>
@@ -602,23 +602,23 @@ export default function TherapistBookingDetailPage() {
 
                         {/* Completed by therapist — waiting for customer (single-session only) */}
                         {sessions.length <= 1 && session?.status === "completed_by_therapist" && (
-                            <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-5">
+                            <div className="bg-amber-50  border border-amber-200  rounded-xl p-5">
                                 <div className="flex items-start gap-3">
-                                    <MdWarning className="text-amber-600 dark:text-amber-400 text-lg mt-0.5 shrink-0" />
+                                    <MdWarning className="text-amber-600  text-lg mt-0.5 shrink-0" />
                                     <div className="flex-1">
-                                        <p className="text-sm font-bold text-amber-900 dark:text-amber-200">
+                                        <p className="text-sm font-bold text-amber-900 ">
                                             {session.revisionCount > 0 ? "Resubmitted — Waiting for Customer" : "Waiting for Customer Confirmation"}
                                         </p>
-                                        <p className="text-xs text-amber-700 dark:text-amber-300 mt-0.5">
+                                        <p className="text-xs text-amber-700  mt-0.5">
                                             {session.revisionCount > 0
                                                 ? "You've resubmitted the session. The customer has 72 hours to confirm or request another revision."
                                                 : "Customer needs to confirm session completion. Payment auto-releases after 72 hours."}
                                         </p>
-                                        <p className="text-xs text-amber-600 dark:text-amber-400 mt-1 italic">
+                                        <p className="text-xs text-amber-600  mt-1 italic">
                                             Auto-checking every few seconds...
                                         </p>
                                     </div>
-                                    <button onClick={refetch} className="text-xs font-bold text-amber-700 dark:text-amber-300 hover:underline flex items-center gap-1 shrink-0">
+                                    <button onClick={refetch} className="text-xs font-bold text-amber-700  hover:underline flex items-center gap-1 shrink-0">
                                         <MdRefresh className="text-sm" /> Check Now
                                     </button>
                                 </div>
@@ -627,16 +627,16 @@ export default function TherapistBookingDetailPage() {
 
                         {/* Payment released — success (not shown for finalized — the Series Finalized banner handles it) */}
                         {payment?.status === "released" && booking.status !== "finalized" && (
-                            <div className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl p-5">
+                            <div className="bg-emerald-50  border border-emerald-200  rounded-xl p-5">
                                 <div className="flex items-start gap-3">
-                                    <MdCheckCircle className="text-emerald-600 dark:text-emerald-400 text-lg mt-0.5 shrink-0" />
+                                    <MdCheckCircle className="text-emerald-600  text-lg mt-0.5 shrink-0" />
                                     <div>
-                                        <p className="text-sm font-bold text-emerald-900 dark:text-emerald-200">Payment Released</p>
-                                        <p className="text-xs text-emerald-700 dark:text-emerald-300 mt-0.5">
+                                        <p className="text-sm font-bold text-emerald-900 ">Payment Released</p>
+                                        <p className="text-xs text-emerald-700  mt-0.5">
                                             {formatCurrency(parseFloat(payment.releasedAmount ?? payment.therapistPayout))} has been transferred to your payout account.
                                         </p>
                                         {payment.platformFee && (
-                                            <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-1">
+                                            <p className="text-xs text-emerald-600  mt-1">
                                                 Session rate: {formatCurrency(parseFloat(payment.amount))} — Platform fee: {formatCurrency(parseFloat(payment.platformFee))} — Your earnings: {formatCurrency(parseFloat(payment.releasedAmount ?? payment.therapistPayout))}
                                             </p>
                                         )}
@@ -647,18 +647,18 @@ export default function TherapistBookingDetailPage() {
 
                         {/* Cancelled */}
                         {booking.status === "cancelled" && (
-                            <div className="bg-slate-50 dark:bg-slate-800/50 border border-border-light dark:border-border-dark rounded-xl p-5">
+                            <div className="bg-slate-50  border border-border-light  rounded-xl p-5">
                                 <div className="flex items-start gap-3">
-                                    <MdInfo className="text-text-muted dark:text-gray-400 text-lg mt-0.5 shrink-0" />
+                                    <MdInfo className="text-text-muted  text-lg mt-0.5 shrink-0" />
                                     <div>
-                                        <p className="text-sm font-bold text-text-main dark:text-white">Session Cancelled</p>
+                                        <p className="text-sm font-bold text-text-main ">Session Cancelled</p>
                                         {session?.cancellationReason && (
-                                            <p className="text-xs text-text-muted dark:text-gray-400 mt-0.5">
+                                            <p className="text-xs text-text-muted  mt-0.5">
                                                 Reason: {session.cancellationReason}
                                             </p>
                                         )}
                                         {payment?.status === "refunded" && (
-                                            <p className="text-xs text-text-muted dark:text-gray-400 mt-0.5">
+                                            <p className="text-xs text-text-muted  mt-0.5">
                                                 Customer has been refunded.
                                             </p>
                                         )}
@@ -681,7 +681,7 @@ export default function TherapistBookingDetailPage() {
 
                     {/* Message Customer */}
                     {["accepted", "confirmed", "in_progress", "completed", "finalized"].includes(booking.status) && (
-                        <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl p-4">
+                        <div className="bg-card-light  border border-border-light  rounded-xl p-4">
                             <button
                                 onClick={handleMessageCustomer}
                                 className="w-full flex items-center justify-center gap-2 py-2.5 border border-primary text-primary rounded-lg text-sm font-bold hover:bg-primary/5 transition-colors"
@@ -694,7 +694,7 @@ export default function TherapistBookingDetailPage() {
 
                     {/* Finalize Completed Visits */}
                     {canFinalize && (
-                        <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl p-4 space-y-3">
+                        <div className="bg-card-light  border border-border-light  rounded-xl p-4 space-y-3">
                             {!showFinalizeConfirm ? (
                                 <button
                                     onClick={() => setShowFinalizeConfirm(true)}
@@ -705,9 +705,9 @@ export default function TherapistBookingDetailPage() {
                                 </button>
                             ) : (
                                 <div className="space-y-3">
-                                    <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-3">
-                                        <p className="text-xs font-bold text-amber-800 dark:text-amber-300 mb-1">Are you sure?</p>
-                                        <p className="text-xs text-amber-700 dark:text-amber-400">
+                                    <div className="bg-amber-50  border border-amber-200  rounded-lg p-3">
+                                        <p className="text-xs font-bold text-amber-800  mb-1">Are you sure?</p>
+                                        <p className="text-xs text-amber-700 ">
                                             This will release payment for {confirmedSessionCount} confirmed session{confirmedSessionCount !== 1 ? "s" : ""} and
                                             refund the customer for {unconfirmedSessionCount} undelivered session{unconfirmedSessionCount !== 1 ? "s" : ""}.
                                             This cannot be undone.
@@ -717,7 +717,7 @@ export default function TherapistBookingDetailPage() {
                                         <button
                                             onClick={() => setShowFinalizeConfirm(false)}
                                             disabled={finalizing}
-                                            className="flex-1 py-2 border border-border-light dark:border-border-dark text-text-main dark:text-white rounded-lg text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                                            className="flex-1 py-2 border border-border-light  text-text-main  rounded-lg text-sm font-medium hover:bg-slate-50  transition-colors"
                                         >
                                             Cancel
                                         </button>
@@ -731,7 +731,7 @@ export default function TherapistBookingDetailPage() {
                                     </div>
                                 </div>
                             )}
-                            <p className="text-[10px] text-text-muted dark:text-gray-500 text-center">
+                            <p className="text-[10px] text-text-muted  text-center">
                                 End this series early and collect payment for completed visits.
                             </p>
                         </div>
@@ -739,12 +739,12 @@ export default function TherapistBookingDetailPage() {
 
                     {/* Finalized info banner */}
                     {booking.status === "finalized" && (
-                        <div className="bg-slate-50 dark:bg-slate-800/50 border border-border-light dark:border-border-dark rounded-xl p-4">
+                        <div className="bg-slate-50  border border-border-light  rounded-xl p-4">
                             <div className="flex items-start gap-2">
                                 <MdInfo className="text-slate-500 text-sm mt-0.5 shrink-0" />
                                 <div>
-                                    <p className="text-xs font-bold text-text-main dark:text-white">Series Finalized</p>
-                                    <p className="text-xs text-text-muted dark:text-gray-400 mt-0.5">
+                                    <p className="text-xs font-bold text-text-main ">Series Finalized</p>
+                                    <p className="text-xs text-text-muted  mt-0.5">
                                         {paidOutSessionCount} session{paidOutSessionCount !== 1 ? "s" : ""} paid out
                                         {attemptedSessionCount > 0 && ` (${attemptedSessionCount} attempted visit${attemptedSessionCount !== 1 ? "s" : ""})`}.
                                         {payment?.refundedAmount && ` Customer refunded ${formatCurrency(parseFloat(payment.refundedAmount))}.`}
@@ -756,10 +756,10 @@ export default function TherapistBookingDetailPage() {
 
                     {/* Escrow / partial release info */}
                     {payment?.status === "escrowed" && booking.status !== "finalized" && booking.status !== "cancelled" && (
-                        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4">
+                        <div className="bg-blue-50  border border-blue-200  rounded-xl p-4">
                             <div className="flex items-start gap-2">
-                                <MdInfo className="text-blue-600 dark:text-blue-400 text-sm mt-0.5 shrink-0" />
-                                <p className="text-xs text-blue-700 dark:text-blue-300">
+                                <MdInfo className="text-blue-600  text-sm mt-0.5 shrink-0" />
+                                <p className="text-xs text-blue-700 ">
                                     Customer payment of {formatCurrency(parseFloat(payment.amount))} is secured. You&apos;ll receive payouts as each session is confirmed.
                                 </p>
                             </div>
@@ -791,10 +791,10 @@ export default function TherapistBookingDetailPage() {
                         if (missedOrCancelled > 0) reducedParts.push(`${missedOrCancelled} ${sessions.some(s => s.status === "missed") ? "missed" : "cancelled"}`);
                         if (attempted > 0 && !parts.includes(`${attempted} attempted`)) reducedParts.push(`${attempted} attempted`);
                         return (
-                            <div className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl p-4">
+                            <div className="bg-emerald-50  border border-emerald-200  rounded-xl p-4">
                                 <div className="flex items-start gap-2">
-                                    <MdCheckCircle className="text-emerald-600 dark:text-emerald-400 text-sm mt-0.5 shrink-0" />
-                                    <p className="text-xs text-emerald-700 dark:text-emerald-300">
+                                    <MdCheckCircle className="text-emerald-600  text-sm mt-0.5 shrink-0" />
+                                    <p className="text-xs text-emerald-700 ">
                                         {formatCurrency(released)} of {formatCurrency(adjustedMaxPayout)} released ({progressLabel} of {deliverable} deliverable session{deliverable !== 1 ? "s" : ""}{reducedParts.length > 0 ? `, ${reducedParts.join(" · ")}` : ""}).
                                     </p>
                                 </div>

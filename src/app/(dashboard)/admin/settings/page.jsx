@@ -19,8 +19,8 @@ export default function AdminSettingsPage() {
     return (
         <div className="flex-1 flex flex-col overflow-hidden">
             {/* Header */}
-            <header className="h-16 border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md sticky top-0 z-10 flex items-center px-4 sm:px-8 shrink-0">
-                <h2 className="text-xl sm:text-2xl font-black tracking-tight text-text-main dark:text-white">
+            <header className="h-16 border-b border-slate-200  bg-white/80  backdrop-blur-md sticky top-0 z-10 flex items-center px-4 sm:px-8 shrink-0">
+                <h2 className="text-xl sm:text-2xl font-black tracking-tight text-text-main ">
                     Settings
                 </h2>
             </header>
@@ -32,10 +32,10 @@ export default function AdminSettingsPage() {
                     {/* Section: Commission */}
                     <section className="space-y-4">
                         <div>
-                            <h3 className="text-base font-bold text-text-main dark:text-white">
+                            <h3 className="text-base font-bold text-text-main ">
                                 Commission
                             </h3>
-                            <p className="text-sm text-text-muted dark:text-gray-400 mt-0.5">
+                            <p className="text-sm text-text-muted  mt-0.5">
                                 Manage the platform commission rate applied to therapist payouts.
                             </p>
                         </div>
@@ -46,10 +46,10 @@ export default function AdminSettingsPage() {
                     {/* Section: Platform Configuration */}
                     <section className="space-y-4">
                         <div>
-                            <h3 className="text-base font-bold text-text-main dark:text-white">
+                            <h3 className="text-base font-bold text-text-main ">
                                 Platform Configuration
                             </h3>
-                            <p className="text-sm text-text-muted dark:text-gray-400 mt-0.5">
+                            <p className="text-sm text-text-muted  mt-0.5">
                                 System-level defaults configured at deployment time.
                             </p>
                         </div>

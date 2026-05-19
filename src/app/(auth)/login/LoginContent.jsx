@@ -48,7 +48,7 @@ export default function LoginContent() {
         <>
             <LoginForm />
 
-            <div className="fixed bottom-6 right-6 flex items-center gap-2 bg-white/80 dark:bg-card-dark/80 backdrop-blur-sm px-4 py-2 rounded-full border border-border-subtle dark:border-border-dark text-xs font-semibold text-text-muted dark:text-text-muted">
+            <div className="fixed bottom-6 right-6 flex items-center gap-2 bg-white/80  backdrop-blur-sm px-4 py-2 rounded-full border border-border-subtle  text-xs font-semibold text-text-muted ">
                 <MdVerifiedUser className="text-green-500 text-lg" />
                 <span>Secure, HIPAA-compliant platform</span>
             </div>

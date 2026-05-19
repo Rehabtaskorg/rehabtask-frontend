@@ -37,18 +37,18 @@ const ChangePasswordForm = () => {
     };
 
     return (
-        <div className="bg-white dark:bg-card-dark rounded-xl shadow-sm border border-border-light dark:border-border-dark overflow-hidden">
+        <div className="bg-white  rounded-xl shadow-sm border border-border-light  overflow-hidden">
             {/* Header */}
-            <div className="p-6 border-b border-border-light dark:border-border-dark bg-muted-light dark:bg-muted-dark">
+            <div className="p-6 border-b border-border-light  bg-muted-light ">
                 <div className="flex items-center gap-3">
                     <div className="p-2 bg-primary/10 rounded-lg">
                         <MdLock className="text-primary text-xl" />
                     </div>
                     <div>
-                        <h2 className="text-xl font-bold text-text-main dark:text-white">
+                        <h2 className="text-xl font-bold text-text-main ">
                             Change Password
                         </h2>
-                        <p className="text-sm text-text-muted dark:text-gray-400">
+                        <p className="text-sm text-text-muted ">
                             Update your password to keep your account secure
                         </p>
                     </div>
@@ -74,10 +74,10 @@ const ChangePasswordForm = () => {
                 )}
 
                 {/* Info Banner */}
-                <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 p-4 rounded-lg">
+                <div className="bg-blue-50  border border-blue-200  p-4 rounded-lg">
                     <div className="flex items-start gap-3">
                         <MdLock className="text-blue-500 text-lg shrink-0 mt-0.5" />
-                        <div className="text-sm text-blue-800 dark:text-blue-200 space-y-1">
+                        <div className="text-sm text-blue-800  space-y-1">
                             <p className="font-semibold">Password Requirements:</p>
                             <ul className="list-disc list-inside space-y-0.5 text-xs">
                                 <li>At least 8 characters long</li>

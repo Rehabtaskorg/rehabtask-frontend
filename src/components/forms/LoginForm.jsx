@@ -53,7 +53,7 @@ const LoginForm = () => {
     };
 
     return (
-        <div className="w-full max-w-120 bg-white dark:bg-card-dark shadow-xl rounded-xl overflow-hidden border border-border-subtle dark:border-border-dark">
+        <div className="w-full max-w-120 bg-white  shadow-xl rounded-xl overflow-hidden border border-border-subtle ">
             {/* Card Header/Branding */}
             <div className="px-8 pt-8 pb-4">
                 <div className="mb-6">
@@ -67,10 +67,10 @@ const LoginForm = () => {
                     />
                 </div>
                 <div className="flex flex-col gap-1">
-                    <h1 className="text-2xl font-bold text-text-main dark:text-white">
+                    <h1 className="text-2xl font-bold text-text-main ">
                         Welcome back
                     </h1>
-                    <p className="text-text-muted dark:text-text-muted text-sm">
+                    <p className="text-text-muted  text-sm">
                         Please enter your details to sign in to your account.
                     </p>
                 </div>
@@ -152,10 +152,10 @@ const LoginForm = () => {
                 {/* Separator */}
                 <div className="relative py-4">
                     <div className="absolute inset-0 flex items-center">
-                        <div className="w-full border-t border-border-subtle dark:border-border-dark" />
+                        <div className="w-full border-t border-border-subtle " />
                     </div>
                     <div className="relative flex justify-center text-xs uppercase">
-                        <span className="bg-white dark:bg-card-dark px-2 text-text-muted font-medium">
+                        <span className="bg-white  px-2 text-text-muted font-medium">
                             Or continue with
                         </span>
                     </div>
@@ -166,7 +166,7 @@ const LoginForm = () => {
                     type="button"
                     onClick={handleGoogleLogin}
                     disabled={isSubmitting || googleLoading}
-                    className="w-full flex items-center justify-center gap-2 px-4 py-3 border border-border-subtle dark:border-border-dark rounded-lg hover:bg-gray-50 dark:hover:bg-background-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full flex items-center justify-center gap-2 px-4 py-3 border border-border-subtle  rounded-lg hover:bg-gray-50  transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                     {googleLoading ? (
                         <>
@@ -190,14 +190,14 @@ const LoginForm = () => {
                                     d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                                 ></path>
                             </svg>
-                            <span className="text-sm font-semibold text-text-main dark:text-white">
+                            <span className="text-sm font-semibold text-text-main ">
                                 Connecting...
                             </span>
                         </>
                     ) : (
                         <>
                             <FaGoogle className="w-5 h-5 text-[#4285F4]" />
-                            <span className="text-sm font-semibold text-text-main dark:text-white">
+                            <span className="text-sm font-semibold text-text-main ">
                                 Continue with Google
                             </span>
                         </>
@@ -206,8 +206,8 @@ const LoginForm = () => {
             </form>
 
             {/* Card Footer */}
-            <div className="px-8 py-6 bg-gray-50 dark:bg-background-dark/50 text-center border-t border-border-subtle dark:border-border-dark">
-                <p className="text-sm text-text-muted dark:text-text-muted mb-2">
+            <div className="px-8 py-6 bg-gray-50  text-center border-t border-border-subtle ">
+                <p className="text-sm text-text-muted  mb-2">
                     Don&apos;t have an account?
                 </p>
                 <div className="flex items-center justify-center gap-4">

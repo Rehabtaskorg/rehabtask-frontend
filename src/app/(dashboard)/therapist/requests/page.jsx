@@ -20,12 +20,12 @@ import TherapistRequestFilters, { FilterToggleButton } from "@/components/therap
 const getServiceTypeStyle = (serviceType) => {
     const st = serviceType?.toLowerCase() || "";
     if (st.includes("physical") || st.includes("pt"))
-        return "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300";
+        return "bg-blue-100 text-blue-700  ";
     if (st.includes("occupational") || st.includes("ot"))
-        return "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300";
+        return "bg-purple-100 text-purple-700  ";
     if (st.includes("speech") || st.includes("slp"))
-        return "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300";
-    return "bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300";
+        return "bg-emerald-100 text-emerald-700  ";
+    return "bg-slate-100 text-slate-700  ";
 };
 
 const timeAgo = (dateStr) => {
@@ -247,16 +247,16 @@ function TherapistRequestsContent() {
     if (loading && requests.length === 0) {
         return (
             <div className="flex h-full overflow-hidden">
-                <div className="w-full lg:w-[45%] bg-slate-50 dark:bg-background-dark p-4 space-y-3 border-r border-border-light dark:border-border-dark">
+                <div className="w-full lg:w-[45%] bg-slate-50  p-4 space-y-3 border-r border-border-light ">
                     {[1, 2, 3, 4].map((i) => (
-                        <div key={i} className="animate-pulse bg-white dark:bg-card-dark rounded-xl p-4 h-32 border border-border-light dark:border-border-dark" />
+                        <div key={i} className="animate-pulse bg-white  rounded-xl p-4 h-32 border border-border-light " />
                     ))}
                 </div>
-                <div className="hidden lg:flex flex-1 bg-white dark:bg-card-dark p-8 items-start">
+                <div className="hidden lg:flex flex-1 bg-white  p-8 items-start">
                     <div className="animate-pulse space-y-4 w-full max-w-3xl">
-                        <div className="h-8 bg-slate-200 dark:bg-slate-700 rounded w-3/4" />
-                        <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-1/2" />
-                        <div className="h-32 bg-slate-200 dark:bg-slate-700 rounded" />
+                        <div className="h-8 bg-slate-200  rounded w-3/4" />
+                        <div className="h-4 bg-slate-200  rounded w-1/2" />
+                        <div className="h-32 bg-slate-200  rounded" />
                     </div>
                 </div>
             </div>
@@ -279,10 +279,10 @@ function TherapistRequestsContent() {
 
             <div className="flex-1 flex flex-col overflow-hidden">
                 {/* Header */}
-                <header className="h-14 border-b border-border-light dark:border-border-dark bg-white/80 dark:bg-slate-900/80 backdrop-blur-md sticky top-0 z-10 flex items-center justify-between px-4 sm:px-6 shrink-0">
+                <header className="h-14 border-b border-border-light  bg-white/80  backdrop-blur-md sticky top-0 z-10 flex items-center justify-between px-4 sm:px-6 shrink-0">
                     <div className="flex items-center gap-3">
-                        <h2 className="text-lg font-bold text-text-main dark:text-white">Browse Requests</h2>
-                        <span className="bg-slate-100 dark:bg-slate-800 px-2.5 py-0.5 rounded-full text-xs font-bold text-text-muted dark:text-gray-400">
+                        <h2 className="text-lg font-bold text-text-main ">Browse Requests</h2>
+                        <span className="bg-slate-100  px-2.5 py-0.5 rounded-full text-xs font-bold text-text-muted ">
                             {pagination.total} found
                         </span>
                     </div>
@@ -301,12 +301,12 @@ function TherapistRequestsContent() {
                 {/* Two-panel body — independent scroll */}
                 <div className="flex-1 flex overflow-hidden">
                     {/* ── LEFT PANEL: Request List ── */}
-                    <section className="w-full lg:w-[45%] flex flex-col overflow-hidden border-r-0 lg:border-r border-border-light dark:border-border-dark bg-slate-50/50 dark:bg-background-dark">
+                    <section className="w-full lg:w-[45%] flex flex-col overflow-hidden border-r-0 lg:border-r border-border-light  bg-slate-50/50 ">
                         <div className={`flex-1 overflow-y-auto panel-scroll p-4 space-y-3 ${loading ? "opacity-60 pointer-events-none" : ""}`}>
                             {requests.length === 0 && !loading ? (
                                 <div className="flex flex-col items-center justify-center h-48 text-center">
-                                    <MdSchedule className="text-4xl text-slate-300 dark:text-slate-600 mb-3" />
-                                    <p className="text-text-muted dark:text-gray-400 font-medium">No requests match your filters</p>
+                                    <MdSchedule className="text-4xl text-slate-300  mb-3" />
+                                    <p className="text-text-muted  font-medium">No requests match your filters</p>
                                     <button onClick={resetFilters} className="mt-2 text-sm text-primary font-semibold hover:underline">Reset filters</button>
                                 </div>
                             ) : (
@@ -326,36 +326,36 @@ function TherapistRequestsContent() {
                                                     }
                                                 }}
                                                 className={`w-full text-left p-4 rounded-xl transition-all ${isSelected
-                                                    ? "border-l-4 border-l-primary border border-primary/20 bg-primary/5 dark:bg-primary/10 shadow-md"
-                                                    : "bg-white dark:bg-card-dark border border-border-light dark:border-border-dark hover:shadow-sm hover:border-slate-300 dark:hover:border-slate-600"
+                                                    ? "border-l-4 border-l-primary border border-primary/20 bg-primary/5  shadow-md"
+                                                    : "bg-white  border border-border-light  hover:shadow-sm hover:border-slate-300 "
                                                 }`}
                                             >
                                                 <div className="flex justify-between items-start mb-2">
                                                     <div className="flex flex-wrap items-center gap-1.5">
                                                         <span className={`px-2.5 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider ${getServiceTypeStyle(req.serviceType)}`}>{req.serviceType}</span>
                                                         {req.requestType === "DIRECT" && (
-                                                            <span className="px-2.5 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300">
+                                                            <span className="px-2.5 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-indigo-100 text-indigo-700  ">
                                                                 Direct
                                                             </span>
                                                         )}
                                                     </div>
-                                                    <span className="text-[11px] text-text-muted dark:text-gray-400 font-medium shrink-0 ml-2">{timeAgo(req.createdAt)}</span>
+                                                    <span className="text-[11px] text-text-muted  font-medium shrink-0 ml-2">{timeAgo(req.createdAt)}</span>
                                                 </div>
-                                                <h4 className="font-bold text-text-main dark:text-white mb-1 leading-tight line-clamp-1">{req.description?.split("\n")[0] || req.serviceType}</h4>
-                                                <p className="text-sm text-text-muted dark:text-gray-400 line-clamp-2 mb-3 leading-relaxed">{req.description}</p>
+                                                <h4 className="font-bold text-text-main  mb-1 leading-tight line-clamp-1">{req.description?.split("\n")[0] || req.serviceType}</h4>
+                                                <p className="text-sm text-text-muted  line-clamp-2 mb-3 leading-relaxed">{req.description}</p>
                                                 {/* Patient identity hidden from therapist — visible only after booking */}
                                                 {req.visitsPerWeek && req.numberOfWeeks && (
-                                                    <div className="flex items-center gap-1 text-xs font-semibold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/20 px-2 py-1 rounded-md mb-2 w-fit">
+                                                    <div className="flex items-center gap-1 text-xs font-semibold text-indigo-600  bg-indigo-50  px-2 py-1 rounded-md mb-2 w-fit">
                                                         <MdRefresh className="text-[13px]" />
                                                         {req.visitsPerWeek}x/week · {req.numberOfWeeks} weeks ({req.visitsPerWeek * req.numberOfWeeks} visits)
                                                     </div>
                                                 )}
                                                 <div className="flex items-center justify-between">
                                                     <div className="flex items-center gap-3">
-                                                        <span className="flex items-center gap-1 text-xs text-text-muted dark:text-gray-400">
+                                                        <span className="flex items-center gap-1 text-xs text-text-muted ">
                                                             <MdLocationOn className="text-[15px]" /> {req.location ? "Nearby" : "—"}
                                                         </span>
-                                                        <span className="flex items-center gap-1 text-xs text-text-muted dark:text-gray-400">
+                                                        <span className="flex items-center gap-1 text-xs text-text-muted ">
                                                             <MdCalendarToday className="text-[14px]" />
                                                             {req.preferredDate ? new Date(req.preferredDate).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "Flexible"}
                                                         </span>
@@ -365,9 +365,9 @@ function TherapistRequestsContent() {
                                                             <MdCheckCircle className="text-[13px]" /> My Offer Sent
                                                         </span>
                                                     ) : offerCount > 0 ? (
-                                                        <span className="text-xs font-bold text-amber-600 bg-amber-50 dark:bg-amber-900/20 px-2 py-1 rounded">{offerCount} Offer{offerCount > 1 ? "s" : ""}</span>
+                                                        <span className="text-xs font-bold text-amber-600 bg-amber-50  px-2 py-1 rounded">{offerCount} Offer{offerCount > 1 ? "s" : ""}</span>
                                                     ) : (
-                                                        <span className="text-xs text-text-muted dark:text-gray-400 italic">No offers yet</span>
+                                                        <span className="text-xs text-text-muted  italic">No offers yet</span>
                                                     )}
                                                 </div>
                                             </button>
@@ -376,7 +376,7 @@ function TherapistRequestsContent() {
 
                                     {/* Pagination */}
                                     {pagination.totalPages > 1 && (
-                                        <div className="flex items-center justify-between pt-4 border-t border-border-light dark:border-border-dark">
+                                        <div className="flex items-center justify-between pt-4 border-t border-border-light ">
                                             <button
                                                 onClick={() => { setCurrentPage((p) => Math.max(1, p - 1)); setSelectedRequest(null); }}
                                                 disabled={currentPage === 1}
@@ -384,7 +384,7 @@ function TherapistRequestsContent() {
                                             >
                                                 <MdChevronLeft className="text-lg" /> Prev
                                             </button>
-                                            <span className="text-xs font-medium text-text-muted dark:text-gray-400">
+                                            <span className="text-xs font-medium text-text-muted ">
                                                 {currentPage} / {pagination.totalPages}
                                             </span>
                                             <button
@@ -402,14 +402,14 @@ function TherapistRequestsContent() {
                     </section>
 
                     {/* ── RIGHT PANEL: Detail (desktop only) ── */}
-                    <section className="hidden lg:flex flex-1 flex-col overflow-hidden bg-white dark:bg-card-dark">
+                    <section className="hidden lg:flex flex-1 flex-col overflow-hidden bg-white ">
                         {!selectedRequest ? (
                             <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
                                 <div className="p-5 bg-primary/5 rounded-full mb-4">
                                     <MdSend className="text-3xl text-primary/40" />
                                 </div>
-                                <p className="font-semibold text-text-main dark:text-white">Select a request</p>
-                                <p className="text-sm text-text-muted dark:text-gray-400 mt-1">Click any request to view details and send an offer</p>
+                                <p className="font-semibold text-text-main ">Select a request</p>
+                                <p className="text-sm text-text-muted  mt-1">Click any request to view details and send an offer</p>
                             </div>
                         ) : (
                             <TherapistRequestDetailPanel

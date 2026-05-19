@@ -9,7 +9,7 @@ export default function ConversationListItem({ conversation, isSelected, onSelec
     return (
         <li
             onClick={() => onSelect(conversation)}
-            className={`flex items-center gap-3 px-4 py-3 cursor-pointer transition-colors border-l-4 ${isSelected ? 'border-primary bg-primary/10 dark:bg-primary/20' : 'border-transparent hover:bg-muted-light dark:hover:bg-muted-dark'}`}
+            className={`flex items-center gap-3 px-4 py-3 cursor-pointer transition-colors border-l-4 ${isSelected ? 'border-primary bg-primary/10 ' : 'border-transparent hover:bg-muted-light '}`}
         >
             <div className="relative shrink-0">
                 <UserAvatar
@@ -18,22 +18,22 @@ export default function ConversationListItem({ conversation, isSelected, onSelec
                     size="lg"
                 />
                 {hasUnread && (
-                    <span className="absolute -top-0.5 -right-0.5 h-3 w-3 rounded-full bg-primary border-2 border-white dark:border-card-dark" />
+                    <span className="absolute -top-0.5 -right-0.5 h-3 w-3 rounded-full bg-primary border-2 border-white " />
                 )}
             </div>
             <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between gap-2 mb-0.5">
                     <div className="flex items-center gap-1.5 min-w-0">
-                        <p className={`text-sm truncate ${hasUnread ? 'font-bold' : 'font-medium'} text-text-main dark:text-white`}>{name}</p>
+                        <p className={`text-sm truncate ${hasUnread ? 'font-bold' : 'font-medium'} text-text-main `}>{name}</p>
                         {badge && <span className={`shrink-0 px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide ${badge.className}`}>{badge.label}</span>}
                     </div>
-                    <span className="shrink-0 text-[10px] text-text-muted dark:text-gray-500">{formatTime(conversation.lastMessage?.createdAt)}</span>
+                    <span className="shrink-0 text-[10px] text-text-muted ">{formatTime(conversation.lastMessage?.createdAt)}</span>
                 </div>
                 {conversation.patient && (
                     <p className="text-[11px] text-primary font-medium mb-0.5 truncate">Patient: {conversation.patient.fullName}</p>
                 )}
                 <div className="flex items-center justify-between gap-2">
-                    <p className={`text-xs truncate ${hasUnread ? 'text-text-main dark:text-gray-200 font-medium' : 'text-text-muted dark:text-gray-400'}`}>
+                    <p className={`text-xs truncate ${hasUnread ? 'text-text-main  font-medium' : 'text-text-muted '}`}>
                         {(() => {
                             const lm = conversation.lastMessage;
                             if (!lm) return 'No messages yet';

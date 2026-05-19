@@ -39,7 +39,7 @@ export default function FindTherapistsFiltersPopover({
                 className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium border transition-colors ${
                     activeCount > 0
                         ? "bg-primary/10 border-primary/30 text-primary"
-                        : "bg-card-light dark:bg-card-dark border-border-light dark:border-border-dark text-text-main dark:text-white hover:border-gray-300 dark:hover:border-gray-600"
+                        : "bg-card-light  border-border-light  text-text-main  hover:border-gray-300 "
                 }`}
             >
                 <MdTune className="text-base" />
@@ -55,7 +55,7 @@ export default function FindTherapistsFiltersPopover({
                 <>
                     <div
                         ref={popoverRef}
-                        className="hidden md:block absolute top-full left-0 mt-2 w-80 bg-card-light dark:bg-card-dark rounded-xl shadow-xl border border-border-light dark:border-border-dark z-40"
+                        className="hidden md:block absolute top-full left-0 mt-2 w-80 bg-card-light  rounded-xl shadow-xl border border-border-light  z-40"
                     >
                         <div className="p-5">
                             <button
@@ -72,12 +72,12 @@ export default function FindTherapistsFiltersPopover({
                             className="absolute inset-0 bg-black/40"
                             onClick={() => setOpen(false)}
                         />
-                        <div className="relative mt-auto bg-card-light dark:bg-card-dark rounded-t-2xl max-h-[80vh] overflow-y-auto">
-                            <div className="flex items-center justify-between p-4 border-b border-border-light dark:border-border-dark">
-                                <h3 className="font-bold text-text-main dark:text-white">Filters</h3>
+                        <div className="relative mt-auto bg-card-light  rounded-t-2xl max-h-[80vh] overflow-y-auto">
+                            <div className="flex items-center justify-between p-4 border-b border-border-light ">
+                                <h3 className="font-bold text-text-main ">Filters</h3>
                                 <button
                                     onClick={() => setOpen(false)}
-                                    className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-text-muted dark:text-gray-400"
+                                    className="p-1.5 rounded-lg hover:bg-slate-100  text-text-muted "
                                 >
                                     <MdClose className="text-xl" />
                                 </button>

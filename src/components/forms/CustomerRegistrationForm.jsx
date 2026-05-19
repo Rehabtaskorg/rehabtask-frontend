@@ -64,21 +64,21 @@ const CustomerRegistrationForm = () => {
         <div className="max-w-md mx-auto w-full">
             {/* Page Heading */}
             <div className="mb-8">
-                <h2 className="text-text-main dark:text-white text-4xl font-black leading-tight tracking-[-0.033em]">
+                <h2 className="text-text-main  text-4xl font-black leading-tight tracking-[-0.033em]">
                     Create Your Account
                 </h2>
-                <p className="text-text-muted dark:text-zinc-400 text-base font-normal leading-normal mt-2">
+                <p className="text-text-muted  text-base font-normal leading-normal mt-2">
                     Join the community of rehab professionals and patients
                 </p>
             </div>
 
             {/* Account Type Toggle */}
             <div className="mb-8">
-                <div className="flex h-12 w-full items-center justify-center rounded-xl bg-border-subtle dark:bg-zinc-800 p-1">
+                <div className="flex h-12 w-full items-center justify-center rounded-xl bg-border-subtle  p-1">
                     <label
                         className={`flex cursor-pointer h-full grow items-center justify-center overflow-hidden rounded-lg px-2 transition-all
                             ${accountType === "individual"
-                                ? "bg-white dark:bg-zinc-700 shadow-sm text-text-main dark:text-white"
+                                ? "bg-white  shadow-sm text-text-main "
                                 : "text-text-muted"
                             } text-sm font-semibold`}
                     >
@@ -95,7 +95,7 @@ const CustomerRegistrationForm = () => {
                     <label
                         className={`flex cursor-pointer h-full grow items-center justify-center overflow-hidden rounded-lg px-2 transition-all
                             ${accountType === "agency"
-                                ? "bg-white dark:bg-zinc-700 shadow-sm text-text-main dark:text-white"
+                                ? "bg-white  shadow-sm text-text-main "
                                 : "text-text-muted"
                             } text-sm font-semibold`}
                     >
@@ -198,11 +198,11 @@ const CustomerRegistrationForm = () => {
 
                 {/* Divider */}
                 <div className="relative flex py-5 items-center">
-                    <div className="grow border-t border-border-subtle dark:border-zinc-700" />
+                    <div className="grow border-t border-border-subtle " />
                     <span className="shrink mx-4 text-zinc-400 text-xs uppercase tracking-widest font-bold">
                         Or continue with
                     </span>
-                    <div className="grow border-t border-border-subtle dark:border-zinc-700" />
+                    <div className="grow border-t border-border-subtle " />
                 </div>
 
                 {/* Google Signup */}
@@ -210,7 +210,7 @@ const CustomerRegistrationForm = () => {
                     type="button"
                     onClick={handleGoogleSignup}
                     disabled={googleLoading || isSubmitting}
-                    className="w-full flex items-center justify-center gap-2 py-3 border border-border-subtle dark:border-zinc-700 rounded-xl hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors disabled:opacity-50"
+                    className="w-full flex items-center justify-center gap-2 py-3 border border-border-subtle  rounded-xl hover:bg-zinc-50  transition-colors disabled:opacity-50"
                 >
                     {googleLoading ? (
                         <>

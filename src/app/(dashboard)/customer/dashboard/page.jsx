@@ -13,11 +13,11 @@ import { useSubscription } from "@/hooks/useSubscription";
 import { useRefundSummary } from "@/hooks/usePayments";
 
 const STATUS_STYLES = {
-    created: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
-    offers_received: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
-    offers_accepted: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
-    completed: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
-    cancelled: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
+    created: 'bg-blue-100 text-blue-700  ',
+    offers_received: 'bg-amber-100 text-amber-700  ',
+    offers_accepted: 'bg-emerald-100 text-emerald-700  ',
+    completed: 'bg-emerald-100 text-emerald-700  ',
+    cancelled: 'bg-red-100 text-red-700  ',
 };
 
 const STATUS_LABELS = {
@@ -96,11 +96,11 @@ export default function CustomerDashboard() {
         return (
             <div className="p-4 sm:p-8">
                 <div className="animate-pulse space-y-6 max-w-6xl mx-auto">
-                    <div className="h-16 bg-slate-200 dark:bg-slate-700 rounded-xl"></div>
+                    <div className="h-16 bg-slate-200  rounded-xl"></div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                        {[1, 2, 3, 4].map(i => <div key={i} className="h-28 bg-slate-200 dark:bg-slate-700 rounded-xl"></div>)}
+                        {[1, 2, 3, 4].map(i => <div key={i} className="h-28 bg-slate-200  rounded-xl"></div>)}
                     </div>
-                    <div className="h-64 bg-slate-200 dark:bg-slate-700 rounded-xl"></div>
+                    <div className="h-64 bg-slate-200  rounded-xl"></div>
                 </div>
             </div>
         );
@@ -112,12 +112,12 @@ export default function CustomerDashboard() {
 
             {/* Alert Banner */}
             {!alertDismissed && pendingConfirmations.length > 0 && (
-                <div className="flex items-center justify-between p-4 border border-amber-200 bg-amber-50 dark:bg-amber-900/10 rounded-xl">
+                <div className="flex items-center justify-between p-4 border border-amber-200 bg-amber-50  rounded-xl">
                     <div className="flex items-center gap-3">
                         <MdWarning className="text-amber-600 text-xl shrink-0" />
                         <div className="text-sm">
-                            <span className="font-bold text-amber-900 dark:text-amber-200">Sessions Awaiting Your Confirmation.</span>
-                            <span className="text-amber-700 dark:text-amber-300 ml-1">You have sessions that will automatically release payment in 2 days.</span>
+                            <span className="font-bold text-amber-900 ">Sessions Awaiting Your Confirmation.</span>
+                            <span className="text-amber-700  ml-1">You have sessions that will automatically release payment in 2 days.</span>
                         </div>
                     </div>
                     <button onClick={() => setAlertDismissed(true)} className="text-amber-600 hover:text-amber-700 p-1 rounded">
@@ -128,14 +128,14 @@ export default function CustomerDashboard() {
 
             {/* Pending Refund Banner */}
             {!refundBannerDismissed && refundSummary?.pendingRefundAmount > 0 && (
-                <div className="flex items-center justify-between p-4 border border-primary/30 bg-primary/5 dark:bg-primary/10 rounded-xl">
+                <div className="flex items-center justify-between p-4 border border-primary/30 bg-primary/5  rounded-xl">
                     <div className="flex items-center gap-3">
                         <MdPayments className="text-primary text-xl shrink-0" />
                         <div className="text-sm">
-                            <span className="font-bold text-text-main dark:text-white">
+                            <span className="font-bold text-text-main ">
                                 You have ${parseFloat(refundSummary.pendingRefundAmount).toFixed(2)} in pending refunds.
                             </span>
-                            <span className="text-text-muted dark:text-gray-400 ml-1">
+                            <span className="text-text-muted  ml-1">
                                 Set up your payout account to receive them.
                             </span>
                         </div>
@@ -144,7 +144,7 @@ export default function CustomerDashboard() {
                         <Link href="/customer/payments" className="text-primary text-sm font-bold hover:underline">
                             View
                         </Link>
-                        <button onClick={() => setRefundBannerDismissed(true)} className="text-text-muted hover:text-text-main dark:hover:text-white p-1 rounded">
+                        <button onClick={() => setRefundBannerDismissed(true)} className="text-text-muted hover:text-text-main  p-1 rounded">
                             <MdClose className="text-lg" />
                         </button>
                     </div>
@@ -153,45 +153,45 @@ export default function CustomerDashboard() {
 
             {/* Stats Grid */}
             <div className="grid grid-cols-2 xl:grid-cols-4 gap-3 md:gap-4">
-                <button onClick={() => router.push('/customer/requests')} className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl p-5 hover:shadow-md hover:border-primary/30 transition-all text-left">
+                <button onClick={() => router.push('/customer/requests')} className="bg-card-light  border border-border-light  rounded-xl p-5 hover:shadow-md hover:border-primary/30 transition-all text-left">
                     <div className="flex items-start justify-between mb-3">
                         <div className="p-2.5 rounded-xl bg-amber-500">
                             <MdAssignment className="text-xl text-white" />
                         </div>
-                        <MdArrowForward className="text-slate-300 dark:text-slate-600 text-lg mt-0.5" />
+                        <MdArrowForward className="text-slate-300  text-lg mt-0.5" />
                     </div>
-                    <p className="text-2xl font-bold text-text-main dark:text-white">{stats.activeRequests}</p>
-                    <p className="text-sm text-text-muted dark:text-slate-400 mt-0.5">Open Requests</p>
+                    <p className="text-2xl font-bold text-text-main ">{stats.activeRequests}</p>
+                    <p className="text-sm text-text-muted  mt-0.5">Open Requests</p>
                 </button>
-                <button onClick={() => router.push('/customer/bookings')} className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl p-5 hover:shadow-md hover:border-primary/30 transition-all text-left">
+                <button onClick={() => router.push('/customer/bookings')} className="bg-card-light  border border-border-light  rounded-xl p-5 hover:shadow-md hover:border-primary/30 transition-all text-left">
                     <div className="flex items-start justify-between mb-3">
                         <div className="p-2.5 rounded-xl bg-blue-500">
                             <MdEvent className="text-xl text-white" />
                         </div>
-                        <MdArrowForward className="text-slate-300 dark:text-slate-600 text-lg mt-0.5" />
+                        <MdArrowForward className="text-slate-300  text-lg mt-0.5" />
                     </div>
-                    <p className="text-2xl font-bold text-text-main dark:text-white">{stats.upcomingBookings}</p>
-                    <p className="text-sm text-text-muted dark:text-slate-400 mt-0.5">Upcoming Sessions</p>
+                    <p className="text-2xl font-bold text-text-main ">{stats.upcomingBookings}</p>
+                    <p className="text-sm text-text-muted  mt-0.5">Upcoming Sessions</p>
                 </button>
-                <button onClick={() => router.push('/customer/bookings')} className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl p-5 hover:shadow-md hover:border-primary/30 transition-all text-left">
+                <button onClick={() => router.push('/customer/bookings')} className="bg-card-light  border border-border-light  rounded-xl p-5 hover:shadow-md hover:border-primary/30 transition-all text-left">
                     <div className="flex items-start justify-between mb-3">
                         <div className="p-2.5 rounded-xl bg-orange-500">
                             <MdSchedule className="text-xl text-white" />
                         </div>
-                        <MdArrowForward className="text-slate-300 dark:text-slate-600 text-lg mt-0.5" />
+                        <MdArrowForward className="text-slate-300  text-lg mt-0.5" />
                     </div>
-                    <p className="text-2xl font-bold text-text-main dark:text-white">{pendingConfirmations.length}</p>
-                    <p className="text-sm text-text-muted dark:text-slate-400 mt-0.5">Pending Confirmations</p>
+                    <p className="text-2xl font-bold text-text-main ">{pendingConfirmations.length}</p>
+                    <p className="text-sm text-text-muted  mt-0.5">Pending Confirmations</p>
                 </button>
-                <button onClick={() => router.push('/customer/bookings')} className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl p-5 hover:shadow-md hover:border-primary/30 transition-all text-left">
+                <button onClick={() => router.push('/customer/bookings')} className="bg-card-light  border border-border-light  rounded-xl p-5 hover:shadow-md hover:border-primary/30 transition-all text-left">
                     <div className="flex items-start justify-between mb-3">
                         <div className="p-2.5 rounded-xl bg-emerald-500">
                             <MdCheckCircle className="text-xl text-white" />
                         </div>
-                        <MdArrowForward className="text-slate-300 dark:text-slate-600 text-lg mt-0.5" />
+                        <MdArrowForward className="text-slate-300  text-lg mt-0.5" />
                     </div>
-                    <p className="text-2xl font-bold text-text-main dark:text-white">{stats.completedSessions}</p>
-                    <p className="text-sm text-text-muted dark:text-slate-400 mt-0.5">Total Completed</p>
+                    <p className="text-2xl font-bold text-text-main ">{stats.completedSessions}</p>
+                    <p className="text-sm text-text-muted  mt-0.5">Total Completed</p>
                 </button>
             </div>
 
@@ -200,9 +200,9 @@ export default function CustomerDashboard() {
                 <div className="lg:col-span-2 space-y-6">
 
                     {/* Recent Requests Table */}
-                    <div className="bg-white dark:bg-card-dark border border-slate-200 dark:border-border-dark rounded-xl shadow-sm overflow-hidden">
-                        <div className="p-6 border-b border-slate-200 dark:border-border-dark flex items-center justify-between">
-                            <h4 className="font-bold text-lg text-slate-900 dark:text-white">Recent Requests</h4>
+                    <div className="bg-white  border border-slate-200  rounded-xl shadow-sm overflow-hidden">
+                        <div className="p-6 border-b border-slate-200  flex items-center justify-between">
+                            <h4 className="font-bold text-lg text-slate-900 ">Recent Requests</h4>
                             <Link href="/customer/requests" className="text-sm font-semibold text-primary hover:underline">View All</Link>
                         </div>
                         <div className="overflow-x-auto">
@@ -217,19 +217,19 @@ export default function CustomerDashboard() {
                                         <th className="px-6 py-4">Action</th>
                                     </tr>
                                 </thead>
-                                <tbody className="divide-y divide-slate-100 dark:divide-border-dark">
+                                <tbody className="divide-y divide-slate-100 ">
                                     {recentRequests.length === 0 ? (
                                         <tr>
-                                            <td colSpan={6} className="px-6 py-8 text-center text-slate-500 dark:text-slate-400">
+                                            <td colSpan={6} className="px-6 py-8 text-center text-slate-500 ">
                                                 No requests yet.{' '}
                                                 <button onClick={() => router.push('/customer/requests/new')} className="text-primary font-semibold hover:underline">Create your first request</button>
                                             </td>
                                         </tr>
                                     ) : recentRequests.map(req => (
-                                        <tr key={req.id} className="hover:bg-primary/5 dark:hover:bg-slate-800/50 transition-colors">
-                                            <td className="px-6 py-4 font-semibold text-slate-900 dark:text-slate-100">{req.serviceType}</td>
-                                            <td className="px-6 py-4 text-slate-700 dark:text-slate-300">{req.location}</td>
-                                            <td className="px-6 py-4 text-slate-700 dark:text-slate-300">
+                                        <tr key={req.id} className="hover:bg-primary/5  transition-colors">
+                                            <td className="px-6 py-4 font-semibold text-slate-900 ">{req.serviceType}</td>
+                                            <td className="px-6 py-4 text-slate-700 ">{req.location}</td>
+                                            <td className="px-6 py-4 text-slate-700 ">
                                                 {req.preferredDate ? new Date(req.preferredDate).toLocaleDateString() : '—'}
                                             </td>
                                             <td className="px-6 py-4">
@@ -237,7 +237,7 @@ export default function CustomerDashboard() {
                                                     {STATUS_LABELS[req.status] || req.status}
                                                 </span>
                                             </td>
-                                            <td className="px-6 py-4 text-slate-700 dark:text-slate-300">{req.offers?.length || 0}</td>
+                                            <td className="px-6 py-4 text-slate-700 ">{req.offers?.length || 0}</td>
                                             <td className="px-6 py-4">
                                                 <button onClick={() => router.push(`/customer/requests/${req.id}`)} className="text-primary font-bold hover:underline cursor-pointer">View</button>
                                             </td>
@@ -249,9 +249,9 @@ export default function CustomerDashboard() {
                     </div>
 
                     {/* Upcoming Bookings Table */}
-                    <div className="bg-white dark:bg-card-dark border border-slate-200 dark:border-border-dark rounded-xl shadow-sm overflow-hidden">
-                        <div className="p-6 border-b border-slate-200 dark:border-border-dark flex items-center justify-between">
-                            <h4 className="font-bold text-lg text-slate-900 dark:text-white">Upcoming Bookings</h4>
+                    <div className="bg-white  border border-slate-200  rounded-xl shadow-sm overflow-hidden">
+                        <div className="p-6 border-b border-slate-200  flex items-center justify-between">
+                            <h4 className="font-bold text-lg text-slate-900 ">Upcoming Bookings</h4>
                             <Link href="/customer/bookings" className="text-sm font-semibold text-primary hover:underline">View All</Link>
                         </div>
                         <div className="overflow-x-auto">
@@ -265,20 +265,20 @@ export default function CustomerDashboard() {
                                         <th className="px-6 py-4">Action</th>
                                     </tr>
                                 </thead>
-                                <tbody className="divide-y divide-slate-100 dark:divide-border-dark">
+                                <tbody className="divide-y divide-slate-100 ">
                                     {upcomingBookings.length === 0 ? (
                                         <tr>
-                                            <td colSpan={5} className="px-6 py-8 text-center text-slate-500 dark:text-slate-400">No upcoming bookings</td>
+                                            <td colSpan={5} className="px-6 py-8 text-center text-slate-500 ">No upcoming bookings</td>
                                         </tr>
                                     ) : upcomingBookings.map(booking => (
-                                        <tr key={booking.id} className="hover:bg-primary/5 dark:hover:bg-slate-800/50 transition-colors">
-                                            <td className="px-6 py-4 font-semibold text-slate-900 dark:text-slate-100">{booking.therapist?.fullName || '—'}</td>
-                                            <td className="px-6 py-4 text-slate-700 dark:text-slate-300">{booking.offer?.request?.serviceType || booking.serviceType || '—'}</td>
-                                            <td className="px-6 py-4 text-slate-700 dark:text-slate-300">
+                                        <tr key={booking.id} className="hover:bg-primary/5  transition-colors">
+                                            <td className="px-6 py-4 font-semibold text-slate-900 ">{booking.therapist?.fullName || '—'}</td>
+                                            <td className="px-6 py-4 text-slate-700 ">{booking.offer?.request?.serviceType || booking.serviceType || '—'}</td>
+                                            <td className="px-6 py-4 text-slate-700 ">
                                                 {booking.scheduledDate ? new Date(booking.scheduledDate).toLocaleDateString() : '—'}
                                             </td>
                                             <td className="px-6 py-4">
-                                                <span className="px-2 py-1 rounded bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 text-[10px] font-bold uppercase">Confirmed</span>
+                                                <span className="px-2 py-1 rounded bg-blue-100 text-blue-700   text-[10px] font-bold uppercase">Confirmed</span>
                                             </td>
                                             <td className="px-6 py-4">
                                                 <button onClick={() => router.push(`/customer/bookings/${booking.id}`)} className="text-primary font-bold hover:underline cursor-pointer">View Booking</button>
@@ -294,12 +294,12 @@ export default function CustomerDashboard() {
                 {/* Right 1/3 */}
                 <div className="lg:col-span-1 space-y-6">
                     {/* Pending Session Confirmations */}
-                    <div className="bg-white dark:bg-card-dark border border-amber-500/30 rounded-xl shadow-sm overflow-hidden">
-                        <div className="p-5 bg-amber-50 dark:bg-amber-900/10 border-b border-amber-500/30">
+                    <div className="bg-white  border border-amber-500/30 rounded-xl shadow-sm overflow-hidden">
+                        <div className="p-5 bg-amber-50  border-b border-amber-500/30">
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">
                                     <MdWarning className="text-amber-600 text-lg" />
-                                    <h4 className="font-bold text-amber-900 dark:text-amber-200 uppercase tracking-wider text-xs">Pending Confirmation</h4>
+                                    <h4 className="font-bold text-amber-900  uppercase tracking-wider text-xs">Pending Confirmation</h4>
                                 </div>
                                 {pendingConfirmations.length > 0 && (
                                     <span className="text-[10px] font-bold bg-amber-600 text-white px-2 py-0.5 rounded-full">
@@ -310,7 +310,7 @@ export default function CustomerDashboard() {
                         </div>
                         <div className="p-4">
                             {pendingConfirmations.length === 0 ? (
-                                <p className="text-sm text-slate-500 dark:text-slate-400 text-center py-4">No sessions pending confirmation</p>
+                                <p className="text-sm text-slate-500  text-center py-4">No sessions pending confirmation</p>
                             ) : (
                                 <div className="space-y-3">
                                     {pendingConfirmations.slice(0, 5).map((item) => {
@@ -323,21 +323,21 @@ export default function CustomerDashboard() {
                                             <button
                                                 key={item.sessionId}
                                                 onClick={() => router.push(`/customer/bookings/${item.bookingId}`)}
-                                                className="w-full p-3 rounded-xl border border-slate-200 dark:border-border-dark hover:border-amber-400 dark:hover:border-amber-600 hover:bg-amber-50/50 dark:hover:bg-amber-900/10 transition-all text-left"
+                                                className="w-full p-3 rounded-xl border border-slate-200  hover:border-amber-400  hover:bg-amber-50/50  transition-all text-left"
                                             >
                                                 <div className="flex items-start justify-between gap-2 mb-1">
-                                                    <p className="font-bold text-sm text-slate-900 dark:text-slate-100 truncate">{item.therapistName}</p>
+                                                    <p className="font-bold text-sm text-slate-900  truncate">{item.therapistName}</p>
                                                     {hoursLeft !== null && (
                                                         <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded shrink-0 ${
                                                             hoursLeft <= 24
-                                                                ? "bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-400"
-                                                                : "bg-amber-100 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400"
+                                                                ? "bg-red-100  text-red-600 "
+                                                                : "bg-amber-100  text-amber-600 "
                                                         }`}>
                                                             {hoursLeft}h left
                                                         </span>
                                                     )}
                                                 </div>
-                                                <p className="text-xs text-slate-500 dark:text-slate-400">
+                                                <p className="text-xs text-slate-500 ">
                                                     {item.totalSessions > 1
                                                         ? `Session ${item.sessionNumber} of ${item.totalSessions} • `
                                                         : ""}
@@ -356,7 +356,7 @@ export default function CustomerDashboard() {
                                     )}
                                 </div>
                             )}
-                            <div className="mt-3 bg-slate-50 dark:bg-slate-800/40 p-3 rounded-xl flex items-start gap-2">
+                            <div className="mt-3 bg-slate-50  p-3 rounded-xl flex items-start gap-2">
                                 <MdInfo className="text-slate-400 text-sm shrink-0 mt-0.5" />
                                 <p className="text-[11px] text-slate-500 leading-relaxed">
                                     Sessions auto-confirm after 72 hours and payment is released to the therapist.

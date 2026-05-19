@@ -37,18 +37,18 @@ const NOTIFICATION_TYPES = [
 ];
 
 const TYPE_COLORS = {
-    general: "bg-gray-100  text-gray-700   dark:bg-gray-800      dark:text-gray-300",
-    system: "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300",
-    booking_update: "bg-blue-100  text-blue-800   dark:bg-blue-900/30   dark:text-blue-300",
-    payment_update: "bg-green-100 text-green-800  dark:bg-green-900/30  dark:text-green-300",
-    offer_update: "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300",
-    promotion: "bg-pink-100  text-pink-800   dark:bg-pink-900/30   dark:text-pink-300",
+    general: "bg-gray-100  text-gray-700         ",
+    system: "bg-purple-100 text-purple-800  ",
+    booking_update: "bg-blue-100  text-blue-800      ",
+    payment_update: "bg-green-100 text-green-800    ",
+    offer_update: "bg-orange-100 text-orange-800  ",
+    promotion: "bg-pink-100  text-pink-800      ",
 };
 
 function Skeleton({ className = "" }) {
     return (
         <div
-            className={`animate-pulse rounded bg-gray-200 dark:bg-gray-700 ${className}`}
+            className={`animate-pulse rounded bg-gray-200  ${className}`}
         />
     );
 }
@@ -66,7 +66,7 @@ const fmtDate = (d) =>
 function TypeBadge({ type }) {
     const cls =
         TYPE_COLORS[type] ??
-        "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300";
+        "bg-gray-100 text-gray-700  ";
     return (
         <span
             className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium whitespace-nowrap ${cls}`}
@@ -109,7 +109,7 @@ function UserPicker({ value, onChange }) {
                 </span>
                 <button
                     onClick={() => onChange(null)}
-                    className="text-text-muted hover:text-text-main dark:hover:text-white shrink-0"
+                    className="text-text-muted hover:text-text-main  shrink-0"
                 >
                     <MdClose size={14} />
                 </button>
@@ -133,12 +133,12 @@ function UserPicker({ value, onChange }) {
                     }}
                     onFocus={() => setDropdownOpen(true)}
                     placeholder="Filter by user…"
-                    className="w-full pl-8 pr-3 py-2 rounded-lg border border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark text-text-main dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                    className="w-full pl-8 pr-3 py-2 rounded-lg border border-border-light  bg-card-light  text-text-main  text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                 />
             </div>
 
             {dropdownOpen && shouldFetch && (
-                <div className="absolute top-full left-0 right-0 mt-1 bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-lg shadow-lg z-20 overflow-hidden max-h-48 overflow-y-auto">
+                <div className="absolute top-full left-0 right-0 mt-1 bg-card-light  border border-border-light  rounded-lg shadow-lg z-20 overflow-hidden max-h-48 overflow-y-auto">
                     {isLoading ? (
                         <div className="p-3 space-y-2">
                             {[...Array(3)].map((_, i) => (
@@ -154,13 +154,13 @@ function UserPicker({ value, onChange }) {
                             <button
                                 key={u.id}
                                 onClick={() => select(u)}
-                                className="w-full flex items-center gap-2 px-3 py-2 hover:bg-background-light dark:hover:bg-background-dark text-left transition-colors border-b border-border-light dark:border-border-dark last:border-0"
+                                className="w-full flex items-center gap-2 px-3 py-2 hover:bg-background-light  text-left transition-colors border-b border-border-light  last:border-0"
                             >
                                 <div className="w-6 h-6 rounded-full bg-primary/20 text-primary flex items-center justify-center text-xs font-semibold shrink-0">
                                     {(u.customerProfile?.fullName ?? u.therapistProfile?.fullName ?? u.email)?.[0]?.toUpperCase() ?? "?"}
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                    <p className="text-sm text-text-main dark:text-white truncate">
+                                    <p className="text-sm text-text-main  truncate">
                                         {u.customerProfile?.fullName ?? u.therapistProfile?.fullName ?? u.email}
                                     </p>
                                     <p className="text-xs text-text-muted truncate">
@@ -225,7 +225,7 @@ function AllNotificationsTab() {
                 <select
                     value={typeFilter}
                     onChange={(e) => handleTypeChange(e.target.value)}
-                    className="rounded-lg border border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark text-text-main dark:text-white text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
+                    className="rounded-lg border border-border-light  bg-card-light  text-text-main  text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
                 >
                     <option value="">All Types</option>
                     {NOTIFICATION_TYPES.map((t) => (
@@ -238,8 +238,8 @@ function AllNotificationsTab() {
                 <button
                     onClick={handleFailedChange}
                     className={`flex items-center gap-1.5 px-3 py-2 rounded-lg border text-sm font-medium transition-colors ${failedOnly
-                        ? "border-red-400 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400"
-                        : "border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark text-text-muted hover:text-text-main dark:hover:text-white"
+                        ? "border-red-400 bg-red-50  text-red-600 "
+                        : "border-border-light  bg-card-light  text-text-muted hover:text-text-main "
                         }`}
                 >
                     <MdError size={16} />
@@ -262,11 +262,11 @@ function AllNotificationsTab() {
             </div>
 
             {/* Table */}
-            <div className="bg-card-light dark:bg-card-dark rounded-xl border border-border-light dark:border-border-dark overflow-hidden">
+            <div className="bg-card-light  rounded-xl border border-border-light  overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="w-full text-sm">
                         <thead>
-                            <tr className="border-b border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark">
+                            <tr className="border-b border-border-light  bg-background-light ">
                                 <th className="px-4 py-3 text-left text-xs font-medium text-text-muted">
                                     User
                                 </th>
@@ -284,7 +284,7 @@ function AllNotificationsTab() {
                                 </th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-border-light dark:divide-border-dark">
+                        <tbody className="divide-y divide-border-light ">
                             {isLoading ? (
                                 [...Array(8)].map((_, i) => (
                                     <tr key={i}>
@@ -308,7 +308,7 @@ function AllNotificationsTab() {
                                 notifications.map((n) => (
                                     <tr
                                         key={n.id}
-                                        className="hover:bg-background-light dark:hover:bg-background-dark transition-colors"
+                                        className="hover:bg-background-light  transition-colors"
                                     >
                                         <td className="px-4 py-3">
                                             <div className="flex items-center gap-2">
@@ -316,7 +316,7 @@ function AllNotificationsTab() {
                                                     {(n.user?.customerProfile?.fullName ?? n.user?.therapistProfile?.fullName ?? n.user?.email)?.[0]?.toUpperCase() ?? "?"}
                                                 </div>
                                                 <div className="min-w-0">
-                                                    <p className="text-xs font-medium text-text-main dark:text-white truncate max-w-22.5">
+                                                    <p className="text-xs font-medium text-text-main  truncate max-w-22.5">
                                                         {n.user?.customerProfile?.fullName ?? n.user?.therapistProfile?.fullName ?? n.user?.email ?? "—"}
                                                     </p>
                                                     <p className="text-xs text-text-muted truncate max-w-22.5">
@@ -329,7 +329,7 @@ function AllNotificationsTab() {
                                             <TypeBadge type={n.type} />
                                         </td>
                                         <td className="px-4 py-3 max-w-55">
-                                            <p className="text-xs font-medium text-text-main dark:text-white truncate">
+                                            <p className="text-xs font-medium text-text-main  truncate">
                                                 {n.title}
                                             </p>
                                             <p className="text-xs text-text-muted truncate">
@@ -338,7 +338,7 @@ function AllNotificationsTab() {
                                         </td>
                                         <td className="px-4 py-3">
                                             {n.isRead ? (
-                                                <span className="inline-flex items-center gap-1 text-xs text-green-600 dark:text-green-400">
+                                                <span className="inline-flex items-center gap-1 text-xs text-green-600 ">
                                                     <MdCheckCircle size={14} />
                                                     Read
                                                 </span>
@@ -360,7 +360,7 @@ function AllNotificationsTab() {
 
                 {/* Pagination */}
                 {pagination.totalPages > 1 && (
-                    <div className="flex items-center justify-between px-4 py-3 border-t border-border-light dark:border-border-dark">
+                    <div className="flex items-center justify-between px-4 py-3 border-t border-border-light ">
                         <p className="text-xs text-text-muted">
                             Page {pagination.page} of {pagination.totalPages}
                             {pagination.total ? ` · ${pagination.total} total` : ""}
@@ -369,14 +369,14 @@ function AllNotificationsTab() {
                             <button
                                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                                 disabled={page === 1}
-                                className="p-1.5 rounded-lg border border-border-light dark:border-border-dark text-text-muted hover:text-text-main dark:hover:text-white disabled:opacity-40"
+                                className="p-1.5 rounded-lg border border-border-light  text-text-muted hover:text-text-main  disabled:opacity-40"
                             >
                                 <MdChevronLeft size={18} />
                             </button>
                             <button
                                 onClick={() => setPage((p) => p + 1)}
                                 disabled={page >= pagination.totalPages}
-                                className="p-1.5 rounded-lg border border-border-light dark:border-border-dark text-text-muted hover:text-text-main dark:hover:text-white disabled:opacity-40"
+                                className="p-1.5 rounded-lg border border-border-light  text-text-muted hover:text-text-main  disabled:opacity-40"
                             >
                                 <MdChevronRight size={18} />
                             </button>
@@ -437,9 +437,9 @@ function BroadcastTab() {
 
     return (
         <div className="max-w-xl">
-            <div className="bg-card-light dark:bg-card-dark rounded-xl border border-border-light dark:border-border-dark p-6 space-y-5">
+            <div className="bg-card-light  rounded-xl border border-border-light  p-6 space-y-5">
                 <div>
-                    <h3 className="font-semibold text-text-main dark:text-white">
+                    <h3 className="font-semibold text-text-main ">
                         Send Broadcast Notification
                     </h3>
                     <p className="text-sm text-text-muted mt-0.5">
@@ -450,13 +450,13 @@ function BroadcastTab() {
                 <form onSubmit={handleSubmit} className="space-y-4">
                     {/* Target audience */}
                     <div>
-                        <label className="block text-sm font-medium text-text-main dark:text-white mb-1">
+                        <label className="block text-sm font-medium text-text-main  mb-1">
                             Target Audience
                         </label>
                         <select
                             value={form.role}
                             onChange={set("role")}
-                            className="w-full rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-main dark:text-white text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
+                            className="w-full rounded-lg border border-border-light  bg-background-light  text-text-main  text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
                         >
                             {ROLES.map((r) => (
                                 <option key={r.value} value={r.value}>
@@ -468,7 +468,7 @@ function BroadcastTab() {
 
                     {/* Notification type */}
                     <div>
-                        <label className="block text-sm font-medium text-text-main dark:text-white mb-1">
+                        <label className="block text-sm font-medium text-text-main  mb-1">
                             Notification Type
                         </label>
                         {customType ? (
@@ -478,7 +478,7 @@ function BroadcastTab() {
                                     value={form.type}
                                     onChange={set("type")}
                                     placeholder="e.g. custom_alert"
-                                    className="flex-1 rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-main dark:text-white text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
+                                    className="flex-1 rounded-lg border border-border-light  bg-background-light  text-text-main  text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
                                 />
                                 <button
                                     type="button"
@@ -486,7 +486,7 @@ function BroadcastTab() {
                                         setCustomType(false);
                                         setForm((prev) => ({ ...prev, type: "general" }));
                                     }}
-                                    className="px-3 py-2 rounded-lg border border-border-light dark:border-border-dark text-text-muted text-sm hover:bg-background-light dark:hover:bg-background-dark whitespace-nowrap"
+                                    className="px-3 py-2 rounded-lg border border-border-light  text-text-muted text-sm hover:bg-background-light  whitespace-nowrap"
                                 >
                                     Use predefined
                                 </button>
@@ -495,7 +495,7 @@ function BroadcastTab() {
                             <select
                                 value={form.type}
                                 onChange={handleTypeSelect}
-                                className="w-full rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-main dark:text-white text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
+                                className="w-full rounded-lg border border-border-light  bg-background-light  text-text-main  text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
                             >
                                 {NOTIFICATION_TYPES.map((t) => (
                                     <option key={t.value} value={t.value}>
@@ -509,7 +509,7 @@ function BroadcastTab() {
 
                     {/* Title */}
                     <div>
-                        <label className="block text-sm font-medium text-text-main dark:text-white mb-1">
+                        <label className="block text-sm font-medium text-text-main  mb-1">
                             Title <span className="text-red-500">*</span>
                         </label>
                         <input
@@ -518,7 +518,7 @@ function BroadcastTab() {
                             onChange={set("title")}
                             placeholder="Notification title"
                             maxLength={100}
-                            className="w-full rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-main dark:text-white text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
+                            className="w-full rounded-lg border border-border-light  bg-background-light  text-text-main  text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
                         />
                         <p className="text-xs text-text-muted mt-1 text-right">
                             {form.title.length}/100
@@ -527,7 +527,7 @@ function BroadcastTab() {
 
                     {/* Message */}
                     <div>
-                        <label className="block text-sm font-medium text-text-main dark:text-white mb-1">
+                        <label className="block text-sm font-medium text-text-main  mb-1">
                             Message <span className="text-red-500">*</span>
                         </label>
                         <textarea
@@ -536,7 +536,7 @@ function BroadcastTab() {
                             rows={4}
                             placeholder="Write your notification message…"
                             maxLength={500}
-                            className="w-full rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-main dark:text-white text-sm px-3 py-2 resize-none focus:outline-none focus:ring-2 focus:ring-primary"
+                            className="w-full rounded-lg border border-border-light  bg-background-light  text-text-main  text-sm px-3 py-2 resize-none focus:outline-none focus:ring-2 focus:ring-primary"
                         />
                         <p className="text-xs text-text-muted mt-1 text-right">
                             {form.message.length}/500
@@ -545,7 +545,7 @@ function BroadcastTab() {
 
                     {/* Live preview */}
                     {(form.title || form.message) && (
-                        <div className="border border-border-light dark:border-border-dark rounded-lg p-3 bg-background-light dark:bg-background-dark space-y-2">
+                        <div className="border border-border-light  rounded-lg p-3 bg-background-light  space-y-2">
                             <p className="text-xs font-semibold text-text-muted uppercase tracking-wide">
                                 Preview
                             </p>
@@ -554,7 +554,7 @@ function BroadcastTab() {
                                     <MdNotifications size={16} />
                                 </div>
                                 <div>
-                                    <p className="text-sm font-medium text-text-main dark:text-white">
+                                    <p className="text-sm font-medium text-text-main ">
                                         {form.title || "Title"}
                                     </p>
                                     <p className="text-xs text-text-muted mt-0.5 leading-relaxed">
@@ -566,14 +566,14 @@ function BroadcastTab() {
                     )}
 
                     {error && (
-                        <div className="flex items-center gap-2 text-sm text-red-600 dark:text-red-400">
+                        <div className="flex items-center gap-2 text-sm text-red-600 ">
                             <MdWarning size={16} />
                             {error}
                         </div>
                     )}
 
                     {success && (
-                        <div className="flex items-center gap-2 text-sm text-green-600 dark:text-green-400">
+                        <div className="flex items-center gap-2 text-sm text-green-600 ">
                             <MdCheckCircle size={16} />
                             Broadcast sent successfully.
                         </div>
@@ -602,12 +602,12 @@ export default function AdminNotificationsPage() {
             {/* Header */}
             <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
-                    <h1 className="text-xl font-bold text-text-main dark:text-white">Notifications</h1>
+                    <h1 className="text-xl font-bold text-text-main ">Notifications</h1>
                     <p className="text-sm text-text-muted mt-0.5">
                         View system notifications and send broadcasts
                     </p>
                 </div>
-                <div className="flex bg-background-light dark:bg-background-dark rounded-lg p-1 border border-border-light dark:border-border-dark">
+                <div className="flex bg-background-light  rounded-lg p-1 border border-border-light ">
                     {[
                         { key: "all", label: "All Notifications" },
                         { key: "broadcast", label: "Broadcast" },
@@ -616,8 +616,8 @@ export default function AdminNotificationsPage() {
                             key={t.key}
                             onClick={() => setActiveTab(t.key)}
                             className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${activeTab === t.key
-                                ? "bg-card-light dark:bg-card-dark text-text-main dark:text-white shadow-sm"
-                                : "text-text-muted hover:text-text-main dark:hover:text-white"
+                                ? "bg-card-light  text-text-main  shadow-sm"
+                                : "text-text-muted hover:text-text-main "
                                 }`}
                         >
                             {t.label}

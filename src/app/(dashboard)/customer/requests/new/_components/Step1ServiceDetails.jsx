@@ -13,9 +13,9 @@ const SERVICE_TYPES = [
 ];
 
 const INPUT_CLASS =
-    "w-full bg-muted-light dark:bg-muted-dark border border-border-light dark:border-border-dark rounded-lg px-3 py-2.5 text-sm text-text-main dark:text-white focus:ring-2 focus:ring-primary focus:border-primary focus:outline-none";
+    "w-full bg-muted-light  border border-border-light  rounded-lg px-3 py-2.5 text-sm text-text-main  focus:ring-2 focus:ring-primary focus:border-primary focus:outline-none";
 
-const LABEL_CLASS = "block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5";
+const LABEL_CLASS = "block text-sm font-semibold text-slate-700  mb-1.5";
 
 export default function Step1ServiceDetails() {
     const { step1, setStep1 } = useRequestStore();
@@ -57,8 +57,8 @@ export default function Step1ServiceDetails() {
     };
 
     return (
-        <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl shadow-sm p-6 sm:p-8 space-y-6">
-            <h3 className="text-lg font-bold text-text-main dark:text-white">
+        <div className="bg-card-light  border border-border-light  rounded-xl shadow-sm p-6 sm:p-8 space-y-6">
+            <h3 className="text-lg font-bold text-text-main ">
                 Step 1: Service Details
             </h3>
 
@@ -79,7 +79,7 @@ export default function Step1ServiceDetails() {
                     ))}
                 </select>
                 {!step1.serviceType && (
-                    <p className="text-xs text-text-muted dark:text-gray-500 mt-1">
+                    <p className="text-xs text-text-muted  mt-1">
                         Please select the type of therapy you need
                     </p>
                 )}
@@ -135,7 +135,7 @@ export default function Step1ServiceDetails() {
                     Rate per Visit <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 font-semibold text-sm">$</span>
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400  font-semibold text-sm">$</span>
                     <input
                         type="number"
                         step="0.01"
@@ -156,7 +156,7 @@ export default function Step1ServiceDetails() {
                 <label className={LABEL_CLASS}>Treatment Frequency (optional)</label>
                 <div className="grid grid-cols-2 gap-4">
                     <div>
-                        <label className="block text-xs text-text-muted dark:text-slate-400 mb-1">Visits per week</label>
+                        <label className="block text-xs text-text-muted  mb-1">Visits per week</label>
                         <select
                             value={step1.visitsPerWeek}
                             onChange={(e) => setStep1({ visitsPerWeek: e.target.value })}
@@ -169,7 +169,7 @@ export default function Step1ServiceDetails() {
                         </select>
                     </div>
                     <div>
-                        <label className="block text-xs text-text-muted dark:text-slate-400 mb-1">Number of weeks</label>
+                        <label className="block text-xs text-text-muted  mb-1">Number of weeks</label>
                         <select
                             value={step1.numberOfWeeks}
                             onChange={(e) => setStep1({ numberOfWeeks: e.target.value })}
@@ -183,18 +183,18 @@ export default function Step1ServiceDetails() {
                     </div>
                 </div>
                 {step1.visitsPerWeek && step1.numberOfWeeks && (
-                    <div className="mt-2 px-3 py-2 rounded-lg bg-primary/5 dark:bg-primary/10 border border-primary/20">
+                    <div className="mt-2 px-3 py-2 rounded-lg bg-primary/5  border border-primary/20">
                         <p className="text-sm font-semibold text-primary">
                             {parseInt(step1.visitsPerWeek) * parseInt(step1.numberOfWeeks)} visits total
                             {step1.rate && parseFloat(step1.rate) > 0 && (
-                                <span className="text-text-muted dark:text-slate-400 font-normal">
+                                <span className="text-text-muted  font-normal">
                                     {" "}· ${(parseFloat(step1.rate) * parseInt(step1.visitsPerWeek) * parseInt(step1.numberOfWeeks)).toFixed(2)} estimated total
                                 </span>
                             )}
                         </p>
                     </div>
                 )}
-                <p className="text-xs text-text-muted dark:text-gray-500 mt-1">
+                <p className="text-xs text-text-muted  mt-1">
                     From the doctor&apos;s referral order. Leave blank for single-visit requests.
                 </p>
             </div>

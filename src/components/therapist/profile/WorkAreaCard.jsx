@@ -12,14 +12,14 @@ import { MdEdit, MdDelete, MdLocationOn } from "react-icons/md";
  */
 const WorkAreaCard = ({ workArea, onEdit, onDelete }) => {
     return (
-        <div className="bg-muted-light dark:bg-muted-dark rounded-lg p-4 border border-border-light dark:border-border-dark">
+        <div className="bg-muted-light  rounded-lg p-4 border border-border-light ">
             <div className="flex items-start justify-between">
                 <div className="flex items-start gap-3">
                     <div className="p-2 bg-primary/10 rounded-lg mt-0.5">
                         <MdLocationOn className="text-primary text-lg" />
                     </div>
                     <div>
-                        <h3 className="text-base font-semibold text-text-main dark:text-white">
+                        <h3 className="text-base font-semibold text-text-main ">
                             {workArea.city}, {workArea.state}
                         </h3>
                         {workArea.zipCode && (
@@ -40,7 +40,7 @@ const WorkAreaCard = ({ workArea, onEdit, onDelete }) => {
                     <button
                         type="button"
                         onClick={() => onDelete(workArea)}
-                        className="p-2 rounded-lg text-text-muted hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                        className="p-2 rounded-lg text-text-muted hover:text-red-500 hover:bg-red-50  transition-colors"
                         aria-label="Delete work area"
                     >
                         <MdDelete className="text-lg" />

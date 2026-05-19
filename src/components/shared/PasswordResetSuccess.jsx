@@ -13,27 +13,27 @@ const PasswordResetSuccess = () => {
     }
 
     return (
-        <div className="max-w-120 w-full bg-white dark:bg-background-dark/50 border border-border-subtle dark:border-white/5 rounded-xl shadow-xl overflow-hidden p-8 md:p-12 text-center">
+        <div className="max-w-120 w-full bg-white  border border-border-subtle  rounded-xl shadow-xl overflow-hidden p-8 md:p-12 text-center">
             {/* Success Icon */}
             <div className="flex justify-center mb-8">
-                <div className="size-20 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center text-green-600 dark:text-green-400">
+                <div className="size-20 bg-green-100  rounded-full flex items-center justify-center text-green-600 ">
                     <MdCheckCircle className="text-[48px]" />
                 </div>
             </div>
 
             {/* Headline Text */}
-            <h1 className="text-text-main dark:text-white tracking-tight text-2xl md:text-3xl font-bold leading-tight pb-3">
+            <h1 className="text-text-main  tracking-tight text-2xl md:text-3xl font-bold leading-tight pb-3">
                 Password Successfully Updated
             </h1>
 
             {/* Body Text */}
-            <p className="text-text-muted dark:text-gray-400 text-base font-normal leading-relaxed pb-8">
+            <p className="text-text-muted  text-base font-normal leading-relaxed pb-8">
                 Your account is now secure. You can use your new password to access your rehabilitation dashboard and manage your appointments.
             </p>
 
             {/* Illustrated Success Visual */}
             <div className="hidden md:flex w-full justify-center mb-8">
-                <div className="w-full h-32 bg-primary/5 dark:bg-primary/10 rounded-lg flex items-center justify-center overflow-hidden border border-primary/10">
+                <div className="w-full h-32 bg-primary/5  rounded-lg flex items-center justify-center overflow-hidden border border-primary/10">
                     <div className="flex items-center gap-3 text-primary">
                         <MdCheckCircle className="text-5xl" />
                         <div className="text-left">

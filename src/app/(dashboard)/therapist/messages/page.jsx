@@ -46,7 +46,7 @@ function TherapistMessagesContent() {
                 </Link>
             )}
             {selected?.contextType === 'offer' && (
-                <Link href="/therapist/offers" className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border-light dark:border-border-dark text-text-main dark:text-white text-xs font-bold hover:bg-muted-light dark:hover:bg-muted-dark transition-colors">
+                <Link href="/therapist/offers" className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border-light  text-text-main  text-xs font-bold hover:bg-muted-light  transition-colors">
                     <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
                     View Offer
                 </Link>
@@ -55,9 +55,9 @@ function TherapistMessagesContent() {
     )
 
     return (
-        <div className="flex h-[calc(100vh-112px)] min-h-125 rounded-xl border border-border-light dark:border-border-dark overflow-hidden shadow-sm">
+        <div className="flex h-[calc(100vh-112px)] min-h-125 rounded-xl border border-border-light  overflow-hidden shadow-sm">
             {/* Left Panel */}
-            <aside className={`w-full md:w-80 shrink-0 flex flex-col border-r border-border-light dark:border-border-dark bg-background-light/30 dark:bg-background-dark/50 ${mobileView === 'chat' ? 'hidden md:flex' : 'flex'}`}>
+            <aside className={`w-full md:w-80 shrink-0 flex flex-col border-r border-border-light  bg-background-light/30  ${mobileView === 'chat' ? 'hidden md:flex' : 'flex'}`}>
                 <ConversationList
                     conversations={conversations}
                     loading={convLoading}
@@ -73,7 +73,7 @@ function TherapistMessagesContent() {
             </aside>
 
             {/* Center Panel */}
-            <section className={`flex-1 flex flex-col min-w-0 bg-card-light dark:bg-card-dark ${mobileView === 'list' ? 'hidden md:flex' : 'flex'}`}>
+            <section className={`flex-1 flex flex-col min-w-0 bg-card-light  ${mobileView === 'list' ? 'hidden md:flex' : 'flex'}`}>
                 {!selected ? (
                     <ChatThread.NoConversationSelected />
                 ) : (
@@ -106,7 +106,7 @@ function TherapistMessagesContent() {
             </section>
 
             {/* Right Panel */}
-            <aside className={`hidden lg:flex w-72 shrink-0 flex-col border-l border-border-light dark:border-border-dark bg-background-light/30 dark:bg-background-dark/50 overflow-y-auto ${selectedConversation ? '' : 'lg:hidden'}`}>
+            <aside className={`hidden lg:flex w-72 shrink-0 flex-col border-l border-border-light  bg-background-light/30  overflow-y-auto ${selectedConversation ? '' : 'lg:hidden'}`}>
                 {selectedConversation && (
                     <div className="p-6">
                         <TherapistRightSidebar selectedConversation={selectedConversation} />

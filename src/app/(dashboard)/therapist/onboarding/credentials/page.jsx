@@ -192,32 +192,32 @@ export default function CredentialsPage() {
     };
 
     return (
-        <div className="min-h-screen bg-background-light dark:bg-background-dark py-10 px-4">
+        <div className="min-h-screen bg-background-light  py-10 px-4">
             <div className="max-w-4xl mx-auto">
                 <OnboardingProgressBar />
 
                 <header className="mb-8 px-4">
-                    <h1 className="text-text-main dark:text-white text-[28px] font-bold leading-tight tracking-light mb-2">
+                    <h1 className="text-text-main  text-[28px] font-bold leading-tight tracking-light mb-2">
                         Verify Your Professional Status
                     </h1>
-                    <p className="text-text-muted dark:text-gray-400 text-base font-normal leading-normal">
+                    <p className="text-text-muted  text-base font-normal leading-normal">
                         To ensure patient safety, we verify all licenses with state boards. This
                         process usually takes 24-48 hours.
                     </p>
                 </header>
 
                 <form onSubmit={handleSubmit(onSubmit)}>
-                    <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl p-8 space-y-6 shadow-sm">
+                    <div className="bg-card-light  border border-border-light  rounded-xl p-8 space-y-6 shadow-sm">
                         {/* License Fields */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="flex flex-col gap-2">
-                                <label className="text-text-main dark:text-white text-sm font-semibold">
+                                <label className="text-text-main  text-sm font-semibold">
                                     License Number
                                 </label>
                                 <input
                                     type="text"
                                     {...register("licenseNumber")}
-                                    className="w-full px-4 py-3 h-12 rounded-lg border border-border-light dark:border-border-dark bg-input-light dark:bg-input-dark text-text-main dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
+                                    className="w-full px-4 py-3 h-12 rounded-lg border border-border-light  bg-input-light  text-text-main  focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
                                     placeholder="e.g. 123456789"
                                 />
                                 {errors.licenseNumber && (
@@ -228,12 +228,12 @@ export default function CredentialsPage() {
                             </div>
 
                             <div className="flex flex-col gap-2">
-                                <label className="text-text-main dark:text-white text-sm font-semibold">
+                                <label className="text-text-main  text-sm font-semibold">
                                     State of Licensure
                                 </label>
                                 <select
                                     {...register("licenseState")}
-                                    className="w-full px-4 py-3 h-12 rounded-lg border border-border-light dark:border-border-dark bg-input-light dark:bg-input-dark text-text-main dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
+                                    className="w-full px-4 py-3 h-12 rounded-lg border border-border-light  bg-input-light  text-text-main  focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
                                 >
                                     <option value="">Select State</option>
                                     {US_STATES.map((state) => (
@@ -252,7 +252,7 @@ export default function CredentialsPage() {
 
                         {/* Rate per Visit */}
                         <div className="flex flex-col gap-2 mt-4">
-                            <label className="text-text-main dark:text-white text-sm font-semibold">
+                            <label className="text-text-main  text-sm font-semibold">
                                 Rate per Visit ($) <span className="text-gray-400 font-normal ml-1">(optional)</span>
                             </label>
                             <input
@@ -261,7 +261,7 @@ export default function CredentialsPage() {
                                 max="10000"
                                 step="0.01"
                                 {...register("ratePerVisit")}
-                                className="w-full px-4 py-3 h-12 rounded-lg border border-border-light dark:border-border-dark bg-input-light dark:bg-input-dark text-text-main dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all md:w-1/2"
+                                className="w-full px-4 py-3 h-12 rounded-lg border border-border-light  bg-input-light  text-text-main  focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all md:w-1/2"
                                 placeholder="e.g. 85.00"
                             />
                             <p className="text-xs text-text-muted">Your standard rate per session. This will pre-fill your offers and show on your profile. You can adjust per offer.</p>
@@ -269,7 +269,7 @@ export default function CredentialsPage() {
 
                         {/* Attempted Visit Rate */}
                         <div className="flex flex-col gap-2 mt-4">
-                            <label className="text-text-main dark:text-white text-sm font-semibold">
+                            <label className="text-text-main  text-sm font-semibold">
                                 Attempted Visit Rate ($) <span className="text-gray-400 font-normal ml-1">(optional)</span>
                             </label>
                             <input
@@ -278,7 +278,7 @@ export default function CredentialsPage() {
                                 max="10000"
                                 step="0.01"
                                 {...register("attemptedVisitRate")}
-                                className="w-full px-4 py-3 h-12 rounded-lg border border-border-light dark:border-border-dark bg-input-light dark:bg-input-dark text-text-main dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all md:w-1/2"
+                                className="w-full px-4 py-3 h-12 rounded-lg border border-border-light  bg-input-light  text-text-main  focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all md:w-1/2"
                                 placeholder="e.g. 40.00"
                             />
                             {errors.attemptedVisitRate && (
@@ -291,7 +291,7 @@ export default function CredentialsPage() {
 
                         {/* File Upload */}
                         <div className="flex flex-col gap-2 mt-4">
-                            <label className="text-text-main dark:text-white text-sm font-semibold">
+                            <label className="text-text-main  text-sm font-semibold">
                                 Professional License Certificate
                                 <span className="text-gray-400 font-normal ml-2">
                                     ({uploadedDocs.length}/5)
@@ -300,7 +300,7 @@ export default function CredentialsPage() {
 
                             <div
                                 {...getRootProps()}
-                                className={`border-2 border-dashed border-border-light dark:border-border-dark rounded-xl p-10 flex flex-col items-center justify-center bg-muted-light dark:bg-muted-dark transition-colors ${uploadedDocs.length >= 5 || uploading
+                                className={`border-2 border-dashed border-border-light  rounded-xl p-10 flex flex-col items-center justify-center bg-muted-light  transition-colors ${uploadedDocs.length >= 5 || uploading
                                     ? "opacity-50 cursor-not-allowed"
                                     : "hover:bg-primary/5 hover:border-primary cursor-pointer group"
                                     }`}
@@ -310,7 +310,7 @@ export default function CredentialsPage() {
                                 {uploading ? (
                                     <div className="flex flex-col items-center gap-4">
                                         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-                                        <p className="text-text-main dark:text-white text-base font-medium">
+                                        <p className="text-text-main  text-base font-medium">
                                             Uploading documents...
                                         </p>
                                     </div>
@@ -332,7 +332,7 @@ export default function CredentialsPage() {
                                             </svg>
                                         </div>
 
-                                        <p className="text-text-main dark:text-white text-base font-medium text-center">
+                                        <p className="text-text-main  text-base font-medium text-center">
                                             {uploadedDocs.length >= 5
                                                 ? "Maximum 5 documents uploaded"
                                                 : isDragActive
@@ -340,7 +340,7 @@ export default function CredentialsPage() {
                                                     : "Click to upload or drag and drop"}
                                         </p>
 
-                                        <p className="text-text-muted dark:text-gray-400 text-sm mt-1 text-center">
+                                        <p className="text-text-muted  text-sm mt-1 text-center">
                                             PDF, JPG or PNG (max. 10MB each)
                                         </p>
                                     </>
@@ -356,7 +356,7 @@ export default function CredentialsPage() {
                                     {uploadedDocs.map((doc, index) => (
                                         <div
                                             key={index}
-                                            className="flex items-center justify-between bg-muted-light dark:bg-muted-dark p-3 rounded-lg border border-border-light dark:border-border-dark"
+                                            className="flex items-center justify-between bg-muted-light  p-3 rounded-lg border border-border-light "
                                         >
                                             <div className="flex items-center gap-3">
                                                 <svg
@@ -372,7 +372,7 @@ export default function CredentialsPage() {
                                                         d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                                                     />
                                                 </svg>
-                                                <span className="text-text-main dark:text-white text-sm">
+                                                <span className="text-text-main  text-sm">
                                                     {doc.fileName}
                                                 </span>
                                             </div>
@@ -380,7 +380,7 @@ export default function CredentialsPage() {
                                             <button
                                                 type="button"
                                                 onClick={() => handleRemoveDocument(index)}
-                                                className="text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300 font-semibold text-sm"
+                                                className="text-red-500 hover:text-red-600   font-semibold text-sm"
                                             >
                                                 Remove
                                             </button>
@@ -391,11 +391,11 @@ export default function CredentialsPage() {
                         </div>
 
                         {/* Footer */}
-                        <div className="flex items-center justify-between mt-10 pt-6 border-t border-border-light dark:border-border-dark">
+                        <div className="flex items-center justify-between mt-10 pt-6 border-t border-border-light ">
                             <button
                                 type="button"
                                 onClick={() => router.push("/therapist/onboarding/profile")}
-                                className="flex items-center gap-2 px-6 py-3 rounded-lg border border-border-light dark:border-border-dark text-text-main dark:text-white font-semibold hover:bg-muted-light dark:hover:bg-muted-dark transition-colors"
+                                className="flex items-center gap-2 px-6 py-3 rounded-lg border border-border-light  text-text-main  font-semibold hover:bg-muted-light  transition-colors"
                             >
                                 <svg
                                     className="w-5 h-5"

@@ -109,15 +109,15 @@ export default function InlinePaymentSection({ booking, onPaymentSuccess }) {
     const amount = formatCurrency(perSessionRate * sessionsCount);
 
     return (
-        <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl p-6 space-y-5">
+        <div className="bg-card-light  border border-border-light  rounded-xl p-6 space-y-5">
             <div className="flex items-center gap-2">
-                <MdLock className="text-text-muted dark:text-gray-400" />
-                <h3 className="text-base font-bold text-text-main dark:text-white">Complete Payment</h3>
+                <MdLock className="text-text-muted " />
+                <h3 className="text-base font-bold text-text-main ">Complete Payment</h3>
             </div>
 
-            <div className="flex items-start gap-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg px-3 py-2.5">
-                <MdInfo className="text-blue-600 dark:text-blue-400 text-sm mt-0.5 shrink-0" />
-                <p className="text-xs text-blue-700 dark:text-blue-300">
+            <div className="flex items-start gap-2 bg-blue-50  border border-blue-200  rounded-lg px-3 py-2.5">
+                <MdInfo className="text-blue-600  text-sm mt-0.5 shrink-0" />
+                <p className="text-xs text-blue-700 ">
                     Your payment will be held securely until you confirm {isMultiSession ? "all sessions" : "session"} completion
                 </p>
             </div>
@@ -125,22 +125,22 @@ export default function InlinePaymentSection({ booking, onPaymentSuccess }) {
             <div>
                 {isMultiSession ? (
                     <>
-                        <p className="text-xs font-bold text-text-muted dark:text-gray-400 uppercase tracking-wider">
+                        <p className="text-xs font-bold text-text-muted  uppercase tracking-wider">
                             {formatCurrency(perSessionRate)}/session × {sessionsCount} sessions
                         </p>
-                        <p className="text-2xl font-black text-text-main dark:text-white">{amount}</p>
+                        <p className="text-2xl font-black text-text-main ">{amount}</p>
                     </>
                 ) : (
                     <>
-                        <p className="text-xs font-bold text-text-muted dark:text-gray-400 uppercase tracking-wider">Session Rate</p>
-                        <p className="text-2xl font-black text-text-main dark:text-white">{amount}</p>
+                        <p className="text-xs font-bold text-text-muted  uppercase tracking-wider">Session Rate</p>
+                        <p className="text-2xl font-black text-text-main ">{amount}</p>
                     </>
                 )}
             </div>
 
             {payError && (
-                <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg px-3 py-2.5">
-                    <p className="text-xs text-red-700 dark:text-red-300">{payError}</p>
+                <div className="bg-red-50  border border-red-200  rounded-lg px-3 py-2.5">
+                    <p className="text-xs text-red-700 ">{payError}</p>
                 </div>
             )}
 
@@ -157,8 +157,8 @@ export default function InlinePaymentSection({ booking, onPaymentSuccess }) {
                                     key={pm.id}
                                     className={`flex items-center gap-3 px-4 py-3 rounded-xl border cursor-pointer transition-colors ${
                                         selectedPmId === pm.id
-                                            ? "border-primary bg-primary/5 dark:bg-primary/10"
-                                            : "border-border-light dark:border-border-dark hover:border-slate-300 dark:hover:border-slate-600"
+                                            ? "border-primary bg-primary/5 "
+                                            : "border-border-light  hover:border-slate-300 "
                                     }`}
                                 >
                                     <input
@@ -169,12 +169,12 @@ export default function InlinePaymentSection({ booking, onPaymentSuccess }) {
                                         onChange={() => { setSelectedPmId(pm.id); setPayError(null); }}
                                         className="accent-primary"
                                     />
-                                    <MdCreditCard className="text-lg text-text-muted dark:text-gray-400" />
+                                    <MdCreditCard className="text-lg text-text-muted " />
                                     <div className="flex-1 min-w-0">
-                                        <span className="text-sm font-bold text-text-main dark:text-white">
+                                        <span className="text-sm font-bold text-text-main ">
                                             {BRAND_LABELS[pm.brand] || pm.brand} &bull;&bull;&bull;&bull; {pm.last4}
                                         </span>
-                                        <span className="text-xs text-text-muted dark:text-gray-400 ml-2">
+                                        <span className="text-xs text-text-muted  ml-2">
                                             Expires {String(pm.expMonth).padStart(2, "0")}/{String(pm.expYear).slice(-2)}
                                         </span>
                                     </div>
@@ -225,7 +225,7 @@ export default function InlinePaymentSection({ booking, onPaymentSuccess }) {
                 )
             )}
 
-            <p className="text-[10px] text-text-muted dark:text-gray-500 text-center">Powered by Stripe</p>
+            <p className="text-[10px] text-text-muted  text-center">Powered by Stripe</p>
         </div>
     );
 }

@@ -42,8 +42,8 @@ export default function Step2Location() {
         : DEFAULT_CENTER;
 
     return (
-        <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl shadow-sm p-6 sm:p-8 space-y-6">
-            <h3 className="text-lg font-bold text-text-main dark:text-white">
+        <div className="bg-card-light  border border-border-light  rounded-xl shadow-sm p-6 sm:p-8 space-y-6">
+            <h3 className="text-lg font-bold text-text-main ">
                 Step 2: Location
             </h3>
 
@@ -63,7 +63,7 @@ export default function Step2Location() {
                 <div className="flex items-center gap-2 bg-primary/5 border border-primary/20 rounded-lg px-3 py-2">
                     <MdLocationOn className="text-primary shrink-0" />
                     <div className="text-sm">
-                        <span className="font-medium text-text-main dark:text-white">
+                        <span className="font-medium text-text-main ">
                             {step2.address}
                         </span>
                         <span className="text-text-muted ml-2">
@@ -76,11 +76,11 @@ export default function Step2Location() {
 
             <div>
                 <div className="flex items-center justify-between mb-2">
-                    <label className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                    <label className="text-xs font-semibold text-slate-500  uppercase tracking-wider">
                         Map Preview
                     </label>
                 </div>
-                <div className="aspect-video w-full rounded-xl overflow-hidden border border-border-light dark:border-border-dark">
+                <div className="aspect-video w-full rounded-xl overflow-hidden border border-border-light ">
                     <Map
                         defaultCenter={DEFAULT_CENTER}
                         defaultZoom={DEFAULT_ZOOM}
@@ -94,7 +94,7 @@ export default function Step2Location() {
                     </Map>
                 </div>
                 {!hasLocation && (
-                    <p className="text-xs text-text-muted dark:text-gray-500 mt-1.5 text-center">
+                    <p className="text-xs text-text-muted  mt-1.5 text-center">
                         Enter an address above to see the location on the map
                     </p>
                 )}

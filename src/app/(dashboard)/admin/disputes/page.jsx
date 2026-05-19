@@ -25,18 +25,18 @@ const getFilerName = (user) =>
     user?.customerProfile?.fullName || user?.therapistProfile?.fullName || user?.email || '—';
 
 const TYPE_STYLES = {
-    billing: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
-    service_quality: 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400',
-    no_show: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
-    communication: 'bg-cyan-100 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-400',
-    other: 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300',
+    billing: 'bg-amber-100 text-amber-700  ',
+    service_quality: 'bg-rose-100 text-rose-700  ',
+    no_show: 'bg-red-100 text-red-700  ',
+    communication: 'bg-cyan-100 text-cyan-700  ',
+    other: 'bg-slate-100 text-slate-600  ',
 };
 
 const STATUS_STYLES = {
-    open: 'bg-blue-100   text-blue-700   dark:bg-blue-900/30   dark:text-blue-400',
-    under_review: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400',
-    resolved: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
-    closed: 'bg-slate-100  text-slate-600  dark:bg-slate-700     dark:text-slate-300',
+    open: 'bg-blue-100   text-blue-700      ',
+    under_review: 'bg-purple-100 text-purple-700  ',
+    resolved: 'bg-emerald-100 text-emerald-700  ',
+    closed: 'bg-slate-100  text-slate-600       ',
 };
 
 const STATUS_OPTIONS = [
@@ -46,7 +46,7 @@ const STATUS_OPTIONS = [
 ];
 
 function Skeleton({ className }) {
-    return <div className={`animate-pulse rounded bg-slate-200 dark:bg-slate-700 ${className}`} />;
+    return <div className={`animate-pulse rounded bg-slate-200  ${className}`} />;
 }
 
 function StatusBadge({ status }) {
@@ -103,16 +103,16 @@ function DisputeSidePanel({ dispute, admins, onClose, onUpdate, onAssign, onReop
     return (
         <div className="flex flex-col h-full">
             {/* Header */}
-            <div className="flex items-start justify-between px-5 py-4 border-b border-border-light dark:border-border-dark shrink-0 gap-3">
+            <div className="flex items-start justify-between px-5 py-4 border-b border-border-light  shrink-0 gap-3">
                 <div className="min-w-0">
-                    <p className="text-xs font-mono text-text-muted dark:text-slate-400">#{dispute.ticketId}</p>
-                    <p className="font-semibold text-text-main dark:text-white text-sm mt-0.5 leading-snug line-clamp-2">
+                    <p className="text-xs font-mono text-text-muted ">#{dispute.ticketId}</p>
+                    <p className="font-semibold text-text-main  text-sm mt-0.5 leading-snug line-clamp-2">
                         {dispute.description}
                     </p>
                 </div>
                 <button
                     onClick={onClose}
-                    className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 shrink-0"
+                    className="p-1.5 rounded-lg hover:bg-slate-100  text-slate-400 hover:text-slate-600  shrink-0"
                 >
                     <MdClose className="text-xl" />
                 </button>
@@ -123,17 +123,17 @@ function DisputeSidePanel({ dispute, admins, onClose, onUpdate, onAssign, onReop
                 {/* Status badge */}
                 <div className="flex items-center justify-between">
                     <StatusBadge status={dispute.status} />
-                    <span className="text-xs text-text-muted dark:text-slate-500">{fmtDate(dispute.createdAt)}</span>
+                    <span className="text-xs text-text-muted ">{fmtDate(dispute.createdAt)}</span>
                 </div>
 
                 {/* Feedback */}
                 {error && (
-                    <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-sm">
+                    <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-red-50  text-red-600  text-sm">
                         <MdWarning className="shrink-0 text-base" /> {error}
                     </div>
                 )}
                 {success && (
-                    <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 text-sm">
+                    <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-emerald-50  text-emerald-600  text-sm">
                         <MdCheckCircle className="shrink-0 text-base" /> {success}
                     </div>
                 )}
@@ -141,17 +141,17 @@ function DisputeSidePanel({ dispute, admins, onClose, onUpdate, onAssign, onReop
                 {/* Dispute info */}
                 <dl className="space-y-3 text-sm">
                     <div>
-                        <dt className="text-xs font-semibold text-text-muted dark:text-slate-400 uppercase tracking-wide mb-1">Filed By</dt>
+                        <dt className="text-xs font-semibold text-text-muted  uppercase tracking-wide mb-1">Filed By</dt>
                         <dd className="flex items-center gap-2">
-                            <div className="h-6 w-6 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center shrink-0">
-                                <MdPerson className="text-xs text-slate-500 dark:text-slate-400" />
+                            <div className="h-6 w-6 rounded-full bg-slate-200  flex items-center justify-center shrink-0">
+                                <MdPerson className="text-xs text-slate-500 " />
                             </div>
                             <div className="min-w-0">
-                                <p className="font-medium text-text-main dark:text-white truncate">
+                                <p className="font-medium text-text-main  truncate">
                                     {getFilerName(dispute.user)}
                                 </p>
                                 {dispute.user?.email && (
-                                    <p className="text-xs text-text-muted dark:text-slate-400 truncate">
+                                    <p className="text-xs text-text-muted  truncate">
                                         {dispute.user.email}
                                     </p>
                                 )}
@@ -169,22 +169,22 @@ function DisputeSidePanel({ dispute, admins, onClose, onUpdate, onAssign, onReop
                     </div>
 
                     <div className="flex items-center justify-between gap-3">
-                        <dt className="text-text-muted dark:text-slate-400">Type</dt>
+                        <dt className="text-text-muted ">Type</dt>
                         <dd><TypeBadge type={dispute.type} /></dd>
                     </div>
 
                     {dispute.booking && (
                         <div className="flex justify-between gap-3">
-                            <dt className="text-text-muted dark:text-slate-400">Booking</dt>
-                            <dd className="font-medium text-text-main dark:text-white">
+                            <dt className="text-text-muted ">Booking</dt>
+                            <dd className="font-medium text-text-main ">
                                 <span className="capitalize">{dispute.booking.status}</span>
                             </dd>
                         </div>
                     )}
 
                     <div className="flex justify-between gap-3">
-                        <dt className="text-text-muted dark:text-slate-400">Assigned to</dt>
-                        <dd className="font-medium text-text-main dark:text-white text-right truncate max-w-40">
+                        <dt className="text-text-muted ">Assigned to</dt>
+                        <dd className="font-medium text-text-main  text-right truncate max-w-40">
                             {dispute.assignedAdmin?.email || 'Unassigned'}
                         </dd>
                     </div>
@@ -193,8 +193,8 @@ function DisputeSidePanel({ dispute, admins, onClose, onUpdate, onAssign, onReop
                 {/* Description */}
                 {dispute.description && (
                     <div>
-                        <p className="text-xs font-semibold text-text-muted dark:text-slate-400 uppercase tracking-wide mb-2">Description</p>
-                        <p className="text-sm text-text-main dark:text-slate-200 leading-relaxed bg-slate-50 dark:bg-slate-800/50 rounded-xl p-3">
+                        <p className="text-xs font-semibold text-text-muted  uppercase tracking-wide mb-2">Description</p>
+                        <p className="text-sm text-text-main  leading-relaxed bg-slate-50  rounded-xl p-3">
                             {dispute.description}
                         </p>
                     </div>
@@ -203,8 +203,8 @@ function DisputeSidePanel({ dispute, admins, onClose, onUpdate, onAssign, onReop
                 {/* Current resolution */}
                 {dispute.resolution && (
                     <div>
-                        <p className="text-xs font-semibold text-text-muted dark:text-slate-400 uppercase tracking-wide mb-2">Resolution</p>
-                        <p className="text-sm text-text-main dark:text-slate-200 leading-relaxed bg-emerald-50 dark:bg-emerald-900/10 rounded-xl p-3 border border-emerald-200 dark:border-emerald-800">
+                        <p className="text-xs font-semibold text-text-muted  uppercase tracking-wide mb-2">Resolution</p>
+                        <p className="text-sm text-text-main  leading-relaxed bg-emerald-50  rounded-xl p-3 border border-emerald-200 ">
                             {dispute.resolution}
                         </p>
                     </div>
@@ -212,25 +212,25 @@ function DisputeSidePanel({ dispute, admins, onClose, onUpdate, onAssign, onReop
 
                 {/* ── Update Status section ── */}
                 {canModify ? (
-                    <div className="border border-border-light dark:border-border-dark rounded-xl overflow-hidden">
+                    <div className="border border-border-light  rounded-xl overflow-hidden">
                         <button
                             onClick={() => setActiveSection(prev => prev === 'update' ? null : 'update')}
-                            className="w-full flex items-center justify-between px-4 py-3 text-sm font-medium text-text-main dark:text-white hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
+                            className="w-full flex items-center justify-between px-4 py-3 text-sm font-medium text-text-main  hover:bg-slate-50  transition-colors"
                         >
                             Update Status & Resolution
                             <span className="text-text-muted text-xs">{activeSection === 'update' ? '▲' : '▼'}</span>
                         </button>
 
                         {activeSection === 'update' && (
-                            <div className="px-4 pb-4 space-y-3 border-t border-border-light dark:border-border-dark">
+                            <div className="px-4 pb-4 space-y-3 border-t border-border-light ">
                                 <div className="pt-3">
-                                    <label className="block text-xs font-medium text-text-muted dark:text-slate-400 mb-1.5">
+                                    <label className="block text-xs font-medium text-text-muted  mb-1.5">
                                         Status
                                     </label>
                                     <select
                                         value={formStatus}
                                         onChange={e => setFormStatus(e.target.value)}
-                                        className="w-full px-3 py-2.5 text-sm rounded-xl border border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark text-text-main dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                                        className="w-full px-3 py-2.5 text-sm rounded-xl border border-border-light  bg-card-light  text-text-main  focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                                     >
                                         {STATUS_OPTIONS.map(o => (
                                             <option key={o.value} value={o.value}>{o.label}</option>
@@ -239,7 +239,7 @@ function DisputeSidePanel({ dispute, admins, onClose, onUpdate, onAssign, onReop
                                 </div>
 
                                 <div>
-                                    <label className="block text-xs font-medium text-text-muted dark:text-slate-400 mb-1.5">
+                                    <label className="block text-xs font-medium text-text-muted  mb-1.5">
                                         Resolution Note
                                         <span className="font-normal ml-1">(optional)</span>
                                     </label>
@@ -248,7 +248,7 @@ function DisputeSidePanel({ dispute, admins, onClose, onUpdate, onAssign, onReop
                                         onChange={e => setFormResolution(e.target.value)}
                                         placeholder="Describe how this dispute was resolved…"
                                         rows={3}
-                                        className="w-full px-3 py-2.5 text-sm rounded-xl border border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark text-text-main dark:text-white placeholder:text-text-muted resize-none focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                                        className="w-full px-3 py-2.5 text-sm rounded-xl border border-border-light  bg-card-light  text-text-main  placeholder:text-text-muted resize-none focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                                     />
                                 </div>
 
@@ -264,8 +264,8 @@ function DisputeSidePanel({ dispute, admins, onClose, onUpdate, onAssign, onReop
                         )}
                     </div>
                 ) : (
-                    <div className="rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-border-light dark:border-border-dark px-4 py-3">
-                        <p className="text-xs font-medium text-text-muted dark:text-slate-400">
+                    <div className="rounded-xl bg-slate-50  border border-border-light  px-4 py-3">
+                        <p className="text-xs font-medium text-text-muted ">
                             {dispute.assignedAdmin
                                 ? `This dispute is assigned to ${dispute.assignedAdmin.email}. Only the assigned admin or a full admin can update it.`
                                 : 'This dispute is unassigned. Only a full admin can update unassigned disputes.'}
@@ -275,21 +275,21 @@ function DisputeSidePanel({ dispute, admins, onClose, onUpdate, onAssign, onReop
 
                 {/* ── Assign Admin section — full admins only ── */}
                 {canAssign && (
-                    <div className="border border-border-light dark:border-border-dark rounded-xl overflow-hidden">
+                    <div className="border border-border-light  rounded-xl overflow-hidden">
                         <button
                             onClick={() => setActiveSection(prev => prev === 'assign' ? null : 'assign')}
-                            className="w-full flex items-center justify-between px-4 py-3 text-sm font-medium text-text-main dark:text-white hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
+                            className="w-full flex items-center justify-between px-4 py-3 text-sm font-medium text-text-main  hover:bg-slate-50  transition-colors"
                         >
                             Assign to Admin
                             <span className="text-text-muted text-xs">{activeSection === 'assign' ? '▲' : '▼'}</span>
                         </button>
 
                         {activeSection === 'assign' && (
-                            <div className="px-4 pb-4 space-y-3 border-t border-border-light dark:border-border-dark pt-3">
+                            <div className="px-4 pb-4 space-y-3 border-t border-border-light  pt-3">
                                 <select
                                     value={formAssignId}
                                     onChange={e => setFormAssignId(e.target.value)}
-                                    className="w-full px-3 py-2.5 text-sm rounded-xl border border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark text-text-main dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                                    className="w-full px-3 py-2.5 text-sm rounded-xl border border-border-light  bg-card-light  text-text-main  focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                                 >
                                     <option value="">Select an admin…</option>
                                     {admins.map(admin => (
@@ -314,10 +314,10 @@ function DisputeSidePanel({ dispute, admins, onClose, onUpdate, onAssign, onReop
 
             {/* Fixed footer — reopen action */}
             {isResolved && canModify && (
-                <div className="p-5 border-t border-border-light dark:border-border-dark shrink-0 space-y-3">
+                <div className="p-5 border-t border-border-light  shrink-0 space-y-3">
                     {activeSection === 'reopen' ? (
                         <>
-                            <p className="text-xs text-text-muted dark:text-slate-400">
+                            <p className="text-xs text-text-muted ">
                                 This will reopen the dispute and notify all parties. Are you sure?
                             </p>
                             <div className="flex gap-2">
@@ -331,7 +331,7 @@ function DisputeSidePanel({ dispute, admins, onClose, onUpdate, onAssign, onReop
                                 <button
                                     onClick={() => setActiveSection(null)}
                                     disabled={loading}
-                                    className="px-4 py-2.5 rounded-xl border border-border-light dark:border-border-dark text-sm text-text-main dark:text-white hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                                    className="px-4 py-2.5 rounded-xl border border-border-light  text-sm text-text-main  hover:bg-slate-50  transition-colors"
                                 >
                                     Cancel
                                 </button>
@@ -341,7 +341,7 @@ function DisputeSidePanel({ dispute, admins, onClose, onUpdate, onAssign, onReop
                         <button
                             onClick={() => setActiveSection('reopen')}
                             disabled={loading}
-                            className="flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-xl border border-amber-200 dark:border-amber-700 text-amber-700 dark:text-amber-400 text-sm font-medium hover:bg-amber-50 dark:hover:bg-amber-900/20 disabled:opacity-50 transition-colors"
+                            className="flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-xl border border-amber-200  text-amber-700  text-sm font-medium hover:bg-amber-50  disabled:opacity-50 transition-colors"
                         >
                             <MdRefresh className="text-base" />
                             Reopen Dispute
@@ -452,8 +452,8 @@ export default function AdminDisputesPage() {
 
                 {/* Header */}
                 <div className="mb-5">
-                    <h1 className="text-xl md:text-2xl font-bold text-text-main dark:text-white">Disputes</h1>
-                    <p className="text-text-muted dark:text-slate-400 text-sm mt-0.5">
+                    <h1 className="text-xl md:text-2xl font-bold text-text-main ">Disputes</h1>
+                    <p className="text-text-muted  text-sm mt-0.5">
                         {pagination
                             ? `${pagination.total.toLocaleString()} ${isFullAdmin ? 'disputes' : 'disputes assigned to you'}`
                             : isFullAdmin ? 'Manage platform disputes' : 'Disputes assigned to you'}
@@ -463,15 +463,15 @@ export default function AdminDisputesPage() {
                 {/* Filters row */}
                 <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-5">
                     {/* Status tabs */}
-                    <div className="flex gap-1 p-1 bg-slate-100 dark:bg-slate-800 rounded-xl w-fit overflow-x-auto shrink-0">
+                    <div className="flex gap-1 p-1 bg-slate-100  rounded-xl w-fit overflow-x-auto shrink-0">
                         {TABS.map(tab => (
                             <button
                                 key={tab.value}
                                 onClick={() => handleTabChange(tab.value)}
                                 className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors whitespace-nowrap
                                     ${statusFilter === tab.value
-                                        ? 'bg-white dark:bg-card-dark text-text-main dark:text-white shadow-sm'
-                                        : 'text-text-muted dark:text-slate-400 hover:text-text-main dark:hover:text-slate-200'}`}
+                                        ? 'bg-white  text-text-main  shadow-sm'
+                                        : 'text-text-muted  hover:text-text-main '}`}
                             >
                                 {tab.label}
                             </button>
@@ -484,17 +484,17 @@ export default function AdminDisputesPage() {
                             onClick={() => { setUnassigned(v => !v); setPage(1); setSelected(null); }}
                             className={`flex items-center gap-2 px-3 py-2 rounded-xl border text-sm font-medium transition-colors
                                 ${unassignedOnly
-                                    ? 'border-primary bg-primary/10 text-primary dark:bg-primary/20'
-                                    : 'border-border-light dark:border-border-dark text-text-muted dark:text-slate-400 hover:border-primary/40 hover:text-primary'}`}
+                                    ? 'border-primary bg-primary/10 text-primary '
+                                    : 'border-border-light  text-text-muted  hover:border-primary/40 hover:text-primary'}`}
                         >
-                            <span className={`h-2 w-2 rounded-full ${unassignedOnly ? 'bg-primary' : 'bg-slate-300 dark:bg-slate-600'}`} />
+                            <span className={`h-2 w-2 rounded-full ${unassignedOnly ? 'bg-primary' : 'bg-slate-300 '}`} />
                             Unassigned only
                         </button>
                     )}
                 </div>
 
                 {/* Table */}
-                <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl overflow-hidden">
+                <div className="bg-card-light  border border-border-light  rounded-xl overflow-hidden">
                     {isLoading ? (
                         <div className="p-5 space-y-3">
                             {[...Array(6)].map((_, i) => <Skeleton key={i} className="h-16" />)}
@@ -505,8 +505,8 @@ export default function AdminDisputesPage() {
                         </div>
                     ) : !disputes.length ? (
                         <div className="p-12 text-center">
-                            <MdGavel className="text-4xl text-slate-300 dark:text-slate-600 mx-auto mb-2" />
-                            <p className="text-sm text-text-muted dark:text-slate-400">
+                            <MdGavel className="text-4xl text-slate-300  mx-auto mb-2" />
+                            <p className="text-sm text-text-muted ">
                                 No {statusFilter || ''} disputes found
                             </p>
                         </div>
@@ -515,17 +515,17 @@ export default function AdminDisputesPage() {
                             <div className="overflow-x-auto">
                                 <table className="w-full text-sm">
                                     <thead>
-                                        <tr className="border-b border-border-light dark:border-border-dark bg-slate-50 dark:bg-slate-800/50">
-                                            <th className="px-5 py-3 text-left text-xs font-semibold text-text-muted dark:text-slate-400 uppercase tracking-wide">Ticket</th>
-                                            <th className="px-5 py-3 text-left text-xs font-semibold text-text-muted dark:text-slate-400 uppercase tracking-wide">Description</th>
-                                            <th className="px-5 py-3 text-left text-xs font-semibold text-text-muted dark:text-slate-400 uppercase tracking-wide hidden md:table-cell">Filed By</th>
-                                            <th className="px-5 py-3 text-left text-xs font-semibold text-text-muted dark:text-slate-400 uppercase tracking-wide">Status</th>
-                                            <th className="px-5 py-3 text-left text-xs font-semibold text-text-muted dark:text-slate-400 uppercase tracking-wide hidden md:table-cell">Type</th>
-                                            <th className="px-5 py-3 text-left text-xs font-semibold text-text-muted dark:text-slate-400 uppercase tracking-wide hidden lg:table-cell">Assigned To</th>
-                                            <th className="px-5 py-3 text-left text-xs font-semibold text-text-muted dark:text-slate-400 uppercase tracking-wide hidden lg:table-cell">Date</th>
+                                        <tr className="border-b border-border-light  bg-slate-50 ">
+                                            <th className="px-5 py-3 text-left text-xs font-semibold text-text-muted  uppercase tracking-wide">Ticket</th>
+                                            <th className="px-5 py-3 text-left text-xs font-semibold text-text-muted  uppercase tracking-wide">Description</th>
+                                            <th className="px-5 py-3 text-left text-xs font-semibold text-text-muted  uppercase tracking-wide hidden md:table-cell">Filed By</th>
+                                            <th className="px-5 py-3 text-left text-xs font-semibold text-text-muted  uppercase tracking-wide">Status</th>
+                                            <th className="px-5 py-3 text-left text-xs font-semibold text-text-muted  uppercase tracking-wide hidden md:table-cell">Type</th>
+                                            <th className="px-5 py-3 text-left text-xs font-semibold text-text-muted  uppercase tracking-wide hidden lg:table-cell">Assigned To</th>
+                                            <th className="px-5 py-3 text-left text-xs font-semibold text-text-muted  uppercase tracking-wide hidden lg:table-cell">Date</th>
                                         </tr>
                                     </thead>
-                                    <tbody className="divide-y divide-border-light dark:divide-border-dark">
+                                    <tbody className="divide-y divide-border-light ">
                                         {disputes.map(d => (
                                             <tr
                                                 key={d.id}
@@ -535,20 +535,20 @@ export default function AdminDisputesPage() {
                                                 }}
                                                 className={`cursor-pointer transition-colors
                                                     ${selected?.id === d.id
-                                                        ? 'bg-primary/5 dark:bg-primary/10'
-                                                        : 'hover:bg-slate-50 dark:hover:bg-slate-800/40'}`}
+                                                        ? 'bg-primary/5 '
+                                                        : 'hover:bg-slate-50 '}`}
                                             >
                                                 <td className="px-5 py-3.5">
-                                                    <span className="font-mono text-xs text-text-muted dark:text-slate-400">
+                                                    <span className="font-mono text-xs text-text-muted ">
                                                         #{d.ticketId}
                                                     </span>
                                                 </td>
                                                 <td className="px-5 py-3.5">
-                                                    <p className="font-medium text-text-main dark:text-white truncate max-w-50">
+                                                    <p className="font-medium text-text-main  truncate max-w-50">
                                                         {d.description}
                                                     </p>
                                                 </td>
-                                                <td className="px-5 py-3.5 hidden md:table-cell text-text-muted dark:text-slate-400">
+                                                <td className="px-5 py-3.5 hidden md:table-cell text-text-muted ">
                                                     {getFilerName(d.user)}
                                                 </td>
                                                 <td className="px-5 py-3.5">
@@ -557,12 +557,12 @@ export default function AdminDisputesPage() {
                                                 <td className="px-5 py-3.5 hidden md:table-cell">
                                                     <TypeBadge type={d.type} />
                                                 </td>
-                                                <td className="px-5 py-3.5 hidden lg:table-cell text-text-muted dark:text-slate-400">
+                                                <td className="px-5 py-3.5 hidden lg:table-cell text-text-muted ">
                                                     {d.assignedAdmin?.email ?? (
-                                                        <span className="text-amber-600 dark:text-amber-400 text-xs font-medium">Unassigned</span>
+                                                        <span className="text-amber-600  text-xs font-medium">Unassigned</span>
                                                     )}
                                                 </td>
-                                                <td className="px-5 py-3.5 hidden lg:table-cell text-text-muted dark:text-slate-400">
+                                                <td className="px-5 py-3.5 hidden lg:table-cell text-text-muted ">
                                                     {fmtDate(d.createdAt)}
                                                 </td>
                                             </tr>
@@ -573,27 +573,27 @@ export default function AdminDisputesPage() {
 
                             {/* Pagination */}
                             {pagination && pagination.totalPages > 1 && (
-                                <div className="flex items-center justify-between px-5 py-4 border-t border-border-light dark:border-border-dark">
-                                    <p className="text-sm text-text-muted dark:text-slate-400">
+                                <div className="flex items-center justify-between px-5 py-4 border-t border-border-light ">
+                                    <p className="text-sm text-text-muted ">
                                         {(page - 1) * pagination.limit + 1}–{Math.min(page * pagination.limit, pagination.total)} of {pagination.total.toLocaleString()}
                                     </p>
                                     <div className="flex items-center gap-2">
                                         <button
                                             onClick={() => setPage(p => p - 1)}
                                             disabled={page === 1}
-                                            className="p-1.5 rounded-lg border border-border-light dark:border-border-dark hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed"
+                                            className="p-1.5 rounded-lg border border-border-light  hover:bg-slate-50  disabled:opacity-40 disabled:cursor-not-allowed"
                                         >
-                                            <MdChevronLeft className="text-xl text-slate-600 dark:text-slate-300" />
+                                            <MdChevronLeft className="text-xl text-slate-600 " />
                                         </button>
-                                        <span className="text-sm font-medium text-text-main dark:text-white min-w-15 text-center">
+                                        <span className="text-sm font-medium text-text-main  min-w-15 text-center">
                                             {page} / {pagination.totalPages}
                                         </span>
                                         <button
                                             onClick={() => setPage(p => p + 1)}
                                             disabled={page === pagination.totalPages}
-                                            className="p-1.5 rounded-lg border border-border-light dark:border-border-dark hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed"
+                                            className="p-1.5 rounded-lg border border-border-light  hover:bg-slate-50  disabled:opacity-40 disabled:cursor-not-allowed"
                                         >
-                                            <MdChevronRight className="text-xl text-slate-600 dark:text-slate-300" />
+                                            <MdChevronRight className="text-xl text-slate-600 " />
                                         </button>
                                     </div>
                                 </div>
@@ -610,7 +610,7 @@ export default function AdminDisputesPage() {
                         className="fixed inset-0 bg-black/40 z-30 lg:hidden"
                         onClick={() => setSelected(null)}
                     />
-                    <div className="fixed right-0 top-14 lg:top-0 h-[calc(100dvh-3.5rem)] lg:h-dvh w-full max-w-100 bg-card-light dark:bg-card-dark border-l border-border-light dark:border-border-dark z-40 lg:z-20 shadow-xl flex flex-col overflow-hidden">
+                    <div className="fixed right-0 top-14 lg:top-0 h-[calc(100dvh-3.5rem)] lg:h-dvh w-full max-w-100 bg-card-light  border-l border-border-light  z-40 lg:z-20 shadow-xl flex flex-col overflow-hidden">
                         <DisputeSidePanel
                             dispute={selected}
                             admins={admins}

@@ -69,12 +69,12 @@ const STATUS_TABS = [
 ];
 
 const BADGE_STYLES = {
-    pending: "bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-400",
-    change_requested: "bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-400",
-    accepted: "bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400",
-    rejected: "bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-400",
-    expired: "bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400",
-    withdrawn: "bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400",
+    pending: "bg-amber-100  text-amber-700 ",
+    change_requested: "bg-amber-100  text-amber-700 ",
+    accepted: "bg-emerald-100  text-emerald-700 ",
+    rejected: "bg-red-100  text-red-700 ",
+    expired: "bg-slate-100  text-slate-500 ",
+    withdrawn: "bg-slate-100  text-slate-500 ",
 };
 
 const BADGE_LABELS = {
@@ -219,15 +219,15 @@ function MyOffersContent() {
     if (loading) {
         return (
             <>
-                <header className="h-16 border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md sticky top-14 lg:top-0 z-10 flex items-center justify-between px-8">
-                    <h2 className="text-2xl font-black tracking-tight text-text-main dark:text-white">My Offers</h2>
+                <header className="h-16 border-b border-slate-200  bg-white/80  backdrop-blur-md sticky top-14 lg:top-0 z-10 flex items-center justify-between px-8">
+                    <h2 className="text-2xl font-black tracking-tight text-text-main ">My Offers</h2>
                 </header>
                 <div className="p-4 md:p-6">
                     <div className="animate-pulse space-y-4">
                         {[1, 2, 3].map((i) => (
                             <div
                                 key={i}
-                                className="h-36 bg-card-light dark:bg-card-dark rounded-xl border border-border-light dark:border-border-dark"
+                                className="h-36 bg-card-light  rounded-xl border border-border-light "
                             />
                         ))}
                     </div>
@@ -241,8 +241,8 @@ function MyOffersContent() {
     if (error) {
         return (
             <>
-                <header className="h-16 border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md sticky top-14 lg:top-0 z-10 flex items-center justify-between px-8">
-                    <h2 className="text-2xl font-black tracking-tight text-text-main dark:text-white">My Offers</h2>
+                <header className="h-16 border-b border-slate-200  bg-white/80  backdrop-blur-md sticky top-14 lg:top-0 z-10 flex items-center justify-between px-8">
+                    <h2 className="text-2xl font-black tracking-tight text-text-main ">My Offers</h2>
                 </header>
                 <div className="p-4 md:p-6 text-center py-16">
                     <p className="text-red-500 text-sm font-medium">Failed to load offers. Please try again later.</p>
@@ -259,8 +259,8 @@ function MyOffersContent() {
     return (
         <>
             {/* Sticky Header */}
-            <header className="h-16 border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md sticky top-14 lg:top-0 z-10 flex items-center justify-between px-8">
-                <h2 className="text-2xl font-black tracking-tight text-text-main dark:text-white">My Offers</h2>
+            <header className="h-16 border-b border-slate-200  bg-white/80  backdrop-blur-md sticky top-14 lg:top-0 z-10 flex items-center justify-between px-8">
+                <h2 className="text-2xl font-black tracking-tight text-text-main ">My Offers</h2>
                 <button
                     onClick={() => router.push("/therapist/requests")}
                     className="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 transition-colors"
@@ -273,21 +273,21 @@ function MyOffersContent() {
             <div className="p-4 md:p-6 space-y-6">
                 {/* Action Required Banner */}
                 {changeRequestedCount > 0 && (
-                    <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/50 p-4 rounded-xl flex items-center justify-between gap-4">
+                    <div className="bg-amber-50  border border-amber-200  p-4 rounded-xl flex items-center justify-between gap-4">
                         <div className="flex items-start gap-3">
                             <MdWarning className="text-amber-600 text-xl mt-0.5 shrink-0" />
                             <div>
-                                <p className="text-amber-900 dark:text-amber-100 font-bold text-sm">
+                                <p className="text-amber-900  font-bold text-sm">
                                     {changeRequestedCount} offer{changeRequestedCount !== 1 ? "s" : ""} have change requests from customers
                                 </p>
-                                <p className="text-amber-800/80 dark:text-amber-400 text-sm mt-0.5">
+                                <p className="text-amber-800/80  text-sm mt-0.5">
                                     Review and update them to improve your acceptance rate.
                                 </p>
                             </div>
                         </div>
                         <button
                             onClick={() => setActiveTab("change_requested")}
-                            className="bg-amber-100 dark:bg-amber-900/50 hover:bg-amber-200 dark:hover:bg-amber-900 text-amber-900 dark:text-amber-100 px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 whitespace-nowrap transition-colors"
+                            className="bg-amber-100  hover:bg-amber-200  text-amber-900  px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 whitespace-nowrap transition-colors"
                         >
                             Show Change Requests
                             <MdArrowForward />
@@ -308,7 +308,7 @@ function MyOffersContent() {
                                 onClick={() => setActiveTab(tab.key)}
                                 className={`px-4 py-2 rounded-full text-sm font-medium transition-colors flex items-center gap-1.5 ${isActive
                                     ? "bg-primary text-white"
-                                    : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700"
+                                    : "bg-slate-100  text-slate-600  hover:bg-slate-200 "
                                     }`}
                             >
                                 {tab.label} ({count})
@@ -323,7 +323,7 @@ function MyOffersContent() {
                 {/* Offer Cards */}
                 {filteredOffers.length === 0 ? (
                     <div className="text-center py-16">
-                        <p className="text-text-muted dark:text-gray-400 text-sm">No offers found.</p>
+                        <p className="text-text-muted  text-sm">No offers found.</p>
                         <button
                             onClick={() => router.push("/therapist/requests")}
                             className="mt-4 text-primary hover:underline text-sm font-bold"
@@ -356,15 +356,15 @@ function MyOffersContent() {
 
             {reviseWarnings.length > 0 && (
                 <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 w-full max-w-md px-4">
-                    <div className="bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-700 rounded-xl px-4 py-3 shadow-lg flex items-start gap-3">
+                    <div className="bg-amber-50  border border-amber-300  rounded-xl px-4 py-3 shadow-lg flex items-start gap-3">
                         <MdWarning className="text-amber-500 text-lg shrink-0 mt-0.5" />
-                        <div className="flex-1 text-sm text-amber-800 dark:text-amber-300 space-y-1">
+                        <div className="flex-1 text-sm text-amber-800  space-y-1">
                             {reviseWarnings.map((w, i) => <p key={i}>{w}</p>)}
                         </div>
                         <button
                             type="button"
                             onClick={() => setReviseWarnings([])}
-                            className="text-amber-500 hover:text-amber-700 dark:hover:text-amber-300 text-lg shrink-0"
+                            className="text-amber-500 hover:text-amber-700  text-lg shrink-0"
                             aria-label="Dismiss"
                         >
                             &times;
@@ -411,13 +411,13 @@ function OfferCard({
 
     return (
         <div>
-            <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl shadow-sm hover:shadow-md transition-shadow">
+            <div className="bg-card-light  border border-border-light  rounded-xl shadow-sm hover:shadow-md transition-shadow">
                 <div className="p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
                     {/* ── Left Column ── */}
                     <div className="lg:col-span-7 flex flex-col gap-3">
                         {/* Title + Badge */}
                         <div className="flex items-center gap-3 flex-wrap">
-                            <h3 className="text-base font-bold text-text-main dark:text-white">
+                            <h3 className="text-base font-bold text-text-main ">
                                 {request?.serviceType || "Service"}{" "}
                                 <span className="text-slate-400 font-normal">for {customerLabel}</span>
                             </h3>
@@ -431,27 +431,27 @@ function OfferCard({
 
                         {/* Description (change_requested only) */}
                         {offer.status === "change_requested" && offer.description && (
-                            <p className="text-sm text-text-muted dark:text-gray-400 line-clamp-2">{offer.description}</p>
+                            <p className="text-sm text-text-muted  line-clamp-2">{offer.description}</p>
                         )}
 
                         {/* Metadata Row */}
-                        <div className="flex items-center flex-wrap text-sm text-text-muted dark:text-gray-400">
-                            <span className="font-mono text-primary dark:text-blue-400 text-sm mr-4">
+                        <div className="flex items-center flex-wrap text-sm text-text-muted ">
+                            <span className="font-mono text-primary  text-sm mr-4">
                                 {formatCurrency(parseFloat(offer.rate))}/session
                             </span>
-                            <span className="border-l border-slate-200 dark:border-border-dark px-4">
+                            <span className="border-l border-slate-200  px-4">
                                 {formatSessionType(offer.sessionType)}
                             </span>
-                            <span className="border-l border-slate-200 dark:border-border-dark px-4 flex items-center gap-1">
+                            <span className="border-l border-slate-200  px-4 flex items-center gap-1">
                                 <MdCalendarToday className="text-xs" />
                                 {formatDate(offer.proposedDate)}
                             </span>
-                            <span className="border-l border-slate-200 dark:border-border-dark px-4 flex items-center gap-1">
+                            <span className="border-l border-slate-200  px-4 flex items-center gap-1">
                                 <MdSend className="text-xs" />
                                 Sent {timeAgo(offer.createdAt)}
                             </span>
                             {request?.location && (
-                                <span className="border-l border-slate-200 dark:border-border-dark px-4 flex items-center gap-1">
+                                <span className="border-l border-slate-200  px-4 flex items-center gap-1">
                                     <MdLocationOn className="text-xs" />
                                     {request.location}
                                 </span>
@@ -464,7 +464,7 @@ function OfferCard({
                         {/* PENDING */}
                         {offer.status === "pending" && (
                             <>
-                                <div className="flex items-center gap-1.5 text-amber-600 dark:text-amber-400 font-bold text-sm">
+                                <div className="flex items-center gap-1.5 text-amber-600  font-bold text-sm">
                                     <MdTimer className="text-base" />
                                     {getExpiryLabel(offer.expiresAt)}
                                 </div>
@@ -478,7 +478,7 @@ function OfferCard({
                                     <button
                                         onClick={() => onWithdraw(offer.id)}
                                         disabled={isWithdrawing}
-                                        className="border border-red-200 dark:border-red-900/50 text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 px-6 py-2 rounded-lg text-sm font-bold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                        className="border border-red-200  text-red-500 hover:bg-red-50  px-6 py-2 rounded-lg text-sm font-bold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                     >
                                         {isWithdrawing ? "Withdrawing..." : "Withdraw"}
                                     </button>
@@ -490,8 +490,8 @@ function OfferCard({
                         {offer.status === "change_requested" && (
                             <>
                                 {offer.changeRequestNote && (
-                                    <div className="bg-amber-50 dark:bg-amber-900/20 border-l-4 border-amber-400 p-4 rounded-r-lg w-full">
-                                        <p className="text-xs text-amber-800 dark:text-amber-300 italic font-medium flex items-start gap-2">
+                                    <div className="bg-amber-50  border-l-4 border-amber-400 p-4 rounded-r-lg w-full">
+                                        <p className="text-xs text-amber-800  italic font-medium flex items-start gap-2">
                                             <MdChatBubble className="text-sm mt-0.5 shrink-0" />
                                             &ldquo;{offer.changeRequestNote}&rdquo;
                                         </p>
@@ -518,7 +518,7 @@ function OfferCard({
                         {/* ACCEPTED */}
                         {offer.status === "accepted" && (
                             <div className="flex items-center gap-3">
-                                <span className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-bold text-sm">
+                                <span className="flex items-center gap-1.5 text-emerald-600  font-bold text-sm">
                                     <MdCheckCircle className="text-base" />
                                     Accepted
                                 </span>
@@ -534,17 +534,17 @@ function OfferCard({
 
                         {/* REJECTED */}
                         {offer.status === "rejected" && (
-                            <p className="text-text-muted dark:text-gray-400 text-sm">No further action needed</p>
+                            <p className="text-text-muted  text-sm">No further action needed</p>
                         )}
 
                         {/* EXPIRED */}
                         {offer.status === "expired" && (
-                            <p className="text-text-muted dark:text-gray-400 text-sm">No further action needed</p>
+                            <p className="text-text-muted  text-sm">No further action needed</p>
                         )}
 
                         {/* WITHDRAWN */}
                         {offer.status === "withdrawn" && (
-                            <p className="text-text-muted dark:text-gray-400 text-sm">No further action needed</p>
+                            <p className="text-text-muted  text-sm">No further action needed</p>
                         )}
                     </div>
                 </div>
@@ -552,8 +552,8 @@ function OfferCard({
 
             {/* ── Revise Form (inline below card) ── */}
             {isReviseOpen && (
-                <div className="bg-background-light dark:bg-background-dark rounded-xl p-5 mt-4 border border-border-light dark:border-border-dark">
-                    <h4 className="text-sm font-bold text-text-main dark:text-white mb-4">Update Your Offer</h4>
+                <div className="bg-background-light  rounded-xl p-5 mt-4 border border-border-light ">
+                    <h4 className="text-sm font-bold text-text-main  mb-4">Update Your Offer</h4>
 
                     <OfferFormFields
                         formData={reviseData}
@@ -567,7 +567,7 @@ function OfferCard({
                         <button
                             onClick={onCloseRevise}
                             disabled={revising}
-                            className="text-text-muted dark:text-gray-400 hover:text-text-main dark:hover:text-white text-sm font-bold transition-colors"
+                            className="text-text-muted  hover:text-text-main  text-sm font-bold transition-colors"
                         >
                             Cancel
                         </button>

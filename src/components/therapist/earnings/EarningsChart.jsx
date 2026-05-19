@@ -10,20 +10,20 @@ export default function EarningsChart({ earningsByMonth }) {
 
     if (months.every((m) => m.earnings === 0)) {
         return (
-            <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl p-6">
-                <h2 className="text-lg font-bold text-text-main dark:text-white mb-4">Earnings Overview</h2>
+            <div className="bg-card-light  border border-border-light  rounded-xl p-6">
+                <h2 className="text-lg font-bold text-text-main  mb-4">Earnings Overview</h2>
                 <div className="h-48 flex items-center justify-center">
-                    <p className="text-sm text-text-muted dark:text-slate-400">No earnings data to display yet</p>
+                    <p className="text-sm text-text-muted ">No earnings data to display yet</p>
                 </div>
             </div>
         );
     }
 
     return (
-        <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl p-6">
+        <div className="bg-card-light  border border-border-light  rounded-xl p-6">
             <div className="flex items-center justify-between mb-6">
-                <h2 className="text-lg font-bold text-text-main dark:text-white">Earnings Overview</h2>
-                <span className="text-xs font-semibold text-text-muted dark:text-slate-400 uppercase tracking-wider">Monthly</span>
+                <h2 className="text-lg font-bold text-text-main ">Earnings Overview</h2>
+                <span className="text-xs font-semibold text-text-muted  uppercase tracking-wider">Monthly</span>
             </div>
 
             <div className="relative w-full flex items-end gap-2 sm:gap-4 px-1" style={{ height: "16rem" }}>
@@ -33,7 +33,7 @@ export default function EarningsChart({ earningsByMonth }) {
 
                     return (
                         <div key={m.month} className="group relative flex-1 flex flex-col items-center h-full justify-end">
-                            <div className="absolute -top-12 left-1/2 -translate-x-1/2 scale-0 group-hover:scale-100 transition-transform origin-bottom bg-slate-800 dark:bg-slate-700 text-white text-[10px] font-bold px-2.5 py-1.5 rounded-lg shadow-xl pointer-events-none z-20 whitespace-nowrap">
+                            <div className="absolute -top-12 left-1/2 -translate-x-1/2 scale-0 group-hover:scale-100 transition-transform origin-bottom bg-slate-800  text-white text-[10px] font-bold px-2.5 py-1.5 rounded-lg shadow-xl pointer-events-none z-20 whitespace-nowrap">
                                 <div>{formatCurrency(m.earnings)}</div>
                                 <div className="text-slate-400 font-normal">{m.sessions} session{m.sessions !== 1 ? "s" : ""}</div>
                             </div>
@@ -41,12 +41,12 @@ export default function EarningsChart({ earningsByMonth }) {
                                 className={`w-full rounded-t-lg transition-all cursor-pointer ${
                                     isCurrent
                                         ? "bg-emerald-500 group-hover:bg-emerald-600"
-                                        : "bg-emerald-500/20 dark:bg-emerald-500/15 group-hover:bg-emerald-500/40"
+                                        : "bg-emerald-500/20  group-hover:bg-emerald-500/40"
                                 }`}
                                 style={{ height: `${height}%`, minHeight: m.earnings > 0 ? "8px" : "0px" }}
                             />
                             <span className={`text-[10px] font-bold uppercase tracking-wider mt-2 shrink-0 ${
-                                isCurrent ? "text-emerald-500" : "text-text-muted dark:text-slate-500"
+                                isCurrent ? "text-emerald-500" : "text-text-muted "
                             }`}>
                                 {formatMonthLabel(m.month)}
                             </span>

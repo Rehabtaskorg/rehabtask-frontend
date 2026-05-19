@@ -42,10 +42,10 @@ function CustomerRightSidebar({ selectedConversation }) {
                     name={name}
                     photoUrl={getPhotoUrl(otherUser)}
                     size="xl"
-                    className="border-4 border-card-light dark:border-card-dark shadow-md rounded-full"
+                    className="border-4 border-card-light  shadow-md rounded-full"
                 />
                 <div>
-                    <h4 className="text-text-main dark:text-white text-base font-bold">{name}</h4>
+                    <h4 className="text-text-main  text-base font-bold">{name}</h4>
                     {badge && (
                         <span className={`inline-block mt-1 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${badge.className}`}>
                             {badge.label}
@@ -56,17 +56,17 @@ function CustomerRightSidebar({ selectedConversation }) {
 
             {(specialization || yearsExp) && (
                 <div className="mt-6 space-y-2">
-                    <p className="text-text-muted dark:text-gray-400 text-[10px] font-bold uppercase tracking-widest">Therapist Info</p>
+                    <p className="text-text-muted  text-[10px] font-bold uppercase tracking-widest">Therapist Info</p>
                     {specialization && (
                         <div className="flex items-center gap-2">
                             <svg className="w-3.5 h-3.5 text-primary shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
-                            <p className="text-text-main dark:text-white text-sm">{specialization}</p>
+                            <p className="text-text-main  text-sm">{specialization}</p>
                         </div>
                     )}
                     {yearsExp && (
                         <div className="flex items-center gap-2">
                             <svg className="w-3.5 h-3.5 text-primary shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                            <p className="text-text-main dark:text-white text-sm">{yearsExp} years experience</p>
+                            <p className="text-text-main  text-sm">{yearsExp} years experience</p>
                         </div>
                     )}
                 </div>
@@ -74,32 +74,32 @@ function CustomerRightSidebar({ selectedConversation }) {
 
             {patient && (
                 <div className="mt-4 space-y-1">
-                    <p className="text-text-muted dark:text-gray-400 text-[10px] font-bold uppercase tracking-widest">Patient</p>
-                    <p className="text-text-main dark:text-white text-sm font-medium">{patient.fullName}</p>
+                    <p className="text-text-muted  text-[10px] font-bold uppercase tracking-widest">Patient</p>
+                    <p className="text-text-main  text-sm font-medium">{patient.fullName}</p>
                     {patient.email && (
-                        <p className="text-text-muted dark:text-gray-400 text-xs">{patient.email}</p>
+                        <p className="text-text-muted  text-xs">{patient.email}</p>
                     )}
                 </div>
             )}
 
             <div className="mt-4 space-y-1">
-                <p className="text-text-muted dark:text-gray-400 text-[10px] font-bold uppercase tracking-widest">Context</p>
+                <p className="text-text-muted  text-[10px] font-bold uppercase tracking-widest">Context</p>
                 {displayContextType === 'booking' ? (
                     <Link href={`/customer/bookings/${displayContextId}`} className="text-primary text-sm font-medium hover:underline inline-flex items-center gap-1">
                         <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
                         View Booking
                     </Link>
                 ) : displayContextType === 'direct' ? (
-                    <p className="text-text-main dark:text-white text-sm">Direct Message</p>
+                    <p className="text-text-main  text-sm">Direct Message</p>
                 ) : (
-                    <p className="text-text-main dark:text-white text-sm">Request Conversation</p>
+                    <p className="text-text-main  text-sm">Request Conversation</p>
                 )}
             </div>
 
             {/* Direct request CTA — shown on all conversation types with a known therapist */}
             {otherUser?.role === 'therapist' && (otherUser?.therapistProfile?.id || otherUser?.id) && (
                 <div className="mt-4 space-y-2">
-                    <p className="text-text-muted dark:text-gray-400 text-[10px] font-bold uppercase tracking-widest">Actions</p>
+                    <p className="text-text-muted  text-[10px] font-bold uppercase tracking-widest">Actions</p>
                     <Link
                         href={`/customer/requests/new?directTo=${otherUser.therapistProfile?.id || otherUser.id}`}
                         className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-primary text-white text-sm font-bold hover:bg-primary/90 transition-colors"
@@ -120,17 +120,17 @@ function CustomerRightSidebar({ selectedConversation }) {
 
                 return (
                     <div className="mt-4 space-y-2">
-                        <p className="text-text-muted dark:text-gray-400 text-[10px] font-bold uppercase tracking-widest">
+                        <p className="text-text-muted  text-[10px] font-bold uppercase tracking-widest">
                             {isCompleted ? "Session Complete" : "Upcoming Session"}
                         </p>
                         <div className={`p-3 rounded-lg border ${isCompleted
-                            ? "bg-emerald-50 dark:bg-emerald-900/10 border-emerald-200 dark:border-emerald-800"
-                            : "bg-primary/5 dark:bg-primary/10 border-primary/20"
+                            ? "bg-emerald-50  border-emerald-200 "
+                            : "bg-primary/5  border-primary/20"
                         }`}>
-                            <p className={`text-[10px] font-bold ${isCompleted ? "text-emerald-600 dark:text-emerald-400" : "text-primary"}`}>
+                            <p className={`text-[10px] font-bold ${isCompleted ? "text-emerald-600 " : "text-primary"}`}>
                                 {isCompleted ? "COMPLETED" : isUpcoming ? "NEXT SESSION" : "PENDING"}
                             </p>
-                            <p className="text-xs text-text-main dark:text-white font-bold mt-1">
+                            <p className="text-xs text-text-main  font-bold mt-1">
                                 {isCompleted ? "Session completed successfully" : "View booking for details"}
                             </p>
                             <Link href={`/customer/bookings/${displayContextId}`} className="text-[10px] text-primary font-medium hover:underline mt-1 inline-block">
@@ -172,9 +172,9 @@ export default function CustomerMessagesPage() {
     ) : null;
 
     return (
-        <div className="flex h-[calc(100vh-4rem)] lg:h-[calc(100vh-112px)] min-h-125 rounded-xl border border-border-light dark:border-border-dark overflow-hidden shadow-sm">
+        <div className="flex h-[calc(100vh-4rem)] lg:h-[calc(100vh-112px)] min-h-125 rounded-xl border border-border-light  overflow-hidden shadow-sm">
             {/* Left Panel */}
-            <aside className={`w-full md:w-80 shrink-0 flex flex-col border-r border-border-light dark:border-border-dark bg-background-light/30 dark:bg-background-dark/50 ${mobileView === 'chat' ? 'hidden md:flex' : 'flex'}`}>
+            <aside className={`w-full md:w-80 shrink-0 flex flex-col border-r border-border-light  bg-background-light/30  ${mobileView === 'chat' ? 'hidden md:flex' : 'flex'}`}>
                 <ConversationList
                     conversations={conversations}
                     loading={convLoading}
@@ -188,7 +188,7 @@ export default function CustomerMessagesPage() {
             </aside>
 
             {/* Center Panel */}
-            <section className={`flex-1 flex flex-col min-w-0 bg-card-light dark:bg-card-dark ${mobileView === 'list' ? 'hidden md:flex' : 'flex'}`}>
+            <section className={`flex-1 flex flex-col min-w-0 bg-card-light  ${mobileView === 'list' ? 'hidden md:flex' : 'flex'}`}>
                 {!selected ? (
                     <ChatThread.NoConversationSelected />
                 ) : (
@@ -201,7 +201,7 @@ export default function CustomerMessagesPage() {
             </section>
 
             {/* Right Panel */}
-            <aside className={`hidden lg:flex w-72 shrink-0 flex-col border-l border-border-light dark:border-border-dark bg-background-light/30 dark:bg-background-dark/50 overflow-y-auto ${selectedConversation ? '' : 'lg:hidden'}`}>
+            <aside className={`hidden lg:flex w-72 shrink-0 flex-col border-l border-border-light  bg-background-light/30  overflow-y-auto ${selectedConversation ? '' : 'lg:hidden'}`}>
                 {selectedConversation && (
                     <div className="p-6">
                         <CustomerRightSidebar selectedConversation={selectedConversation} />

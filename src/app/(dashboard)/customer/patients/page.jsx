@@ -51,10 +51,10 @@ export default function PatientsPage() {
     return (
         <div className="flex-1 flex flex-col overflow-hidden">
             {/* Header */}
-            <header className="border-b border-border-light dark:border-border-dark bg-white/80 dark:bg-slate-900/80 backdrop-blur-md sticky top-0 z-10 shrink-0">
+            <header className="border-b border-border-light  bg-white/80  backdrop-blur-md sticky top-0 z-10 shrink-0">
                 <div className="flex justify-between items-center px-4 sm:px-8 py-4">
                     <div className="flex items-center gap-3">
-                        <h2 className="text-xl sm:text-2xl font-black tracking-tight text-text-main dark:text-white">
+                        <h2 className="text-xl sm:text-2xl font-black tracking-tight text-text-main ">
                             My Patients
                         </h2>
                         {patients && (
@@ -74,22 +74,22 @@ export default function PatientsPage() {
 
                 <div className="px-4 sm:px-8 pb-4 flex flex-col sm:flex-row items-start sm:items-center gap-3">
                     <div className="relative flex-1 max-w-sm w-full">
-                        <MdSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted dark:text-gray-400 text-lg" />
+                        <MdSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted  text-lg" />
                         <input
                             type="text"
                             value={search}
                             onChange={(e) => { setSearch(e.target.value); setPage(1); }}
                             placeholder="Search by name, address, or phone..."
-                            className="w-full bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-lg pl-10 pr-4 py-2 text-sm text-text-main dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all placeholder:text-text-muted/60"
+                            className="w-full bg-card-light  border border-border-light  rounded-lg pl-10 pr-4 py-2 text-sm text-text-main  focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all placeholder:text-text-muted/60"
                         />
                         {search && (
-                            <button onClick={() => { setSearch(""); setPage(1); }} className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-main dark:hover:text-white">
+                            <button onClick={() => { setSearch(""); setPage(1); }} className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-main ">
                                 <MdClose className="text-base" />
                             </button>
                         )}
                     </div>
                     {search && (
-                        <span className="text-xs text-text-muted dark:text-gray-400">
+                        <span className="text-xs text-text-muted ">
                             Showing {filtered.length} of {patients?.length || 0} patients
                         </span>
                     )}
@@ -99,23 +99,23 @@ export default function PatientsPage() {
             {/* Content */}
             <div className="flex-1 overflow-auto px-4 sm:px-8 py-6">
                 {isLoading ? (
-                    <div className="bg-card-light dark:bg-card-dark rounded-xl border border-border-light dark:border-border-dark overflow-hidden">
+                    <div className="bg-card-light  rounded-xl border border-border-light  overflow-hidden">
                         <div className="animate-pulse space-y-0">
                             {[1, 2, 3, 4, 5].map((i) => (
-                                <div key={i} className="h-16 border-b border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark" />
+                                <div key={i} className="h-16 border-b border-border-light  bg-card-light " />
                             ))}
                         </div>
                     </div>
                 ) : error ? (
                     <div className="flex items-center justify-center py-16">
-                        <p className="text-text-muted dark:text-gray-400 text-sm">Failed to load patients.</p>
+                        <p className="text-text-muted  text-sm">Failed to load patients.</p>
                     </div>
                 ) : !patients || patients.length === 0 ? (
                     <div className="flex items-center justify-center py-24">
                         <div className="text-center space-y-3">
-                            <MdPerson className="text-6xl text-slate-200 dark:text-slate-700 mx-auto" />
-                            <h3 className="text-lg font-bold text-text-main dark:text-white">No patients yet</h3>
-                            <p className="text-text-muted dark:text-gray-400 text-sm max-w-xs mx-auto">
+                            <MdPerson className="text-6xl text-slate-200  mx-auto" />
+                            <h3 className="text-lg font-bold text-text-main ">No patients yet</h3>
+                            <p className="text-text-muted  text-sm max-w-xs mx-auto">
                                 Add your first patient to get started with managing your patient roster.
                             </p>
                             <button
@@ -130,36 +130,36 @@ export default function PatientsPage() {
                 ) : filtered.length === 0 ? (
                     <div className="flex items-center justify-center py-24">
                         <div className="text-center space-y-3">
-                            <MdSearch className="text-5xl text-slate-200 dark:text-slate-700 mx-auto" />
-                            <p className="text-text-muted dark:text-gray-400 text-sm">No patients match your search.</p>
+                            <MdSearch className="text-5xl text-slate-200  mx-auto" />
+                            <p className="text-text-muted  text-sm">No patients match your search.</p>
                             <button onClick={() => setSearch("")} className="text-primary hover:underline text-sm font-bold">
                                 Clear search
                             </button>
                         </div>
                     </div>
                 ) : (
-                    <div className="bg-card-light dark:bg-card-dark rounded-xl border border-border-light dark:border-border-dark overflow-hidden shadow-sm">
+                    <div className="bg-card-light  rounded-xl border border-border-light  overflow-hidden shadow-sm">
                         {/* Desktop table */}
                         <div className="hidden lg:block overflow-x-auto">
                             <table className="w-full text-left">
-                                <thead className="bg-muted-light dark:bg-muted-dark border-b border-border-light dark:border-border-dark">
+                                <thead className="bg-muted-light  border-b border-border-light ">
                                     <tr>
-                                        <th className="px-6 py-3 text-[10px] font-bold text-text-muted dark:text-gray-400 uppercase tracking-widest">Patient</th>
-                                        <th className="px-6 py-3 text-[10px] font-bold text-text-muted dark:text-gray-400 uppercase tracking-widest">Address</th>
-                                        <th className="px-6 py-3 text-[10px] font-bold text-text-muted dark:text-gray-400 uppercase tracking-widest">Contact</th>
-                                        <th className="px-6 py-3 text-[10px] font-bold text-text-muted dark:text-gray-400 uppercase tracking-widest text-center">Requests</th>
-                                        <th className="px-6 py-3 text-[10px] font-bold text-text-muted dark:text-gray-400 uppercase tracking-widest">Last Activity</th>
-                                        <th className="px-6 py-3 text-[10px] font-bold text-text-muted dark:text-gray-400 uppercase tracking-widest text-right">Actions</th>
+                                        <th className="px-6 py-3 text-[10px] font-bold text-text-muted  uppercase tracking-widest">Patient</th>
+                                        <th className="px-6 py-3 text-[10px] font-bold text-text-muted  uppercase tracking-widest">Address</th>
+                                        <th className="px-6 py-3 text-[10px] font-bold text-text-muted  uppercase tracking-widest">Contact</th>
+                                        <th className="px-6 py-3 text-[10px] font-bold text-text-muted  uppercase tracking-widest text-center">Requests</th>
+                                        <th className="px-6 py-3 text-[10px] font-bold text-text-muted  uppercase tracking-widest">Last Activity</th>
+                                        <th className="px-6 py-3 text-[10px] font-bold text-text-muted  uppercase tracking-widest text-right">Actions</th>
                                     </tr>
                                 </thead>
-                                <tbody className="divide-y divide-border-light dark:divide-border-dark">
+                                <tbody className="divide-y divide-border-light ">
                                     {paginated.map((patient) => {
                                         const requestCount = patient.requestsForPatient?.length || 0;
                                         const lastRequest  = patient.requestsForPatient?.[0];
                                         return (
                                             <tr
                                                 key={patient.id}
-                                                className="hover:bg-primary/5 dark:hover:bg-primary/5 transition-colors group cursor-pointer"
+                                                className="hover:bg-primary/5  transition-colors group cursor-pointer"
                                                 onClick={() => setDrawerPatientId(patient.id)}
                                             >
                                                 <td className="px-6 py-4">
@@ -168,18 +168,18 @@ export default function PatientsPage() {
                                                             {getInitials(patient.fullName)}
                                                         </div>
                                                         <div className="min-w-0">
-                                                            <p className="text-sm font-bold text-text-main dark:text-white truncate group-hover:text-primary transition-colors">
+                                                            <p className="text-sm font-bold text-text-main  truncate group-hover:text-primary transition-colors">
                                                                 {patient.fullName}
                                                             </p>
                                                             {(patient.city || patient.state) && (
-                                                                <p className="text-[11px] text-text-muted dark:text-gray-400 truncate">
+                                                                <p className="text-[11px] text-text-muted  truncate">
                                                                     {[patient.city, patient.state].filter(Boolean).join(", ")}
                                                                 </p>
                                                             )}
                                                         </div>
                                                     </div>
                                                 </td>
-                                                <td className="px-6 py-4 text-sm text-text-muted dark:text-gray-400 max-w-48">
+                                                <td className="px-6 py-4 text-sm text-text-muted  max-w-48">
                                                     {patient.addressLine1 ? (
                                                         <span className="truncate block" title={`${patient.addressLine1}, ${patient.city}, ${patient.state} ${patient.zipCode}`}>
                                                             {patient.addressLine1}
@@ -189,25 +189,25 @@ export default function PatientsPage() {
                                                     )}
                                                 </td>
                                                 <td className="px-6 py-4">
-                                                    <div className="flex items-center gap-1.5 text-sm text-text-main dark:text-white">
+                                                    <div className="flex items-center gap-1.5 text-sm text-text-main ">
                                                         {patient.phone && <MdPhone className="text-text-muted text-xs shrink-0" />}
                                                         <span>{patient.phone || "—"}</span>
                                                     </div>
                                                     <div className="flex items-center gap-1.5">
                                                         {patient.email && <MdEmail className="text-text-muted text-xs shrink-0" />}
-                                                        <span className="text-[11px] text-text-muted dark:text-gray-400 truncate">{patient.email || "—"}</span>
+                                                        <span className="text-[11px] text-text-muted  truncate">{patient.email || "—"}</span>
                                                     </div>
                                                 </td>
                                                 <td className="px-6 py-4 text-center">
-                                                    <span className={`inline-flex items-center justify-center w-7 h-7 text-[10px] font-black rounded-full ${requestCount > 0 ? "bg-primary/10 text-primary" : "bg-muted-light dark:bg-muted-dark text-text-muted dark:text-gray-400"}`}>
+                                                    <span className={`inline-flex items-center justify-center w-7 h-7 text-[10px] font-black rounded-full ${requestCount > 0 ? "bg-primary/10 text-primary" : "bg-muted-light  text-text-muted "}`}>
                                                         {requestCount}
                                                     </span>
                                                 </td>
                                                 <td className="px-6 py-4">
                                                     {lastRequest ? (
                                                         <>
-                                                            <p className="text-sm text-text-main dark:text-white">{formatRelativeDate(lastRequest.createdAt)}</p>
-                                                            <p className="text-[11px] text-text-muted dark:text-gray-400 truncate">{lastRequest.serviceType}</p>
+                                                            <p className="text-sm text-text-main ">{formatRelativeDate(lastRequest.createdAt)}</p>
+                                                            <p className="text-[11px] text-text-muted  truncate">{lastRequest.serviceType}</p>
                                                         </>
                                                     ) : (
                                                         <span className="text-sm text-text-muted/50">—</span>
@@ -216,7 +216,7 @@ export default function PatientsPage() {
                                                 <td className="px-6 py-4 text-right">
                                                     <button
                                                         onClick={(e) => { e.stopPropagation(); setDrawerPatientId(patient.id); }}
-                                                        className="p-1.5 text-text-muted dark:text-gray-400 hover:text-primary transition-colors"
+                                                        className="p-1.5 text-text-muted  hover:text-primary transition-colors"
                                                         title="View details"
                                                     >
                                                         <MdVisibility className="text-lg" />
@@ -230,7 +230,7 @@ export default function PatientsPage() {
                         </div>
 
                         {/* Mobile card list */}
-                        <div className="lg:hidden divide-y divide-border-light dark:divide-border-dark">
+                        <div className="lg:hidden divide-y divide-border-light ">
                             {paginated.map((patient) => {
                                 const requestCount = patient.requestsForPatient?.length || 0;
                                 return (
@@ -244,15 +244,15 @@ export default function PatientsPage() {
                                                 {getInitials(patient.fullName)}
                                             </div>
                                             <div className="flex-1 min-w-0">
-                                                <h3 className="text-sm font-bold text-text-main dark:text-white truncate">{patient.fullName}</h3>
-                                                <p className="text-xs text-text-muted dark:text-gray-400 truncate">
+                                                <h3 className="text-sm font-bold text-text-main  truncate">{patient.fullName}</h3>
+                                                <p className="text-xs text-text-muted  truncate">
                                                     {patient.addressLine1
                                                         ? `${patient.addressLine1}, ${patient.city || ""}`
                                                         : patient.email || "No address"}
                                                 </p>
                                             </div>
                                             <div className="text-right shrink-0">
-                                                {patient.phone && <p className="text-xs text-text-muted dark:text-gray-400">{patient.phone}</p>}
+                                                {patient.phone && <p className="text-xs text-text-muted ">{patient.phone}</p>}
                                                 {requestCount > 0 && (
                                                     <span className="inline-flex items-center justify-center w-5 h-5 text-[9px] font-bold rounded-full bg-primary/10 text-primary mt-1">
                                                         {requestCount}
@@ -267,15 +267,15 @@ export default function PatientsPage() {
 
                         {/* Pagination */}
                         {filtered.length > ROWS_PER_PAGE_OPTIONS[0] && (
-                            <div className="px-6 py-3 bg-muted-light dark:bg-muted-dark border-t border-border-light dark:border-border-dark flex flex-col sm:flex-row justify-between items-center gap-3">
-                                <div className="flex items-center gap-3 text-xs text-text-muted dark:text-gray-400">
+                            <div className="px-6 py-3 bg-muted-light  border-t border-border-light  flex flex-col sm:flex-row justify-between items-center gap-3">
+                                <div className="flex items-center gap-3 text-xs text-text-muted ">
                                     <span>
-                                        Showing <span className="font-bold text-text-main dark:text-white">{(safePage - 1) * rowsPerPage + 1}–{Math.min(safePage * rowsPerPage, filtered.length)}</span> of <span className="font-bold text-text-main dark:text-white">{filtered.length}</span>
+                                        Showing <span className="font-bold text-text-main ">{(safePage - 1) * rowsPerPage + 1}–{Math.min(safePage * rowsPerPage, filtered.length)}</span> of <span className="font-bold text-text-main ">{filtered.length}</span>
                                     </span>
                                     <select
                                         value={rowsPerPage}
                                         onChange={(e) => { setRowsPerPage(Number(e.target.value)); setPage(1); }}
-                                        className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-lg px-2 py-1 text-xs text-text-main dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/40"
+                                        className="bg-card-light  border border-border-light  rounded-lg px-2 py-1 text-xs text-text-main  focus:outline-none focus:ring-2 focus:ring-primary/40"
                                     >
                                         {ROWS_PER_PAGE_OPTIONS.map((n) => (
                                             <option key={n} value={n}>{n} / page</option>
@@ -286,7 +286,7 @@ export default function PatientsPage() {
                                     <button
                                         onClick={() => setPage((p) => Math.max(1, p - 1))}
                                         disabled={safePage <= 1}
-                                        className="p-1.5 rounded-lg bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark hover:bg-muted-light dark:hover:bg-muted-dark transition-colors disabled:opacity-40"
+                                        className="p-1.5 rounded-lg bg-card-light  border border-border-light  hover:bg-muted-light  transition-colors disabled:opacity-40"
                                     >
                                         <MdChevronLeft className="text-base" />
                                     </button>
@@ -300,7 +300,7 @@ export default function PatientsPage() {
                                             <button
                                                 key={pageNum}
                                                 onClick={() => setPage(pageNum)}
-                                                className={`px-3 py-1 text-xs font-bold rounded-lg transition-colors ${safePage === pageNum ? "bg-primary text-white" : "text-text-muted dark:text-gray-400 hover:bg-muted-light dark:hover:bg-muted-dark"}`}
+                                                className={`px-3 py-1 text-xs font-bold rounded-lg transition-colors ${safePage === pageNum ? "bg-primary text-white" : "text-text-muted  hover:bg-muted-light "}`}
                                             >
                                                 {pageNum}
                                             </button>
@@ -309,7 +309,7 @@ export default function PatientsPage() {
                                     <button
                                         onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                                         disabled={safePage >= totalPages}
-                                        className="p-1.5 rounded-lg bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark hover:bg-muted-light dark:hover:bg-muted-dark transition-colors disabled:opacity-40"
+                                        className="p-1.5 rounded-lg bg-card-light  border border-border-light  hover:bg-muted-light  transition-colors disabled:opacity-40"
                                     >
                                         <MdChevronRight className="text-base" />
                                     </button>

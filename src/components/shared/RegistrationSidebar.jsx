@@ -20,12 +20,12 @@ const RegistrationSidebar = () => {
     ];
 
     return (
-        <aside className="w-full lg:w-100 bg-white dark:bg-background-dark border-r border-border-subtle dark:border-[#2a3038] p-8 lg:p-12 flex flex-col justify-between">            <div className="flex flex-col gap-8">
+        <aside className="w-full lg:w-100 bg-white  border-r border-border-subtle  p-8 lg:p-12 flex flex-col justify-between">            <div className="flex flex-col gap-8">
             <div className="flex flex-col gap-4">
                 <div className="bg-primary/10 rounded-xl p-4 w-fit">
                     <MdMedicalServices className="text-primary text-4xl" />
                 </div>
-                <h1 className="text-2xl font-bold leading-tight dark:text-white">
+                <h1 className="text-2xl font-bold leading-tight ">
                     Join the RehabTask Network
                 </h1>
                 <p className="text-text-muted text-base">
@@ -39,11 +39,11 @@ const RegistrationSidebar = () => {
                     const Icon = benefit.icon;
                     return (
                         <div key={index} className="flex gap-4">
-                            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-background-light dark:bg-[#1c2631] text-primary">
+                            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-background-light  text-primary">
                                 <Icon className="text-xl" />
                             </div>
                             <div>
-                                <h3 className="font-semibold text-base dark:text-white">
+                                <h3 className="font-semibold text-base ">
                                     {benefit.title}
                                 </h3>
                                 <p className="text-sm text-text-muted">
@@ -56,7 +56,7 @@ const RegistrationSidebar = () => {
             </div>
         </div>
 
-            <div className="mt-12 pt-8 border-t border-border-subtle dark:border-[#2a3038]">
+            <div className="mt-12 pt-8 border-t border-border-subtle ">
                 <div className="flex items-center gap-3 text-text-muted">
                     <MdLock className="text-green-500 text-lg" />
                     <p className="text-xs font-medium uppercase tracking-wider">
