@@ -62,6 +62,7 @@ const securityHeaders = [
             `default-src ${SELF}`,
             `script-src ${SELF} ${UNSAFE_INLINE} ${UNSAFE_EVAL} ${STRIPE_JS} ${STRIPE_API} ${STRIPE_NETWORK} ${GOOGLE_RECAPTCHA} ${GOOGLE_GSTATIC} ${GOOGLE_MAPS}`,
             `style-src ${SELF} ${UNSAFE_INLINE} ${STRIPE_API} ${STRIPE_NETWORK} ${GOOGLE_GSTATIC}`,
+            `style-src-attr ${UNSAFE_INLINE}`,
             `img-src ${SELF} data: blob: ${SUPABASE} ${STRIPE_API} ${STRIPE_NETWORK} ${UNSPLASH} ${GOOGLE_MAPS} ${GOOGLE_GSTATIC} ${COUNTRY_FLAGS}`,
             `font-src ${SELF} ${STRIPE_API} ${STRIPE_NETWORK} ${GOOGLE_GSTATIC}`,
             `connect-src ${SELF} ${SUPABASE} ${STRIPE_API} ${STRIPE_NETWORK} ${STRIPE_JS} ${GOOGLE_MAPS} ${GOOGLE_RECAPTCHA} https://*.rehabtask.com wss://*.rehabtask.com`,
