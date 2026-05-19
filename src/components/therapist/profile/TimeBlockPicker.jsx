@@ -27,7 +27,7 @@ const TimeBlockPicker = ({ startTime, endTime, onChange, onRemove }) => {
                     timeIntervals={15}
                     dateFormat="hh:mm aa"
                     timeCaption="Start"
-                    className="w-30 bg-input-light dark:bg-input-dark border border-border-light dark:border-border-dark rounded-lg px-3 py-2 text-text-main dark:text-white text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
+                    className="w-30 bg-input-light  border border-border-light  rounded-lg px-3 py-2 text-text-main  text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
                 />
             </div>
 
@@ -42,7 +42,7 @@ const TimeBlockPicker = ({ startTime, endTime, onChange, onRemove }) => {
                     timeIntervals={15}
                     dateFormat="hh:mm aa"
                     timeCaption="End"
-                    className="w-30 bg-input-light dark:bg-input-dark border border-border-light dark:border-border-dark rounded-lg px-3 py-2 text-text-main dark:text-white text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
+                    className="w-30 bg-input-light  border border-border-light  rounded-lg px-3 py-2 text-text-main  text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
                 />
             </div>
 
@@ -50,7 +50,7 @@ const TimeBlockPicker = ({ startTime, endTime, onChange, onRemove }) => {
                 <button
                     type="button"
                     onClick={onRemove}
-                    className="p-1.5 rounded-lg text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                    className="p-1.5 rounded-lg text-red-500 hover:bg-red-50  transition-colors"
                     aria-label="Remove time block"
                 >
                     <MdClose className="text-lg" />

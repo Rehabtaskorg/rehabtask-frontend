@@ -12,11 +12,11 @@ import { formatShortDate } from "@/utils/dates";
 import { BOOKING_STATUS } from "@/lib/constants";
 
 const REQUEST_STATUS_CONFIG = {
-    created:         { label: "Created",         color: "text-blue-500 bg-blue-50 dark:bg-blue-900/20" },
-    offers_received: { label: "Offers Received",  color: "text-amber-500 bg-amber-50 dark:bg-amber-900/20" },
-    offers_accepted: { label: "Accepted",         color: "text-emerald-500 bg-emerald-50 dark:bg-emerald-900/20" },
-    completed:       { label: "Completed",        color: "text-slate-500 bg-slate-50 dark:bg-slate-800" },
-    cancelled:       { label: "Cancelled",        color: "text-red-500 bg-red-50 dark:bg-red-900/20" },
+    created:         { label: "Created",         color: "text-blue-500 bg-blue-50 " },
+    offers_received: { label: "Offers Received",  color: "text-amber-500 bg-amber-50 " },
+    offers_accepted: { label: "Accepted",         color: "text-emerald-500 bg-emerald-50 " },
+    completed:       { label: "Completed",        color: "text-slate-500 bg-slate-50 " },
+    cancelled:       { label: "Cancelled",        color: "text-red-500 bg-red-50 " },
 };
 
 const ACTIVE_BOOKING_STATUSES = new Set([
@@ -30,7 +30,7 @@ const ACTIVE_BOOKING_STATUSES = new Set([
 const getInitials = (name) =>
     name?.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2) || "?";
 
-const inputClass = "w-full px-3 py-2 rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-main dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary/40";
+const inputClass = "w-full px-3 py-2 rounded-lg border border-border-light  bg-background-light  text-text-main  text-sm focus:outline-none focus:ring-2 focus:ring-primary/40";
 
 /**
  * Slide-over drawer showing patient detail, contact info, and activity history.
@@ -168,13 +168,13 @@ export default function PatientDrawer({ patientId, onClose }) {
         <>
             <div className="fixed inset-0 bg-black/40 z-40" onClick={onClose} />
 
-            <aside className="fixed right-0 top-0 h-full w-full max-w-120 bg-card-light dark:bg-card-dark shadow-2xl z-50 flex flex-col border-l border-border-light dark:border-border-dark transition-transform duration-300 ease-out">
+            <aside className="fixed right-0 top-0 h-full w-full max-w-120 bg-card-light  shadow-2xl z-50 flex flex-col border-l border-border-light  transition-transform duration-300 ease-out">
                 {/* Header */}
-                <div className="p-6 border-b border-border-light dark:border-border-dark shrink-0">
+                <div className="p-6 border-b border-border-light  shrink-0">
                     <div className="flex justify-between items-start mb-4">
                         <button
                             onClick={onClose}
-                            className="p-1.5 text-text-muted dark:text-gray-400 hover:text-text-main dark:hover:text-white rounded-lg hover:bg-muted-light dark:hover:bg-muted-dark transition-colors"
+                            className="p-1.5 text-text-muted  hover:text-text-main  rounded-lg hover:bg-muted-light  transition-colors"
                         >
                             <MdClose className="text-xl" />
                         </button>
@@ -190,10 +190,10 @@ export default function PatientDrawer({ patientId, onClose }) {
 
                     {isLoading ? (
                         <div className="flex items-center gap-4 animate-pulse">
-                            <div className="w-16 h-16 rounded-2xl bg-slate-200 dark:bg-slate-700" />
+                            <div className="w-16 h-16 rounded-2xl bg-slate-200 " />
                             <div className="space-y-2 flex-1">
-                                <div className="h-5 bg-slate-200 dark:bg-slate-700 rounded w-40" />
-                                <div className="h-3 bg-slate-200 dark:bg-slate-700 rounded w-24" />
+                                <div className="h-5 bg-slate-200  rounded w-40" />
+                                <div className="h-3 bg-slate-200  rounded w-24" />
                             </div>
                         </div>
                     ) : patient ? (
@@ -202,9 +202,9 @@ export default function PatientDrawer({ patientId, onClose }) {
                                 {getInitials(patient.fullName)}
                             </div>
                             <div>
-                                <h2 className="text-xl font-bold text-text-main dark:text-white">{patient.fullName}</h2>
+                                <h2 className="text-xl font-bold text-text-main ">{patient.fullName}</h2>
                                 {(patient.city || patient.state) && (
-                                    <p className="text-sm text-text-muted dark:text-gray-400">
+                                    <p className="text-sm text-text-muted ">
                                         {[patient.city, patient.state].filter(Boolean).join(", ")}
                                     </p>
                                 )}
@@ -218,31 +218,31 @@ export default function PatientDrawer({ patientId, onClose }) {
                     {isLoading ? (
                         <div className="animate-pulse space-y-4">
                             <div className="grid grid-cols-3 gap-3">
-                                {[1, 2, 3].map((i) => <div key={i} className="h-20 bg-slate-200 dark:bg-slate-700 rounded-xl" />)}
+                                {[1, 2, 3].map((i) => <div key={i} className="h-20 bg-slate-200  rounded-xl" />)}
                             </div>
-                            <div className="h-32 bg-slate-200 dark:bg-slate-700 rounded-xl" />
+                            <div className="h-32 bg-slate-200  rounded-xl" />
                         </div>
                     ) : patient ? (
                         <>
                             {/* Quick Stats */}
                             <div className="grid grid-cols-3 gap-3">
-                                <div className="bg-muted-light dark:bg-muted-dark p-4 rounded-xl border border-border-light dark:border-border-dark text-center">
+                                <div className="bg-muted-light  p-4 rounded-xl border border-border-light  text-center">
                                     <p className="text-2xl font-black text-primary">{totalRequests}</p>
-                                    <p className="text-[10px] font-bold text-text-muted dark:text-gray-400 uppercase mt-1">Requests</p>
+                                    <p className="text-[10px] font-bold text-text-muted  uppercase mt-1">Requests</p>
                                 </div>
-                                <div className="bg-muted-light dark:bg-muted-dark p-4 rounded-xl border border-border-light dark:border-border-dark text-center">
+                                <div className="bg-muted-light  p-4 rounded-xl border border-border-light  text-center">
                                     <p className="text-2xl font-black text-primary">{activeBookings}</p>
-                                    <p className="text-[10px] font-bold text-text-muted dark:text-gray-400 uppercase mt-1">Active Bookings</p>
+                                    <p className="text-[10px] font-bold text-text-muted  uppercase mt-1">Active Bookings</p>
                                 </div>
-                                <div className="bg-muted-light dark:bg-muted-dark p-4 rounded-xl border border-border-light dark:border-border-dark text-center">
+                                <div className="bg-muted-light  p-4 rounded-xl border border-border-light  text-center">
                                     <p className="text-lg font-black text-primary">{lastBooking ? formatShortDate(lastBooking.scheduledDate) : "—"}</p>
-                                    <p className="text-[10px] font-bold text-text-muted dark:text-gray-400 uppercase mt-1">Last Visit</p>
+                                    <p className="text-[10px] font-bold text-text-muted  uppercase mt-1">Last Visit</p>
                                 </div>
                             </div>
 
                             {/* Contact Info */}
                             <section>
-                                <h3 className="text-xs font-bold text-text-muted dark:text-gray-400 uppercase tracking-widest mb-3">
+                                <h3 className="text-xs font-bold text-text-muted  uppercase tracking-widest mb-3">
                                     Contact Information
                                 </h3>
 
@@ -250,18 +250,18 @@ export default function PatientDrawer({ patientId, onClose }) {
                                     <APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}>
                                         <div className="space-y-3">
                                             {editErrors.form && (
-                                                <div className="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-3 py-2 rounded-lg text-sm">
+                                                <div className="bg-red-50  border border-red-200  text-red-700  px-3 py-2 rounded-lg text-sm">
                                                     {editErrors.form}
                                                 </div>
                                             )}
                                             <div>
-                                                <label className="block text-xs font-semibold text-text-muted dark:text-gray-400 mb-1">Full Name</label>
+                                                <label className="block text-xs font-semibold text-text-muted  mb-1">Full Name</label>
                                                 <input type="text" value={editData.fullName} onChange={(e) => setEditData((d) => ({ ...d, fullName: e.target.value }))} className={inputClass} />
                                                 {editErrors.fullName && <p className="text-xs text-red-500 mt-1">{editErrors.fullName}</p>}
                                             </div>
                                             <div className="flex gap-3">
                                                 <div className="flex-1">
-                                                    <label className="block text-xs font-semibold text-text-muted dark:text-gray-400 mb-1">Date of Birth <span className="text-red-500">*</span></label>
+                                                    <label className="block text-xs font-semibold text-text-muted  mb-1">Date of Birth <span className="text-red-500">*</span></label>
                                                     <input
                                                         type="date"
                                                         value={editData.dateOfBirth || ""}
@@ -275,7 +275,7 @@ export default function PatientDrawer({ patientId, onClose }) {
                                                     {editErrors.dateOfBirth && <p className="text-xs text-red-500 mt-1">{editErrors.dateOfBirth}</p>}
                                                 </div>
                                                 <div className="flex-1">
-                                                    <label className="block text-xs font-semibold text-text-muted dark:text-gray-400 mb-1">Certification Period <span className="text-red-500">*</span></label>
+                                                    <label className="block text-xs font-semibold text-text-muted  mb-1">Certification Period <span className="text-red-500">*</span></label>
                                                     <input
                                                         type="date"
                                                         value={editData.certificationExpiry || ""}
@@ -303,34 +303,34 @@ export default function PatientDrawer({ patientId, onClose }) {
                                             {editData.latitude != null && (
                                                 <div className="flex gap-3">
                                                     <div className="flex-1">
-                                                        <label className="block text-xs font-semibold text-text-muted dark:text-gray-400 mb-1">City</label>
+                                                        <label className="block text-xs font-semibold text-text-muted  mb-1">City</label>
                                                         <input type="text" value={editData.city} onChange={(e) => setEditData((d) => ({ ...d, city: e.target.value }))} className={inputClass} />
                                                         {editErrors.city && <p className="text-xs text-red-500 mt-1">{editErrors.city}</p>}
                                                     </div>
                                                     <div className="w-20">
-                                                        <label className="block text-xs font-semibold text-text-muted dark:text-gray-400 mb-1">State</label>
+                                                        <label className="block text-xs font-semibold text-text-muted  mb-1">State</label>
                                                         <input type="text" value={editData.state} onChange={(e) => setEditData((d) => ({ ...d, state: e.target.value }))} className={inputClass} />
                                                     </div>
                                                     <div className="w-20">
-                                                        <label className="block text-xs font-semibold text-text-muted dark:text-gray-400 mb-1">Zip</label>
+                                                        <label className="block text-xs font-semibold text-text-muted  mb-1">Zip</label>
                                                         <input type="text" value={editData.zipCode} onChange={(e) => setEditData((d) => ({ ...d, zipCode: e.target.value }))} className={inputClass} />
                                                         {editErrors.zipCode && <p className="text-xs text-red-500 mt-1">{editErrors.zipCode}</p>}
                                                     </div>
                                                 </div>
                                             )}
                                             <div>
-                                                <label className="block text-xs font-semibold text-text-muted dark:text-gray-400 mb-1">
+                                                <label className="block text-xs font-semibold text-text-muted  mb-1">
                                                     Email <span className="text-text-muted/50 font-normal">(Optional)</span>
                                                 </label>
                                                 <input type="email" value={editData.email} onChange={(e) => setEditData((d) => ({ ...d, email: e.target.value }))} className={inputClass} />
                                                 {editErrors.email && <p className="text-xs text-red-500 mt-1">{editErrors.email}</p>}
                                             </div>
                                             <div>
-                                                <label className="block text-xs font-semibold text-text-muted dark:text-gray-400 mb-1">
+                                                <label className="block text-xs font-semibold text-text-muted  mb-1">
                                                     Phone <span className="text-text-muted/50 font-normal">(Optional)</span>
                                                 </label>
-                                                <div className={`flex items-center rounded-lg border overflow-hidden ${editErrors.phone ? "border-red-400 dark:border-red-600" : "border-border-light dark:border-border-dark"} bg-background-light dark:bg-background-dark`}>
-                                                    <span className="px-3 py-2 text-sm text-text-muted dark:text-gray-400 border-r border-border-light dark:border-border-dark select-none bg-slate-50 dark:bg-slate-800 shrink-0">
+                                                <div className={`flex items-center rounded-lg border overflow-hidden ${editErrors.phone ? "border-red-400 " : "border-border-light "} bg-background-light `}>
+                                                    <span className="px-3 py-2 text-sm text-text-muted  border-r border-border-light  select-none bg-slate-50  shrink-0">
                                                         +1
                                                     </span>
                                                     <input
@@ -342,7 +342,7 @@ export default function PatientDrawer({ patientId, onClose }) {
                                                         }}
                                                         maxLength={10}
                                                         placeholder="2025550123"
-                                                        className="flex-1 px-3 py-2 bg-transparent text-text-main dark:text-white text-sm focus:outline-none placeholder:text-text-muted/50"
+                                                        className="flex-1 px-3 py-2 bg-transparent text-text-main  text-sm focus:outline-none placeholder:text-text-muted/50"
                                                     />
                                                 </div>
                                                 {editErrors.phone && <p className="text-xs text-red-500 mt-1">{editErrors.phone}</p>}
@@ -358,7 +358,7 @@ export default function PatientDrawer({ patientId, onClose }) {
                                                 </button>
                                                 <button
                                                     onClick={() => { setEditing(false); setEditErrors({}); }}
-                                                    className="px-4 py-2 text-text-muted dark:text-gray-400 hover:text-text-main dark:hover:text-white text-sm font-bold transition-colors"
+                                                    className="px-4 py-2 text-text-muted  hover:text-text-main  text-sm font-bold transition-colors"
                                                 >
                                                     Cancel
                                                 </button>
@@ -366,13 +366,13 @@ export default function PatientDrawer({ patientId, onClose }) {
                                         </div>
                                     </APIProvider>
                                 ) : (
-                                    <div className="bg-muted-light dark:bg-muted-dark rounded-xl p-4 space-y-4 border border-border-light dark:border-border-dark">
+                                    <div className="bg-muted-light  rounded-xl p-4 space-y-4 border border-border-light ">
                                         {patient.addressLine1 && (
                                             <div className="flex items-start gap-3">
                                                 <MdLocationOn className="text-primary text-lg shrink-0 mt-0.5" />
                                                 <div>
-                                                    <p className="text-sm font-medium text-text-main dark:text-white">{patient.addressLine1}</p>
-                                                    <p className="text-xs text-text-muted dark:text-gray-400">
+                                                    <p className="text-sm font-medium text-text-main ">{patient.addressLine1}</p>
+                                                    <p className="text-xs text-text-muted ">
                                                         {[patient.city, patient.state, patient.zipCode].filter(Boolean).join(", ")}
                                                     </p>
                                                 </div>
@@ -381,8 +381,8 @@ export default function PatientDrawer({ patientId, onClose }) {
                                         <div className="flex items-center gap-3">
                                             <MdCake className="text-primary text-lg shrink-0" />
                                             <div>
-                                                <p className="text-[10px] text-text-muted dark:text-gray-400 uppercase font-bold">Date of Birth</p>
-                                                <p className="text-sm text-text-main dark:text-white">
+                                                <p className="text-[10px] text-text-muted  uppercase font-bold">Date of Birth</p>
+                                                <p className="text-sm text-text-main ">
                                                     {patient.dateOfBirth ? formatShortDate(patient.dateOfBirth) : "—"}
                                                 </p>
                                             </div>
@@ -390,19 +390,19 @@ export default function PatientDrawer({ patientId, onClose }) {
                                         <div className="flex items-center gap-3">
                                             <MdVerified className="text-primary text-lg shrink-0" />
                                             <div>
-                                                <p className="text-[10px] text-text-muted dark:text-gray-400 uppercase font-bold">Certification Period</p>
-                                                <p className="text-sm text-text-main dark:text-white">
+                                                <p className="text-[10px] text-text-muted  uppercase font-bold">Certification Period</p>
+                                                <p className="text-sm text-text-main ">
                                                     {patient.certificationExpiry ? formatShortDate(patient.certificationExpiry) : "—"}
                                                 </p>
                                             </div>
                                         </div>
                                         <div className="flex items-center gap-3">
                                             <MdEmail className="text-primary text-lg shrink-0" />
-                                            <p className="text-sm text-text-main dark:text-white">{patient.email || "—"}</p>
+                                            <p className="text-sm text-text-main ">{patient.email || "—"}</p>
                                         </div>
                                         <div className="flex items-center gap-3">
                                             <MdPhone className="text-primary text-lg shrink-0" />
-                                            <p className="text-sm text-text-main dark:text-white">{patient.phone || "—"}</p>
+                                            <p className="text-sm text-text-main ">{patient.phone || "—"}</p>
                                         </div>
                                     </div>
                                 )}
@@ -410,7 +410,7 @@ export default function PatientDrawer({ patientId, onClose }) {
 
                             {/* Recent Requests */}
                             <section>
-                                <h3 className="text-xs font-bold text-text-muted dark:text-gray-400 uppercase tracking-widest mb-3">
+                                <h3 className="text-xs font-bold text-text-muted  uppercase tracking-widest mb-3">
                                     Recent Requests
                                 </h3>
                                 {patient.requestsForPatient?.length > 0 ? (
@@ -420,11 +420,11 @@ export default function PatientDrawer({ patientId, onClose }) {
                                             return (
                                                 <div
                                                     key={req.id}
-                                                    className="flex items-center justify-between p-3 bg-muted-light dark:bg-muted-dark rounded-lg border border-border-light dark:border-border-dark"
+                                                    className="flex items-center justify-between p-3 bg-muted-light  rounded-lg border border-border-light "
                                                 >
                                                     <div className="flex-1 min-w-0">
-                                                        <p className="text-sm font-bold text-text-main dark:text-white">{req.serviceType}</p>
-                                                        <p className="text-[11px] text-text-muted dark:text-gray-400">{formatShortDate(req.createdAt)}</p>
+                                                        <p className="text-sm font-bold text-text-main ">{req.serviceType}</p>
+                                                        <p className="text-[11px] text-text-muted ">{formatShortDate(req.createdAt)}</p>
                                                     </div>
                                                     <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded ${config.color}`}>
                                                         {config.label}
@@ -434,9 +434,9 @@ export default function PatientDrawer({ patientId, onClose }) {
                                         })}
                                     </div>
                                 ) : (
-                                    <div className="text-center py-6 bg-muted-light dark:bg-muted-dark rounded-xl border border-border-light dark:border-border-dark">
-                                        <MdAssignment className="text-3xl text-slate-200 dark:text-slate-700 mx-auto mb-1" />
-                                        <p className="text-xs text-text-muted dark:text-gray-400">No requests yet</p>
+                                    <div className="text-center py-6 bg-muted-light  rounded-xl border border-border-light ">
+                                        <MdAssignment className="text-3xl text-slate-200  mx-auto mb-1" />
+                                        <p className="text-xs text-text-muted ">No requests yet</p>
                                     </div>
                                 )}
                             </section>
@@ -444,24 +444,24 @@ export default function PatientDrawer({ patientId, onClose }) {
                             {/* Recent Bookings */}
                             {patient.bookingsForPatient?.length > 0 && (
                                 <section>
-                                    <h3 className="text-xs font-bold text-text-muted dark:text-gray-400 uppercase tracking-widest mb-3">
+                                    <h3 className="text-xs font-bold text-text-muted  uppercase tracking-widest mb-3">
                                         Recent Bookings
                                     </h3>
                                     <div className="space-y-2">
                                         {patient.bookingsForPatient.slice(0, 5).map((booking) => (
                                             <div
                                                 key={booking.id}
-                                                className="flex items-center justify-between p-3 bg-muted-light dark:bg-muted-dark rounded-lg border border-border-light dark:border-border-dark"
+                                                className="flex items-center justify-between p-3 bg-muted-light  rounded-lg border border-border-light "
                                             >
                                                 <div className="flex-1 min-w-0">
-                                                    <p className="text-sm font-bold text-text-main dark:text-white">
+                                                    <p className="text-sm font-bold text-text-main ">
                                                         {booking.therapist?.fullName || "Therapist"}
                                                     </p>
-                                                    <p className="text-[11px] text-text-muted dark:text-gray-400">
+                                                    <p className="text-[11px] text-text-muted ">
                                                         {booking.sessionType} · {formatShortDate(booking.scheduledDate)}
                                                     </p>
                                                 </div>
-                                                <span className="text-[10px] font-bold uppercase tracking-wider text-text-muted dark:text-gray-400">
+                                                <span className="text-[10px] font-bold uppercase tracking-wider text-text-muted ">
                                                     {booking.status?.replace(/_/g, " ")}
                                                 </span>
                                             </div>

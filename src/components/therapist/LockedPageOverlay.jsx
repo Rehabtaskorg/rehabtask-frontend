@@ -73,7 +73,7 @@ export default function LockedPageOverlay({ pageType }) {
                 </div>
 
                 <div className="absolute inset-0 flex items-start justify-center pt-32 sm:pt-40">
-                    <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-2xl shadow-xl p-8 max-w-md w-full mx-4 text-center">
+                    <div className="bg-card-light  border border-border-light  rounded-2xl shadow-xl p-8 max-w-md w-full mx-4 text-center">
                         <div className="mx-auto w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mb-5">
                             {isUnderReview ? (
                                 <MdAccessTime className="text-primary text-2xl" />
@@ -82,11 +82,11 @@ export default function LockedPageOverlay({ pageType }) {
                             )}
                         </div>
 
-                        <h2 className="text-xl font-bold text-text-main dark:text-white mb-2">
+                        <h2 className="text-xl font-bold text-text-main  mb-2">
                             {lockTitle}
                         </h2>
 
-                        <p className="text-sm text-text-muted dark:text-gray-400 mb-6 leading-relaxed">
+                        <p className="text-sm text-text-muted  mb-6 leading-relaxed">
                             {lockDescription}
                         </p>
 
@@ -97,7 +97,7 @@ export default function LockedPageOverlay({ pageType }) {
                             {ctaLabel}
                         </button>
 
-                        <div className="mt-4 flex items-center justify-center gap-2 text-xs text-text-muted dark:text-gray-500">
+                        <div className="mt-4 flex items-center justify-center gap-2 text-xs text-text-muted ">
                             <Icon className="text-sm" />
                             <span>{meta.title}</span>
                         </div>

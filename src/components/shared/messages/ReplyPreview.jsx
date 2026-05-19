@@ -22,12 +22,12 @@ export default function ReplyPreview({ message, onCancel }) {
             : "Message";
 
     return (
-        <div className="px-3 md:px-6 pt-3 bg-card-light dark:bg-card-dark border-t border-border-light dark:border-border-dark">
-            <div className="flex items-center gap-3 p-2.5 rounded-lg bg-primary/5 dark:bg-primary/10 border-l-3 border-primary">
+        <div className="px-3 md:px-6 pt-3 bg-card-light  border-t border-border-light ">
+            <div className="flex items-center gap-3 p-2.5 rounded-lg bg-primary/5  border-l-3 border-primary">
                 <MdReply className="text-primary text-lg shrink-0 rotate-180" />
                 <div className="flex-1 min-w-0">
                     <p className="text-[11px] font-bold text-primary">{senderName}</p>
-                    <p className="text-xs text-text-muted dark:text-gray-400 truncate">
+                    <p className="text-xs text-text-muted  truncate">
                         {hasAttachments && !message.content && (
                             <MdAttachFile className="inline text-xs mr-0.5 -mt-0.5" />
                         )}
@@ -36,7 +36,7 @@ export default function ReplyPreview({ message, onCancel }) {
                 </div>
                 <button
                     onClick={onCancel}
-                    className="p-1 rounded-full text-text-muted hover:text-text-main dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors shrink-0"
+                    className="p-1 rounded-full text-text-muted hover:text-text-main  hover:bg-slate-100  transition-colors shrink-0"
                     aria-label="Cancel reply"
                 >
                     <MdClose className="text-base" />

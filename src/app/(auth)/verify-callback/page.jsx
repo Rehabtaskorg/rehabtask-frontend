@@ -84,12 +84,12 @@ function VerifyCallbackContent() {
     }
 
     return (
-        <main className="flex-1 flex items-center justify-center px-4 py-12 bg-background-light dark:bg-background-dark">
+        <main className="flex-1 flex items-center justify-center px-4 py-12 bg-background-light ">
             <div className="max-w-md w-full">
                 {status === "verifying" && (
                     <div className="text-center">
                         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-                        <p className="text-text-muted dark:text-gray-400">{message}</p>
+                        <p className="text-text-muted ">{message}</p>
                     </div>
                 )}
 

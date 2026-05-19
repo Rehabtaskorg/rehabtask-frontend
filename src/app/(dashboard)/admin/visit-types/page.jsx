@@ -89,7 +89,7 @@ export default function AdminVisitTypesPage() {
         <div className="p-4 md:p-6 space-y-6 max-w-7xl mx-auto w-full">
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-2xl font-bold text-text-main dark:text-white">Visit Types</h1>
+                    <h1 className="text-2xl font-bold text-text-main ">Visit Types</h1>
                     <p className="text-sm text-text-muted mt-1">Manage clinical session types for therapist offers</p>
                 </div>
                 <div className="flex gap-3">
@@ -112,8 +112,8 @@ export default function AdminVisitTypesPage() {
             </div>
 
             {showForm && (
-                <form onSubmit={handleSubmit} className="p-4 bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl space-y-4">
-                    <p className="text-sm font-bold text-text-main dark:text-white">{editingId ? "Edit Visit Type" : "New Visit Type"}</p>
+                <form onSubmit={handleSubmit} className="p-4 bg-card-light  border border-border-light  rounded-xl space-y-4">
+                    <p className="text-sm font-bold text-text-main ">{editingId ? "Edit Visit Type" : "New Visit Type"}</p>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                         <div>
                             <label className="text-xs font-bold text-text-muted uppercase">Code</label>
@@ -124,7 +124,7 @@ export default function AdminVisitTypesPage() {
                                 value={formData.code}
                                 onChange={e => setFormData(p => ({ ...p, code: e.target.value.toUpperCase() }))}
                                 placeholder="PTE"
-                                className="w-full mt-1 rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-main dark:text-white text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
+                                className="w-full mt-1 rounded-lg border border-border-light  bg-background-light  text-text-main  text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
                             />
                         </div>
                         <div>
@@ -135,7 +135,7 @@ export default function AdminVisitTypesPage() {
                                 value={formData.name}
                                 onChange={e => setFormData(p => ({ ...p, name: e.target.value }))}
                                 placeholder="Physical Therapist Evaluation"
-                                className="w-full mt-1 rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-main dark:text-white text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
+                                className="w-full mt-1 rounded-lg border border-border-light  bg-background-light  text-text-main  text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
                             />
                         </div>
                         <div>
@@ -144,7 +144,7 @@ export default function AdminVisitTypesPage() {
                                 required
                                 value={formData.discipline}
                                 onChange={e => setFormData(p => ({ ...p, discipline: e.target.value }))}
-                                className="w-full mt-1 rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-main dark:text-white text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
+                                className="w-full mt-1 rounded-lg border border-border-light  bg-background-light  text-text-main  text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
                             >
                                 <option value="">Select discipline</option>
                                 {DISCIPLINES.map(d => <option key={d} value={d}>{d}</option>)}
@@ -156,7 +156,7 @@ export default function AdminVisitTypesPage() {
                                 type="number"
                                 value={formData.sortOrder}
                                 onChange={e => setFormData(p => ({ ...p, sortOrder: parseInt(e.target.value) || 0 }))}
-                                className="w-full mt-1 rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-main dark:text-white text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
+                                className="w-full mt-1 rounded-lg border border-border-light  bg-background-light  text-text-main  text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
                             />
                         </div>
                     </div>
@@ -172,28 +172,28 @@ export default function AdminVisitTypesPage() {
             )}
 
             {Object.entries(grouped).map(([discipline, types]) => types.length > 0 && (
-                <div key={discipline} className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl overflow-hidden">
-                    <div className="px-4 py-3 border-b border-border-light dark:border-border-dark bg-slate-50 dark:bg-slate-800/50">
-                        <h3 className="text-sm font-bold text-text-main dark:text-white">{discipline}</h3>
+                <div key={discipline} className="bg-card-light  border border-border-light  rounded-xl overflow-hidden">
+                    <div className="px-4 py-3 border-b border-border-light  bg-slate-50 ">
+                        <h3 className="text-sm font-bold text-text-main ">{discipline}</h3>
                         <p className="text-xs text-text-muted">{types.length} visit type{types.length !== 1 ? "s" : ""}</p>
                     </div>
-                    <div className="divide-y divide-border-light dark:divide-border-dark">
+                    <div className="divide-y divide-border-light ">
                         {types.map(vt => (
                             <div key={vt.id} className="flex items-center justify-between px-4 py-3">
                                 <div className="flex items-center gap-3">
                                     <span className="text-xs font-mono font-bold text-primary bg-primary/10 px-2 py-1 rounded">{vt.code}</span>
-                                    <span className={`text-sm font-medium ${vt.isActive ? "text-text-main dark:text-white" : "text-text-muted line-through"}`}>
+                                    <span className={`text-sm font-medium ${vt.isActive ? "text-text-main " : "text-text-muted line-through"}`}>
                                         {vt.name}
                                     </span>
                                     {!vt.isActive && (
-                                        <span className="text-[10px] font-bold text-red-500 bg-red-50 dark:bg-red-900/20 px-2 py-0.5 rounded-full">INACTIVE</span>
+                                        <span className="text-[10px] font-bold text-red-500 bg-red-50  px-2 py-0.5 rounded-full">INACTIVE</span>
                                     )}
                                 </div>
                                 <div className="flex items-center gap-2">
-                                    <button onClick={() => handleToggleActive(vt)} className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700" title={vt.isActive ? "Deactivate" : "Activate"}>
+                                    <button onClick={() => handleToggleActive(vt)} className="p-1.5 rounded-lg hover:bg-slate-100 " title={vt.isActive ? "Deactivate" : "Activate"}>
                                         {vt.isActive ? <MdCheckCircle className="text-emerald-500" /> : <MdCancel className="text-red-400" />}
                                     </button>
-                                    <button onClick={() => handleEdit(vt)} className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700" title="Edit">
+                                    <button onClick={() => handleEdit(vt)} className="p-1.5 rounded-lg hover:bg-slate-100 " title="Edit">
                                         <MdEdit className="text-text-muted" />
                                     </button>
                                 </div>

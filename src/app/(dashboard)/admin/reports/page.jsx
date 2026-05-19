@@ -28,21 +28,21 @@ function downloadBlob(blob, filename) {
 
 function ReportCard({ icon: Icon, iconBg, title, description, children, onDownload, loading, error }) {
     return (
-        <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl p-5 flex flex-col gap-4">
+        <div className="bg-card-light  border border-border-light  rounded-xl p-5 flex flex-col gap-4">
             <div className="flex items-start gap-4">
                 <div className={`p-2.5 rounded-xl ${iconBg} shrink-0`}>
                     <Icon className="text-xl text-white" />
                 </div>
                 <div>
-                    <h3 className="font-semibold text-text-main dark:text-white">{title}</h3>
-                    <p className="text-sm text-text-muted dark:text-slate-400 mt-0.5">{description}</p>
+                    <h3 className="font-semibold text-text-main ">{title}</h3>
+                    <p className="text-sm text-text-muted  mt-0.5">{description}</p>
                 </div>
             </div>
 
             <div className="flex-1 space-y-3">{children}</div>
 
             {error && (
-                <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-sm">
+                <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-red-50  text-red-600  text-sm">
                     <MdWarning className="shrink-0 text-base" /> {error}
                 </div>
             )}
@@ -63,8 +63,8 @@ export default function AdminReportsPage() {
     usePageTitle("Reports");
     const today = new Date().toISOString().split('T')[0];
 
-    const inputCls = 'w-full px-3 py-2.5 text-sm rounded-xl border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-main dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary';
-    const labelCls = 'block text-xs font-medium text-text-muted dark:text-slate-400 mb-1';
+    const inputCls = 'w-full px-3 py-2.5 text-sm rounded-xl border border-border-light  bg-background-light  text-text-main  focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary';
+    const labelCls = 'block text-xs font-medium text-text-muted  mb-1';
 
     // Bookings report
     const [bStart, setBStart] = useState('');
@@ -119,8 +119,8 @@ export default function AdminReportsPage() {
     return (
         <div className="p-4 md:p-6">
             <div className="mb-6">
-                <h1 className="text-xl md:text-2xl font-bold text-text-main dark:text-white">Reports</h1>
-                <p className="text-text-muted dark:text-slate-400 text-sm mt-0.5">
+                <h1 className="text-xl md:text-2xl font-bold text-text-main ">Reports</h1>
+                <p className="text-text-muted  text-sm mt-0.5">
                     Export platform data as CSV. Both dates are required; maximum range is 366 days.
                 </p>
             </div>

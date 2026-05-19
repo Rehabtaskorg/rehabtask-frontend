@@ -87,14 +87,14 @@ export default function BackgroundCheckPage() {
     };
 
     return (
-        <div className="min-h-screen bg-background-light dark:bg-background-dark py-10 px-4">
+        <div className="min-h-screen bg-background-light  py-10 px-4">
             <div className="max-w-4xl mx-auto">
                 <OnboardingProgressBar />
 
                 <form onSubmit={handleSubmit(onSubmit)}>
                     <header className="mb-8 px-4">
                         <div className="flex items-center gap-3">
-                            <h1 className="text-text-main dark:text-white text-4xl font-black leading-tight tracking-[-0.033em]">
+                            <h1 className="text-text-main  text-4xl font-black leading-tight tracking-[-0.033em]">
                                 Safety & Verification
                             </h1>
                             <svg
@@ -111,15 +111,15 @@ export default function BackgroundCheckPage() {
                                 />
                             </svg>
                         </div>
-                        <p className="text-text-muted dark:text-gray-400 text-lg mt-2">
+                        <p className="text-text-muted  text-lg mt-2">
                             To maintain our community standards and ensure patient safety, we require a
                             professional background screening for all therapists joining the marketplace.
                         </p>
                     </header>
 
-                    <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl overflow-hidden shadow-sm">
+                    <div className="bg-card-light  border border-border-light  rounded-xl overflow-hidden shadow-sm">
                         {/* Scope Section */}
-                        <div className="p-6 border-b border-border-light dark:border-border-dark bg-primary/5">
+                        <div className="p-6 border-b border-border-light  bg-primary/5">
                             <h3 className="text-primary tracking-tight text-xl font-bold leading-tight flex items-center gap-2">
                                 <svg
                                     className="w-6 h-6"
@@ -136,7 +136,7 @@ export default function BackgroundCheckPage() {
                                 </svg>
                                 Scope of Screening
                             </h3>
-                            <p className="text-sm text-text-muted dark:text-gray-400 mt-1">
+                            <p className="text-sm text-text-muted  mt-1">
                                 Our comprehensive review covers the following areas:
                             </p>
                         </div>
@@ -176,10 +176,10 @@ export default function BackgroundCheckPage() {
                                             />
                                         </svg>
                                         <div>
-                                            <p className="text-text-main dark:text-white text-base font-medium">
+                                            <p className="text-text-main  text-base font-medium">
                                                 {item.title}
                                             </p>
-                                            <p className="text-xs text-text-muted dark:text-gray-400">
+                                            <p className="text-xs text-text-muted ">
                                                 {item.desc}
                                             </p>
                                         </div>
@@ -188,17 +188,17 @@ export default function BackgroundCheckPage() {
                             </div>
 
                             {/* Legal Disclosure */}
-                            <div className="mt-8 p-4 bg-muted-light dark:bg-muted-dark rounded-lg border border-border-light dark:border-border-dark">
-                                <h4 className="text-sm font-bold text-text-muted dark:text-gray-300 mb-2 uppercase tracking-wider">
+                            <div className="mt-8 p-4 bg-muted-light  rounded-lg border border-border-light ">
+                                <h4 className="text-sm font-bold text-text-muted  mb-2 uppercase tracking-wider">
                                     Disclosure & Fair Credit Reporting Act (FCRA)
                                 </h4>
-                                <p className="text-xs leading-relaxed text-text-muted dark:text-gray-400">
+                                <p className="text-xs leading-relaxed text-text-muted ">
                                     This background check will be conducted by a third-party screening
                                     provider. By proceeding, you acknowledge that you have read and
                                     understood your rights under the Fair Credit Reporting Act and
                                     authorize RehabTask to obtain a consumer report for
                                     professional vetting purposes. All personal information is encrypted
-                                    and handled in strict accordance with HIPAA and privacy guidelines.
+                                    and handled in accordance with applicable privacy guidelines.
                                 </p>
                             </div>
 
@@ -217,9 +217,9 @@ export default function BackgroundCheckPage() {
                                                     field.onChange(value);
                                                     updateBackgroundCheck({ consent: value });
                                                 }}
-                                                className="h-6 w-6 rounded border-2 border-border-light dark:border-border-dark bg-transparent text-primary focus:ring-primary focus:ring-offset-0 outline-none transition-all cursor-pointer"
+                                                className="h-6 w-6 rounded border-2 border-border-light  bg-transparent text-primary focus:ring-primary focus:ring-offset-0 outline-none transition-all cursor-pointer"
                                             />
-                                            <p className="text-text-main dark:text-white text-base font-semibold">
+                                            <p className="text-text-main  text-base font-semibold">
                                                 I consent to the background screening and agree to the{" "}
                                                 <a href="#" className="text-primary underline">
                                                     Authorization Terms
@@ -234,7 +234,7 @@ export default function BackgroundCheckPage() {
                                 )}
 
                                 <div className="flex flex-col gap-2">
-                                    <label className="text-sm font-bold text-text-muted dark:text-gray-300">
+                                    <label className="text-sm font-bold text-text-muted ">
                                         Digital Signature (Type your full legal name)
                                     </label>
 
@@ -251,13 +251,13 @@ export default function BackgroundCheckPage() {
                                                         signature: e.target.value,
                                                     });
                                                 }}
-                                                className="w-full h-14 px-4 bg-muted-light dark:bg-muted-dark border-2 border-border-light dark:border-border-dark rounded-lg focus:border-primary dark:focus:border-primary outline-none transition-all italic text-xl text-text-muted dark:text-gray-200"
+                                                className="w-full h-14 px-4 bg-muted-light  border-2 border-border-light  rounded-lg focus:border-primary  outline-none transition-all italic text-xl text-text-muted "
                                                 placeholder="Johnathan Doe"
                                             />
                                         )}
                                     />
 
-                                    <p className="text-xs text-text-muted dark:text-gray-400">
+                                    <p className="text-xs text-text-muted ">
                                         By typing your name above, you are providing a legally binding
                                         electronic signature.
                                     </p>
@@ -270,7 +270,7 @@ export default function BackgroundCheckPage() {
                         </div>
 
                         {/* Footer */}
-                        <div className="p-6 bg-muted-light dark:bg-muted-dark border-t border-border-light dark:border-border-dark flex flex-col sm:flex-row gap-4 items-center justify-between">
+                        <div className="p-6 bg-muted-light  border-t border-border-light  flex flex-col sm:flex-row gap-4 items-center justify-between">
                             <div className="flex items-center gap-2 text-gray-400">
                                 <svg
                                     className="w-5 h-5 text-green-500"
@@ -294,7 +294,7 @@ export default function BackgroundCheckPage() {
                                 <button
                                     type="button"
                                     onClick={() => router.push("/therapist/onboarding/availability")}
-                                    className="flex-1 sm:flex-none px-6 py-3 rounded-lg font-bold text-text-muted dark:text-gray-400 hover:text-text-main dark:hover:text-white hover:bg-muted-light dark:hover:bg-card-dark transition-colors"
+                                    className="flex-1 sm:flex-none px-6 py-3 rounded-lg font-bold text-text-muted  hover:text-text-main  hover:bg-muted-light  transition-colors"
                                 >
                                     Back
                                 </button>
@@ -310,17 +310,6 @@ export default function BackgroundCheckPage() {
                         </div>
                     </div>
 
-                    {/* Trust Badges */}
-                    <div className="mt-8 flex justify-center gap-12 opacity-50 grayscale hover:grayscale-0 transition-all duration-500">
-                        {["Verified Provider", "HIPAA Compliant", "SOC2 Certified"].map((badge) => (
-                            <div key={badge} className="flex flex-col items-center">
-                                <div className="w-24 h-8 bg-gray-300 dark:bg-gray-700 rounded mb-1"></div>
-                                <span className="text-[10px] uppercase tracking-widest font-bold text-gray-500 dark:text-gray-400">
-                                    {badge}
-                                </span>
-                            </div>
-                        ))}
-                    </div>
                 </form>
             </div>
         </div>

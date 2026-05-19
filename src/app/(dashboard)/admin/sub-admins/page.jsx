@@ -36,7 +36,7 @@ const ALL_PERMISSIONS = [
 function Skeleton({ className = "" }) {
     return (
         <div
-            className={`animate-pulse rounded bg-gray-200 dark:bg-gray-700 ${className}`}
+            className={`animate-pulse rounded bg-gray-200  ${className}`}
         />
     );
 }
@@ -57,8 +57,8 @@ function StatusBadge({ isActive }) {
     return (
         <span
             className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${isActive
-                ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300"
-                : "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300"
+                ? "bg-green-100 text-green-800  "
+                : "bg-red-100 text-red-800  "
                 }`}
         >
             {isActive ? "Active" : "Deactivated"}
@@ -96,7 +96,7 @@ function PermissionsCheckboxes({ selected, onChange }) {
                 {ALL_PERMISSIONS.map((perm) => (
                     <label
                         key={perm.key}
-                        className="flex items-center gap-3 px-3 py-2 rounded-lg border border-border-light dark:border-border-dark hover:bg-background-light dark:hover:bg-background-dark cursor-pointer transition-colors"
+                        className="flex items-center gap-3 px-3 py-2 rounded-lg border border-border-light  hover:bg-background-light  cursor-pointer transition-colors"
                     >
                         <input
                             type="checkbox"
@@ -104,7 +104,7 @@ function PermissionsCheckboxes({ selected, onChange }) {
                             onChange={() => toggle(perm.key)}
                             className="w-4 h-4 rounded accent-primary shrink-0"
                         />
-                        <span className="text-sm text-text-main dark:text-white">{perm.label}</span>
+                        <span className="text-sm text-text-main ">{perm.label}</span>
                     </label>
                 ))}
             </div>
@@ -163,13 +163,13 @@ function AddSubAdminModal({ onClose }) {
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
             <div className="absolute inset-0 bg-black/60" onClick={onClose} />
-            <div className="relative bg-card-light dark:bg-card-dark rounded-2xl border border-border-light dark:border-border-dark w-full max-w-md shadow-xl flex flex-col max-h-[90dvh]">
+            <div className="relative bg-card-light  rounded-2xl border border-border-light  w-full max-w-md shadow-xl flex flex-col max-h-[90dvh]">
                 {/* Header */}
-                <div className="flex items-center justify-between px-5 py-4 border-b border-border-light dark:border-border-dark shrink-0">
-                    <h2 className="font-semibold text-text-main dark:text-white">Add Sub-Admin</h2>
+                <div className="flex items-center justify-between px-5 py-4 border-b border-border-light  shrink-0">
+                    <h2 className="font-semibold text-text-main ">Add Sub-Admin</h2>
                     <button
                         onClick={onClose}
-                        className="p-1 rounded-lg hover:bg-background-light dark:hover:bg-background-dark text-text-muted"
+                        className="p-1 rounded-lg hover:bg-background-light  text-text-muted"
                     >
                         <MdClose size={18} />
                     </button>
@@ -177,7 +177,7 @@ function AddSubAdminModal({ onClose }) {
 
                 {/* Mode switcher */}
                 <div className="px-5 pt-4 shrink-0">
-                    <div className="flex bg-background-light dark:bg-background-dark rounded-lg p-1 border border-border-light dark:border-border-dark">
+                    <div className="flex bg-background-light  rounded-lg p-1 border border-border-light ">
                         {[
                             { key: "invite", label: "Invite New User" },
                             { key: "promote", label: "Promote Existing" },
@@ -192,8 +192,8 @@ function AddSubAdminModal({ onClose }) {
                                     setUserSearch("");
                                 }}
                                 className={`flex-1 py-1.5 rounded-md text-sm font-medium transition-colors ${mode === t.key
-                                    ? "bg-card-light dark:bg-card-dark text-text-main dark:text-white shadow-sm"
-                                    : "text-text-muted hover:text-text-main dark:hover:text-white"
+                                    ? "bg-card-light  text-text-main  shadow-sm"
+                                    : "text-text-muted hover:text-text-main "
                                     }`}
                             >
                                 {t.label}
@@ -211,7 +211,7 @@ function AddSubAdminModal({ onClose }) {
                         {/* Invite tab */}
                         {mode === "invite" && (
                             <div>
-                                <label className="block text-sm font-medium text-text-main dark:text-white mb-1">
+                                <label className="block text-sm font-medium text-text-main  mb-1">
                                     Email Address <span className="text-red-500">*</span>
                                 </label>
                                 <input
@@ -219,7 +219,7 @@ function AddSubAdminModal({ onClose }) {
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                     placeholder="name@example.com"
-                                    className="w-full rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-main dark:text-white text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
+                                    className="w-full rounded-lg border border-border-light  bg-background-light  text-text-main  text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
                                 />
                                 <p className="text-xs text-text-muted mt-1">
                                     An invitation email will be sent to this address.
@@ -230,7 +230,7 @@ function AddSubAdminModal({ onClose }) {
                         {/* Promote tab */}
                         {mode === "promote" && (
                             <div className="space-y-2">
-                                <label className="block text-sm font-medium text-text-main dark:text-white mb-1">
+                                <label className="block text-sm font-medium text-text-main  mb-1">
                                     Search User <span className="text-red-500">*</span>
                                 </label>
 
@@ -241,7 +241,7 @@ function AddSubAdminModal({ onClose }) {
                                             {getSubAdminInitial(selectedUser)}
                                         </div>
                                         <div className="flex-1 min-w-0">
-                                            <p className="text-sm font-medium text-text-main dark:text-white truncate">
+                                            <p className="text-sm font-medium text-text-main  truncate">
                                                 {getSubAdminDisplayName(selectedUser)}
                                             </p>
                                             <p className="text-xs text-text-muted truncate">
@@ -251,7 +251,7 @@ function AddSubAdminModal({ onClose }) {
                                         <button
                                             type="button"
                                             onClick={() => setSelectedUser(null)}
-                                            className="text-text-muted hover:text-text-main dark:hover:text-white shrink-0"
+                                            className="text-text-muted hover:text-text-main  shrink-0"
                                         >
                                             <MdClose size={16} />
                                         </button>
@@ -268,13 +268,13 @@ function AddSubAdminModal({ onClose }) {
                                                 value={userSearch}
                                                 onChange={(e) => setUserSearch(e.target.value)}
                                                 placeholder="Search by name or email…"
-                                                className="w-full pl-8 pr-3 py-2 rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-main dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                                                className="w-full pl-8 pr-3 py-2 rounded-lg border border-border-light  bg-background-light  text-text-main  text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                                             />
                                         </div>
 
                                         {/* Results dropdown */}
                                         {shouldSearch && (
-                                            <div className="border border-border-light dark:border-border-dark rounded-lg overflow-hidden max-h-44 overflow-y-auto">
+                                            <div className="border border-border-light  rounded-lg overflow-hidden max-h-44 overflow-y-auto">
                                                 {usersLoading ? (
                                                     <div className="p-3 space-y-2">
                                                         {[...Array(3)].map((_, i) => (
@@ -291,13 +291,13 @@ function AddSubAdminModal({ onClose }) {
                                                             key={u.id}
                                                             type="button"
                                                             onClick={() => setSelectedUser(u)}
-                                                            className="w-full flex items-center gap-2 px-3 py-2.5 hover:bg-background-light dark:hover:bg-background-dark text-left transition-colors border-b border-border-light dark:border-border-dark last:border-0"
+                                                            className="w-full flex items-center gap-2 px-3 py-2.5 hover:bg-background-light  text-left transition-colors border-b border-border-light  last:border-0"
                                                         >
                                                             <div className="w-6 h-6 rounded-full bg-primary/20 text-primary flex items-center justify-center text-xs font-semibold shrink-0">
                                                                 {getSubAdminInitial(u)}
                                                             </div>
                                                             <div className="flex-1 min-w-0">
-                                                                <p className="text-sm text-text-main dark:text-white truncate">
+                                                                <p className="text-sm text-text-main  truncate">
                                                                     {getSubAdminDisplayName(u)}
                                                                 </p>
                                                                 <p className="text-xs text-text-muted truncate">
@@ -329,7 +329,7 @@ function AddSubAdminModal({ onClose }) {
                         />
 
                         {error && (
-                            <div className="flex items-center gap-2 text-sm text-red-600 dark:text-red-400">
+                            <div className="flex items-center gap-2 text-sm text-red-600 ">
                                 <MdWarning size={16} />
                                 {error}
                             </div>
@@ -337,11 +337,11 @@ function AddSubAdminModal({ onClose }) {
                     </div>
 
                     {/* Footer */}
-                    <div className="px-5 py-4 border-t border-border-light dark:border-border-dark shrink-0 flex gap-3">
+                    <div className="px-5 py-4 border-t border-border-light  shrink-0 flex gap-3">
                         <button
                             type="button"
                             onClick={onClose}
-                            className="flex-1 py-2 rounded-lg border border-border-light dark:border-border-dark text-text-muted text-sm hover:bg-background-light dark:hover:bg-background-dark"
+                            className="flex-1 py-2 rounded-lg border border-border-light  text-text-muted text-sm hover:bg-background-light "
                         >
                             Cancel
                         </button>
@@ -416,15 +416,15 @@ function SubAdminSidePanel({ subAdmin, onClose }) {
                 className="fixed inset-0 z-30 bg-black/50 lg:hidden"
                 onClick={onClose}
             />
-            <aside className="fixed right-0 top-14 lg:top-0 h-[calc(100dvh-3.5rem)] lg:h-dvh max-w-95 w-full bg-card-light dark:bg-card-dark border-l border-border-light dark:border-border-dark z-40 lg:z-20 flex flex-col shadow-xl">
+            <aside className="fixed right-0 top-14 lg:top-0 h-[calc(100dvh-3.5rem)] lg:h-dvh max-w-95 w-full bg-card-light  border-l border-border-light  z-40 lg:z-20 flex flex-col shadow-xl">
                 {/* Header */}
-                <div className="flex items-center justify-between px-4 py-3 border-b border-border-light dark:border-border-dark shrink-0">
-                    <h2 className="font-semibold text-text-main dark:text-white text-sm">
+                <div className="flex items-center justify-between px-4 py-3 border-b border-border-light  shrink-0">
+                    <h2 className="font-semibold text-text-main  text-sm">
                         Sub-Admin Detail
                     </h2>
                     <button
                         onClick={onClose}
-                        className="p-1 rounded-lg hover:bg-background-light dark:hover:bg-background-dark text-text-muted"
+                        className="p-1 rounded-lg hover:bg-background-light  text-text-muted"
                     >
                         <MdClose size={18} />
                     </button>
@@ -438,7 +438,7 @@ function SubAdminSidePanel({ subAdmin, onClose }) {
                             {getSubAdminInitial(subAdmin)}
                         </div>
                         <div className="flex-1 min-w-0">
-                            <p className="font-semibold text-text-main dark:text-white truncate">
+                            <p className="font-semibold text-text-main  truncate">
                                 {getSubAdminDisplayName(subAdmin)}
                             </p>
                             <p className="text-sm text-text-muted truncate">
@@ -446,7 +446,7 @@ function SubAdminSidePanel({ subAdmin, onClose }) {
                             </p>
                             <div className="mt-1.5">
                                 {!subAdmin.emailVerified ? (
-                                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300">
+                                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800  ">
                                         Pending Invite
                                     </span>
                                 ) : (
@@ -461,7 +461,7 @@ function SubAdminSidePanel({ subAdmin, onClose }) {
                         {subAdmin.subAdminProfile?.createdByAdmin && (
                             <div className="flex justify-between gap-3">
                                 <dt className="text-text-muted">Added by</dt>
-                                <dd className="text-text-main dark:text-white truncate max-w-40 text-right">
+                                <dd className="text-text-main  truncate max-w-40 text-right">
                                     {subAdmin.subAdminProfile.createdByAdmin.email}
                                 </dd>
                             </div>
@@ -469,7 +469,7 @@ function SubAdminSidePanel({ subAdmin, onClose }) {
                         {subAdmin.subAdminProfile?.createdAt && (
                             <div className="flex justify-between gap-3">
                                 <dt className="text-text-muted">Added on</dt>
-                                <dd className="text-text-main dark:text-white">
+                                <dd className="text-text-main ">
                                     {new Date(subAdmin.subAdminProfile.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
                                 </dd>
                             </div>
@@ -478,9 +478,9 @@ function SubAdminSidePanel({ subAdmin, onClose }) {
                             <dt className="text-text-muted">Invite status</dt>
                             <dd>
                                 {subAdmin.emailVerified ? (
-                                    <span className="text-green-600 dark:text-green-400 font-medium">Accepted</span>
+                                    <span className="text-green-600  font-medium">Accepted</span>
                                 ) : (
-                                    <span className="text-amber-600 dark:text-amber-400 font-medium">Pending</span>
+                                    <span className="text-amber-600  font-medium">Pending</span>
                                 )}
                             </dd>
                         </div>
@@ -493,7 +493,7 @@ function SubAdminSidePanel({ subAdmin, onClose }) {
                     />
 
                     {error && (
-                        <div className="flex items-center gap-2 text-sm text-red-600 dark:text-red-400">
+                        <div className="flex items-center gap-2 text-sm text-red-600 ">
                             <MdWarning size={16} />
                             {error}
                         </div>
@@ -511,17 +511,17 @@ function SubAdminSidePanel({ subAdmin, onClose }) {
                 </div>
 
                 {/* Footer */}
-                <div className="px-4 py-3 border-t border-border-light dark:border-border-dark shrink-0 space-y-2">
+                <div className="px-4 py-3 border-t border-border-light  shrink-0 space-y-2">
                     {!subAdmin.emailVerified && (
                         <div>
                             {resendSuccess ? (
-                                <p className="text-xs text-green-600 dark:text-green-400 text-center py-2">
+                                <p className="text-xs text-green-600  text-center py-2">
                                     Invite resent successfully.
                                 </p>
                             ) : (
                                 <>
                                     {resendMutation.error && (
-                                        <p className="text-xs text-red-600 dark:text-red-400 flex items-center gap-1 mb-1.5">
+                                        <p className="text-xs text-red-600  flex items-center gap-1 mb-1.5">
                                             <MdWarning size={13} />
                                             {resendMutation.error?.response?.data?.message ?? "Failed to resend invite."}
                                         </p>
@@ -534,7 +534,7 @@ function SubAdminSidePanel({ subAdmin, onClose }) {
                                             } catch { /* shown via resendMutation.error */ }
                                         }}
                                         disabled={resendMutation.isPending}
-                                        className="w-full py-2 rounded-lg border border-border-light dark:border-border-dark text-sm font-medium text-text-main dark:text-white hover:bg-background-light dark:hover:bg-background-dark disabled:opacity-50"
+                                        className="w-full py-2 rounded-lg border border-border-light  text-sm font-medium text-text-main  hover:bg-background-light  disabled:opacity-50"
                                     >
                                         {resendMutation.isPending ? "Sending…" : "Resend Invite"}
                                     </button>
@@ -545,9 +545,9 @@ function SubAdminSidePanel({ subAdmin, onClose }) {
                     {subAdmin.isActive ? (
                         confirmDeactivate ? (
                             <div className="space-y-2">
-                                <p className="text-xs text-red-600 dark:text-red-400">This sub-admin will be unable to log in or access the platform.</p>
+                                <p className="text-xs text-red-600 ">This sub-admin will be unable to log in or access the platform.</p>
                                 {actionError && (
-                                    <p className="text-xs text-red-600 dark:text-red-400 flex items-center gap-1">
+                                    <p className="text-xs text-red-600  flex items-center gap-1">
                                         <MdWarning size={13} /> {actionError}
                                     </p>
                                 )}
@@ -569,7 +569,7 @@ function SubAdminSidePanel({ subAdmin, onClose }) {
                                     </button>
                                     <button
                                         onClick={() => { setConfirmDeactivate(false); setActionError(""); }}
-                                        className="flex-1 py-2 rounded-lg border border-border-light dark:border-border-dark text-sm font-medium text-text-main dark:text-white hover:bg-background-light dark:hover:bg-background-dark"
+                                        className="flex-1 py-2 rounded-lg border border-border-light  text-sm font-medium text-text-main  hover:bg-background-light "
                                     >
                                         Cancel
                                     </button>
@@ -579,7 +579,7 @@ function SubAdminSidePanel({ subAdmin, onClose }) {
                             <button
                                 onClick={() => setConfirmDeactivate(true)}
                                 disabled={deactivateMutation.isPending}
-                                className="w-full py-2 rounded-lg border border-red-300 dark:border-red-700 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 text-sm font-medium disabled:opacity-50"
+                                className="w-full py-2 rounded-lg border border-red-300  text-red-600  hover:bg-red-50  text-sm font-medium disabled:opacity-50"
                             >
                                 Deactivate Sub-Admin
                             </button>
@@ -587,9 +587,9 @@ function SubAdminSidePanel({ subAdmin, onClose }) {
                     ) : (
                         confirmReactivate ? (
                             <div className="space-y-2">
-                                <p className="text-xs text-emerald-600 dark:text-emerald-400">This will restore the sub-admin&apos;s access to the platform.</p>
+                                <p className="text-xs text-emerald-600 ">This will restore the sub-admin&apos;s access to the platform.</p>
                                 {actionError && (
-                                    <p className="text-xs text-red-600 dark:text-red-400 flex items-center gap-1">
+                                    <p className="text-xs text-red-600  flex items-center gap-1">
                                         <MdWarning size={13} /> {actionError}
                                     </p>
                                 )}
@@ -611,7 +611,7 @@ function SubAdminSidePanel({ subAdmin, onClose }) {
                                     </button>
                                     <button
                                         onClick={() => { setConfirmReactivate(false); setActionError(""); }}
-                                        className="flex-1 py-2 rounded-lg border border-border-light dark:border-border-dark text-sm font-medium text-text-main dark:text-white hover:bg-slate-50 dark:hover:bg-slate-800"
+                                        className="flex-1 py-2 rounded-lg border border-border-light  text-sm font-medium text-text-main  hover:bg-slate-50 "
                                     >
                                         Cancel
                                     </button>
@@ -654,7 +654,7 @@ export default function AdminSubAdminsPage() {
                 {/* Header */}
                 <div className="flex items-center justify-between">
                     <div>
-                        <h1 className="text-xl font-bold text-text-main dark:text-white">
+                        <h1 className="text-xl font-bold text-text-main ">
                             Sub-Admin Management
                         </h1>
                         <p className="text-sm text-text-muted mt-0.5">
@@ -672,11 +672,11 @@ export default function AdminSubAdminsPage() {
                 </div>
 
                 {/* Table */}
-                <div className="bg-card-light dark:bg-card-dark rounded-xl border border-border-light dark:border-border-dark overflow-hidden">
+                <div className="bg-card-light  rounded-xl border border-border-light  overflow-hidden">
                     <div className="overflow-x-auto">
                         <table className="w-full text-sm">
                             <thead>
-                                <tr className="border-b border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark">
+                                <tr className="border-b border-border-light  bg-background-light ">
                                     <th className="px-4 py-3 text-left text-xs font-medium text-text-muted">
                                         Name
                                     </th>
@@ -691,7 +691,7 @@ export default function AdminSubAdminsPage() {
                                     </th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-border-light dark:divide-border-dark">
+                            <tbody className="divide-y divide-border-light ">
                                 {isLoading ? (
                                     [...Array(4)].map((_, i) => (
                                         <tr key={i}>
@@ -732,8 +732,8 @@ export default function AdminSubAdminsPage() {
                                                         selectedSubAdmin?.id === sa.id ? null : sa
                                                     )
                                                 }
-                                                className={`cursor-pointer transition-colors hover:bg-background-light dark:hover:bg-background-dark ${selectedSubAdmin?.id === sa.id
-                                                    ? "bg-primary/5 dark:bg-primary/10"
+                                                className={`cursor-pointer transition-colors hover:bg-background-light  ${selectedSubAdmin?.id === sa.id
+                                                    ? "bg-primary/5 "
                                                     : ""
                                                     }`}
                                             >
@@ -742,7 +742,7 @@ export default function AdminSubAdminsPage() {
                                                         <div className="w-7 h-7 rounded-full bg-primary/20 text-primary flex items-center justify-center text-xs font-semibold shrink-0">
                                                             {getSubAdminInitial(sa)}
                                                         </div>
-                                                        <span className="text-text-main dark:text-white font-medium truncate max-w-25">
+                                                        <span className="text-text-main  font-medium truncate max-w-25">
                                                             {getSubAdminDisplayName(sa)}
                                                         </span>
                                                     </div>
@@ -765,13 +765,13 @@ export default function AdminSubAdminsPage() {
                                                                 {perms.slice(0, 2).map((p) => (
                                                                     <span
                                                                         key={p}
-                                                                        className="text-xs px-2 py-0.5 rounded-full bg-background-light dark:bg-background-dark text-text-muted capitalize"
+                                                                        className="text-xs px-2 py-0.5 rounded-full bg-background-light  text-text-muted capitalize"
                                                                     >
                                                                         {p}
                                                                     </span>
                                                                 ))}
                                                                 {perms.length > 2 && (
-                                                                    <span className="text-xs px-2 py-0.5 rounded-full bg-background-light dark:bg-background-dark text-text-muted">
+                                                                    <span className="text-xs px-2 py-0.5 rounded-full bg-background-light  text-text-muted">
                                                                         +{perms.length - 2}
                                                                     </span>
                                                                 )}
@@ -781,7 +781,7 @@ export default function AdminSubAdminsPage() {
                                                 </td>
                                                 <td className="px-4 py-3">
                                                     {!sa.emailVerified ? (
-                                                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300">
+                                                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800  ">
                                                             Pending Invite
                                                         </span>
                                                     ) : (

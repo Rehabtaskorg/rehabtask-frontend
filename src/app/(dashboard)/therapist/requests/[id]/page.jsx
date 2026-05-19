@@ -12,11 +12,11 @@ import { useAuth } from "@/hooks/useAuth";
 import OfferFormFields from "@/components/therapist/OfferFormFields";
 
 const STATUS_STYLES = {
-    created: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400",
-    offers_received: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400",
-    offers_accepted: "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400",
-    completed: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400",
-    cancelled: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
+    created: "bg-blue-100 text-blue-700  ",
+    offers_received: "bg-amber-100 text-amber-700  ",
+    offers_accepted: "bg-slate-100 text-slate-600  ",
+    completed: "bg-emerald-100 text-emerald-700  ",
+    cancelled: "bg-red-100 text-red-700  ",
 };
 
 const formatDate = (dateStr) => {
@@ -161,15 +161,15 @@ export default function TherapistRequestDetailPage() {
         return (
             <div className="p-4 md:p-6 max-w-6xl mx-auto">
                 <div className="animate-pulse space-y-4">
-                    <div className="h-5 w-32 bg-slate-200 dark:bg-slate-700 rounded" />
-                    <div className="h-10 w-64 bg-slate-200 dark:bg-slate-700 rounded" />
+                    <div className="h-5 w-32 bg-slate-200  rounded" />
+                    <div className="h-10 w-64 bg-slate-200  rounded" />
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
                         <div className="lg:col-span-8 space-y-4">
-                            <div className="h-48 bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl" />
-                            <div className="h-32 bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl" />
+                            <div className="h-48 bg-card-light  border border-border-light  rounded-xl" />
+                            <div className="h-32 bg-card-light  border border-border-light  rounded-xl" />
                         </div>
                         <div className="lg:col-span-4">
-                            <div className="h-96 bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl" />
+                            <div className="h-96 bg-card-light  border border-border-light  rounded-xl" />
                         </div>
                     </div>
                 </div>
@@ -180,9 +180,9 @@ export default function TherapistRequestDetailPage() {
     if (!request) {
         return (
             <div className="p-4 md:p-6 max-w-6xl mx-auto">
-                <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-6 text-center">
+                <div className="bg-red-50  border border-red-200  rounded-xl p-6 text-center">
                     <MdWarning className="text-3xl text-red-500 mx-auto mb-2" />
-                    <p className="text-red-800 dark:text-red-300 font-bold">Request not found</p>
+                    <p className="text-red-800  font-bold">Request not found</p>
                     <button onClick={() => router.push("/therapist/requests")} className="mt-3 text-sm text-primary font-bold hover:underline">
                         Back to Browse Requests
                     </button>
@@ -213,23 +213,23 @@ export default function TherapistRequestDetailPage() {
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
                 <div>
                     <div className="flex items-center gap-3 mb-2">
-                        <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-text-main dark:text-white">
+                        <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-text-main ">
                             {request.serviceType}
                         </h1>
                         <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${isOpen
-                            ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
-                            : STATUS_STYLES[request.status] || "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400"
+                            ? "bg-emerald-100 text-emerald-700  "
+                            : STATUS_STYLES[request.status] || "bg-slate-100 text-slate-600  "
                         }`}>
                             {isOpen ? "Open" : request.status === "offers_accepted" ? "Closed" : request.status.replace(/_/g, " ")}
                         </span>
                     </div>
-                    <p className="text-text-muted dark:text-gray-400 font-medium flex items-center gap-1">
+                    <p className="text-text-muted  font-medium flex items-center gap-1">
                         <MdLocationOn className="text-primary text-lg" />
                         {request.location || "No location specified"}
                     </p>
                     {request.customer && (
-                        <p className="mt-1 text-text-muted dark:text-gray-400 text-sm">
-                            Customer: <span className="font-bold text-text-main dark:text-white">{request.customer.fullName}</span>
+                        <p className="mt-1 text-text-muted  text-sm">
+                            Customer: <span className="font-bold text-text-main ">{request.customer.fullName}</span>
                             {request.customer.agencyName && (
                                 <span className="italic"> · {request.customer.agencyName}</span>
                             )}
@@ -244,30 +244,30 @@ export default function TherapistRequestDetailPage() {
                 <div className="lg:col-span-8 space-y-6">
 
                     {/* Card 1: Request Details */}
-                    <section className="bg-card-light dark:bg-card-dark rounded-xl p-6 shadow-sm border border-border-light dark:border-border-dark">
-                        <h2 className="text-xs font-bold text-text-muted dark:text-gray-400 uppercase tracking-widest mb-6 pb-4 border-b border-border-light dark:border-border-dark">
+                    <section className="bg-card-light  rounded-xl p-6 shadow-sm border border-border-light ">
+                        <h2 className="text-xs font-bold text-text-muted  uppercase tracking-widest mb-6 pb-4 border-b border-border-light ">
                             Request Details
                         </h2>
 
                         <div className="grid grid-cols-2 md:grid-cols-3 gap-y-6 gap-x-4 mb-6">
                             <div>
-                                <p className="text-xs font-bold text-text-muted dark:text-gray-400 uppercase tracking-widest mb-1">Preferred Date</p>
-                                <p className="font-semibold text-text-main dark:text-white">{formatDate(request.preferredDate)}</p>
+                                <p className="text-xs font-bold text-text-muted  uppercase tracking-widest mb-1">Preferred Date</p>
+                                <p className="font-semibold text-text-main ">{formatDate(request.preferredDate)}</p>
                             </div>
                             <div>
-                                <p className="text-xs font-bold text-text-muted dark:text-gray-400 uppercase tracking-widest mb-1">Time</p>
-                                <p className="font-semibold text-text-main dark:text-white">{formatTime(request.preferredDate)}</p>
+                                <p className="text-xs font-bold text-text-muted  uppercase tracking-widest mb-1">Time</p>
+                                <p className="font-semibold text-text-main ">{formatTime(request.preferredDate)}</p>
                             </div>
                             {request.rate != null && (
                                 <div>
-                                    <p className="text-xs font-bold text-text-muted dark:text-gray-400 uppercase tracking-widest mb-1">Rate</p>
-                                    <p className="font-bold text-emerald-600 dark:text-emerald-400">${parseFloat(request.rate).toFixed(2)}/visit</p>
+                                    <p className="text-xs font-bold text-text-muted  uppercase tracking-widest mb-1">Rate</p>
+                                    <p className="font-bold text-emerald-600 ">${parseFloat(request.rate).toFixed(2)}/visit</p>
                                 </div>
                             )}
                             {(request.visitTypeRef || request.visitType) && (
                                 <div>
-                                    <p className="text-xs font-bold text-text-muted dark:text-gray-400 uppercase tracking-widest mb-1">Visit Type</p>
-                                    <p className="font-semibold text-text-main dark:text-white">
+                                    <p className="text-xs font-bold text-text-muted  uppercase tracking-widest mb-1">Visit Type</p>
+                                    <p className="font-semibold text-text-main ">
                                         {request.visitTypeRef
                                             ? `${request.visitTypeRef.name} (${request.visitTypeRef.code})`
                                             : request.visitType}
@@ -276,16 +276,16 @@ export default function TherapistRequestDetailPage() {
                             )}
                             {request.emr && (
                                 <div>
-                                    <p className="text-xs font-bold text-text-muted dark:text-gray-400 uppercase tracking-widest mb-1">EMR</p>
-                                    <p className="font-semibold text-text-main dark:text-white">{request.emr}</p>
+                                    <p className="text-xs font-bold text-text-muted  uppercase tracking-widest mb-1">EMR</p>
+                                    <p className="font-semibold text-text-main ">{request.emr}</p>
                                 </div>
                             )}
                             {request.sessionType && (
                                 <div>
-                                    <p className="text-xs font-bold text-text-muted dark:text-gray-400 uppercase tracking-widest mb-1">Session Mode</p>
+                                    <p className="text-xs font-bold text-text-muted  uppercase tracking-widest mb-1">Session Mode</p>
                                     <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg text-xs font-bold ${request.sessionType === "virtual"
-                                        ? "bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
-                                        : "bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300"
+                                        ? "bg-blue-50  text-blue-700 "
+                                        : "bg-emerald-50  text-emerald-700 "
                                     }`}>
                                         {request.sessionType === "virtual" ? <MdVideocam className="text-sm" /> : <MdPersonPin className="text-sm" />}
                                         {request.sessionType === "virtual" ? "Virtual" : "In-Person"}
@@ -296,23 +296,23 @@ export default function TherapistRequestDetailPage() {
 
                         {/* Customer's requested frequency */}
                         {request.visitsPerWeek && request.numberOfWeeks && (
-                            <div className="bg-primary/5 dark:bg-primary/10 rounded-xl p-4 mb-6 flex items-center gap-4">
+                            <div className="bg-primary/5  rounded-xl p-4 mb-6 flex items-center gap-4">
                                 <div className="bg-primary/10 p-3 rounded-full">
                                     <MdSchedule className="text-primary text-xl" />
                                 </div>
                                 <div>
-                                    <p className="font-bold text-text-main dark:text-white">
+                                    <p className="font-bold text-text-main ">
                                         {request.visitsPerWeek}x/week · {request.numberOfWeeks} weeks ({request.visitsPerWeek * request.numberOfWeeks} visits)
                                     </p>
-                                    <p className="text-xs text-text-muted dark:text-gray-400">Customer&apos;s initial plan — you can propose a different one in your offer below.</p>
+                                    <p className="text-xs text-text-muted ">Customer&apos;s initial plan — you can propose a different one in your offer below.</p>
                                 </div>
                             </div>
                         )}
 
                         {request.description && (
                             <div className="space-y-2">
-                                <p className="text-xs font-bold text-text-muted dark:text-gray-400 uppercase tracking-widest">Clinical Description</p>
-                                <p className="text-text-main dark:text-gray-300 leading-relaxed text-sm">{request.description}</p>
+                                <p className="text-xs font-bold text-text-muted  uppercase tracking-widest">Clinical Description</p>
+                                <p className="text-text-main  leading-relaxed text-sm">{request.description}</p>
                             </div>
                         )}
                     </section>
@@ -326,19 +326,19 @@ export default function TherapistRequestDetailPage() {
 
                     {/* Send Offer Form */}
                     {canSendOffer && (
-                        <section className="bg-card-light dark:bg-card-dark rounded-xl p-6 shadow-sm border border-border-light dark:border-border-dark">
-                            <h2 className="text-xl font-bold text-text-main dark:text-white mb-4">Send Offer</h2>
+                        <section className="bg-card-light  rounded-xl p-6 shadow-sm border border-border-light ">
+                            <h2 className="text-xl font-bold text-text-main  mb-4">Send Offer</h2>
 
-                            <div className="bg-emerald-50 dark:bg-emerald-900/20 p-3 rounded-lg mb-6">
-                                <p className="text-sm font-bold text-emerald-700 dark:text-emerald-300 text-center">
+                            <div className="bg-emerald-50  p-3 rounded-lg mb-6">
+                                <p className="text-sm font-bold text-emerald-700  text-center">
                                     You earn {earnPercentage}% of rate {earnAmount ? `($${earnAmount}/session)` : ""}
                                 </p>
                             </div>
 
                             {offerError && (
-                                <div className="flex items-center gap-2 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg mb-4">
+                                <div className="flex items-center gap-2 p-3 bg-red-50  border border-red-200  rounded-lg mb-4">
                                     <MdError className="text-red-600 shrink-0" />
-                                    <p className="text-sm text-red-800 dark:text-red-300">{offerError}</p>
+                                    <p className="text-sm text-red-800 ">{offerError}</p>
                                 </div>
                             )}
 
@@ -362,43 +362,43 @@ export default function TherapistRequestDetailPage() {
 
                     {/* Offer Status — shows current state of the therapist's offer */}
                     {(myOffer && !offerIsTerminal && !offerIsRejected) && (
-                        <section className="bg-card-light dark:bg-card-dark rounded-xl p-6 shadow-sm border border-border-light dark:border-border-dark space-y-4">
+                        <section className="bg-card-light  rounded-xl p-6 shadow-sm border border-border-light  space-y-4">
                             {myOffer.status === "pending" && (
-                                <div className="flex items-center gap-3 p-4 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-lg">
-                                    <MdCheckCircle className="text-emerald-600 dark:text-emerald-400 text-xl shrink-0" />
+                                <div className="flex items-center gap-3 p-4 bg-emerald-50  border border-emerald-200  rounded-lg">
+                                    <MdCheckCircle className="text-emerald-600  text-xl shrink-0" />
                                     <div>
-                                        <p className="text-sm font-bold text-emerald-800 dark:text-emerald-200">Offer sent successfully!</p>
-                                        <p className="text-xs text-emerald-700 dark:text-emerald-300 mt-0.5">The customer will be notified and can accept within 48 hours.</p>
+                                        <p className="text-sm font-bold text-emerald-800 ">Offer sent successfully!</p>
+                                        <p className="text-xs text-emerald-700  mt-0.5">The customer will be notified and can accept within 48 hours.</p>
                                     </div>
                                 </div>
                             )}
                             {myOffer.status === "accepted" && (
-                                <div className="flex items-center gap-3 p-4 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-lg">
-                                    <MdCheckCircle className="text-emerald-600 dark:text-emerald-400 text-xl shrink-0" />
+                                <div className="flex items-center gap-3 p-4 bg-emerald-50  border border-emerald-200  rounded-lg">
+                                    <MdCheckCircle className="text-emerald-600  text-xl shrink-0" />
                                     <div>
-                                        <p className="text-sm font-bold text-emerald-800 dark:text-emerald-200">Offer accepted!</p>
-                                        <p className="text-xs text-emerald-700 dark:text-emerald-300 mt-0.5">A booking has been created.</p>
+                                        <p className="text-sm font-bold text-emerald-800 ">Offer accepted!</p>
+                                        <p className="text-xs text-emerald-700  mt-0.5">A booking has been created.</p>
                                     </div>
                                 </div>
                             )}
                             {myOffer.status === "change_requested" && (
-                                <div className="flex items-center gap-3 p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg">
-                                    <MdWarning className="text-amber-600 dark:text-amber-400 text-xl shrink-0" />
+                                <div className="flex items-center gap-3 p-4 bg-amber-50  border border-amber-200  rounded-lg">
+                                    <MdWarning className="text-amber-600  text-xl shrink-0" />
                                     <div>
-                                        <p className="text-sm font-bold text-amber-800 dark:text-amber-200">Changes requested</p>
-                                        <p className="text-xs text-amber-700 dark:text-amber-300 mt-0.5">{myOffer.changeRequestNote || "The customer has requested changes to your offer."}</p>
+                                        <p className="text-sm font-bold text-amber-800 ">Changes requested</p>
+                                        <p className="text-xs text-amber-700  mt-0.5">{myOffer.changeRequestNote || "The customer has requested changes to your offer."}</p>
                                     </div>
                                 </div>
                             )}
 
                             <div className="space-y-2 text-sm">
                                 <div className="flex justify-between">
-                                    <span className="text-text-muted dark:text-gray-400">Your Rate</span>
-                                    <span className="font-bold text-text-main dark:text-white">${parseFloat(myOffer.rate).toFixed(2)}</span>
+                                    <span className="text-text-muted ">Your Rate</span>
+                                    <span className="font-bold text-text-main ">${parseFloat(myOffer.rate).toFixed(2)}</span>
                                 </div>
                                 <div className="flex justify-between">
-                                    <span className="text-text-muted dark:text-gray-400">Status</span>
-                                    <span className="font-bold text-amber-600 dark:text-amber-400 uppercase text-xs">{myOffer.status?.replace(/_/g, " ")}</span>
+                                    <span className="text-text-muted ">Status</span>
+                                    <span className="font-bold text-amber-600  uppercase text-xs">{myOffer.status?.replace(/_/g, " ")}</span>
                                 </div>
                             </div>
                         </section>
@@ -406,12 +406,12 @@ export default function TherapistRequestDetailPage() {
 
                     {/* Just-submitted success (before myOffer refreshes) */}
                     {offerSuccess && !myOffer && (
-                        <section className="bg-card-light dark:bg-card-dark rounded-xl p-6 shadow-sm border border-border-light dark:border-border-dark">
-                            <div className="flex items-center gap-3 p-4 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-lg">
-                                <MdCheckCircle className="text-emerald-600 dark:text-emerald-400 text-xl shrink-0" />
+                        <section className="bg-card-light  rounded-xl p-6 shadow-sm border border-border-light ">
+                            <div className="flex items-center gap-3 p-4 bg-emerald-50  border border-emerald-200  rounded-lg">
+                                <MdCheckCircle className="text-emerald-600  text-xl shrink-0" />
                                 <div>
-                                    <p className="text-sm font-bold text-emerald-800 dark:text-emerald-200">Offer sent successfully!</p>
-                                    <p className="text-xs text-emerald-700 dark:text-emerald-300 mt-0.5">The customer will be notified and can accept within 48 hours.</p>
+                                    <p className="text-sm font-bold text-emerald-800 ">Offer sent successfully!</p>
+                                    <p className="text-xs text-emerald-700  mt-0.5">The customer will be notified and can accept within 48 hours.</p>
                                 </div>
                             </div>
                         </section>
@@ -419,12 +419,12 @@ export default function TherapistRequestDetailPage() {
 
                     {/* Offer declined — blocked from resubmitting */}
                     {offerIsRejected && (
-                        <section className="bg-card-light dark:bg-card-dark rounded-xl p-6 shadow-sm border border-border-light dark:border-border-dark space-y-3">
-                            <div className="flex items-center gap-3 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-                                <MdWarning className="text-red-500 dark:text-red-400 text-lg shrink-0" />
+                        <section className="bg-card-light  rounded-xl p-6 shadow-sm border border-border-light  space-y-3">
+                            <div className="flex items-center gap-3 p-3 bg-red-50  border border-red-200  rounded-lg">
+                                <MdWarning className="text-red-500  text-lg shrink-0" />
                                 <div>
-                                    <p className="text-xs font-bold text-red-700 dark:text-red-300">Offer Declined</p>
-                                    <p className="text-xs text-red-600 dark:text-red-400 mt-0.5">
+                                    <p className="text-xs font-bold text-red-700 ">Offer Declined</p>
+                                    <p className="text-xs text-red-600  mt-0.5">
                                         The customer has declined your offer. You cannot submit another offer on this request.
                                     </p>
                                 </div>
@@ -434,14 +434,14 @@ export default function TherapistRequestDetailPage() {
 
                     {/* Previous offer was withdrawn/expired — show info and allow resubmit */}
                     {offerIsTerminal && (
-                        <section className="bg-card-light dark:bg-card-dark rounded-xl p-6 shadow-sm border border-border-light dark:border-border-dark space-y-3">
-                            <div className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-800 rounded-lg">
+                        <section className="bg-card-light  rounded-xl p-6 shadow-sm border border-border-light  space-y-3">
+                            <div className="flex items-center gap-3 p-3 bg-slate-50  rounded-lg">
                                 <MdInfo className="text-slate-500 text-lg shrink-0" />
                                 <div>
-                                    <p className="text-xs font-bold text-slate-600 dark:text-slate-300">
+                                    <p className="text-xs font-bold text-slate-600 ">
                                         Previous offer: <span className="uppercase">{myOffer.status?.replace(/_/g, " ")}</span>
                                     </p>
-                                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                                    <p className="text-xs text-slate-500  mt-0.5">
                                         You can submit a new offer below.
                                     </p>
                                 </div>
@@ -451,10 +451,10 @@ export default function TherapistRequestDetailPage() {
 
                     {/* Request Closed */}
                     {request.status === "offers_accepted" && !myOffer && (
-                        <section className="bg-card-light dark:bg-card-dark rounded-xl p-6 shadow-sm border border-border-light dark:border-border-dark">
-                            <div className="flex items-center gap-3 p-4 bg-slate-50 dark:bg-slate-800 rounded-lg">
+                        <section className="bg-card-light  rounded-xl p-6 shadow-sm border border-border-light ">
+                            <div className="flex items-center gap-3 p-4 bg-slate-50  rounded-lg">
                                 <MdInfo className="text-slate-500 text-xl shrink-0" />
-                                <p className="text-sm text-slate-600 dark:text-slate-400">
+                                <p className="text-sm text-slate-600 ">
                                     This request is closed. The customer has accepted an offer.
                                 </p>
                             </div>
@@ -463,22 +463,22 @@ export default function TherapistRequestDetailPage() {
 
                     {/* Customer Info */}
                     {request.customer && (
-                        <section className="bg-card-light dark:bg-card-dark rounded-xl p-6 shadow-sm border border-border-light dark:border-border-dark">
+                        <section className="bg-card-light  rounded-xl p-6 shadow-sm border border-border-light ">
                             <div className="flex items-center gap-4 mb-4">
                                 <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center text-primary font-bold text-lg">
                                     {(request.customer.fullName || "C").charAt(0).toUpperCase()}
                                 </div>
                                 <div>
-                                    <p className="font-bold text-text-main dark:text-white">{request.customer.fullName}</p>
+                                    <p className="font-bold text-text-main ">{request.customer.fullName}</p>
                                     {request.customer.agencyName && (
-                                        <p className="text-xs text-text-muted dark:text-gray-400">{request.customer.agencyName}</p>
+                                        <p className="text-xs text-text-muted ">{request.customer.agencyName}</p>
                                     )}
                                 </div>
                             </div>
                             {myOffer && (
                                 <button
                                     onClick={handleMessageCustomer}
-                                    className="w-full py-3 rounded-lg border border-border-light dark:border-border-dark text-text-muted dark:text-gray-400 font-bold text-sm flex items-center justify-center gap-2 hover:bg-background-light dark:hover:bg-background-dark transition-all"
+                                    className="w-full py-3 rounded-lg border border-border-light  text-text-muted  font-bold text-sm flex items-center justify-center gap-2 hover:bg-background-light  transition-all"
                                 >
                                     <MdChat className="text-sm" />
                                     Message Customer

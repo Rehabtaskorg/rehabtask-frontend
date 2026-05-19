@@ -143,7 +143,7 @@ export default function AuthGateModal({ isOpen, onClose, trigger = "default", re
                                 </p>
 
                                 <p className="mt-4 text-center text-xs text-gray-400 flex items-center justify-center gap-1">
-                                    <MdLock className="text-xs" /> HIPAA compliant &middot; Your data is secure
+                                    <MdLock className="text-xs" /> Your data is secure
                                 </p>
                             </>
                         )}

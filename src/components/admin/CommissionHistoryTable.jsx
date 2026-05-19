@@ -19,16 +19,16 @@ export default function CommissionHistoryTable() {
     const pagination = data?.pagination ?? {};
 
     return (
-        <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl p-6">
+        <div className="bg-card-light  border border-border-light  rounded-xl p-6">
             <div className="flex items-center gap-3 mb-5">
                 <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
                     <MdHistory className="text-primary text-xl" />
                 </div>
                 <div>
-                    <h3 className="text-sm font-bold text-text-main dark:text-white uppercase tracking-wider">
+                    <h3 className="text-sm font-bold text-text-main  uppercase tracking-wider">
                         Rate Change History
                     </h3>
-                    <p className="text-xs text-text-muted dark:text-gray-400 mt-0.5">
+                    <p className="text-xs text-text-muted  mt-0.5">
                         Audit trail of all commission rate updates
                     </p>
                 </div>
@@ -37,7 +37,7 @@ export default function CommissionHistoryTable() {
             {isLoading && (
                 <div className="animate-pulse space-y-3">
                     {[1, 2, 3].map((i) => (
-                        <div key={i} className="h-12 bg-slate-200 dark:bg-slate-700 rounded-lg" />
+                        <div key={i} className="h-12 bg-slate-200  rounded-lg" />
                     ))}
                 </div>
             )}
@@ -49,29 +49,29 @@ export default function CommissionHistoryTable() {
             {!isLoading && !isError && (
                 <>
                     {configs.length === 0 ? (
-                        <p className="text-sm text-text-muted dark:text-gray-400 py-4 text-center">
+                        <p className="text-sm text-text-muted  py-4 text-center">
                             No rate changes recorded yet.
                         </p>
                     ) : (
                         <div className="overflow-x-auto">
                             <table className="w-full text-sm">
                                 <thead>
-                                    <tr className="border-b border-border-light dark:border-border-dark">
-                                        <th className="pb-3 text-left text-xs font-bold text-text-muted dark:text-gray-400 uppercase tracking-wider">Rate</th>
-                                        <th className="pb-3 text-left text-xs font-bold text-text-muted dark:text-gray-400 uppercase tracking-wider">Effective From</th>
-                                        <th className="pb-3 text-left text-xs font-bold text-text-muted dark:text-gray-400 uppercase tracking-wider">Set By</th>
+                                    <tr className="border-b border-border-light ">
+                                        <th className="pb-3 text-left text-xs font-bold text-text-muted  uppercase tracking-wider">Rate</th>
+                                        <th className="pb-3 text-left text-xs font-bold text-text-muted  uppercase tracking-wider">Effective From</th>
+                                        <th className="pb-3 text-left text-xs font-bold text-text-muted  uppercase tracking-wider">Set By</th>
                                     </tr>
                                 </thead>
-                                <tbody className="divide-y divide-border-light dark:divide-border-dark">
+                                <tbody className="divide-y divide-border-light ">
                                     {configs.map((c) => (
-                                        <tr key={c.id} className="hover:bg-muted-light dark:hover:bg-muted-dark transition-colors">
-                                            <td className="py-3 font-mono font-bold text-text-main dark:text-white">
+                                        <tr key={c.id} className="hover:bg-muted-light  transition-colors">
+                                            <td className="py-3 font-mono font-bold text-text-main ">
                                                 {(parseFloat(c.rate) * 100).toFixed(2)}%
                                             </td>
-                                            <td className="py-3 text-text-muted dark:text-gray-400">
+                                            <td className="py-3 text-text-muted ">
                                                 {formatDate(c.effectiveFrom)}
                                             </td>
-                                            <td className="py-3 text-text-muted dark:text-gray-400">
+                                            <td className="py-3 text-text-muted ">
                                                 {c.createdByAdmin?.email ?? "—"}
                                             </td>
                                         </tr>
@@ -82,7 +82,7 @@ export default function CommissionHistoryTable() {
                     )}
 
                     {pagination.totalPages > 1 && (
-                        <div className="flex items-center justify-between pt-4 border-t border-border-light dark:border-border-dark mt-4">
+                        <div className="flex items-center justify-between pt-4 border-t border-border-light  mt-4">
                             <button
                                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                                 disabled={page === 1}
@@ -90,7 +90,7 @@ export default function CommissionHistoryTable() {
                             >
                                 <MdChevronLeft className="text-lg" /> Previous
                             </button>
-                            <span className="text-xs text-text-muted dark:text-gray-400">
+                            <span className="text-xs text-text-muted ">
                                 Page {pagination.page} of {pagination.totalPages}
                             </span>
                             <button

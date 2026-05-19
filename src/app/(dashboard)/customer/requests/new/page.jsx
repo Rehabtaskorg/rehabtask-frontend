@@ -195,15 +195,15 @@ export default function NewRequestPage() {
     if (isAtRequestLimit) {
         return (
             <div className="max-w-lg mx-auto mt-20 text-center">
-                <div className="bg-card-light dark:bg-card-dark rounded-xl border border-border-light dark:border-border-dark p-8 shadow-sm">
+                <div className="bg-card-light  rounded-xl border border-border-light  p-8 shadow-sm">
                     <MdLock className="w-12 h-12 text-amber-500 mx-auto mb-4" />
-                    <h2 className="text-xl font-bold text-text-main dark:text-white mb-2">Request Limit Reached</h2>
-                    <p className="text-text-muted dark:text-slate-400 mb-4">
+                    <h2 className="text-xl font-bold text-text-main  mb-2">Request Limit Reached</h2>
+                    <p className="text-text-muted  mb-4">
                         You&apos;ve used all {requestLimit} of your active request slots ({usage.activeRequests}/{requestLimit}).
                         Upgrade your plan to create more requests.
                     </p>
                     <div className="flex gap-3 justify-center">
-                        <Link href="/customer/requests" className="px-4 py-2 rounded-lg border border-border-light dark:border-border-dark text-text-main font-medium hover:bg-gray-50 dark:hover:bg-gray-800">
+                        <Link href="/customer/requests" className="px-4 py-2 rounded-lg border border-border-light  text-text-main font-medium hover:bg-gray-50 ">
                             Back to Requests
                         </Link>
                         <Link href="/customer/subscription" className="px-4 py-2 rounded-lg bg-primary text-white font-medium hover:bg-primary/90 transition-colors">
@@ -217,17 +217,17 @@ export default function NewRequestPage() {
 
     if (loadingRequest) {
         return (
-            <div className="flex flex-col min-h-full bg-background-light dark:bg-background-dark">
-                <header className="bg-card-light dark:bg-card-dark border-b border-border-light dark:border-border-dark sticky top-0 z-10 px-4 sm:px-8 py-4">
+            <div className="flex flex-col min-h-full bg-background-light ">
+                <header className="bg-card-light  border-b border-border-light  sticky top-0 z-10 px-4 sm:px-8 py-4">
                     <div className="max-w-170 mx-auto">
-                        <div className="h-4 w-24 bg-slate-200 dark:bg-slate-700 rounded animate-pulse mb-2" />
-                        <div className="h-7 w-48 bg-slate-200 dark:bg-slate-700 rounded animate-pulse" />
+                        <div className="h-4 w-24 bg-slate-200  rounded animate-pulse mb-2" />
+                        <div className="h-7 w-48 bg-slate-200  rounded animate-pulse" />
                     </div>
                 </header>
                 <div className="flex-1 px-4 sm:px-8 py-6">
                     <div className="max-w-170 mx-auto space-y-6">
-                        <div className="h-12 bg-slate-200 dark:bg-slate-700 rounded-xl animate-pulse" />
-                        <div className="h-64 bg-slate-200 dark:bg-slate-700 rounded-xl animate-pulse" />
+                        <div className="h-12 bg-slate-200  rounded-xl animate-pulse" />
+                        <div className="h-64 bg-slate-200  rounded-xl animate-pulse" />
                     </div>
                 </div>
             </div>
@@ -236,18 +236,18 @@ export default function NewRequestPage() {
 
     return (
         <APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}>
-            <div className="flex flex-col min-h-full bg-background-light dark:bg-background-dark">
+            <div className="flex flex-col min-h-full bg-background-light ">
                 {/* Sticky Header */}
-                <header className="bg-card-light dark:bg-card-dark border-b border-border-light dark:border-border-dark sticky top-0 z-10 px-4 sm:px-8 py-4">
+                <header className="bg-card-light  border-b border-border-light  sticky top-0 z-10 px-4 sm:px-8 py-4">
                     <div className="max-w-170 mx-auto">
                         <button
                             onClick={() => router.push("/customer/requests")}
-                            className="flex items-center gap-1 text-sm text-text-muted dark:text-gray-400 hover:text-primary mb-1 transition-colors"
+                            className="flex items-center gap-1 text-sm text-text-muted  hover:text-primary mb-1 transition-colors"
                         >
                             <MdArrowBack className="text-base" />
                             My Requests
                         </button>
-                        <h2 className="text-xl sm:text-2xl font-bold text-text-main dark:text-white">
+                        <h2 className="text-xl sm:text-2xl font-bold text-text-main ">
                             {isEditMode ? "Edit Request" : isDirectMode ? "Create Direct Request" : "Create New Request"}
                         </h2>
                     </div>
@@ -260,13 +260,13 @@ export default function NewRequestPage() {
 
                         {/* Direct request info banner */}
                         {isDirectMode && currentStep === 1 && (
-                            <div className="flex items-start gap-3 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800 rounded-xl p-4">
+                            <div className="flex items-start gap-3 bg-indigo-50  border border-indigo-200  rounded-xl p-4">
                                 <MdPerson className="text-indigo-500 text-xl shrink-0 mt-0.5" />
                                 <div>
-                                    <p className="text-sm font-semibold text-indigo-800 dark:text-indigo-200">
+                                    <p className="text-sm font-semibold text-indigo-800 ">
                                         This is a direct request
                                     </p>
-                                    <p className="text-xs text-indigo-700 dark:text-indigo-300 mt-0.5">
+                                    <p className="text-xs text-indigo-700  mt-0.5">
                                         Only the therapist you selected from your conversation will see this request. It will not be visible to any other therapists.
                                     </p>
                                 </div>
@@ -275,13 +275,13 @@ export default function NewRequestPage() {
 
                         {/* Warning banner: editing will withdraw offers */}
                         {isEditMode && hasOffers && currentStep === 1 && (
-                            <div className="flex items-start gap-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-4">
+                            <div className="flex items-start gap-3 bg-amber-50  border border-amber-200  rounded-xl p-4">
                                 <MdWarning className="text-amber-500 text-xl shrink-0 mt-0.5" />
                                 <div>
-                                    <p className="text-sm font-semibold text-amber-800 dark:text-amber-200">
+                                    <p className="text-sm font-semibold text-amber-800 ">
                                         This request has pending offers
                                     </p>
-                                    <p className="text-xs text-amber-700 dark:text-amber-300 mt-0.5">
+                                    <p className="text-xs text-amber-700  mt-0.5">
                                         Updating this request will automatically withdraw all pending offers. Affected therapists will be notified and can submit new offers on the updated request.
                                     </p>
                                 </div>
@@ -290,10 +290,10 @@ export default function NewRequestPage() {
 
                         {/* Patient Selector — agency only, create mode only, shown before Step 1 */}
                         {isAgency && !isEditMode && currentStep === 1 && (
-                            <div className="bg-primary/5 dark:bg-primary/10 border border-primary/20 rounded-xl p-5">
+                            <div className="bg-primary/5  border border-primary/20 rounded-xl p-5">
                                 <div className="flex items-center gap-2 mb-3">
                                     <MdPerson className="text-primary text-lg" />
-                                    <p className="text-xs font-bold text-text-muted dark:text-gray-400 uppercase tracking-wider">
+                                    <p className="text-xs font-bold text-text-muted  uppercase tracking-wider">
                                         Select Patient
                                     </p>
                                 </div>
@@ -305,16 +305,16 @@ export default function NewRequestPage() {
                                                 {selectedPatient.fullName?.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)}
                                             </div>
                                             <div>
-                                                <p className="text-sm font-bold text-text-main dark:text-white">
+                                                <p className="text-sm font-bold text-text-main ">
                                                     {selectedPatient.fullName}
                                                 </p>
                                                 {selectedPatient.addressLine1 && (
-                                                    <p className="text-xs text-text-muted dark:text-gray-400">
+                                                    <p className="text-xs text-text-muted ">
                                                         {selectedPatient.addressLine1}, {selectedPatient.city || ""} {selectedPatient.state || ""}
                                                     </p>
                                                 )}
                                                 {!selectedPatient.addressLine1 && selectedPatient.email && (
-                                                    <p className="text-xs text-text-muted dark:text-gray-400">
+                                                    <p className="text-xs text-text-muted ">
                                                         {selectedPatient.email}
                                                     </p>
                                                 )}
@@ -332,7 +332,7 @@ export default function NewRequestPage() {
                                         <select
                                             value={patientId || ""}
                                             onChange={(e) => handleSelectPatient(e.target.value || null)}
-                                            className="w-full px-4 py-3 rounded-xl bg-white dark:bg-background-dark border border-border-light dark:border-border-dark text-text-main dark:text-white text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
+                                            className="w-full px-4 py-3 rounded-xl bg-white  border border-border-light  text-text-main  text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
                                         >
                                             <option value="">Choose a patient...</option>
                                             {patients?.map((p) => (
@@ -349,7 +349,7 @@ export default function NewRequestPage() {
                                             Add a new patient
                                         </Link>
                                         {!patientId && (
-                                            <p className="text-xs text-amber-600 dark:text-amber-400 mt-1">
+                                            <p className="text-xs text-amber-600  mt-1">
                                                 A patient must be selected to continue.
                                             </p>
                                         )}
@@ -360,10 +360,10 @@ export default function NewRequestPage() {
 
                         {/* Edit mode: show patient info (read-only) */}
                         {isEditMode && isAgency && selectedPatient && currentStep === 1 && (
-                            <div className="bg-primary/5 dark:bg-primary/10 border border-primary/20 rounded-xl p-5">
+                            <div className="bg-primary/5  border border-primary/20 rounded-xl p-5">
                                 <div className="flex items-center gap-2 mb-3">
                                     <MdPerson className="text-primary text-lg" />
-                                    <p className="text-xs font-bold text-text-muted dark:text-gray-400 uppercase tracking-wider">
+                                    <p className="text-xs font-bold text-text-muted  uppercase tracking-wider">
                                         Patient (cannot be changed)
                                     </p>
                                 </div>
@@ -372,8 +372,8 @@ export default function NewRequestPage() {
                                         {selectedPatient.fullName?.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)}
                                     </div>
                                     <div>
-                                        <p className="text-sm font-bold text-text-main dark:text-white">{selectedPatient.fullName}</p>
-                                        <p className="text-xs text-text-muted dark:text-gray-400">
+                                        <p className="text-sm font-bold text-text-main ">{selectedPatient.fullName}</p>
+                                        <p className="text-xs text-text-muted ">
                                             {selectedPatient.addressLine1
                                                 ? `${selectedPatient.addressLine1}, ${selectedPatient.city || ""} ${selectedPatient.state || ""}`
                                                 : selectedPatient.email || ""}
@@ -389,11 +389,11 @@ export default function NewRequestPage() {
                             <>
                                 {/* Show patient badge in review step */}
                                 {isAgency && selectedPatient && (
-                                    <div className="bg-primary/5 dark:bg-primary/10 border border-primary/20 rounded-lg p-4 flex items-center gap-3">
+                                    <div className="bg-primary/5  border border-primary/20 rounded-lg p-4 flex items-center gap-3">
                                         <MdPerson className="text-primary text-lg shrink-0" />
                                         <div>
-                                            <p className="text-xs font-bold text-text-muted dark:text-gray-400 uppercase">Patient</p>
-                                            <p className="text-sm font-semibold text-text-main dark:text-white">{selectedPatient.fullName}</p>
+                                            <p className="text-xs font-bold text-text-muted  uppercase">Patient</p>
+                                            <p className="text-sm font-semibold text-text-main ">{selectedPatient.fullName}</p>
                                         </div>
                                     </div>
                                 )}
@@ -404,7 +404,7 @@ export default function NewRequestPage() {
                         )}
 
                         {error && (
-                            <div className="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-4 py-3 rounded-lg text-sm">
+                            <div className="bg-red-50  border border-red-200  text-red-700  px-4 py-3 rounded-lg text-sm">
                                 {error}
                             </div>
                         )}

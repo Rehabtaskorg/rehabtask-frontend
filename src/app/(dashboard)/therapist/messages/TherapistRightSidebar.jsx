@@ -72,10 +72,10 @@ export default function TherapistRightSidebar({ selectedConversation }) {
                     name={name}
                     photoUrl={getPhotoUrl(otherUser)}
                     size="xl"
-                    className="border-4 border-card-light dark:border-card-dark shadow-md rounded-full"
+                    className="border-4 border-card-light  shadow-md rounded-full"
                 />
                 <div>
-                    <h4 className="text-text-main dark:text-white text-base font-bold">{name}</h4>
+                    <h4 className="text-text-main  text-base font-bold">{name}</h4>
                     {badge && (
                         <span className={`inline-block mt-1 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${badge.className}`}>
                             {badge.label}
@@ -87,17 +87,17 @@ export default function TherapistRightSidebar({ selectedConversation }) {
             {/* Patient info */}
             {patient && (
                 <div className="mt-6 space-y-1">
-                    <p className="text-text-muted dark:text-gray-400 text-[10px] font-bold uppercase tracking-widest">Patient Info</p>
-                    <p className="text-text-main dark:text-white text-sm font-medium">{patient.fullName}</p>
+                    <p className="text-text-muted  text-[10px] font-bold uppercase tracking-widest">Patient Info</p>
+                    <p className="text-text-main  text-sm font-medium">{patient.fullName}</p>
                     {patient.email && (
-                        <p className="text-text-muted dark:text-gray-400 text-xs">{patient.email}</p>
+                        <p className="text-text-muted  text-xs">{patient.email}</p>
                     )}
                 </div>
             )}
 
             {/* Context details */}
             <div className="mt-4 space-y-1">
-                <p className="text-text-muted dark:text-gray-400 text-[10px] font-bold uppercase tracking-widest">Context</p>
+                <p className="text-text-muted  text-[10px] font-bold uppercase tracking-widest">Context</p>
                 {displayContextType === 'booking' ? (
                     <Link
                         href={`/therapist/bookings/${displayContextId}`}
@@ -109,9 +109,9 @@ export default function TherapistRightSidebar({ selectedConversation }) {
                         View Booking
                     </Link>
                 ) : displayContextType === 'offer' ? (
-                    <p className="text-text-main dark:text-white text-sm">Offer Conversation</p>
+                    <p className="text-text-main  text-sm">Offer Conversation</p>
                 ) : (
-                    <p className="text-text-main dark:text-white text-sm">Direct Message</p>
+                    <p className="text-text-main  text-sm">Direct Message</p>
                 )}
             </div>
 
@@ -126,17 +126,17 @@ export default function TherapistRightSidebar({ selectedConversation }) {
 
                 return (
                     <div className="mt-4 space-y-2">
-                        <p className="text-text-muted dark:text-gray-400 text-[10px] font-bold uppercase tracking-widest">
+                        <p className="text-text-muted  text-[10px] font-bold uppercase tracking-widest">
                             {isCompleted ? "Session Complete" : "Upcoming Session"}
                         </p>
                         <div className={`p-3 rounded-lg border ${isCompleted
-                            ? "bg-emerald-50 dark:bg-emerald-900/10 border-emerald-200 dark:border-emerald-800"
-                            : "bg-primary/5 dark:bg-primary/10 border-primary/20"
+                            ? "bg-emerald-50  border-emerald-200 "
+                            : "bg-primary/5  border-primary/20"
                         }`}>
-                            <p className={`text-[10px] font-bold ${isCompleted ? "text-emerald-600 dark:text-emerald-400" : "text-primary"}`}>
+                            <p className={`text-[10px] font-bold ${isCompleted ? "text-emerald-600 " : "text-primary"}`}>
                                 {isCompleted ? "COMPLETED" : isUpcoming ? "NEXT SESSION" : "PENDING"}
                             </p>
-                            <p className="text-xs text-text-main dark:text-white font-bold mt-1">
+                            <p className="text-xs text-text-main  font-bold mt-1">
                                 {isCompleted ? "Session completed successfully" : "View booking for details"}
                             </p>
                             <Link
@@ -153,21 +153,21 @@ export default function TherapistRightSidebar({ selectedConversation }) {
             {/* Customer's open requests — shown when chatting with a customer */}
             {isCustomerConversation && (
                 <div className="mt-6 space-y-2">
-                    <p className="text-text-muted dark:text-gray-400 text-[10px] font-bold uppercase tracking-widest">
+                    <p className="text-text-muted  text-[10px] font-bold uppercase tracking-widest">
                         Open Requests
                     </p>
 
                     {requestsLoading ? (
                         <div className="space-y-2">
                             {[1, 2].map(i => (
-                                <div key={i} className="animate-pulse rounded-lg bg-slate-100 dark:bg-slate-800 p-3 space-y-2">
-                                    <div className="h-3 w-24 bg-slate-200 dark:bg-slate-700 rounded" />
-                                    <div className="h-2 w-32 bg-slate-200 dark:bg-slate-700 rounded" />
+                                <div key={i} className="animate-pulse rounded-lg bg-slate-100  p-3 space-y-2">
+                                    <div className="h-3 w-24 bg-slate-200  rounded" />
+                                    <div className="h-2 w-32 bg-slate-200  rounded" />
                                 </div>
                             ))}
                         </div>
                     ) : customerRequests.length === 0 ? (
-                        <p className="text-xs text-text-muted dark:text-gray-500 italic">
+                        <p className="text-xs text-text-muted  italic">
                             No open requests from this customer.
                         </p>
                     ) : (
@@ -176,12 +176,12 @@ export default function TherapistRightSidebar({ selectedConversation }) {
                                 <Link
                                     key={req.id}
                                     href={`/therapist/requests/${req.id}`}
-                                    className="block p-3 rounded-lg border border-border-light dark:border-border-dark hover:border-primary/30 hover:bg-primary/5 dark:hover:bg-primary/10 transition-all group"
+                                    className="block p-3 rounded-lg border border-border-light  hover:border-primary/30 hover:bg-primary/5  transition-all group"
                                 >
                                     <div className="flex items-start justify-between gap-2">
                                         <div className="flex items-center gap-1.5 min-w-0">
                                             <MdDescription className="text-primary text-sm shrink-0" />
-                                            <p className="text-xs font-bold text-text-main dark:text-white truncate">
+                                            <p className="text-xs font-bold text-text-main  truncate">
                                                 {req.serviceType}
                                             </p>
                                         </div>
@@ -189,26 +189,26 @@ export default function TherapistRightSidebar({ selectedConversation }) {
                                     </div>
 
                                     {req.location && (
-                                        <p className="text-[10px] text-text-muted dark:text-gray-400 flex items-center gap-1 mt-1">
+                                        <p className="text-[10px] text-text-muted  flex items-center gap-1 mt-1">
                                             <MdLocationOn className="text-xs" /> {req.location}
                                         </p>
                                     )}
 
                                     {req.preferredDate && (
-                                        <p className="text-[10px] text-text-muted dark:text-gray-400 flex items-center gap-1 mt-0.5">
+                                        <p className="text-[10px] text-text-muted  flex items-center gap-1 mt-0.5">
                                             <MdCalendarToday className="text-xs" />
                                             {new Date(req.preferredDate).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
                                         </p>
                                     )}
 
                                     {req.patient && (
-                                        <p className="text-[10px] text-text-muted dark:text-gray-400 mt-0.5">
+                                        <p className="text-[10px] text-text-muted  mt-0.5">
                                             Patient: {req.patient.fullName}
                                         </p>
                                     )}
 
                                     {req.myOffer ? (
-                                        <span className="inline-flex items-center gap-1 mt-1.5 text-[10px] font-bold text-emerald-600 dark:text-emerald-400">
+                                        <span className="inline-flex items-center gap-1 mt-1.5 text-[10px] font-bold text-emerald-600 ">
                                             <MdCheckCircle className="text-xs" /> Offer sent
                                         </span>
                                     ) : (

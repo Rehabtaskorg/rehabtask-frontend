@@ -8,7 +8,7 @@ export default function PendingReviewPage() {
     const router = useRouter();
 
     return (
-        <div className="min-h-screen bg-background-light dark:bg-background-dark py-10 px-4">
+        <div className="min-h-screen bg-background-light  py-10 px-4">
             <div className="max-w-4xl mx-auto">
                 <div className="flex flex-col items-center text-center gap-8">
                     {/* Animated Icon */}
@@ -19,17 +19,17 @@ export default function PendingReviewPage() {
                     </div>
 
                     <div>
-                        <h1 className="text-text-main dark:text-white text-4xl font-black leading-tight tracking-[-0.033em] mb-2">
+                        <h1 className="text-text-main  text-4xl font-black leading-tight tracking-[-0.033em] mb-2">
                             Verification Under Review
                         </h1>
-                        <p className="text-text-muted dark:text-gray-400 text-lg max-w-2xl leading-normal">
+                        <p className="text-text-muted  text-lg max-w-2xl leading-normal">
                             We&apos;re currently reviewing your credentials to maintain the highest standard of care on our platform.
                         </p>
                     </div>
 
                     {/* Timeline */}
-                    <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl p-8 w-full max-w-2xl shadow-sm">
-                        <h3 className="text-lg font-bold text-text-main dark:text-white mb-6">Verification Progress</h3>
+                    <div className="bg-card-light  border border-border-light  rounded-xl p-8 w-full max-w-2xl shadow-sm">
+                        <h3 className="text-lg font-bold text-text-main  mb-6">Verification Progress</h3>
 
                         <div className="space-y-6">
                             {[
@@ -49,10 +49,10 @@ export default function PendingReviewPage() {
                                         </svg>
                                     )}
                                     <div className="flex-1">
-                                        <p className={`font-semibold ${item.status === "pending" ? "text-primary" : "text-text-main dark:text-white"}`}>
+                                        <p className={`font-semibold ${item.status === "pending" ? "text-primary" : "text-text-main "}`}>
                                             {item.step}
                                         </p>
-                                        <p className="text-sm text-text-muted dark:text-gray-400">{item.date}</p>
+                                        <p className="text-sm text-text-muted ">{item.date}</p>
                                     </div>
                                 </div>
                             ))}
@@ -60,24 +60,24 @@ export default function PendingReviewPage() {
                     </div>
 
                     {/* What to Expect */}
-                    <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl p-8 w-full max-w-2xl text-left shadow-sm">
-                        <h3 className="text-xl font-bold text-text-main dark:text-white mb-4">What to expect next</h3>
-                        <div className="space-y-4 text-text-muted dark:text-gray-300">
+                    <div className="bg-card-light  border border-border-light  rounded-xl p-8 w-full max-w-2xl text-left shadow-sm">
+                        <h3 className="text-xl font-bold text-text-main  mb-4">What to expect next</h3>
+                        <div className="space-y-4 text-text-muted ">
                             <p>
-                                Our manual review process typically takes <strong className="text-text-main dark:text-white">24-48 business hours</strong>. We will check your license validity and professional references to ensure a safe community.
+                                Our manual review process typically takes <strong className="text-text-main ">24-48 business hours</strong>. We will check your license validity and professional references to ensure a safe community.
                             </p>
                             <p>
-                                You will receive an email notification once your profile is live. Your profile remains <strong className="text-text-main dark:text-white">hidden from patients</strong> until the verification is complete.
+                                You will receive an email notification once your profile is live. Your profile remains <strong className="text-text-main ">hidden from patients</strong> until the verification is complete.
                             </p>
                         </div>
                     </div>
 
                     {/* Action Panel */}
-                    <div className="bg-primary/10 dark:bg-primary/5 border border-primary/20 rounded-xl p-6 w-full max-w-2xl">
+                    <div className="bg-primary/10  border border-primary/20 rounded-xl p-6 w-full max-w-2xl">
                         <div className="flex flex-col md:flex-row items-center justify-between gap-4">
                             <div>
-                                <p className="text-text-main dark:text-white text-base font-bold">Need urgent assistance?</p>
-                                <p className="text-text-muted dark:text-gray-400 text-sm">
+                                <p className="text-text-main  text-base font-bold">Need urgent assistance?</p>
+                                <p className="text-text-muted  text-sm">
                                     Our support team is here to help with any questions.
                                 </p>
                             </div>
@@ -93,7 +93,7 @@ export default function PendingReviewPage() {
                     {/* Back to Dashboard */}
                     <button
                         onClick={() => router.push("/therapist/dashboard")}
-                        className="text-text-muted dark:text-gray-400 hover:text-text-main dark:hover:text-white transition-colors flex items-center gap-2"
+                        className="text-text-muted  hover:text-text-main  transition-colors flex items-center gap-2"
                     >
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -103,7 +103,7 @@ export default function PendingReviewPage() {
 
                     {/* Footer note */}
                     <div className="text-center py-4">
-                        <p className="text-text-muted dark:text-gray-500 text-xs">
+                        <p className="text-text-muted  text-xs">
                             © {new Date().getFullYear()} RehabTask Professional Services. All credentials are encrypted and stored securely.
                         </p>
                     </div>

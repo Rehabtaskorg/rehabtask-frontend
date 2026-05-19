@@ -73,7 +73,7 @@ export default function UserAvatar({ name, photoUrl, size = "md", className = ""
 
             {showOnlineIndicator && (
                 <span
-                    className={`absolute bottom-0 right-0 ${indicatorClasses} rounded-full bg-green-500 border-white dark:border-card-dark`}
+                    className={`absolute bottom-0 right-0 ${indicatorClasses} rounded-full bg-green-500 border-white `}
                 />
             )}
         </div>

@@ -35,9 +35,9 @@ function AccountSettingsContent() {
     if (loading) {
         return (
             <div className="p-4 md:p-6">
-                <h1 className="text-2xl font-bold text-text-main dark:text-white mb-6">Account Settings</h1>
+                <h1 className="text-2xl font-bold text-text-main  mb-6">Account Settings</h1>
                 <div className="animate-pulse space-y-4">
-                    <div className="h-32 bg-slate-200 dark:bg-slate-700 rounded-xl" />
+                    <div className="h-32 bg-slate-200  rounded-xl" />
                 </div>
             </div>
         );
@@ -71,29 +71,29 @@ function AccountSettingsContent() {
                 <div className="p-2 bg-primary/10 rounded-lg">
                     <MdSettings className="text-primary text-xl" />
                 </div>
-                <h1 className="text-2xl font-bold text-text-main dark:text-white">Account Settings</h1>
+                <h1 className="text-2xl font-bold text-text-main ">Account Settings</h1>
             </div>
 
             {/* Payment Setup Section */}
-            <div className="bg-card-light dark:bg-card-dark rounded-xl shadow-sm border border-border-light dark:border-border-dark p-6">
+            <div className="bg-card-light  rounded-xl shadow-sm border border-border-light  p-6">
                 <div className="flex items-center gap-3 mb-5">
                     <div className="p-2 bg-primary/10 rounded-lg">
                         <MdPayments className="text-primary text-xl" />
                     </div>
                     <div>
-                        <h2 className="text-xl font-semibold text-text-main dark:text-white">Payment Setup</h2>
-                        <p className="text-sm text-text-muted dark:text-slate-400">Manage your payout account for receiving session payments</p>
+                        <h2 className="text-xl font-semibold text-text-main ">Payment Setup</h2>
+                        <p className="text-sm text-text-muted ">Manage your payout account for receiving session payments</p>
                     </div>
                 </div>
 
                 {/* State: Not connected */}
                 {!accountStatus?.connected && (
                     <div className="space-y-4">
-                        <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
-                            <h3 className="font-semibold text-amber-900 dark:text-amber-200 mb-1">
+                        <div className="bg-amber-50  border border-amber-200  rounded-lg p-4">
+                            <h3 className="font-semibold text-amber-900  mb-1">
                                 Connect your bank account to receive payments
                             </h3>
-                            <p className="text-sm text-amber-800 dark:text-amber-300">
+                            <p className="text-sm text-amber-800 ">
                                 You need to set up a payout account before you can receive earnings from completed sessions.
                             </p>
                         </div>
@@ -103,7 +103,7 @@ function AccountSettingsContent() {
                         >
                             Set Up Payouts
                         </button>
-                        <p className="text-xs text-text-muted dark:text-slate-400">
+                        <p className="text-xs text-text-muted ">
                             Your bank details are encrypted by our trusted payments processor — RehabTask never stores them.
                         </p>
                     </div>
@@ -112,11 +112,11 @@ function AccountSettingsContent() {
                 {/* State: Connected but setup incomplete (account exists, details not submitted) */}
                 {accountStatus?.connected && !accountStatus?.detailsSubmitted && (
                     <div className="space-y-4">
-                        <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
-                            <h3 className="font-semibold text-amber-900 dark:text-amber-200 mb-1">
+                        <div className="bg-amber-50  border border-amber-200  rounded-lg p-4">
+                            <h3 className="font-semibold text-amber-900  mb-1">
                                 Complete your payout account setup
                             </h3>
-                            <p className="text-sm text-amber-800 dark:text-amber-300">
+                            <p className="text-sm text-amber-800 ">
                                 Your account was created but setup is not finished. Please complete all required fields to start receiving payments.
                             </p>
                         </div>
@@ -132,11 +132,11 @@ function AccountSettingsContent() {
                 {/* Stage 3 — CRITICAL: past_due, account restricted */}
                 {isPastDue && (
                     <div className="space-y-4">
-                        <div className="flex items-start gap-3 bg-red-50 dark:bg-red-900/20 border border-red-300 dark:border-red-800 rounded-lg p-4">
+                        <div className="flex items-start gap-3 bg-red-50  border border-red-300  rounded-lg p-4">
                             <MdError className="text-red-500 text-xl shrink-0 mt-0.5" />
                             <div>
-                                <h3 className="font-semibold text-red-700 dark:text-red-400 mb-1">Payout account restricted</h3>
-                                <p className="text-sm text-red-600/80 dark:text-red-400/80">
+                                <h3 className="font-semibold text-red-700  mb-1">Payout account restricted</h3>
+                                <p className="text-sm text-red-600/80 ">
                                     Stripe requires overdue information to restore your payouts and payments. Complete it now to reactivate your account.
                                 </p>
                             </div>
@@ -153,11 +153,11 @@ function AccountSettingsContent() {
                 {/* Stage 2 — WARNING: currently_due with deadline */}
                 {isCurrentlyDue && (
                     <div className="space-y-4">
-                        <div className="flex items-start gap-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-300 dark:border-amber-800 rounded-lg p-4">
+                        <div className="flex items-start gap-3 bg-amber-50  border border-amber-300  rounded-lg p-4">
                             <MdWarning className="text-amber-500 text-xl shrink-0 mt-0.5" />
                             <div>
-                                <h3 className="font-semibold text-text-main dark:text-white mb-1">Action required for your payout account</h3>
-                                <p className="text-sm text-text-muted dark:text-slate-400">
+                                <h3 className="font-semibold text-text-main  mb-1">Action required for your payout account</h3>
+                                <p className="text-sm text-text-muted ">
                                     {deadlineDate
                                         ? `Stripe requires updated information by ${deadlineDate}. If not completed, your payouts will be paused.`
                                         : 'Stripe requires updated information. Complete it soon to avoid interruption to your payouts.'}
@@ -176,11 +176,11 @@ function AccountSettingsContent() {
                 {/* Stage 1 — PROACTIVE: upcoming future requirements */}
                 {hasUpcoming && (
                     <div className="space-y-4">
-                        <div className="flex items-start gap-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+                        <div className="flex items-start gap-3 bg-blue-50  border border-blue-200  rounded-lg p-4">
                             <MdInfo className="text-blue-500 text-xl shrink-0 mt-0.5" />
                             <div>
-                                <h3 className="font-semibold text-text-main dark:text-white mb-1">Upcoming requirements for your payout account</h3>
-                                <p className="text-sm text-text-muted dark:text-slate-400">
+                                <h3 className="font-semibold text-text-main  mb-1">Upcoming requirements for your payout account</h3>
+                                <p className="text-sm text-text-muted ">
                                     {futureDateStr
                                         ? `Stripe will require new information by ${futureDateStr}. Complete it now to avoid any interruption.`
                                         : 'Stripe will require new information in the future. Complete it proactively to avoid any interruption.'}
@@ -198,11 +198,11 @@ function AccountSettingsContent() {
 
                 {/* Fallback: genuinely pending initial Stripe review */}
                 {isPendingReview && (
-                    <div className="bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-500/30 rounded-lg p-4">
-                        <h3 className="font-semibold text-text-main dark:text-white mb-1">
+                    <div className="bg-amber-50  border border-amber-200  rounded-lg p-4">
+                        <h3 className="font-semibold text-text-main  mb-1">
                             Payout account under review
                         </h3>
-                        <p className="text-sm text-text-muted dark:text-slate-400">
+                        <p className="text-sm text-text-muted ">
                             Your details have been submitted and Stripe is verifying your account. This usually takes a few minutes. You&apos;ll be notified once it&apos;s active.
                         </p>
                     </div>
@@ -211,13 +211,13 @@ function AccountSettingsContent() {
                 {/* State: Fully active */}
                 {isFullyActive && (
                     <div className="space-y-4">
-                        <div className="flex items-start gap-3 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-lg p-4">
+                        <div className="flex items-start gap-3 bg-emerald-50  border border-emerald-200  rounded-lg p-4">
                             <MdCheckCircle className="text-emerald-500 text-xl shrink-0 mt-0.5" />
                             <div>
-                                <h3 className="font-semibold text-text-main dark:text-white mb-0.5">
+                                <h3 className="font-semibold text-text-main  mb-0.5">
                                     Payout account active
                                 </h3>
-                                <p className="text-sm text-text-muted dark:text-slate-400">
+                                <p className="text-sm text-text-muted ">
                                     You&apos;ll receive earnings automatically after customers confirm session completion. Payouts typically arrive in 2–7 business days.
                                 </p>
                             </div>
@@ -231,7 +231,7 @@ function AccountSettingsContent() {
                                 <MdTrendingUp className="text-base" />
                                 View Balance &amp; Earnings
                             </button>
-                            <p className="text-xs text-text-muted dark:text-slate-400 mt-2">
+                            <p className="text-xs text-text-muted  mt-2">
                                 View your balance, cash out instantly, manage your bank account, and see your full transaction history.
                             </p>
                         </div>

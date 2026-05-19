@@ -33,33 +33,33 @@ const getInitials = (user) => {
 };
 
 const ROLE_STYLES = {
-    admin: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400',
-    sub_admin: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400',
-    therapist: 'bg-blue-100   text-blue-700   dark:bg-blue-900/30   dark:text-blue-400',
-    customer: 'bg-slate-100  text-slate-600  dark:bg-slate-700     dark:text-slate-300',
+    admin: 'bg-purple-100 text-purple-700  ',
+    sub_admin: 'bg-indigo-100 text-indigo-700  ',
+    therapist: 'bg-blue-100   text-blue-700      ',
+    customer: 'bg-slate-100  text-slate-600       ',
 };
 
 const APPROVAL_STYLES = {
-    approved: 'text-emerald-600 dark:text-emerald-400',
-    rejected: 'text-red-600 dark:text-red-400',
-    pending: 'text-amber-600 dark:text-amber-400',
+    approved: 'text-emerald-600 ',
+    rejected: 'text-red-600 ',
+    pending: 'text-amber-600 ',
 };
 
 function Skeleton({ className }) {
-    return <div className={`animate-pulse rounded bg-slate-200 dark:bg-slate-700 ${className}`} />;
+    return <div className={`animate-pulse rounded bg-slate-200  ${className}`} />;
 }
 
 // ─── Detail row ───────────────────────────────────────────────────────────────
 
 function DetailRow({ icon: Icon, label, value, valueClass = '' }) {
     return (
-        <div className="flex items-start gap-3 py-3 border-b border-border-light dark:border-border-dark last:border-0">
-            <div className="mt-0.5 p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 shrink-0">
-                <Icon className="text-base text-text-muted dark:text-slate-400" />
+        <div className="flex items-start gap-3 py-3 border-b border-border-light  last:border-0">
+            <div className="mt-0.5 p-1.5 rounded-lg bg-slate-100  shrink-0">
+                <Icon className="text-base text-text-muted " />
             </div>
             <div className="flex-1 min-w-0">
-                <p className="text-xs text-text-muted dark:text-slate-400">{label}</p>
-                <p className={`text-sm font-medium text-text-main dark:text-white mt-0.5 ${valueClass}`}>{value || '—'}</p>
+                <p className="text-xs text-text-muted ">{label}</p>
+                <p className={`text-sm font-medium text-text-main  mt-0.5 ${valueClass}`}>{value || '—'}</p>
             </div>
         </div>
     );
@@ -69,9 +69,9 @@ function DetailRow({ icon: Icon, label, value, valueClass = '' }) {
 
 function SectionCard({ title, children }) {
     return (
-        <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl overflow-hidden">
-            <div className="px-5 py-4 border-b border-border-light dark:border-border-dark">
-                <h3 className="font-semibold text-text-main dark:text-white text-sm">{title}</h3>
+        <div className="bg-card-light  border border-border-light  rounded-xl overflow-hidden">
+            <div className="px-5 py-4 border-b border-border-light ">
+                <h3 className="font-semibold text-text-main  text-sm">{title}</h3>
             </div>
             <div className="px-5">{children}</div>
         </div>
@@ -82,14 +82,14 @@ function SectionCard({ title, children }) {
 
 function EditableField({ label, value, onChange, type = 'text', placeholder = '' }) {
     return (
-        <div className="py-3 border-b border-border-light dark:border-border-dark last:border-0">
-            <label className="block text-xs text-text-muted dark:text-slate-400 mb-1">{label}</label>
+        <div className="py-3 border-b border-border-light  last:border-0">
+            <label className="block text-xs text-text-muted  mb-1">{label}</label>
             <input
                 type={type}
                 value={value}
                 onChange={(e) => onChange(e.target.value)}
                 placeholder={placeholder}
-                className="w-full px-3 py-2 text-sm rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-main dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                className="w-full px-3 py-2 text-sm rounded-lg border border-border-light  bg-background-light  text-text-main  focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
             />
         </div>
     );
@@ -97,12 +97,12 @@ function EditableField({ label, value, onChange, type = 'text', placeholder = ''
 
 function EditableSelect({ label, value, onChange, options }) {
     return (
-        <div className="py-3 border-b border-border-light dark:border-border-dark last:border-0">
-            <label className="block text-xs text-text-muted dark:text-slate-400 mb-1">{label}</label>
+        <div className="py-3 border-b border-border-light  last:border-0">
+            <label className="block text-xs text-text-muted  mb-1">{label}</label>
             <select
                 value={value}
                 onChange={(e) => onChange(e.target.value)}
-                className="w-full px-3 py-2 text-sm rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-main dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                className="w-full px-3 py-2 text-sm rounded-lg border border-border-light  bg-background-light  text-text-main  focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
             >
                 {options.map(o => (
                     <option key={o.value} value={o.value}>{o.label}</option>
@@ -114,14 +114,14 @@ function EditableSelect({ label, value, onChange, options }) {
 
 function EditableTextarea({ label, value, onChange, placeholder = '' }) {
     return (
-        <div className="py-3 border-b border-border-light dark:border-border-dark last:border-0">
-            <label className="block text-xs text-text-muted dark:text-slate-400 mb-1">{label}</label>
+        <div className="py-3 border-b border-border-light  last:border-0">
+            <label className="block text-xs text-text-muted  mb-1">{label}</label>
             <textarea
                 value={value}
                 onChange={(e) => onChange(e.target.value)}
                 placeholder={placeholder}
                 rows={3}
-                className="w-full px-3 py-2 text-sm rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-main dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary resize-none"
+                className="w-full px-3 py-2 text-sm rounded-lg border border-border-light  bg-background-light  text-text-main  focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary resize-none"
             />
         </div>
     );
@@ -187,8 +187,8 @@ export default function AdminUserDetailPage() {
                 <Link href="/admin/users" className="inline-flex items-center gap-1.5 text-sm text-text-muted hover:text-primary mb-6 transition-colors">
                     <MdArrowBack /> Back to Users
                 </Link>
-                <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl p-12 text-center">
-                    <p className="text-text-muted dark:text-slate-400 text-sm">User not found or failed to load.</p>
+                <div className="bg-card-light  border border-border-light  rounded-xl p-12 text-center">
+                    <p className="text-text-muted  text-sm">User not found or failed to load.</p>
                     <button
                         onClick={() => router.back()}
                         className="mt-4 text-primary text-sm font-medium hover:underline"
@@ -269,7 +269,7 @@ export default function AdminUserDetailPage() {
             {/* Back nav */}
             <Link
                 href="/admin/users"
-                className="inline-flex items-center gap-1.5 text-sm text-text-muted dark:text-slate-400 hover:text-primary dark:hover:text-primary transition-colors"
+                className="inline-flex items-center gap-1.5 text-sm text-text-muted  hover:text-primary  transition-colors"
             >
                 <MdArrowBack className="text-base" />
                 Back to Users
@@ -277,38 +277,38 @@ export default function AdminUserDetailPage() {
 
             {/* Status messages */}
             {actionError && (
-                <div className="flex items-center gap-2 px-4 py-3 rounded-xl bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-sm">
+                <div className="flex items-center gap-2 px-4 py-3 rounded-xl bg-red-50  text-red-600  text-sm">
                     {actionError}
                 </div>
             )}
             {actionSuccess && (
-                <div className="flex items-center gap-2 px-4 py-3 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 text-sm">
+                <div className="flex items-center gap-2 px-4 py-3 rounded-xl bg-emerald-50  text-emerald-600  text-sm">
                     <MdCheckCircle className="shrink-0" /> {actionSuccess}
                 </div>
             )}
 
             {/* Profile header card */}
-            <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl p-5">
+            <div className="bg-card-light  border border-border-light  rounded-xl p-5">
                 <div className="flex flex-col sm:flex-row sm:items-start gap-4">
                     {/* Avatar */}
-                    <div className="h-16 w-16 rounded-2xl bg-primary/10 dark:bg-primary/20 flex items-center justify-center text-xl font-bold text-primary shrink-0">
+                    <div className="h-16 w-16 rounded-2xl bg-primary/10  flex items-center justify-center text-xl font-bold text-primary shrink-0">
                         {initials}
                     </div>
 
                     {/* Identity */}
                     <div className="flex-1 min-w-0">
                         <div className="flex flex-wrap items-center gap-2 mb-1">
-                            <h1 className="text-lg font-bold text-text-main dark:text-white">{displayName}</h1>
+                            <h1 className="text-lg font-bold text-text-main ">{displayName}</h1>
                             <span className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium capitalize ${ROLE_STYLES[user.role] ?? 'bg-slate-100 text-slate-600'}`}>
                                 {user.role.replace('_', ' ')}
                             </span>
-                            <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium ${user.isActive ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'}`}>
+                            <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium ${user.isActive ? 'bg-emerald-100 text-emerald-700  ' : 'bg-red-100 text-red-700  '}`}>
                                 <span className={`h-1.5 w-1.5 rounded-full ${user.isActive ? 'bg-emerald-500' : 'bg-red-500'}`} />
                                 {user.isActive ? 'Active' : 'Deactivated'}
                             </span>
                         </div>
-                        <p className="text-sm text-text-muted dark:text-slate-400">{user.email}</p>
-                        <p className="text-xs text-text-muted dark:text-slate-500 mt-1">
+                        <p className="text-sm text-text-muted ">{user.email}</p>
+                        <p className="text-xs text-text-muted  mt-1">
                             Member since {fmtDate(user.createdAt)}
                         </p>
                     </div>
@@ -318,7 +318,7 @@ export default function AdminUserDetailPage() {
                         {canEdit && !editing && (
                             <button
                                 onClick={() => setEditing(true)}
-                                className="flex items-center gap-2 px-4 py-2 rounded-xl border border-border-light dark:border-border-dark text-sm font-medium text-text-main dark:text-white hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                                className="flex items-center gap-2 px-4 py-2 rounded-xl border border-border-light  text-sm font-medium text-text-main  hover:bg-slate-50  transition-colors"
                             >
                                 <MdEdit className="text-base" />
                                 Edit
@@ -336,7 +336,7 @@ export default function AdminUserDetailPage() {
                                 </button>
                                 <button
                                     onClick={() => setEditing(false)}
-                                    className="flex items-center gap-2 px-4 py-2 rounded-xl border border-border-light dark:border-border-dark text-sm font-medium text-text-main dark:text-white hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                                    className="flex items-center gap-2 px-4 py-2 rounded-xl border border-border-light  text-sm font-medium text-text-main  hover:bg-slate-50  transition-colors"
                                 >
                                     <MdClose className="text-base" />
                                     Cancel
@@ -356,7 +356,7 @@ export default function AdminUserDetailPage() {
                                         </button>
                                         <button
                                             onClick={() => setConfirmDeactivate(false)}
-                                            className="px-4 py-2 rounded-xl border border-border-light dark:border-border-dark text-sm font-medium text-text-main dark:text-white hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                                            className="px-4 py-2 rounded-xl border border-border-light  text-sm font-medium text-text-main  hover:bg-slate-50  transition-colors"
                                         >
                                             Cancel
                                         </button>
@@ -365,7 +365,7 @@ export default function AdminUserDetailPage() {
                                     <button
                                         onClick={() => setConfirmDeactivate(true)}
                                         disabled={mutating}
-                                        className="flex items-center gap-2 px-4 py-2 rounded-xl bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-sm font-medium hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                        className="flex items-center gap-2 px-4 py-2 rounded-xl bg-red-50  text-red-600  text-sm font-medium hover:bg-red-100  transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                     >
                                         <MdBlock className="text-base" />
                                         Deactivate
@@ -383,7 +383,7 @@ export default function AdminUserDetailPage() {
                                         </button>
                                         <button
                                             onClick={() => setConfirmReactivate(false)}
-                                            className="px-4 py-2 rounded-xl border border-border-light dark:border-border-dark text-sm font-medium text-text-main dark:text-white hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                                            className="px-4 py-2 rounded-xl border border-border-light  text-sm font-medium text-text-main  hover:bg-slate-50  transition-colors"
                                         >
                                             Cancel
                                         </button>
@@ -392,7 +392,7 @@ export default function AdminUserDetailPage() {
                                     <button
                                         onClick={() => setConfirmReactivate(true)}
                                         disabled={mutating}
-                                        className="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 text-sm font-medium hover:bg-emerald-100 dark:hover:bg-emerald-900/30 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                        className="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-50  text-emerald-600  text-sm font-medium hover:bg-emerald-100  transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                     >
                                         <MdCheckCircle className="text-base" />
                                         Reactivate
@@ -420,7 +420,7 @@ export default function AdminUserDetailPage() {
                     <DetailRow icon={MdPerson} label="Role" value={user.role.replace('_', ' ')} valueClass="capitalize" />
                     <DetailRow icon={MdCalendarMonth} label="Joined" value={fmtDate(user.createdAt)} />
                     {!user.isActive && user.deactivatedAt && (
-                        <DetailRow icon={MdBlock} label="Deactivated on" value={fmtDate(user.deactivatedAt)} valueClass="text-red-500 dark:text-red-400" />
+                        <DetailRow icon={MdBlock} label="Deactivated on" value={fmtDate(user.deactivatedAt)} valueClass="text-red-500 " />
                     )}
                 </SectionCard>
             )}
@@ -445,7 +445,7 @@ export default function AdminUserDetailPage() {
                             <select
                                 value={editForm.primaryLicenseType || ''}
                                 onChange={(e) => setEditForm(f => ({ ...f, primaryLicenseType: e.target.value }))}
-                                className="w-full px-3 py-2 rounded-lg border border-border-light dark:border-border-dark bg-white dark:bg-card-dark text-text-main dark:text-white text-sm"
+                                className="w-full px-3 py-2 rounded-lg border border-border-light  bg-white  text-text-main  text-sm"
                             >
                                 <option value="">Select Discipline type</option>
                                 <option value="Physical Therapist">Physical Therapist (PT)</option>
@@ -548,7 +548,7 @@ export default function AdminUserDetailPage() {
                                 icon={MdCardMembership}
                                 label="Subscription"
                                 value={`${latestSub.planType} — ${latestSub.status}`}
-                                valueClass={`capitalize ${latestSub.status === 'active' ? 'text-emerald-600 dark:text-emerald-400' : ''}`}
+                                valueClass={`capitalize ${latestSub.status === 'active' ? 'text-emerald-600 ' : ''}`}
                             />
                         )}
                     </SectionCard>
@@ -557,21 +557,21 @@ export default function AdminUserDetailPage() {
 
             {/* Quick links */}
             {!editing && (
-                <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl p-5">
-                    <p className="text-xs font-semibold text-text-muted dark:text-slate-400 uppercase tracking-wide mb-3">
+                <div className="bg-card-light  border border-border-light  rounded-xl p-5">
+                    <p className="text-xs font-semibold text-text-muted  uppercase tracking-wide mb-3">
                         Quick Links
                     </p>
                     <div className="flex flex-wrap gap-2">
                         <Link
                             href={`/admin/bookings?userId=${user.id}`}
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border-light dark:border-border-dark text-sm text-text-main dark:text-white hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border-light  text-sm text-text-main  hover:bg-slate-50  transition-colors"
                         >
                             <MdCalendarMonth className="text-base text-text-muted" />
                             View Bookings
                         </Link>
                         <Link
                             href={`/admin/payments?userId=${user.id}`}
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border-light dark:border-border-dark text-sm text-text-main dark:text-white hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border-light  text-sm text-text-main  hover:bg-slate-50  transition-colors"
                         >
                             <MdCardMembership className="text-base text-text-muted" />
                             View Payments
@@ -579,7 +579,7 @@ export default function AdminUserDetailPage() {
                         {isCustomer && (
                             <Link
                                 href={`/admin/subscriptions?userId=${user.id}`}
-                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border-light dark:border-border-dark text-sm text-text-main dark:text-white hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border-light  text-sm text-text-main  hover:bg-slate-50  transition-colors"
                             >
                                 <MdCardMembership className="text-base text-text-muted" />
                                 View Subscriptions

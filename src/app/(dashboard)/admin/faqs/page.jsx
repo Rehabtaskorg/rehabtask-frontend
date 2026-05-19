@@ -23,7 +23,7 @@ import {
 function Skeleton({ className = "" }) {
     return (
         <div
-            className={`animate-pulse rounded bg-gray-200 dark:bg-gray-700 ${className}`}
+            className={`animate-pulse rounded bg-gray-200  ${className}`}
         />
     );
 }
@@ -88,15 +88,15 @@ function FaqModal({ faq, onClose }) {
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
             <div className="absolute inset-0 bg-black/60" onClick={onClose} />
-            <div className="relative bg-card-light dark:bg-card-dark rounded-2xl border border-border-light dark:border-border-dark w-full max-w-lg shadow-xl flex flex-col max-h-[90dvh]">
+            <div className="relative bg-card-light  rounded-2xl border border-border-light  w-full max-w-lg shadow-xl flex flex-col max-h-[90dvh]">
                 {/* Header */}
-                <div className="flex items-center justify-between px-5 py-4 border-b border-border-light dark:border-border-dark shrink-0">
-                    <h2 className="font-semibold text-text-main dark:text-white">
+                <div className="flex items-center justify-between px-5 py-4 border-b border-border-light  shrink-0">
+                    <h2 className="font-semibold text-text-main ">
                         {isEdit ? "Edit FAQ" : "New FAQ"}
                     </h2>
                     <button
                         onClick={onClose}
-                        className="p-1 rounded-lg hover:bg-background-light dark:hover:bg-background-dark text-text-muted"
+                        className="p-1 rounded-lg hover:bg-background-light  text-text-muted"
                     >
                         <MdClose size={18} />
                     </button>
@@ -109,7 +109,7 @@ function FaqModal({ faq, onClose }) {
                 >
                     <div className="flex-1 overflow-y-auto panel-scroll px-5 py-4 space-y-4">
                         <div>
-                            <label className="block text-sm font-medium text-text-main dark:text-white mb-1">
+                            <label className="block text-sm font-medium text-text-main  mb-1">
                                 Question <span className="text-red-500">*</span>
                             </label>
                             <textarea
@@ -117,11 +117,11 @@ function FaqModal({ faq, onClose }) {
                                 onChange={set("question")}
                                 rows={2}
                                 placeholder="What is the question?"
-                                className="w-full rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-main dark:text-white text-sm px-3 py-2 resize-none focus:outline-none focus:ring-2 focus:ring-primary"
+                                className="w-full rounded-lg border border-border-light  bg-background-light  text-text-main  text-sm px-3 py-2 resize-none focus:outline-none focus:ring-2 focus:ring-primary"
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-text-main dark:text-white mb-1">
+                            <label className="block text-sm font-medium text-text-main  mb-1">
                                 Answer <span className="text-red-500">*</span>
                             </label>
                             <textarea
@@ -129,12 +129,12 @@ function FaqModal({ faq, onClose }) {
                                 onChange={set("answer")}
                                 rows={6}
                                 placeholder="Provide a detailed answer…"
-                                className="w-full rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-main dark:text-white text-sm px-3 py-2 resize-none focus:outline-none focus:ring-2 focus:ring-primary"
+                                className="w-full rounded-lg border border-border-light  bg-background-light  text-text-main  text-sm px-3 py-2 resize-none focus:outline-none focus:ring-2 focus:ring-primary"
                             />
                         </div>
                         <div className="grid grid-cols-2 gap-3">
                             <div>
-                                <label className="block text-sm font-medium text-text-main dark:text-white mb-1">
+                                <label className="block text-sm font-medium text-text-main  mb-1">
                                     Category <span className="text-red-500">*</span>
                                 </label>
                                 <input
@@ -142,11 +142,11 @@ function FaqModal({ faq, onClose }) {
                                     value={form.category}
                                     onChange={set("category")}
                                     placeholder="e.g. Billing"
-                                    className="w-full rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-main dark:text-white text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
+                                    className="w-full rounded-lg border border-border-light  bg-background-light  text-text-main  text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-text-main dark:text-white mb-1">
+                                <label className="block text-sm font-medium text-text-main  mb-1">
                                     Display Order
                                 </label>
                                 <input
@@ -155,27 +155,27 @@ function FaqModal({ faq, onClose }) {
                                     onChange={set("order")}
                                     placeholder="0"
                                     min="0"
-                                    className="w-full rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-main dark:text-white text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
+                                    className="w-full rounded-lg border border-border-light  bg-background-light  text-text-main  text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
                                 />
                             </div>
                         </div>
 
                         {/* Active toggle */}
-                        <div className="flex items-center justify-between py-2 px-3 rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark">
+                        <div className="flex items-center justify-between py-2 px-3 rounded-lg border border-border-light  bg-background-light ">
                             <div>
-                                <p className="text-sm font-medium text-text-main dark:text-white">Active</p>
+                                <p className="text-sm font-medium text-text-main ">Active</p>
                                 <p className="text-xs text-text-muted">Visible to users on the public FAQ page</p>
                             </div>
                             <button
                                 type="button"
                                 onClick={toggle("isActive")}
-                                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${form.isActive ? "bg-primary" : "bg-slate-300 dark:bg-slate-600"}`}
+                                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${form.isActive ? "bg-primary" : "bg-slate-300 "}`}
                             >
                                 <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${form.isActive ? "translate-x-6" : "translate-x-1"}`} />
                             </button>
                         </div>
                         {error && (
-                            <div className="flex items-center gap-2 text-sm text-red-600 dark:text-red-400">
+                            <div className="flex items-center gap-2 text-sm text-red-600 ">
                                 <MdWarning size={16} />
                                 {error}
                             </div>
@@ -183,11 +183,11 @@ function FaqModal({ faq, onClose }) {
                     </div>
 
                     {/* Footer */}
-                    <div className="px-5 py-4 border-t border-border-light dark:border-border-dark shrink-0 flex gap-3">
+                    <div className="px-5 py-4 border-t border-border-light  shrink-0 flex gap-3">
                         <button
                             type="button"
                             onClick={onClose}
-                            className="flex-1 py-2 rounded-lg border border-border-light dark:border-border-dark text-text-muted text-sm hover:bg-background-light dark:hover:bg-background-dark"
+                            className="flex-1 py-2 rounded-lg border border-border-light  text-text-muted text-sm hover:bg-background-light "
                         >
                             Cancel
                         </button>
@@ -222,23 +222,23 @@ function DeleteModal({ faq, onClose }) {
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
             <div className="absolute inset-0 bg-black/60" onClick={onClose} />
-            <div className="relative bg-card-light dark:bg-card-dark rounded-2xl border border-border-light dark:border-border-dark w-full max-w-sm shadow-xl p-6">
+            <div className="relative bg-card-light  rounded-2xl border border-border-light  w-full max-w-sm shadow-xl p-6">
                 <div className="flex items-center gap-3 mb-3">
-                    <div className="p-2.5 rounded-full bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 shrink-0">
+                    <div className="p-2.5 rounded-full bg-red-100  text-red-600  shrink-0">
                         <MdDelete size={20} />
                     </div>
-                    <h2 className="font-semibold text-text-main dark:text-white">Delete FAQ?</h2>
+                    <h2 className="font-semibold text-text-main ">Delete FAQ?</h2>
                 </div>
                 <p className="text-sm text-text-muted mb-1">
                     This will permanently remove:
                 </p>
-                <p className="text-sm text-text-main dark:text-white font-medium line-clamp-2 mb-5">
+                <p className="text-sm text-text-main  font-medium line-clamp-2 mb-5">
                     &quot;{faq.question}&quot;
                 </p>
                 <div className="flex gap-3">
                     <button
                         onClick={onClose}
-                        className="flex-1 py-2 rounded-lg border border-border-light dark:border-border-dark text-text-muted text-sm hover:bg-background-light dark:hover:bg-background-dark"
+                        className="flex-1 py-2 rounded-lg border border-border-light  text-text-muted text-sm hover:bg-background-light "
                     >
                         Cancel
                     </button>
@@ -259,10 +259,10 @@ function FaqItem({ faq, onEdit, onDelete }) {
     const [expanded, setExpanded] = useState(false);
 
     return (
-        <div className="border border-border-light dark:border-border-dark rounded-xl overflow-hidden">
+        <div className="border border-border-light  rounded-xl overflow-hidden">
             {/* Question row */}
             <div
-                className="flex items-start gap-3 px-4 py-3 cursor-pointer hover:bg-background-light dark:hover:bg-background-dark transition-colors select-none"
+                className="flex items-start gap-3 px-4 py-3 cursor-pointer hover:bg-background-light  transition-colors select-none"
                 onClick={() => setExpanded((v) => !v)}
             >
                 <div className="flex-1 min-w-0">
@@ -276,12 +276,12 @@ function FaqItem({ faq, onEdit, onDelete }) {
                             <span className="text-xs text-text-muted">#{faq.sortOrder}</span>
                         )}
                         {!faq.isActive && (
-                            <span className="text-xs px-2 py-0.5 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-400 font-medium">
+                            <span className="text-xs px-2 py-0.5 rounded-full bg-slate-200  text-slate-500  font-medium">
                                 Inactive
                             </span>
                         )}
                     </div>
-                    <p className="text-sm font-medium text-text-main dark:text-white leading-snug">
+                    <p className="text-sm font-medium text-text-main  leading-snug">
                         {faq.question}
                     </p>
                 </div>
@@ -301,7 +301,7 @@ function FaqItem({ faq, onEdit, onDelete }) {
                             e.stopPropagation();
                             onDelete(faq);
                         }}
-                        className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-text-muted hover:text-red-600 dark:hover:text-red-400 transition-colors"
+                        className="p-1.5 rounded-lg hover:bg-red-50  text-text-muted hover:text-red-600  transition-colors"
                         title="Delete"
                     >
                         <MdDelete size={16} />
@@ -318,7 +318,7 @@ function FaqItem({ faq, onEdit, onDelete }) {
 
             {/* Answer */}
             {expanded && (
-                <div className="px-4 pt-3 pb-4 border-t border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark">
+                <div className="px-4 pt-3 pb-4 border-t border-border-light  bg-background-light ">
                     <p className="text-sm text-text-muted whitespace-pre-wrap leading-relaxed">
                         {faq.answer}
                     </p>
@@ -381,7 +381,7 @@ export default function AdminFaqsPage() {
             {/* Header */}
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-xl font-bold text-text-main dark:text-white">FAQ Management</h1>
+                    <h1 className="text-xl font-bold text-text-main ">FAQ Management</h1>
                     <p className="text-sm text-text-muted mt-0.5">
                         {faqs.length} question{faqs.length !== 1 ? "s" : ""} published
                     </p>
@@ -407,14 +407,14 @@ export default function AdminFaqsPage() {
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                         placeholder="Search questions or answers…"
-                        className="w-full pl-9 pr-3 py-2 rounded-lg border border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark text-text-main dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                        className="w-full pl-9 pr-3 py-2 rounded-lg border border-border-light  bg-card-light  text-text-main  text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                     />
                 </div>
                 {categories.length > 0 && (
                     <select
                         value={categoryFilter}
                         onChange={(e) => setCategoryFilter(e.target.value)}
-                        className="rounded-lg border border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark text-text-main dark:text-white text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
+                        className="rounded-lg border border-border-light  bg-card-light  text-text-main  text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
                     >
                         <option value="all">All Categories</option>
                         {categories.map((c) => (
@@ -435,10 +435,10 @@ export default function AdminFaqsPage() {
                 </div>
             ) : filtered.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-16 text-center">
-                    <div className="p-4 rounded-full bg-background-light dark:bg-background-dark mb-3">
+                    <div className="p-4 rounded-full bg-background-light  mb-3">
                         <MdQuestionAnswer size={32} className="text-text-muted" />
                     </div>
-                    <p className="text-sm font-medium text-text-main dark:text-white">No FAQs found</p>
+                    <p className="text-sm font-medium text-text-main ">No FAQs found</p>
                     <p className="text-xs text-text-muted mt-1">
                         {search || categoryFilter !== "all"
                             ? "Try adjusting your filters."

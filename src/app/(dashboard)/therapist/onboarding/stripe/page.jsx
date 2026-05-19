@@ -206,15 +206,15 @@ export default function StripeOnboardingPage() {
     const isOnboardingStep = status === STATUS.ONBOARDING;
 
     return (
-        <div className="min-h-screen bg-background-light dark:bg-background-dark py-10 px-4">
+        <div className="min-h-screen bg-background-light  py-10 px-4">
             <div className="max-w-4xl mx-auto">
                 <OnboardingProgressBar />
 
                 <header className="mb-8 text-center px-4">
-                    <h1 className="text-text-main dark:text-white text-4xl font-black leading-tight tracking-[-0.033em] mb-2">
+                    <h1 className="text-text-main  text-4xl font-black leading-tight tracking-[-0.033em] mb-2">
                         Setup Payouts
                     </h1>
-                    <p className="text-text-muted dark:text-gray-400 text-lg">
+                    <p className="text-text-muted  text-lg">
                         Connect your bank account to receive payments for your sessions
                     </p>
                 </header>
@@ -222,15 +222,15 @@ export default function StripeOnboardingPage() {
                 <div className={isOnboardingStep ? "w-full" : "max-w-2xl mx-auto"}>
                     {/* ── INITIALIZING: Mount status check in flight ──────────────── */}
                     {status === STATUS.INITIALIZING && (
-                        <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl p-12 shadow-sm flex flex-col items-center gap-4">
+                        <div className="bg-card-light  border border-border-light  rounded-xl p-12 shadow-sm flex flex-col items-center gap-4">
                             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" />
-                            <p className="text-text-muted dark:text-slate-400 text-sm">Loading payment setup…</p>
+                            <p className="text-text-muted  text-sm">Loading payment setup…</p>
                         </div>
                     )}
 
                     {/* ── IDLE: No Stripe account yet ─────────────────────────────── */}
                     {status === STATUS.IDLE && (
-                        <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl p-8 shadow-sm">
+                        <div className="bg-card-light  border border-border-light  rounded-xl p-8 shadow-sm">
                             <div className="flex flex-col items-center text-center gap-6">
                                 <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center">
                                     <svg className="w-10 h-10 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -239,16 +239,16 @@ export default function StripeOnboardingPage() {
                                 </div>
 
                                 <div>
-                                    <h2 className="text-xl font-bold text-text-main dark:text-white mb-2">
+                                    <h2 className="text-xl font-bold text-text-main  mb-2">
                                         Secure Payout Setup
                                     </h2>
-                                    <p className="text-text-muted dark:text-gray-400 text-sm max-w-md">
+                                    <p className="text-text-muted  text-sm max-w-md">
                                         Set up your bank account directly in RehabTask. Your financial details are encrypted by our trusted payments processor — never stored on our servers.
                                     </p>
                                 </div>
 
-                                <div className="w-full bg-slate-50 dark:bg-slate-800/50 rounded-lg p-5 text-left space-y-3 border border-border-light dark:border-border-dark">
-                                    <p className="text-sm font-semibold text-text-main dark:text-white mb-3">What you&apos;ll need:</p>
+                                <div className="w-full bg-slate-50  rounded-lg p-5 text-left space-y-3 border border-border-light ">
+                                    <p className="text-sm font-semibold text-text-main  mb-3">What you&apos;ll need:</p>
                                     {[
                                         "Bank account or debit card for direct deposits",
                                         "Government-issued photo ID",
@@ -259,7 +259,7 @@ export default function StripeOnboardingPage() {
                                             <svg className="w-4 h-4 text-primary shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
                                             </svg>
-                                            <span className="text-sm text-text-muted dark:text-gray-300">{item}</span>
+                                            <span className="text-sm text-text-muted ">{item}</span>
                                         </div>
                                     ))}
                                 </div>
@@ -277,16 +277,16 @@ export default function StripeOnboardingPage() {
 
                                     <button
                                         onClick={handleSkipForNow}
-                                        className="w-full text-text-muted dark:text-gray-400 hover:text-text-main dark:hover:text-white px-8 py-3 rounded-lg font-semibold transition-colors"
+                                        className="w-full text-text-muted  hover:text-text-main  px-8 py-3 rounded-lg font-semibold transition-colors"
                                     >
                                         I&apos;ll do this later
                                     </button>
-                                    <p className="text-xs text-text-muted dark:text-gray-500 -mt-1">
+                                    <p className="text-xs text-text-muted  -mt-1">
                                         You can set up payouts anytime from your Earnings page. This won&apos;t delay your review.
                                     </p>
                                 </div>
 
-                                <div className="flex items-center gap-2 text-text-muted dark:text-gray-500 text-xs">
+                                <div className="flex items-center gap-2 text-text-muted  text-xs">
                                     <MdLock className="text-sm shrink-0" />
                                     <span>All financial data is encrypted and processed securely. RehabTask never stores your bank details.</span>
                                 </div>
@@ -296,10 +296,10 @@ export default function StripeOnboardingPage() {
 
                     {/* ── CREATING: Account creation in flight ────────────────────── */}
                     {status === STATUS.CREATING && (
-                        <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl p-12 shadow-sm flex flex-col items-center gap-4">
+                        <div className="bg-card-light  border border-border-light  rounded-xl p-12 shadow-sm flex flex-col items-center gap-4">
                             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" />
-                            <p className="text-text-main dark:text-white font-semibold">Setting up your payment account…</p>
-                            <p className="text-text-muted dark:text-slate-400 text-sm">This only takes a moment.</p>
+                            <p className="text-text-main  font-semibold">Setting up your payment account…</p>
+                            <p className="text-text-muted  text-sm">This only takes a moment.</p>
                         </div>
                     )}
 
@@ -307,17 +307,17 @@ export default function StripeOnboardingPage() {
                     {status === STATUS.ONBOARDING && (
                         <div className="space-y-4">
                             {error && (
-                                <div className="flex items-start gap-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-500/40 rounded-xl p-4">
+                                <div className="flex items-start gap-3 bg-amber-50  border border-amber-200  rounded-xl p-4">
                                     <MdError className="text-amber-500 text-xl shrink-0 mt-0.5" />
-                                    <p className="text-amber-700 dark:text-amber-300 text-sm">{error}</p>
+                                    <p className="text-amber-700  text-sm">{error}</p>
                                 </div>
                             )}
 
                             {stripeLoadError ? (
-                                <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl p-8 text-center space-y-4">
+                                <div className="bg-card-light  border border-border-light  rounded-xl p-8 text-center space-y-4">
                                     <MdError className="text-red-500 text-4xl mx-auto" />
-                                    <p className="text-text-main dark:text-white font-semibold">Failed to load payment setup</p>
-                                    <p className="text-text-muted dark:text-slate-400 text-sm">{stripeLoadError}</p>
+                                    <p className="text-text-main  font-semibold">Failed to load payment setup</p>
+                                    <p className="text-text-muted  text-sm">{stripeLoadError}</p>
                                     <button
                                         onClick={handleRetry}
                                         className="px-6 py-2.5 bg-primary text-white rounded-lg font-semibold text-sm hover:brightness-95 transition-all"
@@ -331,7 +331,7 @@ export default function StripeOnboardingPage() {
                                 // + shadow-sm on bg-card-light/dark). This gives
                                 // the embedded Stripe form proper breathing room
                                 // against the card edge.
-                                <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl shadow-sm p-6 md:p-8">
+                                <div className="bg-card-light  border border-border-light  rounded-xl shadow-sm p-6 md:p-8">
                                     {/* Skeleton sits in place of the embedded
                                         form during the 1-3s SDK init window.
                                         The form itself is always mounted (even
@@ -341,21 +341,21 @@ export default function StripeOnboardingPage() {
                                         its first UI inside the iframe. */}
                                     {!embeddedFormLoaded && (
                                         <div className="animate-pulse space-y-5">
-                                            <div className="h-6 w-48 bg-slate-200 dark:bg-slate-700 rounded" />
+                                            <div className="h-6 w-48 bg-slate-200  rounded" />
                                             <div className="space-y-3 pt-2">
-                                                <div className="h-4 w-32 bg-slate-200 dark:bg-slate-700 rounded" />
-                                                <div className="h-11 w-full bg-slate-100 dark:bg-slate-800 rounded-lg" />
+                                                <div className="h-4 w-32 bg-slate-200  rounded" />
+                                                <div className="h-11 w-full bg-slate-100  rounded-lg" />
                                             </div>
                                             <div className="space-y-3">
-                                                <div className="h-4 w-40 bg-slate-200 dark:bg-slate-700 rounded" />
-                                                <div className="h-11 w-full bg-slate-100 dark:bg-slate-800 rounded-lg" />
+                                                <div className="h-4 w-40 bg-slate-200  rounded" />
+                                                <div className="h-11 w-full bg-slate-100  rounded-lg" />
                                             </div>
                                             <div className="space-y-3">
-                                                <div className="h-4 w-36 bg-slate-200 dark:bg-slate-700 rounded" />
-                                                <div className="h-11 w-full bg-slate-100 dark:bg-slate-800 rounded-lg" />
+                                                <div className="h-4 w-36 bg-slate-200  rounded" />
+                                                <div className="h-11 w-full bg-slate-100  rounded-lg" />
                                             </div>
                                             <div className="flex justify-end pt-2">
-                                                <div className="h-10 w-28 bg-slate-200 dark:bg-slate-700 rounded-lg" />
+                                                <div className="h-10 w-28 bg-slate-200  rounded-lg" />
                                             </div>
                                         </div>
                                     )}
@@ -380,7 +380,7 @@ export default function StripeOnboardingPage() {
                             <div className="text-center">
                                 <button
                                     onClick={handleSkipForNow}
-                                    className="text-text-muted dark:text-gray-400 hover:text-text-main dark:hover:text-white text-sm font-semibold transition-colors"
+                                    className="text-text-muted  hover:text-text-main  text-sm font-semibold transition-colors"
                                 >
                                     I&apos;ll finish this later
                                 </button>
@@ -390,30 +390,30 @@ export default function StripeOnboardingPage() {
 
                     {/* ── VERIFYING: Server-side status check after onExit ────────── */}
                     {status === STATUS.VERIFYING && (
-                        <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl p-12 shadow-sm flex flex-col items-center gap-4">
+                        <div className="bg-card-light  border border-border-light  rounded-xl p-12 shadow-sm flex flex-col items-center gap-4">
                             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" />
-                            <p className="text-text-main dark:text-white font-semibold">Verifying your account…</p>
-                            <p className="text-text-muted dark:text-slate-400 text-sm">Just a moment while we confirm everything is in order.</p>
+                            <p className="text-text-main  font-semibold">Verifying your account…</p>
+                            <p className="text-text-muted  text-sm">Just a moment while we confirm everything is in order.</p>
                         </div>
                     )}
 
                     {/* ── COMPLETE: Verified, redirecting ─────────────────────────── */}
                     {status === STATUS.COMPLETE && (
-                        <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl p-12 shadow-sm flex flex-col items-center gap-4">
+                        <div className="bg-card-light  border border-border-light  rounded-xl p-12 shadow-sm flex flex-col items-center gap-4">
                             <div className="w-16 h-16 bg-emerald-500/10 rounded-full flex items-center justify-center">
                                 <MdCheckCircle className="text-emerald-500 text-4xl" />
                             </div>
-                            <p className="text-text-main dark:text-white font-bold text-xl">Payout setup complete!</p>
-                            <p className="text-text-muted dark:text-slate-400 text-sm">Redirecting you to your dashboard…</p>
+                            <p className="text-text-main  font-bold text-xl">Payout setup complete!</p>
+                            <p className="text-text-muted  text-sm">Redirecting you to your dashboard…</p>
                         </div>
                     )}
 
                     {/* ── ERROR: Unrecoverable (account creation failed) ───────────── */}
                     {status === STATUS.ERROR && (
-                        <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl p-8 shadow-sm space-y-5">
-                            <div className="flex items-start gap-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-500/40 rounded-xl p-4">
+                        <div className="bg-card-light  border border-border-light  rounded-xl p-8 shadow-sm space-y-5">
+                            <div className="flex items-start gap-3 bg-red-50  border border-red-200  rounded-xl p-4">
                                 <MdError className="text-red-500 text-xl shrink-0 mt-0.5" />
-                                <p className="text-red-700 dark:text-red-300 text-sm">{error}</p>
+                                <p className="text-red-700  text-sm">{error}</p>
                             </div>
                             <div className="flex flex-col gap-3">
                                 <button
@@ -424,7 +424,7 @@ export default function StripeOnboardingPage() {
                                 </button>
                                 <button
                                     onClick={handleSkipForNow}
-                                    className="w-full text-text-muted dark:text-gray-400 hover:text-text-main dark:hover:text-white px-8 py-3 rounded-lg font-semibold transition-colors"
+                                    className="w-full text-text-muted  hover:text-text-main  px-8 py-3 rounded-lg font-semibold transition-colors"
                                 >
                                     I&apos;ll do this later
                                 </button>
@@ -438,7 +438,7 @@ export default function StripeOnboardingPage() {
                     <div className="mt-6 flex justify-center">
                         <button
                             onClick={() => router.push("/therapist/onboarding/background-check")}
-                            className="flex items-center gap-2 text-text-muted dark:text-gray-400 hover:text-text-main dark:hover:text-white transition-colors"
+                            className="flex items-center gap-2 text-text-muted  hover:text-text-main  transition-colors"
                         >
                             <MdArrowBack className="text-lg" />
                             Back

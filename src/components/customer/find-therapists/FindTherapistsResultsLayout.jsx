@@ -12,14 +12,14 @@ function ListSkeleton() {
             {[1, 2, 3, 4].map((i) => (
                 <div
                     key={i}
-                    className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl p-4 animate-pulse"
+                    className="bg-card-light  border border-border-light  rounded-xl p-4 animate-pulse"
                 >
                     <div className="flex gap-3">
-                        <div className="w-12 h-12 rounded-full bg-muted-light dark:bg-muted-dark" />
+                        <div className="w-12 h-12 rounded-full bg-muted-light " />
                         <div className="flex-1 space-y-2">
-                            <div className="h-4 w-32 bg-muted-light dark:bg-muted-dark rounded" />
-                            <div className="h-3 w-20 bg-muted-light dark:bg-muted-dark rounded" />
-                            <div className="h-3 w-48 bg-muted-light dark:bg-muted-dark rounded" />
+                            <div className="h-4 w-32 bg-muted-light  rounded" />
+                            <div className="h-3 w-20 bg-muted-light  rounded" />
+                            <div className="h-3 w-48 bg-muted-light  rounded" />
                         </div>
                     </div>
                 </div>
@@ -31,7 +31,7 @@ function ListSkeleton() {
 function EmptyState({ hasActiveFilters, onClear }) {
     return (
         <div className="text-center py-16">
-            <p className="text-text-muted dark:text-gray-400 text-sm">No therapists match your search.</p>
+            <p className="text-text-muted  text-sm">No therapists match your search.</p>
             <p className="text-xs text-text-muted/70 mt-1">Try adjusting filters or searching a different area.</p>
             {hasActiveFilters && (
                 <button
@@ -53,12 +53,12 @@ function Pagination({ currentPage, totalPages, onPageChange }) {
         <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="flex items-center justify-between pt-4 mt-4 border-t border-border-light dark:border-border-dark"
+            className="flex items-center justify-between pt-4 mt-4 border-t border-border-light "
         >
             <button
                 onClick={() => onPageChange(Math.max(1, currentPage - 1))}
                 disabled={currentPage === 1}
-                className="flex items-center gap-1 text-sm font-medium text-text-muted dark:text-gray-400 hover:text-primary disabled:opacity-30 transition-colors"
+                className="flex items-center gap-1 text-sm font-medium text-text-muted  hover:text-primary disabled:opacity-30 transition-colors"
             >
                 <MdChevronLeft className="text-lg" />
                 Prev
@@ -71,7 +71,7 @@ function Pagination({ currentPage, totalPages, onPageChange }) {
                         className={`w-9 h-9 rounded-lg text-sm font-bold transition-colors ${
                             currentPage === page
                                 ? "bg-primary text-white"
-                                : "bg-muted-light dark:bg-muted-dark text-text-muted dark:text-gray-400 hover:bg-muted-light/60"
+                                : "bg-muted-light  text-text-muted  hover:bg-muted-light/60"
                         }`}
                     >
                         {page}
@@ -81,7 +81,7 @@ function Pagination({ currentPage, totalPages, onPageChange }) {
             <button
                 onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))}
                 disabled={currentPage === totalPages}
-                className="flex items-center gap-1 text-sm font-medium text-text-muted dark:text-gray-400 hover:text-primary disabled:opacity-30 transition-colors"
+                className="flex items-center gap-1 text-sm font-medium text-text-muted  hover:text-primary disabled:opacity-30 transition-colors"
             >
                 Next
                 <MdChevronRight className="text-lg" />
@@ -95,11 +95,11 @@ function MobileViewToggle({ view, onChange }) {
         `flex-1 py-2 rounded-lg text-xs font-bold flex items-center justify-center gap-2 transition-colors ${
             view === key
                 ? "bg-primary text-white shadow-sm"
-                : "text-text-muted dark:text-gray-400 hover:text-text-main dark:hover:text-white"
+                : "text-text-muted  hover:text-text-main "
         }`;
 
     return (
-        <div className="lg:hidden bg-muted-light dark:bg-muted-dark p-1 rounded-xl flex border border-border-light dark:border-border-dark">
+        <div className="lg:hidden bg-muted-light  p-1 rounded-xl flex border border-border-light ">
             <button type="button" onClick={() => onChange("list")} className={buttonClass("list")}>
                 <MdList className="text-base" />
                 List
@@ -185,7 +185,7 @@ export default function FindTherapistsResultsLayout({
 
                 <div className="grid grid-cols-1 lg:grid-cols-[360px_1fr] flex-1 min-h-0">
                     <div
-                        className={`flex flex-col bg-muted-light dark:bg-muted-dark lg:overflow-hidden ${showMap ? "hidden lg:flex" : "flex"}`}
+                        className={`flex flex-col bg-muted-light  lg:overflow-hidden ${showMap ? "hidden lg:flex" : "flex"}`}
                     >
                         <div className={`flex-1 min-h-0 lg:overflow-y-auto overscroll-contain panel-scroll px-5 sm:px-7 py-4 ${isFetching ? "opacity-60 pointer-events-none" : ""}`}>
                             {isLoading ? (

@@ -116,21 +116,21 @@ const WorkAreaFormModal = ({ isOpen, onClose, workArea, onSave }) => {
             className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4"
             onClick={handleOverlayClick}
         >
-            <div className="bg-card-light dark:bg-card-dark rounded-xl max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-xl">
+            <div className="bg-card-light  rounded-xl max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-xl">
                 {/* Header */}
-                <div className="flex items-center justify-between p-6 border-b border-border-light dark:border-border-dark">
+                <div className="flex items-center justify-between p-6 border-b border-border-light ">
                     <div className="flex items-center gap-3">
                         <div className="p-2 bg-primary/10 rounded-lg">
                             <MdLocationOn className="text-primary text-xl" />
                         </div>
-                        <h2 className="text-lg font-bold text-text-main dark:text-white">
+                        <h2 className="text-lg font-bold text-text-main ">
                             {isEditing ? "Edit Work Area" : "Add Work Area"}
                         </h2>
                     </div>
                     <button
                         type="button"
                         onClick={onClose}
-                        className="p-2 rounded-lg text-text-muted hover:bg-muted-light dark:hover:bg-muted-dark transition-colors"
+                        className="p-2 rounded-lg text-text-muted hover:bg-muted-light  transition-colors"
                     >
                         <MdClose className="text-xl" />
                     </button>
@@ -139,8 +139,8 @@ const WorkAreaFormModal = ({ isOpen, onClose, workArea, onSave }) => {
                 {/* Body */}
                 <div className="p-6 space-y-5">
                     {error && (
-                        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3">
-                            <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
+                        <div className="bg-red-50  border border-red-200  rounded-lg p-3">
+                            <p className="text-sm text-red-700 ">{error}</p>
                         </div>
                     )}
 
@@ -159,13 +159,13 @@ const WorkAreaFormModal = ({ isOpen, onClose, workArea, onSave }) => {
                     {hasSelectedLocation && city && state && (
                         <div className="flex items-center gap-2 bg-primary/5 border border-primary/20 rounded-lg px-3 py-2">
                             <MdLocationOn className="text-primary shrink-0" />
-                            <span className="text-sm font-medium text-text-main dark:text-white">
+                            <span className="text-sm font-medium text-text-main ">
                                 {city}, {state}
                             </span>
                         </div>
                     )}
 
-                    <div className="rounded-xl overflow-hidden border border-border-light dark:border-border-dark h-48">
+                    <div className="rounded-xl overflow-hidden border border-border-light  h-48">
                         <Map
                             defaultCenter={DEFAULT_CENTER}
                             defaultZoom={DEFAULT_ZOOM}

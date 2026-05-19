@@ -91,8 +91,8 @@ export default function CustomerBookingsPage() {
     if (loading) {
         return (
             <div className="flex-1 flex flex-col">
-                <header className="h-16 border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md sticky top-14 lg:top-0 z-10 flex items-center justify-between px-4 sm:px-8 shrink-0">
-                    <h2 className="text-xl sm:text-2xl font-black tracking-tight text-text-main dark:text-white">
+                <header className="h-16 border-b border-slate-200  bg-white/80  backdrop-blur-md sticky top-14 lg:top-0 z-10 flex items-center justify-between px-4 sm:px-8 shrink-0">
+                    <h2 className="text-xl sm:text-2xl font-black tracking-tight text-text-main ">
                         My Bookings
                     </h2>
                 </header>
@@ -100,7 +100,7 @@ export default function CustomerBookingsPage() {
                     {[1, 2, 3, 4].map((i) => (
                         <div
                             key={i}
-                            className="h-20 bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl animate-pulse"
+                            className="h-20 bg-card-light  border border-border-light  rounded-xl animate-pulse"
                         />
                     ))}
                 </div>
@@ -111,14 +111,14 @@ export default function CustomerBookingsPage() {
     if (error) {
         return (
             <div className="flex-1 flex flex-col">
-                <header className="h-16 border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md sticky top-14 lg:top-0 z-10 flex items-center px-4 sm:px-8 shrink-0">
-                    <h2 className="text-xl sm:text-2xl font-black tracking-tight text-text-main dark:text-white">
+                <header className="h-16 border-b border-slate-200  bg-white/80  backdrop-blur-md sticky top-14 lg:top-0 z-10 flex items-center px-4 sm:px-8 shrink-0">
+                    <h2 className="text-xl sm:text-2xl font-black tracking-tight text-text-main ">
                         My Bookings
                     </h2>
                 </header>
                 <div className="flex-1 flex items-center justify-center">
                     <div className="text-center space-y-2">
-                        <p className="text-text-muted dark:text-gray-400 text-sm">Failed to load bookings.</p>
+                        <p className="text-text-muted  text-sm">Failed to load bookings.</p>
                         <button onClick={refetch} className="text-primary hover:underline text-sm font-bold flex items-center gap-1 mx-auto">
                             <MdRefresh className="text-base" /> Retry
                         </button>
@@ -131,8 +131,8 @@ export default function CustomerBookingsPage() {
     return (
         <div className="flex-1 flex flex-col">
             {/* Sticky Header */}
-            <header className="h-16 border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md sticky top-14 lg:top-0 z-10 flex items-center justify-between px-4 sm:px-8 shrink-0">
-                <h2 className="text-xl sm:text-2xl font-black tracking-tight text-text-main dark:text-white">
+            <header className="h-16 border-b border-slate-200  bg-white/80  backdrop-blur-md sticky top-14 lg:top-0 z-10 flex items-center justify-between px-4 sm:px-8 shrink-0">
+                <h2 className="text-xl sm:text-2xl font-black tracking-tight text-text-main ">
                     My Bookings
                 </h2>
                 <button
@@ -146,9 +146,9 @@ export default function CustomerBookingsPage() {
 
             {/* Action Needed Banner */}
             {actionNeeded && (
-                <div className="mx-4 sm:mx-8 mt-4 flex items-center gap-3 px-4 py-3 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800">
-                    <MdWarning className="text-amber-600 dark:text-amber-400 text-lg shrink-0" />
-                    <p className="text-sm text-amber-800 dark:text-amber-300 flex-1">
+                <div className="mx-4 sm:mx-8 mt-4 flex items-center gap-3 px-4 py-3 rounded-lg bg-amber-50  border border-amber-200 ">
+                    <MdWarning className="text-amber-600  text-lg shrink-0" />
+                    <p className="text-sm text-amber-800  flex-1">
                         A therapist has marked a session complete. Please confirm to release payment.
                     </p>
                     <button
@@ -156,7 +156,7 @@ export default function CustomerBookingsPage() {
                             const b = bookings.find((b) => b.sessions?.[0]?.status === "completed_by_therapist");
                             if (b) router.push(`/customer/bookings/${b.id}`);
                         }}
-                        className="text-xs font-bold text-amber-700 dark:text-amber-300 hover:underline whitespace-nowrap"
+                        className="text-xs font-bold text-amber-700  hover:underline whitespace-nowrap"
                     >
                         View Booking
                     </button>
@@ -165,14 +165,14 @@ export default function CustomerBookingsPage() {
 
             {/* Payment Needed Banner */}
             {paymentNeeded && (
-                <div className="mx-4 sm:mx-8 mt-4 flex items-center gap-3 px-4 py-3 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
-                    <MdWarning className="text-blue-600 dark:text-blue-400 text-lg shrink-0" />
-                    <p className="text-sm text-blue-800 dark:text-blue-300 flex-1">
+                <div className="mx-4 sm:mx-8 mt-4 flex items-center gap-3 px-4 py-3 rounded-lg bg-blue-50  border border-blue-200 ">
+                    <MdWarning className="text-blue-600  text-lg shrink-0" />
+                    <p className="text-sm text-blue-800  flex-1">
                         You have a booking awaiting payment. Complete payment to confirm your session.
                     </p>
                     <button
                         onClick={() => router.push(`/customer/bookings/${paymentNeeded.id}`)}
-                        className="text-xs font-bold text-blue-700 dark:text-blue-300 hover:underline whitespace-nowrap"
+                        className="text-xs font-bold text-blue-700  hover:underline whitespace-nowrap"
                     >
                         Pay Now
                     </button>
@@ -180,7 +180,7 @@ export default function CustomerBookingsPage() {
             )}
 
             {/* Filter Tabs */}
-            <div className="flex flex-wrap items-center gap-2 px-4 sm:px-8 py-3 border-b border-border-light dark:border-border-dark shrink-0">
+            <div className="flex flex-wrap items-center gap-2 px-4 sm:px-8 py-3 border-b border-border-light  shrink-0">
                 {FILTER_TABS.map((tab) => {
                     const isActive = activeFilter === tab.key;
                     const count = counts[tab.key];
@@ -190,7 +190,7 @@ export default function CustomerBookingsPage() {
                             onClick={() => handleFilterChange(tab.key)}
                             className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${isActive
                                 ? "bg-primary text-white"
-                                : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700"
+                                : "bg-slate-100  text-slate-600  hover:bg-slate-200 "
                                 }`}
                         >
                             {tab.label} ({count})
@@ -204,8 +204,8 @@ export default function CustomerBookingsPage() {
                 {filtered.length === 0 ? (
                     <div className="flex-1 flex items-center justify-center py-16">
                         <div className="text-center space-y-3">
-                            <MdCalendarMonth className="text-5xl text-slate-200 dark:text-slate-700 mx-auto" />
-                            <p className="text-text-muted dark:text-gray-400 text-sm">
+                            <MdCalendarMonth className="text-5xl text-slate-200  mx-auto" />
+                            <p className="text-text-muted  text-sm">
                                 {bookings.length === 0
                                     ? "No bookings yet."
                                     : "No bookings match this filter."}
@@ -226,7 +226,7 @@ export default function CustomerBookingsPage() {
                         <div className="hidden lg:block px-8 py-4">
                             <table className="w-full">
                                 <thead>
-                                    <tr className="text-left text-xs font-semibold uppercase tracking-wider text-text-muted dark:text-gray-400 border-b border-border-light dark:border-border-dark">
+                                    <tr className="text-left text-xs font-semibold uppercase tracking-wider text-text-muted  border-b border-border-light ">
                                         <th className="pb-3 pr-4">Therapist</th>
                                         <th className="pb-3 pr-4">Service</th>
                                         <th className="pb-3 pr-4">Date & Time</th>
@@ -243,7 +243,7 @@ export default function CustomerBookingsPage() {
                                             <tr
                                                 key={booking.id}
                                                 onClick={() => handleRowClick(booking.id)}
-                                                className="border-b border-border-light dark:border-border-dark hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer transition-colors"
+                                                className="border-b border-border-light  hover:bg-slate-50  cursor-pointer transition-colors"
                                             >
                                                 <td className="py-3.5 pr-4">
                                                     <div className="flex items-center gap-3">
@@ -261,31 +261,31 @@ export default function CustomerBookingsPage() {
                                                             </div>
                                                         )}
                                                         <div className="min-w-0">
-                                                            <p className="text-sm font-semibold text-text-main dark:text-white truncate">
+                                                            <p className="text-sm font-semibold text-text-main  truncate">
                                                                 {therapist?.fullName || "Therapist"}
                                                             </p>
-                                                            <p className="text-xs text-text-muted dark:text-gray-400 truncate">
+                                                            <p className="text-xs text-text-muted  truncate">
                                                                 {therapist?.specialization || "—"}
                                                             </p>
                                                         </div>
                                                     </div>
                                                 </td>
                                                 <td className="py-3.5 pr-4">
-                                                    <span className="text-sm text-text-main dark:text-white">
+                                                    <span className="text-sm text-text-main ">
                                                         {booking.offer?.request?.serviceType || "—"}
                                                     </span>
                                                     <PatientBadge patient={booking.patient} />
                                                 </td>
                                                 <td className="py-3.5 pr-4">
-                                                    <p className="text-sm text-text-main dark:text-white">
+                                                    <p className="text-sm text-text-main ">
                                                         {formatDate(booking.scheduledDate)}
                                                     </p>
-                                                    <p className="text-xs text-text-muted dark:text-gray-400">
+                                                    <p className="text-xs text-text-muted ">
                                                         {formatTime(booking.scheduledDate)}
                                                     </p>
                                                 </td>
                                                 <td className="py-3.5 pr-4">
-                                                    <span className="text-sm font-bold text-primary dark:text-blue-400 font-mono">
+                                                    <span className="text-sm font-bold text-primary  font-mono">
                                                         {formatCurrency(parseFloat(booking.rate))}
                                                     </span>
                                                 </td>
@@ -293,7 +293,7 @@ export default function CustomerBookingsPage() {
                                                     <BookingStatusBadge status={booking.status} />
                                                 </td>
                                                 <td className="py-3.5">
-                                                    <MdChevronRight className="text-lg text-text-muted dark:text-gray-500" />
+                                                    <MdChevronRight className="text-lg text-text-muted " />
                                                 </td>
                                             </tr>
                                         );
@@ -311,7 +311,7 @@ export default function CustomerBookingsPage() {
                                     <button
                                         key={booking.id}
                                         onClick={() => handleRowClick(booking.id)}
-                                        className="w-full text-left p-4 rounded-xl border border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark hover:shadow-sm transition-all"
+                                        className="w-full text-left p-4 rounded-xl border border-border-light  bg-card-light  hover:shadow-sm transition-all"
                                     >
                                         <div className="flex items-start gap-3">
                                             {therapist?.profilePhotoUrl ? (
@@ -329,21 +329,21 @@ export default function CustomerBookingsPage() {
                                             )}
                                             <div className="flex-1 min-w-0">
                                                 <div className="flex items-start justify-between gap-2 mb-1">
-                                                    <h3 className="text-sm font-bold text-text-main dark:text-white truncate">
+                                                    <h3 className="text-sm font-bold text-text-main  truncate">
                                                         {therapist?.fullName || "Therapist"}
                                                     </h3>
                                                     <BookingStatusBadge status={booking.status} />
                                                 </div>
-                                                <p className="text-xs text-text-muted dark:text-gray-400 mb-2">
+                                                <p className="text-xs text-text-muted  mb-2">
                                                     {booking.offer?.request?.serviceType || "—"}
                                                 </p>
                                                 <PatientBadge patient={booking.patient} />
-                                                <div className="flex items-center gap-4 text-xs text-text-muted dark:text-gray-400">
+                                                <div className="flex items-center gap-4 text-xs text-text-muted ">
                                                     <span className="flex items-center gap-1">
                                                         <MdCalendarToday className="text-sm" />
                                                         {formatDate(booking.scheduledDate)}
                                                     </span>
-                                                    <span className="font-bold text-primary dark:text-blue-400 font-mono">
+                                                    <span className="font-bold text-primary  font-mono">
                                                         {formatCurrency(parseFloat(booking.rate))}
                                                     </span>
                                                 </div>
@@ -356,21 +356,21 @@ export default function CustomerBookingsPage() {
 
                         {/* Pagination */}
                         {totalPages > 1 && (
-                            <div className="flex items-center justify-between px-4 sm:px-8 py-4 border-t border-border-light dark:border-border-dark">
+                            <div className="flex items-center justify-between px-4 sm:px-8 py-4 border-t border-border-light ">
                                 <button
                                     onClick={() => setPage((p) => Math.max(1, p - 1))}
                                     disabled={page === 1}
-                                    className="flex items-center gap-1 text-sm font-medium text-text-muted dark:text-gray-400 hover:text-text-main dark:hover:text-white disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                                    className="flex items-center gap-1 text-sm font-medium text-text-muted  hover:text-text-main  disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                                 >
                                     <MdChevronLeft className="text-lg" /> Previous
                                 </button>
-                                <span className="text-xs text-text-muted dark:text-gray-400">
+                                <span className="text-xs text-text-muted ">
                                     Page {page} of {totalPages}
                                 </span>
                                 <button
                                     onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                                     disabled={page === totalPages}
-                                    className="flex items-center gap-1 text-sm font-medium text-text-muted dark:text-gray-400 hover:text-text-main dark:hover:text-white disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                                    className="flex items-center gap-1 text-sm font-medium text-text-muted  hover:text-text-main  disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                                 >
                                     Next <MdChevronRight className="text-lg" />
                                 </button>

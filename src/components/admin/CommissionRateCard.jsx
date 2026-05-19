@@ -55,17 +55,17 @@ export default function CommissionRateCard({ canWrite }) {
     };
 
     return (
-        <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl p-6">
+        <div className="bg-card-light  border border-border-light  rounded-xl p-6">
             <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-3">
                     <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
                         <MdPercent className="text-primary text-xl" />
                     </div>
                     <div>
-                        <h3 className="text-sm font-bold text-text-main dark:text-white uppercase tracking-wider">
+                        <h3 className="text-sm font-bold text-text-main  uppercase tracking-wider">
                             Platform Commission Rate
                         </h3>
-                        <p className="text-xs text-text-muted dark:text-gray-400 mt-0.5">
+                        <p className="text-xs text-text-muted  mt-0.5">
                             Applied to all therapist payouts
                         </p>
                     </div>
@@ -82,8 +82,8 @@ export default function CommissionRateCard({ canWrite }) {
 
             {isLoading && (
                 <div className="animate-pulse space-y-2">
-                    <div className="h-10 w-32 bg-slate-200 dark:bg-slate-700 rounded" />
-                    <div className="h-4 w-48 bg-slate-200 dark:bg-slate-700 rounded" />
+                    <div className="h-10 w-32 bg-slate-200  rounded" />
+                    <div className="h-4 w-48 bg-slate-200  rounded" />
                 </div>
             )}
 
@@ -93,16 +93,16 @@ export default function CommissionRateCard({ canWrite }) {
 
             {!isLoading && !isError && data && !editing && (
                 <div>
-                    <p className="text-4xl font-black text-text-main dark:text-white">
+                    <p className="text-4xl font-black text-text-main ">
                         {(parseFloat(data.rate) * 100).toFixed(2)}
-                        <span className="text-lg font-bold text-text-muted dark:text-gray-400 ml-1">%</span>
+                        <span className="text-lg font-bold text-text-muted  ml-1">%</span>
                     </p>
                     {data.isDefault ? (
-                        <p className="text-xs text-text-muted dark:text-gray-400 mt-1 flex items-center gap-1">
+                        <p className="text-xs text-text-muted  mt-1 flex items-center gap-1">
                             <MdInfo className="text-sm" /> Default rate — no manual override set
                         </p>
                     ) : (
-                        <p className="text-xs text-text-muted dark:text-gray-400 mt-1">
+                        <p className="text-xs text-text-muted  mt-1">
                             Effective {formatDate(data.effectiveFrom)}
                             {data.createdByAdmin && ` · Set by ${data.createdByAdmin.email}`}
                         </p>
@@ -113,7 +113,7 @@ export default function CommissionRateCard({ canWrite }) {
             {editing && (
                 <div className="space-y-4 mt-2">
                     <div>
-                        <label className="block text-xs font-semibold text-text-muted dark:text-gray-400 mb-1">
+                        <label className="block text-xs font-semibold text-text-muted  mb-1">
                             New Rate (%)
                         </label>
                         <input
@@ -123,18 +123,18 @@ export default function CommissionRateCard({ canWrite }) {
                             step="0.01"
                             value={rateInput}
                             onChange={(e) => setRateInput(e.target.value)}
-                            className="w-40 px-3 py-2 rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-main dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
+                            className="w-40 px-3 py-2 rounded-lg border border-border-light  bg-background-light  text-text-main  text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
                         />
                     </div>
                     <div>
-                        <label className="block text-xs font-semibold text-text-muted dark:text-gray-400 mb-1">
+                        <label className="block text-xs font-semibold text-text-muted  mb-1">
                             Effective From (optional — defaults to now)
                         </label>
                         <input
                             type="datetime-local"
                             value={effectiveFrom}
                             onChange={(e) => setEffectiveFrom(e.target.value)}
-                            className="w-64 px-3 py-2 rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-main dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
+                            className="w-64 px-3 py-2 rounded-lg border border-border-light  bg-background-light  text-text-main  text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
                         />
                     </div>
                     <div className="flex items-center gap-2">
@@ -149,7 +149,7 @@ export default function CommissionRateCard({ canWrite }) {
                         <button
                             onClick={handleCancel}
                             disabled={setRate.isPending}
-                            className="flex items-center gap-1.5 px-4 py-2 text-text-muted dark:text-gray-400 hover:text-text-main dark:hover:text-white text-sm font-bold transition-colors"
+                            className="flex items-center gap-1.5 px-4 py-2 text-text-muted  hover:text-text-main  text-sm font-bold transition-colors"
                         >
                             <MdClose className="text-base" /> Cancel
                         </button>

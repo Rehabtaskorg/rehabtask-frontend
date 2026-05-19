@@ -36,24 +36,24 @@ export default function OnboardingProgressBar() {
     }, [syncStatus, currentStep]) // re-sync when current step changes
 
     return (
-        <div className="bg-card-light dark:bg-card-dark rounded-xl p-6 shadow-sm border border-border-light dark:border-border-dark mb-6">
+        <div className="bg-card-light  rounded-xl p-6 shadow-sm border border-border-light  mb-6">
             <div className="flex gap-6 justify-between items-center mb-3">
-                <p className="text-text-main dark:text-white text-base font-semibold leading-normal">
+                <p className="text-text-main  text-base font-semibold leading-normal">
                     Onboarding Progress
                 </p>
-                <p className="text-text-main dark:text-white text-sm font-medium leading-normal">
+                <p className="text-text-main  text-sm font-medium leading-normal">
                     {completedCount} of {STEPS.length} completed
                 </p>
             </div>
 
-            <div className="rounded-full bg-gray-200 dark:bg-gray-700 h-2.5 overflow-hidden">
+            <div className="rounded-full bg-gray-200  h-2.5 overflow-hidden">
                 <div
                     className="h-full rounded-full bg-primary transition-all duration-500"
                     style={{ width: `${progress}%` }}
                 ></div>
             </div>
 
-            <p className="text-text-muted dark:text-gray-400 text-sm mt-3 font-normal leading-normal">
+            <p className="text-text-muted  text-sm mt-3 font-normal leading-normal">
                 {progress === 100
                     ? "✓ Profile complete - awaiting review"
                     : STEPS.find((s) => s.number === currentStep)?.label || "Complete your profile to start accepting patients"

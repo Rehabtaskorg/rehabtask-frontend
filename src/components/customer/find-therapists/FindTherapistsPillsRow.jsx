@@ -21,7 +21,7 @@ export default function FindTherapistsPillsRow({
     onSortChange,
 }) {
     return (
-        <section className="bg-card-light dark:bg-card-dark border-b border-border-light dark:border-border-dark">
+        <section className="bg-card-light  border-b border-border-light ">
             <div className="px-4 sm:px-6 lg:px-8 py-2.5">
                 <div className="flex items-center justify-between gap-3 relative">
                     <div className="flex items-center gap-2 flex-wrap">
@@ -33,7 +33,7 @@ export default function FindTherapistsPillsRow({
                                 className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-colors ${
                                     activeDiscipline === d.key
                                         ? "bg-primary text-white"
-                                        : "bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark text-text-main dark:text-white hover:border-gray-300 dark:hover:border-gray-600"
+                                        : "bg-card-light  border border-border-light  text-text-main  hover:border-gray-300 "
                                 }`}
                             >
                                 {d.label}
@@ -41,7 +41,7 @@ export default function FindTherapistsPillsRow({
                         ))}
                     </div>
 
-                    <div className="flex items-center gap-1.5 text-xs text-text-muted dark:text-gray-400">
+                    <div className="flex items-center gap-1.5 text-xs text-text-muted ">
                         <span className="hidden sm:inline">Sorted by</span>
                         <select
                             value={sortBy}

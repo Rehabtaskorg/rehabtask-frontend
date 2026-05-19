@@ -22,26 +22,26 @@ import Image from "next/image";
 const StatusBadge = ({ status }) => {
     const config = {
         approved: {
-            bg: "bg-green-100 dark:bg-green-900/20",
-            text: "text-green-800 dark:text-green-200",
+            bg: "bg-green-100 ",
+            text: "text-green-800 ",
             icon: <MdVerified className="text-sm" />,
             label: "Approved",
         },
         pending: {
-            bg: "bg-yellow-100 dark:bg-yellow-900/20",
-            text: "text-yellow-800 dark:text-yellow-200",
+            bg: "bg-yellow-100 ",
+            text: "text-yellow-800 ",
             icon: <MdPending className="text-sm" />,
             label: "Pending",
         },
         review: {
-            bg: "bg-yellow-100 dark:bg-yellow-900/20",
-            text: "text-yellow-800 dark:text-yellow-200",
+            bg: "bg-yellow-100 ",
+            text: "text-yellow-800 ",
             icon: <MdPending className="text-sm" />,
             label: "Under Review",
         },
         rejected: {
-            bg: "bg-red-100 dark:bg-red-900/20",
-            text: "text-red-800 dark:text-red-200",
+            bg: "bg-red-100 ",
+            text: "text-red-800 ",
             icon: <MdCancel className="text-sm" />,
             label: "Rejected",
         },
@@ -64,7 +64,7 @@ const InfoRow = ({ label, value, icon }) => (
         {icon && <span className="text-text-muted mt-0.5">{icon}</span>}
         <div className="min-w-0 flex-1">
             <p className="text-sm text-text-muted">{label}</p>
-            <p className="text-base text-text-main dark:text-white font-medium wrap-break-word">
+            <p className="text-base text-text-main  font-medium wrap-break-word">
                 {value || "—"}
             </p>
         </div>
@@ -112,13 +112,13 @@ const ProfileTab = ({ profile, approvalStatus, onboardingComplete }) => {
                 {/* Left column — spans 2 */}
                 <div className="lg:col-span-2 space-y-6">
                     {/* Personal Information */}
-                    <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl shadow-sm p-6">
+                    <div className="bg-card-light  border border-border-light  rounded-xl shadow-sm p-6">
                         <div className="flex items-center justify-between mb-5">
                             <div className="flex items-center gap-3">
                                 <div className="p-2 bg-primary/10 rounded-lg">
                                     <MdPerson className="text-primary text-xl" />
                                 </div>
-                                <h3 className="text-lg font-bold text-text-main dark:text-white">
+                                <h3 className="text-lg font-bold text-text-main ">
                                     Personal Information
                                 </h3>
                             </div>
@@ -139,10 +139,10 @@ const ProfileTab = ({ profile, approvalStatus, onboardingComplete }) => {
                                     alt={profile.fullName}
                                     width={96}
                                     height={96}
-                                    className="w-24 h-24 rounded-full object-cover border-2 border-border-light dark:border-border-dark shrink-0"
+                                    className="w-24 h-24 rounded-full object-cover border-2 border-border-light  shrink-0"
                                 />
                             ) : (
-                                <div className="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center border-2 border-border-light dark:border-border-dark shrink-0">
+                                <div className="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center border-2 border-border-light  shrink-0">
                                     <span className="text-primary text-2xl font-bold">
                                         {initials}
                                     </span>
@@ -164,21 +164,21 @@ const ProfileTab = ({ profile, approvalStatus, onboardingComplete }) => {
                     </div>
 
                     {/* Professional Details */}
-                    <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl shadow-sm p-6">
+                    <div className="bg-card-light  border border-border-light  rounded-xl shadow-sm p-6">
                         <div className="flex items-center gap-3 mb-5">
                             <div className="p-2 bg-primary/10 rounded-lg">
                                 <MdWork className="text-primary text-xl" />
                             </div>
-                            <h3 className="text-lg font-bold text-text-main dark:text-white">
+                            <h3 className="text-lg font-bold text-text-main ">
                                 Professional Details
                             </h3>
                         </div>
 
                         {/* Credential lock notice for pending/review */}
                         {isCredentialsLocked && (
-                            <div className="flex items-center gap-2 mb-4 p-3 bg-yellow-50 dark:bg-yellow-900/10 rounded-lg border border-yellow-200 dark:border-yellow-800">
-                                <MdLock className="text-yellow-600 dark:text-yellow-400 text-sm shrink-0" />
-                                <p className="text-xs text-yellow-700 dark:text-yellow-300">
+                            <div className="flex items-center gap-2 mb-4 p-3 bg-yellow-50  rounded-lg border border-yellow-200 ">
+                                <MdLock className="text-yellow-600  text-sm shrink-0" />
+                                <p className="text-xs text-yellow-700 ">
                                     Credential fields are locked while your application is under review. Contact support for changes.
                                 </p>
                             </div>
@@ -214,9 +214,9 @@ const ProfileTab = ({ profile, approvalStatus, onboardingComplete }) => {
                         </div>
 
                         {profile?.professionalSummary && (
-                            <div className="mt-4 pt-4 border-t border-border-light dark:border-border-dark">
+                            <div className="mt-4 pt-4 border-t border-border-light ">
                                 <p className="text-sm text-text-muted mb-1">Professional Summary</p>
-                                <p className="text-sm text-text-main dark:text-white leading-relaxed whitespace-pre-wrap">
+                                <p className="text-sm text-text-main  leading-relaxed whitespace-pre-wrap">
                                     {profile.professionalSummary}
                                 </p>
                             </div>
@@ -227,15 +227,15 @@ const ProfileTab = ({ profile, approvalStatus, onboardingComplete }) => {
                 {/* Right column */}
                 <div className="space-y-6">
                     {/* Account Status */}
-                    <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl shadow-sm p-6">
-                        <h3 className="text-lg font-bold text-text-main dark:text-white mb-4">
+                    <div className="bg-card-light  border border-border-light  rounded-xl shadow-sm p-6">
+                        <h3 className="text-lg font-bold text-text-main  mb-4">
                             Account Status
                         </h3>
                         <div className="space-y-3">
                             <div className="flex items-center justify-between">
                                 <span className="text-sm text-text-muted">Approval</span>
                                 {!onboardingComplete && profile?.approvalStatus === "pending" ? (
-                                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-gray-100 dark:bg-gray-800 text-text-muted dark:text-gray-400">
+                                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-gray-100  text-text-muted ">
                                         Not Submitted
                                     </span>
                                 ) : (
@@ -246,8 +246,8 @@ const ProfileTab = ({ profile, approvalStatus, onboardingComplete }) => {
                                 <span className="text-sm text-text-muted">Onboarding</span>
                                 <span
                                     className={`inline-flex items-center gap-1 text-xs font-semibold ${profile?.onboardingComplete
-                                        ? "text-green-600 dark:text-green-400"
-                                        : "text-yellow-600 dark:text-yellow-400"
+                                        ? "text-green-600 "
+                                        : "text-yellow-600 "
                                         }`}
                                 >
                                     <MdCheckCircle className="text-sm" />
@@ -258,8 +258,8 @@ const ProfileTab = ({ profile, approvalStatus, onboardingComplete }) => {
                                 <span className="text-sm text-text-muted">Payouts</span>
                                 <span
                                     className={`inline-flex items-center gap-1 text-xs font-semibold ${profile?.stripeOnboardingComplete
-                                        ? "text-green-600 dark:text-green-400"
-                                        : "text-yellow-600 dark:text-yellow-400"
+                                        ? "text-green-600 "
+                                        : "text-yellow-600 "
                                         }`}
                                 >
                                     <MdCheckCircle className="text-sm" />
@@ -270,22 +270,22 @@ const ProfileTab = ({ profile, approvalStatus, onboardingComplete }) => {
 
                         {/* Contextual status message for pending/review */}
                         {(approvalStatus === "pending" || approvalStatus === "review") && (
-                            <div className="mt-4 pt-3 border-t border-border-light dark:border-border-dark">
+                            <div className="mt-4 pt-3 border-t border-border-light ">
                                 {onboardingComplete ? (
                                     <>
-                                        <p className="text-xs text-text-muted dark:text-gray-400">
-                                            Estimated review time: <span className="font-semibold text-text-main dark:text-white">24-48 hours</span>
+                                        <p className="text-xs text-text-muted ">
+                                            Estimated review time: <span className="font-semibold text-text-main ">24-48 hours</span>
                                         </p>
-                                        <p className="text-xs text-text-muted dark:text-gray-400 mt-1">
+                                        <p className="text-xs text-text-muted  mt-1">
                                             Your profile is hidden from patients until approved.
                                         </p>
                                     </>
                                 ) : (
                                     <>
-                                        <p className="text-xs text-text-muted dark:text-gray-400">
+                                        <p className="text-xs text-text-muted ">
                                             Complete your onboarding to submit for review.
                                         </p>
-                                        <p className="text-xs text-text-muted dark:text-gray-400 mt-1">
+                                        <p className="text-xs text-text-muted  mt-1">
                                             Your profile is hidden from patients until approved.
                                         </p>
                                     </>
@@ -295,12 +295,12 @@ const ProfileTab = ({ profile, approvalStatus, onboardingComplete }) => {
 
                         {/* Contextual status message for rejected */}
                         {approvalStatus === "rejected" && (
-                            <div className="mt-4 pt-3 border-t border-red-200 dark:border-red-800">
-                                <p className="text-xs font-semibold text-red-700 dark:text-red-300">
+                            <div className="mt-4 pt-3 border-t border-red-200 ">
+                                <p className="text-xs font-semibold text-red-700 ">
                                     Action required — please update your credentials
                                 </p>
                                 {profile?.rejectionReason && (
-                                    <p className="text-xs text-red-600 dark:text-red-400 mt-1">
+                                    <p className="text-xs text-red-600  mt-1">
                                         {profile.rejectionReason}
                                     </p>
                                 )}
@@ -309,12 +309,12 @@ const ProfileTab = ({ profile, approvalStatus, onboardingComplete }) => {
                     </div>
 
                     {/* License Documents */}
-                    <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl shadow-sm p-6">
+                    <div className="bg-card-light  border border-border-light  rounded-xl shadow-sm p-6">
                         <div className="flex items-center gap-3 mb-4">
                             <div className="p-2 bg-primary/10 rounded-lg">
                                 <MdDescription className="text-primary text-xl" />
                             </div>
-                            <h3 className="text-lg font-bold text-text-main dark:text-white">
+                            <h3 className="text-lg font-bold text-text-main ">
                                 License Documents
                             </h3>
                         </div>
@@ -324,10 +324,10 @@ const ProfileTab = ({ profile, approvalStatus, onboardingComplete }) => {
                                 {profile.licenseDocuments.map((doc) => (
                                     <div
                                         key={doc.id}
-                                        className="flex items-center justify-between bg-muted-light dark:bg-muted-dark rounded-lg p-3 border border-border-light dark:border-border-dark"
+                                        className="flex items-center justify-between bg-muted-light  rounded-lg p-3 border border-border-light "
                                     >
                                         <div className="min-w-0 flex-1">
-                                            <p className="text-sm font-medium text-text-main dark:text-white truncate">
+                                            <p className="text-sm font-medium text-text-main  truncate">
                                                 {doc.fileName}
                                             </p>
                                             <p className="text-xs text-text-muted">

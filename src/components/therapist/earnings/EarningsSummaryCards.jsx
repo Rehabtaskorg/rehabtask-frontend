@@ -5,22 +5,22 @@ const TIER_LABELS = { basic: "Basic", pro: "Pro", elite: "Elite" };
 
 function StatCard({ icon: Icon, iconBg, value, label, tag, subtitle, subtitleColor }) {
     return (
-        <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl p-6 relative overflow-hidden group">
+        <div className="bg-card-light  border border-border-light  rounded-xl p-6 relative overflow-hidden group">
             <div className={`absolute top-0 right-0 w-28 h-28 ${iconBg} rounded-full -mr-14 -mt-14 opacity-5 group-hover:opacity-10 transition-opacity`} />
             <div className="flex justify-between items-start mb-4 relative z-10">
                 <div className={`w-11 h-11 ${iconBg} rounded-full flex items-center justify-center`}>
                     <Icon className="text-xl" />
                 </div>
                 {tag && (
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-text-muted dark:text-slate-400 px-2 py-0.5 bg-slate-100 dark:bg-slate-800 rounded">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-text-muted  px-2 py-0.5 bg-slate-100  rounded">
                         {tag}
                     </span>
                 )}
             </div>
-            <p className="text-xs font-semibold uppercase tracking-wider text-text-muted dark:text-slate-400 mb-1">{label}</p>
-            <p className="text-2xl sm:text-3xl font-extrabold text-text-main dark:text-white mb-2">{value}</p>
+            <p className="text-xs font-semibold uppercase tracking-wider text-text-muted  mb-1">{label}</p>
+            <p className="text-2xl sm:text-3xl font-extrabold text-text-main  mb-2">{value}</p>
             {subtitle && (
-                <p className={`text-xs font-medium flex items-center gap-1 ${subtitleColor || "text-text-muted dark:text-slate-400"}`}>
+                <p className={`text-xs font-medium flex items-center gap-1 ${subtitleColor || "text-text-muted "}`}>
                     {subtitle}
                 </p>
             )}

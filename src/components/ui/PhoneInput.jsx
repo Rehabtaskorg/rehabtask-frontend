@@ -9,7 +9,7 @@ const PhoneInput = React.forwardRef(({ label, error, required, control, name = "
     return (
         <div className="space-y-1.5">
             {label && (
-                <label className="text-sm font-medium text-text-main dark:text-white">
+                <label className="text-sm font-medium text-text-main ">
                     {label}
                     {required && <span className="text-red-500 ml-1">*</span>}
                 </label>
@@ -26,14 +26,14 @@ const PhoneInput = React.forwardRef(({ label, error, required, control, name = "
                     flex h-12 w-full items-center gap-2 rounded-xl border px-4
                     ${error
                         ? 'border-red-500 focus-within:border-red-500'
-                        : 'border-border-subtle dark:border-zinc-700 focus-within:border-primary-base dark:focus-within:border-primary-base'
+                        : 'border-border-subtle  focus-within:border-primary-base '
                     }
-                    bg-white dark:bg-zinc-900
+                    bg-white 
                     transition-colors
                     [&_.PhoneInputInput]:flex-1
                     [&_.PhoneInputInput]:bg-transparent
                     [&_.PhoneInputInput]:text-text-main
-                    [&_.PhoneInputInput]:dark:text-white
+                    [&_.PhoneInputInput]:
                     [&_.PhoneInputInput]:outline-none
                     [&_.PhoneInputInput]:placeholder:text-text-muted
                     [&_.PhoneInputCountry]:mr-2

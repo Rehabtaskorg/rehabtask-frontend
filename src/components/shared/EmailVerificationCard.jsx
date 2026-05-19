@@ -41,7 +41,7 @@ const EmailVerificationCard = ({ email, onResend }) => {
     }
 
     return (
-        <div className="max-w-140 w-full bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 p-8 md:p-12">
+        <div className="max-w-140 w-full bg-white  rounded-xl shadow-sm border border-gray-100  p-8 md:p-12">
             {/* Icon and Header */}
             <div className="flex flex-col items-center justify-center mb-8">
                 <div className="relative w-32 h-32 flex items-center justify-center bg-primary/10 rounded-full mb-6">
@@ -63,12 +63,12 @@ const EmailVerificationCard = ({ email, onResend }) => {
                     </div>
                 </div>
 
-                <h1 className="text-text-main dark:text-white tracking-tight text-[32px] font-bold leading-tight text-center pb-3">
+                <h1 className="text-text-main  tracking-tight text-[32px] font-bold leading-tight text-center pb-3">
                     Verify Your Email
                 </h1>
 
-                <p className="text-text-muted dark:text-gray-400 text-base font-normal leading-relaxed text-center max-w-100">
-                    We&apos;ve sent a verification link to <span className="font-semibold text-text-main dark:text-white">{email}</span>.
+                <p className="text-text-muted  text-base font-normal leading-relaxed text-center max-w-100">
+                    We&apos;ve sent a verification link to <span className="font-semibold text-text-main ">{email}</span>.
                     Please click the link to activate your account and start your journey on our rehabilitation marketplace.
                 </p>
             </div>
@@ -87,7 +87,7 @@ const EmailVerificationCard = ({ email, onResend }) => {
             {/* Action Area */}
             <div className="flex flex-col gap-4">
                 <div className="flex flex-col items-center gap-3">
-                    <p className="text-sm text-text-muted dark:text-gray-500">
+                    <p className="text-sm text-text-muted ">
                         Didn&apos;t receive the email?
                     </p>
 
@@ -108,7 +108,7 @@ const EmailVerificationCard = ({ email, onResend }) => {
                     </Button>
                 </div>
 
-                <div className="mt-6 pt-6 border-t border-border-subtle dark:border-gray-800 flex flex-col items-center gap-3">
+                <div className="mt-6 pt-6 border-t border-border-subtle  flex flex-col items-center gap-3">
                     <Link
                         href="/login"
                         className="text-primary text-sm font-semibold hover:underline flex items-center gap-1 transition-colors"
@@ -119,14 +119,14 @@ const EmailVerificationCard = ({ email, onResend }) => {
 
                     <Link
                         href="/forgot-password"
-                        className="text-text-muted dark:text-gray-500 text-sm hover:text-primary dark:hover:text-primary transition-colors"
+                        className="text-text-muted  text-sm hover:text-primary  transition-colors"
                     >
                         Already have an account? Forgot your password?
                     </Link>
 
                     <Link
                         href="/support"
-                        className="text-gray-400 dark:text-gray-600 text-xs hover:text-gray-600 dark:hover:text-gray-400 transition-colors"
+                        className="text-gray-400  text-xs hover:text-gray-600  transition-colors"
                     >
                         Need help? Contact our support team
                     </Link>
@@ -134,7 +134,7 @@ const EmailVerificationCard = ({ email, onResend }) => {
             </div>
 
             {/* Visual Decoration */}
-            <div className="fixed bottom-0 left-0 -z-10 w-full h-1/3 opacity-20 dark:opacity-5 pointer-events-none overflow-hidden">
+            <div className="fixed bottom-0 left-0 -z-10 w-full h-1/3 opacity-20  pointer-events-none overflow-hidden">
                 <svg
                     className="absolute -bottom-20 -left-20 text-primary w-100 h-100"
                     fill="currentColor"

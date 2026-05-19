@@ -13,11 +13,11 @@ import RequestDetailOfferCard from "@/components/customer/RequestDetailOfferCard
 import RequestTimeline from "@/components/customer/RequestTimeline";
 
 const STATUS_STYLES = {
-    created:         "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400",
-    offers_received: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400",
-    offers_accepted: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400",
-    completed:       "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400",
-    cancelled:       "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
+    created:         "bg-blue-100 text-blue-700  ",
+    offers_received: "bg-amber-100 text-amber-700  ",
+    offers_accepted: "bg-emerald-100 text-emerald-700  ",
+    completed:       "bg-emerald-100 text-emerald-700  ",
+    cancelled:       "bg-red-100 text-red-700  ",
 };
 
 const STATUS_LABELS = {
@@ -137,9 +137,9 @@ export default function CustomerRequestDetailPage() {
     if (!request) {
         return (
             <div className="p-4 md:p-6 max-w-6xl mx-auto">
-                <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-6 text-center">
+                <div className="bg-red-50  border border-red-200  rounded-xl p-6 text-center">
                     <MdWarning className="text-3xl text-red-500 mx-auto mb-2" />
-                    <p className="text-red-800 dark:text-red-300 font-bold">Request not found</p>
+                    <p className="text-red-800  font-bold">Request not found</p>
                     <button onClick={() => router.push("/customer/requests")} className="mt-3 text-sm text-primary font-bold hover:underline">
                         Back to My Requests
                     </button>
@@ -156,7 +156,7 @@ export default function CustomerRequestDetailPage() {
         <div className="p-4 md:p-6 max-w-6xl mx-auto">
             <button
                 onClick={() => router.push("/customer/requests")}
-                className="inline-flex items-center gap-1.5 text-sm font-medium text-text-muted dark:text-gray-400 hover:text-primary transition-colors mb-6"
+                className="inline-flex items-center gap-1.5 text-sm font-medium text-text-muted  hover:text-primary transition-colors mb-6"
             >
                 <MdArrowBack className="text-base" /> Back to My Requests
             </button>
@@ -165,14 +165,14 @@ export default function CustomerRequestDetailPage() {
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
                 <div>
                     <div className="flex items-center gap-3 mb-1">
-                        <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-text-main dark:text-white">
+                        <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-text-main ">
                             {request.serviceType}
                         </h1>
-                        <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${STATUS_STYLES[request.status] || "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400"}`}>
+                        <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${STATUS_STYLES[request.status] || "bg-slate-100 text-slate-600  "}`}>
                             {STATUS_LABELS[request.status] || request.status}
                         </span>
                     </div>
-                    <p className="flex items-center gap-1 text-text-muted dark:text-gray-400 font-medium">
+                    <p className="flex items-center gap-1 text-text-muted  font-medium">
                         <MdLocationOn className="text-primary text-lg" />
                         {request.location || "No location specified"}
                     </p>
@@ -184,37 +184,37 @@ export default function CustomerRequestDetailPage() {
                 <div className="lg:col-span-8 space-y-6">
 
                     {/* Request Details */}
-                    <section className="bg-card-light dark:bg-card-dark rounded-xl p-6 shadow-sm border border-border-light dark:border-border-dark">
-                        <h3 className="text-lg font-bold text-text-main dark:text-white mb-4">Request Details</h3>
+                    <section className="bg-card-light  rounded-xl p-6 shadow-sm border border-border-light ">
+                        <h3 className="text-lg font-bold text-text-main  mb-4">Request Details</h3>
                         <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
                             <div className="space-y-1">
-                                <p className="text-xs font-bold text-text-muted dark:text-gray-400 uppercase tracking-widest">Preferred Date</p>
-                                <p className="font-semibold text-text-main dark:text-white">{formatDate(request.preferredDate)}</p>
+                                <p className="text-xs font-bold text-text-muted  uppercase tracking-widest">Preferred Date</p>
+                                <p className="font-semibold text-text-main ">{formatDate(request.preferredDate)}</p>
                             </div>
                             <div className="space-y-1">
-                                <p className="text-xs font-bold text-text-muted dark:text-gray-400 uppercase tracking-widest">Time</p>
-                                <p className="font-semibold text-text-main dark:text-white">{formatTime(request.preferredDate)}</p>
+                                <p className="text-xs font-bold text-text-muted  uppercase tracking-widest">Time</p>
+                                <p className="font-semibold text-text-main ">{formatTime(request.preferredDate)}</p>
                             </div>
                             {request.rate && (
                                 <div className="space-y-1">
-                                    <p className="text-xs font-bold text-text-muted dark:text-gray-400 uppercase tracking-widest">Rate</p>
-                                    <p className="font-bold text-emerald-600 dark:text-emerald-400">${parseFloat(request.rate).toFixed(2)}/visit</p>
+                                    <p className="text-xs font-bold text-text-muted  uppercase tracking-widest">Rate</p>
+                                    <p className="font-bold text-emerald-600 ">${parseFloat(request.rate).toFixed(2)}/visit</p>
                                 </div>
                             )}
                         </div>
                         {request.description && (
-                            <div className="pt-6 border-t border-border-light dark:border-border-dark mt-6">
-                                <h4 className="text-xs font-bold text-text-muted dark:text-gray-400 uppercase tracking-widest mb-3">Description</h4>
-                                <p className="text-text-main dark:text-gray-300 leading-relaxed text-sm">{request.description}</p>
+                            <div className="pt-6 border-t border-border-light  mt-6">
+                                <h4 className="text-xs font-bold text-text-muted  uppercase tracking-widest mb-3">Description</h4>
+                                <p className="text-text-main  leading-relaxed text-sm">{request.description}</p>
                             </div>
                         )}
                     </section>
 
                     {/* Patient Info */}
                     {request.patient && (
-                        <section className="bg-card-light dark:bg-card-dark rounded-xl shadow-sm border border-border-light dark:border-border-dark overflow-hidden">
+                        <section className="bg-card-light  rounded-xl shadow-sm border border-border-light  overflow-hidden">
                             <div className="p-6">
-                                <h3 className="text-lg font-bold text-text-main dark:text-white mb-4">Patient Info</h3>
+                                <h3 className="text-lg font-bold text-text-main  mb-4">Patient Info</h3>
                                 <PatientInfoBlock patient={request.patient} />
                             </div>
                         </section>
@@ -222,14 +222,14 @@ export default function CustomerRequestDetailPage() {
 
                     {/* Offers */}
                     <section className="space-y-4">
-                        <h3 className="text-lg font-extrabold text-text-main dark:text-white">
+                        <h3 className="text-lg font-extrabold text-text-main ">
                             Offers Received ({offers.length})
                         </h3>
                         {offers.length === 0 ? (
-                            <div className="bg-card-light dark:bg-card-dark rounded-xl border border-border-light dark:border-border-dark p-8 text-center">
-                                <MdCheckCircle className="text-4xl text-slate-300 dark:text-slate-600 mx-auto mb-3" />
-                                <p className="text-sm font-semibold text-text-main dark:text-white">No offers received yet</p>
-                                <p className="text-xs text-text-muted dark:text-gray-400 mt-1">Therapists in your area will be notified about this request</p>
+                            <div className="bg-card-light  rounded-xl border border-border-light  p-8 text-center">
+                                <MdCheckCircle className="text-4xl text-slate-300  mx-auto mb-3" />
+                                <p className="text-sm font-semibold text-text-main ">No offers received yet</p>
+                                <p className="text-xs text-text-muted  mt-1">Therapists in your area will be notified about this request</p>
                             </div>
                         ) : (
                             offers.map((offer) => (
@@ -256,13 +256,13 @@ export default function CustomerRequestDetailPage() {
 
                 {/* ── Right Column ── */}
                 <div className="lg:col-span-4 space-y-6">
-                    <section className="bg-card-light dark:bg-card-dark rounded-xl p-6 shadow-sm border border-border-light dark:border-border-dark">
-                        <h3 className="text-xs font-bold text-text-muted dark:text-gray-400 uppercase tracking-widest mb-4">Management</h3>
+                    <section className="bg-card-light  rounded-xl p-6 shadow-sm border border-border-light ">
+                        <h3 className="text-xs font-bold text-text-muted  uppercase tracking-widest mb-4">Management</h3>
                         <div className="space-y-3">
                             {isEditable && (
                                 <button
                                     onClick={() => router.push(`/customer/requests/new?edit=${request.id}`)}
-                                    className="w-full py-3 bg-card-light dark:bg-card-dark border-2 border-primary text-primary hover:bg-primary/5 dark:hover:bg-primary/10 rounded-lg font-bold transition-all flex items-center justify-center gap-2 text-sm"
+                                    className="w-full py-3 bg-card-light  border-2 border-primary text-primary hover:bg-primary/5  rounded-lg font-bold transition-all flex items-center justify-center gap-2 text-sm"
                                 >
                                     <MdEdit className="text-lg" /> Edit Request
                                 </button>
@@ -270,18 +270,18 @@ export default function CustomerRequestDetailPage() {
                             {isEditable && !showCancelConfirm && (
                                 <button
                                     onClick={() => setShowCancelConfirm(true)}
-                                    className="w-full py-3 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-lg font-bold transition-all flex items-center justify-center gap-2 text-sm"
+                                    className="w-full py-3 text-red-600  hover:bg-red-50  rounded-lg font-bold transition-all flex items-center justify-center gap-2 text-sm"
                                 >
                                     <MdCancel className="text-lg" /> Cancel Request
                                 </button>
                             )}
                             {showCancelConfirm && (
-                                <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+                                <div className="p-4 bg-red-50  border border-red-200  rounded-lg">
                                     <div className="flex items-start gap-2 mb-3">
-                                        <MdWarning className="text-red-600 dark:text-red-400 text-lg shrink-0 mt-0.5" />
+                                        <MdWarning className="text-red-600  text-lg shrink-0 mt-0.5" />
                                         <div>
-                                            <p className="text-sm font-bold text-red-800 dark:text-red-200">Cancel this request?</p>
-                                            <p className="text-xs text-red-700 dark:text-red-300 mt-1">
+                                            <p className="text-sm font-bold text-red-800 ">Cancel this request?</p>
+                                            <p className="text-xs text-red-700  mt-1">
                                                 {pendingOfferCount > 0
                                                     ? `This will withdraw ${pendingOfferCount} pending offer(s). Affected therapists will be notified.`
                                                     : "This action cannot be undone."}
@@ -291,7 +291,7 @@ export default function CustomerRequestDetailPage() {
                                     <div className="flex gap-2 justify-end">
                                         <button
                                             onClick={() => setShowCancelConfirm(false)}
-                                            className="text-sm text-slate-500 dark:text-slate-400 font-bold hover:text-text-main dark:hover:text-white transition-colors px-3 py-1.5"
+                                            className="text-sm text-slate-500  font-bold hover:text-text-main  transition-colors px-3 py-1.5"
                                         >
                                             Go Back
                                         </button>
@@ -308,13 +308,13 @@ export default function CustomerRequestDetailPage() {
                             {request.status === "offers_accepted" && (
                                 <button
                                     onClick={() => router.push("/customer/messages")}
-                                    className="w-full py-3 bg-card-light dark:bg-card-dark border-2 border-primary text-primary hover:bg-primary/5 dark:hover:bg-primary/10 rounded-lg font-bold transition-all flex items-center justify-center gap-2 text-sm"
+                                    className="w-full py-3 bg-card-light  border-2 border-primary text-primary hover:bg-primary/5  rounded-lg font-bold transition-all flex items-center justify-center gap-2 text-sm"
                                 >
                                     <MdChat className="text-lg" /> Message Therapist
                                 </button>
                             )}
                             {!isEditable && request.status !== "offers_accepted" && (
-                                <p className="text-xs text-text-muted dark:text-gray-400 text-center py-2">No actions available for this status</p>
+                                <p className="text-xs text-text-muted  text-center py-2">No actions available for this status</p>
                             )}
                         </div>
                     </section>

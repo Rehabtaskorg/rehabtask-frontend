@@ -69,7 +69,7 @@ function SetupForm({ onSuccess, onCancel }) {
         <form onSubmit={handleSubmit} className="space-y-4">
             <PaymentElement />
             {error && (
-                <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+                <p className="text-sm text-red-600 ">{error}</p>
             )}
             <div className="flex items-center gap-3">
                 <button
@@ -83,7 +83,7 @@ function SetupForm({ onSuccess, onCancel }) {
                 <button
                     type="button"
                     onClick={onCancel}
-                    className="px-4 py-2.5 text-sm font-medium text-text-muted dark:text-gray-400 hover:text-text-main dark:hover:text-white transition-colors"
+                    className="px-4 py-2.5 text-sm font-medium text-text-muted  hover:text-text-main  transition-colors"
                 >
                     Cancel
                 </button>
@@ -167,8 +167,8 @@ function PaymentMethodsTab() {
 
     if (error) {
         return (
-            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-6 text-center">
-                <p className="text-sm text-red-700 dark:text-red-300">
+            <div className="bg-red-50  border border-red-200  rounded-xl p-6 text-center">
+                <p className="text-sm text-red-700 ">
                     Failed to load payment methods. Please try again.
                 </p>
             </div>
@@ -180,10 +180,10 @@ function PaymentMethodsTab() {
             {/* Header */}
             <div className="flex items-center justify-between">
                 <div>
-                    <h2 className="text-lg font-bold text-text-main dark:text-white">
+                    <h2 className="text-lg font-bold text-text-main ">
                         Your Payment Methods
                     </h2>
-                    <p className="text-sm text-text-muted dark:text-gray-400">
+                    <p className="text-sm text-text-muted ">
                         Manage your saved cards for faster checkout
                     </p>
                 </div>
@@ -200,8 +200,8 @@ function PaymentMethodsTab() {
             </div>
 
             {actionError && (
-                <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg px-4 py-3">
-                    <p className="text-sm text-red-700 dark:text-red-300">{actionError}</p>
+                <div className="bg-red-50  border border-red-200  rounded-lg px-4 py-3">
+                    <p className="text-sm text-red-700 ">{actionError}</p>
                 </div>
             )}
 
@@ -211,17 +211,17 @@ function PaymentMethodsTab() {
                     {methods.map((pm) => (
                         <div
                             key={pm.id}
-                            className="flex items-center justify-between bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl px-5 py-4 shadow-sm"
+                            className="flex items-center justify-between bg-card-light  border border-border-light  rounded-xl px-5 py-4 shadow-sm"
                         >
                             <div className="flex items-center gap-4">
-                                <div className="w-10 h-10 bg-slate-100 dark:bg-slate-800 rounded-lg flex items-center justify-center">
-                                    <MdCreditCard className="text-xl text-text-muted dark:text-gray-400" />
+                                <div className="w-10 h-10 bg-slate-100  rounded-lg flex items-center justify-center">
+                                    <MdCreditCard className="text-xl text-text-muted " />
                                 </div>
                                 <div>
-                                    <p className="text-sm font-bold text-text-main dark:text-white">
+                                    <p className="text-sm font-bold text-text-main ">
                                         {BRAND_LABELS[pm.brand] || pm.brand} &bull;&bull;&bull;&bull; {pm.last4}
                                     </p>
-                                    <p className="text-xs text-text-muted dark:text-gray-400">
+                                    <p className="text-xs text-text-muted ">
                                         Expires {String(pm.expMonth).padStart(2, "0")}/{String(pm.expYear).slice(-2)}
                                     </p>
                                 </div>
@@ -236,7 +236,7 @@ function PaymentMethodsTab() {
                                     <button
                                         onClick={() => handleSetDefault(pm.id)}
                                         disabled={actionLoading === pm.id}
-                                        className="p-2 text-text-muted dark:text-gray-400 hover:text-primary transition-colors disabled:opacity-50"
+                                        className="p-2 text-text-muted  hover:text-primary transition-colors disabled:opacity-50"
                                         title="Set as default"
                                     >
                                         <MdStarOutline className="text-lg" />
@@ -250,7 +250,7 @@ function PaymentMethodsTab() {
                                 <button
                                     onClick={() => handleRemove(pm.id)}
                                     disabled={actionLoading === pm.id}
-                                    className="p-2 text-text-muted dark:text-gray-400 hover:text-red-500 transition-colors disabled:opacity-50"
+                                    className="p-2 text-text-muted  hover:text-red-500 transition-colors disabled:opacity-50"
                                     title="Remove card"
                                 >
                                     <MdDeleteOutline className="text-lg" />
@@ -263,14 +263,14 @@ function PaymentMethodsTab() {
 
             {/* Empty State */}
             {methods.length === 0 && !showAddForm && (
-                <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl p-8 text-center">
-                    <div className="inline-flex items-center justify-center w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-full mb-4">
-                        <MdCreditCard className="text-2xl text-text-muted dark:text-gray-500" />
+                <div className="bg-card-light  border border-border-light  rounded-xl p-8 text-center">
+                    <div className="inline-flex items-center justify-center w-16 h-16 bg-slate-100  rounded-full mb-4">
+                        <MdCreditCard className="text-2xl text-text-muted " />
                     </div>
-                    <h3 className="text-lg font-semibold text-text-main dark:text-white mb-2">
+                    <h3 className="text-lg font-semibold text-text-main  mb-2">
                         No payment methods saved yet
                     </h3>
-                    <p className="text-sm text-text-muted dark:text-gray-400 mb-6">
+                    <p className="text-sm text-text-muted  mb-6">
                         Add a payment method to speed up future bookings
                     </p>
                     <button
@@ -286,8 +286,8 @@ function PaymentMethodsTab() {
 
             {/* Add Card Form (Stripe SetupElement) */}
             {showAddForm && setupClientSecret && (
-                <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl p-6">
-                    <h3 className="text-sm font-bold text-text-main dark:text-white uppercase tracking-wider mb-4">
+                <div className="bg-card-light  border border-border-light  rounded-xl p-6">
+                    <h3 className="text-sm font-bold text-text-main  uppercase tracking-wider mb-4">
                         Add New Card
                     </h3>
                     <Elements
@@ -369,17 +369,17 @@ export default function CustomerProfilePage() {
                     <MdPerson className="text-primary text-2xl" />
                 </div>
                 <div>
-                    <h1 className="text-2xl font-bold text-text-main dark:text-white">
+                    <h1 className="text-2xl font-bold text-text-main ">
                         Profile Settings
                     </h1>
-                    <p className="text-sm text-text-muted dark:text-gray-400">
+                    <p className="text-sm text-text-muted ">
                         Manage your account settings and security
                     </p>
                 </div>
             </div>
 
             {/* Tab Navigation */}
-            <div className="flex items-center gap-1 bg-muted-light dark:bg-muted-dark p-1 rounded-xl overflow-x-auto">
+            <div className="flex items-center gap-1 bg-muted-light  p-1 rounded-xl overflow-x-auto">
                 {TABS.map((tab) => {
                     const isActive = activeTab === tab.key;
                     const Icon = tab.icon;
@@ -390,7 +390,7 @@ export default function CustomerProfilePage() {
                             className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${
                                 isActive
                                     ? "bg-primary text-white shadow-sm"
-                                    : "text-text-muted hover:text-text-main dark:hover:text-white"
+                                    : "text-text-muted hover:text-text-main "
                             }`}
                         >
                             <Icon className="text-lg" />
@@ -405,7 +405,7 @@ export default function CustomerProfilePage() {
                 <>
                     {/* Agency Account Type Badge + Agency Name (agency only) */}
                     {isAgency && (
-                        <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl p-6">
+                        <div className="bg-card-light  border border-border-light  rounded-xl p-6">
                             <div className="flex items-center gap-2 mb-4">
                                 <MdBusiness className="text-primary text-xl" />
                                 <span className="text-sm font-bold text-primary bg-primary/10 px-2.5 py-0.5 rounded-full">
@@ -415,7 +415,7 @@ export default function CustomerProfilePage() {
 
                             <div className="space-y-3">
                                 <div>
-                                    <label className="block text-xs font-semibold text-text-muted dark:text-gray-400 uppercase tracking-wider mb-1.5">
+                                    <label className="block text-xs font-semibold text-text-muted  uppercase tracking-wider mb-1.5">
                                         Agency Name
                                     </label>
                                     {editingAgency ? (
@@ -424,7 +424,7 @@ export default function CustomerProfilePage() {
                                                 type="text"
                                                 value={agencyName}
                                                 onChange={(e) => setAgencyName(e.target.value)}
-                                                className="w-full px-4 py-2.5 rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-main dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                                                className="w-full px-4 py-2.5 rounded-lg border border-border-light  bg-background-light  text-text-main  text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                                                 placeholder="Enter your agency name"
                                             />
                                             {saveError && (
@@ -441,7 +441,7 @@ export default function CustomerProfilePage() {
                                                 </button>
                                                 <button
                                                     onClick={() => setEditingAgency(false)}
-                                                    className="flex items-center gap-1 px-3 py-1.5 text-text-muted dark:text-gray-400 hover:text-text-main dark:hover:text-white text-sm font-bold transition-colors"
+                                                    className="flex items-center gap-1 px-3 py-1.5 text-text-muted  hover:text-text-main  text-sm font-bold transition-colors"
                                                 >
                                                     <MdClose className="text-base" />
                                                     Cancel
@@ -450,12 +450,12 @@ export default function CustomerProfilePage() {
                                         </div>
                                     ) : (
                                         <div className="flex items-center justify-between">
-                                            <p className="text-sm font-medium text-text-main dark:text-white">
+                                            <p className="text-sm font-medium text-text-main ">
                                                 {user?.profile?.agencyName || "Not set"}
                                             </p>
                                             <button
                                                 onClick={handleStartEditAgency}
-                                                className="p-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-colors text-text-muted dark:text-gray-400"
+                                                className="p-1.5 bg-slate-100  hover:bg-slate-200  rounded-lg transition-colors text-text-muted "
                                             >
                                                 <MdEdit className="text-base" />
                                             </button>
@@ -467,19 +467,19 @@ export default function CustomerProfilePage() {
                     )}
 
                     {/* Security Section Info Card */}
-                    <div className="bg-linear-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-6">
+                    <div className="bg-linear-to-r from-blue-50 to-indigo-50   border border-blue-200  rounded-xl p-6">
                         <div className="flex items-start gap-4">
                             <div className="p-2 bg-blue-500/10 rounded-lg">
-                                <MdSecurity className="text-blue-600 dark:text-blue-400 text-2xl" />
+                                <MdSecurity className="text-blue-600  text-2xl" />
                             </div>
                             <div className="flex-1">
-                                <h3 className="text-lg font-bold text-blue-900 dark:text-blue-100 mb-2">
+                                <h3 className="text-lg font-bold text-blue-900  mb-2">
                                     Account Security
                                 </h3>
-                                <p className="text-sm text-blue-800 dark:text-blue-200 mb-3">
+                                <p className="text-sm text-blue-800  mb-3">
                                     Keep your account secure by using a strong password and changing it regularly.
                                 </p>
-                                <div className="text-xs text-blue-700 dark:text-blue-300 space-y-1">
+                                <div className="text-xs text-blue-700  space-y-1">
                                     <p>&#x1f4a1; <strong>Tip:</strong> Use a unique password that you don&apos;t use anywhere else</p>
                                     <p>&#x1f512; <strong>Best Practice:</strong> Change your password every 3-6 months</p>
                                 </div>

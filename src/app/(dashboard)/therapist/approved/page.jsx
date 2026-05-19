@@ -8,7 +8,7 @@ export default function ApprovedSuccessPage() {
     const router = useRouter();
 
     return (
-        <div className="min-h-screen bg-background-light dark:bg-background-dark py-12 px-4">
+        <div className="min-h-screen bg-background-light  py-12 px-4">
             <div className="layout-content-container flex flex-col max-w-200 mx-auto items-center">
                 {/* Success Icon */}
                 <div className="flex justify-center mb-6">
@@ -30,7 +30,7 @@ export default function ApprovedSuccessPage() {
                 </div>
 
                 {/* Headline */}
-                <h1 className="text-text-main dark:text-white tracking-light text-[36px] font-extrabold leading-tight px-4 text-center pb-3">
+                <h1 className="text-text-main  tracking-light text-[36px] font-extrabold leading-tight px-4 text-center pb-3">
                     Welcome to RehabTask!
                     <br />
                     Your account is approved
@@ -38,7 +38,7 @@ export default function ApprovedSuccessPage() {
 
                 {/* Body Text */}
                 <div className="max-w-150">
-                    <p className="text-text-muted dark:text-gray-400 text-lg font-normal leading-relaxed pb-8 pt-1 px-4 text-center">
+                    <p className="text-text-muted  text-lg font-normal leading-relaxed pb-8 pt-1 px-4 text-center">
                         Our clinical team has verified your credentials. You&apos;re all set to start helping
                         patients and growing your clinical practice today.
                     </p>
@@ -57,7 +57,7 @@ export default function ApprovedSuccessPage() {
                 {/* Quick Actions */}
                 <div className="w-full mt-16">
                     <div className="flex items-center justify-between mb-6 px-4">
-                        <h3 className="text-xl font-bold text-text-main dark:text-white">Quick Actions</h3>
+                        <h3 className="text-xl font-bold text-text-main ">Quick Actions</h3>
                         <span className="text-sm font-semibold text-primary">GET STARTED</span>
                     </div>
 
@@ -65,9 +65,9 @@ export default function ApprovedSuccessPage() {
                         {/* Action Cards */}
                         <div
                             onClick={() => router.push("/therapist/onboarding/availability")}
-                            className="group flex items-start gap-4 bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark p-5 rounded-xl hover:border-primary/50 transition-colors cursor-pointer shadow-sm"
+                            className="group flex items-start gap-4 bg-card-light  border border-border-light  p-5 rounded-xl hover:border-primary/50 transition-colors cursor-pointer shadow-sm"
                         >
-                            <div className="bg-blue-50 dark:bg-blue-900/30 p-3 rounded-lg text-blue-600 dark:text-blue-400">
+                            <div className="bg-blue-50  p-3 rounded-lg text-blue-600 ">
                                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path
                                         strokeLinecap="round"
@@ -78,10 +78,10 @@ export default function ApprovedSuccessPage() {
                                 </svg>
                             </div>
                             <div className="flex flex-col">
-                                <h4 className="font-bold text-text-main dark:text-white group-hover:text-primary transition-colors">
+                                <h4 className="font-bold text-text-main  group-hover:text-primary transition-colors">
                                     Update Your Availability
                                 </h4>
-                                <p className="text-sm text-text-muted dark:text-gray-400">
+                                <p className="text-sm text-text-muted ">
                                     Tell us when you&apos;re free to see new patients.
                                 </p>
                             </div>
@@ -89,7 +89,7 @@ export default function ApprovedSuccessPage() {
 
                         <div
                             onClick={() => router.push("/therapist/requests")}
-                            className="group flex items-start gap-4 bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark p-5 rounded-xl hover:border-primary/50 transition-colors cursor-pointer shadow-sm"
+                            className="group flex items-start gap-4 bg-card-light  border border-border-light  p-5 rounded-xl hover:border-primary/50 transition-colors cursor-pointer shadow-sm"
                         >
                             <div className="bg-primary/10 p-3 rounded-lg text-primary">
                                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -102,10 +102,10 @@ export default function ApprovedSuccessPage() {
                                 </svg>
                             </div>
                             <div className="flex flex-col">
-                                <h4 className="font-bold text-text-main dark:text-white group-hover:text-primary transition-colors">
+                                <h4 className="font-bold text-text-main  group-hover:text-primary transition-colors">
                                     Browse Service Requests
                                 </h4>
-                                <p className="text-sm text-text-muted dark:text-gray-400">
+                                <p className="text-sm text-text-muted ">
                                     See active rehabilitation needs in your area.
                                 </p>
                             </div>
@@ -113,9 +113,9 @@ export default function ApprovedSuccessPage() {
 
                         <div
                             onClick={() => router.push("/therapist/profile")}
-                            className="group flex items-start gap-4 bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark p-5 rounded-xl hover:border-primary/50 transition-colors cursor-pointer shadow-sm"
+                            className="group flex items-start gap-4 bg-card-light  border border-border-light  p-5 rounded-xl hover:border-primary/50 transition-colors cursor-pointer shadow-sm"
                         >
-                            <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg text-purple-600 dark:text-purple-400">
+                            <div className="bg-purple-50  p-3 rounded-lg text-purple-600 ">
                                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path
                                         strokeLinecap="round"
@@ -126,19 +126,19 @@ export default function ApprovedSuccessPage() {
                                 </svg>
                             </div>
                             <div className="flex flex-col">
-                                <h4 className="font-bold text-text-main dark:text-white group-hover:text-primary transition-colors">
+                                <h4 className="font-bold text-text-main  group-hover:text-primary transition-colors">
                                     Enhance Your Profile
                                 </h4>
-                                <p className="text-sm text-text-muted dark:text-gray-400">
+                                <p className="text-sm text-text-muted ">
                                     Add more details to attract more clients.
                                 </p>
                             </div>
                         </div>
 
                         <div
-                            className="group flex items-start gap-4 bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark p-5 rounded-xl hover:border-primary/50 transition-colors cursor-pointer shadow-sm"
+                            className="group flex items-start gap-4 bg-card-light  border border-border-light  p-5 rounded-xl hover:border-primary/50 transition-colors cursor-pointer shadow-sm"
                         >
-                            <div className="bg-orange-50 dark:bg-orange-900/20 p-3 rounded-lg text-orange-600 dark:text-orange-400">
+                            <div className="bg-orange-50  p-3 rounded-lg text-orange-600 ">
                                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path
                                         strokeLinecap="round"
@@ -149,11 +149,11 @@ export default function ApprovedSuccessPage() {
                                 </svg>
                             </div>
                             <div className="flex flex-col">
-                                <h4 className="font-bold text-text-main dark:text-white group-hover:text-primary transition-colors">
+                                <h4 className="font-bold text-text-main  group-hover:text-primary transition-colors">
                                     View Compliance Docs
                                 </h4>
-                                <p className="text-sm text-text-muted dark:text-gray-400">
-                                    Review HIPAA and professional standards.
+                                <p className="text-sm text-text-muted ">
+                                    Review platform and professional standards.
                                 </p>
                             </div>
                         </div>
@@ -161,7 +161,7 @@ export default function ApprovedSuccessPage() {
                 </div>
 
                 {/* Trust Signal */}
-                <div className="mt-12 flex items-center gap-2 text-text-muted dark:text-gray-400 text-xs uppercase tracking-widest font-bold">
+                <div className="mt-12 flex items-center gap-2 text-text-muted  text-xs uppercase tracking-widest font-bold">
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path
                             strokeLinecap="round"
@@ -170,7 +170,7 @@ export default function ApprovedSuccessPage() {
                             d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
                         />
                     </svg>
-                    HIPAA Compliant Marketplace
+                    Secure Marketplace
                 </div>
             </div>
         </div>

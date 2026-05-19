@@ -161,21 +161,21 @@ const ProfileEditModal = ({ isOpen, onClose, profile, onSuccess }) => {
             className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4"
             onClick={handleOverlayClick}
         >
-            <div className="bg-card-light dark:bg-card-dark rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-xl">
+            <div className="bg-card-light  rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-xl">
                 {/* Header */}
-                <div className="flex items-center justify-between p-6 border-b border-border-light dark:border-border-dark">
+                <div className="flex items-center justify-between p-6 border-b border-border-light ">
                     <div className="flex items-center gap-3">
                         <div className="p-2 bg-primary/10 rounded-lg">
                             <MdEdit className="text-primary text-xl" />
                         </div>
-                        <h2 className="text-lg font-bold text-text-main dark:text-white">
+                        <h2 className="text-lg font-bold text-text-main ">
                             Edit Profile
                         </h2>
                     </div>
                     <button
                         type="button"
                         onClick={onClose}
-                        className="p-2 rounded-lg text-text-muted hover:bg-muted-light dark:hover:bg-muted-dark transition-colors"
+                        className="p-2 rounded-lg text-text-muted hover:bg-muted-light  transition-colors"
                     >
                         <MdClose className="text-xl" />
                     </button>
@@ -199,11 +199,11 @@ const ProfileEditModal = ({ isOpen, onClose, profile, onSuccess }) => {
                                     alt="profile"
                                     width={80}
                                     height={80}
-                                    className="w-20 h-20 rounded-full object-cover border-2 border-border-light dark:border-border-dark"
+                                    className="w-20 h-20 rounded-full object-cover border-2 border-border-light "
                                 />
 
                             ) : (
-                                <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center border-2 border-border-light dark:border-border-dark">
+                                <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center border-2 border-border-light ">
                                     <span className="text-primary text-xl font-bold">
                                         {initials}
                                     </span>
@@ -226,7 +226,7 @@ const ProfileEditModal = ({ isOpen, onClose, profile, onSuccess }) => {
                             />
                         </div>
                         <div>
-                            <p className="text-sm font-medium text-text-main dark:text-white">
+                            <p className="text-sm font-medium text-text-main ">
                                 Profile Photo
                             </p>
                             <p className="text-xs text-text-muted">
@@ -284,23 +284,23 @@ const ProfileEditModal = ({ isOpen, onClose, profile, onSuccess }) => {
                             error={errors.attemptedVisitRate?.message}
                             {...register("attemptedVisitRate")}
                         />
-                        <p className="text-xs text-text-muted dark:text-slate-400">
+                        <p className="text-xs text-text-muted ">
                             Charged when you arrive but the patient isn&apos;t home. Must be less than or equal to your session rate. Leave blank if you won&apos;t charge for no-shows. Changes only apply to new offers — existing bookings keep their original rate.
                         </p>
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                         <div className="space-y-2">
-                            <label className="block text-sm font-bold text-text-main dark:text-white uppercase tracking-wide">
+                            <label className="block text-sm font-bold text-text-main  uppercase tracking-wide">
                                 Specialization{" "}
                                 <span className="text-text-muted font-normal normal-case tracking-normal">(optional)</span>
                             </label>
                             <select
                                 {...register("specialization")}
-                                className={`w-full px-4 py-3 rounded-xl bg-white dark:bg-background-dark border transition-all outline-none ${errors.specialization
+                                className={`w-full px-4 py-3 rounded-xl bg-white  border transition-all outline-none ${errors.specialization
                                     ? "border-red-500 focus:ring-2 focus:ring-red-500/20"
-                                    : "border-border-subtle dark:border-[#2a3038] focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                                    } text-text-main dark:text-white`}
+                                    : "border-border-subtle  focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                                    } text-text-main `}
                             >
                                 <option value="">Select specialization...</option>
                                 {SPECIALIZATIONS.map((s) => (
@@ -320,7 +320,7 @@ const ProfileEditModal = ({ isOpen, onClose, profile, onSuccess }) => {
                     {/* Professional Summary */}
                     <div className="space-y-2">
                         <div className="flex items-center justify-between">
-                            <label className="block text-sm font-bold text-text-main dark:text-white uppercase tracking-wide">
+                            <label className="block text-sm font-bold text-text-main  uppercase tracking-wide">
                                 Professional Summary <span className="text-red-500">*</span>
                             </label>
                             <span
@@ -337,10 +337,10 @@ const ProfileEditModal = ({ isOpen, onClose, profile, onSuccess }) => {
                         <textarea
                             {...register("professionalSummary")}
                             rows={5}
-                            className={`w-full px-4 py-3 rounded-xl bg-white dark:bg-background-dark border transition-all outline-none resize-none ${errors.professionalSummary
+                            className={`w-full px-4 py-3 rounded-xl bg-white  border transition-all outline-none resize-none ${errors.professionalSummary
                                 ? "border-red-500 focus:ring-2 focus:ring-red-500/20"
-                                : "border-border-subtle dark:border-[#2a3038] focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                                } text-text-main dark:text-white placeholder:text-text-muted/50`}
+                                : "border-border-subtle  focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                                } text-text-main  placeholder:text-text-muted/50`}
                             placeholder="Describe your experience, approach, and areas of expertise..."
                         />
                         {errors.professionalSummary && (
@@ -351,7 +351,7 @@ const ProfileEditModal = ({ isOpen, onClose, profile, onSuccess }) => {
                     </div>
 
                     {/* Read-only credentials */}
-                    <div className="bg-muted-light dark:bg-muted-dark rounded-xl p-4 border border-border-light dark:border-border-dark">
+                    <div className="bg-muted-light  rounded-xl p-4 border border-border-light ">
                         <div className="flex items-center gap-2 mb-3">
                             <MdLock className="text-text-muted" />
                             <span className="text-sm font-bold text-text-muted uppercase tracking-wide">
@@ -361,19 +361,19 @@ const ProfileEditModal = ({ isOpen, onClose, profile, onSuccess }) => {
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                             <div>
                                 <p className="text-xs text-text-muted">Discipline type</p>
-                                <p className="text-sm font-medium text-text-main dark:text-white">
+                                <p className="text-sm font-medium text-text-main ">
                                     {licenseTypeLabel}
                                 </p>
                             </div>
                             <div>
                                 <p className="text-xs text-text-muted">License Number</p>
-                                <p className="text-sm font-medium text-text-main dark:text-white">
+                                <p className="text-sm font-medium text-text-main ">
                                     {profile?.licenseNumber || "—"}
                                 </p>
                             </div>
                             <div>
                                 <p className="text-xs text-text-muted">License State</p>
-                                <p className="text-sm font-medium text-text-main dark:text-white">
+                                <p className="text-sm font-medium text-text-main ">
                                     {profile?.licenseState || "—"}
                                 </p>
                             </div>

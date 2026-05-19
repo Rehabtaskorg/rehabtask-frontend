@@ -164,13 +164,13 @@ const AvailabilityTab = ({ profile }) => {
     };
 
     return (
-        <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl p-6">
+        <div className="bg-card-light  border border-border-light  rounded-xl p-6">
             <div className="flex items-center gap-3 mb-6">
                 <div className="p-2 bg-primary/10 rounded-lg">
                     <MdSchedule className="text-primary text-xl" />
                 </div>
                 <div>
-                    <h2 className="text-lg font-bold text-text-main dark:text-white">
+                    <h2 className="text-lg font-bold text-text-main ">
                         Weekly Availability
                     </h2>
                     <p className="text-sm text-text-muted">

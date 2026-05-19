@@ -117,21 +117,21 @@ export default function OnboardingBanner() {
 
     if (bannerType === "incomplete") {
         return (
-            <div className="sticky top-0 z-40 border-b-2 border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark px-4 sm:px-6 lg:px-8 py-3 transition-colors duration-200">
+            <div className="sticky top-0 z-40 border-b-2 border-border-light  bg-card-light  px-4 sm:px-6 lg:px-8 py-3 transition-colors duration-200">
                 <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
                     <div className="flex flex-1 items-center gap-4">
-                        <p className="text-sm font-semibold text-text-main dark:text-white">
+                        <p className="text-sm font-semibold text-text-main ">
                             Your profile is {progress}% complete
                         </p>
                         <div className="flex-1 max-w-xs">
-                            <div className="rounded-full h-2 bg-gray-300 dark:bg-gray-700 overflow-hidden">
+                            <div className="rounded-full h-2 bg-gray-300  overflow-hidden">
                                 <div
                                     className="h-full rounded-full bg-primary transition-all duration-500"
                                     style={{ width: `${progress}%` }}
                                 ></div>
                             </div>
                         </div>
-                        <p className="text-sm hidden md:block text-text-muted dark:text-gray-400">
+                        <p className="text-sm hidden md:block text-text-muted ">
                             Finish setup to start accepting clients
                         </p>
                     </div>
@@ -149,13 +149,13 @@ export default function OnboardingBanner() {
 
     if (bannerType === "review") {
         return (
-            <div className="sticky top-0 z-40 border-b-2 border-yellow-500 bg-yellow-50 dark:bg-yellow-900/20 px-4 sm:px-6 lg:px-8 py-3 transition-colors duration-200">
+            <div className="sticky top-0 z-40 border-b-2 border-yellow-500 bg-yellow-50  px-4 sm:px-6 lg:px-8 py-3 transition-colors duration-200">
                 <div className="max-w-7xl mx-auto flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                        <svg className="w-5 h-5 text-yellow-600 dark:text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-5 h-5 text-yellow-600 " fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
-                        <p className="text-sm font-semibold text-yellow-800 dark:text-yellow-200">
+                        <p className="text-sm font-semibold text-yellow-800 ">
                             Your credentials are under review - we&apos;ll notify you within 24-48 hours
                         </p>
                     </div>
@@ -172,13 +172,13 @@ export default function OnboardingBanner() {
 
     if (bannerType === "approved") {
         return (
-            <div className="sticky top-0 z-40 border-b-2 border-green-500 bg-green-50 dark:bg-green-900/20 px-4 sm:px-6 lg:px-8 py-3 transition-colors duration-200">
+            <div className="sticky top-0 z-40 border-b-2 border-green-500 bg-green-50  px-4 sm:px-6 lg:px-8 py-3 transition-colors duration-200">
                 <div className="max-w-7xl mx-auto flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                        <svg className="w-5 h-5 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-5 h-5 text-green-600 " fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
-                        <p className="text-sm font-bold text-green-800 dark:text-green-200">
+                        <p className="text-sm font-bold text-green-800 ">
                             🎉 Your account has been approved! You can now start accepting clients.
                         </p>
                     </div>
@@ -191,7 +191,7 @@ export default function OnboardingBanner() {
                         </button>
                         <button
                             onClick={handleDismissApproved}
-                            className="p-2 text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-200 transition-colors"
+                            className="p-2 text-green-600  hover:text-green-800  transition-colors"
                             aria-label="Dismiss"
                         >
                             <svg
@@ -217,13 +217,13 @@ export default function OnboardingBanner() {
     if (bannerType === "rejected") {
         return (
             <>
-                <div className="sticky top-0 z-40 border-b-2 border-red-500 bg-red-50 dark:bg-red-900/20 px-4 sm:px-6 lg:px-8 py-3 transition-colors duration-200">
+                <div className="sticky top-0 z-40 border-b-2 border-red-500 bg-red-50  px-4 sm:px-6 lg:px-8 py-3 transition-colors duration-200">
                     <div className="max-w-7xl mx-auto flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                            <svg className="w-5 h-5 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg className="w-5 h-5 text-red-600 " fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
-                            <p className="text-sm font-semibold text-red-800 dark:text-red-200">
+                            <p className="text-sm font-semibold text-red-800 ">
                                 Your application needs attention — please review and resubmit
                             </p>
                         </div>

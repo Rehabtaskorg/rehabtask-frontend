@@ -174,8 +174,8 @@ export default function MyRequestsPage() {
     return (
         <div className="flex-1 flex flex-col overflow-hidden">
             {/* Sticky Header */}
-            <header className="h-16 border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md sticky top-0 z-10 flex items-center justify-between px-4 sm:px-8 shrink-0">
-                <h2 className="text-xl sm:text-2xl font-black tracking-tight text-text-main dark:text-white">
+            <header className="h-16 border-b border-slate-200  bg-white/80  backdrop-blur-md sticky top-0 z-10 flex items-center justify-between px-4 sm:px-8 shrink-0">
+                <h2 className="text-xl sm:text-2xl font-black tracking-tight text-text-main ">
                     My Requests
                 </h2>
                 <button
@@ -188,7 +188,7 @@ export default function MyRequestsPage() {
             </header>
 
             {/* Sticky Filter Bar */}
-            <div className="sticky top-16 z-[9] bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-border-light dark:border-border-dark px-4 sm:px-8 py-3 shrink-0">
+            <div className="sticky top-16 z-[9] bg-white/95  backdrop-blur-md border-b border-border-light  px-4 sm:px-8 py-3 shrink-0">
                 <div className="flex flex-wrap items-center justify-between gap-2 max-w-[900px] mx-auto">
                     <div className="flex flex-wrap gap-2">
                         {FILTER_TABS.map((tab) => {
@@ -200,7 +200,7 @@ export default function MyRequestsPage() {
                                     className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-colors ${
                                         isActive
                                             ? "bg-primary text-white shadow-sm"
-                                            : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700"
+                                            : "bg-slate-100  text-slate-600  hover:bg-slate-200 "
                                     }`}
                                 >
                                     {tab.label}
@@ -209,7 +209,7 @@ export default function MyRequestsPage() {
                         })}
                     </div>
                     {!loading && pagination.total > 0 && (
-                        <span className="text-xs font-medium text-text-muted dark:text-gray-400">
+                        <span className="text-xs font-medium text-text-muted ">
                             {pagination.total} request{pagination.total !== 1 ? "s" : ""}
                         </span>
                     )}
@@ -224,15 +224,15 @@ export default function MyRequestsPage() {
                             {[1, 2, 3].map((i) => (
                                 <div
                                     key={i}
-                                    className="h-32 bg-white dark:bg-card-dark rounded-xl border border-border-light dark:border-border-dark animate-pulse"
+                                    className="h-32 bg-white  rounded-xl border border-border-light  animate-pulse"
                                 />
                             ))}
                         </div>
                     ) : requests.length === 0 ? (
                         <div className="flex items-center justify-center py-20">
                             <div className="text-center space-y-3">
-                                <MdSchedule className="text-5xl text-slate-200 dark:text-slate-700 mx-auto" />
-                                <p className="text-text-muted dark:text-gray-400 text-sm">
+                                <MdSchedule className="text-5xl text-slate-200  mx-auto" />
+                                <p className="text-text-muted  text-sm">
                                     {activeFilter === "all" ? "No requests yet." : "No requests match this filter."}
                                 </p>
                                 {activeFilter === "all" && (
@@ -273,7 +273,7 @@ export default function MyRequestsPage() {
                             ))}
 
                             {pagination.totalPages > 1 && (
-                                <div className="flex items-center justify-between pt-6 border-t border-border-light dark:border-border-dark">
+                                <div className="flex items-center justify-between pt-6 border-t border-border-light ">
                                     <button
                                         onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                                         disabled={currentPage === 1}
@@ -281,7 +281,7 @@ export default function MyRequestsPage() {
                                     >
                                         <MdChevronLeft className="text-lg" /> Previous
                                     </button>
-                                    <span className="text-xs font-medium text-text-muted dark:text-gray-400">
+                                    <span className="text-xs font-medium text-text-muted ">
                                         Page {currentPage} of {pagination.totalPages}
                                     </span>
                                     <button

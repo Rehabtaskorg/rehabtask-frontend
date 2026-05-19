@@ -59,11 +59,11 @@ export default function DashboardPendingView() {
         return (
             <div className="p-4 sm:p-8">
                 <div className="animate-pulse space-y-6 max-w-6xl mx-auto">
-                    <div className="h-8 bg-slate-200 dark:bg-slate-700 rounded w-1/3"></div>
-                    <div className="h-40 bg-slate-200 dark:bg-slate-700 rounded-xl"></div>
+                    <div className="h-8 bg-slate-200  rounded w-1/3"></div>
+                    <div className="h-40 bg-slate-200  rounded-xl"></div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         {[1, 2, 3, 4].map((i) => (
-                            <div key={i} className="h-24 bg-slate-200 dark:bg-slate-700 rounded-xl"></div>
+                            <div key={i} className="h-24 bg-slate-200  rounded-xl"></div>
                         ))}
                     </div>
                 </div>
@@ -80,13 +80,13 @@ export default function DashboardPendingView() {
                         name={profile?.fullName}
                         photoUrl={profile?.profilePhotoUrl}
                         size="lg"
-                        className="border-2 border-border-light dark:border-border-dark"
+                        className="border-2 border-border-light "
                     />
                     <div>
-                        <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
+                        <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 ">
                             Welcome, {firstName}
                         </h2>
-                        <p className="text-sm text-text-muted dark:text-gray-400 mt-0.5">
+                        <p className="text-sm text-text-muted  mt-0.5">
                             {onboardingComplete
                                 ? "Your account is being reviewed"
                                 : "Complete your onboarding to get started"}
@@ -95,8 +95,8 @@ export default function DashboardPendingView() {
                 </header>
 
                 {/* Review Status Card */}
-                <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl shadow-sm p-6">
-                    <h3 className="text-lg font-bold text-text-main dark:text-white mb-5">
+                <div className="bg-card-light  border border-border-light  rounded-xl shadow-sm p-6">
+                    <h3 className="text-lg font-bold text-text-main  mb-5">
                         Verification Progress
                     </h3>
                     <div className="space-y-4">
@@ -107,27 +107,27 @@ export default function DashboardPendingView() {
                                 ) : step.inProgress ? (
                                     <MdAccessTime className="text-primary text-xl shrink-0 mt-0.5 animate-pulse" />
                                 ) : (
-                                    <div className="w-5 h-5 rounded-full border-2 border-slate-300 dark:border-slate-600 shrink-0 mt-0.5" />
+                                    <div className="w-5 h-5 rounded-full border-2 border-slate-300  shrink-0 mt-0.5" />
                                 )}
                                 <div className="flex-1">
                                     <p
                                         className={`text-sm font-medium ${step.complete
-                                            ? "text-green-700 dark:text-green-300"
+                                            ? "text-green-700 "
                                             : step.inProgress
                                                 ? "text-primary font-semibold"
-                                                : "text-text-muted dark:text-gray-400"
+                                                : "text-text-muted "
                                             }`}
                                     >
                                         {step.label}
                                     </p>
                                     {step.estimate && (
-                                        <p className="text-xs text-text-muted dark:text-gray-400 mt-0.5">
+                                        <p className="text-xs text-text-muted  mt-0.5">
                                             {step.estimate}
                                         </p>
                                     )}
                                 </div>
                                 {step.complete && (
-                                    <span className="text-xs text-green-600 dark:text-green-400 font-medium">Done</span>
+                                    <span className="text-xs text-green-600  font-medium">Done</span>
                                 )}
                                 {step.inProgress && (
                                     <span className="text-xs text-primary font-semibold">In Progress</span>
@@ -139,7 +139,7 @@ export default function DashboardPendingView() {
 
                 {/* Quick Actions Grid */}
                 <div>
-                    <h3 className="text-lg font-bold text-text-main dark:text-white mb-4">
+                    <h3 className="text-lg font-bold text-text-main  mb-4">
                         {onboardingComplete ? "While You Wait" : "Get Started"}
                     </h3>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -149,27 +149,27 @@ export default function DashboardPendingView() {
                                 <Link
                                     key={action.href}
                                     href={action.href}
-                                    className="flex items-start gap-4 bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl p-5 shadow-sm hover:border-primary/30 hover:shadow-md transition-all group"
+                                    className="flex items-start gap-4 bg-card-light  border border-border-light  rounded-xl p-5 shadow-sm hover:border-primary/30 hover:shadow-md transition-all group"
                                 >
                                     <div className="p-2.5 bg-primary/10 rounded-lg shrink-0 group-hover:bg-primary/20 transition-colors">
                                         <Icon className="text-primary text-xl" />
                                     </div>
                                     <div className="flex-1 min-w-0">
                                         <div className="flex items-center gap-2">
-                                            <p className="text-sm font-semibold text-text-main dark:text-white group-hover:text-primary transition-colors">
+                                            <p className="text-sm font-semibold text-text-main  group-hover:text-primary transition-colors">
                                                 {action.label}
                                             </p>
                                             {action.badge && (
-                                                <span className="px-1.5 py-0.5 text-[10px] font-semibold rounded-full bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300">
+                                                <span className="px-1.5 py-0.5 text-[10px] font-semibold rounded-full bg-yellow-100  text-yellow-700 ">
                                                     {action.badge}
                                                 </span>
                                             )}
                                         </div>
-                                        <p className="text-xs text-text-muted dark:text-gray-400 mt-0.5">
+                                        <p className="text-xs text-text-muted  mt-0.5">
                                             {action.description}
                                         </p>
                                     </div>
-                                    <MdArrowForward className="text-text-muted dark:text-gray-500 text-lg shrink-0 mt-1 group-hover:text-primary transition-colors" />
+                                    <MdArrowForward className="text-text-muted  text-lg shrink-0 mt-1 group-hover:text-primary transition-colors" />
                                 </Link>
                             );
                         })}
@@ -177,14 +177,14 @@ export default function DashboardPendingView() {
                 </div>
 
                 {/* What Happens Next Info Card */}
-                <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl shadow-sm p-6">
+                <div className="bg-card-light  border border-border-light  rounded-xl shadow-sm p-6">
                     <div className="flex items-start gap-3">
                         <MdInfo className="text-primary text-xl shrink-0 mt-0.5" />
                         <div>
-                            <h3 className="text-sm font-bold text-text-main dark:text-white">
+                            <h3 className="text-sm font-bold text-text-main ">
                                 What happens next?
                             </h3>
-                            <div className="mt-2 space-y-2 text-sm text-text-muted dark:text-gray-400">
+                            <div className="mt-2 space-y-2 text-sm text-text-muted ">
                                 {onboardingComplete ? (
                                     <>
                                         <p>
@@ -213,15 +213,15 @@ export default function DashboardPendingView() {
                 </div>
 
                 {/* Support CTA */}
-                <div className="bg-primary/5 dark:bg-primary/10 border border-primary/10 dark:border-primary/20 rounded-xl p-6">
+                <div className="bg-primary/5  border border-primary/10  rounded-xl p-6">
                     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                         <div className="flex items-start gap-3">
                             <MdEmail className="text-primary text-xl shrink-0 mt-0.5" />
                             <div>
-                                <h3 className="text-sm font-bold text-text-main dark:text-white">
+                                <h3 className="text-sm font-bold text-text-main ">
                                     Need help?
                                 </h3>
-                                <p className="text-xs text-text-muted dark:text-gray-400 mt-0.5">
+                                <p className="text-xs text-text-muted  mt-0.5">
                                     Have questions about the review process or need to update something?
                                 </p>
                             </div>

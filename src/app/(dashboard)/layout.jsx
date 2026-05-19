@@ -53,7 +53,7 @@ function TherapistMessagesLink({ pathname, collapsed = false }) {
                 </span>
             )}
             {collapsed && (
-                <span className="absolute left-full ml-2 px-2 py-1 bg-slate-800 dark:bg-slate-700 text-white text-xs font-medium rounded-md whitespace-nowrap opacity-0 pointer-events-none group-hover/nav:opacity-100 transition-opacity z-60">
+                <span className="absolute left-full ml-2 px-2 py-1 bg-slate-800  text-white text-xs font-medium rounded-md whitespace-nowrap opacity-0 pointer-events-none group-hover/nav:opacity-100 transition-opacity z-60">
                     Messages {unreadCount > 0 ? `(${unreadCount})` : ""}
                 </span>
             )}
@@ -86,7 +86,7 @@ function CustomerMessagesLink({ pathname, collapsed = false }) {
                 </span>
             )}
             {collapsed && (
-                <span className="absolute left-full ml-2 px-2 py-1 bg-slate-800 dark:bg-slate-700 text-white text-xs font-medium rounded-md whitespace-nowrap opacity-0 pointer-events-none group-hover/nav:opacity-100 transition-opacity z-60">
+                <span className="absolute left-full ml-2 px-2 py-1 bg-slate-800  text-white text-xs font-medium rounded-md whitespace-nowrap opacity-0 pointer-events-none group-hover/nav:opacity-100 transition-opacity z-60">
                     Messages {unreadCount > 0 ? `(${unreadCount})` : ""}
                 </span>
             )}
@@ -102,7 +102,7 @@ function NavLink({ href, icon: Icon, label, pathname, matchStart = true, locked 
             {!collapsed && <span className="flex-1">{label}</span>}
             {!collapsed && locked && <MdLock className="text-xs opacity-50" />}
             {collapsed && (
-                <span className="absolute left-full ml-2 px-2 py-1 bg-slate-800 dark:bg-slate-700 text-white text-xs font-medium rounded-md whitespace-nowrap opacity-0 pointer-events-none group-hover/nav:opacity-100 transition-opacity z-60">
+                <span className="absolute left-full ml-2 px-2 py-1 bg-slate-800  text-white text-xs font-medium rounded-md whitespace-nowrap opacity-0 pointer-events-none group-hover/nav:opacity-100 transition-opacity z-60">
                     {label}
                 </span>
             )}
@@ -113,7 +113,7 @@ function NavLink({ href, icon: Icon, label, pathname, matchStart = true, locked 
 function DisabledNavItem({ icon: Icon, label }) {
     return (
         <div
-            className="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-400 dark:text-slate-600 cursor-not-allowed text-sm font-medium select-none"
+            className="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-400  cursor-not-allowed text-sm font-medium select-none"
             title="Available after account approval"
         >
             <Icon className="sidebar-icon" />
@@ -220,10 +220,10 @@ export default function DashboardLayout({ children }) {
 
     if (loading) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-background-light dark:bg-background-dark">
+            <div className="min-h-screen flex items-center justify-center bg-background-light ">
                 <div className="text-center">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-                    <p className="mt-4 text-text-muted dark:text-gray-400">Loading...</p>
+                    <p className="mt-4 text-text-muted ">Loading...</p>
                 </div>
             </div>
         );
@@ -231,9 +231,9 @@ export default function DashboardLayout({ children }) {
 
     if (authError || !user) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-background-light dark:bg-background-dark">
+            <div className="min-h-screen flex items-center justify-center bg-background-light ">
                 <div className="text-center">
-                    <p className="text-text-muted dark:text-gray-400">Redirecting to login...</p>
+                    <p className="text-text-muted ">Redirecting to login...</p>
                 </div>
             </div>
         );
@@ -290,10 +290,10 @@ export default function DashboardLayout({ children }) {
         if (currentNavItem && !hasAdminPermission(currentNavItem.permission)) {
             router.replace('/admin/dashboard');
             return (
-                <div className="min-h-screen flex items-center justify-center bg-background-light dark:bg-background-dark">
+                <div className="min-h-screen flex items-center justify-center bg-background-light ">
                     <div className="text-center">
                         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-                        <p className="mt-4 text-text-muted dark:text-gray-400">Redirecting...</p>
+                        <p className="mt-4 text-text-muted ">Redirecting...</p>
                     </div>
                 </div>
             );
@@ -303,10 +303,10 @@ export default function DashboardLayout({ children }) {
         if (adminOnlyPaths.some(p => pathname.startsWith(p))) {
             router.replace('/admin/dashboard');
             return (
-                <div className="min-h-screen flex items-center justify-center bg-background-light dark:bg-background-dark">
+                <div className="min-h-screen flex items-center justify-center bg-background-light ">
                     <div className="text-center">
                         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-                        <p className="mt-4 text-text-muted dark:text-gray-400">Redirecting...</p>
+                        <p className="mt-4 text-text-muted ">Redirecting...</p>
                     </div>
                 </div>
             );
@@ -342,7 +342,7 @@ function CollapseToggle({ collapsed }) {
     return (
         <button
             onClick={toggleSidebar}
-            className="hidden lg:flex p-1.5 rounded-lg text-slate-400 hover:text-primary hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            className="hidden lg:flex p-1.5 rounded-lg text-slate-400 hover:text-primary hover:bg-slate-100  transition-colors"
             title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
         >
             {collapsed ? <MdKeyboardDoubleArrowRight className="text-lg" /> : <MdKeyboardDoubleArrowLeft className="text-lg" />}
@@ -357,13 +357,13 @@ function DashboardInner({ user, pathname, sidebarOpen, setSidebarOpen, handleLog
     const c = !isOnOnboardingRoute && isCollapsed;
 
     return (
-        <div className="flex min-h-screen bg-background-light dark:bg-background-dark">
+        <div className="flex min-h-screen bg-background-light ">
 
             {/* Mobile top bar */}
-            <div className="fixed top-0 left-0 right-0 h-14 bg-white dark:bg-card-dark border-b border-slate-200 dark:border-border-dark flex items-center px-4 z-50 lg:hidden">
+            <div className="fixed top-0 left-0 right-0 h-14 bg-white  border-b border-slate-200  flex items-center px-4 z-50 lg:hidden">
                 <button
                     onClick={() => setSidebarOpen(true)}
-                    className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300"
+                    className="p-2 rounded-lg hover:bg-slate-100  text-slate-600 "
                     aria-label="Open navigation"
                 >
                     <MdMenu className="text-xl" />
@@ -380,8 +380,8 @@ function DashboardInner({ user, pathname, sidebarOpen, setSidebarOpen, handleLog
             {/* ── THERAPIST SIDEBAR ── */}
             {user.role === 'therapist' && !isOnOnboardingRoute && (
                 <>
-                    <aside className={`w-64 ${sidebarWidth} border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-card-dark flex flex-col fixed h-full z-50 transition-all duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
-                        <button onClick={() => setSidebarOpen(false)} className="lg:hidden absolute top-3 right-3 p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400" aria-label="Close navigation">
+                    <aside className={`w-64 ${sidebarWidth} border-r border-slate-200  bg-white  flex flex-col fixed h-full z-50 transition-all duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
+                        <button onClick={() => setSidebarOpen(false)} className="lg:hidden absolute top-3 right-3 p-1.5 rounded-lg hover:bg-slate-100  text-slate-400" aria-label="Close navigation">
                             <MdClose className="text-xl" />
                         </button>
                         <div className={`${c ? 'p-3' : 'p-6'} flex flex-col`}>
@@ -392,7 +392,7 @@ function DashboardInner({ user, pathname, sidebarOpen, setSidebarOpen, handleLog
                                     ) : (
                                         <Image src="/images/logo/rehabtask_horizontal.png" alt="RehabTask" height={28} width={105} className="h-7 w-auto" />
                                     )}
-                                    {!c && <p className="text-slate-500 dark:text-slate-400 text-xs mt-1 font-medium">Therapist Portal</p>}
+                                    {!c && <p className="text-slate-500  text-xs mt-1 font-medium">Therapist Portal</p>}
                                 </div>
                                 {!c && <CollapseToggle collapsed={c} />}
                             </div>
@@ -419,10 +419,10 @@ function DashboardInner({ user, pathname, sidebarOpen, setSidebarOpen, handleLog
                             </nav>
                         </div>
 
-                        <div className={`mt-auto ${c ? 'p-2' : 'p-6'} space-y-1 border-t border-slate-100 dark:border-slate-800`}>
+                        <div className={`mt-auto ${c ? 'p-2' : 'p-6'} space-y-1 border-t border-slate-100 `}>
                             <NavLink href="/therapist/profile" icon={MdPerson} label="My Profile" pathname={pathname} collapsed={c} />
                             <NavLink href="/therapist/account-settings" icon={MdSettings} label="Account Settings" pathname={pathname} collapsed={c} />
-                            <button onClick={handleLogout} className={`sidebar-nav-link w-full text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 ${c ? 'justify-center px-0! gap-0!' : 'text-left'}`} title={c ? "Logout" : undefined}>
+                            <button onClick={handleLogout} className={`sidebar-nav-link w-full text-red-500 hover:bg-red-50  ${c ? 'justify-center px-0! gap-0!' : 'text-left'}`} title={c ? "Logout" : undefined}>
                                 <MdLogout className="sidebar-icon shrink-0" />
                                 {!c && <span>Logout</span>}
                             </button>
@@ -435,8 +435,8 @@ function DashboardInner({ user, pathname, sidebarOpen, setSidebarOpen, handleLog
             {/* ── CUSTOMER SIDEBAR ── */}
             {user.role === 'customer' && (
                 <>
-                    <aside className={`w-64 ${sidebarWidth} border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-card-dark flex flex-col fixed h-full z-50 transition-all duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
-                        <button onClick={() => setSidebarOpen(false)} className="lg:hidden absolute top-3 right-3 p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400" aria-label="Close navigation">
+                    <aside className={`w-64 ${sidebarWidth} border-r border-slate-200  bg-white  flex flex-col fixed h-full z-50 transition-all duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
+                        <button onClick={() => setSidebarOpen(false)} className="lg:hidden absolute top-3 right-3 p-1.5 rounded-lg hover:bg-slate-100  text-slate-400" aria-label="Close navigation">
                             <MdClose className="text-xl" />
                         </button>
                         <div className={`${c ? 'p-3' : 'p-6'} flex ${c ? 'flex-col items-center gap-2' : 'items-center justify-between'}`}>
@@ -461,27 +461,27 @@ function DashboardInner({ user, pathname, sidebarOpen, setSidebarOpen, handleLog
                             <NavLink href="/customer/subscription" icon={MdStars} label="Subscription" pathname={pathname} collapsed={c} />
                             <NavLink href="/customer/faqs" icon={MdQuestionAnswer} label="FAQs" pathname={pathname} collapsed={c} />
                             <NavLink href="/customer/profile" icon={MdSettings} label="Account Settings" pathname={pathname} collapsed={c} />
-                            <button onClick={handleLogout} className={`sidebar-nav-link w-full text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 ${c ? 'justify-center px-0! gap-0!' : 'text-left'}`} title={c ? "Logout" : undefined}>
+                            <button onClick={handleLogout} className={`sidebar-nav-link w-full text-red-500 hover:bg-red-50  ${c ? 'justify-center px-0! gap-0!' : 'text-left'}`} title={c ? "Logout" : undefined}>
                                 <MdLogout className="sidebar-icon shrink-0" />
                                 {!c && <span>Logout</span>}
                             </button>
                         </nav>
-                        <div className={`${c ? 'p-2' : 'p-4'} mt-auto border-t border-slate-200 dark:border-slate-800`}>
+                        <div className={`${c ? 'p-2' : 'p-4'} mt-auto border-t border-slate-200 `}>
                             {!c ? (
                                 <div className="flex items-center gap-3 p-2 rounded-lg bg-primary/5">
-                                    <div className="h-10 w-10 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-sm font-bold text-slate-600 dark:text-slate-300 shrink-0">
+                                    <div className="h-10 w-10 rounded-full bg-slate-200  flex items-center justify-center text-sm font-bold text-slate-600  shrink-0">
                                         {initials}
                                     </div>
                                     <div className="flex-1 min-w-0">
-                                        <p className="text-sm font-semibold truncate text-slate-900 dark:text-white">{profileName}</p>
-                                        <div className="text-xs text-text-muted dark:text-gray-400 truncate">
+                                        <p className="text-sm font-semibold truncate text-slate-900 ">{profileName}</p>
+                                        <div className="text-xs text-text-muted  truncate">
                                             {user?.profile?.customerType === "agency" ? (user?.profile?.agencyName || "Agency Account") : "Individual Account"}
                                         </div>
                                     </div>
                                 </div>
                             ) : (
                                 <div className="flex justify-center">
-                                    <div className="h-9 w-9 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-xs font-bold text-slate-600 dark:text-slate-300" title={profileName}>
+                                    <div className="h-9 w-9 rounded-full bg-slate-200  flex items-center justify-center text-xs font-bold text-slate-600 " title={profileName}>
                                         {initials}
                                     </div>
                                 </div>
@@ -495,8 +495,8 @@ function DashboardInner({ user, pathname, sidebarOpen, setSidebarOpen, handleLog
             {/* ── ONBOARDING (minimal sidebar — no collapse) ── */}
             {user.role === 'therapist' && isOnOnboardingRoute && (
                 <>
-                    <aside className={`w-64 border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-card-dark flex flex-col fixed h-full z-50 transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
-                        <button onClick={() => setSidebarOpen(false)} className="lg:hidden absolute top-3 right-3 p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400" aria-label="Close navigation">
+                    <aside className={`w-64 border-r border-slate-200  bg-white  flex flex-col fixed h-full z-50 transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
+                        <button onClick={() => setSidebarOpen(false)} className="lg:hidden absolute top-3 right-3 p-1.5 rounded-lg hover:bg-slate-100  text-slate-400" aria-label="Close navigation">
                             <MdClose className="text-xl" />
                         </button>
                         <div className="p-6">
@@ -511,11 +511,11 @@ function DashboardInner({ user, pathname, sidebarOpen, setSidebarOpen, handleLog
             {/* ── ADMIN SIDEBAR ── */}
             {(user.role === 'admin' || user.role === 'sub_admin') && (
                 <>
-                    <aside className={`w-64 ${sidebarWidth} border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-card-dark flex flex-col fixed h-full z-50 transition-all duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
-                        <button onClick={() => setSidebarOpen(false)} className="lg:hidden absolute top-3 right-3 p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400" aria-label="Close navigation">
+                    <aside className={`w-64 ${sidebarWidth} border-r border-slate-200  bg-white  flex flex-col fixed h-full z-50 transition-all duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
+                        <button onClick={() => setSidebarOpen(false)} className="lg:hidden absolute top-3 right-3 p-1.5 rounded-lg hover:bg-slate-100  text-slate-400" aria-label="Close navigation">
                             <MdClose className="text-xl" />
                         </button>
-                        <div className={`${c ? 'p-3' : 'p-5'} flex ${c ? 'flex-col items-center gap-2' : 'items-start justify-between'} border-b border-slate-100 dark:border-slate-800`}>
+                        <div className={`${c ? 'p-3' : 'p-5'} flex ${c ? 'flex-col items-center gap-2' : 'items-start justify-between'} border-b border-slate-100 `}>
                             <div>
                                 {c ? (
                                     <Image src="/images/logo/rehabtask_icon.png" alt="RehabTask" width={28} height={28} className="w-7 h-7" />
@@ -523,7 +523,7 @@ function DashboardInner({ user, pathname, sidebarOpen, setSidebarOpen, handleLog
                                     <Image src="/images/logo/rehabtask_horizontal.png" alt="RehabTask" height={28} width={105} className="h-7 w-auto" />
                                 )}
                                 {!c && (
-                                    <p className="text-slate-500 dark:text-slate-400 text-xs mt-1 font-medium flex items-center gap-1">
+                                    <p className="text-slate-500  text-xs mt-1 font-medium flex items-center gap-1">
                                         <MdAdminPanelSettings className="text-sm" />
                                         {user.role === 'sub_admin' ? 'Sub-Admin Portal' : 'Admin Portal'}
                                     </p>
@@ -545,20 +545,20 @@ function DashboardInner({ user, pathname, sidebarOpen, setSidebarOpen, handleLog
                                 </>
                             )}
                         </nav>
-                        <div className={`${c ? 'p-2' : 'p-4'} border-t border-slate-100 dark:border-slate-800 space-y-1`}>
+                        <div className={`${c ? 'p-2' : 'p-4'} border-t border-slate-100  space-y-1`}>
                             <NavLink href="/admin/settings" icon={MdSettings} label="Settings" pathname={pathname} collapsed={c} />
-                            <button onClick={handleLogout} className={`sidebar-nav-link w-full text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 ${c ? 'justify-center px-0! gap-0!' : 'text-left'}`} title={c ? "Logout" : undefined}>
+                            <button onClick={handleLogout} className={`sidebar-nav-link w-full text-red-500 hover:bg-red-50  ${c ? 'justify-center px-0! gap-0!' : 'text-left'}`} title={c ? "Logout" : undefined}>
                                 <MdLogout className="sidebar-icon shrink-0" />
                                 {!c && <span>Logout</span>}
                             </button>
                             {!c ? (
-                                <div className="flex items-center gap-3 p-2 mt-2 rounded-lg bg-slate-50 dark:bg-slate-800/50">
+                                <div className="flex items-center gap-3 p-2 mt-2 rounded-lg bg-slate-50 ">
                                     <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-xs font-bold text-white shrink-0">
                                         {initials || 'A'}
                                     </div>
                                     <div className="min-w-0">
-                                        <p className="text-sm font-semibold truncate text-slate-900 dark:text-white">{profileName || 'Admin'}</p>
-                                        <p className="text-xs text-text-muted dark:text-slate-400 capitalize">{user.role.replace('_', ' ')}</p>
+                                        <p className="text-sm font-semibold truncate text-slate-900 ">{profileName || 'Admin'}</p>
+                                        <p className="text-xs text-text-muted  capitalize">{user.role.replace('_', ' ')}</p>
                                     </div>
                                 </div>
                             ) : (

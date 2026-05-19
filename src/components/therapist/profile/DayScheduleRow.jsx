@@ -8,7 +8,7 @@ const DayScheduleRow = ({ day, dayLabel, enabled, timeBlocks, onToggle, onAddBlo
         <div
             className={`rounded-xl border p-4 transition-colors ${enabled
                 ? "bg-primary/5 border-primary/20"
-                : "bg-muted-light dark:bg-muted-dark border-border-light dark:border-border-dark"
+                : "bg-muted-light  border-border-light "
                 }`}
         >
             <div className="flex items-center justify-between mb-3">
@@ -25,7 +25,7 @@ const DayScheduleRow = ({ day, dayLabel, enabled, timeBlocks, onToggle, onAddBlo
                     role="switch"
                     aria-checked={enabled}
                     onClick={() => onToggle(day)}
-                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${enabled ? "bg-primary" : "bg-gray-300 dark:bg-gray-600"
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${enabled ? "bg-primary" : "bg-gray-300 "
                         }`}
                 >
                     <span

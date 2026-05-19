@@ -26,18 +26,18 @@ function ProfilePageSkeleton() {
         <div className="p-4 md:p-6">
             <div className="animate-pulse space-y-6">
                 <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 rounded-full bg-gray-200 dark:bg-gray-700" />
+                    <div className="w-16 h-16 rounded-full bg-gray-200 " />
                     <div className="space-y-2">
-                        <div className="h-6 w-48 bg-gray-200 dark:bg-gray-700 rounded" />
-                        <div className="h-4 w-32 bg-gray-200 dark:bg-gray-700 rounded" />
+                        <div className="h-6 w-48 bg-gray-200  rounded" />
+                        <div className="h-4 w-32 bg-gray-200  rounded" />
                     </div>
                 </div>
                 <div className="flex gap-2">
-                    <div className="h-10 w-24 bg-gray-200 dark:bg-gray-700 rounded-lg" />
-                    <div className="h-10 w-28 bg-gray-200 dark:bg-gray-700 rounded-lg" />
-                    <div className="h-10 w-28 bg-gray-200 dark:bg-gray-700 rounded-lg" />
+                    <div className="h-10 w-24 bg-gray-200  rounded-lg" />
+                    <div className="h-10 w-28 bg-gray-200  rounded-lg" />
+                    <div className="h-10 w-28 bg-gray-200  rounded-lg" />
                 </div>
-                <div className="h-64 bg-gray-200 dark:bg-gray-700 rounded-xl" />
+                <div className="h-64 bg-gray-200  rounded-xl" />
             </div>
         </div>
     );
@@ -81,10 +81,10 @@ function TherapistProfileContent() {
 
 
     const approvalColor = {
-        approved: "bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-200",
-        pending: "bg-yellow-100 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-200",
-        review: "bg-yellow-100 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-200",
-        rejected: "bg-red-100 dark:bg-red-900/20 text-red-800 dark:text-red-200",
+        approved: "bg-green-100  text-green-800 ",
+        pending: "bg-yellow-100  text-yellow-800 ",
+        review: "bg-yellow-100  text-yellow-800 ",
+        rejected: "bg-red-100  text-red-800 ",
     };
 
     return (
@@ -95,10 +95,10 @@ function TherapistProfileContent() {
                     name={profile.fullName}
                     photoUrl={profile.profilePhotoUrl}
                     size="xl"
-                    className="border-2 border-border-light dark:border-border-dark"
+                    className="border-2 border-border-light "
                 />
                 <div>
-                    <h1 className="text-2xl font-bold text-text-main dark:text-white">
+                    <h1 className="text-2xl font-bold text-text-main ">
                         {profile.fullName || "My Profile"}
                     </h1>
                     <div className="flex items-center gap-3 mt-1 flex-wrap">
@@ -121,26 +121,26 @@ function TherapistProfileContent() {
 
             {/* Status Banner — shown for non-approved therapists */}
             {!onboardingComplete && (approvalStatus === "pending" || approvalStatus === "review") && (
-                <div className="flex items-start gap-3 p-4 mb-8 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl">
-                    <MdInfo className="text-blue-600 dark:text-blue-400 text-xl shrink-0 mt-0.5" />
+                <div className="flex items-start gap-3 p-4 mb-8 bg-blue-50  border border-blue-200  rounded-xl">
+                    <MdInfo className="text-blue-600  text-xl shrink-0 mt-0.5" />
                     <div>
-                        <p className="text-sm font-semibold text-blue-800 dark:text-blue-200">
+                        <p className="text-sm font-semibold text-blue-800 ">
                             Complete your onboarding to unlock all features
                         </p>
-                        <p className="text-xs text-blue-700 dark:text-blue-300 mt-1">
+                        <p className="text-xs text-blue-700  mt-1">
                             Your profile is not yet visible to patients. Finish your onboarding setup to submit your application for review.
                         </p>
                     </div>
                 </div>
             )}
             {onboardingComplete && (approvalStatus === "pending" || approvalStatus === "review") && (
-                <div className="flex items-start gap-3 p-4 mb-8 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-xl">
-                    <MdInfo className="text-yellow-600 dark:text-yellow-400 text-xl shrink-0 mt-0.5" />
+                <div className="flex items-start gap-3 p-4 mb-8 bg-yellow-50  border border-yellow-200  rounded-xl">
+                    <MdInfo className="text-yellow-600  text-xl shrink-0 mt-0.5" />
                     <div>
-                        <p className="text-sm font-semibold text-yellow-800 dark:text-yellow-200">
+                        <p className="text-sm font-semibold text-yellow-800 ">
                             Your credentials are under review
                         </p>
-                        <p className="text-xs text-yellow-700 dark:text-yellow-300 mt-1">
+                        <p className="text-xs text-yellow-700  mt-1">
                             You can update your personal information and availability while we review your credentials. Credential fields are locked during review.
                         </p>
                     </div>
@@ -148,13 +148,13 @@ function TherapistProfileContent() {
             )}
 
             {approvalStatus === "rejected" && (
-                <div className="flex items-start gap-3 p-4 mb-8 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl">
+                <div className="flex items-start gap-3 p-4 mb-8 bg-red-50  border border-red-200  rounded-xl">
                     <MdError className="text-red-500 text-xl shrink-0 mt-0.5" />
                     <div>
-                        <h3 className="text-sm font-semibold text-red-800 dark:text-red-200">
+                        <h3 className="text-sm font-semibold text-red-800 ">
                             Your application needs attention
                         </h3>
-                        <p className="text-xs text-red-700 dark:text-red-300 mt-1">
+                        <p className="text-xs text-red-700  mt-1">
                             {profile.rejectionReason || "Please review your credentials and contact support for details on what needs to be updated."}
                         </p>
                     </div>
@@ -162,7 +162,7 @@ function TherapistProfileContent() {
             )}
 
             {/* Tab Bar */}
-            <div className="flex items-center gap-1 bg-muted-light dark:bg-muted-dark p-1 rounded-xl mb-8 overflow-x-auto">
+            <div className="flex items-center gap-1 bg-muted-light  p-1 rounded-xl mb-8 overflow-x-auto">
                 {TABS.map((tab) => {
                     const Icon = tab.icon;
                     const isActive = activeTab === tab.key;
@@ -172,7 +172,7 @@ function TherapistProfileContent() {
                             onClick={() => setActiveTab(tab.key)}
                             className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${isActive
                                 ? "bg-primary text-white shadow-sm"
-                                : "text-text-muted hover:text-text-main dark:hover:text-white"
+                                : "text-text-muted hover:text-text-main "
                                 }`}
                         >
                             <Icon className="text-lg" />

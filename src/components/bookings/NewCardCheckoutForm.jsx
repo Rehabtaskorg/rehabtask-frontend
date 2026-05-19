@@ -33,7 +33,7 @@ export default function NewCardCheckoutForm({ booking, onSuccess }) {
     return (
         <form onSubmit={handleSubmit} className="space-y-4">
             <PaymentElement />
-            {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}
+            {error && <p className="text-sm text-red-600 ">{error}</p>}
             <button
                 type="submit"
                 disabled={!stripe || processing}

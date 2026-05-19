@@ -40,11 +40,11 @@ export default function AvailabilityCard({ availability }) {
     }
 
     return (
-        <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl p-6 shadow-sm">
+        <div className="bg-card-light  border border-border-light  rounded-xl p-6 shadow-sm">
             {/* Header */}
             <div className="flex items-center gap-2 mb-4">
                 <MdCalendarToday className="text-primary text-lg" />
-                <h3 className="text-base font-bold text-text-main dark:text-white">
+                <h3 className="text-base font-bold text-text-main ">
                     Availability
                 </h3>
             </div>
@@ -59,21 +59,21 @@ export default function AvailabilityCard({ availability }) {
                     return (
                         <div
                             key={day}
-                            className={`flex items-center justify-between py-3 ${!isLast ? "border-b border-border-light dark:border-border-dark" : ""
+                            className={`flex items-center justify-between py-3 ${!isLast ? "border-b border-border-light " : ""
                                 }`}
                         >
-                            <span className="text-sm font-medium text-text-muted dark:text-gray-400">
+                            <span className="text-sm font-medium text-text-muted ">
                                 {DAY_LABELS[day]}
                             </span>
                             {isEnabled ? (
-                                <span className="text-sm font-semibold text-text-main dark:text-white">
+                                <span className="text-sm font-semibold text-text-main ">
                                     {entry.timeBlocks
                                         .map(formatTimeBlock)
                                         .filter(Boolean)
                                         .join(", ") || "Available"}
                                 </span>
                             ) : (
-                                <span className="text-sm font-semibold text-text-muted dark:text-gray-500">
+                                <span className="text-sm font-semibold text-text-muted ">
                                     Unavailable
                                 </span>
                             )}

@@ -115,27 +115,27 @@ export default function ProfessionalProfilePage() {
     }
 
     return (
-        <div className="min-h-screen bg-background-light dark:bg-background-dark py-10 px-4">
+        <div className="min-h-screen bg-background-light  py-10 px-4">
             <div className="max-w-4xl mx-auto">
                 <OnboardingProgressBar />
 
                 <header className="mb-8 px-4">
-                    <h1 className="text-text-main dark:text-white text-4xl font-black leading-tight tracking-[-0.033em] mb-2">
+                    <h1 className="text-text-main  text-4xl font-black leading-tight tracking-[-0.033em] mb-2">
                         Professional Profile
                     </h1>
-                    <p className="text-text-muted dark:text-gray-400 text-lg font-normal leading-normal">
+                    <p className="text-text-muted  text-lg font-normal leading-normal">
                         Tell us about your clinical expertise and background to help patients find the right match.
                     </p>
                 </header>
 
                 <form onSubmit={handleSubmit(onSubmit)}>
-                    <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-xl overflow-hidden shadow-sm">
+                    <div className="bg-card-light  border border-border-light  rounded-xl overflow-hidden shadow-sm">
                         {/* Profile Photo Section */}
-                        <div className="p-8 border-b border-border-light dark:border-border-dark">
+                        <div className="p-8 border-b border-border-light ">
                             <div className="flex flex-col items-center text-center gap-6">
                                 <div className="relative">
                                     <div
-                                        className="bg-center bg-no-repeat aspect-square bg-cover rounded-full min-h-32 w-32 ring-4 ring-primary/10 bg-gray-200 dark:bg-gray-700"
+                                        className="bg-center bg-no-repeat aspect-square bg-cover rounded-full min-h-32 w-32 ring-4 ring-primary/10 bg-gray-200 "
                                         style={{
                                             backgroundImage: profilePhoto ? `url(${profilePhoto})` : "none",
                                         }}
@@ -164,10 +164,10 @@ export default function ProfessionalProfilePage() {
                                     </label>
                                 </div>
                                 <div className="flex flex-col items-center">
-                                    <h3 className="text-text-main dark:text-white text-xl font-bold tracking-tight">
+                                    <h3 className="text-text-main  text-xl font-bold tracking-tight">
                                         Professional Headshot
                                     </h3>
-                                    <p className="text-text-muted dark:text-gray-400 text-sm max-w-xs mt-1">
+                                    <p className="text-text-muted  text-sm max-w-xs mt-1">
                                         A high-quality, professional photo increases profile views by up to 40%
                                     </p>
                                 </div>
@@ -179,14 +179,14 @@ export default function ProfessionalProfilePage() {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                 {/* Years of Experience */}
                                 <div className="flex flex-col gap-2">
-                                    <label className="text-text-main dark:text-white text-base font-semibold">
+                                    <label className="text-text-main  text-base font-semibold">
                                         Years of Experience
                                     </label>
                                     <div className="relative">
                                         <input
                                             type="number"
                                             {...register("yearsOfExperience")}
-                                            className="w-full px-4 py-3 rounded-lg border border-border-light dark:border-border-dark bg-input-light dark:bg-input-dark text-text-main dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none"
+                                            className="w-full px-4 py-3 rounded-lg border border-border-light  bg-input-light  text-text-main  focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none"
                                             placeholder="e.g. 8"
                                             min="0"
                                             max="50"
@@ -202,12 +202,12 @@ export default function ProfessionalProfilePage() {
 
                                 {/* Primary License Type */}
                                 <div className="flex flex-col gap-2">
-                                    <label className="text-text-main dark:text-white text-base font-semibold">
+                                    <label className="text-text-main  text-base font-semibold">
                                         Primary Discipline type
                                     </label>
                                     <select
                                         {...register("primaryLicenseType")}
-                                        className="w-full px-4 py-3 rounded-lg border border-border-light dark:border-border-dark bg-input-light dark:bg-input-dark text-text-main dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none appearance-none"
+                                        className="w-full px-4 py-3 rounded-lg border border-border-light  bg-input-light  text-text-main  focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none appearance-none"
                                     >
                                         <option value="">Select Discipline type</option>
                                         {LICENSE_TYPES.map((type) => (
@@ -224,13 +224,13 @@ export default function ProfessionalProfilePage() {
 
                             {/* Specialization Dropdown */}
                             <div className="flex flex-col gap-2">
-                                <label className="text-text-main dark:text-white text-base font-semibold">
+                                <label className="text-text-main  text-base font-semibold">
                                     Primary Specialization{" "}
-                                    <span className="text-text-muted dark:text-gray-400 font-normal text-sm">(optional)</span>
+                                    <span className="text-text-muted  font-normal text-sm">(optional)</span>
                                 </label>
                                 <select
                                     {...register("specialization")}
-                                    className="w-full px-4 py-3 rounded-lg border border-border-light dark:border-border-dark bg-input-light dark:bg-input-dark text-text-main dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none appearance-none"
+                                    className="w-full px-4 py-3 rounded-lg border border-border-light  bg-input-light  text-text-main  focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none appearance-none"
                                 >
                                     <option value="">Select Specialization</option>
                                     {SPECIALIZATIONS.map((spec) => (
@@ -247,7 +247,7 @@ export default function ProfessionalProfilePage() {
                             {/* Professional Summary */}
                             <div className="flex flex-col gap-2">
                                 <label className="flex justify-between items-center">
-                                    <span className="text-text-main dark:text-white text-base font-semibold">
+                                    <span className="text-text-main  text-base font-semibold">
                                         Professional Summary
                                     </span>
                                     <span className="text-xs text-gray-400 font-normal">
@@ -256,7 +256,7 @@ export default function ProfessionalProfilePage() {
                                 </label>
                                 <textarea
                                     {...register("professionalSummary")}
-                                    className="w-full min-h-36 resize-none rounded-lg border border-border-light dark:border-border-dark bg-input-light dark:bg-input-dark text-text-main dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent p-4 text-base leading-relaxed outline-none placeholder:text-text-muted"
+                                    className="w-full min-h-36 resize-none rounded-lg border border-border-light  bg-input-light  text-text-main  focus:ring-2 focus:ring-primary focus:border-transparent p-4 text-base leading-relaxed outline-none placeholder:text-text-muted"
                                     placeholder="Share a brief bio about your therapeutic approach, areas of interest, and why you love what you do..."
                                     maxLength={2000}
                                 />
@@ -267,11 +267,11 @@ export default function ProfessionalProfilePage() {
                         </div>
 
                         {/* Footer Actions */}
-                        <div className="p-8 bg-muted-light dark:bg-muted-dark flex flex-col sm:flex-row justify-between items-center gap-4 border-t border-border-light dark:border-border-dark">
+                        <div className="p-8 bg-muted-light  flex flex-col sm:flex-row justify-between items-center gap-4 border-t border-border-light ">
                             <button
                                 type="button"
                                 onClick={handleBack}
-                                className="w-full sm:w-auto flex items-center justify-center gap-2 px-8 h-12 text-text-muted dark:text-gray-400 font-bold hover:text-text-main dark:hover:text-white transition-colors"
+                                className="w-full sm:w-auto flex items-center justify-center gap-2 px-8 h-12 text-text-muted  font-bold hover:text-text-main  transition-colors"
                             >
                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
