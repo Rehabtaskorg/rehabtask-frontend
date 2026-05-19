@@ -77,7 +77,7 @@ const APPEARANCE = {
         inputFieldPaddingY: "10px",
         borderRadius: "12px",
         overlayBorderRadius: "12px",
-        spacingUnit: "4px",
+        spacingUnit: "8px",
     },
 };
 
