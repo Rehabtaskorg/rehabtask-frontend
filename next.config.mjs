@@ -3,6 +3,7 @@
 const SELF = "'self'";
 const NONE = "'none'";
 const UNSAFE_INLINE = "'unsafe-inline'";
+const UNSAFE_EVAL = "'unsafe-eval'";
 
 // External domains used by the app — keep in sync with actual integrations.
 const SUPABASE = "https://*.supabase.co";
@@ -59,7 +60,7 @@ const securityHeaders = [
         key: "Content-Security-Policy",
         value: [
             `default-src ${SELF}`,
-            `script-src ${SELF} ${UNSAFE_INLINE} ${STRIPE_JS} ${STRIPE_API} ${STRIPE_NETWORK} ${GOOGLE_RECAPTCHA} ${GOOGLE_GSTATIC} ${GOOGLE_MAPS}`,
+            `script-src ${SELF} ${UNSAFE_INLINE} ${UNSAFE_EVAL} ${STRIPE_JS} ${STRIPE_API} ${STRIPE_NETWORK} ${GOOGLE_RECAPTCHA} ${GOOGLE_GSTATIC} ${GOOGLE_MAPS}`,
             `style-src ${SELF} ${UNSAFE_INLINE} ${STRIPE_API} ${STRIPE_NETWORK} ${GOOGLE_GSTATIC}`,
             `img-src ${SELF} data: blob: ${SUPABASE} ${STRIPE_API} ${STRIPE_NETWORK} ${UNSPLASH} ${GOOGLE_MAPS} ${GOOGLE_GSTATIC} ${COUNTRY_FLAGS}`,
             `font-src ${SELF} ${STRIPE_API} ${STRIPE_NETWORK} ${GOOGLE_GSTATIC}`,
