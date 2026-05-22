@@ -49,30 +49,26 @@ const securityHeaders = [
             "bluetooth=()",
         ].join(", "),
     },
-    // Content Security Policy.
-    // — script-src: self + Stripe JS + Google reCAPTCHA/Maps + unsafe-inline
-    //   for Next.js inline scripts. unsafe-eval excluded — test for breakage.
-    // — connect-src: self (API proxy) + Supabase (auth/storage) + Stripe + Maps.
-    // — frame-src: Stripe Connect embedded components render in iframes.
-    // — img-src: self + Supabase storage + Unsplash + Google Maps static tiles
-    //   + data URIs (inline SVGs / base64 images used throughout the app).
-    {
-        key: "Content-Security-Policy",
-        value: [
-            `default-src ${SELF}`,
-            `script-src ${SELF} ${UNSAFE_INLINE} ${UNSAFE_EVAL} ${STRIPE_JS} ${STRIPE_API} ${STRIPE_NETWORK} ${GOOGLE_RECAPTCHA} ${GOOGLE_GSTATIC} ${GOOGLE_MAPS}`,
-            `style-src ${SELF} ${UNSAFE_INLINE} ${STRIPE_API} ${STRIPE_NETWORK} ${GOOGLE_GSTATIC}`,
-            `style-src-attr ${UNSAFE_INLINE}`,
-            `img-src ${SELF} data: blob: ${SUPABASE} ${STRIPE_API} ${STRIPE_NETWORK} ${UNSPLASH} ${GOOGLE_MAPS} ${GOOGLE_GSTATIC} ${COUNTRY_FLAGS}`,
-            `font-src ${SELF} ${STRIPE_API} ${STRIPE_NETWORK} ${GOOGLE_GSTATIC}`,
-            `connect-src ${SELF} data: ${SUPABASE} ${STRIPE_API} ${STRIPE_NETWORK} ${STRIPE_JS} ${GOOGLE_MAPS} ${GOOGLE_GSTATIC} ${GOOGLE_RECAPTCHA} https://*.rehabtask.com wss://*.rehabtask.com`,
-            `frame-src ${SELF} ${STRIPE_JS} ${STRIPE_API} ${STRIPE_NETWORK} ${GOOGLE_RECAPTCHA}`,
-            `worker-src blob: data:`,
-            `object-src ${NONE}`,
-            `base-uri ${SELF}`,
-            `form-action ${SELF}`,
-        ].join("; "),
-    },
+    // TODO: Re-enable CSP before production launch. Commented out during pre-launch
+    // testing to unblock debugging of Stripe, Google Maps, and other integrations.
+    // All other security headers above remain active.
+    // {
+    //     key: "Content-Security-Policy",
+    //     value: [
+    //         `default-src ${SELF}`,
+    //         `script-src ${SELF} ${UNSAFE_INLINE} ${UNSAFE_EVAL} ${STRIPE_JS} ${STRIPE_API} ${STRIPE_NETWORK} ${GOOGLE_RECAPTCHA} ${GOOGLE_GSTATIC} ${GOOGLE_MAPS}`,
+    //         `style-src ${SELF} ${UNSAFE_INLINE} ${STRIPE_API} ${STRIPE_NETWORK} ${GOOGLE_GSTATIC}`,
+    //         `style-src-attr ${UNSAFE_INLINE}`,
+    //         `img-src ${SELF} data: blob: ${SUPABASE} ${STRIPE_API} ${STRIPE_NETWORK} ${UNSPLASH} ${GOOGLE_MAPS} ${GOOGLE_GSTATIC} ${COUNTRY_FLAGS}`,
+    //         `font-src ${SELF} ${STRIPE_API} ${STRIPE_NETWORK} ${GOOGLE_GSTATIC}`,
+    //         `connect-src ${SELF} data: ${SUPABASE} ${STRIPE_API} ${STRIPE_NETWORK} ${STRIPE_JS} ${GOOGLE_MAPS} ${GOOGLE_GSTATIC} ${GOOGLE_RECAPTCHA} https://*.rehabtask.com wss://*.rehabtask.com`,
+    //         `frame-src ${SELF} ${STRIPE_JS} ${STRIPE_API} ${STRIPE_NETWORK} ${GOOGLE_RECAPTCHA}`,
+    //         `worker-src blob: data:`,
+    //         `object-src ${NONE}`,
+    //         `base-uri ${SELF}`,
+    //         `form-action ${SELF}`,
+    //     ].join("; "),
+    // },
 ];
 
 const nextConfig = {
