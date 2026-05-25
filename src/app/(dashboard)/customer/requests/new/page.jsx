@@ -16,7 +16,7 @@ import Step3Review from "./_components/Step3Review";
 import { MdArrowBack, MdPerson, MdAdd, MdLock, MdWarning } from "react-icons/md";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { useSubscription } from "@/hooks/useSubscription";
-import { REQUEST_TYPE } from "@/lib/constants";
+import { REQUEST_TYPE, LICENSE_TYPE_TO_SERVICE_TYPE } from "@/lib/constants";
 
 export default function NewRequestPage() {
     const router = useRouter();
@@ -55,6 +55,7 @@ export default function NewRequestPage() {
     const requestLimit = subscription?.requestLimit;
     const isAtRequestLimit = !isEditMode && requestLimit !== null && requestLimit < 999999 && usage.activeRequests >= requestLimit;
     const [user, setUser] = useState(null);
+    const [targetTherapistLicenseType, setTargetTherapistLicenseType] = useState(null);
 
     // Fetch user to check customerType
     useEffect(() => {
@@ -68,6 +69,22 @@ export default function NewRequestPage() {
         };
         fetchUser();
     }, []);
+
+    // In direct mode, fetch the target therapist's license type for the mismatch warning.
+    // Non-blocking — if it fails, the form still works, warning just won't show.
+    useEffect(() => {
+        if (!directTo) {
+            setTargetTherapistLicenseType(null);
+            return;
+        }
+        api.get(`/therapists/${directTo}`)
+            .then((res) => {
+                setTargetTherapistLicenseType(res.data.data?.primaryLicenseType ?? null);
+            })
+            .catch(() => {
+                setTargetTherapistLicenseType(null);
+            });
+    }, [directTo]);
 
     // Edit mode: fetch existing request and pre-fill store
     useEffect(() => {
@@ -273,6 +290,27 @@ export default function NewRequestPage() {
                                 </div>
                             </div>
                         )}
+
+                        {/* Discipline mismatch warning — shown when selected service type
+                            does not match the target therapist's license type */}
+                        {isDirectMode && currentStep === 1 && (() => {
+                            if (!targetTherapistLicenseType || !step1.serviceType) return null;
+                            const expectedServiceType = LICENSE_TYPE_TO_SERVICE_TYPE[targetTherapistLicenseType];
+                            if (!expectedServiceType || step1.serviceType === expectedServiceType) return null;
+                            return (
+                                <div className="flex items-start gap-3 bg-amber-50  border border-amber-200  rounded-xl p-4">
+                                    <MdWarning className="text-amber-500 text-xl shrink-0 mt-0.5" />
+                                    <div>
+                                        <p className="text-sm font-semibold text-amber-800 ">
+                                            Service type may not match this therapist
+                                        </p>
+                                        <p className="text-xs text-amber-700  mt-0.5">
+                                            The therapist you selected is a <strong>{targetTherapistLicenseType}</strong>, who typically handles <strong>{expectedServiceType}</strong> requests. You can still submit — they will review and respond.
+                                        </p>
+                                    </div>
+                                </div>
+                            );
+                        })()}
 
                         {/* Warning banner: editing will withdraw offers */}
                         {isEditMode && hasOffers && currentStep === 1 && (
