@@ -11,6 +11,7 @@ import {
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { useAuth } from "@/hooks/useAuth";
 import { useTherapistAccess } from "@/contexts/TherapistAccessContext";
+import { REQUEST_TYPE } from "@/lib/constants";
 import LockedPageOverlay from "@/components/therapist/LockedPageOverlay";
 import TherapistRequestDetailPanel from "@/components/therapist/TherapistRequestDetailPanel";
 import TherapistRequestFilters, { FilterToggleButton } from "@/components/therapist/TherapistRequestFilters";
@@ -333,7 +334,7 @@ function TherapistRequestsContent() {
                                                 <div className="flex justify-between items-start mb-2">
                                                     <div className="flex flex-wrap items-center gap-1.5">
                                                         <span className={`px-2.5 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider ${getServiceTypeStyle(req.serviceType)}`}>{req.serviceType}</span>
-                                                        {req.requestType === "DIRECT" && (
+                                                        {req.requestType === REQUEST_TYPE.DIRECT && (
                                                             <span className="px-2.5 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-indigo-100 text-indigo-700  ">
                                                                 Direct
                                                             </span>
