@@ -212,7 +212,7 @@ export default function TherapistRequestDetailPage() {
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
                 <div>
-                    <div className="flex items-center gap-3 mb-2">
+                    <div className="flex flex-wrap items-center gap-2 mb-2">
                         <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-text-main ">
                             {request.serviceType}
                         </h1>
@@ -222,6 +222,11 @@ export default function TherapistRequestDetailPage() {
                         }`}>
                             {isOpen ? "Open" : request.status === "offers_accepted" ? "Closed" : request.status.replace(/_/g, " ")}
                         </span>
+                        {request.requestType === "DIRECT" && (
+                            <span className="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-indigo-100 text-indigo-700  ">
+                                Direct
+                            </span>
+                        )}
                     </div>
                     <p className="text-text-muted  font-medium flex items-center gap-1">
                         <MdLocationOn className="text-primary text-lg" />
