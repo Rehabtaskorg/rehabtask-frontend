@@ -161,7 +161,7 @@ export default function AdminUserDetailPage() {
                 form.fullName = user.therapistProfile.fullName || '';
                 form.phone = user.therapistProfile.phone || '';
                 form.primaryLicenseType = user.therapistProfile.primaryLicenseType || '';
-                form.bio = user.therapistProfile.bio || '';
+                form.professionalSummary = user.therapistProfile.professionalSummary || '';
             }
             // eslint-disable-next-line react-hooks/set-state-in-effect
             setEditForm(form);
@@ -237,7 +237,7 @@ export default function AdminUserDetailPage() {
             if (editForm.fullName !== (user.therapistProfile.fullName || '')) changes.fullName = editForm.fullName;
             if (editForm.phone !== (user.therapistProfile.phone || '')) changes.phone = editForm.phone;
             if (editForm.primaryLicenseType !== (user.therapistProfile.primaryLicenseType || '')) changes.primaryLicenseType = editForm.primaryLicenseType;
-            if (editForm.bio !== (user.therapistProfile.bio || '')) changes.bio = editForm.bio;
+            if (editForm.professionalSummary !== (user.therapistProfile.professionalSummary || '')) changes.professionalSummary = editForm.professionalSummary;
         }
 
         if (Object.keys(changes).length === 0) {
@@ -456,10 +456,10 @@ export default function AdminUserDetailPage() {
                             </select>
                         </div>
                         <EditableTextarea
-                            label="Bio"
-                            value={editForm.bio || ''}
-                            onChange={(v) => setEditForm(f => ({ ...f, bio: v }))}
-                            placeholder="Therapist bio..."
+                            label="Professional Summary"
+                            value={editForm.professionalSummary || ''}
+                            onChange={(v) => setEditForm(f => ({ ...f, professionalSummary: v }))}
+                            placeholder="Therapist professional summary..."
                         />
                     </SectionCard>
                 ) : (
