@@ -371,9 +371,9 @@ function DashboardInner({ user, pathname, sidebarOpen, setSidebarOpen, handleLog
                 <Image
                     src="/images/logo/rehabtask_horizontal.png"
                     alt="RehabTask"
-                    height={28}
-                    width={105}
-                    className="ml-3 h-7 w-auto"
+                    height={32}
+                    width={120}
+                    className="ml-3 h-8 w-auto"
                 />
             </div>
 
@@ -388,11 +388,10 @@ function DashboardInner({ user, pathname, sidebarOpen, setSidebarOpen, handleLog
                             <div className={`flex items-center ${c ? 'justify-center mb-4' : 'justify-between mb-8'}`}>
                                 <div>
                                     {c ? (
-                                        <Image src="/images/logo/rehabtask_icon.png" alt="RehabTask" width={28} height={28} className="w-7 h-7" />
+                                        <Image src="/images/logo/rehabtask_icon.png" alt="RehabTask" width={32} height={32} className="w-8 h-8" />
                                     ) : (
-                                        <Image src="/images/logo/rehabtask_horizontal.png" alt="RehabTask" height={28} width={105} className="h-7 w-auto" />
+                                        <Image src="/images/logo/rehabtask_horizontal.png" alt="RehabTask" height={40} width={150} className="h-10 w-auto" />
                                     )}
-                                    {!c && <p className="text-slate-500  text-xs mt-1 font-medium">Therapist Portal</p>}
                                 </div>
                                 {!c && <CollapseToggle collapsed={c} />}
                             </div>
@@ -441,9 +440,9 @@ function DashboardInner({ user, pathname, sidebarOpen, setSidebarOpen, handleLog
                         </button>
                         <div className={`${c ? 'p-3' : 'p-6'} flex ${c ? 'flex-col items-center gap-2' : 'items-center justify-between'}`}>
                             {c ? (
-                                <Image src="/images/logo/rehabtask_icon.png" alt="RehabTask" width={28} height={28} className="w-7 h-7" />
+                                <Image src="/images/logo/rehabtask_icon.png" alt="RehabTask" width={32} height={32} className="w-8 h-8" />
                             ) : (
-                                <Image src="/images/logo/rehabtask_horizontal.png" alt="RehabTask" height={28} width={105} className="h-7 w-auto" />
+                                <Image src="/images/logo/rehabtask_horizontal.png" alt="RehabTask" height={40} width={150} className="h-10 w-auto" />
                             )}
                             <CollapseToggle collapsed={c} />
                         </div>
@@ -518,9 +517,9 @@ function DashboardInner({ user, pathname, sidebarOpen, setSidebarOpen, handleLog
                         <div className={`${c ? 'p-3' : 'p-5'} flex ${c ? 'flex-col items-center gap-2' : 'items-start justify-between'} border-b border-slate-100 `}>
                             <div>
                                 {c ? (
-                                    <Image src="/images/logo/rehabtask_icon.png" alt="RehabTask" width={28} height={28} className="w-7 h-7" />
+                                    <Image src="/images/logo/rehabtask_icon.png" alt="RehabTask" width={32} height={32} className="w-8 h-8" />
                                 ) : (
-                                    <Image src="/images/logo/rehabtask_horizontal.png" alt="RehabTask" height={28} width={105} className="h-7 w-auto" />
+                                    <Image src="/images/logo/rehabtask_horizontal.png" alt="RehabTask" height={40} width={150} className="h-10 w-auto" />
                                 )}
                                 {!c && (
                                     <p className="text-slate-500  text-xs mt-1 font-medium flex items-center gap-1">
