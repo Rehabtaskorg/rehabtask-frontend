@@ -381,7 +381,7 @@ const ProfileEditModal = ({ isOpen, onClose, profile, onSuccess }) => {
                         <div className="flex items-center gap-1.5 mt-3">
                             <MdInfo className="text-text-muted text-sm" />
                             <p className="text-xs text-text-muted">
-                                Contact support to update your credentials
+                                If you want to edit your discipline, contact admin
                             </p>
                         </div>
                     </div>
