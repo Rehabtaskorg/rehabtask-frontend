@@ -1,5 +1,10 @@
 export const DEFAULT_WORK_AREA_RADIUS_MILES = 25;
 
+export const REQUEST_TYPE = {
+    PUBLIC: "PUBLIC",
+    DIRECT: "DIRECT",
+};
+
 export const MESSAGE_CONTEXT = {
     OFFER:   "offer",
     BOOKING: "booking",

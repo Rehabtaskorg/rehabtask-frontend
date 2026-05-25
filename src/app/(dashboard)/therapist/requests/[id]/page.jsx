@@ -9,6 +9,7 @@ import {
 } from "react-icons/md";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { useAuth } from "@/hooks/useAuth";
+import { REQUEST_TYPE } from "@/lib/constants";
 import OfferFormFields from "@/components/therapist/OfferFormFields";
 
 const STATUS_STYLES = {
@@ -222,7 +223,7 @@ export default function TherapistRequestDetailPage() {
                         }`}>
                             {isOpen ? "Open" : request.status === "offers_accepted" ? "Closed" : request.status.replace(/_/g, " ")}
                         </span>
-                        {request.requestType === "DIRECT" && (
+                        {request.requestType === REQUEST_TYPE.DIRECT && (
                             <span className="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-indigo-100 text-indigo-700  ">
                                 Direct
                             </span>

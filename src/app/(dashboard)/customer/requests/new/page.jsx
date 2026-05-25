@@ -16,6 +16,7 @@ import Step3Review from "./_components/Step3Review";
 import { MdArrowBack, MdPerson, MdAdd, MdLock, MdWarning } from "react-icons/md";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { useSubscription } from "@/hooks/useSubscription";
+import { REQUEST_TYPE } from "@/lib/constants";
 
 export default function NewRequestPage() {
     const router = useRouter();
@@ -163,7 +164,7 @@ export default function NewRequestPage() {
             } else {
                 payload.patientId = isAgency && !isDirectMode ? patientId : undefined;
                 if (isDirectMode && targetTherapistId) {
-                    payload.requestType = "DIRECT";
+                    payload.requestType = REQUEST_TYPE.DIRECT;
                     payload.targetTherapistId = targetTherapistId;
                 }
                 await api.post("/requests", payload);
