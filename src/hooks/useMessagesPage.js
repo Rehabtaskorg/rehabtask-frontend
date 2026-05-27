@@ -8,6 +8,7 @@ import { useAuth } from "./useAuth";
 import { useSocketContext } from "@/components/providers/SocketProvider";
 import { messagesApi } from "@/lib/messages.api";
 import { getDisplayName } from "@/utils/messages";
+import { useAnalytics } from "@/hooks/useAnalytics";
 
 /**
  * Encapsulate all shared state logic for the messaging pages.
@@ -23,6 +24,7 @@ export function useMessagesPage(basePath) {
     const queryClient = useQueryClient();
     const { conversations, loading: convLoading, error: convError, sessionExpired: convSessionExpired, refetch: refetchConversations } = useConversations();
     const { user } = useAuth();
+    const { trackEvent } = useAnalytics();
 
     const [selectedConversation, setSelectedConversation] = useState(null);
     const { joinConversation, leaveConversation } = useSocketContext();
@@ -201,7 +203,10 @@ export function useMessagesPage(basePath) {
         setPendingDirectRecipientId(null);
         setMobileView("chat");
         updateUrlParam(conversation.conversationId);
-    }, [updateUrlParam]);
+        trackEvent("conversation_opened", {
+            conversation_context: conversation.currentContext?.type ?? "direct",
+        });
+    }, [updateUrlParam, trackEvent]);
 
     const handleBackToList = useCallback(() => {
         setMobileView("list");
@@ -228,6 +233,11 @@ export function useMessagesPage(basePath) {
                 const conversationId = message.conversationId;
 
                 queryClient.setQueryData(["messages", conversationId], [message]);
+
+                trackEvent("message_sent", {
+                    has_attachment: false,
+                    conversation_context: "direct",
+                });
 
                 setPendingDirectRecipientId(null);
                 setSelectedConversation(prev => prev ? {
@@ -291,6 +301,10 @@ export function useMessagesPage(basePath) {
 
             try {
                 await messagesApi.uploadAttachments(convId, files, content?.trim() || "", replyingTo?.id);
+                trackEvent("message_sent", {
+                    has_attachment: true,
+                    conversation_context: selected?.contextType ?? "direct",
+                });
                 setReplyingTo(null);
                 setScrollTrigger(t => t + 1);
 
@@ -332,10 +346,14 @@ export function useMessagesPage(basePath) {
                 attachments: replyingTo.attachments,
             } : null;
             sendMessage(content, replyingTo?.id, replyPreview);
+            trackEvent("message_sent", {
+                has_attachment: false,
+                conversation_context: selected?.contextType ?? "direct",
+            });
             setReplyingTo(null);
             setScrollTrigger(t => t + 1);
         }
-    }, [pendingDirectRecipientId, sendMessage, replyingTo, selected?.conversationId, refetchConversations, updateUrlParam, queryClient, user?.id]);
+    }, [pendingDirectRecipientId, sendMessage, replyingTo, selected, refetchConversations, updateUrlParam, queryClient, user?.id, trackEvent]);
 
     return {
         // Data

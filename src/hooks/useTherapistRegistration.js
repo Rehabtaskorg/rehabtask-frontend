@@ -1,9 +1,23 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { usePostHog } from "posthog-js/react";
 import { authAPi } from "@/lib/auth.api";
+import { USER_ROLES } from "@/lib/constants";
 
+/**
+ * Handles therapist registration form submission and signup analytics.
+ *
+ * @returns {{
+ *   registerTherapist: (formData: object) => Promise<{ success: boolean }>,
+ *   isSubmitting: boolean,
+ *   error: string | null,
+ *   success: string | null,
+ *   clearMessages: () => void,
+ * }}
+ */
 export const useTherapistRegistration = () => {
     const router = useRouter();
+    const posthog = usePostHog();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState(null);
     const [success, setSuccess] = useState(null);
@@ -19,13 +33,13 @@ export const useTherapistRegistration = () => {
                 password: formData.password,
                 fullName: formData.fullName,
                 phone: formData.phone,
-            }
+            };
 
             const response = await authAPi.registerTherapist(payload);
-
             setSuccess(response.data.message);
 
-            // redirect to email verification page with email as param
+            posthog?.capture("user_signed_up", { role: USER_ROLES.THERAPIST });
+
             setTimeout(() => {
                 router.push(`/verify-email?email=${encodeURIComponent(formData.email)}`);
             }, 1500);
@@ -35,15 +49,13 @@ export const useTherapistRegistration = () => {
             const apiError = err.response?.data;
 
             let errorMessage;
-
             if (apiError?.errors?.length) {
                 errorMessage = apiError.errors.map(e => e.message).join(", ");
             } else if (err?.message) {
                 errorMessage = err.message;
             } else if (apiError?.message) {
                 errorMessage = apiError.message;
-            }
-            else {
+            } else {
                 errorMessage = "Registration failed. Please try again.";
             }
 
@@ -52,19 +64,18 @@ export const useTherapistRegistration = () => {
         } finally {
             setIsSubmitting(false);
         }
-
-    }
+    };
 
     const clearMessages = () => {
         setError(null);
         setSuccess(null);
-    }
+    };
 
     return {
         registerTherapist,
         isSubmitting,
         error,
         success,
-        clearMessages
+        clearMessages,
     };
 };

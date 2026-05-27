@@ -1,10 +1,11 @@
 "use client";
 
-import { Suspense, useState, useCallback, useRef } from "react";
+import { Suspense, useState, useCallback, useRef, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { APIProvider } from "@vis.gl/react-google-maps";
 import { useSearchTherapists } from "@/hooks/usePublic";
 import { useAppRole } from "@/hooks/useAppRole";
+import { useAnalytics } from "@/hooks/useAnalytics";
 import TherapistAppNavbar from "@/components/public/TherapistAppNavbar";
 import TherapistCompactHeader from "@/components/public/TherapistCompactHeader";
 import TherapistResultsLayout from "@/components/public/TherapistResultsLayout";
@@ -55,6 +56,7 @@ function buildMapPins(rawTherapists) {
 function FindTherapistsContent() {
     const userRole = useAppRole();
     const searchParams = useSearchParams();
+    const { trackEvent } = useAnalytics();
 
     const initialLicenseType = searchParams.get("licenseType") || "";
     const initialLocation = searchParams.get("location") || "";
@@ -82,6 +84,9 @@ function FindTherapistsContent() {
     const [gateOpen, setGateOpen] = useState(false);
     const [gateTrigger, setGateTrigger] = useState("default");
 
+    // Track whether the user has explicitly triggered a search (vs. initial page load)
+    const searchTriggeredRef = useRef(false);
+
     // Store coordinates when user selects a place from autocomplete
     const handleLocationSelect = useCallback((place) => {
         locationCoords.current = { latitude: place.latitude, longitude: place.longitude };
@@ -93,6 +98,7 @@ function FindTherapistsContent() {
     }, []);
 
     const handleSearch = useCallback(() => {
+        searchTriggeredRef.current = true;
         setCommittedLicenseType(licenseType);
         setCommittedCoords(locationCoords.current ? { ...locationCoords.current } : null);
         setCurrentPage(1);
@@ -122,6 +128,15 @@ function FindTherapistsContent() {
     };
 
     const { data, isLoading, isFetching } = useSearchTherapists(params);
+
+    useEffect(() => {
+        if (!data || isFetching || !searchTriggeredRef.current) return;
+        searchTriggeredRef.current = false;
+        trackEvent("therapist_search_performed", {
+            service_type: committedLicenseType || null,
+            result_count: data.pagination?.total ?? data.therapists?.length ?? 0,
+        });
+    }, [data, isFetching, committedLicenseType, trackEvent]);
 
     const therapists = (data?.therapists || []).map(mapTherapist);
     const mapMarkers = aggregatePinsByLocation(buildMapPins(data?.therapists));

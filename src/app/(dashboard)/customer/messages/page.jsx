@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useConversationContext } from "@/hooks/useMessages";
 import { useMessagesPage } from "@/hooks/useMessagesPage";
+import { useAnalytics } from "@/hooks/useAnalytics";
 import { getDisplayName, getPhotoUrl, getContextBadge } from "@/utils/messages";
 import { RightSidebarSkeleton } from "@/components/shared/messages";
 import { ConversationList, ChatHeader, ChatThread, MessageInput } from "@/components/shared/messages";
@@ -17,6 +18,7 @@ function CustomerRightSidebar({ selectedConversation }) {
     // Use the conversationId (always a DirectConversation) for API context resolution
     const convId = selectedConversation?.conversationId || selectedConversation?.directConversationId;
     const [showAttachmentsModal, setShowAttachmentsModal] = useState(false);
+    const { trackEvent } = useAnalytics();
 
     // Display type: actual conversation context (booking/offer/direct) for UI labels and links
     const displayContextType = selectedConversation?.currentContext?.type ?? 'direct';
@@ -102,6 +104,7 @@ function CustomerRightSidebar({ selectedConversation }) {
                     <p className="text-text-muted  text-[10px] font-bold uppercase tracking-widest">Actions</p>
                     <Link
                         href={`/customer/requests/new?directTo=${otherUser.therapistProfile?.id || otherUser.id}`}
+                        onClick={() => trackEvent("direct_request_initiated", { source: "messages_sidebar" })}
                         className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-primary text-white text-sm font-bold hover:bg-primary/90 transition-colors"
                     >
                         <MdSend className="text-base" />

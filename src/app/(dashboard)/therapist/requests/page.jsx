@@ -12,6 +12,7 @@ import { usePageTitle } from "@/hooks/usePageTitle";
 import { useAuth } from "@/hooks/useAuth";
 import { useTherapistAccess } from "@/contexts/TherapistAccessContext";
 import { REQUEST_TYPE } from "@/lib/constants";
+import { useAnalytics } from "@/hooks/useAnalytics";
 import LockedPageOverlay from "@/components/therapist/LockedPageOverlay";
 import TherapistRequestDetailPanel from "@/components/therapist/TherapistRequestDetailPanel";
 import TherapistRequestFilters, { FilterToggleButton } from "@/components/therapist/TherapistRequestFilters";
@@ -52,6 +53,7 @@ export default function TherapistRequestsPage() {
 function TherapistRequestsContent() {
     usePageTitle("Browse Requests");
     const router = useRouter();
+    const { trackEvent } = useAnalytics();
     const { user } = useAuth();
     const profileRate = user?.profile?.ratePerVisit ? parseFloat(user.profile.ratePerVisit).toFixed(2) : "";
 
@@ -93,21 +95,23 @@ function TherapistRequestsContent() {
 
             const res = await api.get("/requests/available", { params });
             const data = res.data.data;
-            setRequests(data.requests || []);
+            const fetched = data.requests || [];
+            setRequests(fetched);
             setPagination(data.pagination || { page: 1, totalPages: 1, total: 0 });
+            trackEvent("request_list_viewed", { request_count: fetched.length });
         } catch (error) {
             console.error("Error fetching requests:", error);
         } finally {
             setLoading(false);
         }
-    }, []);
+    }, [trackEvent]);
 
     useEffect(() => {
         fetchRequests(committedFilters, currentPage);
     }, [committedFilters, currentPage, fetchRequests]);
 
     useEffect(() => {
-        api.get("/payments/commission-rate").then((res) => setCommissionRate(res.data.data.rate)).catch(() => {});
+        api.get("/payments/commission-rate").then((res) => setCommissionRate(res.data.data.rate)).catch(() => { });
     }, []);
 
     useEffect(() => {
@@ -153,6 +157,11 @@ function TherapistRequestsContent() {
         setSelectedRequest(req);
         setOfferSuccess(false);
         setOfferError("");
+        trackEvent("request_detail_viewed", {
+            service_type: req.serviceType,
+            request_type: req.requestType,
+        });
+        trackEvent("offer_form_started", { service_type: req.serviceType });
         if (req.preferredDate) {
             const d = new Date(req.preferredDate);
             const localDT = new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
@@ -187,6 +196,11 @@ function TherapistRequestsContent() {
                 if (offerData.numberOfWeeks) createPayload.numberOfWeeks = parseInt(offerData.numberOfWeeks, 10);
             }
             await api.post("/offers", createPayload);
+            trackEvent("offer_sent", {
+                service_type: selectedRequest.serviceType,
+                session_type: offerData.sessionType,
+                has_visit_type: !!offerData.visitTypeId,
+            });
             setOfferSuccess(true);
             // Refresh list and update selected
             await fetchRequests(committedFilters, currentPage);
@@ -329,7 +343,7 @@ function TherapistRequestsContent() {
                                                 className={`w-full text-left p-4 rounded-xl transition-all ${isSelected
                                                     ? "border-l-4 border-l-primary border border-primary/20 bg-primary/5  shadow-md"
                                                     : "bg-white  border border-border-light  hover:shadow-sm hover:border-slate-300 "
-                                                }`}
+                                                    }`}
                                             >
                                                 <div className="flex justify-between items-start mb-2">
                                                     <div className="flex flex-wrap items-center gap-1.5">

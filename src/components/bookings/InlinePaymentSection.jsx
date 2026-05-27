@@ -10,6 +10,7 @@ import { paymentsApi } from "@/lib/payments.api";
 import { resolveVisitPlan, computeTotalVisits } from "@/lib/visitPlan";
 import { getStripeAppearance } from "@/lib/stripe.appearance";
 import { formatCurrency } from "@/utils/messages";
+import { useAnalytics } from "@/hooks/useAnalytics";
 import NewCardCheckoutForm from "./NewCardCheckoutForm";
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY);
@@ -20,6 +21,7 @@ const BRAND_LABELS = {
 };
 
 export default function InlinePaymentSection({ booking, onPaymentSuccess }) {
+    const { trackEvent } = useAnalytics();
     const [selectedPmId, setSelectedPmId] = useState(null);
     const [showNewCard, setShowNewCard] = useState(false);
     const [paying, setPaying] = useState(false);
@@ -40,13 +42,17 @@ export default function InlinePaymentSection({ booking, onPaymentSuccess }) {
             const defaultCard = methods.find((m) => m.isDefault) || methods[0];
             setSelectedPmId(defaultCard.id);
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [methods.length]);
 
     const handlePayWithSavedCard = async () => {
         if (paying || !selectedPmId) return;
         setPaying(true);
         setPayError(null);
+        trackEvent("payment_initiated", {
+            session_type: booking.sessionType,
+            amount: parseFloat(booking.payment?.amount ?? 0),
+        });
         try {
             const res = await api.post("/payments/create-intent", {
                 bookingId: booking.id,
@@ -155,11 +161,10 @@ export default function InlinePaymentSection({ booking, onPaymentSuccess }) {
                             {methods.map((pm) => (
                                 <label
                                     key={pm.id}
-                                    className={`flex items-center gap-3 px-4 py-3 rounded-xl border cursor-pointer transition-colors ${
-                                        selectedPmId === pm.id
-                                            ? "border-primary bg-primary/5 "
-                                            : "border-border-light  hover:border-slate-300 "
-                                    }`}
+                                    className={`flex items-center gap-3 px-4 py-3 rounded-xl border cursor-pointer transition-colors ${selectedPmId === pm.id
+                                        ? "border-primary bg-primary/5 "
+                                        : "border-border-light  hover:border-slate-300 "
+                                        }`}
                                 >
                                     <input
                                         type="radio"

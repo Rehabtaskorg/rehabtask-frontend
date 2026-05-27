@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
+import { usePostHog } from 'posthog-js/react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -14,11 +15,11 @@ import OnboardingBanner from '@/components/therapist/OnboardingBanner';
 import useOnboardingStore from '@/store/onboardingStore';
 import { useUnreadCount } from '@/hooks/useMessages';
 import { useIdleTimeout } from '@/hooks/useIdleTimeout';
-import { LOGOUT_REASON } from '@/lib/constants';
+import { LOGOUT_REASON, USER_ROLES, CUSTOMER_TYPES } from '@/lib/constants';
 import {
     MdDashboard, MdSearch, MdSend, MdCalendarMonth,
     MdChatBubble, MdPayments, MdPerson,
-    MdSchedule, MdSettings, MdLogout, MdDescription,
+    MdSettings, MdLogout, MdDescription,
     MdPersonSearch, MdCalendarToday, MdStars,
     MdMenu, MdClose, MdLock, MdPeople, MdSupervisorAccount,
     MdGavel, MdQuestionAnswer, MdNotifications,
@@ -110,22 +111,10 @@ function NavLink({ href, icon: Icon, label, pathname, matchStart = true, locked 
     )
 }
 
-function DisabledNavItem({ icon: Icon, label }) {
-    return (
-        <div
-            className="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-400  cursor-not-allowed text-sm font-medium select-none"
-            title="Available after account approval"
-        >
-            <Icon className="sidebar-icon" />
-            <span className="flex-1">{label}</span>
-            <MdLock className="text-xs opacity-50" />
-        </div>
-    );
-}
-
 export default function DashboardLayout({ children }) {
     const router = useRouter();
     const pathname = usePathname();
+    const posthog = usePostHog();
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
     const [authError, setAuthError] = useState(false);
@@ -151,9 +140,9 @@ export default function DashboardLayout({ children }) {
                 const isOnTherapistDashboard = pathname.startsWith("/therapist");
 
                 const shouldRedirectToTherapist =
-                    isOnCustomerDashboard && userData.role === "therapist";
+                    isOnCustomerDashboard && userData.role === USER_ROLES.THERAPIST;
                 const shouldRedirectToCustomer =
-                    isOnTherapistDashboard && userData.role === "customer";
+                    isOnTherapistDashboard && userData.role === USER_ROLES.CUSTOMER;
 
                 if (shouldRedirectToTherapist) {
                     router.replace("/therapist/dashboard");
@@ -167,7 +156,7 @@ export default function DashboardLayout({ children }) {
 
                 // Guard: user has no profile (incomplete OAuth onboarding)
                 // Redirect to onboarding to complete role selection + profile setup
-                if (!userData.profile && userData.role !== "admin" && userData.role !== "sub_admin") {
+                if (!userData.profile && userData.role !== USER_ROLES.ADMIN && userData.role !== USER_ROLES.SUB_ADMIN) {
                     const isOnOnboarding = pathname.startsWith("/oauth/onboarding");
                     if (!isOnOnboarding) {
                         router.replace("/oauth/onboarding");
@@ -177,7 +166,7 @@ export default function DashboardLayout({ children }) {
 
                 // Route guard for therapist approval state
                 // NOTE: Backend returns profile data under "profile" key (not "therapistProfile")
-                if (userData.role === "therapist") {
+                if (userData.role === USER_ROLES.THERAPIST) {
                     const redirect = getTherapistRedirect(pathname, {
                         onboardingComplete: userData.profile?.onboardingComplete ?? false,
                         approvalStatus: userData.profile?.approvalStatus ?? "pending",
@@ -190,8 +179,17 @@ export default function DashboardLayout({ children }) {
                     }
                 }
 
+                // Identify the user in PostHog so all subsequent events are linked.
+                // No email or fullName — PII not needed for analytics.
+                posthog?.identify(userData.id, {
+                    role: userData.role,
+                    customer_type: userData.profile?.customerType ?? null,
+                    onboarding_complete: userData.profile?.onboardingComplete ?? null,
+                    license_type: userData.profile?.primaryLicenseType ?? null,
+                });
+
                 setUser(userData);
-                setLoading(false)
+                setLoading(false);
             } catch (error) {
                 console.error("Auth error:", error);
                 if (!isMounted) return;
@@ -203,18 +201,20 @@ export default function DashboardLayout({ children }) {
 
         fetchUser();
         return () => { isMounted = false; };
-    }, [router, pathname]);
+    }, [router, pathname, posthog]);
 
-    const handleLogout = async (redirectTo = "/") => {
+    const handleLogout = useCallback(async (redirectTo = "/") => {
         try {
             await authAPi.logout();
         } catch (error) {
             console.error("Logout error:", error);
         } finally {
             useOnboardingStore.getState().reset();
+            // Detach the PostHog session from the user identity on logout.
+            posthog?.reset();
         }
         router.push(redirectTo);
-    };
+    }, [router, posthog]);
 
     useIdleTimeout(user ? () => handleLogout(`/login?reason=${LOGOUT_REASON.IDLE_TIMEOUT}`) : null);
 
@@ -247,7 +247,7 @@ export default function DashboardLayout({ children }) {
         .split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
 
     // Compute therapist access state for context and sidebar
-    const therapistAccess = user?.role === "therapist" ? (() => {
+    const therapistAccess = user?.role === USER_ROLES.THERAPIST ? (() => {
         const tp = user.profile; // Backend maps therapistProfile → "profile"
         const status = tp?.approvalStatus ?? "pending";
         const step = tp?.onboardingStep ?? 1;
@@ -267,9 +267,9 @@ export default function DashboardLayout({ children }) {
     })() : null;
 
     // Sub-admin permission-based sidebar filtering
-    const subAdminPermissions = user.role === 'sub_admin' ? (user.profile?.permissions || []) : null;
+    const subAdminPermissions = user.role === USER_ROLES.SUB_ADMIN ? (user.profile?.permissions || []) : null;
     const hasAdminPermission = (permission) => {
-        if (user.role === 'admin') return true;
+        if (user.role === USER_ROLES.ADMIN) return true;
         return subAdminPermissions?.includes(permission) ?? false;
     };
 
@@ -285,7 +285,7 @@ export default function DashboardLayout({ children }) {
     ];
 
     // Route guard: redirect sub-admins away from pages they don't have permission for
-    if (user.role === 'sub_admin' && pathname.startsWith('/admin/')) {
+    if (user.role === USER_ROLES.SUB_ADMIN && pathname.startsWith('/admin/')) {
         const currentNavItem = adminNavItems.find(item => pathname.startsWith(item.href));
         if (currentNavItem && !hasAdminPermission(currentNavItem.permission)) {
             router.replace('/admin/dashboard');
@@ -378,7 +378,7 @@ function DashboardInner({ user, pathname, sidebarOpen, setSidebarOpen, handleLog
             </div>
 
             {/* ── THERAPIST SIDEBAR ── */}
-            {user.role === 'therapist' && !isOnOnboardingRoute && (
+            {user.role === USER_ROLES.THERAPIST && !isOnOnboardingRoute && (
                 <>
                     <aside className={`w-64 ${sidebarWidth} border-r border-slate-200  bg-white  flex flex-col fixed h-full z-50 transition-all duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
                         <button onClick={() => setSidebarOpen(false)} className="lg:hidden absolute top-3 right-3 p-1.5 rounded-lg hover:bg-slate-100  text-slate-400" aria-label="Close navigation">
@@ -432,7 +432,7 @@ function DashboardInner({ user, pathname, sidebarOpen, setSidebarOpen, handleLog
             )}
 
             {/* ── CUSTOMER SIDEBAR ── */}
-            {user.role === 'customer' && (
+            {user.role === USER_ROLES.CUSTOMER && (
                 <>
                     <aside className={`w-64 ${sidebarWidth} border-r border-slate-200  bg-white  flex flex-col fixed h-full z-50 transition-all duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
                         <button onClick={() => setSidebarOpen(false)} className="lg:hidden absolute top-3 right-3 p-1.5 rounded-lg hover:bg-slate-100  text-slate-400" aria-label="Close navigation">
@@ -448,7 +448,7 @@ function DashboardInner({ user, pathname, sidebarOpen, setSidebarOpen, handleLog
                         </div>
                         <nav className={`flex-1 ${c ? 'px-2' : 'px-4'} space-y-1 overflow-y-auto`}>
                             <NavLink href="/customer/dashboard" icon={MdDashboard} label="Dashboard" pathname={pathname} matchStart={false} collapsed={c} />
-                            {user?.profile?.customerType === "agency" && (
+                            {user?.profile?.customerType === CUSTOMER_TYPES.AGENCY && (
                                 <NavLink href="/customer/patients" icon={MdPeople} label="My Patients" pathname={pathname} collapsed={c} />
                             )}
                             <NavLink href="/customer/requests" icon={MdDescription} label="My Requests" pathname={pathname} collapsed={c} />
@@ -474,7 +474,7 @@ function DashboardInner({ user, pathname, sidebarOpen, setSidebarOpen, handleLog
                                     <div className="flex-1 min-w-0">
                                         <p className="text-sm font-semibold truncate text-slate-900 ">{profileName}</p>
                                         <div className="text-xs text-text-muted  truncate">
-                                            {user?.profile?.customerType === "agency" ? (user?.profile?.agencyName || "Agency Account") : "Individual Account"}
+                                            {user?.profile?.customerType === CUSTOMER_TYPES.AGENCY ? (user?.profile?.agencyName || "Agency Account") : "Individual Account"}
                                         </div>
                                     </div>
                                 </div>
@@ -492,7 +492,7 @@ function DashboardInner({ user, pathname, sidebarOpen, setSidebarOpen, handleLog
             )}
 
             {/* ── ONBOARDING (minimal sidebar — no collapse) ── */}
-            {user.role === 'therapist' && isOnOnboardingRoute && (
+            {user.role === USER_ROLES.THERAPIST && isOnOnboardingRoute && (
                 <>
                     <aside className={`w-64 border-r border-slate-200  bg-white  flex flex-col fixed h-full z-50 transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
                         <button onClick={() => setSidebarOpen(false)} className="lg:hidden absolute top-3 right-3 p-1.5 rounded-lg hover:bg-slate-100  text-slate-400" aria-label="Close navigation">
@@ -508,7 +508,7 @@ function DashboardInner({ user, pathname, sidebarOpen, setSidebarOpen, handleLog
             )}
 
             {/* ── ADMIN SIDEBAR ── */}
-            {(user.role === 'admin' || user.role === 'sub_admin') && (
+            {(user.role === USER_ROLES.ADMIN || user.role === USER_ROLES.SUB_ADMIN) && (
                 <>
                     <aside className={`w-64 ${sidebarWidth} border-r border-slate-200  bg-white  flex flex-col fixed h-full z-50 transition-all duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
                         <button onClick={() => setSidebarOpen(false)} className="lg:hidden absolute top-3 right-3 p-1.5 rounded-lg hover:bg-slate-100  text-slate-400" aria-label="Close navigation">
@@ -524,7 +524,7 @@ function DashboardInner({ user, pathname, sidebarOpen, setSidebarOpen, handleLog
                                 {!c && (
                                     <p className="text-slate-500  text-xs mt-1 font-medium flex items-center gap-1">
                                         <MdAdminPanelSettings className="text-sm" />
-                                        {user.role === 'sub_admin' ? 'Sub-Admin Portal' : 'Admin Portal'}
+                                        {user.role === USER_ROLES.SUB_ADMIN ? 'Sub-Admin Portal' : 'Admin Portal'}
                                     </p>
                                 )}
                             </div>
@@ -535,7 +535,7 @@ function DashboardInner({ user, pathname, sidebarOpen, setSidebarOpen, handleLog
                             {adminNavItems.filter(item => hasAdminPermission(item.permission)).map(item => (
                                 <NavLink key={item.href} href={item.href} icon={item.icon} label={item.label} pathname={pathname} collapsed={c} />
                             ))}
-                            {user.role === 'admin' && (
+                            {user.role === USER_ROLES.ADMIN && (
                                 <>
                                     <NavLink href="/admin/sub-admins" icon={MdSupervisorAccount} label="Sub-Admins" pathname={pathname} collapsed={c} />
                                     <NavLink href="/admin/reports" icon={MdAssessment} label="Reports" pathname={pathname} collapsed={c} />
@@ -575,12 +575,12 @@ function DashboardInner({ user, pathname, sidebarOpen, setSidebarOpen, handleLog
 
             {/* ── MAIN CONTENT ── */}
             <main className={`ml-0 ${mainMargin} flex-1 min-h-screen pt-14 lg:pt-0 transition-all duration-300`}>
-                {user.role === 'therapist' && !isOnOnboardingRoute && <OnboardingBanner />}
-                {user.role === 'therapist' && therapistAccess ? (
+                {user.role === USER_ROLES.THERAPIST && !isOnOnboardingRoute && <OnboardingBanner />}
+                {user.role === USER_ROLES.THERAPIST && therapistAccess ? (
                     <TherapistAccessProvider value={therapistAccess}>
                         {children}
                     </TherapistAccessProvider>
-                ) : (user.role === 'admin' || user.role === 'sub_admin') ? (
+                ) : (user.role === USER_ROLES.ADMIN || user.role === USER_ROLES.SUB_ADMIN) ? (
                     <AdminUserProvider value={{ id: user.id, email: user.email, role: user.role, permissions: subAdminPermissions }}>
                         {children}
                     </AdminUserProvider>
