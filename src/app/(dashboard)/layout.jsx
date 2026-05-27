@@ -30,6 +30,12 @@ import {
     MdKeyboardDoubleArrowLeft, MdKeyboardDoubleArrowRight,
 } from "react-icons/md";
 
+/**
+ * Sidebar messages link for therapists.
+ * Shows an unread-count badge when there are unread messages.
+ *
+ * @param {{ pathname: string, collapsed?: boolean }} props
+ */
 function TherapistMessagesLink({ pathname, collapsed = false }) {
     const unreadCount = useUnreadCount();
     const isActive = pathname.startsWith('/therapist/messages');
@@ -63,6 +69,12 @@ function TherapistMessagesLink({ pathname, collapsed = false }) {
     )
 }
 
+/**
+ * Sidebar messages link for customers.
+ * Shows an unread-count badge when there are unread messages.
+ *
+ * @param {{ pathname: string, collapsed?: boolean }} props
+ */
 function CustomerMessagesLink({ pathname, collapsed = false }) {
     const unreadCount = useUnreadCount();
     const isActive = pathname.startsWith('/customer/messages');
@@ -96,6 +108,12 @@ function CustomerMessagesLink({ pathname, collapsed = false }) {
     )
 }
 
+/**
+ * Generic sidebar navigation link.
+ * Highlights as active based on the current pathname.
+ *
+ * @param {{ href: string, icon: React.ElementType, label: string, pathname: string, matchStart?: boolean, locked?: boolean, collapsed?: boolean }} props
+ */
 function NavLink({ href, icon: Icon, label, pathname, matchStart = true, locked = false, collapsed = false }) {
     const isActive = matchStart ? pathname.startsWith(href) : pathname === href;
     return (
@@ -112,6 +130,13 @@ function NavLink({ href, icon: Icon, label, pathname, matchStart = true, locked 
     )
 }
 
+/**
+ * Root layout for all authenticated dashboard routes.
+ * Fetches the current user on mount, enforces role-based route guards,
+ * and renders the appropriate sidebar via DashboardInner.
+ *
+ * @param {{ children: React.ReactNode }} props
+ */
 export default function DashboardLayout({ children }) {
     const router = useRouter();
     const pathname = usePathname();
@@ -130,24 +155,12 @@ export default function DashboardLayout({ children }) {
         let isMounted = true;
 
         const fetchUser = async () => {
-            console.log("[DashboardLayout] fetchUser() triggered — pathname:", pathname);
-
             try {
-                console.log("[DashboardLayout] Calling GET /auth/me...");
                 const res = await authAPi.getCurrentUser();
 
-                if (!isMounted) {
-                    console.log("[DashboardLayout] Component unmounted before /auth/me resolved — bailing");
-                    return;
-                }
+                if (!isMounted) return;
 
                 const userData = res.data.data.user;
-                console.log("[DashboardLayout] ✅ /auth/me succeeded:", {
-                    id: userData.id,
-                    role: userData.role,
-                    isActive: userData.isActive,
-                });
-
                 const isOnCustomerDashboard = pathname.startsWith("/customer");
                 const isOnTherapistDashboard = pathname.startsWith("/therapist");
 
@@ -157,13 +170,11 @@ export default function DashboardLayout({ children }) {
                     isOnTherapistDashboard && userData.role === USER_ROLES.CUSTOMER;
 
                 if (shouldRedirectToTherapist) {
-                    console.log("[DashboardLayout] Role mismatch — redirecting therapist to /therapist/dashboard");
                     router.replace("/therapist/dashboard");
                     return;
                 }
 
                 if (shouldRedirectToCustomer) {
-                    console.log("[DashboardLayout] Role mismatch — redirecting customer to /customer/dashboard");
                     router.replace("/customer/dashboard");
                     return;
                 }
@@ -173,7 +184,6 @@ export default function DashboardLayout({ children }) {
                 if (!userData.profile && userData.role !== USER_ROLES.ADMIN && userData.role !== USER_ROLES.SUB_ADMIN) {
                     const isOnOnboarding = pathname.startsWith("/oauth/onboarding");
                     if (!isOnOnboarding) {
-                        console.log("[DashboardLayout] No profile found — redirecting to OAuth onboarding");
                         router.replace("/oauth/onboarding");
                         return;
                     }
@@ -189,7 +199,6 @@ export default function DashboardLayout({ children }) {
                     });
 
                     if (redirect && pathname !== redirect) {
-                        console.log("[DashboardLayout] Therapist access guard — redirecting to:", redirect);
                         router.replace(redirect);
                         return; // Don't set user or loading=false; keep spinner until redirect
                     }
@@ -204,63 +213,43 @@ export default function DashboardLayout({ children }) {
                     license_type: userData.profile?.primaryLicenseType ?? null,
                 });
 
-                console.log("[DashboardLayout] User loaded — rendering dashboard for role:", userData.role);
                 setUser(userData);
                 setLoading(false);
             } catch (error) {
-                const code = error?.response?.data?.code;
-                const status = error?.response?.status;
-                console.error("[DashboardLayout] ❌ fetchUser error:", {
-                    code,
-                    status,
-                    message: error?.response?.data?.message ?? error?.message,
-                    isMounted,
-                });
-
-                if (!isMounted) {
-                    console.log("[DashboardLayout] Component unmounted before error handled — bailing");
-                    return;
-                }
+                if (!isMounted) return;
 
                 // ACCOUNT_DEACTIVATED: the API interceptor already called /auth/logout
-                // and is about to set window.location.href. Don't also call router.replace
-                // here — two simultaneous redirects is what causes the visible loop.
-                if (code === "ACCOUNT_DEACTIVATED") {
-                    console.warn("[DashboardLayout] ACCOUNT_DEACTIVATED — interceptor is handling the redirect. Layout will not redirect.");
-                    return;
-                }
+                // and is setting window.location.href. Don't also call router.replace —
+                // two simultaneous redirects is what produces the visible flash loop.
+                if (error?.response?.data?.code === "ACCOUNT_DEACTIVATED") return;
 
-                console.log("[DashboardLayout] Setting authError=true and scheduling router.replace('/login')");
                 setAuthError(true);
                 setLoading(false);
-                setTimeout(() => {
-                    if (isMounted) {
-                        console.log("[DashboardLayout] setTimeout fired — calling router.replace('/login')");
-                        router.replace("/login");
-                    } else {
-                        console.log("[DashboardLayout] setTimeout fired but component already unmounted — skipping redirect");
-                    }
-                }, 100);
+                setTimeout(() => { if (isMounted) { router.replace("/login"); } }, 100);
             }
         };
 
         fetchUser();
-        return () => {
-            console.log("[DashboardLayout] useEffect cleanup — isMounted set to false for pathname:", pathname);
-            isMounted = false;
-        };
+        return () => { isMounted = false; };
     }, [router, pathname, posthog]);
 
+    /**
+     * Logs the current user out: calls the logout API, tears down the socket,
+     * resets client-side state, detaches PostHog, then navigates to the destination.
+     *
+     * @param {string} [redirectTo="/"] - Path to navigate to after logout.
+     */
     const handleLogout = useCallback(async (redirectTo = "/") => {
+        // Guard: onClick passes a MouseEvent when called directly from a button —
+        // treat that as "no redirect specified" and fall back to "/".
         const destination = typeof redirectTo === "string" ? redirectTo : "/";
         try {
             await authAPi.logout();
-        } catch (error) {
-            console.error("Logout error:", error);
+        } catch (_) {
+            // best-effort — session may already be invalid
         } finally {
             destroySocket();
             useOnboardingStore.getState().reset();
-            // Detach the PostHog session from the user identity on logout.
             posthog?.reset();
         }
         router.push(destination);
@@ -387,6 +376,11 @@ export default function DashboardLayout({ children }) {
     );
 }
 
+/**
+ * Button that toggles the sidebar between expanded and collapsed states.
+ *
+ * @param {{ collapsed: boolean }} props
+ */
 function CollapseToggle({ collapsed }) {
     const { toggleSidebar } = useSidebar();
     return (
@@ -400,6 +394,12 @@ function CollapseToggle({ collapsed }) {
     );
 }
 
+/**
+ * Renders the full dashboard shell: mobile top bar, role-specific sidebar, and main content area.
+ * Receives all derived state from DashboardLayout so it stays a pure presentational component.
+ *
+ * @param {{ user: object, pathname: string, sidebarOpen: boolean, setSidebarOpen: Function, handleLogout: Function, isOnOnboardingRoute: boolean, profileName: string, initials: string, therapistAccess: object|null, adminNavItems: Array, hasAdminPermission: Function, subAdminPermissions: string[]|null, children: React.ReactNode }} props
+ */
 function DashboardInner({ user, pathname, sidebarOpen, setSidebarOpen, handleLogout, isOnOnboardingRoute, profileName, initials, therapistAccess, adminNavItems, hasAdminPermission, subAdminPermissions, children }) {
     const { isCollapsed } = useSidebar();
     const sidebarWidth = isOnOnboardingRoute ? 'lg:w-64' : isCollapsed ? 'lg:w-16' : 'lg:w-64';
