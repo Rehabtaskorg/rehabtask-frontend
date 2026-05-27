@@ -4,8 +4,10 @@ import { useCallback } from "react";
 /**
  * Keys that are never safe to send to PostHog.
  * Covers PHI free-text fields and PII identifiers.
+ * Defined as an array and converted to a Set inside sanitiseProps to avoid
+ * module-level Set initialisation ordering issues with Next.js/Turbopack.
  */
-const PHI_KEYS = new Set([
+const PHI_KEY_LIST = [
     "description",
     "location",
     "address",
@@ -25,7 +27,7 @@ const PHI_KEYS = new Set([
     "notes",
     "message",
     "patientName",
-]);
+];
 
 /**
  * Strips any PHI/PII keys from a properties object before sending to PostHog.
@@ -38,7 +40,7 @@ const PHI_KEYS = new Set([
 const sanitiseProps = (props) => {
     if (!props || typeof props !== "object") return {};
     return Object.fromEntries(
-        Object.entries(props).filter(([key]) => !PHI_KEYS.has(key))
+        Object.entries(props).filter(([key]) => !PHI_KEY_LIST.includes(key))
     );
 };
 
