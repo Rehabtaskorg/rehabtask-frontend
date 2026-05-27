@@ -35,17 +35,6 @@ export default function NewRequestPage() {
     const isEditMode = !!editId;
     const isDirectMode = !!directTo;
 
-    // Fire when the user hits their subscription request limit.
-    useEffect(() => {
-        if (isAtRequestLimit) {
-            trackEvent("subscription_limit_reached", {
-                limit_type: "requests",
-                plan_type: subscription?.planType ?? null,
-            });
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [isAtRequestLimit]);
-
     // Fire once on mount — captures form entry for funnel tracking.
     // Excluded from PostHogPageView page-view tracking intentionally (step events cover this).
     useEffect(() => {
@@ -77,6 +66,18 @@ export default function NewRequestPage() {
 
     const requestLimit = subscription?.requestLimit;
     const isAtRequestLimit = !isEditMode && requestLimit !== null && requestLimit < 999999 && usage.activeRequests >= requestLimit;
+
+    // Fire when the user hits their subscription request limit.
+    useEffect(() => {
+        if (isAtRequestLimit) {
+            trackEvent("subscription_limit_reached", {
+                limit_type: "requests",
+                plan_type: subscription?.planType ?? null,
+            });
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isAtRequestLimit]);
+
     const [user, setUser] = useState(null);
     const [targetTherapistLicenseType, setTargetTherapistLicenseType] = useState(null);
 
