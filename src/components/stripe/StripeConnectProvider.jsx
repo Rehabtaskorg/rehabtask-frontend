@@ -5,19 +5,6 @@ import { loadConnectAndInitialize } from "@stripe/connect-js";
 import { ConnectComponentsProvider } from "@stripe/react-connect-js";
 import { api } from "@/lib/api";
 
-/**
- * StripeConnectProvider
- *
- * Shared wrapper for all Stripe embedded components (account onboarding,
- * balances, payments, payouts). Must wrap any <Connect*> component from
- * @stripe/react-connect-js.
- *
- * Appearance tokens mirror globals.css light mode values.
- * Typography scale matches the app's onboarding pages exactly.
- */
-
-/* ─── Colour tokens (mirror globals.css) ───────────────────────────────── */
-
 const BG = "#ffffff";
 const TEXT = "#111418";
 const SECONDARY = "#617589";
@@ -26,8 +13,6 @@ const INPUT_BG = "#ffffff";
 const OFFSET_BG = "#f9fafb";
 const PRIMARY = "#0A2540";
 const DANGER = "#ef4444";
-
-/* ─── Appearance ────────────────────────────────────────────────────────── */
 
 const APPEARANCE = {
     variables: {
@@ -81,14 +66,17 @@ const APPEARANCE = {
     },
 };
 
-/* ─── Component ─────────────────────────────────────────────────────────── */
-
 /**
- * @param {object} props
- * @param {React.ReactNode} props.children
- * @param {string} props.accountSessionEndpoint
+ * Shared wrapper for all Stripe embedded Connect components.
+ * Must wrap any <Connect*> component from @stripe/react-connect-js.
+ *
+ * Incrementing `retryKey` forces a full remount, which re-runs
+ * loadConnectAndInitialize and issues a fresh fetchClientSecret call.
+ * Use this to recover from transient SDK load failures.
+ *
+ * @param {{ children: React.ReactNode, accountSessionEndpoint?: string, retryKey?: number }} props
  */
-export default function StripeConnectProvider({ children, accountSessionEndpoint }) {
+export default function StripeConnectProvider({ children, accountSessionEndpoint, retryKey }) {
     const stripeConnectInstance = useMemo(() => {
         return loadConnectAndInitialize({
             publishableKey: process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
@@ -99,7 +87,9 @@ export default function StripeConnectProvider({ children, accountSessionEndpoint
             },
             appearance: APPEARANCE,
         });
-    }, [accountSessionEndpoint]);
+    // retryKey forces a fresh instance on change — intentional dep
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [accountSessionEndpoint, retryKey]);
 
     return (
         <ConnectComponentsProvider connectInstance={stripeConnectInstance}>
