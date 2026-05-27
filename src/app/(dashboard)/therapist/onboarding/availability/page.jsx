@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
+import { useAnalytics } from "@/hooks/useAnalytics";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { LuCalendar, LuPlus, LuX, LuMapPin } from "react-icons/lu";
@@ -33,6 +34,13 @@ const DAY_LABELS = {
 export default function AvailabilityPage() {
     usePageTitle("Set Availability");
     const router = useRouter();
+    const { trackEvent } = useAnalytics();
+
+    useEffect(() => {
+        trackEvent("onboarding_step_viewed", { step: 3, step_name: "availability" });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
     const {
         availability,
         toggleDayAvailability,
@@ -56,7 +64,7 @@ export default function AvailabilityPage() {
 
     const defaultValues = useMemo(() => availability, [availability]);
 
-    const { handleSubmit, control, setValue, watch, formState: { errors, isSubmitting }, clearErrors } = useForm({
+    const { handleSubmit, control, setValue, watch, formState: { errors }, clearErrors } = useForm({
         resolver: zodResolver(availabilitySchema),
         defaultValues,
     });
@@ -84,9 +92,9 @@ export default function AvailabilityPage() {
 
             updateAvailability(data);
 
+            trackEvent("onboarding_step_completed", { step: 3, step_name: "availability" });
             markStepComplete(3);
             setCurrentStep(4);
-
             router.push("/therapist/onboarding/background-check");
         } catch (error) {
             console.error("Failed to save availability:", error);
@@ -230,7 +238,7 @@ export default function AvailabilityPage() {
 
                                                     {isEnabled && (
                                                         <div className="flex flex-col gap-3">
-                                                            {dayData.timeBlocks.map((block, index) => (
+                                                            {dayData.timeBlocks.map((_block, index) => (
                                                                 <div
                                                                     key={index}
                                                                     className="flex items-center gap-3"

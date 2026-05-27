@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { usePostHog } from "posthog-js/react";
 import { supabase } from "@/lib/supabase";
 import Alert from "@/components/ui/Alert";
 import Footer from "@/components/shared/Footer";
@@ -9,10 +10,12 @@ import VerificationSuccess from "@/components/verification/VerificationSuccess";
 import { authAPi } from "@/lib/auth.api";
 import { getSessionUserInfo, getFirstName } from "@/utils/userSession";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import { USER_ROLES } from "@/lib/constants";
 
 function VerifyCallbackContent() {
     usePageTitle("Verifying Email");
     const router = useRouter();
+    const posthog = usePostHog();
     const [status, setStatus] = useState("verifying");
     const [message, setMessage] = useState("Verifying your email...");
     const [userInfo, setUserInfo] = useState(null);
@@ -36,11 +39,9 @@ function VerifyCallbackContent() {
                     return;
                 }
 
-                // Capture email early so the error redirect can carry it
                 if (session.user?.email) setSessionEmail(session.user.email);
 
-                // Get minimal user info from session (no API call needed)
-                const sessionUser = await getSessionUserInfo();
+                const sessionUser = getSessionUserInfo();
 
                 if (!sessionUser) {
                     setStatus("error");
@@ -50,38 +51,34 @@ function VerifyCallbackContent() {
 
                 setUserInfo(sessionUser);
 
-                // call backend to mark email as verified in database
                 await authAPi.verifyEmail(session.user.id);
+
+                posthog?.capture("email_verified", { role: sessionUser.role });
 
                 setStatus("success");
 
-                // Sign out the temporary verification session
                 await supabase.auth.signOut();
 
-                // For therapist, auto-redirect after 2 seconds
-                if (sessionUser.role === "therapist") {
+                if (sessionUser.role === USER_ROLES.THERAPIST) {
                     setMessage("Email verified successfully! Redirecting to login...");
                     setTimeout(() => {
-                        router.push("/login?verified=true&role=therapist");
+                        router.push(`/login?verified=true&role=${USER_ROLES.THERAPIST}`);
                     }, 2000);
                 }
-
-                // For customers, show the success page (they control when to continue)
-
 
             } catch (error) {
                 console.error("Unexpected error:", error);
                 setStatus("error");
-                setMessage("An unexpected error occured. Please try again.")
+                setMessage("An unexpected error occurred. Please try again.");
             }
         };
 
         verifyEmail();
-    }, [router]);
+    }, [router, posthog]);
 
     const handleContinue = () => {
-        router.push("/login?verified=true&role=customer");
-    }
+        router.push(`/login?verified=true&role=${USER_ROLES.CUSTOMER}`);
+    };
 
     return (
         <main className="flex-1 flex items-center justify-center px-4 py-12 bg-background-light ">
@@ -93,16 +90,14 @@ function VerifyCallbackContent() {
                     </div>
                 )}
 
-                {/* Success State - Customer */}
-                {status === "success" && userInfo?.role === "customer" && (
+                {status === "success" && userInfo?.role === USER_ROLES.CUSTOMER && (
                     <VerificationSuccess
                         userName={getFirstName(userInfo.fullName)}
                         onContinue={handleContinue}
                     />
                 )}
 
-                {/* Success State - Therapist */}
-                {status === "success" && userInfo?.role === "therapist" && (
+                {status === "success" && userInfo?.role === USER_ROLES.THERAPIST && (
                     <Alert type="success" message={message} />
                 )}
 
@@ -122,10 +117,9 @@ function VerifyCallbackContent() {
                         </div>
                     </div>
                 )}
-
             </div>
         </main>
-    )
+    );
 }
 
 export default function VerifyCallbackPage() {
@@ -134,5 +128,5 @@ export default function VerifyCallbackPage() {
             <VerifyCallbackContent />
             <Footer />
         </div>
-    )
+    );
 }

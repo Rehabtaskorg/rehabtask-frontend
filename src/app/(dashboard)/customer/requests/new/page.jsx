@@ -16,10 +16,12 @@ import Step3Review from "./_components/Step3Review";
 import { MdArrowBack, MdPerson, MdAdd, MdLock, MdWarning } from "react-icons/md";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { useSubscription } from "@/hooks/useSubscription";
-import { REQUEST_TYPE, LICENSE_TYPE_TO_SERVICE_TYPE } from "@/lib/constants";
+import { REQUEST_TYPE, LICENSE_TYPE_TO_SERVICE_TYPE, CUSTOMER_TYPES } from "@/lib/constants";
+import { useAnalytics } from "@/hooks/useAnalytics";
 
 export default function NewRequestPage() {
     const router = useRouter();
+    const { trackEvent } = useAnalytics();
     const searchParams = useSearchParams();
     const editId = searchParams.get("edit");
     const directTo = searchParams.get("directTo"); // therapistProfile.id for direct requests
@@ -33,6 +35,27 @@ export default function NewRequestPage() {
     const isEditMode = !!editId;
     const isDirectMode = !!directTo;
 
+    // Fire when the user hits their subscription request limit.
+    useEffect(() => {
+        if (isAtRequestLimit) {
+            trackEvent("subscription_limit_reached", {
+                limit_type: "requests",
+                plan_type: subscription?.planType ?? null,
+            });
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isAtRequestLimit]);
+
+    // Fire once on mount — captures form entry for funnel tracking.
+    // Excluded from PostHogPageView page-view tracking intentionally (step events cover this).
+    useEffect(() => {
+        trackEvent("request_form_started", {
+            is_direct: !!directTo,
+            is_edit: !!editId,
+        });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
     // Sync directTo param into store when navigating from messages page
     useEffect(() => {
         if (directTo && targetTherapistId !== directTo) {
@@ -41,7 +64,7 @@ export default function NewRequestPage() {
         if (!directTo && !editId && targetTherapistId) {
             setTargetTherapistId(null);
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [directTo]);
 
     usePageTitle(isEditMode ? "Edit Request" : isDirectMode ? "Create Direct Request" : "Create New Request");
@@ -126,7 +149,7 @@ export default function NewRequestPage() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [editId]);
 
-    const isAgency = user?.profile?.customerType === "agency";
+    const isAgency = user?.profile?.customerType === CUSTOMER_TYPES.AGENCY;
     const { data: patients } = usePatients();
     const selectedPatient = patients?.find((p) => p.id === patientId) || null;
 
@@ -147,7 +170,13 @@ export default function NewRequestPage() {
         }
     };
 
-    const handleNext = () => nextStep();
+    const handleNext = () => {
+        trackEvent("request_step_completed", {
+            step: currentStep,
+            service_type: step1.serviceType,
+        });
+        nextStep();
+    };
     const handleBack = () => {
         if (currentStep === 1) {
             router.push("/customer/requests");
@@ -178,13 +207,24 @@ export default function NewRequestPage() {
 
             if (isEditMode) {
                 await api.put(`/requests/${editId}`, payload);
+                trackEvent("request_edited", { service_type: step1.serviceType });
             } else {
                 payload.patientId = isAgency && !isDirectMode ? patientId : undefined;
-                if (isDirectMode && targetTherapistId) {
+                const requestType = isDirectMode && targetTherapistId
+                    ? REQUEST_TYPE.DIRECT
+                    : REQUEST_TYPE.PUBLIC;
+                if (requestType === REQUEST_TYPE.DIRECT) {
                     payload.requestType = REQUEST_TYPE.DIRECT;
                     payload.targetTherapistId = targetTherapistId;
                 }
                 await api.post("/requests", payload);
+                trackEvent("request_submitted", {
+                    service_type: step1.serviceType,
+                    request_type: requestType,
+                    has_patient: isAgency && !!patientId,
+                    has_visit_type: !!(step1.visitTypeId || step1.visitType),
+                    has_emr: !!step1.emr,
+                });
             }
 
             reset();

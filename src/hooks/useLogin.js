@@ -1,9 +1,24 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { usePostHog } from "posthog-js/react";
 import { authAPi } from "@/lib/auth.api";
+import { USER_ROLES } from "@/lib/constants";
 
+/**
+ * Handles login form submission, role-based redirect, and login analytics.
+ *
+ * @returns {{
+ *   login: (formData: { email: string, password: string }) => Promise<{ success: boolean }>,
+ *   isSubmitting: boolean,
+ *   error: string | null,
+ *   needsEmailVerification: boolean,
+ *   resendVerification: () => Promise<void>,
+ *   clearError: () => void,
+ * }}
+ */
 export const useLogin = () => {
     const router = useRouter();
+    const posthog = usePostHog();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState(null);
     const [needsEmailVerification, setNeedsEmailVerification] = useState(false);
@@ -16,14 +31,16 @@ export const useLogin = () => {
 
         try {
             const response = await authAPi.login(formData.email, formData.password);
-
             const { user } = response.data.data;
 
-            if (user.role === "customer") {
+            // Fire before redirect so the event is captured in this session.
+            posthog?.capture("user_logged_in", { role: user.role });
+
+            if (user.role === USER_ROLES.CUSTOMER) {
                 router.push("/customer/dashboard");
-            } else if (user.role === "therapist") {
+            } else if (user.role === USER_ROLES.THERAPIST) {
                 router.push("/therapist/dashboard");
-            } else if (user.role === "admin" || user.role === "sub_admin") {
+            } else if (user.role === USER_ROLES.ADMIN || user.role === USER_ROLES.SUB_ADMIN) {
                 router.push("/admin/dashboard");
             }
 
@@ -38,15 +55,13 @@ export const useLogin = () => {
             } else if (errorCode === "EMAIL_NOT_VERIFIED") {
                 setNeedsEmailVerification(true);
                 setUserEmail(formData.email);
-                setError(errorMessage || "Please verify your email before logging in.")
-            }
-            else if (err.response?.status === 401 || errorCode === "INVALID_CREDENTIALS") {
+                setError(errorMessage || "Please verify your email before logging in.");
+            } else if (err.response?.status === 401 || errorCode === "INVALID_CREDENTIALS") {
                 setError("Invalid email or password");
             } else if (errorCode === "RECAPTCHA FAILED" || errorCode === "RECAPTCHA_REQUIRED") {
                 setError("Security verification failed. Please try again.");
-            }
-            else {
-                setError(errorMessage || "Login failed. Please try again.")
+            } else {
+                setError(errorMessage || "Login failed. Please try again.");
             }
 
             return { success: false, error: err };
@@ -59,9 +74,9 @@ export const useLogin = () => {
         if (!userEmail) return;
 
         try {
-            await authAPi.resendVerificationEmail(userEmail)
+            await authAPi.resendVerificationEmail(userEmail);
             setError("Verification email sent! Please check your inbox.");
-        } catch (error) {
+        } catch {
             setError("Failed to resend verification email. Please try again.");
         }
     };

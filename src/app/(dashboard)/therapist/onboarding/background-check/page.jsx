@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useAnalytics } from "@/hooks/useAnalytics";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -14,12 +15,18 @@ import { usePageTitle } from "@/hooks/usePageTitle";
 export default function BackgroundCheckPage() {
     usePageTitle("Background Check");
     const router = useRouter();
+    const { trackEvent } = useAnalytics();
     const {
         backgroundCheck,
         updateBackgroundCheck,
         markStepComplete,
-        setCurrentStep
+        setCurrentStep,
     } = useOnboardingStore();
+
+    useEffect(() => {
+        trackEvent("onboarding_step_viewed", { step: 4, step_name: "background-check" });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     const [loading, setLoading] = useState(false);
 
@@ -73,6 +80,7 @@ export default function BackgroundCheckPage() {
             });
 
             // Mark step as complete and move to next step
+            trackEvent("onboarding_step_completed", { step: 4, step_name: "background-check" });
             markStepComplete(4);
             setCurrentStep(5);
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { useAnalytics } from "@/hooks/useAnalytics";
 import { useRouter } from "next/navigation";
 import { MdLock, MdArrowBack, MdCheckCircle, MdError } from "react-icons/md";
 import { ConnectAccountOnboarding } from "@stripe/react-connect-js";
@@ -44,7 +45,13 @@ const STATUS = {
 export default function StripeOnboardingPage() {
     usePageTitle("Payment Setup");
     const router = useRouter();
+    const { trackEvent } = useAnalytics();
     const { markStepComplete, markStripeConnected } = useOnboardingStore();
+
+    useEffect(() => {
+        trackEvent("onboarding_step_viewed", { step: 5, step_name: "stripe" });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     const [status, setStatus] = useState(STATUS.INITIALIZING);
     const [error, setError] = useState(null);
@@ -114,6 +121,8 @@ export default function StripeOnboardingPage() {
 
             if (connected && detailsSubmitted && chargesEnabled) {
                 // Full completion — mark step and finalise onboarding
+                trackEvent("onboarding_step_completed", { step: 5, step_name: "stripe" });
+                trackEvent("onboarding_completed", { has_stripe_connected: true });
                 markStepComplete(5);
                 markStripeConnected(accountId);
 
@@ -140,6 +149,9 @@ export default function StripeOnboardingPage() {
                 showToast.info(
                     "Your details have been submitted. We're verifying your account — this usually takes a few minutes."
                 );
+                trackEvent("onboarding_step_completed", { step: 5, step_name: "stripe" });
+                // has_stripe_connected: false — charges not yet enabled, webhook will confirm later
+                trackEvent("onboarding_completed", { has_stripe_connected: false });
                 markStepComplete(5);
                 if (accountId) markStripeConnected(accountId);
 
@@ -165,7 +177,7 @@ export default function StripeOnboardingPage() {
             );
             console.error("[StripeOnboarding] status check failed:", err);
         }
-    }, [markStepComplete, markStripeConnected, router]);
+    }, [markStepComplete, markStripeConnected, router, trackEvent]);
 
     const handleSkipForNow = async () => {
         try {

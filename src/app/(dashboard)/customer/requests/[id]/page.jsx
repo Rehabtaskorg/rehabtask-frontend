@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { MdArrowBack, MdEdit, MdCancel, MdLocationOn, MdCheckCircle, MdChat, MdWarning } from "react-icons/md";
 import { api } from "@/lib/api";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import { useAnalytics } from "@/hooks/useAnalytics";
 import { formatDate, formatTime } from "@/utils/dates";
 import PatientInfoBlock from "@/components/customer/PatientInfoBlock";
 import ConfirmModal from "@/components/ui/ConfirmModal";
@@ -36,6 +37,7 @@ export default function CustomerRequestDetailPage() {
     usePageTitle("Request Details");
     const params = useParams();
     const router = useRouter();
+    const { trackEvent } = useAnalytics();
 
     const [request, setRequest] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -67,9 +69,17 @@ export default function CustomerRequestDetailPage() {
         setAcceptOfferTarget(offer);
     };
 
-    const handleAccepted = useCallback(() => {
+    const handleAccepted = useCallback((booking) => {
+        trackEvent("offer_accepted", {
+            service_type: booking?.request?.serviceType ?? request?.serviceType,
+            session_type: booking?.sessionType,
+        });
+        trackEvent("booking_created", {
+            session_type: booking?.sessionType,
+            service_type: booking?.request?.serviceType ?? request?.serviceType,
+        });
         fetchRequest();
-    }, [fetchRequest]);
+    }, [fetchRequest, trackEvent, request?.serviceType]);
 
     const handleDeclineOffer = (offerId) => {
         setConfirmAction({
@@ -90,6 +100,7 @@ export default function CustomerRequestDetailPage() {
             setDeclining(offerId);
             try {
                 await api.post(`/offers/${offerId}/decline`);
+                trackEvent("offer_declined");
                 fetchRequest();
                 setConfirmAction(null);
             } catch (err) {
@@ -108,6 +119,7 @@ export default function CustomerRequestDetailPage() {
         setChangingOffer(true);
         try {
             await api.post(`/offers/${offerId}/request-change`, { note: changeNote });
+            trackEvent("offer_change_requested");
             setChangeOfferId(null);
             setChangeNote("");
             fetchRequest();

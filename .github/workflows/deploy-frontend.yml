@@ -65,18 +65,26 @@ jobs:
             echo "SUPABASE_URL=${{ secrets.NEXT_PUBLIC_SUPABASE_URL_PROD }}" >> $GITHUB_ENV
             echo "SUPABASE_ANON_KEY=${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY_PROD }}" >> $GITHUB_ENV
             echo "IS_PROD=true" >> $GITHUB_ENV
+            # PostHog is production-only — staging and dev get empty strings so
+            # the SDK init guard (process.env.NEXT_PUBLIC_POSTHOG_KEY check) skips init
+            echo "POSTHOG_KEY=${{ secrets.NEXT_PUBLIC_POSTHOG_KEY }}" >> $GITHUB_ENV
+            echo "POSTHOG_HOST=${{ secrets.NEXT_PUBLIC_POSTHOG_HOST }}" >> $GITHUB_ENV
           elif [[ "${{ github.ref_name }}" == "staging" ]]; then
             echo "SERVICE_NAME=rehabtask-frontend-staging" >> $GITHUB_ENV
             echo "API_URL=${{ secrets.NEXT_PUBLIC_API_URL_STAGING }}" >> $GITHUB_ENV
             echo "SUPABASE_URL=${{ secrets.NEXT_PUBLIC_SUPABASE_URL_STAGING }}" >> $GITHUB_ENV
             echo "SUPABASE_ANON_KEY=${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY_STAGING }}" >> $GITHUB_ENV
             echo "IS_PROD=false" >> $GITHUB_ENV
+            echo "POSTHOG_KEY=" >> $GITHUB_ENV
+            echo "POSTHOG_HOST=" >> $GITHUB_ENV
           elif [[ "${{ github.ref_name }}" == "development" ]]; then
             echo "SERVICE_NAME=rehabtask-frontend-dev" >> $GITHUB_ENV
             echo "API_URL=${{ secrets.NEXT_PUBLIC_API_URL_DEV }}" >> $GITHUB_ENV
             echo "SUPABASE_URL=${{ secrets.NEXT_PUBLIC_SUPABASE_URL_DEV }}" >> $GITHUB_ENV
             echo "SUPABASE_ANON_KEY=${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY_DEV }}" >> $GITHUB_ENV
             echo "IS_PROD=false" >> $GITHUB_ENV
+            echo "POSTHOG_KEY=" >> $GITHUB_ENV
+            echo "POSTHOG_HOST=" >> $GITHUB_ENV
           fi
 
       - name: Set up Docker Buildx
@@ -109,8 +117,8 @@ jobs:
             --build-arg NEXT_PUBLIC_RECAPTCHA_SITE_KEY=${{ secrets.NEXT_PUBLIC_RECAPTCHA_SITE_KEY }} \
             --build-arg NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=${{ secrets.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY }} \
             --build-arg NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID=${{ secrets.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID }} \
-            --build-arg NEXT_PUBLIC_POSTHOG_KEY=${{ secrets.NEXT_PUBLIC_POSTHOG_KEY }} \
-            --build-arg NEXT_PUBLIC_POSTHOG_HOST=${{ secrets.NEXT_PUBLIC_POSTHOG_HOST }} \
+            --build-arg NEXT_PUBLIC_POSTHOG_KEY=${{ env.POSTHOG_KEY }} \
+            --build-arg NEXT_PUBLIC_POSTHOG_HOST=${{ env.POSTHOG_HOST }} \
             --build-arg NEXT_PUBLIC_SITE_URL=${{ secrets.NEXT_PUBLIC_SITE_URL }} \
             --cache-from type=local,src=/tmp/.buildx-cache \
             --cache-to type=local,dest=/tmp/.buildx-cache-new,mode=max \

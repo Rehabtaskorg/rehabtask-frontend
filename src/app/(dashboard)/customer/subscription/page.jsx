@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
-import { MdStars, MdCheckCircle, MdRocketLaunch, MdCreditCard, MdCancel, MdWarning, MdAccessTime, MdArrowUpward, MdArrowDownward } from "react-icons/md";
+import { useState, useEffect } from "react";
+import { MdStars, MdCheckCircle, MdCreditCard, MdCancel, MdWarning, MdAccessTime, MdArrowUpward, MdArrowDownward } from "react-icons/md";
 import { useSubscription, useCreateCheckout, useCreateBillingPortal, useCancelSubscription, useResumeSubscription, useUpgradeSubscription, useDowngradeSubscription } from "@/hooks/useSubscription";
 import { subscriptionApi } from "@/lib/subscription.api";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import { useAnalytics } from "@/hooks/useAnalytics";
 
 const PLANS = [
     {
@@ -76,6 +77,7 @@ function UsageBar({ label, current, limit }) {
 
 export default function SubscriptionPage() {
     usePageTitle("Subscription");
+    const { trackEvent } = useAnalytics();
     const { subscription, usage, loading } = useSubscription();
     const checkout = useCreateCheckout();
     const billingPortal = useCreateBillingPortal();
@@ -91,6 +93,16 @@ export default function SubscriptionPage() {
     const [upgradePreview, setUpgradePreview] = useState(null);
     const [previewLoading, setPreviewLoading] = useState(false);
     const [upgradeError, setUpgradeError] = useState(null);
+
+    // Fire once when subscription data is ready.
+    useEffect(() => {
+        if (!loading) {
+            trackEvent("subscription_page_viewed", {
+                current_plan: subscription?.planType ?? "free",
+            });
+        }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [loading]);
 
     if (loading) {
         return (
@@ -124,6 +136,11 @@ export default function SubscriptionPage() {
 
     const handlePlanAction = (targetPlan) => {
         const targetRank = PLANS.find(p => p.key === targetPlan)?.rank ?? 0;
+
+        trackEvent("subscription_upgrade_clicked", {
+            target_plan: targetPlan,
+            billing_interval: billingInterval,
+        });
 
         // Free/Trial → Paid: use Stripe Checkout (need card)
         if (!isPaid || isTrial || isGracePeriod) {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -13,8 +13,7 @@ import AuthGateModal from "@/components/public/AuthGateModal";
 import UserAvatar from "@/components/ui/UserAvatar";
 import Footer from "@/components/landing/Footer";
 import Navbar from "@/components/landing/Navbar";
-
-const TIER_LABELS = { basic: "Basic", pro: "Verified Pro", elite: "Elite" };
+import { useAnalytics } from "@/hooks/useAnalytics";
 
 function formatTime(t) {
     if (!t) return "";
@@ -62,6 +61,15 @@ export default function TherapistPublicProfilePage() {
     const { data: reviewsData } = useTherapistReviews(params.id, 1);
     const [gateOpen, setGateOpen] = useState(false);
     const [gateTrigger, setGateTrigger] = useState("default");
+    const { trackEvent } = useAnalytics();
+
+    useEffect(() => {
+        if (!profile) return;
+        trackEvent("therapist_profile_viewed", {
+            plan_tier: profile.planTier ?? null,
+            license_type: profile.primaryLicenseType ?? null,
+        });
+    }, [profile, trackEvent]);
 
     const handleAuthGate = (trigger) => {
         setGateTrigger(trigger);

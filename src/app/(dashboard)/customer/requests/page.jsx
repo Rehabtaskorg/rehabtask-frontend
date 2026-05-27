@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import { useAnalytics } from "@/hooks/useAnalytics";
 import { MdAdd, MdSchedule, MdChevronLeft, MdChevronRight } from "react-icons/md";
 import { api } from "@/lib/api";
 import { usePageTitle } from "@/hooks/usePageTitle";
@@ -22,6 +23,7 @@ const PAGE_LIMIT = 15;
 export default function MyRequestsPage() {
     usePageTitle("My Requests");
     const router = useRouter();
+    const { trackEvent } = useAnalytics();
 
     const [requests, setRequests] = useState([]);
     const [pagination, setPagination] = useState({ page: 1, totalPages: 1, total: 0 });
@@ -158,6 +160,11 @@ export default function MyRequestsPage() {
         setCancelling(true);
         try {
             await api.post(`/requests/${reqId}/cancel`);
+            const cancelledReq = requests.find((r) => r.id === reqId);
+            trackEvent("request_cancelled", {
+                service_type: cancelledReq?.serviceType ?? null,
+                had_offers: (cancelledReq?.offerCount ?? 0) > 0,
+            });
             setShowCancelConfirm(false);
             setExpandedId(null);
             setCancellingRequestId(null);
@@ -197,11 +204,10 @@ export default function MyRequestsPage() {
                                 <button
                                     key={tab.key}
                                     onClick={() => handleFilterChange(tab.key)}
-                                    className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-colors ${
-                                        isActive
+                                    className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-colors ${isActive
                                             ? "bg-primary text-white shadow-sm"
                                             : "bg-slate-100  text-slate-600  hover:bg-slate-200 "
-                                    }`}
+                                        }`}
                                 >
                                     {tab.label}
                                 </button>
