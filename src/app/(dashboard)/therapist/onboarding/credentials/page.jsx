@@ -1,7 +1,8 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useAnalytics } from "@/hooks/useAnalytics";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useDropzone } from "react-dropzone";
@@ -18,8 +19,14 @@ import { usePageTitle } from "@/hooks/usePageTitle";
 export default function CredentialsPage() {
     usePageTitle("Add Credentials");
     const router = useRouter();
-    const { user, loading: authLoading } = useAuth()
+    const { trackEvent } = useAnalytics();
+    const { user, loading: authLoading } = useAuth();
     const { credentials, updateCredentials, addLicenseDocument, removeLicenseDocument, markStepComplete, setCurrentStep } = useOnboardingStore();
+
+    useEffect(() => {
+        trackEvent("onboarding_step_viewed", { step: 2, step_name: "credentials" });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     const [loading, setLoading] = useState(false);
     const [uploadError, setUploadError] = useState("");
@@ -89,9 +96,9 @@ export default function CredentialsPage() {
                 licenseState: data.licenseState,
             });
 
+            trackEvent("onboarding_step_completed", { step: 2, step_name: "credentials" });
             markStepComplete(2);
             setCurrentStep(3);
-
             router.push("/therapist/onboarding/availability");
         } catch (error) {
             console.error("Failed to save credentials:", error);

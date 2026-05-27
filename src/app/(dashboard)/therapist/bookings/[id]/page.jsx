@@ -20,6 +20,7 @@ import MarkSessionAttemptedModal from "@/components/shared/sessions/MarkSessionA
 import RevisionStatusBanner from "@/components/shared/sessions/RevisionStatusBanner";
 import { formatCurrency } from "@/utils/messages";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import { useAnalytics } from "@/hooks/useAnalytics";
 import BookingSharedFiles from "@/components/bookings/BookingSharedFiles";
 
 const formatDate = (dateStr) => {
@@ -36,6 +37,7 @@ export default function TherapistBookingDetailPage() {
     usePageTitle("Booking Details");
     const params = useParams();
     const router = useRouter();
+    const { trackEvent } = useAnalytics();
     const { booking, loading, error, refetch } = useBookingDetail(params.id);
 
     // UI states
@@ -77,6 +79,7 @@ export default function TherapistBookingDetailPage() {
         setCompleting(true);
         try {
             await bookingsApi.completeSession(booking.sessions?.[0]?.id);
+            trackEvent("session_completed_by_therapist", { session_type: booking.sessionType });
             setShowCompleteDialog(false);
             showToast.success("Session marked as complete. Waiting for customer confirmation.");
             await refetch();

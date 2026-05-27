@@ -1,5 +1,16 @@
 export const DEFAULT_WORK_AREA_RADIUS_MILES = 25;
 
+export const USER_ROLES = {
+    CUSTOMER:  "customer",
+    THERAPIST: "therapist",
+    ADMIN:     "admin",
+    SUB_ADMIN: "sub_admin",
+};
+
+export const CUSTOMER_TYPES = {
+    AGENCY: "agency",
+};
+
 export const LICENSE_TYPE_TO_SERVICE_TYPE = Object.freeze({
     "Physical Therapist":               "Physical Therapy",
     "Physical Therapist Assistant":     "Physical Therapy",

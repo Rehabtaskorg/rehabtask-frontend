@@ -14,6 +14,7 @@ import { resolveVisitPlan, computeTotalVisits } from "@/lib/visitPlan";
 import { formatCurrency } from "@/utils/messages";
 import { formatDate, formatTime } from "@/utils/dates";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import { useAnalytics } from "@/hooks/useAnalytics";
 import BookingStatusBadge from "@/components/bookings/BookingStatusBadge";
 import BookingTimeline from "@/components/bookings/BookingTimeline";
 import BookingSharedFiles from "@/components/bookings/BookingSharedFiles";
@@ -31,6 +32,7 @@ export default function CustomerBookingDetailPage() {
     usePageTitle("Booking Details");
     const params = useParams();
     const router = useRouter();
+    const { trackEvent } = useAnalytics();
     const searchParams = useSearchParams();
     const { booking, loading, error, refetch } = useBookingDetail(params.id);
 
@@ -56,6 +58,12 @@ export default function CustomerBookingDetailPage() {
         setActionError(null);
         try {
             await bookingsApi.confirmSession(booking.sessions?.[0]?.id);
+            trackEvent("session_confirmed_by_customer", {
+                session_type: booking.sessionType,
+                sessions_remaining: (booking.sessions ?? []).filter(
+                    (s) => s.status !== "confirmed_by_customer"
+                ).length - 1, // subtract the one just confirmed
+            });
             setShowConfirmDialog(false);
             await refetch();
         } catch (err) {
@@ -552,7 +560,10 @@ export default function CustomerBookingDetailPage() {
                 isOpen={showRevisionModal}
                 onClose={() => { setShowRevisionModal(false); setRevisionSessionId(null); }}
                 sessionId={revisionSessionId || session?.id}
-                onSuccess={refetch}
+                onSuccess={() => {
+                    trackEvent("session_revision_requested");
+                    refetch();
+                }}
             />
 
             <MarkSessionMissedModal

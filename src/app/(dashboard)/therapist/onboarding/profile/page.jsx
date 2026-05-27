@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
+import { useAnalytics } from "@/hooks/useAnalytics";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import useOnboardingStore from "@/store/onboardingStore";
@@ -16,7 +17,13 @@ import { usePageTitle } from "@/hooks/usePageTitle";
 export default function ProfessionalProfilePage() {
     usePageTitle("Setup Profile");
     const router = useRouter();
+    const { trackEvent } = useAnalytics();
     const { professionalProfile, updateProfessionalProfile, markStepComplete, setCurrentStep } = useOnboardingStore();
+
+    useEffect(() => {
+        trackEvent("onboarding_step_viewed", { step: 1, step_name: "profile" });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     const [profilePhoto, setProfilePhoto] = useState(professionalProfile.profilePhotoUrl || null);
     const [loading, setLoading] = useState(false);
@@ -99,6 +106,11 @@ export default function ProfessionalProfilePage() {
                 profilePhotoUrl: data.profilePhotoUrl,
             })
 
+            trackEvent("onboarding_step_completed", {
+                step: 1,
+                step_name: "profile",
+                license_type: data.primaryLicenseType,
+            });
             markStepComplete(1);
             setCurrentStep(2);
             router.push("/therapist/onboarding/credentials");

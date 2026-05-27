@@ -10,6 +10,7 @@ import {
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { useAuth } from "@/hooks/useAuth";
 import { REQUEST_TYPE } from "@/lib/constants";
+import { useAnalytics } from "@/hooks/useAnalytics";
 import OfferFormFields from "@/components/therapist/OfferFormFields";
 
 const STATUS_STYLES = {
@@ -34,6 +35,7 @@ export default function TherapistRequestDetailPage() {
     usePageTitle("Request Details");
     const router = useRouter();
     const params = useParams();
+    const { trackEvent } = useAnalytics();
     const { user } = useAuth();
     const profileRate = user?.profile?.ratePerVisit ? parseFloat(user.profile.ratePerVisit).toFixed(2) : '';
     const profileAttemptedRate = user?.profile?.attemptedVisitRate != null
@@ -60,7 +62,13 @@ export default function TherapistRequestDetailPage() {
     const fetchRequest = async () => {
         try {
             const res = await api.get(`/requests/${params.id}`);
-            setRequest(res.data.data);
+            const fetched = res.data.data;
+            setRequest(fetched);
+            trackEvent("request_detail_viewed", {
+                service_type: fetched.serviceType,
+                request_type: fetched.requestType,
+            });
+            trackEvent("offer_form_started", { service_type: fetched.serviceType });
 
             // Pre-fill proposed date
             if (res.data.data.preferredDate) {
@@ -83,7 +91,7 @@ export default function TherapistRequestDetailPage() {
         fetchRequest();
         api.get("/payments/commission-rate").then(res => {
             setCommissionRate(res.data.data.rate);
-        }).catch(() => {});
+        }).catch(() => { });
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [params.id]);
 
@@ -136,6 +144,11 @@ export default function TherapistRequestDetailPage() {
             }
 
             await api.post("/offers", payload);
+            trackEvent("offer_sent", {
+                service_type: request?.serviceType,
+                session_type: offerData.sessionType,
+                has_visit_type: !!offerData.visitTypeId,
+            });
             setOfferSuccess(true);
             fetchRequest();
         } catch (error) {
@@ -220,7 +233,7 @@ export default function TherapistRequestDetailPage() {
                         <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${isOpen
                             ? "bg-emerald-100 text-emerald-700  "
                             : STATUS_STYLES[request.status] || "bg-slate-100 text-slate-600  "
-                        }`}>
+                            }`}>
                             {isOpen ? "Open" : request.status === "offers_accepted" ? "Closed" : request.status.replace(/_/g, " ")}
                         </span>
                         {request.requestType === REQUEST_TYPE.DIRECT && (
@@ -292,7 +305,7 @@ export default function TherapistRequestDetailPage() {
                                     <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg text-xs font-bold ${request.sessionType === "virtual"
                                         ? "bg-blue-50  text-blue-700 "
                                         : "bg-emerald-50  text-emerald-700 "
-                                    }`}>
+                                        }`}>
                                         {request.sessionType === "virtual" ? <MdVideocam className="text-sm" /> : <MdPersonPin className="text-sm" />}
                                         {request.sessionType === "virtual" ? "Virtual" : "In-Person"}
                                     </span>
