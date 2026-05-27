@@ -6,6 +6,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { authAPi } from '@/lib/auth.api';
+import { destroySocket } from '@/lib/socket';
 import { getTherapistRedirect } from '@/lib/therapistRouteAccess';
 import { TherapistAccessProvider } from '@/contexts/TherapistAccessContext';
 import { AdminUserProvider } from '@/contexts/AdminUserContext';
@@ -29,6 +30,12 @@ import {
     MdKeyboardDoubleArrowLeft, MdKeyboardDoubleArrowRight,
 } from "react-icons/md";
 
+/**
+ * Sidebar messages link for therapists.
+ * Shows an unread-count badge when there are unread messages.
+ *
+ * @param {{ pathname: string, collapsed?: boolean }} props
+ */
 function TherapistMessagesLink({ pathname, collapsed = false }) {
     const unreadCount = useUnreadCount();
     const isActive = pathname.startsWith('/therapist/messages');
@@ -62,6 +69,12 @@ function TherapistMessagesLink({ pathname, collapsed = false }) {
     )
 }
 
+/**
+ * Sidebar messages link for customers.
+ * Shows an unread-count badge when there are unread messages.
+ *
+ * @param {{ pathname: string, collapsed?: boolean }} props
+ */
 function CustomerMessagesLink({ pathname, collapsed = false }) {
     const unreadCount = useUnreadCount();
     const isActive = pathname.startsWith('/customer/messages');
@@ -95,6 +108,12 @@ function CustomerMessagesLink({ pathname, collapsed = false }) {
     )
 }
 
+/**
+ * Generic sidebar navigation link.
+ * Highlights as active based on the current pathname.
+ *
+ * @param {{ href: string, icon: React.ElementType, label: string, pathname: string, matchStart?: boolean, locked?: boolean, collapsed?: boolean }} props
+ */
 function NavLink({ href, icon: Icon, label, pathname, matchStart = true, locked = false, collapsed = false }) {
     const isActive = matchStart ? pathname.startsWith(href) : pathname === href;
     return (
@@ -111,6 +130,13 @@ function NavLink({ href, icon: Icon, label, pathname, matchStart = true, locked 
     )
 }
 
+/**
+ * Root layout for all authenticated dashboard routes.
+ * Fetches the current user on mount, enforces role-based route guards,
+ * and renders the appropriate sidebar via DashboardInner.
+ *
+ * @param {{ children: React.ReactNode }} props
+ */
 export default function DashboardLayout({ children }) {
     const router = useRouter();
     const pathname = usePathname();
@@ -130,12 +156,11 @@ export default function DashboardLayout({ children }) {
 
         const fetchUser = async () => {
             try {
-                const res = await authAPi.getCurrentUser()
+                const res = await authAPi.getCurrentUser();
 
                 if (!isMounted) return;
 
                 const userData = res.data.data.user;
-
                 const isOnCustomerDashboard = pathname.startsWith("/customer");
                 const isOnTherapistDashboard = pathname.startsWith("/therapist");
 
@@ -191,8 +216,13 @@ export default function DashboardLayout({ children }) {
                 setUser(userData);
                 setLoading(false);
             } catch (error) {
-                console.error("Auth error:", error);
                 if (!isMounted) return;
+
+                // ACCOUNT_DEACTIVATED: the API interceptor already called /auth/logout
+                // and is setting window.location.href. Don't also call router.replace —
+                // two simultaneous redirects is what produces the visible flash loop.
+                if (error?.response?.data?.code === "ACCOUNT_DEACTIVATED") return;
+
                 setAuthError(true);
                 setLoading(false);
                 setTimeout(() => { if (isMounted) { router.replace("/login"); } }, 100);
@@ -203,17 +233,26 @@ export default function DashboardLayout({ children }) {
         return () => { isMounted = false; };
     }, [router, pathname, posthog]);
 
+    /**
+     * Logs the current user out: calls the logout API, tears down the socket,
+     * resets client-side state, detaches PostHog, then navigates to the destination.
+     *
+     * @param {string} [redirectTo="/"] - Path to navigate to after logout.
+     */
     const handleLogout = useCallback(async (redirectTo = "/") => {
+        // Guard: onClick passes a MouseEvent when called directly from a button —
+        // treat that as "no redirect specified" and fall back to "/".
+        const destination = typeof redirectTo === "string" ? redirectTo : "/";
         try {
             await authAPi.logout();
-        } catch (error) {
-            console.error("Logout error:", error);
+        } catch (_) {
+            // best-effort — session may already be invalid
         } finally {
+            destroySocket();
             useOnboardingStore.getState().reset();
-            // Detach the PostHog session from the user identity on logout.
             posthog?.reset();
         }
-        router.push(redirectTo);
+        router.push(destination);
     }, [router, posthog]);
 
     useIdleTimeout(user ? () => handleLogout(`/login?reason=${LOGOUT_REASON.IDLE_TIMEOUT}`) : null);
@@ -337,6 +376,11 @@ export default function DashboardLayout({ children }) {
     );
 }
 
+/**
+ * Button that toggles the sidebar between expanded and collapsed states.
+ *
+ * @param {{ collapsed: boolean }} props
+ */
 function CollapseToggle({ collapsed }) {
     const { toggleSidebar } = useSidebar();
     return (
@@ -350,6 +394,12 @@ function CollapseToggle({ collapsed }) {
     );
 }
 
+/**
+ * Renders the full dashboard shell: mobile top bar, role-specific sidebar, and main content area.
+ * Receives all derived state from DashboardLayout so it stays a pure presentational component.
+ *
+ * @param {{ user: object, pathname: string, sidebarOpen: boolean, setSidebarOpen: Function, handleLogout: Function, isOnOnboardingRoute: boolean, profileName: string, initials: string, therapistAccess: object|null, adminNavItems: Array, hasAdminPermission: Function, subAdminPermissions: string[]|null, children: React.ReactNode }} props
+ */
 function DashboardInner({ user, pathname, sidebarOpen, setSidebarOpen, handleLogout, isOnOnboardingRoute, profileName, initials, therapistAccess, adminNavItems, hasAdminPermission, subAdminPermissions, children }) {
     const { isCollapsed } = useSidebar();
     const sidebarWidth = isOnOnboardingRoute ? 'lg:w-64' : isCollapsed ? 'lg:w-16' : 'lg:w-64';
@@ -421,7 +471,7 @@ function DashboardInner({ user, pathname, sidebarOpen, setSidebarOpen, handleLog
                         <div className={`mt-auto ${c ? 'p-2' : 'p-6'} space-y-1 border-t border-slate-100 `}>
                             <NavLink href="/therapist/profile" icon={MdPerson} label="My Profile" pathname={pathname} collapsed={c} />
                             <NavLink href="/therapist/account-settings" icon={MdSettings} label="Account Settings" pathname={pathname} collapsed={c} />
-                            <button onClick={handleLogout} className={`sidebar-nav-link w-full text-red-500 hover:bg-red-50  ${c ? 'justify-center px-0! gap-0!' : 'text-left'}`} title={c ? "Logout" : undefined}>
+                            <button onClick={() => handleLogout("/")} className={`sidebar-nav-link w-full text-red-500 hover:bg-red-50  ${c ? 'justify-center px-0! gap-0!' : 'text-left'}`} title={c ? "Logout" : undefined}>
                                 <MdLogout className="sidebar-icon shrink-0" />
                                 {!c && <span>Logout</span>}
                             </button>
@@ -460,7 +510,7 @@ function DashboardInner({ user, pathname, sidebarOpen, setSidebarOpen, handleLog
                             <NavLink href="/customer/subscription" icon={MdStars} label="Subscription" pathname={pathname} collapsed={c} />
                             <NavLink href="/customer/faqs" icon={MdQuestionAnswer} label="FAQs" pathname={pathname} collapsed={c} />
                             <NavLink href="/customer/profile" icon={MdSettings} label="Account Settings" pathname={pathname} collapsed={c} />
-                            <button onClick={handleLogout} className={`sidebar-nav-link w-full text-red-500 hover:bg-red-50  ${c ? 'justify-center px-0! gap-0!' : 'text-left'}`} title={c ? "Logout" : undefined}>
+                            <button onClick={() => handleLogout("/")} className={`sidebar-nav-link w-full text-red-500 hover:bg-red-50  ${c ? 'justify-center px-0! gap-0!' : 'text-left'}`} title={c ? "Logout" : undefined}>
                                 <MdLogout className="sidebar-icon shrink-0" />
                                 {!c && <span>Logout</span>}
                             </button>
@@ -546,7 +596,7 @@ function DashboardInner({ user, pathname, sidebarOpen, setSidebarOpen, handleLog
                         </nav>
                         <div className={`${c ? 'p-2' : 'p-4'} border-t border-slate-100  space-y-1`}>
                             <NavLink href="/admin/settings" icon={MdSettings} label="Settings" pathname={pathname} collapsed={c} />
-                            <button onClick={handleLogout} className={`sidebar-nav-link w-full text-red-500 hover:bg-red-50  ${c ? 'justify-center px-0! gap-0!' : 'text-left'}`} title={c ? "Logout" : undefined}>
+                            <button onClick={() => handleLogout("/")} className={`sidebar-nav-link w-full text-red-500 hover:bg-red-50  ${c ? 'justify-center px-0! gap-0!' : 'text-left'}`} title={c ? "Logout" : undefined}>
                                 <MdLogout className="sidebar-icon shrink-0" />
                                 {!c && <span>Logout</span>}
                             </button>
