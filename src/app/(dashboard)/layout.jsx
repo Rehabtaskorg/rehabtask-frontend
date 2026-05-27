@@ -130,12 +130,23 @@ export default function DashboardLayout({ children }) {
         let isMounted = true;
 
         const fetchUser = async () => {
-            try {
-                const res = await authAPi.getCurrentUser()
+            console.log("[DashboardLayout] fetchUser() triggered — pathname:", pathname);
 
-                if (!isMounted) return;
+            try {
+                console.log("[DashboardLayout] Calling GET /auth/me...");
+                const res = await authAPi.getCurrentUser();
+
+                if (!isMounted) {
+                    console.log("[DashboardLayout] Component unmounted before /auth/me resolved — bailing");
+                    return;
+                }
 
                 const userData = res.data.data.user;
+                console.log("[DashboardLayout] ✅ /auth/me succeeded:", {
+                    id: userData.id,
+                    role: userData.role,
+                    isActive: userData.isActive,
+                });
 
                 const isOnCustomerDashboard = pathname.startsWith("/customer");
                 const isOnTherapistDashboard = pathname.startsWith("/therapist");
@@ -146,11 +157,13 @@ export default function DashboardLayout({ children }) {
                     isOnTherapistDashboard && userData.role === USER_ROLES.CUSTOMER;
 
                 if (shouldRedirectToTherapist) {
+                    console.log("[DashboardLayout] Role mismatch — redirecting therapist to /therapist/dashboard");
                     router.replace("/therapist/dashboard");
                     return;
                 }
 
                 if (shouldRedirectToCustomer) {
+                    console.log("[DashboardLayout] Role mismatch — redirecting customer to /customer/dashboard");
                     router.replace("/customer/dashboard");
                     return;
                 }
@@ -160,6 +173,7 @@ export default function DashboardLayout({ children }) {
                 if (!userData.profile && userData.role !== USER_ROLES.ADMIN && userData.role !== USER_ROLES.SUB_ADMIN) {
                     const isOnOnboarding = pathname.startsWith("/oauth/onboarding");
                     if (!isOnOnboarding) {
+                        console.log("[DashboardLayout] No profile found — redirecting to OAuth onboarding");
                         router.replace("/oauth/onboarding");
                         return;
                     }
@@ -175,6 +189,7 @@ export default function DashboardLayout({ children }) {
                     });
 
                     if (redirect && pathname !== redirect) {
+                        console.log("[DashboardLayout] Therapist access guard — redirecting to:", redirect);
                         router.replace(redirect);
                         return; // Don't set user or loading=false; keep spinner until redirect
                     }
@@ -189,19 +204,51 @@ export default function DashboardLayout({ children }) {
                     license_type: userData.profile?.primaryLicenseType ?? null,
                 });
 
+                console.log("[DashboardLayout] User loaded — rendering dashboard for role:", userData.role);
                 setUser(userData);
                 setLoading(false);
             } catch (error) {
-                console.error("Auth error:", error);
-                if (!isMounted) return;
+                const code = error?.response?.data?.code;
+                const status = error?.response?.status;
+                console.error("[DashboardLayout] ❌ fetchUser error:", {
+                    code,
+                    status,
+                    message: error?.response?.data?.message ?? error?.message,
+                    isMounted,
+                });
+
+                if (!isMounted) {
+                    console.log("[DashboardLayout] Component unmounted before error handled — bailing");
+                    return;
+                }
+
+                // ACCOUNT_DEACTIVATED: the API interceptor already called /auth/logout
+                // and is about to set window.location.href. Don't also call router.replace
+                // here — two simultaneous redirects is what causes the visible loop.
+                if (code === "ACCOUNT_DEACTIVATED") {
+                    console.warn("[DashboardLayout] ACCOUNT_DEACTIVATED — interceptor is handling the redirect. Layout will not redirect.");
+                    return;
+                }
+
+                console.log("[DashboardLayout] Setting authError=true and scheduling router.replace('/login')");
                 setAuthError(true);
                 setLoading(false);
-                setTimeout(() => { if (isMounted) { router.replace("/login"); } }, 100);
+                setTimeout(() => {
+                    if (isMounted) {
+                        console.log("[DashboardLayout] setTimeout fired — calling router.replace('/login')");
+                        router.replace("/login");
+                    } else {
+                        console.log("[DashboardLayout] setTimeout fired but component already unmounted — skipping redirect");
+                    }
+                }, 100);
             }
         };
 
         fetchUser();
-        return () => { isMounted = false; };
+        return () => {
+            console.log("[DashboardLayout] useEffect cleanup — isMounted set to false for pathname:", pathname);
+            isMounted = false;
+        };
     }, [router, pathname, posthog]);
 
     const handleLogout = useCallback(async (redirectTo = "/") => {
