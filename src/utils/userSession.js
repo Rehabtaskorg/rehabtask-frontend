@@ -24,8 +24,7 @@ export const getSessionUserInfo = async () => {
             fullName: user.user_metadata?.full_name || null,
             emailConfirmed: !!user.email_confirmed_at
         };
-    } catch (error) {
-        console.error("Error getting session user info:", error);
+    } catch {
         return null;
     }
 }

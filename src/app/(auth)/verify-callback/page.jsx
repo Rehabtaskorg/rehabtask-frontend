@@ -12,27 +12,35 @@ import { getSessionUserInfo, getFirstName } from "@/utils/userSession";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { USER_ROLES } from "@/lib/constants";
 
+/** Max time to wait for Supabase to parse the URL hash and emit SIGNED_IN. */
+const AUTH_EVENT_TIMEOUT_MS = 10_000;
+
+/**
+ * Listens for the Supabase SIGNED_IN event that fires after the SDK parses
+ * the URL hash from the email verification link, then calls the backend to
+ * mark the email verified in our DB.
+ *
+ * Using onAuthStateChange (not getSession) is required because getSession()
+ * races against the hash-parsing step and returns null when called too early.
+ */
 function VerifyCallbackContent() {
     usePageTitle("Verifying Email");
     const router = useRouter();
     const posthog = usePostHog();
+
     const [status, setStatus] = useState("verifying");
     const [message, setMessage] = useState("Verifying your email...");
     const [userInfo, setUserInfo] = useState(null);
     const [sessionEmail, setSessionEmail] = useState(null);
 
     useEffect(() => {
-        const verifyEmail = async () => {
+        let settled = false;
+
+        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+            if (event !== "SIGNED_IN" || settled) return;
+            settled = true;
+
             try {
-                const { data: { session }, error } = await supabase.auth.getSession();
-
-                if (error) {
-                    console.error("Verification error:", error);
-                    setStatus("error");
-                    setMessage("Verification failed. The link may be expired or invalid.");
-                    return;
-                }
-
                 if (!session) {
                     setStatus("error");
                     setMessage("No session found. Please try requesting a new verification link.");
@@ -41,7 +49,7 @@ function VerifyCallbackContent() {
 
                 if (session.user?.email) setSessionEmail(session.user.email);
 
-                const sessionUser = getSessionUserInfo();
+                const sessionUser = await getSessionUserInfo();
 
                 if (!sessionUser) {
                     setStatus("error");
@@ -65,15 +73,26 @@ function VerifyCallbackContent() {
                         router.push(`/login?verified=true&role=${USER_ROLES.THERAPIST}`);
                     }, 2000);
                 }
-
-            } catch (error) {
-                console.error("Unexpected error:", error);
+            } catch {
                 setStatus("error");
                 setMessage("An unexpected error occurred. Please try again.");
             }
-        };
+        });
 
-        verifyEmail();
+        // Fallback: if Supabase never fires SIGNED_IN (invalid/expired link),
+        // stop the spinner so the user isn't stuck waiting indefinitely.
+        const timeout = setTimeout(() => {
+            if (!settled) {
+                settled = true;
+                setStatus("error");
+                setMessage("Verification failed. The link may be expired or invalid.");
+            }
+        }, AUTH_EVENT_TIMEOUT_MS);
+
+        return () => {
+            subscription.unsubscribe();
+            clearTimeout(timeout);
+        };
     }, [router, posthog]);
 
     const handleContinue = () => {
@@ -81,12 +100,12 @@ function VerifyCallbackContent() {
     };
 
     return (
-        <main className="flex-1 flex items-center justify-center px-4 py-12 bg-background-light ">
+        <main className="flex-1 flex items-center justify-center px-4 py-12 bg-background-light">
             <div className="max-w-md w-full">
                 {status === "verifying" && (
                     <div className="text-center">
-                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-                        <p className="text-text-muted ">{message}</p>
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4" />
+                        <p className="text-text-muted">{message}</p>
                     </div>
                 )}
 
@@ -108,7 +127,10 @@ function VerifyCallbackContent() {
                             <button
                                 onClick={() => {
                                     const email = sessionEmail || userInfo?.email;
-                                    router.push(email ? `/verify-email?email=${encodeURIComponent(email)}` : "/verify-email");
+                                    router.push(email
+                                        ? `/verify-email?email=${encodeURIComponent(email)}`
+                                        : "/verify-email"
+                                    );
                                 }}
                                 className="text-primary text-sm font-semibold hover:underline"
                             >
@@ -122,6 +144,12 @@ function VerifyCallbackContent() {
     );
 }
 
+/**
+ * Email verification callback page — handles the redirect from Supabase
+ * after a user clicks the link in their verification email.
+ *
+ * @returns {JSX.Element}
+ */
 export default function VerifyCallbackPage() {
     return (
         <div className="flex min-h-screen flex-col transition-colors duration-200">
