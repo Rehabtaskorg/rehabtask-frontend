@@ -1,162 +1,92 @@
 import { api } from "./api";
 
 /**
- * Get reCAPTCHA token for a specific action
- * @param {string} action - The action name (UPPERCASE, e.g. "LOGIN", "REGISTER_CUSTOMER")
- * @return {Promise<string>} reCAPTCHA token
+ * Get a reCAPTCHA Enterprise token for a specific action.
+ * Returns null silently if reCAPTCHA is not loaded (e.g. script blocked in
+ * Incognito) — the backend treats a missing token as a soft failure rather
+ * than a hard block in most environments.
+ *
+ * @param {string} action - UPPERCASE action name, e.g. "LOGIN"
+ * @returns {Promise<string|null>}
  */
 const getRecaptchaToken = async (action) => {
-    if (typeof window === "undefined" || !window.grecaptcha) {
-        console.warn("reCAPTCHA not loaded");
-        return null;
-    }
+    if (typeof window === "undefined" || !window.grecaptcha) return null;
 
     const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
-
-    if (!siteKey) {
-        console.warn("⚠️  reCAPTCHA site key not configured");
-        return null;
-    }
+    if (!siteKey) return null;
 
     try {
-        // Wait for RECAPTCHA to be fully initialized before executing
         await new Promise((resolve) => window.grecaptcha.ready(resolve));
-        const token = await window.grecaptcha.execute(siteKey, { action });
-        return token;
-    } catch (error) {
-        console.error("reCAPTCHA token generation failed:", error);
+        return await window.grecaptcha.execute(siteKey, { action });
+    } catch {
         return null;
     }
-}
+};
 
 /**
- * Centralized auth API calls
- * All Authentication-related API endpoints
+ * Centralized auth API calls.
+ * All methods that interact with reCAPTCHA-protected endpoints attach a token
+ * automatically — callers do not need to handle reCAPTCHA themselves.
  */
 export const authAPi = {
-    /**
-     * Register a new customer
-     */
+    /** Register a new customer. */
     registerCustomer: async (data) => {
         const recaptchaAction = "REGISTER_CUSTOMER";
         const recaptchaToken = await getRecaptchaToken(recaptchaAction);
-        return api.post("/auth/register/customer", {
-            ...data,
-            recaptchaToken,
-            recaptchaAction,
-        });
+        return api.post("/auth/register/customer", { ...data, recaptchaToken, recaptchaAction });
     },
 
-    /**
-     * Register a new therapist
-     */
+    /** Register a new therapist. */
     registerTherapist: async (data) => {
         const recaptchaAction = "REGISTER_THERAPIST";
         const recaptchaToken = await getRecaptchaToken(recaptchaAction);
-        return api.post("/auth/register/therapist", {
-            ...data,
-            recaptchaToken,
-            recaptchaAction,
-        });
+        return api.post("/auth/register/therapist", { ...data, recaptchaToken, recaptchaAction });
     },
 
-    /**
-     * Login with email and password
-     */
+    /** Login with email and password. */
     login: async (email, password) => {
         const recaptchaAction = "LOGIN";
         const recaptchaToken = await getRecaptchaToken(recaptchaAction);
-        return api.post("/auth/login", {
-            email,
-            password,
-            recaptchaToken,
-            recaptchaAction,
-        });
+        return api.post("/auth/login", { email, password, recaptchaToken, recaptchaAction });
     },
 
-    /**
-    * Logout current user
-    */
-    logout: async () => {
-        return api.post("/auth/logout");
-    },
+    /** Logout the current user. */
+    logout: async () => api.post("/auth/logout"),
 
-    /**
-     * Get current authenticated user
-     */
-    getCurrentUser: async () => {
-        return api.get("/auth/me");
-    },
+    /** Get the current authenticated user. */
+    getCurrentUser: async () => api.get("/auth/me"),
 
-    /**
-     * Request password reset mail
-     */
+    /** Request a password reset email. */
     requestPasswordReset: async (email) => {
         const recaptchaAction = "FORGOT_PASSWORD";
         const recaptchaToken = await getRecaptchaToken(recaptchaAction);
-        return api.post("/auth/password/forgot", {
-            email,
-            recaptchaToken,
-            recaptchaAction,
-        });
+        return api.post("/auth/password/forgot", { email, recaptchaToken, recaptchaAction });
     },
 
-    /**
-     * Change password for authenticated user
-     */
-    changePassword: async (currentPassword, newPassword, confirmNewPassword) => {
-        const payload = {
-            currentPassword,
-            newPassword,
-            confirmNewPassword
-        }
+    /** Change password for the authenticated user. */
+    changePassword: async (currentPassword, newPassword, confirmNewPassword) =>
+        api.post("/auth/password/change", { currentPassword, newPassword, confirmNewPassword }),
 
-        return api.post("/auth/password/change", payload);
-    },
-
-    /**
-     * Resend email verification
-     */
+    /** Resend the email verification link. */
     resendVerificationEmail: async (email) => {
         const recaptchaAction = "RESEND_VERIFICATION";
         const recaptchaToken = await getRecaptchaToken(recaptchaAction);
-        return api.post("/auth/email/resend", {
-            email,
-            recaptchaToken,
-            recaptchaAction,
-        });
+        return api.post("/auth/email/resend", { email, recaptchaToken, recaptchaAction });
     },
 
-    /**
-    * Verify email in database
-    */
-    verifyEmail: async (userId, fullName) => {
-        return api.post("/auth/verify-email", { userId, ...(fullName ? { fullName } : {}) });
-    },
+    /** Mark email as verified in the database. */
+    verifyEmail: async (userId, fullName) =>
+        api.post("/auth/verify-email", { userId, ...(fullName ? { fullName } : {}) }),
 
-    /**
-     * Process OAuth tokens (send to backend after getting from Supabase)
-     */
-    processOAuth: async (accessToken, refreshToken) => {
-        return api.post("/auth/oauth/process", {
-            accessToken,
-            refreshToken
-        });
-    },
+    /** Send Supabase OAuth tokens to the backend for session creation. */
+    processOAuth: async (accessToken, refreshToken) =>
+        api.post("/auth/oauth/process", { accessToken, refreshToken }),
 
-    /**
-     * Complete OAuth onboarding
-     */
-    completeOAuthOnboarding: async (profileData) => {
-        return api.post("/auth/oauth/onboarding", profileData);
-    },
+    /** Complete OAuth onboarding with profile data. */
+    completeOAuthOnboarding: async (profileData) =>
+        api.post("/auth/oauth/onboarding", profileData),
 
-    /**
-     * Refresh access token
-     */
-    refreshToken: async (refreshToken) => {
-        return api.post("/auth/token/refresh", {
-            refreshToken,
-        });
-    },
-}
+    /** Refresh the access token using a refresh token. */
+    refreshToken: async (refreshToken) =>
+        api.post("/auth/token/refresh", { refreshToken }),
+};
