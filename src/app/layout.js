@@ -1,4 +1,3 @@
-import RecaptchaProvider from "@/components/providers/RecaptchaProvider";
 import QueryProvider from "@/components/providers/QueryProvider";
 import { PostHogProvider } from "@/components/providers/PostHogProvider";
 import ToastProvider from "@/components/providers/ToastProvider";
@@ -78,11 +77,9 @@ export default function RootLayout({ children }) {
       <body className={inter.className}>
         <PostHogProvider>
           <QueryProvider>
-            <RecaptchaProvider>
-              <ToastProvider>
-                {children}
-              </ToastProvider>
-            </RecaptchaProvider>
+            <ToastProvider>
+              {children}
+            </ToastProvider>
           </QueryProvider>
         </PostHogProvider>
       </body>
