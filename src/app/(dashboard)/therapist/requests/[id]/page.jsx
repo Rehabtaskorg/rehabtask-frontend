@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { api } from "@/lib/api";
 import {
@@ -12,6 +12,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { REQUEST_TYPE } from "@/lib/constants";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import OfferFormFields from "@/components/therapist/OfferFormFields";
+import { getCustomerLabel } from "@/utils/request";
 
 const STATUS_STYLES = {
     created: "bg-blue-100 text-blue-700  ",
@@ -59,7 +60,7 @@ export default function TherapistRequestDetailPage() {
     const [offerSuccess, setOfferSuccess] = useState(false);
     const [offerError, setOfferError] = useState(null);
 
-    const fetchRequest = async () => {
+    const fetchRequest = useCallback(async () => {
         try {
             const res = await api.get(`/requests/${params.id}`);
             const fetched = res.data.data;
@@ -70,22 +71,20 @@ export default function TherapistRequestDetailPage() {
             });
             trackEvent("offer_form_started", { service_type: fetched.serviceType });
 
-            // Pre-fill proposed date
-            if (res.data.data.preferredDate) {
-                const date = new Date(res.data.data.preferredDate);
+            if (fetched.preferredDate) {
+                const date = new Date(fetched.preferredDate);
                 const localDateTime = new Date(date.getTime() - date.getTimezoneOffset() * 60000)
                     .toISOString()
                     .slice(0, 16);
                 setOfferData(prev => ({ ...prev, proposedDate: localDateTime }));
             }
-
-            // Rate pre-fill is handled by a separate effect (avoids race condition with auth loading)
-        } catch (error) {
-            console.error("Error fetching request:", error);
+        } catch {
+            // non-fatal — error state shown via empty request
         } finally {
             setLoading(false);
         }
-    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [params.id]);
 
     useEffect(() => {
         fetchRequest();
@@ -246,12 +245,9 @@ export default function TherapistRequestDetailPage() {
                         <MdLocationOn className="text-primary text-lg" />
                         {request.location || "No location specified"}
                     </p>
-                    {request.customer && (
-                        <p className="mt-1 text-text-muted  text-sm">
-                            Customer: <span className="font-bold text-text-main ">{request.customer.fullName}</span>
-                            {request.customer.agencyName && (
-                                <span className="italic"> · {request.customer.agencyName}</span>
-                            )}
+                    {getCustomerLabel(request.customer) && (
+                        <p className="mt-1 text-sm text-text-muted">
+                            Client: <span className="font-bold text-text-main">{getCustomerLabel(request.customer)}</span>
                         </p>
                     )}
                 </div>
@@ -485,13 +481,10 @@ export default function TherapistRequestDetailPage() {
                         <section className="bg-card-light  rounded-xl p-6 shadow-sm border border-border-light ">
                             <div className="flex items-center gap-4 mb-4">
                                 <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center text-primary font-bold text-lg">
-                                    {(request.customer.fullName || "C").charAt(0).toUpperCase()}
+                                    {getCustomerLabel(request.customer)?.charAt(0).toUpperCase() ?? "C"}
                                 </div>
                                 <div>
-                                    <p className="font-bold text-text-main ">{request.customer.fullName}</p>
-                                    {request.customer.agencyName && (
-                                        <p className="text-xs text-text-muted ">{request.customer.agencyName}</p>
-                                    )}
+                                    <p className="font-bold text-text-main">{getCustomerLabel(request.customer)}</p>
                                 </div>
                             </div>
                             {myOffer && (

@@ -3,10 +3,11 @@
 import {
     MdLocationOn, MdSend, MdChatBubble, MdCheckCircle,
     MdWarning, MdError, MdAccessTime, MdOpenInNew,
-    MdCalendarToday, MdSchedule,
+    MdCalendarToday, MdBusiness,
 } from "react-icons/md";
 import { useVisitTypes } from "@/hooks/useVisitTypes";
 import { localDateTimeStr } from "@/utils/dates";
+import { getCustomerLabel } from "@/utils/request";
 
 const getServiceTypeStyle = (serviceType) => {
     const st = serviceType?.toLowerCase() || "";
@@ -29,13 +30,25 @@ const timeAgo = (dateStr) => {
     return days === 1 ? "Yesterday" : `${days}d ago`;
 };
 
-/** Resolve the customer's requested visit type label (FK first, legacy string fallback). */
+/**
+ * Resolve the customer's requested visit type label.
+ * Prefers the FK-joined ref over the legacy string field.
+ *
+ * @param {object} request
+ * @returns {string|null}
+ */
 const requestVisitTypeLabel = (request) => {
     if (request?.visitTypeRef) return `${request.visitTypeRef.name} (${request.visitTypeRef.code})`;
     if (request?.visitType) return request.visitType;
     return null;
 };
 
+/**
+ * Right-panel detail view for a therapy request on the therapist browse page.
+ * Renders request metadata, customer label, and the offer form/state.
+ *
+ * @param {{ request: object, myOffer: object|null, offerData: object, setOfferData: Function, commissionRate: number|null, submitting: boolean, offerSuccess: boolean, offerError: string, onSubmitOffer: Function, onReviseOffer: Function, onMessageCustomer: Function, onSendNewOffer: Function, router: object }} props
+ */
 export default function TherapistRequestDetailPanel({
     request,
     myOffer,
@@ -49,12 +62,11 @@ export default function TherapistRequestDetailPanel({
     onReviseOffer,
     onMessageCustomer,
     onSendNewOffer,
-    onClose,
     router,
 }) {
     const earnPct = commissionRate !== null ? `${Math.round((1 - commissionRate) * 100)}` : "90";
-
     const visitTypeLabel = requestVisitTypeLabel(request);
+    const customerLabel = getCustomerLabel(request.customer);
 
     return (
         <div className="flex-1 overflow-y-auto panel-scroll">
@@ -66,12 +78,18 @@ export default function TherapistRequestDetailPanel({
                         <span className={`inline-flex px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wide ${getServiceTypeStyle(request.serviceType)}`}>
                             {request.serviceType}
                         </span>
-                        <span className="text-sm text-text-muted ">{timeAgo(request.createdAt)}</span>
+                        <span className="text-sm text-text-muted">{timeAgo(request.createdAt)}</span>
                     </div>
-                    <h2 className="text-2xl font-bold text-text-main  tracking-tight mb-2">
-                        {request.description?.split("\n")[0] || request.serviceType}
+                    <h2 className="text-2xl font-bold text-text-main tracking-tight mb-1">
+                        {request.serviceType}
                     </h2>
-                    <div className="flex flex-wrap gap-4 text-sm text-text-muted ">
+                    {customerLabel && (
+                        <p className="flex items-center gap-1.5 text-sm text-text-muted mb-2">
+                            <MdBusiness className="text-primary shrink-0" />
+                            {customerLabel}
+                        </p>
+                    )}
+                    <div className="flex flex-wrap gap-4 text-sm text-text-muted">
                         <span className="flex items-center gap-1.5">
                             <MdLocationOn className="text-primary" />
                             {request.location || "Location not specified"}
