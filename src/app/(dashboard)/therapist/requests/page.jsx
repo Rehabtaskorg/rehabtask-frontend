@@ -13,6 +13,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useTherapistAccess } from "@/contexts/TherapistAccessContext";
 import { REQUEST_TYPE } from "@/lib/constants";
 import { useAnalytics } from "@/hooks/useAnalytics";
+import { getCustomerLabel } from "@/utils/request";
 import LockedPageOverlay from "@/components/therapist/LockedPageOverlay";
 import TherapistRequestDetailPanel from "@/components/therapist/TherapistRequestDetailPanel";
 import TherapistRequestFilters, { FilterToggleButton } from "@/components/therapist/TherapistRequestFilters";
@@ -99,8 +100,8 @@ function TherapistRequestsContent() {
             setRequests(fetched);
             setPagination(data.pagination || { page: 1, totalPages: 1, total: 0 });
             trackEvent("request_list_viewed", { request_count: fetched.length });
-        } catch (error) {
-            console.error("Error fetching requests:", error);
+        } catch {
+            // non-fatal — list stays empty, user can retry via filter reset
         } finally {
             setLoading(false);
         }
@@ -356,8 +357,11 @@ function TherapistRequestsContent() {
                                                     </div>
                                                     <span className="text-[11px] text-text-muted  font-medium shrink-0 ml-2">{timeAgo(req.createdAt)}</span>
                                                 </div>
-                                                <h4 className="font-bold text-text-main  mb-1 leading-tight line-clamp-1">{req.description?.split("\n")[0] || req.serviceType}</h4>
-                                                <p className="text-sm text-text-muted  line-clamp-2 mb-3 leading-relaxed">{req.description}</p>
+                                                <h4 className="font-bold text-text-main mb-0.5 leading-tight">{req.serviceType}</h4>
+                                                {getCustomerLabel(req.customer) && (
+                                                    <p className="text-xs text-text-muted mb-1 font-medium">{getCustomerLabel(req.customer)}</p>
+                                                )}
+                                                <p className="text-sm text-text-muted line-clamp-2 mb-3 leading-relaxed">{req.description}</p>
                                                 {/* Patient identity hidden from therapist — visible only after booking */}
                                                 {req.visitsPerWeek && req.numberOfWeeks && (
                                                     <div className="flex items-center gap-1 text-xs font-semibold text-indigo-600  bg-indigo-50  px-2 py-1 rounded-md mb-2 w-fit">
@@ -440,7 +444,6 @@ function TherapistRequestsContent() {
                                 onReviseOffer={handleReviseOffer}
                                 onMessageCustomer={handleMessageCustomer}
                                 onSendNewOffer={handleSendNewOffer}
-                                onClose={() => setSelectedRequest(null)}
                                 router={router}
                             />
                         )}
