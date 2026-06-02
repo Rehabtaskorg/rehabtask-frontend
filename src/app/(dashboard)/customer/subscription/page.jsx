@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { MdStars, MdCheckCircle, MdCreditCard, MdCancel, MdWarning, MdAccessTime, MdArrowUpward, MdArrowDownward } from "react-icons/md";
-import { useSubscription, useCreateCheckout, useCreateBillingPortal, useCancelSubscription, useResumeSubscription, useUpgradeSubscription, useDowngradeSubscription } from "@/hooks/useSubscription";
+import { useSubscription, useCreateCheckout, useCreateBillingPortal, useCancelSubscription, useResumeSubscription, useUpgradeSubscription, useDowngradeSubscription, useCancelScheduledDowngrade } from "@/hooks/useSubscription";
 import { subscriptionApi } from "@/lib/subscription.api";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { useAnalytics } from "@/hooks/useAnalytics";
@@ -84,6 +84,7 @@ export default function SubscriptionPage() {
     const cancelSub = useCancelSubscription();
     const upgradeMutation = useUpgradeSubscription();
     const downgradeMutation = useDowngradeSubscription();
+    const cancelDowngradeMutation = useCancelScheduledDowngrade();
     const resumeMutation = useResumeSubscription();
     const [billingInterval, setBillingInterval] = useState("monthly");
     const [showCancelModal, setShowCancelModal] = useState(false);
@@ -222,18 +223,27 @@ export default function SubscriptionPage() {
             )}
 
             {pendingDowngrade && !isGracePeriod && (
-                <div className="flex items-center gap-3 p-4 rounded-xl bg-amber-50  border border-amber-200 ">
-                    <MdArrowDownward className="w-6 h-6 text-amber-500 shrink-0" />
-                    <div>
-                        <p className="font-semibold text-amber-700 ">
-                            {typeof pendingDowngrade === "string"
-                                ? `Downgrade to ${pendingDowngrade.charAt(0).toUpperCase() + pendingDowngrade.slice(1)} scheduled`
-                                : "Plan downgrade scheduled"}
-                        </p>
-                        <p className="text-sm text-amber-600 ">
-                            Your current plan stays active until {subscription?.currentPeriodEnd ? new Date(subscription.currentPeriodEnd).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" }) : "the end of your billing period"}.
-                        </p>
+                <div className="flex items-center justify-between gap-3 p-4 rounded-xl bg-amber-50  border border-amber-200 ">
+                    <div className="flex items-center gap-3">
+                        <MdArrowDownward className="w-6 h-6 text-amber-500 shrink-0" />
+                        <div>
+                            <p className="font-semibold text-amber-700 ">
+                                {typeof pendingDowngrade === "string"
+                                    ? `Downgrade to ${pendingDowngrade.charAt(0).toUpperCase() + pendingDowngrade.slice(1)} scheduled`
+                                    : "Plan downgrade scheduled"}
+                            </p>
+                            <p className="text-sm text-amber-600 ">
+                                Your current plan stays active until {subscription?.currentPeriodEnd ? new Date(subscription.currentPeriodEnd).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" }) : "the end of your billing period"}.
+                            </p>
+                        </div>
                     </div>
+                    <button
+                        onClick={() => cancelDowngradeMutation.mutate()}
+                        disabled={cancelDowngradeMutation.isPending}
+                        className="px-4 py-2 rounded-lg bg-amber-500 text-white font-medium hover:bg-amber-600 transition-colors text-sm whitespace-nowrap disabled:opacity-50"
+                    >
+                        {cancelDowngradeMutation.isPending ? "Cancelling..." : "Cancel Downgrade"}
+                    </button>
                 </div>
             )}
 

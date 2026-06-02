@@ -137,3 +137,21 @@ export function useDowngradeSubscription() {
         },
     });
 }
+
+/**
+ * Cancels a pending scheduled downgrade by releasing the Stripe Subscription Schedule.
+ * Invalidates the subscription query on success so the banner disappears immediately.
+ */
+export function useCancelScheduledDowngrade() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: async () => {
+            const res = await subscriptionApi.cancelDowngrade();
+            return res.data.data;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["subscription"] });
+        },
+    });
+}

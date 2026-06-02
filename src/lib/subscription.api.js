@@ -9,4 +9,5 @@ export const subscriptionApi = {
     previewUpgrade: (data) => api.post("/subscriptions/preview-upgrade", data),
     upgrade: (data) => api.post("/subscriptions/upgrade", data),
     downgrade: (data) => api.post("/subscriptions/downgrade", data),
+    cancelDowngrade: () => api.delete("/subscriptions/downgrade"),
 };
