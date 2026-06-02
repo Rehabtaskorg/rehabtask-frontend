@@ -133,7 +133,7 @@ export function useDowngradeSubscription() {
             return res.data.data;
         },
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["subscription"] });
+            queryClient.invalidateQueries({ queryKey: ["subscription"], refetchType: "all" });
         },
     });
 }
