@@ -130,8 +130,8 @@ export default function SubscriptionPage() {
         : 0;
 
     const currentPlanRank = PLANS.find(p => p.key === currentPlan)?.rank ?? 0;
-    const pendingDowngrade = subscription?.cancelReason?.startsWith("scheduled_downgrade:")
-        ? subscription.cancelReason.split(":")[1]
+    const pendingDowngrade = subscription?.stripeScheduleId
+        ? (subscription.scheduledDowngradePlan ?? true)
         : null;
 
     const handlePlanAction = (targetPlan) => {
@@ -226,7 +226,9 @@ export default function SubscriptionPage() {
                     <MdArrowDownward className="w-6 h-6 text-amber-500 shrink-0" />
                     <div>
                         <p className="font-semibold text-amber-700 ">
-                            Downgrade to {pendingDowngrade.charAt(0).toUpperCase() + pendingDowngrade.slice(1)} scheduled
+                            {typeof pendingDowngrade === "string"
+                                ? `Downgrade to ${pendingDowngrade.charAt(0).toUpperCase() + pendingDowngrade.slice(1)} scheduled`
+                                : "Plan downgrade scheduled"}
                         </p>
                         <p className="text-sm text-amber-600 ">
                             Your current plan stays active until {subscription?.currentPeriodEnd ? new Date(subscription.currentPeriodEnd).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" }) : "the end of your billing period"}.
@@ -405,10 +407,10 @@ export default function SubscriptionPage() {
                                     ) : plan.rank < currentPlanRank && isPaid ? (
                                         <button
                                             onClick={() => handlePlanAction(plan.key)}
-                                            disabled={upgradingPlan !== null || pendingDowngrade === plan.key}
+                                            disabled={upgradingPlan !== null || (!!pendingDowngrade && (pendingDowngrade === plan.key || pendingDowngrade === true))}
                                             className="w-full py-2.5 rounded-lg border border-amber-300  text-amber-600  font-medium hover:bg-amber-50  transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                                         >
-                                            {pendingDowngrade === plan.key ? (
+                                            {(pendingDowngrade === plan.key || (pendingDowngrade === true && plan.rank < currentPlanRank)) ? (
                                                 `Downgrade scheduled`
                                             ) : upgradingPlan === plan.key ? (
                                                 "Processing..."
