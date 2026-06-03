@@ -68,10 +68,18 @@ export const bookingsApi = {
         return api.get(`/bookings/${bookingId}/conversation`);
     },
 
-    // Payment endpoints
-    requestRefund: async (bookingId, reason) => {
-        return api.post("/payments/refund", { bookingId, reason });
+    // Cancellation flow
+    requestCancellation: async (bookingId, reason) => {
+        return api.post(`/bookings/${bookingId}/cancellation/request`, { reason });
     },
+    approveCancellation: async (bookingId) => {
+        return api.post(`/bookings/${bookingId}/cancellation/approve`);
+    },
+    rejectCancellation: async (bookingId, reason) => {
+        return api.post(`/bookings/${bookingId}/cancellation/reject`, { reason });
+    },
+
+    // Payment endpoints
     createPaymentIntent: async (bookingId) => {
         return api.post("/payments/create-intent", { bookingId });
     },

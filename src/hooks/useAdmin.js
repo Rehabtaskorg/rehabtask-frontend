@@ -263,6 +263,30 @@ export const useRefundAdminPayment = () => {
     });
 };
 
+/**
+ * Admin override — approve a pending customer cancellation request.
+ * @returns {import("@tanstack/react-query").UseMutationResult}
+ */
+export const useAdminApproveCancellation = () => {
+    const qc = useQueryClient();
+    return useMutation({
+        mutationFn: ({ bookingId }) => adminBookingsApi.approveCancellation(bookingId),
+        onSuccess: () => qc.invalidateQueries({ queryKey: ['admin', 'payments'] }),
+    });
+};
+
+/**
+ * Admin override — reject a pending customer cancellation request.
+ * @returns {import("@tanstack/react-query").UseMutationResult}
+ */
+export const useAdminRejectCancellation = () => {
+    const qc = useQueryClient();
+    return useMutation({
+        mutationFn: ({ bookingId, reason }) => adminBookingsApi.rejectCancellation(bookingId, reason),
+        onSuccess: () => qc.invalidateQueries({ queryKey: ['admin', 'payments'] }),
+    });
+};
+
 // Admin - Commission (global rate)
 export const useAdminCommissionRate = () =>
     useQuery({
