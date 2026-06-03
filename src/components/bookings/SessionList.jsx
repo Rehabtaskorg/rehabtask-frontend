@@ -67,6 +67,7 @@ export default function SessionList({
     onMarkMissed,
     onReportMissed,
     onMarkAttempted,
+    onCancelSession,
 }) {
     const [scheduleSessionId, setScheduleSessionId] = useState(null);
     const [scheduleDate, setScheduleDate] = useState("");
@@ -193,6 +194,7 @@ export default function SessionList({
                     const isMissed = session.status === "missed";
                     const isAttempted = session.status === "attempted";
                     const scheduledInPast = session.scheduledDate && new Date(session.scheduledDate) <= new Date();
+                    const canCancelSession = ["scheduled", "pending_schedule"].includes(session.status) && onCancelSession;
                     const canMarkMissed = role === "therapist" && session.status === "scheduled" && onMarkMissed;
                     const canReportMissed = role === "customer" && session.status === "scheduled" && scheduledInPast && onReportMissed;
                     // Attempted visit: therapist-only; needs the snapshot rate set; same
@@ -422,6 +424,15 @@ export default function SessionList({
                                             className="text-xs font-bold text-red-500  hover:underline disabled:opacity-50"
                                         >
                                             Mark Missed
+                                        </button>
+                                    )}
+                                    {canCancelSession && scheduleSessionId !== session.id && (
+                                        <button
+                                            onClick={() => onCancelSession(session)}
+                                            disabled={isAnyLoading}
+                                            className="text-xs font-bold text-red-500  border border-red-200  px-3 py-1.5 rounded-lg hover:bg-red-50  disabled:opacity-50"
+                                        >
+                                            Cancel Session
                                         </button>
                                     )}
                                     {canMarkAttempted && scheduleSessionId !== session.id && (

@@ -46,6 +46,9 @@ export default function TherapistBookingDetailPage() {
     const [showCompleteDialog, setShowCompleteDialog] = useState(false);
     const [markMissedSession, setMarkMissedSession] = useState(null);
     const [markAttemptedSession, setMarkAttemptedSession] = useState(null);
+    const [cancelSessionTarget, setCancelSessionTarget] = useState(null);
+    const [cancelSessionReason, setCancelSessionReason] = useState("");
+    const [cancellingSession, setCancellingSession] = useState(false);
 
     // Finalize states
     const [showFinalizeConfirm, setShowFinalizeConfirm] = useState(false);
@@ -107,6 +110,22 @@ export default function TherapistBookingDetailPage() {
             showToast.error(err.response?.data?.message || "Failed to reject cancellation.");
         } finally {
             setCancellationActing(false);
+        }
+    };
+
+    const handleCancelSession = async () => {
+        if (!cancelSessionReason.trim()) return;
+        setCancellingSession(true);
+        try {
+            await bookingsApi.cancelSession(cancelSessionTarget.id, cancelSessionReason);
+            showToast.success("Session cancelled. The customer will receive a refund.");
+            setCancelSessionTarget(null);
+            setCancelSessionReason("");
+            await refetch();
+        } catch (err) {
+            showToast.error(err.response?.data?.message || "Failed to cancel session.");
+        } finally {
+            setCancellingSession(false);
         }
     };
 
@@ -508,6 +527,7 @@ export default function TherapistBookingDetailPage() {
                             }}
                             onMarkMissed={(s) => setMarkMissedSession(s)}
                             onMarkAttempted={(s) => setMarkAttemptedSession(s)}
+                            onCancelSession={(s) => setCancelSessionTarget(s)}
                         />
                     )}
 
@@ -954,6 +974,38 @@ export default function TherapistBookingDetailPage() {
                 sessionRate={booking?.rate}
                 onSuccess={refetch}
             />
+
+            {/* Cancel session modal */}
+            {cancelSessionTarget && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+                    <div className="bg-card-light rounded-xl p-6 w-full max-w-md shadow-xl space-y-4">
+                        <h3 className="text-sm font-bold text-text-main">Cancel Session {cancelSessionTarget.sessionNumber}</h3>
+                        <p className="text-xs text-text-muted">The customer will receive a full refund for this session via their payout account.</p>
+                        <textarea
+                            rows={3}
+                            value={cancelSessionReason}
+                            onChange={(e) => setCancelSessionReason(e.target.value)}
+                            placeholder="Reason for cancelling this session…"
+                            className="w-full text-sm rounded-lg border border-border-light bg-background-light p-2 resize-none focus:outline-none focus:ring-2 focus:ring-red-400 text-text-main"
+                        />
+                        <div className="flex gap-2 justify-end">
+                            <button
+                                onClick={() => { setCancelSessionTarget(null); setCancelSessionReason(""); }}
+                                className="text-sm text-text-muted font-bold hover:text-text-main transition-colors"
+                            >
+                                Back
+                            </button>
+                            <button
+                                onClick={handleCancelSession}
+                                disabled={!cancelSessionReason.trim() || cancellingSession}
+                                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-bold rounded-lg disabled:opacity-50 transition-colors"
+                            >
+                                {cancellingSession ? "Cancelling…" : "Confirm Cancel"}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
