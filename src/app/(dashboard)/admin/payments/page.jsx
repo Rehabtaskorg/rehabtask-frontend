@@ -480,7 +480,7 @@ function PaymentSidePanel({ payment, onClose }) {
                             {!showCancelRejectForm ? (
                                 <div className="flex gap-2">
                                     <button
-                                        onClick={() => approveCancellationMutation.mutate({ bookingId: payment.booking.id })}
+                                        onClick={async () => { try { await approveCancellationMutation.mutateAsync({ bookingId: payment.booking.id }); onClose(); } catch { } }}
                                         disabled={approveCancellationMutation.isPending}
                                         className="flex-1 py-1.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium disabled:opacity-50"
                                     >
@@ -504,7 +504,7 @@ function PaymentSidePanel({ payment, onClose }) {
                                     />
                                     <div className="flex gap-2">
                                         <button
-                                            onClick={() => rejectCancellationMutation.mutate({ bookingId: payment.booking.id, reason: cancelRejectionReason.trim() })}
+                                            onClick={async () => { try { await rejectCancellationMutation.mutateAsync({ bookingId: payment.booking.id, reason: cancelRejectionReason.trim() }); onClose(); } catch { } }}
                                             disabled={!cancelRejectionReason.trim() || rejectCancellationMutation.isPending}
                                             className="flex-1 py-1.5 rounded-lg bg-yellow-700 hover:bg-yellow-800 text-white text-sm font-medium disabled:opacity-50"
                                         >
