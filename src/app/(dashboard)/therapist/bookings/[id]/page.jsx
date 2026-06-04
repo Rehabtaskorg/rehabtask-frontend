@@ -8,6 +8,7 @@ import {
 } from "react-icons/md";
 import { useBookingDetail } from "@/hooks/useBookings";
 import { bookingsApi } from "@/lib/bookings.api";
+import { BOOKING_STATUS } from "@/lib/constants";
 import { localDateStr } from "@/utils/dates";
 import { showToast } from "@/lib/toast";
 import BookingStatusBadge from "@/components/bookings/BookingStatusBadge";
@@ -45,6 +46,12 @@ export default function TherapistBookingDetailPage() {
     const [showCompleteDialog, setShowCompleteDialog] = useState(false);
     const [markMissedSession, setMarkMissedSession] = useState(null);
     const [markAttemptedSession, setMarkAttemptedSession] = useState(null);
+    const [cancelSessionTarget, setCancelSessionTarget] = useState(null);
+    const [cancelSessionReason, setCancelSessionReason] = useState("");
+    const [cancellingSession, setCancellingSession] = useState(false);
+    const [rejectSessionTarget, setRejectSessionTarget] = useState(null);
+    const [rejectSessionReason, setRejectSessionReason] = useState("");
+    const [rejectingSession, setRejectingSession] = useState(false);
 
     // Finalize states
     const [showFinalizeConfirm, setShowFinalizeConfirm] = useState(false);
@@ -65,6 +72,11 @@ export default function TherapistBookingDetailPage() {
     const [showResubmitConfirm, setShowResubmitConfirm] = useState(false);
     const [resubmitting, setResubmitting] = useState(false);
 
+    // Cancellation approval state
+    const [showRejectForm, setShowRejectForm] = useState(false);
+    const [rejectionReason, setRejectionReason] = useState("");
+    const [cancellationActing, setCancellationActing] = useState(false);
+
     // Auto-refresh when waiting for customer confirmation or reschedule response
     useEffect(() => {
         if (booking?.sessions?.[0]?.status === "completed_by_therapist" || booking?.status === "reschedule_requested") {
@@ -74,6 +86,77 @@ export default function TherapistBookingDetailPage() {
             return () => clearInterval(interval);
         }
     }, [booking?.sessions, booking?.status, refetch]);
+
+    const handleApproveCancellation = async () => {
+        setCancellationActing(true);
+        try {
+            await bookingsApi.approveCancellation(params.id);
+            showToast.success("Cancellation approved. The customer will receive a full refund.");
+            await refetch();
+        } catch (err) {
+            showToast.error(err.response?.data?.message || "Failed to approve cancellation.");
+        } finally {
+            setCancellationActing(false);
+        }
+    };
+
+    const handleRejectCancellation = async () => {
+        if (!rejectionReason.trim()) return;
+        setCancellationActing(true);
+        try {
+            await bookingsApi.rejectCancellation(params.id, rejectionReason);
+            showToast.success("Cancellation request rejected. The booking remains active.");
+            setShowRejectForm(false);
+            setRejectionReason("");
+            await refetch();
+        } catch (err) {
+            showToast.error(err.response?.data?.message || "Failed to reject cancellation.");
+        } finally {
+            setCancellationActing(false);
+        }
+    };
+
+    const handleCancelSession = async () => {
+        if (!cancelSessionReason.trim()) return;
+        setCancellingSession(true);
+        try {
+            await bookingsApi.requestSessionCancellation(cancelSessionTarget.id, cancelSessionReason);
+            showToast.success("Cancellation request sent. The customer has 24 hours to approve or reject.");
+            setCancelSessionTarget(null);
+            setCancelSessionReason("");
+            await refetch();
+        } catch (err) {
+            showToast.error(err.response?.data?.message || "Failed to submit cancellation request.");
+        } finally {
+            setCancellingSession(false);
+        }
+    };
+
+    const handleApproveSessionCancellation = async (session) => {
+        try {
+            await bookingsApi.approveSessionCancellation(session.id);
+            showToast.success("Session cancellation approved. The customer will receive a refund.");
+            await refetch();
+        } catch (err) {
+            showToast.error(err.response?.data?.message || "Failed to approve cancellation.");
+        }
+    };
+
+    const handleRejectSessionCancellation = async () => {
+        if (!rejectSessionReason.trim()) return;
+        setRejectingSession(true);
+        try {
+            await bookingsApi.rejectSessionCancellation(rejectSessionTarget.id, rejectSessionReason);
+            showToast.success("Cancellation request rejected. The session remains active.");
+            setRejectSessionTarget(null);
+            setRejectSessionReason("");
+            await refetch();
+        } catch (err) {
+            showToast.error(err.response?.data?.message || "Failed to reject cancellation.");
+        } finally {
+            setRejectingSession(false);
+        }
+    };
 
     const handleMarkComplete = async () => {
         setCompleting(true);
@@ -256,6 +339,73 @@ export default function TherapistBookingDetailPage() {
                 <BookingStatusBadge status={booking.status} size="md" />
             </div>
 
+            {/* Cancellation request banner — shown when customer has requested cancellation */}
+            {booking.status === BOOKING_STATUS.CANCELLATION_REQUESTED && (
+                <div className="mb-6 bg-yellow-50 border border-yellow-300 rounded-xl p-5">
+                    <div className="flex items-start gap-3 mb-4">
+                        <MdWarning className="text-yellow-600 text-xl mt-0.5 shrink-0" />
+                        <div>
+                            <p className="text-sm font-bold text-yellow-900">Cancellation Requested</p>
+                            <p className="text-xs text-yellow-700 mt-0.5">
+                                {booking.customer?.fullName} has requested to cancel this booking.
+                                {booking.cancellationReason && <> Reason: &ldquo;{booking.cancellationReason}&rdquo;</>}
+                            </p>
+                            <p className="text-xs text-yellow-600 mt-1 font-semibold">
+                                You have until{" "}
+                                {booking.cancellationRequestedAt
+                                    ? new Date(new Date(booking.cancellationRequestedAt).getTime() + 24 * 60 * 60 * 1000).toLocaleString([], { weekday: "short", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })
+                                    : "24 hours from the request"}{" "}
+                                to respond. If you take no action, the cancellation will be approved automatically.
+                            </p>
+                        </div>
+                    </div>
+
+                    {!showRejectForm ? (
+                        <div className="flex gap-3 ml-8">
+                            <button
+                                onClick={handleApproveCancellation}
+                                disabled={cancellationActing}
+                                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-bold rounded-lg disabled:opacity-50 transition-colors"
+                            >
+                                {cancellationActing ? "Processing..." : "Approve Cancellation"}
+                            </button>
+                            <button
+                                onClick={() => setShowRejectForm(true)}
+                                disabled={cancellationActing}
+                                className="px-4 py-2 border border-yellow-400 text-yellow-800 hover:bg-yellow-100 text-sm font-bold rounded-lg disabled:opacity-50 transition-colors"
+                            >
+                                Reject
+                            </button>
+                        </div>
+                    ) : (
+                        <div className="ml-8 space-y-2">
+                            <textarea
+                                rows={2}
+                                value={rejectionReason}
+                                onChange={(e) => setRejectionReason(e.target.value)}
+                                placeholder="Provide a reason for rejecting this cancellation request..."
+                                className="w-full text-sm rounded-lg border border-yellow-300 bg-white p-2 focus:ring-yellow-400 focus:outline-none resize-none text-text-main"
+                            />
+                            <div className="flex gap-2">
+                                <button
+                                    onClick={handleRejectCancellation}
+                                    disabled={!rejectionReason.trim() || cancellationActing}
+                                    className="px-4 py-2 bg-yellow-700 hover:bg-yellow-800 text-white text-sm font-bold rounded-lg disabled:opacity-50 transition-colors"
+                                >
+                                    {cancellationActing ? "Submitting..." : "Confirm Rejection"}
+                                </button>
+                                <button
+                                    onClick={() => { setShowRejectForm(false); setRejectionReason(""); }}
+                                    className="px-4 py-2 text-sm text-text-muted font-bold hover:text-text-main transition-colors"
+                                >
+                                    Back
+                                </button>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            )}
+
             {/* Two-column grid */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
                 {/* ── Left Column ── */}
@@ -406,6 +556,9 @@ export default function TherapistBookingDetailPage() {
                             }}
                             onMarkMissed={(s) => setMarkMissedSession(s)}
                             onMarkAttempted={(s) => setMarkAttemptedSession(s)}
+                            onCancelSession={(s) => setCancelSessionTarget(s)}
+                            onApproveSessionCancellation={handleApproveSessionCancellation}
+                            onRejectSessionCancellation={(s) => setRejectSessionTarget(s)}
                         />
                     )}
 
@@ -852,6 +1005,69 @@ export default function TherapistBookingDetailPage() {
                 sessionRate={booking?.rate}
                 onSuccess={refetch}
             />
+
+            {/* Request session cancellation modal */}
+            {cancelSessionTarget && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+                    <div className="bg-card-light rounded-xl p-6 w-full max-w-md shadow-xl space-y-4">
+                        <h3 className="text-sm font-bold text-text-main">Request Cancellation — Session {cancelSessionTarget.sessionNumber}</h3>
+                        <p className="text-xs text-text-muted">Your request will be sent to the customer. They have 24 hours to approve or reject. If they don&apos;t respond, the cancellation will be approved automatically.</p>
+                        <textarea
+                            rows={3}
+                            value={cancelSessionReason}
+                            onChange={(e) => setCancelSessionReason(e.target.value)}
+                            placeholder="Reason for requesting cancellation…"
+                            className="w-full text-sm rounded-lg border border-border-light bg-background-light p-2 resize-none focus:outline-none focus:ring-2 focus:ring-red-400 text-text-main"
+                        />
+                        <div className="flex gap-2 justify-end">
+                            <button
+                                onClick={() => { setCancelSessionTarget(null); setCancelSessionReason(""); }}
+                                className="text-sm text-text-muted font-bold hover:text-text-main transition-colors"
+                            >
+                                Back
+                            </button>
+                            <button
+                                onClick={handleCancelSession}
+                                disabled={!cancelSessionReason.trim() || cancellingSession}
+                                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-bold rounded-lg disabled:opacity-50 transition-colors"
+                            >
+                                {cancellingSession ? "Submitting…" : "Submit Request"}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Reject session cancellation modal */}
+            {rejectSessionTarget && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+                    <div className="bg-card-light rounded-xl p-6 w-full max-w-md shadow-xl space-y-4">
+                        <h3 className="text-sm font-bold text-text-main">Reject Cancellation — Session {rejectSessionTarget.sessionNumber}</h3>
+                        <textarea
+                            rows={3}
+                            value={rejectSessionReason}
+                            onChange={(e) => setRejectSessionReason(e.target.value)}
+                            placeholder="Reason for rejecting this cancellation request…"
+                            className="w-full text-sm rounded-lg border border-border-light bg-background-light p-2 resize-none focus:outline-none focus:ring-2 focus:ring-yellow-400 text-text-main"
+                        />
+                        <div className="flex gap-2 justify-end">
+                            <button
+                                onClick={() => { setRejectSessionTarget(null); setRejectSessionReason(""); }}
+                                className="text-sm text-text-muted font-bold hover:text-text-main transition-colors"
+                            >
+                                Back
+                            </button>
+                            <button
+                                onClick={handleRejectSessionCancellation}
+                                disabled={!rejectSessionReason.trim() || rejectingSession}
+                                className="px-4 py-2 bg-yellow-700 hover:bg-yellow-800 text-white text-sm font-bold rounded-lg disabled:opacity-50 transition-colors"
+                            >
+                                {rejectingSession ? "Submitting…" : "Confirm Rejection"}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

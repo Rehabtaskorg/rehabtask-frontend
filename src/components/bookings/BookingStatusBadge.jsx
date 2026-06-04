@@ -8,6 +8,7 @@ import {
     MdCancel,
     MdUpdate,
     MdPayment,
+    MdWarning,
 } from "react-icons/md";
 
 const STATUS_CONFIG = {
@@ -58,6 +59,12 @@ const STATUS_CONFIG = {
         text: "text-slate-700 ",
         icon: MdTaskAlt,
         label: "Finalized",
+    },
+    cancellation_requested: {
+        bg: "bg-yellow-100 ",
+        text: "text-yellow-800 ",
+        icon: MdWarning,
+        label: "Action Required",
     },
 };
 

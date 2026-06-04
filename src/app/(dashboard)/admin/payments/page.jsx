@@ -17,7 +17,11 @@ import {
     useAdminPayments,
     useReleaseAdminPayment,
     useRefundAdminPayment,
+    useAdminApproveCancellation,
+    useAdminRejectCancellation,
 } from "@/hooks/useAdmin";
+import { BOOKING_STATUS } from "@/lib/constants";
+import { MdWarning } from "react-icons/md";
 
 const fmt$ = (v) =>
     v == null
@@ -114,8 +118,13 @@ function PaymentSidePanel({ payment, onClose }) {
     const [refundReason, setRefundReason] = useState("");
     const [releaseAmount, setReleaseAmount] = useState("");
 
+    const [showCancelRejectForm, setShowCancelRejectForm] = useState(false);
+    const [cancelRejectionReason, setCancelRejectionReason] = useState("");
+
     const releaseMutation = useReleaseAdminPayment();
     const refundMutation = useRefundAdminPayment();
+    const approveCancellationMutation = useAdminApproveCancellation();
+    const rejectCancellationMutation = useAdminRejectCancellation();
 
     const maxPayout = payment ? parseFloat(payment.therapistPayout ?? 0) : 0;
 
@@ -124,6 +133,8 @@ function PaymentSidePanel({ payment, onClose }) {
         setShowRefundForm(false);
         setRefundReason("");
         setReleaseAmount("");
+        setShowCancelRejectForm(false);
+        setCancelRejectionReason("");
     }, [payment?.id]);
 
     if (!payment) return null;
@@ -456,6 +467,61 @@ function PaymentSidePanel({ payment, onClose }) {
                             </button>
                         </div>
                     )}
+                    {/* Cancellation override — shown when booking is pending therapist approval */}
+                    {payment.booking?.status === BOOKING_STATUS.CANCELLATION_REQUESTED && (
+                        <div className="border border-yellow-300 rounded-lg p-3 space-y-2">
+                            <div className="flex items-start gap-2">
+                                <MdWarning className="text-yellow-600 text-base mt-0.5 shrink-0" />
+                                <div>
+                                    <p className="text-sm font-semibold text-yellow-800">Cancellation Pending</p>
+                                    <p className="text-xs text-yellow-700">Customer requested cancellation. Therapist has not responded.</p>
+                                </div>
+                            </div>
+                            {!showCancelRejectForm ? (
+                                <div className="flex gap-2">
+                                    <button
+                                        onClick={async () => { try { await approveCancellationMutation.mutateAsync({ bookingId: payment.booking.id }); onClose(); } catch { } }}
+                                        disabled={approveCancellationMutation.isPending}
+                                        className="flex-1 py-1.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium disabled:opacity-50"
+                                    >
+                                        {approveCancellationMutation.isPending ? "Processing…" : "Approve"}
+                                    </button>
+                                    <button
+                                        onClick={() => setShowCancelRejectForm(true)}
+                                        className="flex-1 py-1.5 rounded-lg border border-yellow-400 text-yellow-800 hover:bg-yellow-50 text-sm font-medium"
+                                    >
+                                        Reject
+                                    </button>
+                                </div>
+                            ) : (
+                                <div className="space-y-2">
+                                    <textarea
+                                        rows={2}
+                                        value={cancelRejectionReason}
+                                        onChange={(e) => setCancelRejectionReason(e.target.value)}
+                                        placeholder="Reason for rejecting…"
+                                        className="w-full rounded-lg border border-yellow-300 bg-background-light text-text-main text-sm px-3 py-2 resize-none focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                                    />
+                                    <div className="flex gap-2">
+                                        <button
+                                            onClick={async () => { try { await rejectCancellationMutation.mutateAsync({ bookingId: payment.booking.id, reason: cancelRejectionReason.trim() }); onClose(); } catch { } }}
+                                            disabled={!cancelRejectionReason.trim() || rejectCancellationMutation.isPending}
+                                            className="flex-1 py-1.5 rounded-lg bg-yellow-700 hover:bg-yellow-800 text-white text-sm font-medium disabled:opacity-50"
+                                        >
+                                            {rejectCancellationMutation.isPending ? "Submitting…" : "Confirm Rejection"}
+                                        </button>
+                                        <button
+                                            onClick={() => { setShowCancelRejectForm(false); setCancelRejectionReason(""); }}
+                                            className="px-3 py-1.5 rounded-lg border border-border-light text-text-muted text-sm"
+                                        >
+                                            Back
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    )}
+
                     {isRefundable && !showRefundForm && (
                         <button
                             onClick={() => setShowRefundForm(true)}

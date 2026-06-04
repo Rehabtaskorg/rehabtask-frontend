@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { useConversations, useMessages, useConversationContext } from "./useMessages";
@@ -29,16 +29,15 @@ export function useMessagesPage(basePath) {
     const [selectedConversation, setSelectedConversation] = useState(null);
     const { joinConversation, leaveConversation } = useSocketContext();
 
-    // Build the `selected` object that drives message fetching and UI display
-    const selected = selectedConversation
+    const selected = useMemo(() => selectedConversation
         ? {
             conversationId: selectedConversation.conversationId || selectedConversation.directConversationId,
             name: getDisplayName(selectedConversation.otherUser),
-            // The badge context (booking > offer > direct) for header/sidebar display
             contextType: selectedConversation.currentContext?.type ?? "direct",
             contextId: selectedConversation.currentContext?.id,
         }
-        : null;
+        : null,
+    [selectedConversation]);
 
 
     // Join/leave Socket.io conversation room when selection changes
