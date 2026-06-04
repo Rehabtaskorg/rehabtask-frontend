@@ -447,7 +447,7 @@ export default function SessionList({
                                                 Cancellation requested by {session.cancellationRequestedBy}
                                             </p>
                                             {session.cancellationReason && (
-                                                <p className="text-xs text-yellow-700">"{session.cancellationReason}"</p>
+                                                <p className="text-xs text-yellow-700">&ldquo;{session.cancellationReason}&rdquo;</p>
                                             )}
                                             {(canApproveCancellation || canRejectCancellation) && (
                                                 <div className="flex gap-2 pt-1">
