@@ -28,8 +28,14 @@ export const bookingsApi = {
     confirmSession: async (sessionId) => {
         return api.post(`/sessions/${sessionId}/confirm`);
     },
-    cancelSession: async (sessionId, reason) => {
-        return api.post(`/sessions/${sessionId}/cancel`, { reason });
+    requestSessionCancellation: async (sessionId, reason) => {
+        return api.post(`/sessions/${sessionId}/cancellation/request`, { reason });
+    },
+    approveSessionCancellation: async (sessionId) => {
+        return api.post(`/sessions/${sessionId}/cancellation/approve`);
+    },
+    rejectSessionCancellation: async (sessionId, reason) => {
+        return api.post(`/sessions/${sessionId}/cancellation/reject`, { reason });
     },
     scheduleSession: async (sessionId, scheduledDate) => {
         return api.post(`/sessions/${sessionId}/schedule`, { scheduledDate });

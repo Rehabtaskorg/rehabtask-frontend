@@ -39,6 +39,17 @@ export const LOGOUT_REASON = {
 
 export const PUBLIC_SEARCH_RADIUS_MILES = 50;
 
+export const SESSION_STATUS = {
+    PENDING_SCHEDULE:       "pending_schedule",
+    SCHEDULED:              "scheduled",
+    IN_PROGRESS:            "in_progress",
+    CONFIRMED_BY_CUSTOMER:  "confirmed_by_customer",
+    MISSED:                 "missed",
+    ATTEMPTED:              "attempted",
+    CANCELLED:              "cancelled",
+    CANCELLATION_REQUESTED: "cancellation_requested",
+};
+
 export const BOOKING_STATUS = {
     PENDING:                "pending",
     ACCEPTED:               "accepted",
