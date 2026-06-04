@@ -28,8 +28,14 @@ export const bookingsApi = {
     confirmSession: async (sessionId) => {
         return api.post(`/sessions/${sessionId}/confirm`);
     },
-    cancelSession: async (sessionId, reason) => {
-        return api.post(`/sessions/${sessionId}/cancel`, { reason });
+    requestSessionCancellation: async (sessionId, reason) => {
+        return api.post(`/sessions/${sessionId}/cancellation/request`, { reason });
+    },
+    approveSessionCancellation: async (sessionId) => {
+        return api.post(`/sessions/${sessionId}/cancellation/approve`);
+    },
+    rejectSessionCancellation: async (sessionId, reason) => {
+        return api.post(`/sessions/${sessionId}/cancellation/reject`, { reason });
     },
     scheduleSession: async (sessionId, scheduledDate) => {
         return api.post(`/sessions/${sessionId}/schedule`, { scheduledDate });
@@ -68,10 +74,18 @@ export const bookingsApi = {
         return api.get(`/bookings/${bookingId}/conversation`);
     },
 
-    // Payment endpoints
-    requestRefund: async (bookingId, reason) => {
-        return api.post("/payments/refund", { bookingId, reason });
+    // Cancellation flow
+    requestCancellation: async (bookingId, reason) => {
+        return api.post(`/bookings/${bookingId}/cancellation/request`, { reason });
     },
+    approveCancellation: async (bookingId) => {
+        return api.post(`/bookings/${bookingId}/cancellation/approve`);
+    },
+    rejectCancellation: async (bookingId, reason) => {
+        return api.post(`/bookings/${bookingId}/cancellation/reject`, { reason });
+    },
+
+    // Payment endpoints
     createPaymentIntent: async (bookingId) => {
         return api.post("/payments/create-intent", { bookingId });
     },

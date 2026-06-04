@@ -5,7 +5,7 @@ import ConfirmModal from "@/components/ui/ConfirmModal";
 import {
     MdCheckCircle, MdTimer, MdCancel,
     MdCalendarToday, MdSchedule, MdTaskAlt, MdEdit, MdEventBusy,
-    MdLocationOff,
+    MdLocationOff, MdWarning,
 } from "react-icons/md";
 import { localDateTimeStr } from "@/utils/dates";
 
@@ -18,6 +18,7 @@ const STATUS_CONFIG = {
     cancelled: { icon: MdCancel, color: "text-red-500", bg: "bg-red-50 ", label: "Cancelled" },
     missed: { icon: MdEventBusy, color: "text-red-500", bg: "bg-red-50 ", label: "Missed" },
     attempted: { icon: MdLocationOff, color: "text-amber-600", bg: "bg-amber-50 ", label: "Attempted Visit" },
+    cancellation_requested: { icon: MdWarning, color: "text-yellow-600", bg: "bg-yellow-50 ", label: "Cancellation Pending" },
 };
 
 const formatCurrency = (amount) => `$${parseFloat(amount).toFixed(2)}`;
@@ -67,6 +68,9 @@ export default function SessionList({
     onMarkMissed,
     onReportMissed,
     onMarkAttempted,
+    onCancelSession,
+    onApproveSessionCancellation,
+    onRejectSessionCancellation,
 }) {
     const [scheduleSessionId, setScheduleSessionId] = useState(null);
     const [scheduleDate, setScheduleDate] = useState("");
@@ -193,6 +197,10 @@ export default function SessionList({
                     const isMissed = session.status === "missed";
                     const isAttempted = session.status === "attempted";
                     const scheduledInPast = session.scheduledDate && new Date(session.scheduledDate) <= new Date();
+                    const canCancelSession = ["scheduled", "pending_schedule"].includes(session.status) && onCancelSession;
+                    const isCancellationPending = session.status === "cancellation_requested";
+                    const canApproveCancellation = isCancellationPending && session.cancellationRequestedBy !== role && onApproveSessionCancellation;
+                    const canRejectCancellation = isCancellationPending && session.cancellationRequestedBy !== role && onRejectSessionCancellation;
                     const canMarkMissed = role === "therapist" && session.status === "scheduled" && onMarkMissed;
                     const canReportMissed = role === "customer" && session.status === "scheduled" && scheduledInPast && onReportMissed;
                     // Attempted visit: therapist-only; needs the snapshot rate set; same
@@ -423,6 +431,47 @@ export default function SessionList({
                                         >
                                             Mark Missed
                                         </button>
+                                    )}
+                                    {canCancelSession && scheduleSessionId !== session.id && (
+                                        <button
+                                            onClick={() => onCancelSession(session)}
+                                            disabled={isAnyLoading}
+                                            className="text-xs font-bold text-red-500  border border-red-200  px-3 py-1.5 rounded-lg hover:bg-red-50  disabled:opacity-50"
+                                        >
+                                            Cancel Session
+                                        </button>
+                                    )}
+                                    {isCancellationPending && (
+                                        <div className="w-full mt-1 p-2 bg-yellow-50  border border-yellow-200  rounded-lg space-y-1">
+                                            <p className="text-xs text-yellow-800 font-semibold">
+                                                Cancellation requested by {session.cancellationRequestedBy}
+                                            </p>
+                                            {session.cancellationReason && (
+                                                <p className="text-xs text-yellow-700">&ldquo;{session.cancellationReason}&rdquo;</p>
+                                            )}
+                                            {(canApproveCancellation || canRejectCancellation) && (
+                                                <div className="flex gap-2 pt-1">
+                                                    {canApproveCancellation && (
+                                                        <button
+                                                            onClick={() => onApproveSessionCancellation(session)}
+                                                            disabled={isAnyLoading}
+                                                            className="text-xs font-bold text-white bg-red-600 hover:bg-red-700 px-3 py-1 rounded-lg disabled:opacity-50"
+                                                        >
+                                                            Approve
+                                                        </button>
+                                                    )}
+                                                    {canRejectCancellation && (
+                                                        <button
+                                                            onClick={() => onRejectSessionCancellation(session)}
+                                                            disabled={isAnyLoading}
+                                                            className="text-xs font-bold text-yellow-800 border border-yellow-400 hover:bg-yellow-100 px-3 py-1 rounded-lg disabled:opacity-50"
+                                                        >
+                                                            Reject
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            )}
+                                        </div>
                                     )}
                                     {canMarkAttempted && scheduleSessionId !== session.id && (
                                         <button

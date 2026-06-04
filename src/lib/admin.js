@@ -42,6 +42,8 @@ export const adminBookingsApi = {
     cancel: (id, data) => api.put(`/admin/bookings/${id}/cancel`, data),
     approveReschedule: (id) => api.put(`/admin/bookings/${id}/approve-reschedule`),
     denyReschedule: (id, data) => api.put(`/admin/bookings/${id}/deny-reschedule`, data),
+    approveCancellation: (id) => api.post(`/admin/bookings/${id}/cancellation/approve`),
+    rejectCancellation: (id, reason) => api.post(`/admin/bookings/${id}/cancellation/reject`, { reason }),
 };
 
 // Admin - Subscriptions
