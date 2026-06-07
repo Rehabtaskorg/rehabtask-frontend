@@ -274,6 +274,7 @@ export default function DashboardApprovedView() {
                             <table className="w-full text-left border-collapse">
                                 <thead>
                                     <tr className="border-b border-slate-100 ">
+                                        <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500">Homehealth Agency</th>
                                         <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500">Patient</th>
                                         <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500">Rate</th>
                                         <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500">Scheduled Date</th>
@@ -284,11 +285,12 @@ export default function DashboardApprovedView() {
                                 <tbody className="divide-y divide-slate-100 ">
                                     {upcomingBookings.length === 0 ? (
                                         <tr>
-                                            <td colSpan={5} className="px-6 py-8 text-center text-slate-500 ">No upcoming bookings</td>
+                                            <td colSpan={6} className="px-6 py-8 text-center text-slate-500 ">No upcoming bookings</td>
                                         </tr>
                                     ) : upcomingBookings.map(booking => (
                                         <tr key={booking.id} className="hover:bg-slate-50  transition-colors">
-                                            <td className="px-6 py-4 font-semibold text-slate-900 ">{booking.customer?.fullName || '—'}</td>
+                                            <td className="px-6 py-4 font-semibold text-slate-900 ">{booking.customer?.agencyName || booking.customer?.fullName || '—'}</td>
+                                            <td className="px-6 py-4 text-slate-700 ">{booking.patient?.fullName || '—'}</td>
                                             <td className="px-6 py-4 font-mono text-primary font-medium">
                                                 ${booking.payment?.therapistPayout || (booking.rate * 0.9).toFixed(2)}
                                             </td>
@@ -327,11 +329,12 @@ export default function DashboardApprovedView() {
                                     className="bg-white  border border-slate-200  rounded-xl p-4 active:bg-slate-50  cursor-pointer"
                                 >
                                     <div className="flex items-start justify-between gap-2 mb-1">
-                                        <h4 className="font-semibold text-sm text-slate-900 ">{booking.customer?.fullName || '—'}</h4>
+                                        <h4 className="font-semibold text-sm text-slate-900 ">{booking.customer?.agencyName || booking.customer?.fullName || '—'}</h4>
                                         <span className="font-mono text-sm font-bold text-primary shrink-0">
                                             ${booking.payment?.therapistPayout || (booking.rate * 0.9).toFixed(2)}
                                         </span>
                                     </div>
+                                    <p className="text-xs text-slate-500  mb-2">{booking.patient?.fullName || '—'}</p>
                                     <div className="flex items-center justify-between">
                                         <span className="text-xs text-slate-500  flex items-center gap-1">
                                             <MdCalendarToday className="text-sm" />

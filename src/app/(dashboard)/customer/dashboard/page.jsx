@@ -259,6 +259,7 @@ export default function CustomerDashboard() {
                                 <thead className="bg-primary/5 text-slate-500 font-medium">
                                     <tr>
                                         <th className="px-6 py-4">Therapist</th>
+                                        <th className="px-6 py-4">Patient</th>
                                         <th className="px-6 py-4">Service Type</th>
                                         <th className="px-6 py-4">Date &amp; Time</th>
                                         <th className="px-6 py-4">Status</th>
@@ -268,11 +269,12 @@ export default function CustomerDashboard() {
                                 <tbody className="divide-y divide-slate-100 ">
                                     {upcomingBookings.length === 0 ? (
                                         <tr>
-                                            <td colSpan={5} className="px-6 py-8 text-center text-slate-500 ">No upcoming bookings</td>
+                                            <td colSpan={6} className="px-6 py-8 text-center text-slate-500 ">No upcoming bookings</td>
                                         </tr>
                                     ) : upcomingBookings.map(booking => (
                                         <tr key={booking.id} className="hover:bg-primary/5  transition-colors">
                                             <td className="px-6 py-4 font-semibold text-slate-900 ">{booking.therapist?.fullName || '—'}</td>
+                                            <td className="px-6 py-4 text-slate-700 ">{booking.patient?.fullName || '—'}</td>
                                             <td className="px-6 py-4 text-slate-700 ">{booking.offer?.request?.serviceType || booking.serviceType || '—'}</td>
                                             <td className="px-6 py-4 text-slate-700 ">
                                                 {booking.scheduledDate ? new Date(booking.scheduledDate).toLocaleDateString() : '—'}
