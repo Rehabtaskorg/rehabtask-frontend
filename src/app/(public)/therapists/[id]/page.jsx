@@ -61,6 +61,7 @@ function TherapistPublicProfileContent() {
     const { data: reviewsData } = useTherapistReviews(params.id, 1);
     const [gateOpen, setGateOpen] = useState(false);
     const [gateTrigger, setGateTrigger] = useState("default");
+    const [gateEntityId, setGateEntityId] = useState(null);
     const { trackEvent } = useAnalytics();
 
     useEffect(() => {
@@ -73,6 +74,7 @@ function TherapistPublicProfileContent() {
 
     const handleAuthGate = (trigger) => {
         setGateTrigger(trigger);
+        setGateEntityId(trigger === "message" ? profile?.userId : profile?.id);
         setGateOpen(true);
     };
 
@@ -365,7 +367,7 @@ function TherapistPublicProfileContent() {
                 </div>
             </div>
 
-            <AuthGateModal isOpen={gateOpen} onClose={() => setGateOpen(false)} trigger={gateTrigger} redirectPath={`/therapists/${params.id}`} />
+            <AuthGateModal isOpen={gateOpen} onClose={() => setGateOpen(false)} trigger={gateTrigger} entityId={gateEntityId} />
             <Footer />
         </>
     );

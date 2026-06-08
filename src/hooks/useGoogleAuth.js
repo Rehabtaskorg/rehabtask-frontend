@@ -2,9 +2,10 @@ import { supabase } from "@/lib/supabase";
 import { AUTH_REDIRECT_STORAGE_KEY } from "@/lib/constants";
 
 /**
- * @param {string | null} [redirectTo] - validated same-origin path to resume at after
- * the OAuth round trip; stashed in sessionStorage since query params don't survive
- * the provider redirect cycle, and consumed by the oauth callback/onboarding pages.
+ * @param {string | null} [redirectTo] - encoded `trigger:entityId` redirect descriptor to
+ * resume at after the OAuth round trip; stashed in sessionStorage since query params don't
+ * survive the provider redirect cycle, and resolved to a dashboard path by the oauth
+ * callback/onboarding pages once the user's role is known.
  */
 export const useGoogleAuth = (redirectTo = null) => {
     const initiateGoogleLogin = async () => {

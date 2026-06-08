@@ -2,11 +2,11 @@
 
 import { useEffect } from "react";
 import Link from "next/link";
-import { usePathname, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { MdClose, MdLock, MdDashboard } from "react-icons/md";
 import { ROLE_DASHBOARDS } from "@/hooks/useAppRole";
 import { AUTH_REDIRECT_PARAM } from "@/lib/constants";
+import { encodeAuthRedirect } from "@/lib/redirect";
 
 const CONTEXT_MESSAGES = {
     message: "Sign up to message this therapist directly",
@@ -24,13 +24,14 @@ const ROLE_LABELS = {
 };
 
 /**
- * AuthGateModal
+ * Modal shown when a logged-out visitor clicks a gated CTA on the marketing site.
+ * Encodes the action as a `trigger:entityId` descriptor in the auth links' `?redirect=`
+ * param so that, post-authentication, the user lands on the matching dashboard screen
+ * instead of back on the marketing page.
  *
- * Two modes:
- *  1. `userRole` is null  → unauthenticated — show sign-up / log-in CTAs
- *  2. `userRole` is set   → already signed in — show a "go to dashboard" prompt
+ * @param {{ isOpen: boolean, onClose: () => void, trigger?: string, entityId?: string | null, userRole?: string | null }} props
  */
-export default function AuthGateModal({ isOpen, onClose, trigger = "default", redirectPath = "/", userRole = null }) {
+export default function AuthGateModal({ isOpen, onClose, trigger = "default", entityId = null, userRole = null }) {
     useEffect(() => {
         if (isOpen) document.body.style.overflow = "hidden";
         else document.body.style.overflow = "";
@@ -43,11 +44,8 @@ export default function AuthGateModal({ isOpen, onClose, trigger = "default", re
         return () => window.removeEventListener("keydown", handleEsc);
     }, [isOpen, onClose]);
 
-    const pathname = usePathname();
-    const searchParams = useSearchParams();
-    const query = searchParams.toString();
-    const fullPath = query ? `${pathname}?${query}` : pathname || redirectPath;
-    const redirect = encodeURIComponent(fullPath);
+    const descriptor = encodeAuthRedirect(trigger, entityId);
+    const redirectQuery = descriptor ? `?${AUTH_REDIRECT_PARAM}=${encodeURIComponent(descriptor)}` : "";
     const dashboardHref = userRole ? ROLE_DASHBOARDS[userRole] : null;
 
     return (
@@ -119,7 +117,7 @@ export default function AuthGateModal({ isOpen, onClose, trigger = "default", re
 
                                 <div className="mt-6 space-y-3">
                                     <Link
-                                        href={`/register/customer?${AUTH_REDIRECT_PARAM}=${redirect}`}
+                                        href={`/register/customer${redirectQuery}`}
                                         className="block w-full py-3 text-center text-sm font-semibold text-white bg-primary rounded-xl hover:bg-primary/90 transition-colors"
                                     >
                                         I&apos;m Looking for a Therapist
@@ -127,7 +125,7 @@ export default function AuthGateModal({ isOpen, onClose, trigger = "default", re
                                     <p className="text-center text-xs text-gray-400">For home health agencies and individuals</p>
 
                                     <Link
-                                        href={`/register/therapist?${AUTH_REDIRECT_PARAM}=${redirect}`}
+                                        href={`/register/therapist${redirectQuery}`}
                                         className="block w-full py-3 text-center text-sm font-semibold text-gray-700 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors"
                                     >
                                         I&apos;m a Licensed Therapist
@@ -143,7 +141,7 @@ export default function AuthGateModal({ isOpen, onClose, trigger = "default", re
 
                                 <p className="mt-4 text-center text-sm text-gray-500">
                                     Already have an account?{" "}
-                                    <Link href={`/login?${AUTH_REDIRECT_PARAM}=${redirect}`} className="text-primary font-semibold hover:underline">
+                                    <Link href={`/login${redirectQuery}`} className="text-primary font-semibold hover:underline">
                                         Log in
                                     </Link>
                                 </p>

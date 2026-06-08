@@ -70,7 +70,7 @@ function AggregateInfoWindow({ marker, onAuthGate }) {
                             </a>
                             <button
                                 type="button"
-                                onClick={() => onAuthGate?.("message")}
+                                onClick={() => onAuthGate?.("message", t.userId)}
                                 className="px-2.5 py-1 rounded-lg bg-primary text-white font-semibold text-[11px] flex items-center gap-1 hover:bg-primary/90 transition-colors"
                             >
                                 <MdLock className="text-[10px]" />

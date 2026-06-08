@@ -3,10 +3,11 @@ import { useRouter } from "next/navigation";
 import { usePostHog } from "posthog-js/react";
 import { authAPi } from "@/lib/auth.api";
 import { USER_ROLES } from "@/lib/constants";
+import { resolveAuthRedirectTarget } from "@/lib/redirect";
 
 /**
  *
- * @param {string | null} [redirectTo]
+ * @param {string | null} [redirectTo] - encoded `trigger:entityId` redirect descriptor from the auth-gate flow
  * @returns {{
  *   login: (formData: { email: string, password: string }) => Promise<{ success: boolean }>,
  *   isSubmitting: boolean,
@@ -36,8 +37,10 @@ export const useLogin = (redirectTo = null) => {
             // Fire before redirect so the event is captured in this session.
             posthog?.capture("user_logged_in", { role: user.role });
 
-            if (redirectTo) {
-                router.push(redirectTo);
+            const target = resolveAuthRedirectTarget(redirectTo, user.role);
+
+            if (target) {
+                router.push(target);
             } else if (user.role === USER_ROLES.CUSTOMER) {
                 router.push("/customer/dashboard");
             } else if (user.role === USER_ROLES.THERAPIST) {

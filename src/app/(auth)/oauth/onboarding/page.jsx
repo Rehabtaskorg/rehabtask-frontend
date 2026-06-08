@@ -15,12 +15,11 @@ import { oauthOnboardingSchema } from "@/lib/validationSchema";
 import { useOAuthOnboarding } from "@/hooks/useOAuthOnboarding";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { AUTH_REDIRECT_PARAM } from "@/lib/constants";
-import { getSafeRedirectPath } from "@/lib/redirect";
 
 function OAuthOnboardingContent() {
     usePageTitle("Complete Your Profile");
     const searchParams = useSearchParams();
-    const redirectTo = getSafeRedirectPath(searchParams.get(AUTH_REDIRECT_PARAM), null);
+    const redirectDescriptor = searchParams.get(AUTH_REDIRECT_PARAM);
 
     const [selectedRole, setSelectedRole] = useState(null);
 
@@ -36,7 +35,7 @@ function OAuthOnboardingContent() {
         }
     });
 
-    const { completeOnboarding, isSubmitting, error, clearError } = useOAuthOnboarding(redirectTo);
+    const { completeOnboarding, isSubmitting, error, clearError } = useOAuthOnboarding(redirectDescriptor);
 
     // eslint-disable-next-line react-hooks/incompatible-library
     const customerType = watch("customerType");

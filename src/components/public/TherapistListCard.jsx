@@ -97,7 +97,7 @@ export default function TherapistListCard({
                             type="button"
                             onClick={(e) => {
                                 e.stopPropagation();
-                                onAuthGate?.("message");
+                                onAuthGate?.("message", therapist.userId);
                             }}
                             className="px-4 py-2 rounded-lg bg-primary text-white font-bold text-xs flex items-center gap-1.5 hover:bg-primary/90 transition-colors"
                         >
