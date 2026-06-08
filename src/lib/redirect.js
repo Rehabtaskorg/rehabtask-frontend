@@ -34,7 +34,6 @@ const TARGET_RESOLVERS = {
         contact: (entityId) => `/customer/find-therapists/${entityId}`,
     },
     [USER_ROLES.THERAPIST]: {
-        message: (entityId) => `/therapist/messages?c=new:${entityId}`,
         offer: (entityId) => `/therapist/requests/${entityId}`,
     },
 };
