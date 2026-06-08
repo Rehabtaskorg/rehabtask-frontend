@@ -15,16 +15,20 @@ import { loginSchema } from "@/lib/validationSchema";
 import { useLogin } from "@/hooks/useLogin";
 import { useGoogleAuth } from "@/hooks/useGoogleAuth";
 
-const LoginForm = () => {
+/**
+ * @param {{ redirectTo?: string | null }} props - `redirectTo` resumes the user at the
+ * page they were on before being gated, falling back to their role dashboard when absent.
+ */
+const LoginForm = ({ redirectTo = null }) => {
     const { register, handleSubmit, formState: { errors } } = useForm({
         resolver: zodResolver(loginSchema),
         mode: "onChange",
         reValidateMode: "onChange",
     });
 
-    const { login, isSubmitting, error, needsEmailVerification, resendVerification, clearError } = useLogin();
+    const { login, isSubmitting, error, needsEmailVerification, resendVerification, clearError } = useLogin(redirectTo);
 
-    const { initiateGoogleLogin } = useGoogleAuth();
+    const { initiateGoogleLogin } = useGoogleAuth(redirectTo);
 
     const [resendingEmail, setResendingEmail] = useState(false);
     const [googleLoading, setGoogleLoading] = useState(false);

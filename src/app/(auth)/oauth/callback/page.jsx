@@ -5,6 +5,15 @@ import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { authAPi } from "@/lib/auth.api";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import { AUTH_REDIRECT_STORAGE_KEY, AUTH_REDIRECT_PARAM } from "@/lib/constants";
+import { getSafeRedirectPath } from "@/lib/redirect";
+
+/** Reads and clears the pending post-auth redirect stashed before the OAuth handoff. */
+function consumePendingRedirect() {
+    const stored = sessionStorage.getItem(AUTH_REDIRECT_STORAGE_KEY);
+    sessionStorage.removeItem(AUTH_REDIRECT_STORAGE_KEY);
+    return getSafeRedirectPath(stored, null);
+}
 
 const OAuthCallback = () => {
     usePageTitle("Signing In");
@@ -56,9 +65,17 @@ const OAuthCallback = () => {
                 // Calling signOut here risks invalidating the Supabase session
                 // whose tokens are now stored in the backend httpOnly cookies.
 
+                const redirectTo = consumePendingRedirect();
+
                 if (user.needsOnboarding) {
                     console.log("[OAuth] Redirecting to onboarding");
-                    router.replace("/oauth/onboarding?provider=google");
+                    const onboardingTarget = redirectTo
+                        ? `/oauth/onboarding?provider=google&${AUTH_REDIRECT_PARAM}=${encodeURIComponent(redirectTo)}`
+                        : "/oauth/onboarding?provider=google";
+                    router.replace(onboardingTarget);
+                } else if (redirectTo) {
+                    console.log("[OAuth] Redirecting to resumed target:", redirectTo);
+                    router.replace(redirectTo);
                 } else {
                     const dashboardMap = {
                         customer: "/customer/dashboard",

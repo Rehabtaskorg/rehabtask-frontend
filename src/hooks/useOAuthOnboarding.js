@@ -2,7 +2,10 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { authAPi } from "@/lib/auth.api";
 
-export const useOAuthOnboarding = () => {
+/**
+ * @param {string | null} [redirectTo]
+ */
+export const useOAuthOnboarding = (redirectTo = null) => {
     const router = useRouter();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState(null);
@@ -32,8 +35,9 @@ export const useOAuthOnboarding = () => {
 
             const { user } = response.data.data;
 
-            // Redirect based on role
-            if (user.role === "customer") {
+            if (redirectTo) {
+                router.push(redirectTo);
+            } else if (user.role === "customer") {
                 router.push("/customer/dashboard");
             } else if (user.role === "therapist") {
                 router.push("/therapist/dashboard");

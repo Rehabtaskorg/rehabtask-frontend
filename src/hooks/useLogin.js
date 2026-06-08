@@ -5,8 +5,8 @@ import { authAPi } from "@/lib/auth.api";
 import { USER_ROLES } from "@/lib/constants";
 
 /**
- * Handles login form submission, role-based redirect, and login analytics.
  *
+ * @param {string | null} [redirectTo]
  * @returns {{
  *   login: (formData: { email: string, password: string }) => Promise<{ success: boolean }>,
  *   isSubmitting: boolean,
@@ -16,7 +16,7 @@ import { USER_ROLES } from "@/lib/constants";
  *   clearError: () => void,
  * }}
  */
-export const useLogin = () => {
+export const useLogin = (redirectTo = null) => {
     const router = useRouter();
     const posthog = usePostHog();
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -36,7 +36,9 @@ export const useLogin = () => {
             // Fire before redirect so the event is captured in this session.
             posthog?.capture("user_logged_in", { role: user.role });
 
-            if (user.role === USER_ROLES.CUSTOMER) {
+            if (redirectTo) {
+                router.push(redirectTo);
+            } else if (user.role === USER_ROLES.CUSTOMER) {
                 router.push("/customer/dashboard");
             } else if (user.role === USER_ROLES.THERAPIST) {
                 router.push("/therapist/dashboard");

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, Suspense } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { MdPerson, MdBusiness, MdCheckCircle } from "react-icons/md";
@@ -14,12 +14,13 @@ import Alert from "@/components/ui/Alert";
 import { oauthOnboardingSchema } from "@/lib/validationSchema";
 import { useOAuthOnboarding } from "@/hooks/useOAuthOnboarding";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import { AUTH_REDIRECT_PARAM } from "@/lib/constants";
+import { getSafeRedirectPath } from "@/lib/redirect";
 
 function OAuthOnboardingContent() {
     usePageTitle("Complete Your Profile");
-    const router = useRouter();
     const searchParams = useSearchParams();
-    const provider = searchParams.get("provider") || "Google";
+    const redirectTo = getSafeRedirectPath(searchParams.get(AUTH_REDIRECT_PARAM), null);
 
     const [selectedRole, setSelectedRole] = useState(null);
 
@@ -35,7 +36,7 @@ function OAuthOnboardingContent() {
         }
     });
 
-    const { completeOnboarding, isSubmitting, error, clearError } = useOAuthOnboarding();
+    const { completeOnboarding, isSubmitting, error, clearError } = useOAuthOnboarding(redirectTo);
 
     // eslint-disable-next-line react-hooks/incompatible-library
     const customerType = watch("customerType");
