@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -55,7 +55,7 @@ function ProfileSkeleton() {
     );
 }
 
-export default function TherapistPublicProfilePage() {
+function TherapistPublicProfileContent() {
     const params = useParams();
     const { data: profile, isLoading, error } = useTherapistPublicProfile(params.id);
     const { data: reviewsData } = useTherapistReviews(params.id, 1);
@@ -368,5 +368,13 @@ export default function TherapistPublicProfilePage() {
             <AuthGateModal isOpen={gateOpen} onClose={() => setGateOpen(false)} trigger={gateTrigger} redirectPath={`/therapists/${params.id}`} />
             <Footer />
         </>
+    );
+}
+
+export default function TherapistPublicProfilePage() {
+    return (
+        <Suspense fallback={<ProfileSkeleton />}>
+            <TherapistPublicProfileContent />
+        </Suspense>
     );
 }

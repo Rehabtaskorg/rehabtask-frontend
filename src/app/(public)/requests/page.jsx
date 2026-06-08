@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useRef } from "react";
+import { Suspense, useState, useCallback, useRef } from "react";
 import { APIProvider } from "@vis.gl/react-google-maps";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -225,7 +225,9 @@ function BrowseRequestsContent() {
 export default function BrowseRequestsPage() {
     return (
         <APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}>
-            <BrowseRequestsContent />
+            <Suspense fallback={<div className="h-screen bg-white" />}>
+                <BrowseRequestsContent />
+            </Suspense>
         </APIProvider>
     );
 }
