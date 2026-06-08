@@ -274,7 +274,7 @@ export default function CustomerDashboard() {
                                     ) : upcomingBookings.map(booking => (
                                         <tr key={booking.id} className="hover:bg-primary/5  transition-colors">
                                             <td className="px-6 py-4 font-semibold text-slate-900 ">{booking.therapist?.fullName || '—'}</td>
-                                            <td className="px-6 py-4 text-slate-700 ">{booking.patient?.fullName || '—'}</td>
+                                            <td className="px-6 py-4 text-slate-700 ">{booking.patient?.fullName || 'Self'}</td>
                                             <td className="px-6 py-4 text-slate-700 ">{booking.offer?.request?.serviceType || booking.serviceType || '—'}</td>
                                             <td className="px-6 py-4 text-slate-700 ">
                                                 {booking.scheduledDate ? new Date(booking.scheduledDate).toLocaleDateString() : '—'}
