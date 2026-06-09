@@ -9,6 +9,7 @@ import {
     MdCall, MdEmail, MdInfo, MdArrowBack,
 } from "react-icons/md";
 import { useTherapistPublicProfile, useTherapistReviews } from "@/hooks/usePublic";
+import { useAppRole } from "@/hooks/useAppRole";
 import AuthGateModal from "@/components/public/AuthGateModal";
 import UserAvatar from "@/components/ui/UserAvatar";
 import Footer from "@/components/landing/Footer";
@@ -62,6 +63,7 @@ function TherapistPublicProfileContent() {
     const [gateOpen, setGateOpen] = useState(false);
     const [gateTrigger, setGateTrigger] = useState("default");
     const [gateEntityId, setGateEntityId] = useState(null);
+    const userRole = useAppRole();
     const { trackEvent } = useAnalytics();
 
     useEffect(() => {
@@ -367,7 +369,7 @@ function TherapistPublicProfileContent() {
                 </div>
             </div>
 
-            <AuthGateModal isOpen={gateOpen} onClose={() => setGateOpen(false)} trigger={gateTrigger} entityId={gateEntityId} />
+            <AuthGateModal isOpen={gateOpen} onClose={() => setGateOpen(false)} trigger={gateTrigger} entityId={gateEntityId} userRole={userRole} />
             <Footer />
         </>
     );
