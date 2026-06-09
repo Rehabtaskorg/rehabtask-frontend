@@ -1,6 +1,13 @@
 import { supabase } from "@/lib/supabase";
+import { AUTH_REDIRECT_STORAGE_KEY } from "@/lib/constants";
 
-export const useGoogleAuth = () => {
+/**
+ * @param {string | null} [redirectTo] - encoded `trigger:entityId` redirect descriptor to
+ * resume at after the OAuth round trip; stashed in sessionStorage since query params don't
+ * survive the provider redirect cycle, and resolved to a dashboard path by the oauth
+ * callback/onboarding pages once the user's role is known.
+ */
+export const useGoogleAuth = (redirectTo = null) => {
     const initiateGoogleLogin = async () => {
         if (!supabase) {
             console.error("Supabase client not initialized");
@@ -8,6 +15,12 @@ export const useGoogleAuth = () => {
         }
 
         try {
+            if (redirectTo) {
+                sessionStorage.setItem(AUTH_REDIRECT_STORAGE_KEY, redirectTo);
+            } else {
+                sessionStorage.removeItem(AUTH_REDIRECT_STORAGE_KEY);
+            }
+
             const { data, error } = await supabase.auth.signInWithOAuth({
                 provider: "google",
                 options: {

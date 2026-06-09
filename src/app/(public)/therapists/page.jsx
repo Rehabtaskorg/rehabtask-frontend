@@ -19,6 +19,7 @@ function mapTherapist(t) {
     const location = firstArea ? `${firstArea.city}, ${firstArea.state}` : "Location not specified";
     return {
         id: t.id,
+        userId: t.userId,
         fullName: t.fullName || "",
         licenseType: t.primaryLicenseType || "",
         experience: t.yearsOfExperience || 0,
@@ -39,6 +40,7 @@ function buildMapPins(rawTherapists) {
             pins.push({
                 id: `${t.id}__${area.city}_${area.state}_${area.latitude}_${area.longitude}`,
                 therapistId: t.id,
+                userId: t.userId,
                 fullName: t.fullName || "",
                 rate: t.ratePerVisit ? parseFloat(t.ratePerVisit) : 0,
                 photoUrl: t.profilePhotoUrl || null,
@@ -83,6 +85,7 @@ function FindTherapistsContent() {
 
     const [gateOpen, setGateOpen] = useState(false);
     const [gateTrigger, setGateTrigger] = useState("default");
+    const [gateEntityId, setGateEntityId] = useState(null);
 
     // Track whether the user has explicitly triggered a search (vs. initial page load)
     const searchTriggeredRef = useRef(false);
@@ -142,8 +145,9 @@ function FindTherapistsContent() {
     const mapMarkers = aggregatePinsByLocation(buildMapPins(data?.therapists));
     const pagination = data?.pagination || { page: 1, totalPages: 1, total: 0 };
 
-    const handleAuthGate = (trigger) => {
+    const handleAuthGate = (trigger, entityId = null) => {
         setGateTrigger(trigger);
+        setGateEntityId(entityId);
         setGateOpen(true);
     };
 
@@ -185,7 +189,7 @@ function FindTherapistsContent() {
                 isOpen={gateOpen}
                 onClose={() => setGateOpen(false)}
                 trigger={gateTrigger}
-                redirectPath="/therapists"
+                entityId={gateEntityId}
                 userRole={userRole}
             />
         </>

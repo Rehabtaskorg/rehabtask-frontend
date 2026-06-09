@@ -1,8 +1,12 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { authAPi } from "@/lib/auth.api";
+import { resolveAuthRedirectTarget } from "@/lib/redirect";
 
-export const useOAuthOnboarding = () => {
+/**
+ * @param {string | null} [redirectTo] - encoded `trigger:entityId` redirect descriptor from the auth-gate flow
+ */
+export const useOAuthOnboarding = (redirectTo = null) => {
     const router = useRouter();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState(null);
@@ -32,8 +36,11 @@ export const useOAuthOnboarding = () => {
 
             const { user } = response.data.data;
 
-            // Redirect based on role
-            if (user.role === "customer") {
+            const target = resolveAuthRedirectTarget(redirectTo, user.role);
+
+            if (target) {
+                router.push(target);
+            } else if (user.role === "customer") {
                 router.push("/customer/dashboard");
             } else if (user.role === "therapist") {
                 router.push("/therapist/dashboard");

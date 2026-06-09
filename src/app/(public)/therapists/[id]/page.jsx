@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -9,6 +9,7 @@ import {
     MdCall, MdEmail, MdInfo, MdArrowBack,
 } from "react-icons/md";
 import { useTherapistPublicProfile, useTherapistReviews } from "@/hooks/usePublic";
+import { useAppRole } from "@/hooks/useAppRole";
 import AuthGateModal from "@/components/public/AuthGateModal";
 import UserAvatar from "@/components/ui/UserAvatar";
 import Footer from "@/components/landing/Footer";
@@ -55,12 +56,14 @@ function ProfileSkeleton() {
     );
 }
 
-export default function TherapistPublicProfilePage() {
+function TherapistPublicProfileContent() {
     const params = useParams();
     const { data: profile, isLoading, error } = useTherapistPublicProfile(params.id);
     const { data: reviewsData } = useTherapistReviews(params.id, 1);
     const [gateOpen, setGateOpen] = useState(false);
     const [gateTrigger, setGateTrigger] = useState("default");
+    const [gateEntityId, setGateEntityId] = useState(null);
+    const userRole = useAppRole();
     const { trackEvent } = useAnalytics();
 
     useEffect(() => {
@@ -73,6 +76,7 @@ export default function TherapistPublicProfilePage() {
 
     const handleAuthGate = (trigger) => {
         setGateTrigger(trigger);
+        setGateEntityId(trigger === "message" ? profile?.userId : profile?.id);
         setGateOpen(true);
     };
 
@@ -365,8 +369,16 @@ export default function TherapistPublicProfilePage() {
                 </div>
             </div>
 
-            <AuthGateModal isOpen={gateOpen} onClose={() => setGateOpen(false)} trigger={gateTrigger} redirectPath={`/therapists/${params.id}`} />
+            <AuthGateModal isOpen={gateOpen} onClose={() => setGateOpen(false)} trigger={gateTrigger} entityId={gateEntityId} userRole={userRole} />
             <Footer />
         </>
+    );
+}
+
+export default function TherapistPublicProfilePage() {
+    return (
+        <Suspense fallback={<ProfileSkeleton />}>
+            <TherapistPublicProfileContent />
+        </Suspense>
     );
 }

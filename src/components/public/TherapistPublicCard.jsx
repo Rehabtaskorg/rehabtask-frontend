@@ -57,7 +57,7 @@ export default function TherapistPublicCard({ therapist, index = 0, onAuthGate }
             {/* Blurred contact */}
             <div
                 className="relative rounded-lg overflow-hidden bg-gray-50 p-3 mb-5 cursor-pointer"
-                onClick={() => onAuthGate("contact")}
+                onClick={() => onAuthGate("contact", therapist.id)}
             >
                 <div className="blur-sm select-none opacity-40">
                     <p className="text-[10px] text-gray-600">+1 (555) ***-****</p>
@@ -79,7 +79,7 @@ export default function TherapistPublicCard({ therapist, index = 0, onAuthGate }
                     View Profile
                 </a>
                 <button
-                    onClick={() => onAuthGate("message")}
+                    onClick={() => onAuthGate("message", therapist.userId)}
                     className="py-2.5 rounded-lg bg-primary text-white font-semibold text-xs flex items-center justify-center gap-1.5 hover:bg-primary/90 transition-colors"
                 >
                     <MdLock className="text-xs" /> Message

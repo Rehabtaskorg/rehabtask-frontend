@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useRef } from "react";
+import { Suspense, useState, useCallback, useRef } from "react";
 import { APIProvider } from "@vis.gl/react-google-maps";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -36,6 +36,7 @@ function BrowseRequestsContent() {
 
     const [gateOpen, setGateOpen] = useState(false);
     const [gateTrigger, setGateTrigger] = useState("default");
+    const [gateEntityId, setGateEntityId] = useState(null);
 
     const handleLocationSelect = useCallback((place) => {
         locationCoords.current = { latitude: place.latitude, longitude: place.longitude };
@@ -77,8 +78,9 @@ function BrowseRequestsContent() {
     const requests = data?.requests || [];
     const pagination = data?.pagination || { page: 1, totalPages: 1, total: 0 };
 
-    const handleAuthGate = (trigger) => {
+    const handleAuthGate = (trigger, entityId = null) => {
         setGateTrigger(trigger);
+        setGateEntityId(entityId);
         setGateOpen(true);
     };
 
@@ -216,7 +218,7 @@ function BrowseRequestsContent() {
                 <CTABanner />
             </div>
 
-            <AuthGateModal isOpen={gateOpen} onClose={() => setGateOpen(false)} trigger={gateTrigger} redirectPath="/requests" userRole={userRole} />
+            <AuthGateModal isOpen={gateOpen} onClose={() => setGateOpen(false)} trigger={gateTrigger} entityId={gateEntityId} userRole={userRole} />
             <Footer />
         </>
     );
@@ -225,7 +227,9 @@ function BrowseRequestsContent() {
 export default function BrowseRequestsPage() {
     return (
         <APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}>
-            <BrowseRequestsContent />
+            <Suspense fallback={<div className="h-screen bg-white" />}>
+                <BrowseRequestsContent />
+            </Suspense>
         </APIProvider>
     );
 }
