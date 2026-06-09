@@ -5,6 +5,15 @@ import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { authAPi } from "@/lib/auth.api";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import { AUTH_REDIRECT_STORAGE_KEY, AUTH_REDIRECT_PARAM } from "@/lib/constants";
+import { resolveAuthRedirectTarget } from "@/lib/redirect";
+
+/** Reads and clears the pending post-auth redirect descriptor stashed before the OAuth handoff. */
+function consumePendingRedirect() {
+    const stored = sessionStorage.getItem(AUTH_REDIRECT_STORAGE_KEY);
+    sessionStorage.removeItem(AUTH_REDIRECT_STORAGE_KEY);
+    return stored;
+}
 
 const OAuthCallback = () => {
     usePageTitle("Signing In");
@@ -56,18 +65,31 @@ const OAuthCallback = () => {
                 // Calling signOut here risks invalidating the Supabase session
                 // whose tokens are now stored in the backend httpOnly cookies.
 
+                const redirectDescriptor = consumePendingRedirect();
+
                 if (user.needsOnboarding) {
                     console.log("[OAuth] Redirecting to onboarding");
-                    router.replace("/oauth/onboarding?provider=google");
+                    const onboardingTarget = redirectDescriptor
+                        ? `/oauth/onboarding?provider=google&${AUTH_REDIRECT_PARAM}=${encodeURIComponent(redirectDescriptor)}`
+                        : "/oauth/onboarding?provider=google";
+                    router.replace(onboardingTarget);
+                    return;
+                }
+
+                const target = resolveAuthRedirectTarget(redirectDescriptor, user.role);
+
+                if (target) {
+                    console.log("[OAuth] Redirecting to resolved target:", target);
+                    router.replace(target);
                 } else {
                     const dashboardMap = {
                         customer: "/customer/dashboard",
                         therapist: "/therapist/dashboard",
                         admin: "/admin/dashboard"
                     };
-                    const target = dashboardMap[user.role] || "/dashboard";
-                    console.log("[OAuth] Redirecting to dashboard:", target);
-                    router.replace(target);
+                    const dashboardTarget = dashboardMap[user.role] || "/dashboard";
+                    console.log("[OAuth] Redirecting to dashboard:", dashboardTarget);
+                    router.replace(dashboardTarget);
                 }
 
             } catch (error) {

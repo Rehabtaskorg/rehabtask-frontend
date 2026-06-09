@@ -3,10 +3,11 @@ import { useRouter } from "next/navigation";
 import { usePostHog } from "posthog-js/react";
 import { authAPi } from "@/lib/auth.api";
 import { USER_ROLES } from "@/lib/constants";
+import { resolveAuthRedirectTarget } from "@/lib/redirect";
 
 /**
- * Handles login form submission, role-based redirect, and login analytics.
  *
+ * @param {string | null} [redirectTo] - encoded `trigger:entityId` redirect descriptor from the auth-gate flow
  * @returns {{
  *   login: (formData: { email: string, password: string }) => Promise<{ success: boolean }>,
  *   isSubmitting: boolean,
@@ -16,7 +17,7 @@ import { USER_ROLES } from "@/lib/constants";
  *   clearError: () => void,
  * }}
  */
-export const useLogin = () => {
+export const useLogin = (redirectTo = null) => {
     const router = useRouter();
     const posthog = usePostHog();
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -36,7 +37,11 @@ export const useLogin = () => {
             // Fire before redirect so the event is captured in this session.
             posthog?.capture("user_logged_in", { role: user.role });
 
-            if (user.role === USER_ROLES.CUSTOMER) {
+            const target = resolveAuthRedirectTarget(redirectTo, user.role);
+
+            if (target) {
+                router.push(target);
+            } else if (user.role === USER_ROLES.CUSTOMER) {
                 router.push("/customer/dashboard");
             } else if (user.role === USER_ROLES.THERAPIST) {
                 router.push("/therapist/dashboard");

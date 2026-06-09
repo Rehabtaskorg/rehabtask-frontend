@@ -95,7 +95,7 @@ export default function RequestPublicCard({ request, index = 0, onAuthGate }) {
                 </span>
                 <div className="flex items-center gap-2">
                     <button
-                        onClick={() => onAuthGate("offer")}
+                        onClick={() => onAuthGate("offer", request.id)}
                         className="flex items-center gap-1.5 bg-primary text-white font-semibold text-xs px-5 py-2.5 rounded-lg hover:bg-primary/90 transition-colors"
                     >
                         <MdLock className="text-xs" /> Send Offer
