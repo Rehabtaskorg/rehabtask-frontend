@@ -1,3 +1,4 @@
+// TODO: [BUG] This component is 236 lines — exceeds the 150-line limit. Extract saved-card list and new-card form into subcomponents in a follow-up PR.
 "use client";
 
 import { useState, useEffect } from "react";
@@ -20,6 +21,14 @@ const BRAND_LABELS = {
     discover: "Discover", diners: "Diners", jcb: "JCB", unionpay: "UnionPay",
 };
 
+/**
+ * Inline payment section for completing booking payment.
+ * Renders saved cards or a new-card Stripe form, and holds funds in escrow on success.
+ *
+ * @param {Object}   props
+ * @param {Object}   props.booking           - Booking object with id, rate, sessions, offer
+ * @param {Function} props.onPaymentSuccess  - Called when payment is confirmed
+ */
 export default function InlinePaymentSection({ booking, onPaymentSuccess }) {
     const { trackEvent } = useAnalytics();
     const [selectedPmId, setSelectedPmId] = useState(null);
@@ -28,6 +37,8 @@ export default function InlinePaymentSection({ booking, onPaymentSuccess }) {
     const [payError, setPayError] = useState(null);
     const [newCardClientSecret, setNewCardClientSecret] = useState(null);
     const [loadingNewCard, setLoadingNewCard] = useState(false);
+    // Stable per mount — prevents duplicate payment intents on network retry
+    const [idempotencyKey] = useState(() => `pi-${booking.id}-${crypto.randomUUID()}`);
 
     const { data: methods = [], isLoading: methodsLoading } = useQuery({
         queryKey: ["paymentMethods"],
@@ -54,10 +65,11 @@ export default function InlinePaymentSection({ booking, onPaymentSuccess }) {
             amount: parseFloat(booking.payment?.amount ?? 0),
         });
         try {
-            const res = await api.post("/payments/create-intent", {
-                bookingId: booking.id,
-                paymentMethodId: selectedPmId,
-            });
+            const res = await api.post(
+                "/payments/create-intent",
+                { bookingId: booking.id, paymentMethodId: selectedPmId },
+                { headers: { "Idempotency-Key": idempotencyKey } },
+            );
             const result = res.data.data;
 
             if (result.status === "succeeded") {
@@ -98,7 +110,11 @@ export default function InlinePaymentSection({ booking, onPaymentSuccess }) {
         setLoadingNewCard(true);
         setPayError(null);
         try {
-            const res = await api.post("/payments/create-intent", { bookingId: booking.id });
+            const res = await api.post(
+                "/payments/create-intent",
+                { bookingId: booking.id },
+                { headers: { "Idempotency-Key": idempotencyKey } },
+            );
             setNewCardClientSecret(res.data.data.clientSecret);
             setShowNewCard(true);
         } catch (err) {

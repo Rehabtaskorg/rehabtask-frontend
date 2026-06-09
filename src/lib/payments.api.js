@@ -1,5 +1,8 @@
 import { api } from "./api";
 
+/**
+ * API methods for payments, saved cards, customer Connect, and refunds.
+ */
 export const paymentsApi = {
     // Saved payment methods
     getPaymentMethods: () => api.get("/payments/methods"),
