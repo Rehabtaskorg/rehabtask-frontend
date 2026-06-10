@@ -7,7 +7,7 @@ import { api } from "@/lib/api";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import { formatDate, formatTime } from "@/utils/dates";
-import PatientInfoBlock from "@/components/customer/PatientInfoBlock";
+import PatientInfoBlock from "@/components/shared/patient/PatientInfoBlock";
 import ConfirmModal from "@/components/ui/ConfirmModal";
 import AcceptOfferModal from "@/components/customer/AcceptOfferModal";
 import RequestDetailOfferCard from "@/components/customer/RequestDetailOfferCard";

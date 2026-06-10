@@ -1,3 +1,10 @@
+/**
+ * Small pill badge showing the patient's name for a booking/request row.
+ *
+ * @param {object} props
+ * @param {{ fullName: string }} [props.patient] - Patient the booking is for
+ * @returns {JSX.Element|null}
+ */
 export default function PatientBadge({ patient }) {
     if (!patient) return null;
     return (
