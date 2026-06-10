@@ -235,7 +235,7 @@ export default function SessionList({
                                     </div>
                                     <div className="flex items-center gap-2 mt-0.5">
                                         <p className="text-xs text-text-muted ">
-                                            {session.scheduledDate ? `${formatDate(session.scheduledDate)} · ${formatTime(session.scheduledDate)}` : "Date not set"}
+                                            {session.scheduledDate ? formatDate(session.scheduledDate) : "Date not set"}
                                         </p>
                                         {isSchedulable && scheduleSessionId !== session.id && (
                                             <button
