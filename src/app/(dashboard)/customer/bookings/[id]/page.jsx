@@ -10,7 +10,7 @@ import {
 import { useBookingDetail } from "@/hooks/useBookings";
 import { useBookingPolling, usePaymentRedirect } from "@/hooks/useBookingPolling";
 import { bookingsApi } from "@/lib/bookings.api";
-import { BOOKING_STATUS } from "@/lib/constants";
+import { BOOKING_STATUS, USER_ROLES } from "@/lib/constants";
 import { resolveVisitPlan, computeTotalVisits } from "@/lib/visitPlan";
 import { formatCurrency } from "@/utils/messages";
 import { formatDate, formatTime } from "@/utils/dates";
@@ -56,6 +56,9 @@ export default function CustomerBookingDetailPage() {
     const [rescheduleConfirm, setRescheduleConfirm] = useState(null);
     const [actionError, setActionError] = useState(null);
     const [awaitingPaymentUpdate, setAwaitingPaymentUpdate] = useState(false);
+    const [showRejectCancellationForm, setShowRejectCancellationForm] = useState(false);
+    const [rejectCancellationReason, setRejectCancellationReason] = useState("");
+    const [cancellationActing, setCancellationActing] = useState(false);
 
     useBookingPolling({ booking, refetch, awaitingPaymentUpdate, setAwaitingPaymentUpdate });
     usePaymentRedirect({ params, searchParams, setShowPaymentBanner, setAwaitingPaymentUpdate });
@@ -93,6 +96,35 @@ export default function CustomerBookingDetailPage() {
             setActionError(err.response?.data?.message || "Failed to submit cancellation request.");
         } finally {
             setCancelling(false);
+        }
+    };
+
+    const handleApproveCancellation = async () => {
+        setCancellationActing(true);
+        setActionError(null);
+        try {
+            await bookingsApi.approveCancellation(params.id);
+            await refetch();
+        } catch (err) {
+            setActionError(err.response?.data?.message || "Failed to approve cancellation.");
+        } finally {
+            setCancellationActing(false);
+        }
+    };
+
+    const handleRejectCancellation = async () => {
+        if (!rejectCancellationReason.trim()) return;
+        setCancellationActing(true);
+        setActionError(null);
+        try {
+            await bookingsApi.rejectCancellation(params.id, rejectCancellationReason);
+            setShowRejectCancellationForm(false);
+            setRejectCancellationReason("");
+            await refetch();
+        } catch (err) {
+            setActionError(err.response?.data?.message || "Failed to reject cancellation.");
+        } finally {
+            setCancellationActing(false);
         }
     };
 
@@ -412,8 +444,9 @@ export default function CustomerBookingDetailPage() {
                             </div>
                         )}
 
-                        {/* Cancellation pending — therapist yet to respond */}
-                        {booking.status === BOOKING_STATUS.CANCELLATION_REQUESTED && (
+                        {/* Cancellation pending — your own request, waiting on therapist */}
+                        {booking.status === BOOKING_STATUS.CANCELLATION_REQUESTED &&
+                            booking.cancellationRequestedBy === USER_ROLES.CUSTOMER && (
                             <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-5">
                                 <div className="flex items-start gap-3">
                                     <MdSchedule className="text-yellow-600 text-lg mt-0.5 shrink-0" />
@@ -427,8 +460,76 @@ export default function CustomerBookingDetailPage() {
                             </div>
                         )}
 
-                        {/* Cancel button — only when escrowed and no cancellation already in flight */}
-                        {payment?.status === "escrowed" &&
+                        {/* Therapist requested cancellation — customer must approve or reject */}
+                        {booking.status === BOOKING_STATUS.CANCELLATION_REQUESTED &&
+                            booking.cancellationRequestedBy === USER_ROLES.THERAPIST && (
+                            <div className="bg-yellow-50 border border-yellow-300 rounded-xl p-5">
+                                <div className="flex items-start gap-3 mb-4">
+                                    <MdWarning className="text-yellow-600 text-xl mt-0.5 shrink-0" />
+                                    <div>
+                                        <p className="text-sm font-bold text-yellow-900">Cancellation Requested</p>
+                                        <p className="text-xs text-yellow-700 mt-0.5">
+                                            {booking.therapist?.fullName} has requested to cancel this booking.
+                                            {booking.cancellationReason && <> Reason: &ldquo;{booking.cancellationReason}&rdquo;</>}
+                                        </p>
+                                        <p className="text-xs text-yellow-600 mt-1 font-semibold">
+                                            You have until{" "}
+                                            {booking.cancellationRequestedAt
+                                                ? new Date(new Date(booking.cancellationRequestedAt).getTime() + 24 * 60 * 60 * 1000).toLocaleString([], { weekday: "short", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })
+                                                : "24 hours from the request"}{" "}
+                                            to respond. If you take no action, the request will be automatically declined and your booking will remain active.
+                                        </p>
+                                    </div>
+                                </div>
+
+                                {!showRejectCancellationForm ? (
+                                    <div className="flex gap-3 ml-8">
+                                        <button
+                                            onClick={handleApproveCancellation}
+                                            disabled={cancellationActing}
+                                            className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-bold rounded-lg disabled:opacity-50 transition-colors"
+                                        >
+                                            {cancellationActing ? "Processing..." : "Approve Cancellation"}
+                                        </button>
+                                        <button
+                                            onClick={() => setShowRejectCancellationForm(true)}
+                                            disabled={cancellationActing}
+                                            className="px-4 py-2 border border-yellow-400 text-yellow-800 hover:bg-yellow-100 text-sm font-bold rounded-lg disabled:opacity-50 transition-colors"
+                                        >
+                                            Reject
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <div className="ml-8 space-y-2">
+                                        <textarea
+                                            rows={2}
+                                            value={rejectCancellationReason}
+                                            onChange={(e) => setRejectCancellationReason(e.target.value)}
+                                            placeholder="Provide a reason for rejecting this cancellation request..."
+                                            className="w-full text-sm rounded-lg border border-yellow-300 bg-white p-2 focus:ring-yellow-400 focus:outline-none resize-none text-text-main"
+                                        />
+                                        <div className="flex gap-2">
+                                            <button
+                                                onClick={handleRejectCancellation}
+                                                disabled={!rejectCancellationReason.trim() || cancellationActing}
+                                                className="px-4 py-2 bg-yellow-700 hover:bg-yellow-800 text-white text-sm font-bold rounded-lg disabled:opacity-50 transition-colors"
+                                            >
+                                                {cancellationActing ? "Submitting..." : "Confirm Rejection"}
+                                            </button>
+                                            <button
+                                                onClick={() => { setShowRejectCancellationForm(false); setRejectCancellationReason(""); }}
+                                                className="px-4 py-2 text-sm text-text-muted font-bold hover:text-text-main transition-colors"
+                                            >
+                                                Back
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
+                        {/* Cancel button — escrowed (refundable) or intent_created (no money moved yet), no cancellation already in flight */}
+                        {["escrowed", "intent_created"].includes(payment?.status) &&
                             booking.status !== BOOKING_STATUS.CANCELLATION_REQUESTED &&
                             booking.status !== BOOKING_STATUS.CANCELLED &&
                             !showCancelForm && (
@@ -436,9 +537,13 @@ export default function CustomerBookingDetailPage() {
                                 <div className="flex items-start gap-3">
                                     <MdInfo className="text-primary text-lg mt-0.5 shrink-0" />
                                     <div className="flex-1">
-                                        <p className="text-sm font-bold text-text-main">Payment Secured</p>
+                                        <p className="text-sm font-bold text-text-main">
+                                            {payment.status === "escrowed" ? "Payment Secured" : "Payment Pending"}
+                                        </p>
                                         <p className="text-xs text-text-muted mt-0.5">
-                                            Your payment is held securely and will be released after session completion.
+                                            {payment.status === "escrowed"
+                                                ? "Your payment is held securely and will be released after session completion."
+                                                : "Your payment has not been completed yet."}
                                         </p>
                                     </div>
                                 </div>
@@ -456,7 +561,10 @@ export default function CustomerBookingDetailPage() {
                             <div className="bg-red-50 border border-red-200 rounded-xl p-5">
                                 <p className="text-sm font-bold text-red-900 mb-1">Request Cancellation</p>
                                 <p className="text-xs text-red-700 mb-3">
-                                    Your request will be sent to {booking.therapist?.fullName}. They have 24 hours to approve or reject it. If they don&apos;t respond, your cancellation will be approved automatically and you&apos;ll receive a full refund.
+                                    {payment?.status === "escrowed"
+                                        ? <>Your request will be sent to {booking.therapist?.fullName}. They have 24 hours to approve or reject it. If they don&apos;t respond, your cancellation will be approved automatically and you&apos;ll receive a full refund.</>
+                                        : <>This booking will be cancelled immediately. No payment has been made, so no refund is needed.</>
+                                    }
                                 </p>
                                 <textarea
                                     rows={2}
