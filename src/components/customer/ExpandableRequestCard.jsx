@@ -5,7 +5,7 @@ import {
     MdLocationOn, MdCalendarToday, MdSchedule, MdExpandMore,
     MdEdit, MdOpenInNew, MdCancel, MdVisibility, MdRefresh,
 } from "react-icons/md";
-import PatientBadge from "@/components/customer/PatientBadge";
+import PatientBadge from "@/components/shared/patient/PatientBadge";
 import RequestOfferCard from "@/components/customer/RequestOfferCard";
 
 // ─── Helpers ────────────────────────────────────────────────

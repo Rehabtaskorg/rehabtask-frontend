@@ -3,7 +3,7 @@ import { MdPerson, MdEmail, MdPhone, MdLocationOn } from "react-icons/md";
 /**
  * Reusable Patient Info block for booking/request detail pages.
  * Shows patient name, email, phone with optional agency note (therapist view)
- * 
+ *
  * @param {object} patient - { fullName, email, phone }
  * @param {string} [note] - Optional note shown below patient info (e.g "This session is
  * managed by an agency")
