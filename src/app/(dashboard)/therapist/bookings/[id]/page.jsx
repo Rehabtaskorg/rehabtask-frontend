@@ -8,7 +8,7 @@ import {
 } from "react-icons/md";
 import { useBookingDetail } from "@/hooks/useBookings";
 import { bookingsApi } from "@/lib/bookings.api";
-import { BOOKING_STATUS } from "@/lib/constants";
+import { BOOKING_STATUS, USER_ROLES } from "@/lib/constants";
 import { localDateStr } from "@/utils/dates";
 import { showToast } from "@/lib/toast";
 import BookingStatusBadge from "@/components/bookings/BookingStatusBadge";
@@ -77,6 +77,11 @@ export default function TherapistBookingDetailPage() {
     const [rejectionReason, setRejectionReason] = useState("");
     const [cancellationActing, setCancellationActing] = useState(false);
 
+    // Cancellation request state (therapist-initiated)
+    const [showRequestCancelForm, setShowRequestCancelForm] = useState(false);
+    const [requestCancelReason, setRequestCancelReason] = useState("");
+    const [requestingCancellation, setRequestingCancellation] = useState(false);
+
     // Auto-refresh when waiting for customer confirmation or reschedule response
     useEffect(() => {
         if (booking?.sessions?.[0]?.status === "completed_by_therapist" || booking?.status === "reschedule_requested") {
@@ -113,6 +118,22 @@ export default function TherapistBookingDetailPage() {
             showToast.error(err.response?.data?.message || "Failed to reject cancellation.");
         } finally {
             setCancellationActing(false);
+        }
+    };
+
+    const handleRequestCancellation = async () => {
+        if (!requestCancelReason.trim()) return;
+        setRequestingCancellation(true);
+        try {
+            await bookingsApi.requestCancellation(params.id, requestCancelReason);
+            showToast.success("Cancellation request sent. The customer has 24 hours to approve or reject.");
+            setShowRequestCancelForm(false);
+            setRequestCancelReason("");
+            await refetch();
+        } catch (err) {
+            showToast.error(err.response?.data?.message || "Failed to submit cancellation request.");
+        } finally {
+            setRequestingCancellation(false);
         }
     };
 
@@ -339,8 +360,9 @@ export default function TherapistBookingDetailPage() {
                 <BookingStatusBadge status={booking.status} size="md" />
             </div>
 
-            {/* Cancellation request banner — shown when customer has requested cancellation */}
-            {booking.status === BOOKING_STATUS.CANCELLATION_REQUESTED && (
+            {/* Cancellation request banner — customer requested, therapist must approve or reject */}
+            {booking.status === BOOKING_STATUS.CANCELLATION_REQUESTED &&
+                booking.cancellationRequestedBy === USER_ROLES.CUSTOMER && (
                 <div className="mb-6 bg-yellow-50 border border-yellow-300 rounded-xl p-5">
                     <div className="flex items-start gap-3 mb-4">
                         <MdWarning className="text-yellow-600 text-xl mt-0.5 shrink-0" />
@@ -403,6 +425,22 @@ export default function TherapistBookingDetailPage() {
                             </div>
                         </div>
                     )}
+                </div>
+            )}
+
+            {/* Cancellation pending — your own request, waiting on customer */}
+            {booking.status === BOOKING_STATUS.CANCELLATION_REQUESTED &&
+                booking.cancellationRequestedBy === USER_ROLES.THERAPIST && (
+                <div className="mb-6 bg-yellow-50 border border-yellow-200 rounded-xl p-5">
+                    <div className="flex items-start gap-3">
+                        <MdSchedule className="text-yellow-600 text-lg mt-0.5 shrink-0" />
+                        <div>
+                            <p className="text-sm font-bold text-yellow-900">Cancellation Pending</p>
+                            <p className="text-xs text-yellow-700 mt-0.5">
+                                Your request has been sent to {booking.customer?.fullName}. They have 24 hours to respond. If they don&apos;t, your request will be automatically declined and the booking will remain active.
+                            </p>
+                        </div>
+                    </div>
                 </div>
             )}
 
@@ -957,6 +995,65 @@ export default function TherapistBookingDetailPage() {
                             </div>
                         );
                     })()}
+
+                    {/* Request Cancellation button — escrowed (refundable) or intent_created (no money moved yet), no cancellation already in flight */}
+                    {["escrowed", "intent_created"].includes(payment?.status) &&
+                        booking.status !== BOOKING_STATUS.CANCELLATION_REQUESTED &&
+                        booking.status !== BOOKING_STATUS.CANCELLED &&
+                        !showRequestCancelForm && (
+                        <div className="bg-card-light border border-border-light rounded-xl p-5">
+                            <div className="flex items-start gap-3">
+                                <MdInfo className="text-primary text-lg mt-0.5 shrink-0" />
+                                <div className="flex-1">
+                                    <p className="text-sm font-bold text-text-main">Cancel This Booking</p>
+                                    <p className="text-xs text-text-muted mt-0.5">
+                                        If you can no longer fulfil this booking, you can request to cancel it.
+                                    </p>
+                                </div>
+                            </div>
+                            <button
+                                onClick={() => setShowRequestCancelForm(true)}
+                                className="mt-3 ml-8 text-xs font-semibold text-red-500 hover:text-red-700 transition-colors"
+                            >
+                                Request Cancellation
+                            </button>
+                        </div>
+                    )}
+
+                    {/* Cancellation request form */}
+                    {showRequestCancelForm && (
+                        <div className="bg-red-50 border border-red-200 rounded-xl p-5">
+                            <p className="text-sm font-bold text-red-900 mb-1">Request Cancellation</p>
+                            <p className="text-xs text-red-700 mb-3">
+                                {payment?.status === "escrowed"
+                                    ? <>Your request will be sent to {booking.customer?.fullName}. They have 24 hours to approve or reject it. If they don&apos;t respond, your request will be automatically declined and the booking will remain active.</>
+                                    : <>This booking will be cancelled immediately. No payment has been made, so no refund is needed.</>
+                                }
+                            </p>
+                            <textarea
+                                rows={2}
+                                value={requestCancelReason}
+                                onChange={(e) => setRequestCancelReason(e.target.value)}
+                                placeholder="Please provide a reason for cancelling..."
+                                className="w-full text-sm rounded-lg bg-white border border-red-200 p-2 focus:ring-red-400 focus:outline-none resize-none text-text-main mb-3"
+                            />
+                            <div className="flex items-center gap-2 justify-end">
+                                <button
+                                    onClick={() => { setShowRequestCancelForm(false); setRequestCancelReason(""); }}
+                                    className="text-sm text-slate-500 font-bold hover:text-text-main transition-colors"
+                                >
+                                    Back
+                                </button>
+                                <button
+                                    onClick={handleRequestCancellation}
+                                    disabled={!requestCancelReason.trim() || requestingCancellation}
+                                    className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-bold disabled:opacity-50 transition-colors"
+                                >
+                                    {requestingCancellation ? "Submitting..." : "Submit Request"}
+                                </button>
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
 
