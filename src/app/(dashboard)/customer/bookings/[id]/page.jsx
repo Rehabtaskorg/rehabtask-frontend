@@ -26,7 +26,7 @@ import InlinePaymentSection from "@/components/bookings/InlinePaymentSection";
 import RequestRevisionModal from "@/components/shared/sessions/RequestRevisionModal";
 import MarkSessionMissedModal from "@/components/shared/sessions/MarkSessionMissedModal";
 import RevisionStatusBanner from "@/components/shared/sessions/RevisionStatusBanner";
-import PatientInfoBlock from "@/components/customer/PatientInfoBlock";
+import PatientInfoBlock from "@/components/shared/patient/PatientInfoBlock";
 import ConfirmModal from "@/components/ui/ConfirmModal";
 
 export default function CustomerBookingDetailPage() {

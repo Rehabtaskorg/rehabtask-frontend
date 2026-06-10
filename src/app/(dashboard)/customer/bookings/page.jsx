@@ -3,12 +3,12 @@
 import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { MdCalendarMonth, MdAdd, MdWarning, MdChevronRight, MdCalendarToday, MdLocationOn, MdSchedule, MdChevronLeft, MdRefresh } from "react-icons/md";
+import { MdCalendarMonth, MdAdd, MdWarning, MdChevronRight, MdCalendarToday, MdChevronLeft, MdRefresh } from "react-icons/md";
 import { useCustomerBookings } from "@/hooks/useBookings";
 import BookingStatusBadge from "@/components/bookings/BookingStatusBadge";
 import { formatCurrency } from "@/utils/messages";
 import { usePageTitle } from "@/hooks/usePageTitle";
-import PatientBadge from "@/components/customer/PatientBadge";
+import PatientBadge from "@/components/shared/patient/PatientBadge";
 
 const ITEMS_PER_PAGE = 10;
 
