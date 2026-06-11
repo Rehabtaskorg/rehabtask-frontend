@@ -65,8 +65,8 @@ function TherapistRequestsContent() {
     const [loading, setLoading] = useState(true);
     const [currentPage, setCurrentPage] = useState(1);
     const [sortBy, setSortBy] = useState("newest");
-    const [filters, setFilters] = useState({ show: "all" });
-    const [committedFilters, setCommittedFilters] = useState({ show: "all" });
+    const [filters, setFilters] = useState({ show: "all", visitTypeIds: [], radiusMiles: 0 });
+    const [committedFilters, setCommittedFilters] = useState({ show: "all", visitTypeIds: [], radiusMiles: 0 });
     const [showFilters, setShowFilters] = useState(false);
     const profileAttemptedRate = user?.profile?.attemptedVisitRate != null
         ? parseFloat(user.profile.attemptedVisitRate).toFixed(2) : '';
@@ -88,6 +88,12 @@ function TherapistRequestsContent() {
             const params = { page, limit: PAGE_LIMIT };
             if (appliedFilters.show !== "all") {
                 params.show = appliedFilters.show;
+            }
+            if (appliedFilters.visitTypeIds.length > 0) {
+                params.visitTypeIds = appliedFilters.visitTypeIds.join(",");
+            }
+            if (appliedFilters.radiusMiles > 0) {
+                params.radiusMiles = appliedFilters.radiusMiles;
             }
 
             const res = await api.get("/requests/available", { params });
@@ -130,14 +136,30 @@ function TherapistRequestsContent() {
     };
 
     const resetFilters = () => {
-        const reset = { show: "all" };
+        const reset = { show: "all", visitTypeIds: [], radiusMiles: 0 };
         setFilters(reset);
         setCommittedFilters(reset);
         setCurrentPage(1);
         setSelectedRequest(null);
     };
 
-    const activeFilterCount = committedFilters.show !== "all" ? 1 : 0;
+    const toggleVisitType = (visitTypeId) => {
+        setFilters((prev) => ({
+            ...prev,
+            visitTypeIds: prev.visitTypeIds.includes(visitTypeId)
+                ? prev.visitTypeIds.filter((id) => id !== visitTypeId)
+                : [...prev.visitTypeIds, visitTypeId],
+        }));
+    };
+
+    const setRadius = (radiusMiles) => {
+        setFilters((prev) => ({ ...prev, radiusMiles }));
+    };
+
+    const activeFilterCount =
+        (committedFilters.show !== "all" ? 1 : 0) +
+        (committedFilters.visitTypeIds.length > 0 ? 1 : 0) +
+        (committedFilters.radiusMiles > 0 ? 1 : 0);
 
     // ─── Select Request ─────────────────────────────────────
 
@@ -275,6 +297,8 @@ function TherapistRequestsContent() {
                 onClose={() => setShowFilters(false)}
                 filters={filters}
                 onSetShow={(val) => setFilters((prev) => ({ ...prev, show: val }))}
+                onToggleVisitType={toggleVisitType}
+                onSetRadius={setRadius}
                 onApply={applyFilters}
                 onReset={resetFilters}
             />
