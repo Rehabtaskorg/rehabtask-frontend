@@ -185,4 +185,20 @@ export const changePasswordSchema = z.object({
 }).refine((data) => data.currentPassword !== data.newPassword, {
     error: "New password must be different from current password",
     path: ["newPassword"]
-})
+});
+
+/**
+ * Validates a patient certification period (start/end dates).
+ * @param {string} certificationStart - YYYY-MM-DD
+ * @param {string} certificationEnd - YYYY-MM-DD
+ * @returns {{certificationStart?: string, certificationEnd?: string}} Field-keyed error messages
+ */
+export const validateCertificationPeriod = (certificationStart, certificationEnd) => {
+    const errors = {};
+    if (!certificationStart) errors.certificationStart = "Certification start date is required";
+    if (!certificationEnd) errors.certificationEnd = "Certification end date is required";
+    if (certificationStart && certificationEnd && certificationEnd < certificationStart) {
+        errors.certificationEnd = "Certification end date must be on or after the start date";
+    }
+    return errors;
+};

@@ -10,6 +10,7 @@ import { usePatient, useUpdatePatient } from "@/hooks/usePatients";
 import LocationAutocomplete from "@/components/maps/LocationAutocomplete";
 import { formatShortDate } from "@/utils/dates";
 import { BOOKING_STATUS } from "@/lib/constants";
+import { validateCertificationPeriod } from "@/lib/validationSchema";
 
 const REQUEST_STATUS_CONFIG = {
     created:         { label: "Created",         color: "text-blue-500 bg-blue-50 " },
@@ -32,6 +33,10 @@ const getInitials = (name) =>
 
 const inputClass = "w-full px-3 py-2 rounded-lg border border-border-light  bg-background-light  text-text-main  text-sm focus:outline-none focus:ring-2 focus:ring-primary/40";
 
+// TODO: [NEXT] This component exceeds the 150-line limit and uses a manual
+// useState form instead of React Hook Form + Zod, both required by CLAUDE.md.
+// Also reads process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY directly instead of
+// via src/lib/config.js. Pre-existing issues — needs a dedicated refactor.
 /**
  * Slide-over drawer showing patient detail, contact info, and activity history.
  * Supports inline editing of patient information.
@@ -54,7 +59,8 @@ export default function PatientDrawer({ patientId, onClose }) {
         setEditData({
             fullName:            patient.fullName || "",
             dateOfBirth:         patient.dateOfBirth ? patient.dateOfBirth.split("T")[0] : "",
-            certificationExpiry: patient.certificationExpiry ? patient.certificationExpiry.split("T")[0] : "",
+            certificationStart:  patient.certificationStart ? patient.certificationStart.split("T")[0] : "",
+            certificationEnd:    patient.certificationEnd ? patient.certificationEnd.split("T")[0] : "",
             email:               patient.email || "",
             phone:               patient.phone || "",
             addressLine1:        patient.addressLine1 || "",
@@ -109,7 +115,7 @@ export default function PatientDrawer({ patientId, onClose }) {
         const errs = {};
         if (!editData.fullName?.trim()) errs.fullName = "Name is required";
         if (!editData.dateOfBirth) errs.dateOfBirth = "Date of birth is required";
-        if (!editData.certificationExpiry) errs.certificationExpiry = "Certification period is required";
+        Object.assign(errs, validateCertificationPeriod(editData.certificationStart, editData.certificationEnd));
         if (editData.email?.trim() && !/\S+@\S+\.\S+/.test(editData.email.trim()))
             errs.email = "Please enter a valid email";
         if (editData.phone?.trim() && !/^\+1\d{10}$/.test(editData.phone.trim()))
@@ -129,7 +135,8 @@ export default function PatientDrawer({ patientId, onClose }) {
                 data: {
                     fullName:            editData.fullName.trim(),
                     dateOfBirth:         editData.dateOfBirth || undefined,
-                    certificationExpiry: editData.certificationExpiry || undefined,
+                    certificationStart:  editData.certificationStart || undefined,
+                    certificationEnd:    editData.certificationEnd || undefined,
                     email:               editData.email?.trim() || "",
                     phone:        editData.phone?.trim() || "",
                     addressLine1: editData.addressLine1?.trim() || "",
@@ -274,18 +281,33 @@ export default function PatientDrawer({ patientId, onClose }) {
                                                     />
                                                     {editErrors.dateOfBirth && <p className="text-xs text-red-500 mt-1">{editErrors.dateOfBirth}</p>}
                                                 </div>
+                                            </div>
+                                            <div className="flex gap-3">
                                                 <div className="flex-1">
-                                                    <label className="block text-xs font-semibold text-text-muted  mb-1">Certification Period <span className="text-red-500">*</span></label>
+                                                    <label className="block text-xs font-semibold text-text-muted  mb-1">Certification Period — Start <span className="text-red-500">*</span></label>
                                                     <input
                                                         type="date"
-                                                        value={editData.certificationExpiry || ""}
+                                                        value={editData.certificationStart || ""}
                                                         onChange={(e) => {
-                                                            setEditData((d) => ({ ...d, certificationExpiry: e.target.value }));
-                                                            if (e.target.value) setEditErrors((prev) => { const { certificationExpiry: _, ...rest } = prev; return rest; });
+                                                            setEditData((d) => ({ ...d, certificationStart: e.target.value }));
+                                                            if (e.target.value) setEditErrors((prev) => { const { certificationStart: _, ...rest } = prev; return rest; });
                                                         }}
                                                         className={inputClass}
                                                     />
-                                                    {editErrors.certificationExpiry && <p className="text-xs text-red-500 mt-1">{editErrors.certificationExpiry}</p>}
+                                                    {editErrors.certificationStart && <p className="text-xs text-red-500 mt-1">{editErrors.certificationStart}</p>}
+                                                </div>
+                                                <div className="flex-1">
+                                                    <label className="block text-xs font-semibold text-text-muted  mb-1">Certification Period — End <span className="text-red-500">*</span></label>
+                                                    <input
+                                                        type="date"
+                                                        value={editData.certificationEnd || ""}
+                                                        onChange={(e) => {
+                                                            setEditData((d) => ({ ...d, certificationEnd: e.target.value }));
+                                                            if (e.target.value) setEditErrors((prev) => { const { certificationEnd: _, ...rest } = prev; return rest; });
+                                                        }}
+                                                        className={inputClass}
+                                                    />
+                                                    {editErrors.certificationEnd && <p className="text-xs text-red-500 mt-1">{editErrors.certificationEnd}</p>}
                                                 </div>
                                             </div>
                                             <div>
@@ -392,7 +414,9 @@ export default function PatientDrawer({ patientId, onClose }) {
                                             <div>
                                                 <p className="text-[10px] text-text-muted  uppercase font-bold">Certification Period</p>
                                                 <p className="text-sm text-text-main ">
-                                                    {patient.certificationExpiry ? formatShortDate(patient.certificationExpiry) : "—"}
+                                                    {patient.certificationStart && patient.certificationEnd
+                                                        ? `${formatShortDate(patient.certificationStart)} – ${formatShortDate(patient.certificationEnd)}`
+                                                        : "—"}
                                                 </p>
                                             </div>
                                         </div>

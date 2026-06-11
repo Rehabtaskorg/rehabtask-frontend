@@ -1,13 +1,8 @@
 "use client";
 
 import { MdClose, MdFilterList } from "react-icons/md";
-
-const SERVICE_TYPE_OPTIONS = [
-    { label: "Physical Therapy (PT)", value: "physical" },
-    { label: "Occupational Therapy (OT)", value: "occupational" },
-    { label: "Speech-Language (SLP)", value: "speech" },
-    { label: "Other", value: "other" },
-];
+import { useVisitTypes } from "@/hooks/useVisitTypes";
+import { DEFAULT_WORK_AREA_RADIUS_MILES, MAX_SEARCH_RADIUS_MILES, RADIUS_FILTER_STEP_MILES } from "@/lib/constants";
 
 const SHOW_OPTIONS = [
     { value: "all", label: "All Open" },
@@ -15,15 +10,30 @@ const SHOW_OPTIONS = [
     { value: "my_offers", label: "With My Offers" },
 ];
 
+/**
+ * Sidebar filter panel for the therapist available-requests list.
+ *
+ * @param {object} props
+ * @param {boolean} props.isOpen
+ * @param {() => void} props.onClose
+ * @param {{show: string, visitTypeIds: string[], radiusMiles: number}} props.filters
+ * @param {(value: string) => void} props.onSetShow
+ * @param {(visitTypeId: string) => void} props.onToggleVisitType
+ * @param {(radiusMiles: number) => void} props.onSetRadius
+ * @param {() => void} props.onApply
+ * @param {() => void} props.onReset
+ */
 export default function TherapistRequestFilters({
     isOpen,
     onClose,
     filters,
-    onToggleServiceType,
     onSetShow,
+    onToggleVisitType,
+    onSetRadius,
     onApply,
     onReset,
 }) {
+    const { data: visitTypes = [] } = useVisitTypes({ useOwnDiscipline: true, audience: "therapist" });
 
     return (
         <>
@@ -51,26 +61,6 @@ export default function TherapistRequestFilters({
 
                 {/* Filters */}
                 <div className="flex-1 overflow-y-auto p-6 space-y-8">
-                    {/* Service Type */}
-                    <div className="space-y-3">
-                        <p className="text-xs font-bold text-text-muted  uppercase tracking-widest">Discipline Type</p>
-                        <div className="space-y-2.5">
-                            {SERVICE_TYPE_OPTIONS.map((opt) => (
-                                <label key={opt.value} className="flex items-center gap-3 cursor-pointer group">
-                                    <input
-                                        type="checkbox"
-                                        checked={filters.serviceTypes.includes(opt.value)}
-                                        onChange={() => onToggleServiceType(opt.value)}
-                                        className="rounded border-slate-300  text-primary focus:ring-primary"
-                                    />
-                                    <span className="text-sm text-text-muted  group-hover:text-text-main  transition-colors">
-                                        {opt.label}
-                                    </span>
-                                </label>
-                            ))}
-                        </div>
-                    </div>
-
                     {/* Show */}
                     <div className="space-y-3">
                         <p className="text-xs font-bold text-text-muted  uppercase tracking-widest">Show</p>
@@ -91,6 +81,53 @@ export default function TherapistRequestFilters({
                                 </label>
                             ))}
                         </div>
+                    </div>
+
+                    {/* Visit Type */}
+                    {visitTypes.length > 0 && (
+                        <div className="space-y-3">
+                            <p className="text-xs font-bold text-text-muted  uppercase tracking-widest">Visit Type</p>
+                            <div className="space-y-2.5">
+                                {visitTypes.map((vt) => (
+                                    <label key={vt.id} className="flex items-center gap-3 cursor-pointer group">
+                                        <input
+                                            type="checkbox"
+                                            checked={filters.visitTypeIds.includes(vt.id)}
+                                            onChange={() => onToggleVisitType(vt.id)}
+                                            className="rounded border-slate-300  text-primary focus:ring-primary"
+                                        />
+                                        <span className="text-sm text-text-muted  group-hover:text-text-main  transition-colors">
+                                            {vt.name}
+                                        </span>
+                                    </label>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Search Radius */}
+                    <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                            <p className="text-xs font-bold text-text-muted  uppercase tracking-widest">Search Radius</p>
+                            <span className="text-sm font-bold text-primary">
+                                {filters.radiusMiles > 0 ? `${filters.radiusMiles} mi` : "Default"}
+                            </span>
+                        </div>
+                        <input
+                            type="range"
+                            min={0}
+                            max={MAX_SEARCH_RADIUS_MILES}
+                            step={RADIUS_FILTER_STEP_MILES}
+                            value={filters.radiusMiles}
+                            onChange={(e) => onSetRadius(parseInt(e.target.value, 10))}
+                            aria-label="Search radius in miles"
+                            className="w-full accent-primary"
+                        />
+                        <p className="text-xs text-text-muted ">
+                            {filters.radiusMiles > 0
+                                ? `Showing requests up to ${filters.radiusMiles} miles from your work area${filters.radiusMiles > DEFAULT_WORK_AREA_RADIUS_MILES ? " (extended)" : ""}.`
+                                : "Using your configured work area radius."}
+                        </p>
                     </div>
                 </div>
 
