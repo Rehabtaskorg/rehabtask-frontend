@@ -2,13 +2,6 @@
 
 import { MdClose, MdFilterList } from "react-icons/md";
 
-const SERVICE_TYPE_OPTIONS = [
-    { label: "Physical Therapy (PT)", value: "physical" },
-    { label: "Occupational Therapy (OT)", value: "occupational" },
-    { label: "Speech-Language (SLP)", value: "speech" },
-    { label: "Other", value: "other" },
-];
-
 const SHOW_OPTIONS = [
     { value: "all", label: "All Open" },
     { value: "new", label: "New Only (24h)" },
@@ -19,7 +12,6 @@ export default function TherapistRequestFilters({
     isOpen,
     onClose,
     filters,
-    onToggleServiceType,
     onSetShow,
     onApply,
     onReset,
@@ -51,26 +43,6 @@ export default function TherapistRequestFilters({
 
                 {/* Filters */}
                 <div className="flex-1 overflow-y-auto p-6 space-y-8">
-                    {/* Service Type */}
-                    <div className="space-y-3">
-                        <p className="text-xs font-bold text-text-muted  uppercase tracking-widest">Discipline Type</p>
-                        <div className="space-y-2.5">
-                            {SERVICE_TYPE_OPTIONS.map((opt) => (
-                                <label key={opt.value} className="flex items-center gap-3 cursor-pointer group">
-                                    <input
-                                        type="checkbox"
-                                        checked={filters.serviceTypes.includes(opt.value)}
-                                        onChange={() => onToggleServiceType(opt.value)}
-                                        className="rounded border-slate-300  text-primary focus:ring-primary"
-                                    />
-                                    <span className="text-sm text-text-muted  group-hover:text-text-main  transition-colors">
-                                        {opt.label}
-                                    </span>
-                                </label>
-                            ))}
-                        </div>
-                    </div>
-
                     {/* Show */}
                     <div className="space-y-3">
                         <p className="text-xs font-bold text-text-muted  uppercase tracking-widest">Show</p>
