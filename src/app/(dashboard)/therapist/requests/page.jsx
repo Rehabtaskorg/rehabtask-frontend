@@ -65,8 +65,8 @@ function TherapistRequestsContent() {
     const [loading, setLoading] = useState(true);
     const [currentPage, setCurrentPage] = useState(1);
     const [sortBy, setSortBy] = useState("newest");
-    const [filters, setFilters] = useState({ serviceTypes: [], show: "all" });
-    const [committedFilters, setCommittedFilters] = useState({ serviceTypes: [], show: "all" });
+    const [filters, setFilters] = useState({ show: "all", visitTypeIds: [], radiusMiles: 0 });
+    const [committedFilters, setCommittedFilters] = useState({ show: "all", visitTypeIds: [], radiusMiles: 0 });
     const [showFilters, setShowFilters] = useState(false);
     const profileAttemptedRate = user?.profile?.attemptedVisitRate != null
         ? parseFloat(user.profile.attemptedVisitRate).toFixed(2) : '';
@@ -86,12 +86,14 @@ function TherapistRequestsContent() {
         setLoading(true);
         try {
             const params = { page, limit: PAGE_LIMIT };
-            // Send service type as comma-separated for backend contains match
-            if (appliedFilters.serviceTypes.length > 0) {
-                params.serviceType = appliedFilters.serviceTypes.join(",");
-            }
             if (appliedFilters.show !== "all") {
                 params.show = appliedFilters.show;
+            }
+            if (appliedFilters.visitTypeIds.length > 0) {
+                params.visitTypeIds = appliedFilters.visitTypeIds.join(",");
+            }
+            if (appliedFilters.radiusMiles > 0) {
+                params.radiusMiles = appliedFilters.radiusMiles;
             }
 
             const res = await api.get("/requests/available", { params });
@@ -127,15 +129,6 @@ function TherapistRequestsContent() {
 
     // ─── Filter Actions ─────────────────────────────────────
 
-    const toggleServiceType = (val) => {
-        setFilters((prev) => ({
-            ...prev,
-            serviceTypes: prev.serviceTypes.includes(val)
-                ? prev.serviceTypes.filter((v) => v !== val)
-                : [...prev.serviceTypes, val],
-        }));
-    };
-
     const applyFilters = () => {
         setCommittedFilters({ ...filters });
         setCurrentPage(1);
@@ -143,14 +136,30 @@ function TherapistRequestsContent() {
     };
 
     const resetFilters = () => {
-        const reset = { serviceTypes: [], show: "all" };
+        const reset = { show: "all", visitTypeIds: [], radiusMiles: 0 };
         setFilters(reset);
         setCommittedFilters(reset);
         setCurrentPage(1);
         setSelectedRequest(null);
     };
 
-    const activeFilterCount = committedFilters.serviceTypes.length + (committedFilters.show !== "all" ? 1 : 0);
+    const toggleVisitType = (visitTypeId) => {
+        setFilters((prev) => ({
+            ...prev,
+            visitTypeIds: prev.visitTypeIds.includes(visitTypeId)
+                ? prev.visitTypeIds.filter((id) => id !== visitTypeId)
+                : [...prev.visitTypeIds, visitTypeId],
+        }));
+    };
+
+    const setRadius = (radiusMiles) => {
+        setFilters((prev) => ({ ...prev, radiusMiles }));
+    };
+
+    const activeFilterCount =
+        (committedFilters.show !== "all" ? 1 : 0) +
+        (committedFilters.visitTypeIds.length > 0 ? 1 : 0) +
+        (committedFilters.radiusMiles > 0 ? 1 : 0);
 
     // ─── Select Request ─────────────────────────────────────
 
@@ -287,8 +296,9 @@ function TherapistRequestsContent() {
                 isOpen={showFilters}
                 onClose={() => setShowFilters(false)}
                 filters={filters}
-                onToggleServiceType={toggleServiceType}
                 onSetShow={(val) => setFilters((prev) => ({ ...prev, show: val }))}
+                onToggleVisitType={toggleVisitType}
+                onSetRadius={setRadius}
                 onApply={applyFilters}
                 onReset={resetFilters}
             />

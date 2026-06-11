@@ -1,5 +1,8 @@
 export const DEFAULT_WORK_AREA_RADIUS_MILES = 25;
 
+export const MAX_SEARCH_RADIUS_MILES = 100;
+export const RADIUS_FILTER_STEP_MILES = 25;
+
 export const USER_ROLES = {
     CUSTOMER: "customer",
     THERAPIST: "therapist",
