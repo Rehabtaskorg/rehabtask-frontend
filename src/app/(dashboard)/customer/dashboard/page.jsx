@@ -341,7 +341,7 @@ export default function CustomerDashboard() {
                                                 </div>
                                                 <p className="text-xs text-slate-500 ">
                                                     {item.totalSessions > 1
-                                                        ? `Session ${item.sessionNumber} of ${item.totalSessions} • `
+                                                        ? `Visit ${item.sessionNumber} of ${item.totalSessions} • `
                                                         : ""}
                                                     {item.serviceType}
                                                 </p>

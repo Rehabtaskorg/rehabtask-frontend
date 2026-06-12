@@ -227,7 +227,7 @@ export default function SessionList({
                                 <div className="flex-1 min-w-0" style={{ minWidth: "140px" }}>
                                     <div className="flex items-center gap-2">
                                         <span className="text-sm font-bold text-text-main ">
-                                            Session {session.sessionNumber}
+                                            Visit {session.sessionNumber}
                                         </span>
                                         <span className={`text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded ${config.bg} ${config.color}`}>
                                             {isResubmitted ? "Resubmitted" : config.label}
