@@ -585,6 +585,14 @@ export default function TherapistBookingDetailPage() {
                                 await bookingsApi.scheduleSession(sessionId, scheduledDate);
                                 await refetch();
                             }}
+                            onUpdateTitle={async (sessionId, title) => {
+                                try {
+                                    await bookingsApi.updateSessionTitle(sessionId, title);
+                                    await refetch();
+                                } catch (err) {
+                                    showToast.error(err.response?.data?.message || "Failed to update visit title.");
+                                }
+                            }}
                             onExtendRevision={(sessionId) => {
                                 setExtendSessionId(sessionId);
                                 setShowExtendConfirm(true);
