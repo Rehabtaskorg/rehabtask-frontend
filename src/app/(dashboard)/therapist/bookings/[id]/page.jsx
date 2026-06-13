@@ -585,6 +585,14 @@ export default function TherapistBookingDetailPage() {
                                 await bookingsApi.scheduleSession(sessionId, scheduledDate);
                                 await refetch();
                             }}
+                            onUpdateTitle={async (sessionId, title) => {
+                                try {
+                                    await bookingsApi.updateSessionTitle(sessionId, title);
+                                    await refetch();
+                                } catch (err) {
+                                    showToast.error(err.response?.data?.message || "Failed to update visit title.");
+                                }
+                            }}
                             onExtendRevision={(sessionId) => {
                                 setExtendSessionId(sessionId);
                                 setShowExtendConfirm(true);
@@ -1113,7 +1121,7 @@ export default function TherapistBookingDetailPage() {
             {cancelSessionTarget && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
                     <div className="bg-card-light rounded-xl p-6 w-full max-w-md shadow-xl space-y-4">
-                        <h3 className="text-sm font-bold text-text-main">Request Cancellation — Session {cancelSessionTarget.sessionNumber}</h3>
+                        <h3 className="text-sm font-bold text-text-main">Request Cancellation — Visit {cancelSessionTarget.sessionNumber}</h3>
                         <p className="text-xs text-text-muted">Your request will be sent to the customer. They have 24 hours to approve or reject. If they don&apos;t respond, the cancellation will be approved automatically.</p>
                         <textarea
                             rows={3}
@@ -1145,7 +1153,7 @@ export default function TherapistBookingDetailPage() {
             {rejectSessionTarget && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
                     <div className="bg-card-light rounded-xl p-6 w-full max-w-md shadow-xl space-y-4">
-                        <h3 className="text-sm font-bold text-text-main">Reject Cancellation — Session {rejectSessionTarget.sessionNumber}</h3>
+                        <h3 className="text-sm font-bold text-text-main">Reject Cancellation — Visit {rejectSessionTarget.sessionNumber}</h3>
                         <textarea
                             rows={3}
                             value={rejectSessionReason}

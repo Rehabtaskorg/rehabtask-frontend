@@ -53,8 +53,12 @@ export default function Step1ServiceDetails() {
             visitTypeName: selected ? `${selected.name} (${selected.code})` : "",
             visitType: "",
             visitTypeOther: "",
+            ...(selected?.isEvaluation && { visitsPerWeek: "", numberOfWeeks: "" }),
         });
     };
+
+    const selectedVisitType = visitTypeOptions.find((vt) => vt.id === step1.visitTypeId);
+    const isEvaluationVisit = selectedVisitType?.isEvaluation ?? false;
 
     return (
         <div className="bg-card-light  border border-border-light  rounded-xl shadow-sm p-6 sm:p-8 space-y-6">
@@ -151,53 +155,55 @@ export default function Step1ServiceDetails() {
                 )}
             </div>
 
-            {/* Frequency (optional) */}
-            <div>
-                <label className={LABEL_CLASS}>Treatment Frequency (optional)</label>
-                <div className="grid grid-cols-2 gap-4">
-                    <div>
-                        <label className="block text-xs text-text-muted  mb-1">Visits per week</label>
-                        <select
-                            value={step1.visitsPerWeek}
-                            onChange={(e) => setStep1({ visitsPerWeek: e.target.value })}
-                            className={INPUT_CLASS}
-                        >
-                            <option value="">Not specified</option>
-                            {[1, 2, 3, 4, 5, 6, 7].map((n) => (
-                                <option key={n} value={n}>{n}x / week</option>
-                            ))}
-                        </select>
+            {/* Frequency (optional) — not applicable to evaluation visits */}
+            {!isEvaluationVisit && (
+                <div>
+                    <label className={LABEL_CLASS}>Treatment Frequency (optional)</label>
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-xs text-text-muted  mb-1">Visits per week</label>
+                            <select
+                                value={step1.visitsPerWeek}
+                                onChange={(e) => setStep1({ visitsPerWeek: e.target.value })}
+                                className={INPUT_CLASS}
+                            >
+                                <option value="">Not specified</option>
+                                {[1, 2, 3, 4, 5, 6, 7].map((n) => (
+                                    <option key={n} value={n}>{n}x / week</option>
+                                ))}
+                            </select>
+                        </div>
+                        <div>
+                            <label className="block text-xs text-text-muted  mb-1">Number of weeks</label>
+                            <select
+                                value={step1.numberOfWeeks}
+                                onChange={(e) => setStep1({ numberOfWeeks: e.target.value })}
+                                className={INPUT_CLASS}
+                            >
+                                <option value="">Not specified</option>
+                                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((n) => (
+                                    <option key={n} value={n}>{n} week{n > 1 ? "s" : ""}</option>
+                                ))}
+                            </select>
+                        </div>
                     </div>
-                    <div>
-                        <label className="block text-xs text-text-muted  mb-1">Number of weeks</label>
-                        <select
-                            value={step1.numberOfWeeks}
-                            onChange={(e) => setStep1({ numberOfWeeks: e.target.value })}
-                            className={INPUT_CLASS}
-                        >
-                            <option value="">Not specified</option>
-                            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((n) => (
-                                <option key={n} value={n}>{n} week{n > 1 ? "s" : ""}</option>
-                            ))}
-                        </select>
-                    </div>
+                    {step1.visitsPerWeek && step1.numberOfWeeks && (
+                        <div className="mt-2 px-3 py-2 rounded-lg bg-primary/5  border border-primary/20">
+                            <p className="text-sm font-semibold text-primary">
+                                {parseInt(step1.visitsPerWeek) * parseInt(step1.numberOfWeeks)} visits total
+                                {step1.rate && parseFloat(step1.rate) > 0 && (
+                                    <span className="text-text-muted  font-normal">
+                                        {" "}· ${(parseFloat(step1.rate) * parseInt(step1.visitsPerWeek) * parseInt(step1.numberOfWeeks)).toFixed(2)} estimated total
+                                    </span>
+                                )}
+                            </p>
+                        </div>
+                    )}
+                    <p className="text-xs text-text-muted  mt-1">
+                        From the doctor&apos;s referral order. Leave blank for single-visit requests.
+                    </p>
                 </div>
-                {step1.visitsPerWeek && step1.numberOfWeeks && (
-                    <div className="mt-2 px-3 py-2 rounded-lg bg-primary/5  border border-primary/20">
-                        <p className="text-sm font-semibold text-primary">
-                            {parseInt(step1.visitsPerWeek) * parseInt(step1.numberOfWeeks)} visits total
-                            {step1.rate && parseFloat(step1.rate) > 0 && (
-                                <span className="text-text-muted  font-normal">
-                                    {" "}· ${(parseFloat(step1.rate) * parseInt(step1.visitsPerWeek) * parseInt(step1.numberOfWeeks)).toFixed(2)} estimated total
-                                </span>
-                            )}
-                        </p>
-                    </div>
-                )}
-                <p className="text-xs text-text-muted  mt-1">
-                    From the doctor&apos;s referral order. Leave blank for single-visit requests.
-                </p>
-            </div>
+            )}
 
             {/* Visit Type + EMR — 2-col grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
