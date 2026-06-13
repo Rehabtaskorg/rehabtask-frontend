@@ -8,6 +8,7 @@ import {
     MdLocationOff, MdWarning,
 } from "react-icons/md";
 import { localDateTimeStr } from "@/utils/dates";
+import { MAX_VISIT_TITLE_LENGTH } from "@/lib/constants";
 
 const STATUS_CONFIG = {
     pending_schedule: { icon: MdSchedule, color: "text-slate-400", bg: "bg-slate-100 ", label: "Pending Schedule" },
@@ -44,6 +45,8 @@ const getRefundPill = (session) => {
 
 const INPUT_CLASS = "w-full bg-muted-light  border border-border-light  rounded-lg px-3 py-2 text-sm text-text-main  focus:ring-2 focus:ring-primary focus:border-primary focus:outline-none";
 
+const LOCKED_VISIT_TITLE_STATUSES = ["confirmed_by_customer", "missed", "attempted", "cancelled"];
+
 const formatDate = (dateStr) => {
     if (!dateStr) return "Not scheduled";
     const d = new Date(dateStr);
@@ -71,6 +74,7 @@ export default function SessionList({
     onCancelSession,
     onApproveSessionCancellation,
     onRejectSessionCancellation,
+    onUpdateTitle,
 }) {
     const [scheduleSessionId, setScheduleSessionId] = useState(null);
     const [scheduleDate, setScheduleDate] = useState("");
@@ -78,6 +82,8 @@ export default function SessionList({
     const [loadingAction, setLoadingAction] = useState(null);
     const [showResubmitConfirm, setShowResubmitConfirm] = useState(false);
     const [resubmitSessionId, setResubmitSessionId] = useState(null);
+    const [editTitleSessionId, setEditTitleSessionId] = useState(null);
+    const [titleInput, setTitleInput] = useState("");
 
     if (!sessions || sessions.length <= 1) return null;
 
@@ -137,6 +143,24 @@ export default function SessionList({
         }
     };
 
+    const handleTitleSubmit = async (sessionId) => {
+        setLoadingSessionId(sessionId);
+        setLoadingAction("title");
+        try {
+            await onUpdateTitle?.(sessionId, titleInput.trim());
+        } finally {
+            setLoadingSessionId(null);
+            setLoadingAction(null);
+            setEditTitleSessionId(null);
+            setTitleInput("");
+        }
+    };
+
+    const openTitleEditFor = (session) => {
+        setEditTitleSessionId(session.id);
+        setTitleInput(session.visitTitle || "");
+    };
+
     const openScheduleFor = (session) => {
         setScheduleSessionId(session.id);
         // Pre-fill with existing date if rescheduling
@@ -182,6 +206,7 @@ export default function SessionList({
                     const config = STATUS_CONFIG[session.status] || STATUS_CONFIG.pending_schedule;
                     const StatusIcon = config.icon;
                     const isSchedulable = role === "therapist" && (session.status === "pending_schedule" || session.status === "scheduled");
+                    const canEditTitle = role === "therapist" && !LOCKED_VISIT_TITLE_STATUSES.includes(session.status) && onUpdateTitle;
                     const isCompletable = role === "therapist" && session.status === "scheduled";
                     const isConfirmable = role === "customer" && session.status === "completed_by_therapist";
                     const canRequestRevision = role === "customer" && session.status === "completed_by_therapist" && onRequestRevision;
@@ -211,42 +236,97 @@ export default function SessionList({
                         && attemptedFeatureEnabled
                         && onMarkAttempted;
                     const refundPill = getRefundPill(session);
+                    const showActionsRow = (isCompletable && scheduleSessionId !== session.id)
+                        || isConfirmable
+                        || (isInRevision && role === "customer")
+                        || canExtendRevision
+                        || canResubmitSession
+                        || (canMarkMissed && scheduleSessionId !== session.id)
+                        || (canCancelSession && scheduleSessionId !== session.id)
+                        || isCancellationPending
+                        || (canMarkAttempted && scheduleSessionId !== session.id)
+                        || (!canMarkAttempted && !attemptedRateFieldPresent && role === "therapist" && session.status === "scheduled" && scheduledInPast)
+                        || canReportMissed;
 
                     return (
                         <div key={session.id}>
                             <div
-                                className={`flex flex-wrap items-start gap-3 p-3 rounded-lg border ${session.status === "confirmed_by_customer"
+                                className={`p-4 rounded-xl border space-y-3 ${session.status === "confirmed_by_customer"
                                     ? "border-emerald-200  bg-emerald-50/50 "
                                     : "border-border-light "
                                     }`}
                             >
-                                {/* Status icon */}
-                                <StatusIcon className={`text-xl shrink-0 mt-0.5 ${config.color}`} />
+                                <div className="flex flex-wrap items-start gap-3">
+                                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${config.bg}`}>
+                                        <StatusIcon className={`text-xl ${config.color}`} />
+                                    </div>
 
-                                {/* Session info */}
-                                <div className="flex-1 min-w-0" style={{ minWidth: "140px" }}>
-                                    <div className="flex items-center gap-2">
-                                        <span className="text-sm font-bold text-text-main ">
-                                            Session {session.sessionNumber}
-                                        </span>
-                                        <span className={`text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded ${config.bg} ${config.color}`}>
-                                            {isResubmitted ? "Resubmitted" : config.label}
-                                        </span>
-                                    </div>
-                                    <div className="flex items-center gap-2 mt-0.5">
-                                        <p className="text-xs text-text-muted ">
-                                            {session.scheduledDate ? formatDate(session.scheduledDate) : "Date not set"}
-                                        </p>
-                                        {isSchedulable && scheduleSessionId !== session.id && (
-                                            <button
-                                                onClick={() => openScheduleFor(session)}
-                                                disabled={isAnyLoading}
-                                                className="text-xs font-bold text-primary hover:text-primary/80 flex items-center gap-0.5 transition-colors disabled:opacity-50 disabled:pointer-events-none"
-                                            >
-                                                <MdEdit className="text-sm" /> Edit
-                                            </button>
+                                    <div className="flex-1 min-w-0" style={{ minWidth: "140px" }}>
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-sm font-bold text-text-main ">
+                                                {session.visitTitle ? `Visit ${session.sessionNumber}: ${session.visitTitle}` : `Visit ${session.sessionNumber}`}
+                                            </span>
+                                            <span className={`text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded ${config.bg} ${config.color}`}>
+                                                {isResubmitted ? "Resubmitted" : config.label}
+                                            </span>
+                                            {canEditTitle && editTitleSessionId !== session.id && (
+                                                <button
+                                                    onClick={() => openTitleEditFor(session)}
+                                                    disabled={isAnyLoading}
+                                                    aria-label="Edit visit title"
+                                                    title="Edit visit title"
+                                                    className="p-1 rounded-full text-text-muted hover:text-primary hover:bg-primary/5 transition-colors disabled:opacity-50 disabled:pointer-events-none"
+                                                >
+                                                    <MdEdit className="text-sm" />
+                                                </button>
+                                            )}
+                                        </div>
+                                        {editTitleSessionId === session.id && (
+                                            <div className="mt-2 flex flex-wrap items-center gap-2">
+                                                <input
+                                                    type="text"
+                                                    value={titleInput}
+                                                    onChange={(e) => setTitleInput(e.target.value)}
+                                                    maxLength={MAX_VISIT_TITLE_LENGTH}
+                                                    placeholder="e.g. Initial Evaluation"
+                                                    aria-label="Visit title"
+                                                    className={`${INPUT_CLASS} flex-1 min-w-[220px]`}
+                                                />
+                                                <button
+                                                    onClick={() => handleTitleSubmit(session.id)}
+                                                    disabled={isThisLoading && loadingAction === "title"}
+                                                    className="text-xs font-bold text-white bg-primary px-3 py-2 rounded-lg hover:bg-primary/90 disabled:opacity-50 whitespace-nowrap"
+                                                >
+                                                    {isThisLoading && loadingAction === "title" ? "Saving..." : "Save"}
+                                                </button>
+                                                <button
+                                                    onClick={() => { setEditTitleSessionId(null); setTitleInput(""); }}
+                                                    className="text-xs text-text-muted hover:text-red-500 px-2 py-2"
+                                                >
+                                                    Cancel
+                                                </button>
+                                            </div>
                                         )}
+                                        <div className="flex items-center gap-1 mt-0.5">
+                                            <p className="text-xs text-text-muted ">
+                                                {session.scheduledDate ? formatDate(session.scheduledDate) : "Date not set"}
+                                            </p>
+                                            {isSchedulable && scheduleSessionId !== session.id && (
+                                                <button
+                                                    onClick={() => openScheduleFor(session)}
+                                                    disabled={isAnyLoading}
+                                                    aria-label={session.status === "scheduled" ? "Change date" : "Set date"}
+                                                    title={session.status === "scheduled" ? "Change date" : "Set date"}
+                                                    className="p-1 rounded-full text-text-muted hover:text-primary hover:bg-primary/5 transition-colors disabled:opacity-50 disabled:pointer-events-none"
+                                                >
+                                                    <MdCalendarToday className="text-sm" />
+                                                </button>
+                                            )}
+                                        </div>
                                     </div>
+                                </div>
+
+                                <div className="space-y-1">
                                     {isResubmitted && role === "customer" && (
                                         <div className="mt-1 text-[10px] space-y-0.5">
                                             <p className="text-amber-600  font-medium">
@@ -369,7 +449,8 @@ export default function SessionList({
                                 </div>
 
                                 {/* Actions */}
-                                <div className="shrink-0 flex items-center flex-wrap gap-2 ml-auto">
+                                {showActionsRow && (
+                                <div className="flex items-center flex-wrap gap-2 pt-2 border-t border-border-light">
                                     {isCompletable && scheduleSessionId !== session.id && (
                                         <button
                                             onClick={() => handleComplete(session.id)}
@@ -498,35 +579,41 @@ export default function SessionList({
                                         </button>
                                     )}
                                 </div>
+                                )}
                             </div>
 
                             {/* Schedule date picker (inline below the session row) */}
                             {scheduleSessionId === session.id && (
-                                <div className="ml-9 mt-2 p-3 rounded-lg border border-primary/20 bg-primary/5 ">
-                                    <label className="block text-xs font-semibold text-text-muted  mb-1.5">
+                                <div className="mt-2 p-4 rounded-xl border border-border-light bg-muted-light space-y-3">
+                                    <label className="block text-xs font-bold uppercase tracking-wider text-text-muted">
                                         {session.status === "scheduled" ? "Reschedule to:" : "Schedule for:"}
                                     </label>
-                                    <div className="flex items-center gap-2">
-                                        <input
-                                            type="datetime-local"
-                                            min={todayStr}
-                                            value={scheduleDate}
-                                            onChange={(e) => setScheduleDate(e.target.value)}
-                                            className={`${INPUT_CLASS} flex-1`}
-                                        />
-                                        <button
-                                            onClick={() => handleScheduleSubmit(session.id)}
-                                            disabled={!scheduleDate || (isThisLoading && loadingAction === "schedule")}
-                                            className="text-xs font-bold text-white bg-primary px-4 py-2.5 rounded-lg hover:bg-primary/90 disabled:opacity-50 whitespace-nowrap"
-                                        >
-                                            {isThisLoading && loadingAction === "schedule" ? "Setting..." : "Set Date"}
-                                        </button>
-                                        <button
-                                            onClick={() => { setScheduleSessionId(null); setScheduleDate(""); }}
-                                            className="text-xs text-text-muted hover:text-red-500 px-2 py-2.5"
-                                        >
-                                            Cancel
-                                        </button>
+                                    <div className="flex flex-col md:flex-row items-center gap-3">
+                                        <div className="relative w-full flex-1">
+                                            <MdCalendarToday className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" />
+                                            <input
+                                                type="datetime-local"
+                                                min={todayStr}
+                                                value={scheduleDate}
+                                                onChange={(e) => setScheduleDate(e.target.value)}
+                                                className={`${INPUT_CLASS} pl-9`}
+                                            />
+                                        </div>
+                                        <div className="flex items-center gap-2 shrink-0">
+                                            <button
+                                                onClick={() => handleScheduleSubmit(session.id)}
+                                                disabled={!scheduleDate || (isThisLoading && loadingAction === "schedule")}
+                                                className="text-xs font-bold text-white bg-primary px-4 py-2.5 rounded-lg hover:bg-primary/90 disabled:opacity-50 whitespace-nowrap"
+                                            >
+                                                {isThisLoading && loadingAction === "schedule" ? "Setting..." : "Set Date"}
+                                            </button>
+                                            <button
+                                                onClick={() => { setScheduleSessionId(null); setScheduleDate(""); }}
+                                                className="text-xs text-text-muted hover:text-red-500 px-2 py-2.5"
+                                            >
+                                                Cancel
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             )}

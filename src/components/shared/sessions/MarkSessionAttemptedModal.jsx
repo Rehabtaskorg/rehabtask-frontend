@@ -106,7 +106,7 @@ export default function MarkSessionAttemptedModal({
                         </p>
                         {sessionNumber && (
                             <p className="text-xs text-text-muted  mt-1">
-                                Session {sessionNumber}
+                                Visit {sessionNumber}
                             </p>
                         )}
                     </div>

@@ -40,6 +40,9 @@ export const bookingsApi = {
     scheduleSession: async (sessionId, scheduledDate) => {
         return api.post(`/sessions/${sessionId}/schedule`, { scheduledDate });
     },
+    updateSessionTitle: async (sessionId, title) => {
+        return api.post(`/sessions/${sessionId}/title`, { title });
+    },
     requestSessionRevision: async (sessionId, reason) => {
         return api.post(`/sessions/${sessionId}/request-revision`, { reason });
     },
