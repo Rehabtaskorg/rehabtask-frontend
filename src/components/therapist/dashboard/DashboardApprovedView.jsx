@@ -40,7 +40,7 @@ export default function DashboardApprovedView() {
     const profilePhotoUrl = user?.profile?.profilePhotoUrl;
     const fullName = user?.profile?.fullName || "";
     const router = useRouter();
-    const fmt$ = (v) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(parseFloat(v) || 0);
+    const fmt$ = (v) => v == null ? "—" : Number(v).toLocaleString("en-US", { style: "currency", currency: "USD" });
     const [stats, setStats] = useState({
         availableRequests: 0,
         upcomingBookings: 0,
