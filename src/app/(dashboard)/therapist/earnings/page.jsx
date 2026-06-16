@@ -8,7 +8,7 @@ import { useTherapistAccess } from "@/contexts/TherapistAccessContext";
 import { showToast } from "@/lib/toast";
 import { exportPayoutsCSV } from "@/lib/earnings.utils";
 import LockedPageOverlay from "@/components/therapist/LockedPageOverlay";
-import EarningsSummaryCards from "@/components/therapist/earnings/EarningsSummaryCards";
+import { EarningsSummaryCards } from "@/components/therapist/earnings/EarningsSummaryCards";
 import EarningsChart from "@/components/therapist/earnings/EarningsChart";
 import PayoutHistoryTable from "@/components/therapist/earnings/PayoutHistoryTable";
 import EscrowInfoBanner from "@/components/therapist/earnings/EscrowInfoBanner";
