@@ -1,8 +1,6 @@
 import { MdAccountBalanceWallet, MdHourglassEmpty, MdPercent, MdTrendingUp } from "react-icons/md";
 import { formatCurrency } from "@/utils/messages";
 
-const TIER_LABELS = { basic: "Basic", pro: "Pro", elite: "Elite" };
-
 function StatCard({ icon: Icon, iconBg, value, label, tag, subtitle, subtitleColor }) {
     return (
         <div className="bg-card-light  border border-border-light  rounded-xl p-6 relative overflow-hidden group">
@@ -28,9 +26,11 @@ function StatCard({ icon: Icon, iconBg, value, label, tag, subtitle, subtitleCol
     );
 }
 
-export default function EarningsSummaryCards({ totalEarnings, pendingEarnings, pendingSessionCount, periodStats, commissionInfo }) {
+/**
+ * @param {{ totalEarnings: number, pendingEarnings: number, pendingSessionCount: number, periodStats: object, commissionInfo: { commissionRate: number } }} props
+ */
+export function EarningsSummaryCards({ totalEarnings, pendingEarnings, pendingSessionCount, periodStats, commissionInfo }) {
     const thisMonthEarnings = periodStats?.thisMonth?.earnings ?? 0;
-    const tier = commissionInfo?.planTier ?? "basic";
     const rate = commissionInfo?.commissionRate ?? 0.1;
 
     return (
@@ -61,7 +61,7 @@ export default function EarningsSummaryCards({ totalEarnings, pendingEarnings, p
                 iconBg="bg-primary/20 text-primary"
                 label="Commission Rate"
                 value={`${Math.round(rate * 100)}%`}
-                tag={`${TIER_LABELS[tier]} tier`}
+                tag="Platform rate"
                 subtitle="Platform fee applied per session"
             />
         </div>

@@ -20,8 +20,9 @@ import { useAdminUser } from '@/contexts/AdminUserContext';
 
 // Shared primitives
 const fmt$ = (v) =>
-    new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 })
-        .format(parseFloat(v) || 0);
+    v == null
+        ? "—"
+        : Number(v).toLocaleString("en-US", { style: "currency", currency: "USD" });
 
 const fmtDate = (d) =>
     d ? new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '—';
