@@ -138,15 +138,15 @@ export function PersonalInformationForm() {
 
     return (
         <APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}>
-            <div className="min-h-screen bg-background-light py-8 px-4 md:px-12 lg:px-24">
-                <div className="max-w-[700px] mx-auto">
+            <div className="min-h-screen bg-background-light py-10 px-4">
+                <div className="max-w-4xl mx-auto">
                     <OnboardingProgressBar />
 
-                    <header className="mb-8">
-                        <h1 className="text-3xl font-bold text-text-main mb-2">
+                    <header className="mb-8 px-4">
+                        <h1 className="text-text-main text-4xl font-black leading-tight tracking-[-0.033em] mb-2">
                             Personal Information
                         </h1>
-                        <p className="text-text-muted">
+                        <p className="text-text-muted text-lg font-normal leading-normal">
                             This information is required for identity verification and compliance.
                         </p>
                     </header>
@@ -154,7 +154,7 @@ export function PersonalInformationForm() {
                     <form onSubmit={handleSubmit(onSubmit)}>
                         <div className="bg-card-light border border-border-light rounded-xl overflow-hidden shadow-sm">
 
-                            {/* Info banner — mirrors Stitch design */}
+                            {/* Info banner */}
                             <div className="bg-blue-50 px-6 py-4 flex items-start gap-3 border-b border-blue-100">
                                 <svg className="h-5 w-5 text-blue-500 mt-0.5 shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                     <path clipRule="evenodd" fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" />
@@ -164,17 +164,17 @@ export function PersonalInformationForm() {
                                 </p>
                             </div>
 
-                            <div className="p-6">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+                            <div className="p-8 space-y-8">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
 
                                     {/* LEFT COLUMN — Personal Details + Emergency Contact */}
                                     <div className="space-y-6">
 
                                         {/* Date of Birth */}
-                                        <div>
+                                        <div className="flex flex-col gap-2">
                                             <label
                                                 htmlFor="dateOfBirth"
-                                                className="block text-sm font-semibold text-text-main mb-1"
+                                                className="text-text-main text-base font-semibold"
                                             >
                                                 Date of Birth <span className="text-red-500">*</span>
                                             </label>
@@ -183,12 +183,12 @@ export function PersonalInformationForm() {
                                                 type="date"
                                                 max={getMaxDob()}
                                                 {...register("dateOfBirth")}
-                                                className={`w-full rounded-lg border shadow-sm focus:ring-2 focus:ring-primary focus:border-primary sm:text-sm p-2.5 bg-input-light text-text-main transition-colors outline-none ${
+                                                className={`w-full px-4 py-3 rounded-lg border bg-input-light text-text-main focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none ${
                                                     errors.dateOfBirth ? "border-red-500" : "border-border-light"
                                                 }`}
                                             />
                                             {errors.dateOfBirth && (
-                                                <p className="mt-1 text-xs text-red-500">{errors.dateOfBirth.message}</p>
+                                                <p className="text-red-500 text-sm">{errors.dateOfBirth.message}</p>
                                             )}
                                         </div>
 
@@ -202,23 +202,23 @@ export function PersonalInformationForm() {
                                         />
 
                                         {/* Emergency Contact Name */}
-                                        <div>
+                                        <div className="flex flex-col gap-2">
                                             <label
                                                 htmlFor="emergencyContactName"
-                                                className="block text-sm font-semibold text-text-main mb-1"
+                                                className="text-text-main text-base font-semibold"
                                             >
                                                 Emergency Contact Name{" "}
-                                                <span className="text-text-muted font-normal">(optional)</span>
+                                                <span className="text-text-muted font-normal text-sm">(optional)</span>
                                             </label>
                                             <input
                                                 id="emergencyContactName"
                                                 type="text"
                                                 {...register("emergencyContactName")}
                                                 placeholder="e.g. Jane Doe"
-                                                className="w-full rounded-lg border border-border-light shadow-sm focus:ring-2 focus:ring-primary focus:border-primary sm:text-sm p-2.5 bg-input-light text-text-main transition-colors outline-none"
+                                                className="w-full px-4 py-3 rounded-lg border border-border-light bg-input-light text-text-main focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none"
                                             />
                                             {errors.emergencyContactName && (
-                                                <p className="mt-1 text-xs text-red-500">{errors.emergencyContactName.message}</p>
+                                                <p className="text-red-500 text-sm">{errors.emergencyContactName.message}</p>
                                             )}
                                         </div>
 
@@ -251,28 +251,28 @@ export function PersonalInformationForm() {
                                         />
 
                                         {/* Address Line 2 */}
-                                        <div>
+                                        <div className="flex flex-col gap-2">
                                             <label
                                                 htmlFor="addressLine2"
-                                                className="block text-sm font-semibold text-text-main mb-1"
+                                                className="text-text-main text-base font-semibold"
                                             >
                                                 Address Line 2{" "}
-                                                <span className="text-text-muted font-normal">(optional)</span>
+                                                <span className="text-text-muted font-normal text-sm">(optional)</span>
                                             </label>
                                             <input
                                                 id="addressLine2"
                                                 type="text"
                                                 {...register("addressLine2")}
                                                 placeholder="e.g. Apt 4B"
-                                                className="w-full rounded-lg border border-border-light shadow-sm focus:ring-2 focus:ring-primary focus:border-primary sm:text-sm p-2.5 bg-input-light text-text-main transition-colors outline-none"
+                                                className="w-full px-4 py-3 rounded-lg border border-border-light bg-input-light text-text-main focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none"
                                             />
                                         </div>
 
                                         {/* City */}
-                                        <div>
+                                        <div className="flex flex-col gap-2">
                                             <label
                                                 htmlFor="city"
-                                                className="block text-sm font-semibold text-text-main mb-1"
+                                                className="text-text-main text-base font-semibold"
                                             >
                                                 City <span className="text-red-500">*</span>
                                             </label>
@@ -281,28 +281,28 @@ export function PersonalInformationForm() {
                                                 type="text"
                                                 {...register("city")}
                                                 placeholder="e.g. Chicago"
-                                                className={`w-full rounded-lg border shadow-sm focus:ring-2 focus:ring-primary focus:border-primary sm:text-sm p-2.5 bg-input-light text-text-main transition-colors outline-none ${
+                                                className={`w-full px-4 py-3 rounded-lg border bg-input-light text-text-main focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none ${
                                                     errors.city ? "border-red-500" : "border-border-light"
                                                 }`}
                                             />
                                             {errors.city && (
-                                                <p className="mt-1 text-xs text-red-500">{errors.city.message}</p>
+                                                <p className="text-red-500 text-sm">{errors.city.message}</p>
                                             )}
                                         </div>
 
                                         {/* State + ZIP side by side */}
                                         <div className="grid grid-cols-2 gap-4">
-                                            <div>
+                                            <div className="flex flex-col gap-2">
                                                 <label
                                                     htmlFor="state"
-                                                    className="block text-sm font-semibold text-text-main mb-1"
+                                                    className="text-text-main text-base font-semibold"
                                                 >
                                                     State <span className="text-red-500">*</span>
                                                 </label>
                                                 <select
                                                     id="state"
                                                     {...register("state")}
-                                                    className={`w-full rounded-lg border shadow-sm focus:ring-2 focus:ring-primary focus:border-primary sm:text-sm p-2.5 bg-input-light text-text-main transition-colors outline-none ${
+                                                    className={`w-full px-4 py-3 rounded-lg border bg-input-light text-text-main focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none appearance-none ${
                                                         errors.state ? "border-red-500" : "border-border-light"
                                                     }`}
                                                 >
@@ -314,14 +314,14 @@ export function PersonalInformationForm() {
                                                     ))}
                                                 </select>
                                                 {errors.state && (
-                                                    <p className="mt-1 text-xs text-red-500">{errors.state.message}</p>
+                                                    <p className="text-red-500 text-sm">{errors.state.message}</p>
                                                 )}
                                             </div>
 
-                                            <div>
+                                            <div className="flex flex-col gap-2">
                                                 <label
                                                     htmlFor="zipCode"
-                                                    className="block text-sm font-semibold text-text-main mb-1"
+                                                    className="text-text-main text-base font-semibold"
                                                 >
                                                     ZIP Code <span className="text-red-500">*</span>
                                                 </label>
@@ -332,42 +332,42 @@ export function PersonalInformationForm() {
                                                     {...register("zipCode")}
                                                     placeholder="e.g. 60601"
                                                     maxLength={5}
-                                                    className={`w-full rounded-lg border shadow-sm focus:ring-2 focus:ring-primary focus:border-primary sm:text-sm p-2.5 bg-input-light text-text-main transition-colors outline-none ${
+                                                    className={`w-full px-4 py-3 rounded-lg border bg-input-light text-text-main focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none ${
                                                         errors.zipCode ? "border-red-500" : "border-border-light"
                                                     }`}
                                                 />
                                                 {errors.zipCode && (
-                                                    <p className="mt-1 text-xs text-red-500">{errors.zipCode.message}</p>
+                                                    <p className="text-red-500 text-sm">{errors.zipCode.message}</p>
                                                 )}
                                             </div>
                                         </div>
                                     </div>
                                 </div>
+                            </div>
 
-                                {/* Footer Actions */}
-                                <div className="mt-12 pt-6 border-t border-border-light flex flex-col sm:flex-row items-center justify-between gap-4">
-                                    <button
-                                        type="button"
-                                        onClick={() => router.push("/therapist/dashboard")}
-                                        className="flex items-center text-sm font-semibold text-text-muted hover:text-text-main transition-colors"
-                                    >
-                                        <svg className="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                                        </svg>
-                                        Back
-                                    </button>
+                            {/* Footer Actions */}
+                            <div className="p-8 bg-muted-light flex flex-col sm:flex-row justify-between items-center gap-4 border-t border-border-light">
+                                <button
+                                    type="button"
+                                    onClick={() => router.push("/therapist/dashboard")}
+                                    className="w-full sm:w-auto flex items-center justify-center gap-2 px-8 h-12 text-text-muted font-bold hover:text-text-main transition-colors"
+                                >
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                                    </svg>
+                                    Back
+                                </button>
 
-                                    <button
-                                        type="submit"
-                                        disabled={loading}
-                                        className="w-full sm:w-auto flex items-center justify-center px-6 py-2.5 bg-primary text-white text-sm font-bold rounded-lg hover:brightness-95 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
-                                    >
-                                        {loading ? "Saving..." : "Save & Continue"}
-                                        <svg className="ml-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                                        </svg>
-                                    </button>
-                                </div>
+                                <button
+                                    type="submit"
+                                    disabled={loading}
+                                    className="w-full sm:w-auto px-10 h-12 bg-primary text-white font-bold rounded-lg shadow-lg shadow-primary/20 hover:brightness-95 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    {loading ? "Saving..." : "Save & Continue"}
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                                    </svg>
+                                </button>
                             </div>
                         </div>
                     </form>
