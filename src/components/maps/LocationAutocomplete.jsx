@@ -128,6 +128,16 @@ export default function LocationAutocomplete({
         setPredictions([]);
         setIsOpen(false);
 
+        // Extract city from the prediction description text — it is the ground truth.
+        // Google US street address format: "Street, City, ST ZIP, USA"
+        // Geocoder components can return neighborhoods/villages (e.g. "Bissell" or
+        // "Leland Grove") instead of the city the user saw in the suggestion text.
+        const cityFromDescription = (() => {
+            const parts = prediction.description.split(",").map((p) => p.trim());
+            // parts[0]=street, parts[1]=city, parts[2]="ST ZIP", parts[3]="USA"
+            return parts.length >= 3 ? parts[1] : "";
+        })();
+
         geocoder.current.geocode(
             { placeId: prediction.place_id },
             (results, status) => {
@@ -136,12 +146,6 @@ export default function LocationAutocomplete({
                     const loc = result.geometry.location;
                     const components = result.address_components;
 
-                    const cityComp =
-                        components.find((c) => c.types.includes("locality")) ||
-                        components.find((c) => c.types.includes("postal_town")) ||
-                        components.find((c) => c.types.includes("sublocality_level_1")) ||
-                        components.find((c) => c.types.includes("administrative_area_level_3")) ||
-                        components.find((c) => c.types.includes("administrative_area_level_2"));
                     const stateComp = components.find((c) =>
                         c.types.includes("administrative_area_level_1")
                     );
@@ -151,7 +155,7 @@ export default function LocationAutocomplete({
 
                     // Reject state, country, or county-level selections — their center
                     // coordinates are too far from most cities to work with a 50-mile radius.
-                    if (!cityComp && !zipComp) {
+                    if (!cityFromDescription && !zipComp) {
                         setBroadLocationError(true);
                         onChange?.("");
                         onClear?.();
@@ -161,7 +165,7 @@ export default function LocationAutocomplete({
 
                     setBroadLocationError(false);
                     onSelect?.({
-                        city: cityComp?.long_name || "",
+                        city: cityFromDescription,
                         state: stateComp?.short_name || "",
                         zipCode: zipComp?.long_name || "",
                         latitude: loc.lat(),
