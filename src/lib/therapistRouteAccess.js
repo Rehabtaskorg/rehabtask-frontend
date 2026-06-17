@@ -7,11 +7,11 @@ const MARKETPLACE_ROUTES = [
 ];
 
 export const ONBOARDING_STEP_ROUTES = {
-    1: "/therapist/onboarding/profile",
-    2: "/therapist/onboarding/credentials",
-    3: "/therapist/onboarding/availability",
-    4: "/therapist/onboarding/background-check",
-    // 5: "/therapist/onboarding/stripe", // intentionally excluded - it's optional
+    1: "/therapist/onboarding/personal-info",
+    2: "/therapist/onboarding/profile",
+    3: "/therapist/onboarding/credentials",
+    4: "/therapist/onboarding/availability",
+    // Steps 5–8 (insurance, identity, compliance, stripe) added as they are built
 };
 
 // Pages therapists can access while onboarding is incomplete
@@ -26,7 +26,7 @@ const ALLOWED_DURING_ONBOARDING = [
 export function getTherapistRedirect(pathname, { onboardingComplete, approvalStatus, onboardingStep }) {
     const isOnOnboardingRoute = pathname.startsWith("/therapist/onboarding");
 
-    if (!onboardingComplete && onboardingStep < 5) {
+    if (!onboardingComplete && onboardingStep < 8) {
         // Prevent skipping ahead in onboarding steps via direct URL
         if (isOnOnboardingRoute) {
             const stepEntry = Object.entries(ONBOARDING_STEP_ROUTES)
@@ -34,7 +34,7 @@ export function getTherapistRedirect(pathname, { onboardingComplete, approvalSta
             if (stepEntry) {
                 const targetStep = parseInt(stepEntry[0], 10);
                 if (targetStep > onboardingStep) {
-                    return ONBOARDING_STEP_ROUTES[onboardingStep] || "/therapist/onboarding/profile";
+                    return ONBOARDING_STEP_ROUTES[onboardingStep] || "/therapist/onboarding/personal-info";
                 }
             }
             return null;
@@ -43,7 +43,7 @@ export function getTherapistRedirect(pathname, { onboardingComplete, approvalSta
         // Allow dashboard, profile, and account settings during onboarding
         const isAllowed = ALLOWED_DURING_ONBOARDING.some((r) => pathname.startsWith(r));
         if (!isAllowed) {
-            return ONBOARDING_STEP_ROUTES[onboardingStep] || "/therapist/onboarding/profile";
+            return ONBOARDING_STEP_ROUTES[onboardingStep] || "/therapist/onboarding/personal-info";
         }
     }
 

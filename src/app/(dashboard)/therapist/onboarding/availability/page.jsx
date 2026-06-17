@@ -37,8 +37,8 @@ export default function AvailabilityPage() {
     const { trackEvent } = useAnalytics();
 
     useEffect(() => {
-        trackEvent("onboarding_step_viewed", { step: 3, step_name: "availability" });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        trackEvent("onboarding_step_viewed", { step: 4, step_name: "availability" });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const {
@@ -92,9 +92,9 @@ export default function AvailabilityPage() {
 
             updateAvailability(data);
 
-            trackEvent("onboarding_step_completed", { step: 3, step_name: "availability" });
-            markStepComplete(3);
-            setCurrentStep(4);
+            trackEvent("onboarding_step_completed", { step: 4, step_name: "availability" });
+            markStepComplete(4);
+            setCurrentStep(5);
             router.push("/therapist/onboarding/background-check");
         } catch (error) {
             console.error("Failed to save availability:", error);

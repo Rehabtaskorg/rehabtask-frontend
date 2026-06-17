@@ -24,8 +24,8 @@ export default function CredentialsPage() {
     const { credentials, updateCredentials, addLicenseDocument, removeLicenseDocument, markStepComplete, setCurrentStep } = useOnboardingStore();
 
     useEffect(() => {
-        trackEvent("onboarding_step_viewed", { step: 2, step_name: "credentials" });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        trackEvent("onboarding_step_viewed", { step: 3, step_name: "credentials" });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const [loading, setLoading] = useState(false);
@@ -96,9 +96,9 @@ export default function CredentialsPage() {
                 licenseState: data.licenseState,
             });
 
-            trackEvent("onboarding_step_completed", { step: 2, step_name: "credentials" });
-            markStepComplete(2);
-            setCurrentStep(3);
+            trackEvent("onboarding_step_completed", { step: 3, step_name: "credentials" });
+            markStepComplete(3);
+            setCurrentStep(4);
             router.push("/therapist/onboarding/availability");
         } catch (error) {
             console.error("Failed to save credentials:", error);

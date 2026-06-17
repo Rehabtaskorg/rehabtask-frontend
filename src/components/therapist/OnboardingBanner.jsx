@@ -52,8 +52,8 @@ export default function OnboardingBanner() {
                 setShowBanner(true);
             } else if (!onboardingComplete) {
                 // Check if only Stripe is missing (all essential steps done)
-                const essentialStepsDone = steps?.profile && steps?.credentials &&
-                    steps?.availability && steps?.backgroundCheck;
+                const essentialStepsDone = steps?.personalInfo && steps?.profile &&
+                    steps?.credentials && steps?.availability && steps?.backgroundCheck;
 
                 if (essentialStepsDone) {
                     // All essential steps done, only Stripe is missing — show review banner
@@ -105,7 +105,7 @@ export default function OnboardingBanner() {
 
     const handleResumeSetup = () => {
         const step = useOnboardingStore.getState().currentStep;
-        router.push(ONBOARDING_STEP_ROUTES[step] || "/therapist/onboarding/profile");
+        router.push(ONBOARDING_STEP_ROUTES[step] || "/therapist/onboarding/personal-info");
     }
 
     // Navigate to dashboard (which shows the pending view)

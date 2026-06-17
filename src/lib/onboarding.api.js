@@ -13,7 +13,14 @@ export const onboardingAPI = {
     },
 
     /**
-    * Save professional profile (Step 1)
+     * Save personal information (Step 1)
+     */
+    savePersonalInfo: async (data) => {
+        return api.post("/therapist/onboarding/personal-info", data);
+    },
+
+    /**
+    * Save professional profile (Step 2)
     */
     saveProfessionalProfile: async (data) => {
         return api.post("/therapist/onboarding/profile", data);
@@ -68,8 +75,8 @@ export const onboardingAPI = {
     },
 
     /**
-     * Uplaod profile photo via backend
-     * Uses acios with FormData - cookies handled automatically
+     * Upload profile photo via backend
+     * Uses axios with FormData — cookies handled automatically
      */
     uploadProfilePhoto: async (file) => {
         const formData = new FormData();

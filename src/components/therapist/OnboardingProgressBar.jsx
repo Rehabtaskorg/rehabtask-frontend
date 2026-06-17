@@ -5,11 +5,14 @@ import { useOnboardingSync } from "@/hooks/useOnboardingSync";
 import useOnboardingStore from "@/store/onboardingStore";
 
 const STEPS = [
-    { number: 1, label: "Profile", route: "/therapist/onboarding/profile" },
-    { number: 2, label: "Credentials", route: "/therapist/onboarding/credentials" },
-    { number: 3, label: "Availability", route: "/therapist/onboarding/availability" },
-    { number: 4, label: "Background Check", route: "/therapist/onboarding/background-check" },
-    { number: 5, label: "Payment Setup", route: "/therapist/onboarding/stripe" },
+    { number: 1, label: "Personal Information", route: "/therapist/onboarding/personal-info" },
+    { number: 2, label: "Professional Profile", route: "/therapist/onboarding/profile" },
+    { number: 3, label: "Credentials", route: "/therapist/onboarding/credentials" },
+    { number: 4, label: "Availability", route: "/therapist/onboarding/availability" },
+    { number: 5, label: "Insurance Uploads", route: "/therapist/onboarding/insurance" },
+    { number: 6, label: "Identity Verification", route: "/therapist/onboarding/identity" },
+    { number: 7, label: "Compliance Forms", route: "/therapist/onboarding/compliance" },
+    { number: 8, label: "Payment Setup", route: "/therapist/onboarding/stripe" },
 ];
 
 export default function OnboardingProgressBar() {

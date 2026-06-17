@@ -1,8 +1,59 @@
 import z from "zod";
+import { isValidPhoneNumber } from "react-phone-number-input";
 import { SPECIALIZATIONS } from "./constants/specializations";
 import { US_STATES } from "./constants/credentials";
 
 export const DEFAULT_TIME_BLOCK = { startTime: "09:00", endTime: "17:00" };
+
+const US_STATE_CODES = US_STATES.map((s) => s.code);
+
+const usPhoneSchema = z
+    .string()
+    .min(1, "Phone number is required")
+    .refine((val) => isValidPhoneNumber(val, "US"), {
+        message: "Please enter a valid US phone number",
+    });
+
+export const personalInfoSchema = z.object({
+    dateOfBirth: z
+        .string()
+        .min(1, "Date of birth is required")
+        .refine((val) => !isNaN(new Date(val).getTime()), {
+            message: "Date of birth must be a valid date",
+        })
+        .refine((val) => {
+            const age = new Date().getFullYear() - new Date(val).getFullYear();
+            return age >= 18 && age <= 100;
+        }, { message: "You must be between 18 and 100 years old" }),
+
+    phone: usPhoneSchema,
+
+    addressLine1: z.string().min(1, "Address is required").max(255),
+    addressLine2: z.string().max(255).optional().nullable(),
+    city: z.string().min(1, "City is required").max(100),
+    state: z
+        .string()
+        .min(1, "State is required")
+        .refine((val) => US_STATE_CODES.includes(val.toUpperCase()), {
+            message: "Please select a valid US state",
+        }),
+    zipCode: z
+        .string()
+        .regex(/^\d{5}$/, "ZIP code must be exactly 5 digits"),
+
+    latitude: z.number().min(-90).max(90).optional().nullable(),
+    longitude: z.number().min(-180).max(180).optional().nullable(),
+
+    emergencyContactName: z.string().max(255).optional().nullable(),
+    emergencyContactPhone: z
+        .string()
+        .optional()
+        .nullable()
+        .refine(
+            (val) => !val || isValidPhoneNumber(val, "US"),
+            { message: "Please enter a valid US phone number" }
+        ),
+});
 
 const timeBlockSchema = z.object({
     startTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, "Invalid start time"),

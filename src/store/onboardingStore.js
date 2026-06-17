@@ -21,6 +21,20 @@ const useOnboardingStore = create(
             currentStep: 1,
             completedSteps: [],
 
+            personalInfo: {
+                dateOfBirth: "",
+                phone: "",
+                addressLine1: "",
+                addressLine2: "",
+                city: "",
+                state: "",
+                zipCode: "",
+                latitude: null,
+                longitude: null,
+                emergencyContactName: "",
+                emergencyContactPhone: "",
+            },
+
             professionalProfile: {
                 yearsOfExperience: null,
                 primaryLicenseType: "",
@@ -59,6 +73,11 @@ const useOnboardingStore = create(
             markStepComplete: (step) =>
                 set((state) => ({
                     completedSteps: [...new Set([...state.completedSteps, step])],
+                })),
+
+            updatePersonalInfo: (data) =>
+                set((state) => ({
+                    personalInfo: { ...state.personalInfo, ...data },
                 })),
 
             updateProfessionalProfile: (data) =>
@@ -211,6 +230,7 @@ const useOnboardingStore = create(
             getAllData: () => {
                 const state = get();
                 return {
+                    personalInfo: state.personalInfo,
                     professionalProfile: state.professionalProfile,
                     credentials: state.credentials,
                     availability: state.availability,
@@ -223,7 +243,7 @@ const useOnboardingStore = create(
 
             getProgress: () => {
                 const state = get();
-                const totalSteps = 5;
+                const totalSteps = 8;
                 const completed = state.completedSteps.length;
                 return Math.round((completed / totalSteps) * 100);
             },
@@ -237,6 +257,19 @@ const useOnboardingStore = create(
                 set({
                     currentStep: 1,
                     completedSteps: [],
+                    personalInfo: {
+                        dateOfBirth: "",
+                        phone: "",
+                        addressLine1: "",
+                        addressLine2: "",
+                        city: "",
+                        state: "",
+                        zipCode: "",
+                        latitude: null,
+                        longitude: null,
+                        emergencyContactName: "",
+                        emergencyContactPhone: "",
+                    },
                     professionalProfile: {
                         yearsOfExperience: null,
                         primaryLicenseType: "",
@@ -271,6 +304,7 @@ const useOnboardingStore = create(
             partialize: (state) => ({
                 currentStep: state.currentStep,
                 completedSteps: state.completedSteps,
+                personalInfo: state.personalInfo,
                 professionalProfile: state.professionalProfile,
                 credentials: {
                     licenseNumber: state.credentials.licenseNumber,

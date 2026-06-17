@@ -16,6 +16,7 @@ import { MdLocationOn, MdClose } from "react-icons/md";
  * - onClear: called when the user clears the input
  * - placeholder: input placeholder text
  * - restrictToPostalCode: when true, only ZIP code predictions are shown (for therapist work areas)
+ * - restrictToAddress: when true, only street-level address predictions are shown (for address line 1)
  * - variant: "compact" (public search header) | "form" (dashboard forms with label)
  * - label / required / error / helperText / disabled: form-variant props
  */
@@ -26,6 +27,7 @@ export default function LocationAutocomplete({
     onClear,
     placeholder = "Enter address, city, or ZIP",
     restrictToPostalCode = false,
+    restrictToAddress = false,
     variant = "compact",
     label,
     required = false,
@@ -75,11 +77,17 @@ export default function LocationAutocomplete({
             return;
         }
 
+        const types = restrictToPostalCode
+            ? ["postal_code"]
+            : restrictToAddress
+                ? ["address"]
+                : ["geocode"];
+
         autocompleteService.current.getPlacePredictions(
             {
                 input,
                 componentRestrictions: { country: "us" },
-                types: restrictToPostalCode ? ["postal_code"] : ["geocode"],
+                types,
                 sessionToken: sessionToken.current,
             },
             (results, status) => {
@@ -93,7 +101,7 @@ export default function LocationAutocomplete({
                 }
             }
         );
-    }, [restrictToPostalCode]);
+    }, [restrictToPostalCode, restrictToAddress]);
 
     const handleInputChange = (e) => {
         const text = e.target.value;
