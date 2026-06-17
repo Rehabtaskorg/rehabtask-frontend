@@ -136,9 +136,12 @@ export default function LocationAutocomplete({
                     const loc = result.geometry.location;
                     const components = result.address_components;
 
-                    const cityComp = components.find(
-                        (c) => c.types.includes("locality") || c.types.includes("sublocality_level_1")
-                    );
+                    const cityComp =
+                        components.find((c) => c.types.includes("locality")) ||
+                        components.find((c) => c.types.includes("postal_town")) ||
+                        components.find((c) => c.types.includes("sublocality_level_1")) ||
+                        components.find((c) => c.types.includes("administrative_area_level_3")) ||
+                        components.find((c) => c.types.includes("administrative_area_level_2"));
                     const stateComp = components.find((c) =>
                         c.types.includes("administrative_area_level_1")
                     );
