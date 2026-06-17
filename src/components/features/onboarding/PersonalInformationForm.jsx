@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { APIProvider } from "@vis.gl/react-google-maps";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import useOnboardingStore from "@/store/onboardingStore";
 import OnboardingProgressBar from "@/components/therapist/OnboardingProgressBar";
@@ -14,11 +15,18 @@ import { US_STATES } from "@/lib/constants/credentials";
 import { onboardingAPI } from "@/lib/onboarding.api";
 import { usePageTitle } from "@/hooks/usePageTitle";
 
+/** Max date for DOB input — must be at least 18 years old */
+const getMaxDob = () => {
+    const d = new Date();
+    d.setFullYear(d.getFullYear() - 18);
+    return d.toISOString().split("T")[0];
+};
+
 /**
  * Personal information form — onboarding Step 1.
- * Collects DOB, phone, home address, and emergency contact.
+ * Two-column layout on desktop: personal details (left) + home address (right).
  * Address Line 1 uses Google Places autocomplete (street-level) to auto-fill
- * city, state, ZIP, and coordinates. City/state/ZIP remain editable after selection.
+ * city, state, ZIP, and coordinates. City/state/ZIP remain manually editable.
  */
 export function PersonalInformationForm() {
     usePageTitle("Personal Information");
@@ -116,11 +124,7 @@ export function PersonalInformationForm() {
                 emergencyContactPhone: data.emergencyContactPhone || null,
             });
 
-            trackEvent("onboarding_step_completed", {
-                step: 1,
-                step_name: "personal_info",
-            });
-
+            trackEvent("onboarding_step_completed", { step: 1, step_name: "personal_info" });
             markStepComplete(1);
             setCurrentStep(2);
             router.push("/therapist/onboarding/profile");
@@ -133,108 +137,155 @@ export function PersonalInformationForm() {
     };
 
     return (
-        <div className="min-h-screen bg-background-light  py-10 px-4">
-            <div className="max-w-4xl mx-auto">
-                <OnboardingProgressBar />
+        <APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}>
+            <div className="min-h-screen bg-background-light  py-10 px-4">
+                <div className="max-w-5xl mx-auto">
+                    <OnboardingProgressBar />
 
-                <header className="mb-8 px-4">
-                    <h1 className="text-text-main  text-4xl font-black leading-tight tracking-[-0.033em] mb-2">
-                        Personal Information
-                    </h1>
-                    <p className="text-text-muted  text-lg font-normal leading-normal">
-                        This information is kept private and used only for verification and communication purposes.
-                    </p>
-                </header>
+                    <header className="mb-8 px-4">
+                        <h1 className="text-text-main  text-4xl font-black leading-tight tracking-[-0.033em] mb-2">
+                            Personal Information
+                        </h1>
+                        <p className="text-text-muted  text-lg font-normal leading-normal">
+                            This information is kept private and used only for verification and communication purposes.
+                        </p>
+                    </header>
 
-                <form onSubmit={handleSubmit(onSubmit)}>
-                    <div className="bg-card-light  border border-border-light  rounded-xl overflow-hidden shadow-sm">
-                        <div className="p-8 space-y-8">
+                    <form onSubmit={handleSubmit(onSubmit)}>
+                        <div className="bg-card-light  border border-border-light  rounded-xl overflow-hidden shadow-sm">
+                            <div className="p-8">
+                                {/* Two-column layout: personal details left, address right */}
+                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
 
-                            {/* Section: Basic Details */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                {/* Date of Birth */}
-                                <div className="flex flex-col gap-2">
-                                    <label
-                                        htmlFor="dateOfBirth"
-                                        className="text-text-main  text-base font-semibold"
-                                    >
-                                        Date of Birth <span className="text-red-500">*</span>
-                                    </label>
-                                    <input
-                                        id="dateOfBirth"
-                                        type="date"
-                                        {...register("dateOfBirth")}
-                                        className={`w-full px-4 py-3 rounded-lg border bg-input-light  text-text-main  focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none ${
-                                            errors.dateOfBirth
-                                                ? "border-red-500"
-                                                : "border-border-light "
-                                        }`}
-                                    />
-                                    {errors.dateOfBirth && (
-                                        <p className="text-red-500 text-sm">
-                                            {errors.dateOfBirth.message}
-                                        </p>
-                                    )}
-                                </div>
+                                    {/* LEFT COLUMN — Personal Details + Emergency Contact */}
+                                    <div className="space-y-6">
+                                        <h2 className="text-text-main  text-base font-bold uppercase tracking-wide">
+                                            Personal Details
+                                        </h2>
 
-                                {/* Phone Number */}
-                                <PhoneInput
-                                    label="Phone Number"
-                                    required
-                                    control={control}
-                                    name="phone"
-                                    error={errors.phone?.message}
-                                />
-                            </div>
+                                        {/* Date of Birth */}
+                                        <div className="flex flex-col gap-2">
+                                            <label
+                                                htmlFor="dateOfBirth"
+                                                className="text-text-main  text-base font-semibold"
+                                            >
+                                                Date of Birth <span className="text-red-500">*</span>
+                                            </label>
+                                            <input
+                                                id="dateOfBirth"
+                                                type="date"
+                                                max={getMaxDob()}
+                                                {...register("dateOfBirth")}
+                                                className={`w-full px-4 py-3 rounded-lg border bg-input-light  text-text-main  focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none ${
+                                                    errors.dateOfBirth
+                                                        ? "border-red-500"
+                                                        : "border-border-light "
+                                                }`}
+                                            />
+                                            {errors.dateOfBirth && (
+                                                <p className="text-red-500 text-sm">
+                                                    {errors.dateOfBirth.message}
+                                                </p>
+                                            )}
+                                        </div>
 
-                            {/* Section: Home Address */}
-                            <div>
-                                <h2 className="text-text-main  text-lg font-bold mb-4">
-                                    Home Address
-                                </h2>
-                                <div className="space-y-4">
-                                    {/* Address Line 1 — Google Places autocomplete */}
-                                    <LocationAutocomplete
-                                        label="Address Line 1"
-                                        required
-                                        variant="form"
-                                        restrictToAddress
-                                        placeholder="Start typing your street address..."
-                                        value={addressLine1Display}
-                                        onChange={setAddressLine1Display}
-                                        onSelect={handleAddressSelect}
-                                        onClear={handleAddressClear}
-                                        error={errors.addressLine1?.message}
-                                        helperText="Select from the dropdown to auto-fill city, state, and ZIP"
-                                    />
-
-                                    {/* Address Line 2 */}
-                                    <div className="flex flex-col gap-2">
-                                        <label
-                                            htmlFor="addressLine2"
-                                            className="text-text-main  text-base font-semibold"
-                                        >
-                                            Address Line 2{" "}
-                                            <span className="text-text-muted  font-normal text-sm">
-                                                (optional)
-                                            </span>
-                                        </label>
-                                        <input
-                                            id="addressLine2"
-                                            type="text"
-                                            {...register("addressLine2")}
-                                            placeholder="Apt, Suite, Unit, Building..."
-                                            className="w-full px-4 py-3 rounded-lg border border-border-light  bg-input-light  text-text-main  focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none"
+                                        {/* Phone Number */}
+                                        <PhoneInput
+                                            label="Phone Number"
+                                            required
+                                            control={control}
+                                            name="phone"
+                                            error={errors.phone?.message}
                                         />
-                                        {errors.addressLine2 && (
-                                            <p className="text-red-500 text-sm">
-                                                {errors.addressLine2.message}
+
+                                        {/* Emergency Contact */}
+                                        <div className="pt-2">
+                                            <h2 className="text-text-main  text-base font-bold uppercase tracking-wide mb-1">
+                                                Emergency Contact{" "}
+                                                <span className="text-text-muted  font-normal normal-case tracking-normal text-sm">
+                                                    (optional)
+                                                </span>
+                                            </h2>
+                                            <p className="text-text-muted  text-sm mb-4">
+                                                Only shared with session coordinators in an emergency.
                                             </p>
-                                        )}
+                                            <div className="space-y-4">
+                                                <div className="flex flex-col gap-2">
+                                                    <label
+                                                        htmlFor="emergencyContactName"
+                                                        className="text-text-main  text-base font-semibold"
+                                                    >
+                                                        Full Name
+                                                    </label>
+                                                    <input
+                                                        id="emergencyContactName"
+                                                        type="text"
+                                                        {...register("emergencyContactName")}
+                                                        placeholder="Contact's full name"
+                                                        className="w-full px-4 py-3 rounded-lg border border-border-light  bg-input-light  text-text-main  focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none"
+                                                    />
+                                                    {errors.emergencyContactName && (
+                                                        <p className="text-red-500 text-sm">
+                                                            {errors.emergencyContactName.message}
+                                                        </p>
+                                                    )}
+                                                </div>
+
+                                                <PhoneInput
+                                                    label="Phone Number"
+                                                    control={control}
+                                                    name="emergencyContactPhone"
+                                                    error={errors.emergencyContactPhone?.message}
+                                                />
+                                            </div>
+                                        </div>
                                     </div>
 
-                                    {/* City / State / ZIP */}
-                                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                    {/* RIGHT COLUMN — Home Address */}
+                                    <div className="space-y-4">
+                                        <h2 className="text-text-main  text-base font-bold uppercase tracking-wide">
+                                            Home Address
+                                        </h2>
+
+                                        {/* Address Line 1 — Google Places autocomplete */}
+                                        <LocationAutocomplete
+                                            label="Address Line 1"
+                                            required
+                                            variant="form"
+                                            restrictToAddress
+                                            placeholder="Start typing your street address..."
+                                            value={addressLine1Display}
+                                            onChange={setAddressLine1Display}
+                                            onSelect={handleAddressSelect}
+                                            onClear={handleAddressClear}
+                                            error={errors.addressLine1?.message}
+                                            helperText="Select from the dropdown to auto-fill city, state, and ZIP"
+                                        />
+
+                                        {/* Address Line 2 */}
+                                        <div className="flex flex-col gap-2">
+                                            <label
+                                                htmlFor="addressLine2"
+                                                className="text-text-main  text-base font-semibold"
+                                            >
+                                                Address Line 2{" "}
+                                                <span className="text-text-muted  font-normal text-sm">
+                                                    (optional)
+                                                </span>
+                                            </label>
+                                            <input
+                                                id="addressLine2"
+                                                type="text"
+                                                {...register("addressLine2")}
+                                                placeholder="Apt, Suite, Unit, Floor..."
+                                                className="w-full px-4 py-3 rounded-lg border border-border-light  bg-input-light  text-text-main  focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none"
+                                            />
+                                            <p className="text-xs text-text-muted ">
+                                                Unit qualifier only — same city, state, and ZIP as Line 1
+                                            </p>
+                                        </div>
+
+                                        {/* City */}
                                         <div className="flex flex-col gap-2">
                                             <label
                                                 htmlFor="city"
@@ -248,168 +299,97 @@ export function PersonalInformationForm() {
                                                 {...register("city")}
                                                 placeholder="City"
                                                 className={`w-full px-4 py-3 rounded-lg border bg-input-light  text-text-main  focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none ${
-                                                    errors.city
-                                                        ? "border-red-500"
-                                                        : "border-border-light "
+                                                    errors.city ? "border-red-500" : "border-border-light "
                                                 }`}
                                             />
                                             {errors.city && (
-                                                <p className="text-red-500 text-sm">
-                                                    {errors.city.message}
-                                                </p>
+                                                <p className="text-red-500 text-sm">{errors.city.message}</p>
                                             )}
                                         </div>
 
-                                        <div className="flex flex-col gap-2">
-                                            <label
-                                                htmlFor="state"
-                                                className="text-text-main  text-base font-semibold"
-                                            >
-                                                State <span className="text-red-500">*</span>
-                                            </label>
-                                            <select
-                                                id="state"
-                                                {...register("state")}
-                                                className={`w-full px-4 py-3 rounded-lg border bg-input-light  text-text-main  focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none appearance-none ${
-                                                    errors.state
-                                                        ? "border-red-500"
-                                                        : "border-border-light "
-                                                }`}
-                                            >
-                                                <option value="">State</option>
-                                                {US_STATES.map((s) => (
-                                                    <option key={s.code} value={s.code}>
-                                                        {s.code}
-                                                    </option>
-                                                ))}
-                                            </select>
-                                            {errors.state && (
-                                                <p className="text-red-500 text-sm">
-                                                    {errors.state.message}
-                                                </p>
-                                            )}
-                                        </div>
+                                        {/* State + ZIP side by side */}
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div className="flex flex-col gap-2">
+                                                <label
+                                                    htmlFor="state"
+                                                    className="text-text-main  text-base font-semibold"
+                                                >
+                                                    State <span className="text-red-500">*</span>
+                                                </label>
+                                                <select
+                                                    id="state"
+                                                    {...register("state")}
+                                                    className={`w-full px-4 py-3 rounded-lg border bg-input-light  text-text-main  focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none appearance-none ${
+                                                        errors.state ? "border-red-500" : "border-border-light "
+                                                    }`}
+                                                >
+                                                    <option value="">Select state</option>
+                                                    {US_STATES.map((s) => (
+                                                        <option key={s.code} value={s.code}>
+                                                            {s.name}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                                {errors.state && (
+                                                    <p className="text-red-500 text-sm">{errors.state.message}</p>
+                                                )}
+                                            </div>
 
-                                        <div className="flex flex-col gap-2">
-                                            <label
-                                                htmlFor="zipCode"
-                                                className="text-text-main  text-base font-semibold"
-                                            >
-                                                ZIP Code <span className="text-red-500">*</span>
-                                            </label>
-                                            <input
-                                                id="zipCode"
-                                                type="text"
-                                                inputMode="numeric"
-                                                {...register("zipCode")}
-                                                placeholder="12345"
-                                                maxLength={5}
-                                                className={`w-full px-4 py-3 rounded-lg border bg-input-light  text-text-main  focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none ${
-                                                    errors.zipCode
-                                                        ? "border-red-500"
-                                                        : "border-border-light "
-                                                }`}
-                                            />
-                                            {errors.zipCode && (
-                                                <p className="text-red-500 text-sm">
-                                                    {errors.zipCode.message}
-                                                </p>
-                                            )}
+                                            <div className="flex flex-col gap-2">
+                                                <label
+                                                    htmlFor="zipCode"
+                                                    className="text-text-main  text-base font-semibold"
+                                                >
+                                                    ZIP Code <span className="text-red-500">*</span>
+                                                </label>
+                                                <input
+                                                    id="zipCode"
+                                                    type="text"
+                                                    inputMode="numeric"
+                                                    {...register("zipCode")}
+                                                    placeholder="12345"
+                                                    maxLength={5}
+                                                    className={`w-full px-4 py-3 rounded-lg border bg-input-light  text-text-main  focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none ${
+                                                        errors.zipCode ? "border-red-500" : "border-border-light "
+                                                    }`}
+                                                />
+                                                {errors.zipCode && (
+                                                    <p className="text-red-500 text-sm">{errors.zipCode.message}</p>
+                                                )}
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
-                            {/* Section: Emergency Contact (optional) */}
-                            <div>
-                                <h2 className="text-text-main  text-lg font-bold mb-1">
-                                    Emergency Contact{" "}
-                                    <span className="text-text-muted  font-normal text-sm">
-                                        (optional)
-                                    </span>
-                                </h2>
-                                <p className="text-text-muted  text-sm mb-4">
-                                    Provided to session coordinators only in case of an emergency.
-                                </p>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div className="flex flex-col gap-2">
-                                        <label
-                                            htmlFor="emergencyContactName"
-                                            className="text-text-main  text-base font-semibold"
-                                        >
-                                            Full Name
-                                        </label>
-                                        <input
-                                            id="emergencyContactName"
-                                            type="text"
-                                            {...register("emergencyContactName")}
-                                            placeholder="Contact's full name"
-                                            className="w-full px-4 py-3 rounded-lg border border-border-light  bg-input-light  text-text-main  focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none"
-                                        />
-                                        {errors.emergencyContactName && (
-                                            <p className="text-red-500 text-sm">
-                                                {errors.emergencyContactName.message}
-                                            </p>
-                                        )}
-                                    </div>
+                            {/* Footer Actions */}
+                            <div className="px-8 py-6 bg-muted-light  flex flex-col sm:flex-row justify-between items-center gap-4 border-t border-border-light ">
+                                <button
+                                    type="button"
+                                    onClick={() => router.push("/therapist/dashboard")}
+                                    className="w-full sm:w-auto flex items-center justify-center gap-2 px-8 h-12 text-text-muted  font-bold hover:text-text-main  transition-colors"
+                                >
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                                    </svg>
+                                    Back
+                                </button>
 
-                                    <PhoneInput
-                                        label="Phone Number"
-                                        control={control}
-                                        name="emergencyContactPhone"
-                                        error={errors.emergencyContactPhone?.message}
-                                    />
-                                </div>
+                                <button
+                                    type="submit"
+                                    disabled={loading}
+                                    className="w-full sm:w-auto px-10 h-12 bg-primary text-white font-bold rounded-lg shadow-lg shadow-primary/20 hover:brightness-95 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    {loading ? "Saving..." : "Continue"}
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                                    </svg>
+                                </button>
                             </div>
                         </div>
-
-                        {/* Footer Actions */}
-                        <div className="p-8 bg-muted-light  flex flex-col sm:flex-row justify-between items-center gap-4 border-t border-border-light ">
-                            <button
-                                type="button"
-                                onClick={() => router.push("/therapist/dashboard")}
-                                className="w-full sm:w-auto flex items-center justify-center gap-2 px-8 h-12 text-text-muted  font-bold hover:text-text-main  transition-colors"
-                            >
-                                <svg
-                                    className="w-5 h-5"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    viewBox="0 0 24 24"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={2}
-                                        d="M10 19l-7-7m0 0l7-7m-7 7h18"
-                                    />
-                                </svg>
-                                Back
-                            </button>
-
-                            <button
-                                type="submit"
-                                disabled={loading}
-                                className="w-full sm:w-auto px-10 h-12 bg-primary text-white font-bold rounded-lg shadow-lg shadow-primary/20 hover:brightness-95 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                                {loading ? "Saving..." : "Continue"}
-                                <svg
-                                    className="w-5 h-5"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    viewBox="0 0 24 24"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={2}
-                                        d="M14 5l7 7m0 0l-7 7m7-7H3"
-                                    />
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
-                </form>
+                    </form>
+                </div>
             </div>
-        </div>
+        </APIProvider>
     );
 }
