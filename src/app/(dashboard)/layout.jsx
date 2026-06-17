@@ -231,7 +231,8 @@ export default function DashboardLayout({ children }) {
 
         fetchUser();
         return () => { isMounted = false; };
-    }, [router, pathname, posthog]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [router, posthog]);
 
     /**
      * Logs the current user out: calls the logout API, tears down the socket,
@@ -291,8 +292,7 @@ export default function DashboardLayout({ children }) {
         const status = tp?.approvalStatus ?? "pending";
         const step = tp?.onboardingStep ?? 1;
         const isComplete = tp?.onboardingComplete ?? false;
-        // Step 5+ means all essential steps are done — treat as functionally complete
-        const functionallyComplete = isComplete || step >= 5;
+        const functionallyComplete = isComplete || step >= 8;
         return {
             approvalStatus: status,
             rejectionReason: tp?.rejectionReason ?? null,
