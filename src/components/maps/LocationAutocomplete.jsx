@@ -17,7 +17,7 @@ import { MdLocationOn, MdClose } from "react-icons/md";
  * - placeholder: input placeholder text
  * - restrictToPostalCode: when true, only ZIP code predictions are shown (for therapist work areas)
  * - restrictToAddress: when true, only street-level address predictions are shown (for address line 1)
- * - variant: "compact" (public search header) | "form" (dashboard forms with label)
+ * - variant: "compact" (public search header) | "form" (dashboard forms with label) | "stacked" (hero search)
  * - label / required / error / helperText / disabled: form-variant props
  */
 export default function LocationAutocomplete({
@@ -70,6 +70,10 @@ export default function LocationAutocomplete({
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
+    useEffect(() => {
+        return () => clearTimeout(debounceTimer.current);
+    }, []);
+
     const fetchPredictions = useCallback((input) => {
         if (!autocompleteService.current || !input || input.length < 2) {
             setPredictions([]);
@@ -91,7 +95,7 @@ export default function LocationAutocomplete({
                 sessionToken: sessionToken.current,
             },
             (results, status) => {
-                if (status === google.maps.places.PlacesServiceStatus.OK && results) {
+                if (status === places.PlacesServiceStatus.OK && results) {
                     setPredictions(results.slice(0, 5));
                     setIsOpen(true);
                     setActiveIndex(-1);
@@ -101,7 +105,7 @@ export default function LocationAutocomplete({
                 }
             }
         );
-    }, [restrictToPostalCode, restrictToAddress]);
+    }, [restrictToPostalCode, restrictToAddress, places]);
 
     const handleInputChange = (e) => {
         const text = e.target.value;
@@ -122,26 +126,33 @@ export default function LocationAutocomplete({
     };
 
     const handleSelect = useCallback((prediction) => {
-        if (!geocoder.current || !places) return;
+        if (!geocoder.current || !places || !geocoding) return;
 
         onChange?.(prediction.description);
         setPredictions([]);
         setIsOpen(false);
 
-        // Extract city from the prediction description text — it is the ground truth.
+        // Extract city and state code from the prediction description — ground truth.
         // Google US street address format: "Street, City, ST ZIP, USA"
-        // Geocoder components can return neighborhoods/villages (e.g. "Bissell" or
-        // "Leland Grove") instead of the city the user saw in the suggestion text.
-        const cityFromDescription = (() => {
+        // Using description because geocoder components can return a neighborhood or
+        // village (e.g. "Bissell", "Leland Grove") instead of the city the user saw.
+        // State is extracted from parts[2] ("ST ZIP") as a fallback for DC-style
+        // addresses where administrative_area_level_1 is sometimes absent in geocoder.
+        const { cityFromDescription, stateFromDescription } = (() => {
             const parts = prediction.description.split(",").map((p) => p.trim());
-            // parts[0]=street, parts[1]=city, parts[2]="ST ZIP", parts[3]="USA"
-            return parts.length >= 3 ? parts[1] : "";
+            const city = parts.length >= 3 ? parts[1] : "";
+            const stateZipPart = parts.length >= 3 ? parts[2] : "";
+            // "DC 20500" → "DC", "IL 62707" → "IL"
+            const state = stateZipPart.split(" ")[0] || "";
+            return { cityFromDescription: city, stateFromDescription: state };
         })();
 
         geocoder.current.geocode(
             { placeId: prediction.place_id },
             (results, status) => {
-                if (status === google.maps.GeocoderStatus.OK && results?.[0]) {
+                // Use geocoding library constant — avoids bare google global reference
+                // which can throw ReferenceError if the Maps script isn't fully loaded.
+                if (status === geocoding.GeocoderStatus.OK && results?.[0]) {
                     const result = results[0];
                     const loc = result.geometry.location;
                     const components = result.address_components;
@@ -166,7 +177,8 @@ export default function LocationAutocomplete({
                     setBroadLocationError(false);
                     onSelect?.({
                         city: cityFromDescription,
-                        state: stateComp?.short_name || "",
+                        // Prefer geocoder component (most accurate); fall back to description parse
+                        state: stateComp?.short_name || stateFromDescription,
                         zipCode: zipComp?.long_name || "",
                         latitude: loc.lat(),
                         longitude: loc.lng(),
@@ -177,7 +189,7 @@ export default function LocationAutocomplete({
                 }
             }
         );
-    }, [onChange, onSelect, onClear, places]);
+    }, [onChange, onSelect, onClear, places, geocoding]);
 
     const handleClearClick = () => {
         onChange?.("");
@@ -185,6 +197,10 @@ export default function LocationAutocomplete({
         setPredictions([]);
         setIsOpen(false);
         setBroadLocationError(false);
+        // Rotate session token so the next search starts a fresh billable session.
+        if (places) {
+            sessionToken.current = new places.AutocompleteSessionToken();
+        }
     };
 
     const handleKeyDown = (e) => {
@@ -229,14 +245,14 @@ export default function LocationAutocomplete({
                         autoComplete="off"
                         className={`
                             w-full pl-10 pr-10 py-3 rounded-xl
-                            bg-white 
+                            bg-white
                             border transition-all outline-none
                             ${
                                 error
                                     ? "border-red-500 focus:ring-2 focus:ring-red-500/20 focus:border-red-500"
                                     : "border-border-subtle  focus:ring-2 focus:ring-primary/20 focus:border-primary"
                             }
-                            text-text-main 
+                            text-text-main
                             placeholder:text-text-muted/50
                             disabled:opacity-50 disabled:cursor-not-allowed
                         `}
@@ -246,6 +262,7 @@ export default function LocationAutocomplete({
                             type="button"
                             onClick={handleClearClick}
                             className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                            aria-label="Clear address"
                         >
                             <MdClose className="text-lg" />
                         </button>
@@ -289,7 +306,6 @@ export default function LocationAutocomplete({
     const shellClass = isStacked
         ? "flex items-center bg-white px-4 py-4 rounded-xl border border-gray-200 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/10 transition-all"
         : `flex items-center bg-gray-50 px-4 py-3 rounded-lg border ${broadLocationError ? "border-red-400" : "border-gray-100"}`;
-    const iconClass = isStacked ? "text-gray-400 text-xl mr-3 shrink-0" : "text-gray-400 text-xl mr-3 shrink-0";
 
     return (
         <div className="flex-1 relative" ref={containerRef}>
@@ -299,7 +315,7 @@ export default function LocationAutocomplete({
                 </p>
             )}
             <div className={shellClass}>
-                <MdLocationOn className={iconClass} />
+                <MdLocationOn className="text-gray-400 text-xl mr-3 shrink-0" />
                 <input
                     type="text"
                     value={value || ""}
@@ -315,6 +331,7 @@ export default function LocationAutocomplete({
                         type="button"
                         onClick={handleClearClick}
                         className="text-gray-400 hover:text-gray-600 transition-colors ml-1 shrink-0"
+                        aria-label="Clear address"
                     >
                         <MdClose className="text-lg" />
                     </button>
