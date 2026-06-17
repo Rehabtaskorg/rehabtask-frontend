@@ -46,7 +46,9 @@ const useOnboardingStore = create(
             credentials: {
                 licenseNumber: "",
                 licenseState: "",
-                licenseDocuments: []
+                npiNumber: "",
+                additionalLicenseStates: [],
+                licenseDocuments: [],
             },
 
             availability: {
@@ -280,6 +282,8 @@ const useOnboardingStore = create(
                     credentials: {
                         licenseNumber: "",
                         licenseState: "",
+                        npiNumber: "",
+                        additionalLicenseStates: [],
                         licenseDocuments: [],
                     },
                     availability: {
@@ -309,6 +313,8 @@ const useOnboardingStore = create(
                 credentials: {
                     licenseNumber: state.credentials.licenseNumber,
                     licenseState: state.credentials.licenseState,
+                    npiNumber: state.credentials.npiNumber,
+                    additionalLicenseStates: state.credentials.additionalLicenseStates,
                     // Only persist metadata, not object URLs
                     licenseDocuments: state.credentials.licenseDocuments.map(doc => ({
                         path: doc.path,
@@ -316,7 +322,7 @@ const useOnboardingStore = create(
                         fileSize: doc.fileSize,
                         documentType: doc.documentType,
                         mimeType: doc.mimeType,
-                    }))
+                    })),
                 },
                 availability: state.availability,
                 backgroundCheck: {

@@ -124,9 +124,21 @@ export const credentialsSchema = z.object({
     licenseState: z
         .string()
         .min(1, "License state is required")
-        .refine((val) => US_STATES.map((s) => s.code).includes(val), {
-            error: "Please select a valid US state",
+        .refine((val) => US_STATE_CODES.includes(val), {
+            message: "Please select a valid US state",
         }),
+
+    npiNumber: z
+        .string()
+        .regex(/^\d{10}$/, "NPI must be exactly 10 digits")
+        .optional()
+        .nullable(),
+
+    additionalLicenseStates: z
+        .array(z.string().length(2))
+        .max(50)
+        .optional()
+        .default([]),
 
     licenseDocuments: z
         .array(z.object({
