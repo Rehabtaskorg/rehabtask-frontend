@@ -22,6 +22,7 @@ export default function OnboardingProgressBar() {
 
     const [progress, setProgress] = useState(0);
     const [completedCount, setCompletedCount] = useState(0);
+    const [totalSteps, setTotalSteps] = useState(STEPS.length);
 
     useEffect(() => {
         const loadProgress = async () => {
@@ -29,10 +30,12 @@ export default function OnboardingProgressBar() {
             if (status) {
                 setProgress(status.progress);
 
-                // Count completed steps from backend
+                // Count completed steps from backend — denominator must come from
+                // the same steps object, since not all 9 planned steps are built yet
                 const { steps } = status;
                 const completed = Object.values(steps).filter(Boolean).length;
                 setCompletedCount(completed);
+                setTotalSteps(Object.keys(steps).length);
             }
         };
 
@@ -46,7 +49,7 @@ export default function OnboardingProgressBar() {
                     Onboarding Progress
                 </p>
                 <p className="text-text-main  text-sm font-medium leading-normal">
-                    {completedCount} of {STEPS.length} completed
+                    {completedCount} of {totalSteps} completed
                 </p>
             </div>
 
