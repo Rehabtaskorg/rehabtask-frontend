@@ -133,18 +133,37 @@ export default function LocationAutocomplete({
         setIsOpen(false);
 
         // Extract city and state code from the prediction description — ground truth.
-        // Google US street address format: "Street, City, ST ZIP, USA"
-        // Using description because geocoder components can return a neighborhood or
-        // village (e.g. "Bissell", "Leland Grove") instead of the city the user saw.
-        // State is extracted from parts[2] ("ST ZIP") as a fallback for DC-style
-        // addresses where administrative_area_level_1 is sometimes absent in geocoder.
+        // Using description (rather than always trusting geocoder components) because
+        // geocoder components can return a neighborhood or village (e.g. "Bissell",
+        // "Leland Grove") instead of the city the user saw in the dropdown.
+        // Comma layout depends on the prediction type, so branch on it instead of
+        // assuming every description is "Street, City, ST ZIP, USA" — a ZIP-only or
+        // city-only prediction has fewer parts and the city/state aren't at the same
+        // indices, which previously let a state abbreviation leak into the city field.
         const { cityFromDescription, stateFromDescription } = (() => {
             const parts = prediction.description.split(",").map((p) => p.trim());
+            const types = prediction.types || [];
+
+            if (types.includes("postal_code")) {
+                // "62704, Springfield, IL, USA" or "62704, IL, USA" (no city available)
+                const city = parts.length >= 4 ? parts[1] : "";
+                const stateZipPart = parts.length >= 4 ? parts[2] : parts[1] || "";
+                return { cityFromDescription: city, stateFromDescription: stateZipPart.split(" ")[0] || "" };
+            }
+
+            if (types.includes("locality") || types.includes("political")) {
+                // "Springfield, IL, USA"
+                const city = parts[0] || "";
+                const stateZipPart = parts.length >= 2 ? parts[1] : "";
+                return { cityFromDescription: city, stateFromDescription: stateZipPart.split(" ")[0] || "" };
+            }
+
+            // Street address format: "Street, City, ST ZIP, USA"
+            // State is extracted from parts[2] ("ST ZIP") as a fallback for DC-style
+            // addresses where administrative_area_level_1 is sometimes absent in geocoder.
             const city = parts.length >= 3 ? parts[1] : "";
             const stateZipPart = parts.length >= 3 ? parts[2] : "";
-            // "DC 20500" → "DC", "IL 62707" → "IL"
-            const state = stateZipPart.split(" ")[0] || "";
-            return { cityFromDescription: city, stateFromDescription: state };
+            return { cityFromDescription: city, stateFromDescription: stateZipPart.split(" ")[0] || "" };
         })();
 
         geocoder.current.geocode(
