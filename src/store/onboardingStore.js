@@ -270,13 +270,6 @@ const useOnboardingStore = create(
                 };
             },
 
-            getProgress: () => {
-                const state = get();
-                const totalSteps = 8;
-                const completed = state.completedSteps.length;
-                return Math.round((completed / totalSteps) * 100);
-            },
-
             isStepCompleted: (step) => {
                 const state = get();
                 return state.completedSteps.includes(step);

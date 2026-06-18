@@ -302,6 +302,8 @@ export default function DashboardLayout({ children }) {
         const status = tp?.approvalStatus ?? "pending";
         const step = tp?.onboardingStep ?? 1;
         const isComplete = tp?.onboardingComplete ?? false;
+        // Step 8 (Payment Setup) onward is functionally complete — payment is not
+        // a hard requirement for admin review. Step 9 (Final Review) just confirms.
         const functionallyComplete = isComplete || step >= 8;
         return {
             approvalStatus: status,

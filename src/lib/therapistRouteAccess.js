@@ -12,7 +12,7 @@ export const ONBOARDING_STEP_ROUTES = {
     3: "/therapist/onboarding/credentials",
     4: "/therapist/onboarding/availability",
     5: "/therapist/onboarding/insurance",
-    // Steps 6–8 (identity, compliance, stripe) added as they are built
+    // Steps 6–9 (identity, compliance, stripe, final review) added as they are built
 };
 
 // Pages therapists can access while onboarding is incomplete
@@ -27,7 +27,7 @@ const ALLOWED_DURING_ONBOARDING = [
 export function getTherapistRedirect(pathname, { onboardingComplete, onboardingStep }) {
     const isOnOnboardingRoute = pathname.startsWith("/therapist/onboarding");
 
-    if (!onboardingComplete && onboardingStep < 8) {
+    if (!onboardingComplete && onboardingStep < 9) {
         // Prevent skipping ahead in onboarding steps via direct URL
         if (isOnOnboardingRoute) {
             const stepEntry = Object.entries(ONBOARDING_STEP_ROUTES)
