@@ -19,6 +19,7 @@ import DatePicker from "react-datepicker";
 import { parse, format } from "date-fns";
 import "react-datepicker/dist/react-datepicker.css";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import { logger } from "@/lib/logger";
 
 const DAYS = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
 const DAY_LABELS = {
@@ -95,9 +96,9 @@ export default function AvailabilityPage() {
             trackEvent("onboarding_step_completed", { step: 4, step_name: "availability" });
             markStepComplete(4);
             setCurrentStep(5);
-            router.push("/therapist/onboarding/background-check");
+            router.push("/therapist/onboarding/insurance");
         } catch (error) {
-            console.error("Failed to save availability:", error);
+            logger.error("Failed to save availability:", error);
             setValidationError(error.message || "Failed to save availability. Please try again.");
         } finally {
             setLoading(false);

@@ -57,6 +57,11 @@ const useOnboardingStore = create(
                 workAreas: [],
             },
 
+            insurance: {
+                doesHomeVisits: false,
+                documents: [],
+            },
+
             backgroundCheck: {
                 consent: false,
                 signature: "",
@@ -140,6 +145,27 @@ const useOnboardingStore = create(
                         workAreas: (state.availability.workAreas || []).filter(
                             (_, i) => i !== index
                         ),
+                    },
+                })),
+
+            updateInsurance: (data) =>
+                set((state) => ({
+                    insurance: { ...state.insurance, ...data },
+                })),
+
+            addInsuranceDocument: (doc) =>
+                set((state) => ({
+                    insurance: {
+                        ...state.insurance,
+                        documents: [...state.insurance.documents, doc],
+                    },
+                })),
+
+            removeInsuranceDocument: (index) =>
+                set((state) => ({
+                    insurance: {
+                        ...state.insurance,
+                        documents: state.insurance.documents.filter((_, i) => i !== index),
                     },
                 })),
 
@@ -236,6 +262,7 @@ const useOnboardingStore = create(
                     professionalProfile: state.professionalProfile,
                     credentials: state.credentials,
                     availability: state.availability,
+                    insurance: state.insurance,
                     backgroundCheck: state.backgroundCheck,
                     payment: state.payment,
                     currentStep: state.currentStep,
@@ -291,6 +318,10 @@ const useOnboardingStore = create(
                         acceptingNewPatients: true,
                         workAreas: [],
                     },
+                    insurance: {
+                        doesHomeVisits: false,
+                        documents: [],
+                    },
                     backgroundCheck: {
                         consent: false,
                         signature: "",
@@ -325,6 +356,16 @@ const useOnboardingStore = create(
                     })),
                 },
                 availability: state.availability,
+                insurance: {
+                    doesHomeVisits: state.insurance.doesHomeVisits,
+                    documents: state.insurance.documents.map((doc) => ({
+                        path: doc.path,
+                        fileName: doc.fileName,
+                        fileSize: doc.fileSize,
+                        documentType: doc.documentType,
+                        mimeType: doc.mimeType,
+                    })),
+                },
                 backgroundCheck: {
                     consent: state.backgroundCheck.consent,
                     // Don't persist signature

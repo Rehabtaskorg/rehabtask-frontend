@@ -53,7 +53,8 @@ export default function OnboardingBanner() {
             } else if (!onboardingComplete) {
                 // Check if only Stripe is missing (all essential steps done)
                 const essentialStepsDone = steps?.personalInfo && steps?.profile &&
-                    steps?.credentials && steps?.availability && steps?.backgroundCheck;
+                    steps?.credentials && steps?.availability && steps?.insurance &&
+                    steps?.backgroundCheck;
 
                 if (essentialStepsDone) {
                     // All essential steps done, only Stripe is missing — show review banner

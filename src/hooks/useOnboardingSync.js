@@ -3,6 +3,7 @@
 import { useCallback } from "react";
 import { onboardingAPI } from "@/lib/onboarding.api";
 import useOnboardingStore from "@/store/onboardingStore";
+import { logger } from "@/lib/logger";
 
 /**
  * Hook to sync onboarding status from backend to Zustand store.
@@ -23,6 +24,7 @@ export function useOnboardingSync() {
             if (steps.profile) markStepComplete(2);
             if (steps.credentials) markStepComplete(3);
             if (steps.availability) markStepComplete(4);
+            if (steps.insurance) markStepComplete(5);
             if (steps.backgroundCheck) markStepComplete(6);
             if (steps.stripe) markStepComplete(8);
 
@@ -33,7 +35,7 @@ export function useOnboardingSync() {
                 steps: data.steps,
             };
         } catch (error) {
-            console.error("Failed to sync onboarding status:", error);
+            logger.error("Failed to sync onboarding status:", error);
             return null;
         }
     }, [setCurrentStep, markStepComplete]);

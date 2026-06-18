@@ -301,7 +301,7 @@ export default function BackgroundCheckPage() {
                             <div className="flex gap-4 w-full sm:w-auto">
                                 <button
                                     type="button"
-                                    onClick={() => router.push("/therapist/onboarding/availability")}
+                                    onClick={() => router.push("/therapist/onboarding/insurance")}
                                     className="flex-1 sm:flex-none px-6 py-3 rounded-lg font-bold text-text-muted  hover:text-text-main  hover:bg-muted-light  transition-colors"
                                 >
                                     Back

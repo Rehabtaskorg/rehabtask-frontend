@@ -201,7 +201,7 @@ export function CredentialsForm() {
                     }
 
                     try {
-                        const result = await onboardingAPI.uploadLicenseDocument(file, "license");
+                        const result = await onboardingAPI.uploadDocument(file, "license", "license");
                         addLicenseDocument({
                             id: result.id,
                             path: result.path,

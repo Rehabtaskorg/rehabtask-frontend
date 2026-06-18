@@ -41,6 +41,13 @@ export const onboardingAPI = {
     },
 
     /**
+     * Save insurance documentation (Step 5)
+     */
+    saveInsurance: async (data) => {
+        return api.post("/therapist/onboarding/insurance", data);
+    },
+
+    /**
      * Submit background check (Step 4)
      */
     submitBackgroundCheck: async (data) => {
@@ -96,12 +103,13 @@ export const onboardingAPI = {
     },
 
     /**
-     * Upload license document via backend
+     * Upload an onboarding document via backend (license, insurance, ...).
      * Uses axios with FormData - cookies handled automatically
      */
-    uploadLicenseDocument: async (file, documentType = "license") => {
+    uploadDocument: async (file, category, documentType) => {
         const formData = new FormData();
         formData.append("file", file);
+        formData.append("category", category);
         formData.append("documentType", documentType);
 
         const response = await api.post("/therapist/onboarding/upload-document",
