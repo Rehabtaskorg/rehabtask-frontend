@@ -48,6 +48,13 @@ export const onboardingAPI = {
     },
 
     /**
+     * Save identity verification documents (Step 6)
+     */
+    saveIdentityVerification: async (data) => {
+        return api.post("/therapist/onboarding/identity", data);
+    },
+
+    /**
      * Submit background check (Step 4)
      */
     submitBackgroundCheck: async (data) => {

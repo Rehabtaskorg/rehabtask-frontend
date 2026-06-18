@@ -25,7 +25,7 @@ export function useOnboardingSync() {
             if (steps.credentials) markStepComplete(3);
             if (steps.availability) markStepComplete(4);
             if (steps.insurance) markStepComplete(5);
-            if (steps.backgroundCheck) markStepComplete(6);
+            if (steps.identity) markStepComplete(6);
             if (steps.stripe) markStepComplete(8);
 
             return {

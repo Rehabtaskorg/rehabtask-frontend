@@ -62,6 +62,10 @@ const useOnboardingStore = create(
                 documents: [],
             },
 
+            identity: {
+                documents: [],
+            },
+
             backgroundCheck: {
                 consent: false,
                 signature: "",
@@ -169,6 +173,22 @@ const useOnboardingStore = create(
                     },
                 })),
 
+            addIdentityDocument: (doc) =>
+                set((state) => ({
+                    identity: {
+                        ...state.identity,
+                        documents: [...state.identity.documents, doc],
+                    },
+                })),
+
+            removeIdentityDocument: (index) =>
+                set((state) => ({
+                    identity: {
+                        ...state.identity,
+                        documents: state.identity.documents.filter((_, i) => i !== index),
+                    },
+                })),
+
             toggleDayAvailability: (day) => {
                 const current = get().availability.schedule[day];
                 const schedule = { ...get().availability.schedule };
@@ -263,6 +283,7 @@ const useOnboardingStore = create(
                     credentials: state.credentials,
                     availability: state.availability,
                     insurance: state.insurance,
+                    identity: state.identity,
                     backgroundCheck: state.backgroundCheck,
                     payment: state.payment,
                     currentStep: state.currentStep,
@@ -315,6 +336,9 @@ const useOnboardingStore = create(
                         doesHomeVisits: false,
                         documents: [],
                     },
+                    identity: {
+                        documents: [],
+                    },
                     backgroundCheck: {
                         consent: false,
                         signature: "",
@@ -352,6 +376,15 @@ const useOnboardingStore = create(
                 insurance: {
                     doesHomeVisits: state.insurance.doesHomeVisits,
                     documents: state.insurance.documents.map((doc) => ({
+                        path: doc.path,
+                        fileName: doc.fileName,
+                        fileSize: doc.fileSize,
+                        documentType: doc.documentType,
+                        mimeType: doc.mimeType,
+                    })),
+                },
+                identity: {
+                    documents: state.identity.documents.map((doc) => ({
                         path: doc.path,
                         fileName: doc.fileName,
                         fileSize: doc.fileSize,

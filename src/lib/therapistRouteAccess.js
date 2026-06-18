@@ -12,7 +12,8 @@ export const ONBOARDING_STEP_ROUTES = {
     3: "/therapist/onboarding/credentials",
     4: "/therapist/onboarding/availability",
     5: "/therapist/onboarding/insurance",
-    // Steps 6–9 (identity, compliance, stripe, final review) added as they are built
+    6: "/therapist/onboarding/identity",
+    // Steps 7–9 (compliance, stripe, final review) added as they are built
 };
 
 // Pages therapists can access while onboarding is incomplete
