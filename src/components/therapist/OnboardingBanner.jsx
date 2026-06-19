@@ -106,7 +106,7 @@ export default function OnboardingBanner() {
 
     const handleResumeSetup = () => {
         const step = useOnboardingStore.getState().currentStep;
-        router.push(ONBOARDING_STEP_ROUTES[step] || "/therapist/onboarding/personal-info");
+        router.push(ONBOARDING_STEP_ROUTES[step] || "/therapist/dashboard");
     }
 
     // Navigate to dashboard (which shows the pending view)
