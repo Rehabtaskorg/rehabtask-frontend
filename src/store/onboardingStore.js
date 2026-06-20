@@ -66,6 +66,10 @@ const useOnboardingStore = create(
                 documents: [],
             },
 
+            compliance: {
+                documents: [],
+            },
+
             backgroundCheck: {
                 consent: false,
                 signature: "",
@@ -194,6 +198,27 @@ const useOnboardingStore = create(
                     },
                 })),
 
+            updateCompliance: (data) =>
+                set((state) => ({
+                    compliance: { ...state.compliance, ...data },
+                })),
+
+            addComplianceDocument: (doc) =>
+                set((state) => ({
+                    compliance: {
+                        ...state.compliance,
+                        documents: [...state.compliance.documents, doc],
+                    },
+                })),
+
+            removeComplianceDocument: (index) =>
+                set((state) => ({
+                    compliance: {
+                        ...state.compliance,
+                        documents: state.compliance.documents.filter((_, i) => i !== index),
+                    },
+                })),
+
             toggleDayAvailability: (day) => {
                 const current = get().availability.schedule[day];
                 const schedule = { ...get().availability.schedule };
@@ -289,6 +314,7 @@ const useOnboardingStore = create(
                     availability: state.availability,
                     insurance: state.insurance,
                     identity: state.identity,
+                    compliance: state.compliance,
                     backgroundCheck: state.backgroundCheck,
                     payment: state.payment,
                     currentStep: state.currentStep,
@@ -344,6 +370,9 @@ const useOnboardingStore = create(
                     identity: {
                         documents: [],
                     },
+                    compliance: {
+                        documents: [],
+                    },
                     backgroundCheck: {
                         consent: false,
                         signature: "",
@@ -390,6 +419,15 @@ const useOnboardingStore = create(
                 },
                 identity: {
                     documents: state.identity.documents.map((doc) => ({
+                        path: doc.path,
+                        fileName: doc.fileName,
+                        fileSize: doc.fileSize,
+                        documentType: doc.documentType,
+                        mimeType: doc.mimeType,
+                    })),
+                },
+                compliance: {
+                    documents: state.compliance.documents.map((doc) => ({
                         path: doc.path,
                         fileName: doc.fileName,
                         fileSize: doc.fileSize,

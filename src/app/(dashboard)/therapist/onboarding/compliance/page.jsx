@@ -1,5 +1,5 @@
-import { ComplianceFormsPlaceholder } from "@/components/features/onboarding/ComplianceFormsPlaceholder";
+import { ComplianceFormsForm } from "@/components/features/onboarding/ComplianceFormsForm";
 
 export default function CompliancePage() {
-    return <ComplianceFormsPlaceholder />;
+    return <ComplianceFormsForm />;
 }

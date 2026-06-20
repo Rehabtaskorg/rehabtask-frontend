@@ -14,7 +14,8 @@ export const ONBOARDING_STEP_ROUTES = {
     5: "/therapist/onboarding/insurance",
     6: "/therapist/onboarding/identity",
     7: "/therapist/onboarding/compliance",
-    // Steps 8–9 (stripe, final review) added as they are built
+    8: "/therapist/onboarding/stripe",
+    // Step 9 (final review) added once built
 };
 
 const SAFE_FALLBACK_ROUTE = "/therapist/dashboard";

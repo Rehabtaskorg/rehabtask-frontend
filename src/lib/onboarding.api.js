@@ -64,6 +64,20 @@ export const onboardingAPI = {
     },
 
     /**
+     * Get the Compliance Forms step's rendered document previews + sign status (Step 7)
+     */
+    getComplianceContent: async () => {
+        return api.get("/therapist/onboarding/compliance/content");
+    },
+
+    /**
+     * Record a signature on one of the 3 Compliance Forms e-signature documents (Step 7)
+     */
+    signComplianceDocument: async (data) => {
+        return api.post("/therapist/onboarding/compliance/sign", data);
+    },
+
+    /**
      * Submit background check (Step 4)
      */
     submitBackgroundCheck: async (data) => {
