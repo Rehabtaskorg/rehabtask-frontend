@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { APIProvider } from "@vis.gl/react-google-maps";
 import { useAnalytics } from "@/hooks/useAnalytics";
+import { useOnboardingDataSync } from "@/hooks/useOnboardingDataSync";
 import useOnboardingStore from "@/store/onboardingStore";
 import OnboardingProgressBar from "@/components/therapist/OnboardingProgressBar";
 import PhoneInput from "@/components/ui/PhoneInput";
@@ -32,6 +33,7 @@ export function PersonalInformationForm() {
     usePageTitle("Personal Information");
     const router = useRouter();
     const { trackEvent } = useAnalytics();
+    const { syncData } = useOnboardingDataSync();
     const {
         personalInfo,
         updatePersonalInfo,
@@ -49,6 +51,7 @@ export function PersonalInformationForm() {
         handleSubmit,
         control,
         setValue,
+        reset,
         formState: { errors },
     } = useForm({
         resolver: zodResolver(personalInfoSchema),
@@ -70,6 +73,31 @@ export function PersonalInformationForm() {
 
     useEffect(() => {
         trackEvent("onboarding_step_viewed", { step: 1, step_name: "personal_info" });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    // Repopulate from the backend on mount — the Zustand store is wiped on
+    // logout, so a returning therapist must not see blank fields for a step
+    // they already completed.
+    useEffect(() => {
+        syncData().then((data) => {
+            if (!data) return;
+            const info = data.personalInfo;
+            reset({
+                dateOfBirth: info.dateOfBirth ? info.dateOfBirth.slice(0, 10) : "",
+                phone: info.phone || "",
+                addressLine1: info.addressLine1 || "",
+                addressLine2: info.addressLine2 || "",
+                city: info.city || "",
+                state: info.state || "",
+                zipCode: info.zipCode || "",
+                latitude: info.latitude ?? null,
+                longitude: info.longitude ?? null,
+                emergencyContactName: info.emergencyContactName || "",
+                emergencyContactPhone: info.emergencyContactPhone || "",
+            });
+            setAddressLine1Display(info.addressLine1 || "");
+        });
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 

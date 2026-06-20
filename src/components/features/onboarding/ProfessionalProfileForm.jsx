@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAnalytics } from "@/hooks/useAnalytics";
+import { useOnboardingDataSync } from "@/hooks/useOnboardingDataSync";
 import useOnboardingStore from "@/store/onboardingStore";
 import OnboardingProgressBar from "@/components/therapist/OnboardingProgressBar";
 import { professionalProfileSchema } from "@/lib/onboardingValidation";
@@ -21,6 +22,7 @@ export function ProfessionalProfileForm() {
     usePageTitle("Setup Profile");
     const router = useRouter();
     const { trackEvent } = useAnalytics();
+    const { syncData } = useOnboardingDataSync();
     const {
         professionalProfile,
         updateProfessionalProfile,
@@ -39,6 +41,7 @@ export function ProfessionalProfileForm() {
         handleSubmit,
         formState: { errors },
         setValue,
+        reset,
         watch,
     } = useForm({
         resolver: zodResolver(professionalProfileSchema),
@@ -54,6 +57,25 @@ export function ProfessionalProfileForm() {
 
     useEffect(() => {
         trackEvent("onboarding_step_viewed", { step: 2, step_name: "profile" });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    // Repopulate from the backend on mount — the Zustand store is wiped on
+    // logout, so a returning therapist must not see blank fields for a step
+    // they already completed.
+    useEffect(() => {
+        syncData().then((data) => {
+            if (!data) return;
+            const profile = data.professionalProfile;
+            reset({
+                yearsOfExperience: profile.yearsOfExperience?.toString() || "",
+                primaryLicenseType: profile.primaryLicenseType || "",
+                specialization: profile.specialization || "",
+                professionalSummary: profile.professionalSummary || "",
+                profilePhotoUrl: profile.profilePhotoUrl || null,
+            });
+            setProfilePhoto(profile.profilePhotoUrl || null);
+        });
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 

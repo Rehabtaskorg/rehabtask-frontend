@@ -173,6 +173,11 @@ const useOnboardingStore = create(
                     },
                 })),
 
+            updateIdentity: (data) =>
+                set((state) => ({
+                    identity: { ...state.identity, ...data },
+                })),
+
             addIdentityDocument: (doc) =>
                 set((state) => ({
                     identity: {

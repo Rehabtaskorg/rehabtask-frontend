@@ -15,6 +15,7 @@ import OnboardingProgressBar from "@/components/therapist/OnboardingProgressBar"
 import { US_STATES } from "@/lib/constants/credentials";
 import { useAuth } from "@/hooks/useAuth";
 import { useAnalytics } from "@/hooks/useAnalytics";
+import { useOnboardingDataSync } from "@/hooks/useOnboardingDataSync";
 import { usePageTitle } from "@/hooks/usePageTitle";
 
 /** States available for additional license selection, excludes already-selected ones. */
@@ -33,6 +34,7 @@ export function CredentialsForm() {
     const router = useRouter();
     const { trackEvent } = useAnalytics();
     const { user, loading: authLoading } = useAuth();
+    const { syncData } = useOnboardingDataSync();
     const {
         credentials,
         updateCredentials,
@@ -58,6 +60,7 @@ export function CredentialsForm() {
         register,
         handleSubmit,
         watch,
+        reset,
         formState: { errors },
     } = useForm({
         resolver: zodResolver(
@@ -91,8 +94,8 @@ export function CredentialsForm() {
             licenseNumber: credentials.licenseNumber,
             licenseState: credentials.licenseState,
             npiNumber: credentials.npiNumber || "",
-            ratePerVisit: "",
-            attemptedVisitRate: "",
+            ratePerVisit: credentials.ratePerVisit?.toString() || "",
+            attemptedVisitRate: credentials.attemptedVisitRate?.toString() || "",
         },
     });
 
@@ -100,6 +103,22 @@ export function CredentialsForm() {
 
     useEffect(() => {
         trackEvent("onboarding_step_viewed", { step: 3, step_name: "credentials" });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    useEffect(() => {
+        syncData().then((data) => {
+            if (!data) return;
+            const creds = data.credentials;
+            reset({
+                licenseNumber: creds.licenseNumber || "",
+                licenseState: creds.licenseState || "",
+                npiNumber: creds.npiNumber || "",
+                ratePerVisit: creds.ratePerVisit?.toString() || "",
+                attemptedVisitRate: creds.attemptedVisitRate?.toString() || "",
+            });
+            setAdditionalStates(creds.additionalLicenseStates ?? []);
+        });
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
@@ -456,11 +475,10 @@ export function CredentialsForm() {
 
                             <div
                                 {...getRootProps()}
-                                className={`border-2 border-dashed border-border-light rounded-xl p-10 flex flex-col items-center justify-center bg-muted-light transition-colors ${
-                                    uploadedDocs.length >= 5 || uploading
+                                className={`border-2 border-dashed border-border-light rounded-xl p-10 flex flex-col items-center justify-center bg-muted-light transition-colors ${uploadedDocs.length >= 5 || uploading
                                         ? "opacity-50 cursor-not-allowed"
                                         : "hover:bg-primary/5 hover:border-primary cursor-pointer group"
-                                }`}
+                                    }`}
                             >
                                 <input {...getInputProps()} />
 

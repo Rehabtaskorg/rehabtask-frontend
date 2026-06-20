@@ -13,6 +13,15 @@ export const onboardingAPI = {
     },
 
     /**
+     * Get every previously-saved onboarding field value, so step forms can
+     * repopulate themselves on mount instead of relying on the Zustand
+     * store (which is wiped on logout).
+     */
+    getOnboardingData: async () => {
+        return api.get("/therapist/onboarding/data");
+    },
+
+    /**
      * Save personal information (Step 1)
      */
     savePersonalInfo: async (data) => {

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import { useIdentityDocumentUpload } from "@/hooks/useIdentityDocumentUpload";
+import { useOnboardingDataSync } from "@/hooks/useOnboardingDataSync";
 import useOnboardingStore from "@/store/onboardingStore";
 import { onboardingAPI } from "@/lib/onboarding.api";
 
@@ -15,6 +16,7 @@ import { onboardingAPI } from "@/lib/onboarding.api";
 export function useIdentityVerificationForm() {
     const router = useRouter();
     const { trackEvent } = useAnalytics();
+    const { syncData } = useOnboardingDataSync();
     const { identity, markStepComplete, setCurrentStep } = useOnboardingStore();
     const upload = useIdentityDocumentUpload();
 
@@ -22,6 +24,11 @@ export function useIdentityVerificationForm() {
 
     useEffect(() => {
         trackEvent("onboarding_step_viewed", { step: 6, step_name: "identity" });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    useEffect(() => {
+        syncData();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 

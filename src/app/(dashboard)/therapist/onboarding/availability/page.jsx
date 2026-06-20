@@ -11,6 +11,7 @@ import { MdEdit, MdDelete, MdLocationOn } from "react-icons/md";
 import useOnboardingStore from "@/store/onboardingStore";
 import { availabilitySchema } from "@/lib/onboardingValidation";
 import { onboardingAPI } from "@/lib/onboarding.api";
+import { useOnboardingDataSync } from "@/hooks/useOnboardingDataSync";
 import OnboardingProgressBar from "@/components/therapist/OnboardingProgressBar";
 import WorkAreaFormModal from "@/components/therapist/profile/WorkAreaFormModal";
 
@@ -36,9 +37,15 @@ export default function AvailabilityPage() {
     usePageTitle("Set Availability");
     const router = useRouter();
     const { trackEvent } = useAnalytics();
+    const { syncData } = useOnboardingDataSync();
 
     useEffect(() => {
         trackEvent("onboarding_step_viewed", { step: 4, step_name: "availability" });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    useEffect(() => {
+        syncData();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 

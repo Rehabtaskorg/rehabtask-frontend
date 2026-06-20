@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import { useInsuranceDocumentUpload } from "@/hooks/useInsuranceDocumentUpload";
+import { useOnboardingDataSync } from "@/hooks/useOnboardingDataSync";
 import useOnboardingStore from "@/store/onboardingStore";
 import { onboardingAPI } from "@/lib/onboarding.api";
 
@@ -14,6 +15,7 @@ import { onboardingAPI } from "@/lib/onboarding.api";
 export function useInsuranceUploadsForm() {
     const router = useRouter();
     const { trackEvent } = useAnalytics();
+    const { syncData } = useOnboardingDataSync();
     const { insurance, updateInsurance, markStepComplete, setCurrentStep } = useOnboardingStore();
     const upload = useInsuranceDocumentUpload();
 
@@ -21,6 +23,11 @@ export function useInsuranceUploadsForm() {
 
     useEffect(() => {
         trackEvent("onboarding_step_viewed", { step: 5, step_name: "insurance" });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    useEffect(() => {
+        syncData();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
