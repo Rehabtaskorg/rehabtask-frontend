@@ -37,10 +37,6 @@ export function DocumentReaderModal({ isOpen, onClose, title, content, onScrolle
         return () => window.removeEventListener("keydown", handleEsc);
     }, [isOpen, onClose]);
 
-    useEffect(() => {
-        if (!isOpen) setScrollProgress(0);
-    }, [isOpen]);
-
     const handleScroll = () => {
         const el = contentRef.current;
         if (!el) return;
