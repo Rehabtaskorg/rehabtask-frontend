@@ -25,13 +25,13 @@ export function ComplianceFormsPlaceholder() {
                         Compliance Forms
                     </h1>
                     <p className="text-text-muted text-lg font-normal leading-normal">
-                        This step is still being built. You're all caught up — there's nothing to fill in here yet.
+                        This step is still being built. You&apos;re all caught up — there&apos;s nothing to fill in here yet.
                     </p>
                 </header>
 
                 <div className="bg-card-light border border-border-light rounded-xl p-8 shadow-sm">
                     <p className="text-text-main text-base">
-                        Your progress is saved. We'll let you know as soon as this step is ready to complete.
+                        Your progress is saved. We&apos;ll let you know as soon as this step is ready to complete.
                     </p>
 
                     <div className="pt-6 mt-6 border-t border-border-light">
