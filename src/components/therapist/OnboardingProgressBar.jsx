@@ -21,8 +21,8 @@ export default function OnboardingProgressBar() {
     const { syncStatus } = useOnboardingSync();
 
     const [progress, setProgress] = useState(0);
-    const [completedCount, setCompletedCount] = useState(0);
-    const [totalSteps, setTotalSteps] = useState(STEPS.length);
+    const [completedCount, setCompletedCount] = useState(null);
+    const [totalSteps, setTotalSteps] = useState(null);
 
     useEffect(() => {
         const loadProgress = async () => {
@@ -49,7 +49,7 @@ export default function OnboardingProgressBar() {
                     Onboarding Progress
                 </p>
                 <p className="text-text-main  text-sm font-medium leading-normal">
-                    {completedCount} of {totalSteps} completed
+                    {totalSteps === null ? "Loading…" : `${completedCount} of ${totalSteps} completed`}
                 </p>
             </div>
 
