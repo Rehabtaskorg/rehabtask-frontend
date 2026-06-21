@@ -9,7 +9,7 @@ import { STRIPE_STATUS, AUTO_RETRY_DELAY_MS } from "./constants";
 /**
  * State machine and all event handlers for the Stripe Connect onboarding flow.
  *
- * @returns {{ status: string, error: string|null, hasExistingAccount: boolean, embeddedFormLoaded: boolean, retryKey: number, loadFailed: boolean, handleCreateAccount: Function, handleOnboardingExit: Function, handleLoadError: Function, handleEmbeddedFormStart: Function, handleRetry: Function, handleSkipForNow: Function }}
+ * @returns {{ status: string, error: string|null, hasExistingAccount: boolean, embeddedFormLoaded: boolean, retryKey: number, loadFailed: boolean, handleCreateAccount: Function, handleOnboardingExit: Function, handleLoadError: Function, handleEmbeddedFormStart: Function, handleRetry: Function, confirmSkipForNow: Function }}
  */
 export function useStripeOnboarding() {
     const router = useRouter();
@@ -112,7 +112,7 @@ export function useStripeOnboarding() {
         setStatus(hasExistingAccount ? STRIPE_STATUS.ONBOARDING : STRIPE_STATUS.IDLE);
     };
 
-    const handleSkipForNow = async () => {
+    const confirmSkipForNow = async () => {
         try {
             await onboardingAPI.completeOnboarding();
             useOnboardingStore.getState().reset();
@@ -132,6 +132,6 @@ export function useStripeOnboarding() {
         handleLoadError,
         handleEmbeddedFormStart,
         handleRetry,
-        handleSkipForNow,
+        confirmSkipForNow,
     };
 }

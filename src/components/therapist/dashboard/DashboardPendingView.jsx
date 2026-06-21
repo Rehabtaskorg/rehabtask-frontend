@@ -19,12 +19,15 @@ import UserAvatar from "@/components/ui/UserAvatar";
 function buildTimelineSteps(onboardingStep, onboardingComplete) {
     const profileDone = onboardingStep >= 2;
     const credentialsDone = onboardingStep >= 3;
-    const backgroundDone = onboardingStep >= 5;
+    // TODO: [NEXT] Replace with the real backgroundCheckStatus field once it's exposed
+    // on the therapist's own profile/status endpoint (currently admin-only) — this
+    // step index is just a proxy for "documents submitted", not the actual vendor check.
+    const documentsDone = onboardingStep >= 5;
 
     return [
         { label: "Profile Created", complete: profileDone },
         { label: "Credentials Submitted", complete: credentialsDone },
-        { label: "Background Check", complete: backgroundDone },
+        { label: "Documents Submitted", complete: documentsDone },
         {
             label: "Final Quality Audit",
             complete: false,
@@ -188,7 +191,7 @@ export default function DashboardPendingView() {
                                 {onboardingComplete ? (
                                     <>
                                         <p>
-                                            Our team is reviewing your credentials and background check. This typically takes 24-48 hours.
+                                            Our team is reviewing your credentials and submitted documents. This typically takes 24-48 hours.
                                         </p>
                                         <p>
                                             While under review, your profile is hidden from patients. Once approved, you&apos;ll be visible in search results and can start receiving session requests.
@@ -200,7 +203,7 @@ export default function DashboardPendingView() {
                                 ) : (
                                     <>
                                         <p>
-                                            Complete your profile, credentials, availability, and background check to submit your application for review.
+                                            Complete your profile, credentials, availability, and required documents to submit your application for review.
                                         </p>
                                         <p>
                                             Once submitted, our team will review your application within 24-48 hours. After approval, you&apos;ll be visible to patients and can start accepting session requests.

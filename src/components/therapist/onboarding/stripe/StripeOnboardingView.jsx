@@ -1,8 +1,10 @@
 "use client";
 
+import { useState } from "react";
 import { MdArrowBack } from "react-icons/md";
 import { useRouter } from "next/navigation";
 import OnboardingProgressBar from "@/components/therapist/OnboardingProgressBar";
+import ConfirmModal from "@/components/ui/ConfirmModal";
 import StripeIdleCard from "./StripeIdleCard";
 import StripeEmbeddedForm from "./StripeEmbeddedForm";
 import StripeStatusCard from "./StripeStatusCard";
@@ -17,6 +19,7 @@ import { STRIPE_STATUS } from "./constants";
  */
 export default function StripeOnboardingView() {
     const router = useRouter();
+    const [showSkipConfirm, setShowSkipConfirm] = useState(false);
     const {
         status,
         error,
@@ -28,8 +31,10 @@ export default function StripeOnboardingView() {
         handleLoadError,
         handleEmbeddedFormStart,
         handleRetry,
-        handleSkipForNow,
+        confirmSkipForNow,
     } = useStripeOnboarding();
+
+    const handleSkipForNow = () => setShowSkipConfirm(true);
 
     return (
         <div className="min-h-screen bg-background-light py-10 px-4">
@@ -102,6 +107,19 @@ export default function StripeOnboardingView() {
                         </button>
                     </div>
                 )}
+
+                <ConfirmModal
+                    isOpen={showSkipConfirm}
+                    onClose={() => setShowSkipConfirm(false)}
+                    onConfirm={() => {
+                        setShowSkipConfirm(false);
+                        confirmSkipForNow();
+                    }}
+                    title="Finish onboarding without payouts?"
+                    message="You can submit your profile for review now and set up payouts later from your Earnings page. This won't delay your review, but you won't be able to receive payments until payouts are set up."
+                    confirmLabel="Submit for Review"
+                    cancelLabel="Go Back"
+                />
             </div>
         </div>
     );

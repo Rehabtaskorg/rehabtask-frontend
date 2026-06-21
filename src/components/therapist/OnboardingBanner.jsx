@@ -54,7 +54,7 @@ export default function OnboardingBanner() {
                 // Check if only Stripe is missing (all essential steps done)
                 const essentialStepsDone = steps?.personalInfo && steps?.profile &&
                     steps?.credentials && steps?.availability && steps?.insurance &&
-                    steps?.backgroundCheck;
+                    steps?.identity && steps?.compliance;
 
                 if (essentialStepsDone) {
                     // All essential steps done, only Stripe is missing — show review banner
@@ -109,8 +109,6 @@ export default function OnboardingBanner() {
         router.push(ONBOARDING_STEP_ROUTES[step] || "/therapist/dashboard");
     }
 
-    // Navigate to dashboard (which shows the pending view)
-    const handleViewPending = () => router.push("/therapist/dashboard")
     const handleViewSuccess = () => router.push("/therapist/approved");
 
     // Don't show anything while loading or if not therapist
@@ -160,12 +158,6 @@ export default function OnboardingBanner() {
                             Your credentials are under review - we&apos;ll notify you within 24-48 hours
                         </p>
                     </div>
-                    <button
-                        onClick={handleViewPending}
-                        className="px-4 py-2 rounded-lg text-sm font-semibold bg-yellow-600 text-white hover:brightness-95 transition-all"
-                    >
-                        View Status
-                    </button>
                 </div>
             </div>
         );
