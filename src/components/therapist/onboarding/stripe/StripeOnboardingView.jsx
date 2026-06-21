@@ -10,7 +10,7 @@ import { useStripeOnboarding } from "./useStripeOnboarding";
 import { STRIPE_STATUS } from "./constants";
 
 /**
- * Stripe Connect onboarding shell for therapists (step 5).
+ * Stripe Connect onboarding shell for therapists (step 8).
  * Delegates all state and logic to useStripeOnboarding.
  *
  * @returns {JSX.Element}
@@ -94,7 +94,7 @@ export default function StripeOnboardingView() {
                 {[STRIPE_STATUS.IDLE, STRIPE_STATUS.ERROR].includes(status) && (
                     <div className="mt-6 flex justify-center">
                         <button
-                            onClick={() => router.push("/therapist/onboarding/background-check")}
+                            onClick={() => router.push("/therapist/onboarding/compliance")}
                             className="flex items-center gap-2 text-text-muted hover:text-text-main transition-colors"
                         >
                             <MdArrowBack className="text-lg" />
