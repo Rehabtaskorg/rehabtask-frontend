@@ -31,6 +31,7 @@ export function useOnboardingSync() {
 
             return {
                 progress: data.progress,
+                onboardingStep: data.therapist.onboardingStep,
                 onboardingComplete: data.therapist.onboardingComplete,
                 approvalStatus: data.therapist.approvalStatus,
                 steps: data.steps,

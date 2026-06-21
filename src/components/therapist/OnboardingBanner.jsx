@@ -5,7 +5,6 @@ import { useCallback, useEffect, useState } from "react";
 import { authAPi } from "@/lib/auth.api";
 import { useOnboardingSync } from "@/hooks/useOnboardingSync";
 import { ONBOARDING_STEP_ROUTES } from "@/lib/therapistRouteAccess";
-import useOnboardingStore from "@/store/onboardingStore";
 import ConfirmModal from "@/components/ui/ConfirmModal";
 import { MdInfo } from "react-icons/md";
 
@@ -19,6 +18,7 @@ export default function OnboardingBanner() {
     const [isLoading, setIsLoading] = useState(true);
     const [rejectionReason, setRejectionReason] = useState(null);
     const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+    const [resumeStep, setResumeStep] = useState(null);
 
     const checkOnboardingStatus = useCallback(async () => {
         setIsLoading(true);
@@ -43,7 +43,8 @@ export default function OnboardingBanner() {
                 return;
             }
 
-            const { onboardingComplete, approvalStatus, progress: backendProgress, steps } = status;
+            const { onboardingStep, onboardingComplete, approvalStatus, progress: backendProgress, steps } = status;
+            setResumeStep(onboardingStep);
 
             // Rejection always takes priority regardless of onboarding completeness
             if (approvalStatus === "rejected") {
@@ -105,8 +106,7 @@ export default function OnboardingBanner() {
     }
 
     const handleResumeSetup = () => {
-        const step = useOnboardingStore.getState().currentStep;
-        router.push(ONBOARDING_STEP_ROUTES[step] || "/therapist/dashboard");
+        router.push(ONBOARDING_STEP_ROUTES[resumeStep] || "/therapist/dashboard");
     }
 
     const handleViewSuccess = () => router.push("/therapist/approved");
