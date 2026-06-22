@@ -85,6 +85,14 @@ export const onboardingAPI = {
     },
 
     /**
+     * Advance to Final Review (Step 9) once Stripe is finished or skipped.
+     * Never blocks on Stripe — it only records that the last step was reached.
+     */
+    advanceToFinalReview: async () => {
+        return api.post("/therapist/onboarding/advance-to-review");
+    },
+
+    /**
      * Complete onboarding
      */
     completeOnboarding: async () => {

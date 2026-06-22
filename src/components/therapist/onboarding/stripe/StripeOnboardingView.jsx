@@ -115,9 +115,9 @@ export default function StripeOnboardingView() {
                         setShowSkipConfirm(false);
                         confirmSkipForNow();
                     }}
-                    title="Finish onboarding without payouts?"
-                    message="You can submit your profile for review now and set up payouts later from your Earnings page. This won't delay your review, but you won't be able to receive payments until payouts are set up."
-                    confirmLabel="Submit for Review"
+                    title="Continue without payouts?"
+                    message="You can review and submit your application now, then set up payouts later from your Earnings page. This won't delay your review, but you won't be able to receive payments until payouts are set up."
+                    confirmLabel="Continue to Final Review"
                     cancelLabel="Go Back"
                 />
             </div>

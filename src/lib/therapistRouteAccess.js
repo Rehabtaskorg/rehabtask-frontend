@@ -15,13 +15,11 @@ export const ONBOARDING_STEP_ROUTES = {
     6: "/therapist/onboarding/identity",
     7: "/therapist/onboarding/compliance",
     8: "/therapist/onboarding/stripe",
-    // Step 9 (final review) added once built
+    9: "/therapist/onboarding/review",
 };
 
 const SAFE_FALLBACK_ROUTE = "/therapist/dashboard";
 
-// Pages therapists can access while onboarding is incomplete
-// Marketplace routes are included so they render the LockedPageOverlay instead of redirecting
 const ALLOWED_DURING_ONBOARDING = [
     "/therapist/dashboard",
     "/therapist/profile",
@@ -46,14 +44,11 @@ export function getTherapistRedirect(pathname, { onboardingComplete, onboardingS
             return null;
         }
 
-        // Allow dashboard, profile, and account settings during onboarding
         const isAllowed = ALLOWED_DURING_ONBOARDING.some((r) => pathname.startsWith(r));
         if (!isAllowed) {
             return ONBOARDING_STEP_ROUTES[onboardingStep] || SAFE_FALLBACK_ROUTE;
         }
     }
-
-    // Marketplace routes are no longer redirected — each page renders LockedPageOverlay when not approved
 
     return null;
 }

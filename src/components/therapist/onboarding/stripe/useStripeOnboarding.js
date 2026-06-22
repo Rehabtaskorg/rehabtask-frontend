@@ -72,15 +72,13 @@ export function useStripeOnboarding() {
                     showToast.info("Your details have been submitted. We're verifying your account — this usually takes a few minutes.");
                 }
                 trackEvent("onboarding_step_completed", { step: 8, step_name: "stripe" });
-                trackEvent("onboarding_completed", { has_stripe_connected: isFullyComplete });
                 markStepComplete(8);
                 if (accountId) markStripeConnected(accountId);
                 try {
-                    await onboardingAPI.completeOnboarding();
-                    useOnboardingStore.getState().reset();
+                    await onboardingAPI.advanceToFinalReview();
                 } catch { /* non-fatal — webhook covers this */ }
                 setStatus(STRIPE_STATUS.COMPLETE);
-                setTimeout(() => router.push("/therapist/dashboard"), 1500);
+                setTimeout(() => router.push("/therapist/onboarding/review"), 1500);
             } else {
                 setStatus(STRIPE_STATUS.ONBOARDING);
                 setError("Your payout setup is incomplete. Please fill in all required fields to continue.");
@@ -114,10 +112,9 @@ export function useStripeOnboarding() {
 
     const confirmSkipForNow = async () => {
         try {
-            await onboardingAPI.completeOnboarding();
-            useOnboardingStore.getState().reset();
+            await onboardingAPI.advanceToFinalReview();
         } catch { /* non-fatal */ }
-        router.push("/therapist/dashboard");
+        router.push("/therapist/onboarding/review");
     };
 
     return {
