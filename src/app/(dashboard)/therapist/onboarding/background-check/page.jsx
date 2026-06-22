@@ -24,7 +24,7 @@ export default function BackgroundCheckPage() {
     } = useOnboardingStore();
 
     useEffect(() => {
-        trackEvent("onboarding_step_viewed", { step: 4, step_name: "background-check" });
+        trackEvent("onboarding_step_viewed", { step: 6, step_name: "background-check" });
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
@@ -80,9 +80,9 @@ export default function BackgroundCheckPage() {
             });
 
             // Mark step as complete and move to next step
-            trackEvent("onboarding_step_completed", { step: 4, step_name: "background-check" });
-            markStepComplete(4);
-            setCurrentStep(5);
+            trackEvent("onboarding_step_completed", { step: 6, step_name: "background-check" });
+            markStepComplete(6);
+            setCurrentStep(7);
 
             // Navigate to Stripe onboarding
             router.push("/therapist/onboarding/stripe");
@@ -301,7 +301,7 @@ export default function BackgroundCheckPage() {
                             <div className="flex gap-4 w-full sm:w-auto">
                                 <button
                                     type="button"
-                                    onClick={() => router.push("/therapist/onboarding/availability")}
+                                    onClick={() => router.push("/therapist/onboarding/insurance")}
                                     className="flex-1 sm:flex-none px-6 py-3 rounded-lg font-bold text-text-muted  hover:text-text-main  hover:bg-muted-light  transition-colors"
                                 >
                                     Back

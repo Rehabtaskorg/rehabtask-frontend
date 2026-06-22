@@ -11,6 +11,7 @@ import { MdEdit, MdDelete, MdLocationOn } from "react-icons/md";
 import useOnboardingStore from "@/store/onboardingStore";
 import { availabilitySchema } from "@/lib/onboardingValidation";
 import { onboardingAPI } from "@/lib/onboarding.api";
+import { useOnboardingDataSync } from "@/hooks/useOnboardingDataSync";
 import OnboardingProgressBar from "@/components/therapist/OnboardingProgressBar";
 import WorkAreaFormModal from "@/components/therapist/profile/WorkAreaFormModal";
 
@@ -19,6 +20,7 @@ import DatePicker from "react-datepicker";
 import { parse, format } from "date-fns";
 import "react-datepicker/dist/react-datepicker.css";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import { logger } from "@/lib/logger";
 
 const DAYS = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
 const DAY_LABELS = {
@@ -35,10 +37,16 @@ export default function AvailabilityPage() {
     usePageTitle("Set Availability");
     const router = useRouter();
     const { trackEvent } = useAnalytics();
+    const { syncData } = useOnboardingDataSync();
 
     useEffect(() => {
-        trackEvent("onboarding_step_viewed", { step: 3, step_name: "availability" });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        trackEvent("onboarding_step_viewed", { step: 4, step_name: "availability" });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    useEffect(() => {
+        syncData();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const {
@@ -92,12 +100,12 @@ export default function AvailabilityPage() {
 
             updateAvailability(data);
 
-            trackEvent("onboarding_step_completed", { step: 3, step_name: "availability" });
-            markStepComplete(3);
-            setCurrentStep(4);
-            router.push("/therapist/onboarding/background-check");
+            trackEvent("onboarding_step_completed", { step: 4, step_name: "availability" });
+            markStepComplete(4);
+            setCurrentStep(5);
+            router.push("/therapist/onboarding/insurance");
         } catch (error) {
-            console.error("Failed to save availability:", error);
+            logger.error("Failed to save availability:", error);
             setValidationError(error.message || "Failed to save availability. Please try again.");
         } finally {
             setLoading(false);
@@ -475,7 +483,7 @@ export default function AvailabilityPage() {
                                 disabled={loading}
                                 className="w-full sm:w-auto px-10 h-12 bg-primary text-white font-bold rounded-lg shadow-lg shadow-primary/20 hover:brightness-95 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                                {loading ? "Saving..." : "Next: Background Check"}
+                                {loading ? "Saving..." : "Next: Insurance Uploads"}
                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path
                                         strokeLinecap="round"

@@ -3,10 +3,11 @@
 import { useCallback } from "react";
 import { onboardingAPI } from "@/lib/onboarding.api";
 import useOnboardingStore from "@/store/onboardingStore";
+import { logger } from "@/lib/logger";
 
 /**
- * Hook to sync onboarding status from backend to Zustand store
- * Call this in layour or pages that need real-time onboarding status
+ * Hook to sync onboarding status from backend to Zustand store.
+ * Call this in layouts or pages that need real-time onboarding status.
  */
 export function useOnboardingSync() {
     const { setCurrentStep, markStepComplete } = useOnboardingStore();
@@ -16,31 +17,30 @@ export function useOnboardingSync() {
             const response = await onboardingAPI.getOnboardingStatus();
             const { data } = response.data;
 
-            // Sync backend step to frontend
-            const backendStep = data.therapist.onboardingStep;
-            setCurrentStep(backendStep);
+            setCurrentStep(data.therapist.onboardingStep);
 
-            // Sync completed steps based on backend steps object
             const { steps } = data;
-
-            // Mark steps as complete based on backend
-            if (steps.profile) markStepComplete(1);
-            if (steps.credentials) markStepComplete(2);
-            if (steps.availability) markStepComplete(3);
-            if (steps.backgroundCheck) markStepComplete(4);
-            if (steps.stripe) markStepComplete(5);
+            if (steps.personalInfo) markStepComplete(1);
+            if (steps.profile) markStepComplete(2);
+            if (steps.credentials) markStepComplete(3);
+            if (steps.availability) markStepComplete(4);
+            if (steps.insurance) markStepComplete(5);
+            if (steps.identity) markStepComplete(6);
+            if (steps.compliance) markStepComplete(7);
+            if (steps.stripe) markStepComplete(8);
 
             return {
                 progress: data.progress,
+                onboardingStep: data.therapist.onboardingStep,
                 onboardingComplete: data.therapist.onboardingComplete,
                 approvalStatus: data.therapist.approvalStatus,
-                steps: data.steps
-            }
+                steps: data.steps,
+            };
         } catch (error) {
-            console.error("Failed to sync onboarding status:", error);
+            logger.error("Failed to sync onboarding status:", error);
             return null;
         }
-    }, [setCurrentStep, markStepComplete])
+    }, [setCurrentStep, markStepComplete]);
 
-    return { syncStatus }
+    return { syncStatus };
 }

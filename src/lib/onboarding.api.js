@@ -13,7 +13,23 @@ export const onboardingAPI = {
     },
 
     /**
-    * Save professional profile (Step 1)
+     * Get every previously-saved onboarding field value, so step forms can
+     * repopulate themselves on mount instead of relying on the Zustand
+     * store (which is wiped on logout).
+     */
+    getOnboardingData: async () => {
+        return api.get("/therapist/onboarding/data");
+    },
+
+    /**
+     * Save personal information (Step 1)
+     */
+    savePersonalInfo: async (data) => {
+        return api.post("/therapist/onboarding/personal-info", data);
+    },
+
+    /**
+    * Save professional profile (Step 2)
     */
     saveProfessionalProfile: async (data) => {
         return api.post("/therapist/onboarding/profile", data);
@@ -34,10 +50,46 @@ export const onboardingAPI = {
     },
 
     /**
+     * Save insurance documentation (Step 5)
+     */
+    saveInsurance: async (data) => {
+        return api.post("/therapist/onboarding/insurance", data);
+    },
+
+    /**
+     * Save identity verification documents (Step 6)
+     */
+    saveIdentityVerification: async (data) => {
+        return api.post("/therapist/onboarding/identity", data);
+    },
+
+    /**
+     * Get the Compliance Forms step's rendered document previews + sign status (Step 7)
+     */
+    getComplianceContent: async () => {
+        return api.get("/therapist/onboarding/compliance/content");
+    },
+
+    /**
+     * Record a signature on one of the 3 Compliance Forms e-signature documents (Step 7)
+     */
+    signComplianceDocument: async (data) => {
+        return api.post("/therapist/onboarding/compliance/sign", data);
+    },
+
+    /**
      * Submit background check (Step 4)
      */
     submitBackgroundCheck: async (data) => {
         return api.post("/therapist/onboarding/background-check", data);
+    },
+
+    /**
+     * Advance to Final Review (Step 9) once Stripe is finished or skipped.
+     * Never blocks on Stripe — it only records that the last step was reached.
+     */
+    advanceToFinalReview: async () => {
+        return api.post("/therapist/onboarding/advance-to-review");
     },
 
     /**
@@ -68,8 +120,8 @@ export const onboardingAPI = {
     },
 
     /**
-     * Uplaod profile photo via backend
-     * Uses acios with FormData - cookies handled automatically
+     * Upload profile photo via backend
+     * Uses axios with FormData — cookies handled automatically
      */
     uploadProfilePhoto: async (file) => {
         const formData = new FormData();
@@ -89,12 +141,13 @@ export const onboardingAPI = {
     },
 
     /**
-     * Upload license document via backend
+     * Upload an onboarding document via backend (license, insurance, ...).
      * Uses axios with FormData - cookies handled automatically
      */
-    uploadLicenseDocument: async (file, documentType = "license") => {
+    uploadDocument: async (file, category, documentType) => {
         const formData = new FormData();
         formData.append("file", file);
+        formData.append("category", category);
         formData.append("documentType", documentType);
 
         const response = await api.post("/therapist/onboarding/upload-document",

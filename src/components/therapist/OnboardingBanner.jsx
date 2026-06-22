@@ -5,7 +5,6 @@ import { useCallback, useEffect, useState } from "react";
 import { authAPi } from "@/lib/auth.api";
 import { useOnboardingSync } from "@/hooks/useOnboardingSync";
 import { ONBOARDING_STEP_ROUTES } from "@/lib/therapistRouteAccess";
-import useOnboardingStore from "@/store/onboardingStore";
 import ConfirmModal from "@/components/ui/ConfirmModal";
 import { MdInfo } from "react-icons/md";
 
@@ -19,6 +18,7 @@ export default function OnboardingBanner() {
     const [isLoading, setIsLoading] = useState(true);
     const [rejectionReason, setRejectionReason] = useState(null);
     const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+    const [resumeStep, setResumeStep] = useState(null);
 
     const checkOnboardingStatus = useCallback(async () => {
         setIsLoading(true);
@@ -43,7 +43,8 @@ export default function OnboardingBanner() {
                 return;
             }
 
-            const { onboardingComplete, approvalStatus, progress: backendProgress, steps } = status;
+            const { onboardingStep, onboardingComplete, approvalStatus, progress: backendProgress, steps } = status;
+            setResumeStep(onboardingStep);
 
             // Rejection always takes priority regardless of onboarding completeness
             if (approvalStatus === "rejected") {
@@ -52,8 +53,9 @@ export default function OnboardingBanner() {
                 setShowBanner(true);
             } else if (!onboardingComplete) {
                 // Check if only Stripe is missing (all essential steps done)
-                const essentialStepsDone = steps?.profile && steps?.credentials &&
-                    steps?.availability && steps?.backgroundCheck;
+                const essentialStepsDone = steps?.personalInfo && steps?.profile &&
+                    steps?.credentials && steps?.availability && steps?.insurance &&
+                    steps?.identity && steps?.compliance;
 
                 if (essentialStepsDone) {
                     // All essential steps done, only Stripe is missing — show review banner
@@ -104,12 +106,9 @@ export default function OnboardingBanner() {
     }
 
     const handleResumeSetup = () => {
-        const step = useOnboardingStore.getState().currentStep;
-        router.push(ONBOARDING_STEP_ROUTES[step] || "/therapist/onboarding/profile");
+        router.push(ONBOARDING_STEP_ROUTES[resumeStep] || "/therapist/dashboard");
     }
 
-    // Navigate to dashboard (which shows the pending view)
-    const handleViewPending = () => router.push("/therapist/dashboard")
     const handleViewSuccess = () => router.push("/therapist/approved");
 
     // Don't show anything while loading or if not therapist
@@ -159,12 +158,6 @@ export default function OnboardingBanner() {
                             Your credentials are under review - we&apos;ll notify you within 24-48 hours
                         </p>
                     </div>
-                    <button
-                        onClick={handleViewPending}
-                        className="px-4 py-2 rounded-lg text-sm font-semibold bg-yellow-600 text-white hover:brightness-95 transition-all"
-                    >
-                        View Status
-                    </button>
                 </div>
             </div>
         );

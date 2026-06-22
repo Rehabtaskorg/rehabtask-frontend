@@ -9,7 +9,11 @@ import { STRIPE_STATUS, AUTO_RETRY_DELAY_MS } from "./constants";
 /**
  * State machine and all event handlers for the Stripe Connect onboarding flow.
  *
- * @returns {{ status: string, error: string|null, hasExistingAccount: boolean, embeddedFormLoaded: boolean, retryKey: number, loadFailed: boolean, handleCreateAccount: Function, handleOnboardingExit: Function, handleLoadError: Function, handleEmbeddedFormStart: Function, handleRetry: Function, handleSkipForNow: Function }}
+ * TODO: [NEXT] Uses manual useState+useEffect for server state instead of
+ * React Query (see useFinalReview.js for the full note — same applies to
+ * every onboarding step hook, migrate them together, not one at a time).
+ *
+ * @returns {{ status: string, error: string|null, hasExistingAccount: boolean, embeddedFormLoaded: boolean, retryKey: number, loadFailed: boolean, handleCreateAccount: Function, handleOnboardingExit: Function, handleLoadError: Function, handleEmbeddedFormStart: Function, handleRetry: Function, confirmSkipForNow: Function }}
  */
 export function useStripeOnboarding() {
     const router = useRouter();
@@ -25,8 +29,8 @@ export function useStripeOnboarding() {
     const [hasAutoRetried, setHasAutoRetried] = useState(false);
 
     useEffect(() => {
-        trackEvent("onboarding_step_viewed", { step: 5, step_name: "stripe" });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        trackEvent("onboarding_step_viewed", { step: 8, step_name: "stripe" });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     useEffect(() => {
@@ -71,16 +75,14 @@ export function useStripeOnboarding() {
                 if (isPendingVerification) {
                     showToast.info("Your details have been submitted. We're verifying your account — this usually takes a few minutes.");
                 }
-                trackEvent("onboarding_step_completed", { step: 5, step_name: "stripe" });
-                trackEvent("onboarding_completed", { has_stripe_connected: isFullyComplete });
-                markStepComplete(5);
+                trackEvent("onboarding_step_completed", { step: 8, step_name: "stripe" });
+                markStepComplete(8);
                 if (accountId) markStripeConnected(accountId);
                 try {
-                    await onboardingAPI.completeOnboarding();
-                    useOnboardingStore.getState().reset();
+                    await onboardingAPI.advanceToFinalReview();
                 } catch { /* non-fatal — webhook covers this */ }
                 setStatus(STRIPE_STATUS.COMPLETE);
-                setTimeout(() => router.push("/therapist/dashboard"), 1500);
+                setTimeout(() => router.push("/therapist/onboarding/review"), 1500);
             } else {
                 setStatus(STRIPE_STATUS.ONBOARDING);
                 setError("Your payout setup is incomplete. Please fill in all required fields to continue.");
@@ -112,12 +114,11 @@ export function useStripeOnboarding() {
         setStatus(hasExistingAccount ? STRIPE_STATUS.ONBOARDING : STRIPE_STATUS.IDLE);
     };
 
-    const handleSkipForNow = async () => {
+    const confirmSkipForNow = async () => {
         try {
-            await onboardingAPI.completeOnboarding();
-            useOnboardingStore.getState().reset();
+            await onboardingAPI.advanceToFinalReview();
         } catch { /* non-fatal */ }
-        router.push("/therapist/dashboard");
+        router.push("/therapist/onboarding/review");
     };
 
     return {
@@ -132,6 +133,6 @@ export function useStripeOnboarding() {
         handleLoadError,
         handleEmbeddedFormStart,
         handleRetry,
-        handleSkipForNow,
+        confirmSkipForNow,
     };
 }

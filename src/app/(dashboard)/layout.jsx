@@ -231,17 +231,22 @@ export default function DashboardLayout({ children }) {
 
         fetchUser();
         return () => { isMounted = false; };
-    }, [router, pathname, posthog]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [router, posthog]);
 
     /**
      * Logs the current user out: calls the logout API, tears down the socket,
-     * resets client-side state, detaches PostHog, then navigates to the destination.
+     * detaches PostHog, then navigates to the destination.
      *
      * @param {string} [redirectTo="/"] - Path to navigate to after logout.
+     * @param {{ preserveOnboardingState?: boolean }} [options={}]
+     *   preserveOnboardingState: skip the onboarding store reset so the user can
+     *   resume exactly where they left off after re-authenticating. Use this for
+     *   idle-timeout logouts — the session expired but the user hasn't changed.
+     *   Explicit logout (clicking "Logout") must always reset to prevent data
+     *   leakage if a different account logs in on the same device.
      */
-    const handleLogout = useCallback(async (redirectTo = "/") => {
-        // Guard: onClick passes a MouseEvent when called directly from a button —
-        // treat that as "no redirect specified" and fall back to "/".
+    const handleLogout = useCallback(async (redirectTo = "/", { preserveOnboardingState = false } = {}) => {
         const destination = typeof redirectTo === "string" ? redirectTo : "/";
         try {
             await authAPi.logout();
@@ -249,13 +254,19 @@ export default function DashboardLayout({ children }) {
             // best-effort — session may already be invalid
         } finally {
             destroySocket();
-            useOnboardingStore.getState().reset();
+            if (!preserveOnboardingState) {
+                useOnboardingStore.getState().reset();
+            }
             posthog?.reset();
         }
         router.push(destination);
     }, [router, posthog]);
 
-    useIdleTimeout(user ? () => handleLogout(`/login?reason=${LOGOUT_REASON.IDLE_TIMEOUT}`) : null);
+    useIdleTimeout(
+        user
+            ? () => handleLogout(`/login?reason=${LOGOUT_REASON.IDLE_TIMEOUT}`, { preserveOnboardingState: true })
+            : null
+    );
 
     if (loading) {
         return (
@@ -291,8 +302,9 @@ export default function DashboardLayout({ children }) {
         const status = tp?.approvalStatus ?? "pending";
         const step = tp?.onboardingStep ?? 1;
         const isComplete = tp?.onboardingComplete ?? false;
-        // Step 5+ means all essential steps are done — treat as functionally complete
-        const functionallyComplete = isComplete || step >= 5;
+        // Step 8 (Payment Setup) onward is functionally complete — payment is not
+        // a hard requirement for admin review. Step 9 (Final Review) just confirms.
+        const functionallyComplete = isComplete || step >= 8;
         return {
             approvalStatus: status,
             rejectionReason: tp?.rejectionReason ?? null,
