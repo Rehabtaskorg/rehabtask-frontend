@@ -9,6 +9,10 @@ import { STRIPE_STATUS, AUTO_RETRY_DELAY_MS } from "./constants";
 /**
  * State machine and all event handlers for the Stripe Connect onboarding flow.
  *
+ * TODO: [NEXT] Uses manual useState+useEffect for server state instead of
+ * React Query (see useFinalReview.js for the full note — same applies to
+ * every onboarding step hook, migrate them together, not one at a time).
+ *
  * @returns {{ status: string, error: string|null, hasExistingAccount: boolean, embeddedFormLoaded: boolean, retryKey: number, loadFailed: boolean, handleCreateAccount: Function, handleOnboardingExit: Function, handleLoadError: Function, handleEmbeddedFormStart: Function, handleRetry: Function, confirmSkipForNow: Function }}
  */
 export function useStripeOnboarding() {

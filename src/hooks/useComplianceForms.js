@@ -18,6 +18,10 @@ const SUB_STEPS = ["w9", "independent_contractor_agreement", "hipaa_acknowledgme
  * documents share the SignatureAgreementForm component). Resumes on the
  * first incomplete sub-step on mount, rather than always starting at 1, so
  * a returning therapist doesn't have to re-sign what they already signed.
+ *
+ * TODO: [NEXT] Uses manual useState+useEffect for server state instead of
+ * React Query (see useFinalReview.js for the full note — same applies to
+ * every onboarding step hook, migrate them together, not one at a time).
  */
 export function useComplianceForms() {
     const router = useRouter();
