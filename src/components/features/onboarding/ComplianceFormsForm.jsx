@@ -16,11 +16,11 @@ const SUB_STEP_LABELS = {
 
 const SUMMARIES = {
     independent_contractor_agreement:
-        "This agreement covers the terms of your engagement as an independent contractor with Steadfast Rehabilitation Services, including compensation, confidentiality, and termination terms.",
+        "This agreement covers the terms of your engagement as an independent contractor with RehabTask, including compensation, confidentiality, and termination terms.",
     hipaa_acknowledgment:
         "This acknowledgment outlines your responsibility to protect patient privacy and confidential health information while providing services through RehabTask.",
     background_check_authorization:
-        "This authorizes Steadfast Rehabilitation Services to conduct a background screening through First Advantage as part of onboarding.",
+        "This authorizes RehabTask to conduct a background screening through First Advantage as part of onboarding.",
 };
 
 /**
