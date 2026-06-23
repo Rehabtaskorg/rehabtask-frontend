@@ -17,7 +17,7 @@ const STEPS = [
  * Progress bar for the Agency onboarding flow (6 steps).
  */
 export function AgencyOnboardingProgressBar() {
-    const { currentStep } = useAgencyOnboardingStore((state) => ({ currentStep: state.currentStep }));
+    const currentStep = useAgencyOnboardingStore((state) => state.currentStep);
     const { syncStatus } = useAgencyOnboardingSync();
 
     const [progress, setProgress] = useState(0);
