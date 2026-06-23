@@ -13,6 +13,7 @@ export const USER_ROLES = {
 
 export const CUSTOMER_TYPES = {
     AGENCY: "agency",
+    INDIVIDUAL: "individual",
 };
 
 export const LICENSE_TYPE_TO_SERVICE_TYPE = Object.freeze({

@@ -8,6 +8,7 @@ import Image from 'next/image';
 import { authAPi } from '@/lib/auth.api';
 import { destroySocket } from '@/lib/socket';
 import { getTherapistRedirect } from '@/lib/therapistRouteAccess';
+import { getCustomerRedirect } from '@/lib/customerRouteAccess';
 import { TherapistAccessProvider } from '@/contexts/TherapistAccessContext';
 import { AdminUserProvider } from '@/contexts/AdminUserContext';
 import { SidebarProvider, useSidebar } from '@/contexts/SidebarContext';
@@ -200,7 +201,20 @@ export default function DashboardLayout({ children }) {
 
                     if (redirect && pathname !== redirect) {
                         router.replace(redirect);
-                        return; // Don't set user or loading=false; keep spinner until redirect
+                        return;
+                    }
+                }
+
+                if (userData.role === USER_ROLES.CUSTOMER) {
+                    const redirect = getCustomerRedirect(pathname, {
+                        customerType: userData.profile?.customerType ?? null,
+                        onboardingComplete: userData.profile?.onboardingComplete ?? false,
+                        onboardingStep: userData.profile?.onboardingStep ?? 1,
+                    });
+
+                    if (redirect && pathname !== redirect) {
+                        router.replace(redirect);
+                        return;
                     }
                 }
 
