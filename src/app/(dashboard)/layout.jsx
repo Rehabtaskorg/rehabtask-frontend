@@ -172,11 +172,13 @@ export default function DashboardLayout({ children }) {
 
                 if (shouldRedirectToTherapist) {
                     router.replace("/therapist/dashboard");
+                    setLoading(false);
                     return;
                 }
 
                 if (shouldRedirectToCustomer) {
                     router.replace("/customer/dashboard");
+                    setLoading(false);
                     return;
                 }
 
@@ -186,6 +188,7 @@ export default function DashboardLayout({ children }) {
                     const isOnOnboarding = pathname.startsWith("/oauth/onboarding");
                     if (!isOnOnboarding) {
                         router.replace("/oauth/onboarding");
+                        setLoading(false);
                         return;
                     }
                 }
@@ -201,6 +204,7 @@ export default function DashboardLayout({ children }) {
 
                     if (redirect && pathname !== redirect) {
                         router.replace(redirect);
+                        setLoading(false);
                         return;
                     }
                 }
@@ -214,6 +218,7 @@ export default function DashboardLayout({ children }) {
 
                     if (redirect && pathname !== redirect) {
                         router.replace(redirect);
+                        setLoading(false);
                         return;
                     }
                 }
