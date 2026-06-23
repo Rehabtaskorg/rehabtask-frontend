@@ -1,6 +1,7 @@
 import { CUSTOMER_TYPES } from "./constants";
 
 export const AGENCY_ONBOARDING_STEP_ROUTES = {
+    1: "/customer/onboarding/agency/welcome",
     2: "/customer/onboarding/agency/business-profile",
 };
 
@@ -33,7 +34,7 @@ export function getCustomerRedirect(pathname, { customerType, onboardingComplete
             if (stepEntry) {
                 const targetStep = parseInt(stepEntry[0], 10);
                 if (targetStep > onboardingStep) {
-                    return STEP_ROUTES[onboardingStep] || SAFE_FALLBACK_ROUTE;
+                    return STEP_ROUTES[onboardingStep] ?? STEP_ROUTES[1];
                 }
             }
             return null;
@@ -41,7 +42,7 @@ export function getCustomerRedirect(pathname, { customerType, onboardingComplete
 
         const isAllowed = ALLOWED_DURING_ONBOARDING.some((r) => pathname.startsWith(r));
         if (!isAllowed) {
-            return STEP_ROUTES[onboardingStep] || SAFE_FALLBACK_ROUTE;
+            return STEP_ROUTES[onboardingStep] ?? STEP_ROUTES[1];
         }
     }
 
