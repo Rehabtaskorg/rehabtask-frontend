@@ -5,8 +5,6 @@ export const AGENCY_ONBOARDING_STEP_ROUTES = {
     2: "/customer/onboarding/agency/business-profile",
 };
 
-const SAFE_FALLBACK_ROUTE = "/customer/dashboard";
-
 const ALLOWED_DURING_ONBOARDING = [
     "/customer/dashboard",
     "/customer/profile",
@@ -28,17 +26,8 @@ export function getCustomerRedirect(pathname, { customerType, onboardingComplete
     const isOnOnboardingRoute = pathname.startsWith("/customer/onboarding/agency");
 
     if (!onboardingComplete) {
-        if (isOnOnboardingRoute) {
-            const stepEntry = Object.entries(STEP_ROUTES)
-                .find(([, route]) => pathname.startsWith(route));
-            if (stepEntry) {
-                const targetStep = parseInt(stepEntry[0], 10);
-                if (targetStep > onboardingStep) {
-                    return STEP_ROUTES[onboardingStep] ?? STEP_ROUTES[1];
-                }
-            }
-            return null;
-        }
+        // Allow free navigation across all agency onboarding routes during skeleton build phase
+        if (isOnOnboardingRoute) return null;
 
         const isAllowed = ALLOWED_DURING_ONBOARDING.some((r) => pathname.startsWith(r));
         if (!isAllowed) {

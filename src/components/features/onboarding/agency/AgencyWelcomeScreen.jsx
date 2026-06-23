@@ -1,7 +1,6 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { AgencyOnboardingProgressBar } from "@/components/features/onboarding/agency/AgencyOnboardingProgressBar";
 import { usePageTitle } from "@/hooks/usePageTitle";
 
 /**
@@ -15,7 +14,6 @@ export function AgencyWelcomeScreen() {
     return (
         <div className="min-h-screen bg-background-light py-10 px-4">
             <div className="max-w-4xl mx-auto">
-                <AgencyOnboardingProgressBar />
 
                 <header className="mb-8 px-4">
                     <h1 className="text-text-main text-4xl font-black leading-tight tracking-[-0.033em] mb-2">
