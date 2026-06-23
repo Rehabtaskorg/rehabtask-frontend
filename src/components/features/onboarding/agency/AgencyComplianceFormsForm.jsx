@@ -96,6 +96,7 @@ export function AgencyComplianceFormsForm() {
                         onSubmit={handleSign}
                         onBack={handleBack}
                         submitLabel={subStepIndex === totalSubSteps - 1 ? "Sign & Finish" : "Sign & Continue"}
+                        skipScrollGate
                     />
                 )}
             </div>

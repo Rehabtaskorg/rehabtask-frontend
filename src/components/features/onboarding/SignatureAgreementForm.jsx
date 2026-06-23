@@ -32,9 +32,10 @@ export function SignatureAgreementForm({
     onSubmit,
     onBack,
     submitLabel = "Sign & Continue",
+    skipScrollGate = false,
 }) {
     const [modalOpen, setModalOpen] = useState(false);
-    const [hasReadToBottom, setHasReadToBottom] = useState(false);
+    const [hasReadToBottom, setHasReadToBottom] = useState(skipScrollGate);
     const [agreed, setAgreed] = useState(false);
     const [signature, setSignature] = useState("");
 
