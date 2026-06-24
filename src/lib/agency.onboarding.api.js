@@ -82,4 +82,13 @@ export const agencyOnboardingAPI = {
     signAgencyCompliance: async (data) => {
         return api.post("/agency/onboarding/compliance/sign", data);
     },
+
+    /**
+     * Complete agency onboarding (Step 5 — Activation).
+     * Sets approvalStatus = "approved" + onboardingComplete = true instantly.
+     * @returns {Promise<{ customer: { id, onboardingComplete, approvalStatus } }>}
+     */
+    completeAgencyOnboarding: async () => {
+        return api.post("/agency/onboarding/complete");
+    },
 };

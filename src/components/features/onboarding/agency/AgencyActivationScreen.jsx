@@ -1,7 +1,7 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import { useAgencyActivation } from "@/hooks/useAgencyActivation";
 import { AgencyOnboardingProgressBar } from "@/components/features/onboarding/agency/AgencyOnboardingProgressBar";
 
 const CHECKLIST = [
@@ -12,11 +12,11 @@ const CHECKLIST = [
 
 /**
  * Agency onboarding Step 5 — Activation.
- * Skeleton: read-only checklist + submit button. No API call in skeleton mode.
+ * Read-only checklist + submit button. Calls completeAgencyOnboarding on submit.
  */
 export function AgencyActivationScreen() {
     usePageTitle("Submit for Activation");
-    const router = useRouter();
+    const { submitting, error, onSubmit, onBack } = useAgencyActivation();
 
     return (
         <div className="min-h-screen bg-background-light py-10 px-4">
@@ -59,13 +59,16 @@ export function AgencyActivationScreen() {
                                 Submitting will activate your agency account immediately. You will have full access to the platform right away.
                             </p>
                         </div>
+
+                        {error && <p className="text-red-500 text-sm">{error}</p>}
                     </div>
 
                     <div className="p-8 bg-muted-light flex flex-col sm:flex-row justify-between items-center gap-4 border-t border-border-light">
                         <button
                             type="button"
-                            onClick={() => router.push("/customer/onboarding/agency/compliance")}
-                            className="w-full sm:w-auto flex items-center justify-center gap-2 px-8 h-12 text-text-muted font-bold hover:text-text-main transition-colors"
+                            onClick={onBack}
+                            disabled={submitting}
+                            className="w-full sm:w-auto flex items-center justify-center gap-2 px-8 h-12 text-text-muted font-bold hover:text-text-main transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -74,13 +77,18 @@ export function AgencyActivationScreen() {
                         </button>
                         <button
                             type="button"
-                            onClick={() => router.push("/customer/dashboard")}
-                            className="w-full sm:w-auto px-10 h-12 bg-primary text-white font-bold rounded-lg shadow-lg shadow-primary/20 hover:brightness-95 transition-all flex items-center justify-center gap-2"
+                            onClick={onSubmit}
+                            disabled={submitting}
+                            className="w-full sm:w-auto px-10 h-12 bg-primary text-white font-bold rounded-lg shadow-lg shadow-primary/20 hover:brightness-95 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                            Submit for Activation
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                            </svg>
+                            {submitting ? "Activating…" : (
+                                <>
+                                    Submit for Activation
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                                    </svg>
+                                </>
+                            )}
                         </button>
                     </div>
                 </div>
