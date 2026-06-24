@@ -9,12 +9,11 @@ const STEPS = [
     { number: 2, label: "Business Profile" },
     { number: 3, label: "Upload Documents" },
     { number: 4, label: "Compliance Forms" },
-    { number: 5, label: "Payment Setup" },
-    { number: 6, label: "Activation" },
+    { number: 5, label: "Activation" },
 ];
 
 /**
- * Progress bar for the Agency onboarding flow (6 steps).
+ * Progress bar for the Agency onboarding flow (5 steps).
  */
 export function AgencyOnboardingProgressBar() {
     const currentStep = useAgencyOnboardingStore((state) => state.currentStep);
