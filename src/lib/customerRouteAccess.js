@@ -26,9 +26,14 @@ const ALLOWED_DURING_ONBOARDING = [
  * @returns {string|null}
  */
 export function getCustomerRedirect(pathname, { customerType, onboardingComplete, onboardingStep }) {
-    if (customerType !== CUSTOMER_TYPES.AGENCY) return null;
+    const isOnAgencyOnboardingRoute = pathname.startsWith("/customer/onboarding/agency");
 
-    const isOnOnboardingRoute = pathname.startsWith("/customer/onboarding/agency");
+    if (customerType !== CUSTOMER_TYPES.AGENCY) {
+        if (isOnAgencyOnboardingRoute) return "/customer/dashboard";
+        return null;
+    }
+
+    const isOnOnboardingRoute = isOnAgencyOnboardingRoute;
 
     if (!onboardingComplete) {
         if (isOnOnboardingRoute) {
