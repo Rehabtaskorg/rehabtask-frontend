@@ -35,21 +35,15 @@ export function useAgencyOnboardingSync() {
 }
 
 export function useAgencyOnboardingDataSync() {
-    const { updateBusinessProfile } = useAgencyOnboardingStore();
-
     const syncData = useCallback(async () => {
         try {
             const response = await agencyOnboardingAPI.getAgencyOnboardingData();
-            const { data } = response.data;
-
-            updateBusinessProfile(data.businessProfile);
-
-            return data;
+            return response.data.data;
         } catch (error) {
             logger.error("Failed to sync agency onboarding data:", error);
             return null;
         }
-    }, [updateBusinessProfile]);
+    }, []);
 
     return { syncData };
 }
