@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import { AgencyOnboardingProgressBar } from "@/components/features/onboarding/agency/AgencyOnboardingProgressBar";
 
 const CHECKLIST = [
     { label: "Business Profile", desc: "Agency details and billing contact" },
@@ -20,6 +21,7 @@ export function AgencyActivationScreen() {
     return (
         <div className="min-h-screen bg-background-light py-10 px-4">
             <div className="max-w-4xl mx-auto">
+                <AgencyOnboardingProgressBar />
                 <header className="mb-8 px-4">
                     <h1 className="text-text-main text-4xl font-black leading-tight tracking-[-0.033em] mb-2">
                         Submit for Activation

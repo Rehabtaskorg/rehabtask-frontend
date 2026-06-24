@@ -6,6 +6,7 @@ import { usePageTitle } from "@/hooks/usePageTitle";
 import { W9UploadForm } from "@/components/features/onboarding/W9UploadForm";
 import { SignatureAgreementForm } from "@/components/features/onboarding/SignatureAgreementForm";
 import { SubStepDots } from "@/components/features/onboarding/SubStepDots";
+import { AgencyOnboardingProgressBar } from "@/components/features/onboarding/agency/AgencyOnboardingProgressBar";
 
 const SUB_STEPS = ["w9", "service_agreement", "hipaa_baa"];
 
@@ -63,6 +64,7 @@ export function AgencyComplianceFormsForm() {
     return (
         <div className="min-h-screen bg-background-light py-10 px-4">
             <div className="max-w-4xl mx-auto">
+                <AgencyOnboardingProgressBar />
                 <header className="mb-8 px-4">
                     <h1 className="text-text-main text-4xl font-black leading-tight tracking-[-0.033em] mb-2">
                         Compliance Forms
