@@ -7,10 +7,11 @@ export const agencyBusinessProfileSchema = z.object({
     dbaName: z.string().max(255).optional().nullable(),
     ein: z
         .string()
-        .regex(/^\d{2}-\d{7}$/, "EIN must be in format XX-XXXXXXX")
+        .refine((val) => val === "" || /^\d{2}-\d{7}$/.test(val), {
+            message: "EIN must be in format XX-XXXXXXX",
+        })
         .optional()
-        .nullable()
-        .or(z.literal("")),
+        .nullable(),
     billingEmail: z
         .string()
         .min(1, "Billing email is required")

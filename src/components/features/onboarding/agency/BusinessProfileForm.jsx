@@ -99,10 +99,12 @@ export function BusinessProfileForm() {
     };
 
     const onSubmit = async (data) => {
+        logger.log("[BusinessProfileForm] onSubmit data:", data);
         setLoading(true);
         setSubmitError(null);
         try {
             const payload = toPayload(data);
+            logger.log("[BusinessProfileForm] payload:", payload);
             await agencyOnboardingAPI.saveAgencyBusinessProfile(payload);
             updateBusinessProfile(payload);
             markStepComplete(2);
