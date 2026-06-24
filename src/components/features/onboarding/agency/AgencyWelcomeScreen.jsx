@@ -33,9 +33,9 @@ export function AgencyWelcomeScreen() {
                         <ol className="space-y-4">
                             {[
                                 { step: 1, label: "Business Profile", desc: "Agency details, address, and billing contact" },
-                                { step: 2, label: "Upload Documents", desc: "State license, insurance certificates, and W-9" },
-                                { step: 3, label: "Compliance Forms", desc: "Service Agreement and HIPAA BAA e-signatures" },
-                                { step: 4, label: "Payment Setup", desc: "Card on file for platform fees" },
+                                { step: 2, label: "Upload Documents", desc: "State license and insurance certificates" },
+                                { step: 3, label: "Compliance Forms", desc: "W-9, Service Agreement, and HIPAA BAA e-signatures" },
+                                { step: 4, label: "Activation", desc: "Submit your agency for review and approval" },
                             ].map(({ step, label, desc }) => (
                                 <li key={step} className="flex items-start gap-4">
                                     <span className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 text-primary text-sm font-bold flex items-center justify-center">
