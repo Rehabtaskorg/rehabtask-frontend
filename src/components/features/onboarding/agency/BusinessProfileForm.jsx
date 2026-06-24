@@ -45,7 +45,7 @@ export function BusinessProfileForm() {
     const [registration, setRegistration] = useState({ agencyName: "", fullName: "", phone: "" });
     const [addressLine1Display, setAddressLine1Display] = useState(businessProfile.addressLine1 || "");
 
-    const { register, handleSubmit, setValue, reset, formState: { errors } } = useForm({
+    const { register, handleSubmit, setValue, reset, getValues, formState: { errors } } = useForm({
         resolver: zodResolver(agencyBusinessProfileSchema),
         defaultValues: {
             dbaName: businessProfile.dbaName || "",
@@ -60,14 +60,26 @@ export function BusinessProfileForm() {
         mode: "onSubmit",
     });
 
+    logger.log("[BusinessProfileForm] MOUNT — store defaultValues:", {
+        dbaName: businessProfile.dbaName,
+        ein: businessProfile.ein,
+        billingEmail: businessProfile.billingEmail,
+        addressLine1: businessProfile.addressLine1,
+        city: businessProfile.city,
+        state: businessProfile.state,
+        zipCode: businessProfile.zipCode,
+    });
+
     // Repopulate from the backend on mount so a returning user sees their saved data.
     useEffect(() => {
+        const t0 = Date.now();
         syncData().then((data) => {
+            logger.log("[BusinessProfileForm] syncData resolved after", Date.now() - t0, "ms — data:", data);
             if (!data) return;
             if (data.registration) setRegistration(data.registration);
             const bp = data.businessProfile;
             if (!bp) return;
-            reset({
+            const resetValues = {
                 dbaName: bp.dbaName || "",
                 ein: bp.ein || "",
                 billingEmail: bp.billingEmail || "",
@@ -76,7 +88,11 @@ export function BusinessProfileForm() {
                 city: bp.city || "",
                 state: bp.state || "",
                 zipCode: bp.zipCode || "",
-            });
+            };
+            logger.log("[BusinessProfileForm] calling reset() with:", resetValues);
+            logger.log("[BusinessProfileForm] RHF values BEFORE reset:", getValues());
+            reset(resetValues);
+            logger.log("[BusinessProfileForm] RHF values AFTER reset:", getValues());
             setAddressLine1Display(bp.addressLine1 || "");
         });
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -98,10 +114,13 @@ export function BusinessProfileForm() {
     };
 
     const onSubmit = async (data) => {
+        logger.log("[BusinessProfileForm] onSubmit called — RHF validated data:", data);
+        logger.log("[BusinessProfileForm] store businessProfile at submit time:", businessProfile);
         setLoading(true);
         setSubmitError(null);
         try {
             const payload = toPayload(data);
+            logger.log("[BusinessProfileForm] sending payload to API:", payload);
             await agencyOnboardingAPI.saveAgencyBusinessProfile(payload);
             updateBusinessProfile(payload);
             markStepComplete(2);
@@ -113,6 +132,12 @@ export function BusinessProfileForm() {
         } finally {
             setLoading(false);
         }
+    };
+
+    // Called by RHF when validation fails — lets us see what errors were produced.
+    const onInvalid = (fieldErrors) => {
+        logger.log("[BusinessProfileForm] handleSubmit validation FAILED — errors:", fieldErrors);
+        logger.log("[BusinessProfileForm] RHF values at failed submit:", getValues());
     };
 
     return (
@@ -128,7 +153,7 @@ export function BusinessProfileForm() {
                             Provide your agency&apos;s legal and billing information.
                         </p>
                     </header>
-                    <form onSubmit={handleSubmit(onSubmit)}>
+                    <form onSubmit={handleSubmit(onSubmit, onInvalid)}>
                         <div className="bg-card-light border border-border-light rounded-xl overflow-hidden shadow-sm">
                             <div className="bg-blue-50 px-6 py-4 flex items-start gap-3 border-b border-blue-100">
                                 <svg className="h-5 w-5 text-blue-500 mt-0.5 shrink-0" fill="currentColor" viewBox="0 0 20 20">
