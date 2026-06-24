@@ -56,7 +56,7 @@ export function AgencyComplianceFormsForm() {
         if (subStepIndex < totalSubSteps - 1) {
             setSubStepIndex((i) => i + 1);
         } else {
-            router.push("/customer/onboarding/agency/payment");
+            router.push("/customer/onboarding/agency/activation");
         }
     };
 
