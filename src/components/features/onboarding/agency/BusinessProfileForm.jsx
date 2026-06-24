@@ -118,6 +118,10 @@ export function BusinessProfileForm() {
         }
     };
 
+    const onInvalid = (fieldErrors) => {
+        logger.log("[BusinessProfileForm] validation failed:", fieldErrors);
+    };
+
     return (
         <APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}>
             <div className="min-h-screen bg-background-light py-10 px-4">
@@ -131,7 +135,7 @@ export function BusinessProfileForm() {
                             Provide your agency&apos;s legal and billing information.
                         </p>
                     </header>
-                    <form onSubmit={handleSubmit(onSubmit)}>
+                    <form onSubmit={handleSubmit(onSubmit, onInvalid)}>
                         <div className="bg-card-light border border-border-light rounded-xl overflow-hidden shadow-sm">
                             <div className="bg-blue-50 px-6 py-4 flex items-start gap-3 border-b border-blue-100">
                                 <svg className="h-5 w-5 text-blue-500 mt-0.5 shrink-0" fill="currentColor" viewBox="0 0 20 20">
