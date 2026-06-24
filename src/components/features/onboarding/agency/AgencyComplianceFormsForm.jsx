@@ -1,14 +1,11 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import { useAgencyComplianceForm } from "@/hooks/useAgencyComplianceForm";
 import { W9UploadForm } from "@/components/features/onboarding/W9UploadForm";
 import { SignatureAgreementForm } from "@/components/features/onboarding/SignatureAgreementForm";
 import { SubStepDots } from "@/components/features/onboarding/SubStepDots";
 import { AgencyOnboardingProgressBar } from "@/components/features/onboarding/agency/AgencyOnboardingProgressBar";
-
-const SUB_STEPS = ["w9", "service_agreement", "hipaa_baa"];
 
 const SUB_STEP_LABELS = {
     w9: "Business W-9",
@@ -23,43 +20,28 @@ const SUMMARIES = {
         "This Business Associate Agreement establishes the responsibilities of both parties to protect patient health information in accordance with HIPAA regulations.",
 };
 
-const PLACEHOLDER_CONTENT = {
-    service_agreement: "Service Agreement placeholder text. Full legal content pending from stakeholders.",
-    hipaa_baa: "HIPAA BAA placeholder text. Full legal content pending from stakeholders.",
-};
-
 /**
  * Agency onboarding Step 4 — Compliance Forms.
- * Skeleton: 3 sub-forms (W-9 upload, Service Agreement, HIPAA BAA).
- * Reuses therapist compliance components — no API calls in skeleton mode.
+ * Three sub-forms: W-9 upload, Service Agreement e-sign, HIPAA BAA e-sign.
  */
 export function AgencyComplianceFormsForm() {
     usePageTitle("Compliance Forms");
-    const router = useRouter();
-
-    const [subStepIndex, setSubStepIndex] = useState(0);
-    const [w9File, setW9File] = useState(null);
-
-    const currentKey = SUB_STEPS[subStepIndex];
-    const totalSubSteps = SUB_STEPS.length;
-
-    const handleBack = () => {
-        if (subStepIndex === 0) {
-            router.push("/customer/onboarding/agency/upload-documents");
-        } else {
-            setSubStepIndex((i) => i - 1);
-        }
-    };
-
-    const handleW9Continue = () => setSubStepIndex(1);
-
-    const handleSign = () => {
-        if (subStepIndex < totalSubSteps - 1) {
-            setSubStepIndex((i) => i + 1);
-        } else {
-            router.push("/customer/onboarding/agency/activation");
-        }
-    };
+    const {
+        subStepIndex,
+        totalSubSteps,
+        currentKey,
+        content,
+        loading,
+        error,
+        w9Document,
+        w9Uploading,
+        w9Error,
+        onW9Drop,
+        onW9Remove,
+        handleW9Continue,
+        handleSign,
+        handleBack,
+    } = useAgencyComplianceForm();
 
     return (
         <div className="min-h-screen bg-background-light py-10 px-4">
@@ -78,13 +60,15 @@ export function AgencyComplianceFormsForm() {
                     <SubStepDots current={subStepIndex} total={totalSubSteps} />
                 </header>
 
+                {error && <p className="text-red-500 text-sm px-4 mb-4">{error}</p>}
+
                 {currentKey === "w9" ? (
                     <W9UploadForm
-                        document={w9File}
-                        uploading={false}
-                        error={null}
-                        onDrop={(files) => files.length && setW9File({ fileName: files[0].name })}
-                        onRemove={() => setW9File(null)}
+                        document={w9Document}
+                        uploading={w9Uploading}
+                        error={w9Error}
+                        onDrop={onW9Drop}
+                        onRemove={onW9Remove}
                         onContinue={handleW9Continue}
                         onBack={handleBack}
                     />
@@ -92,13 +76,12 @@ export function AgencyComplianceFormsForm() {
                     <SignatureAgreementForm
                         title={SUB_STEP_LABELS[currentKey]}
                         summary={SUMMARIES[currentKey]}
-                        content={PLACEHOLDER_CONTENT[currentKey]}
-                        loading={false}
+                        content={content[currentKey] ?? "Loading document…"}
+                        loading={loading}
                         error={null}
                         onSubmit={handleSign}
                         onBack={handleBack}
                         submitLabel={subStepIndex === totalSubSteps - 1 ? "Sign & Finish" : "Sign & Continue"}
-                        skipScrollGate
                     />
                 )}
             </div>
