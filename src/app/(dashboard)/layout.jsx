@@ -15,6 +15,7 @@ import { SidebarProvider, useSidebar } from '@/contexts/SidebarContext';
 import { SocketProvider } from '@/components/providers/SocketProvider';
 import OnboardingBanner from '@/components/therapist/OnboardingBanner';
 import useOnboardingStore from '@/store/onboardingStore';
+import useAgencyOnboardingStore from '@/store/agencyOnboardingStore';
 import { useUnreadCount } from '@/hooks/useMessages';
 import { useIdleTimeout } from '@/hooks/useIdleTimeout';
 import { LOGOUT_REASON, USER_ROLES, CUSTOMER_TYPES } from '@/lib/constants';
@@ -275,6 +276,7 @@ export default function DashboardLayout({ children }) {
             destroySocket();
             if (!preserveOnboardingState) {
                 useOnboardingStore.getState().reset();
+                useAgencyOnboardingStore.getState().reset();
             }
             posthog?.reset();
         }
