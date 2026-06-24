@@ -34,16 +34,3 @@ export function useAgencyOnboardingSync() {
     return { syncStatus };
 }
 
-export function useAgencyOnboardingDataSync() {
-    const syncData = useCallback(async () => {
-        try {
-            const response = await agencyOnboardingAPI.getAgencyOnboardingData();
-            return response.data.data;
-        } catch (error) {
-            logger.error("Failed to sync agency onboarding data:", error);
-            return null;
-        }
-    }, []);
-
-    return { syncData };
-}

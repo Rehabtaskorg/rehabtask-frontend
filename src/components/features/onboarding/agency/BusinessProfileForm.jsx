@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { APIProvider } from "@vis.gl/react-google-maps";
-import { useAgencyOnboardingDataSync } from "@/hooks/useAgencyOnboardingSync";
 import useAgencyOnboardingStore from "@/store/agencyOnboardingStore";
 import { AgencyOnboardingProgressBar } from "@/components/features/onboarding/agency/AgencyOnboardingProgressBar";
 import { BusinessProfileIdentityFields } from "@/components/features/onboarding/agency/BusinessProfileIdentityFields";
@@ -27,61 +26,89 @@ const toPayload = (data) => ({
 });
 
 /**
+ * Fetches saved business profile data from the backend before the form
+ * mounts, so RHF receives real values as defaultValues on first render.
+ * This avoids the reset()-after-mount race where register() calls in child
+ * components haven't fired yet when the async response resolves.
+ */
+function useBusinessProfileLoader() {
+    const [ready, setReady] = useState(false);
+    const [initialValues, setInitialValues] = useState({
+        dbaName: "",
+        ein: "",
+        billingEmail: "",
+        addressLine1: "",
+        addressLine2: "",
+        city: "",
+        state: "",
+        zipCode: "",
+    });
+    const [registration, setRegistration] = useState({ agencyName: "", fullName: "", phone: "" });
+
+    useEffect(() => {
+        agencyOnboardingAPI.getAgencyOnboardingData()
+            .then((res) => {
+                const data = res.data.data;
+                if (data.registration) setRegistration(data.registration);
+                const bp = data.businessProfile;
+                if (bp) {
+                    setInitialValues({
+                        dbaName: bp.dbaName || "",
+                        ein: bp.ein || "",
+                        billingEmail: bp.billingEmail || "",
+                        addressLine1: bp.addressLine1 || "",
+                        addressLine2: bp.addressLine2 || "",
+                        city: bp.city || "",
+                        state: bp.state || "",
+                        zipCode: bp.zipCode || "",
+                    });
+                }
+            })
+            .catch((err) => logger.error("Failed to load business profile data:", err))
+            .finally(() => setReady(true));
+    }, []);
+
+    return { ready, initialValues, registration };
+}
+
+/**
  * Agency onboarding Step 2 — Business Profile.
- * Collects DBA name, EIN, billing email, and business address.
- * Read-only fields (agency name, primary contact, phone) are pre-filled from registration.
+ * Renders a spinner until backend data is ready, then mounts the form
+ * with correct defaultValues so all fields are pre-filled on load.
  */
 export function BusinessProfileForm() {
     usePageTitle("Business Profile");
+    const { ready, initialValues, registration } = useBusinessProfileLoader();
+
+    if (!ready) {
+        return (
+            <div className="min-h-screen bg-background-light flex items-center justify-center">
+                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary" />
+            </div>
+        );
+    }
+
+    return <BusinessProfileFormInner initialValues={initialValues} registration={registration} />;
+}
+
+/**
+ * @param {{ initialValues: object, registration: { agencyName: string, fullName: string, phone: string } }} props
+ */
+function BusinessProfileFormInner({ initialValues, registration }) {
     const router = useRouter();
-    const { syncData } = useAgencyOnboardingDataSync();
-    const businessProfile = useAgencyOnboardingStore((s) => s.businessProfile);
     const updateBusinessProfile = useAgencyOnboardingStore((s) => s.updateBusinessProfile);
     const markStepComplete = useAgencyOnboardingStore((s) => s.markStepComplete);
     const setCurrentStep = useAgencyOnboardingStore((s) => s.setCurrentStep);
 
     const [loading, setLoading] = useState(false);
     const [submitError, setSubmitError] = useState(null);
-    const [registration, setRegistration] = useState({ agencyName: "", fullName: "", phone: "" });
-    const [addressLine1Display, setAddressLine1Display] = useState(businessProfile.addressLine1 || "");
+    const [addressLine1Display, setAddressLine1Display] = useState(initialValues.addressLine1);
 
-    const { register, handleSubmit, setValue, reset, formState: { errors, isDirty } } = useForm({
+    const { register, handleSubmit, setValue, formState: { errors } } = useForm({
         resolver: zodResolver(agencyBusinessProfileSchema),
-        defaultValues: {
-            dbaName: businessProfile.dbaName || "",
-            ein: businessProfile.ein || "",
-            billingEmail: businessProfile.billingEmail || "",
-            addressLine1: businessProfile.addressLine1 || "",
-            addressLine2: businessProfile.addressLine2 || "",
-            city: businessProfile.city || "",
-            state: businessProfile.state || "",
-            zipCode: businessProfile.zipCode || "",
-        },
+        defaultValues: initialValues,
         mode: "onSubmit",
     });
-
-    useEffect(() => {
-        syncData().then((data) => {
-            if (!data) return;
-            if (data.registration) setRegistration(data.registration);
-            const bp = data.businessProfile;
-            if (!bp) return;
-            if (!isDirty) {
-                reset({
-                    dbaName: bp.dbaName || "",
-                    ein: bp.ein || "",
-                    billingEmail: bp.billingEmail || "",
-                    addressLine1: bp.addressLine1 || "",
-                    addressLine2: bp.addressLine2 || "",
-                    city: bp.city || "",
-                    state: bp.state || "",
-                    zipCode: bp.zipCode || "",
-                });
-                setAddressLine1Display(bp.addressLine1 || "");
-            }
-        });
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
 
     const handleAddressSelect = ({ formattedAddress, city, state, zipCode }) => {
         setAddressLine1Display(formattedAddress);
