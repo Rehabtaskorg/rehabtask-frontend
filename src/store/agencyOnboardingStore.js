@@ -20,6 +20,9 @@ const useAgencyOnboardingStore = create(
                 zipCode: "",
             },
 
+            /** Uploaded agency documents (Step 3). Each entry mirrors the upload API response shape. */
+            documents: [],
+
             setCurrentStep: (step) => set({ currentStep: step }),
 
             markStepComplete: (step) =>
@@ -30,6 +33,28 @@ const useAgencyOnboardingStore = create(
             updateBusinessProfile: (data) =>
                 set((state) => ({
                     businessProfile: { ...state.businessProfile, ...data },
+                })),
+
+            /**
+             * Add or replace a document entry keyed by documentType.
+             * Replacing ensures each slot holds only the most recent upload.
+             * @param {{ id, path, fileName, fileSize, documentType, mimeType }} doc
+             */
+            addAgencyDocument: (doc) =>
+                set((state) => ({
+                    documents: [
+                        ...state.documents.filter((d) => d.documentType !== doc.documentType),
+                        doc,
+                    ],
+                })),
+
+            /**
+             * Remove a document by its index in the documents array.
+             * @param {number} index
+             */
+            removeAgencyDocument: (index) =>
+                set((state) => ({
+                    documents: state.documents.filter((_, i) => i !== index),
                 })),
 
             reset: () =>
@@ -46,6 +71,7 @@ const useAgencyOnboardingStore = create(
                         state: "",
                         zipCode: "",
                     },
+                    documents: [],
                 }),
         }),
         {
@@ -54,6 +80,7 @@ const useAgencyOnboardingStore = create(
                 currentStep: state.currentStep,
                 completedSteps: state.completedSteps,
                 businessProfile: state.businessProfile,
+                documents: state.documents,
             }),
         }
     )
