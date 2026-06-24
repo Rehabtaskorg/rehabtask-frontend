@@ -36,15 +36,19 @@ export function useAgencyUploadDocumentsForm() {
             return;
         }
 
+        const STEP3_TYPES = ["home_health_license", "medicare_medicaid_cert", "general_liability", "professional_liability"];
+
         setLoading(true);
         try {
-            const payload = documents.map((doc) => ({
-                path: doc.path,
-                fileName: doc.fileName,
-                fileSize: doc.fileSize,
-                documentType: doc.documentType,
-                mimeType: doc.mimeType,
-            }));
+            const payload = documents
+                .filter((doc) => STEP3_TYPES.includes(doc.documentType))
+                .map((doc) => ({
+                    path: doc.path,
+                    fileName: doc.fileName,
+                    fileSize: doc.fileSize,
+                    documentType: doc.documentType,
+                    mimeType: doc.mimeType,
+                }));
 
             await agencyOnboardingAPI.saveAgencyUploadDocuments({ documents: payload });
 
