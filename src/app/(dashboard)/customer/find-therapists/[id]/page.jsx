@@ -14,6 +14,8 @@ import AvailabilityCard from "@/components/therapist/AvailabilityCard";
 import ReviewCard from "@/components/therapist/ReviewCard";
 import ReviewForm from "@/components/therapist/ReviewForm";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import { useMessageGuard } from "@/hooks/useMessageGuard";
+import { MessageGateModal } from "@/components/ui/MessageGateModal";
 
 const GOOGLE_MAPS_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 
@@ -30,10 +32,8 @@ export default function TherapistProfilePage() {
 
     const [showReviewForm, setShowReviewForm] = useState(false);
 
-    const handleMessage = () => {
-        if (!therapist?.userId) return;
-        router.push(`/customer/messages?c=new:${therapist.userId}`);
-    };
+    const { guardedHandleMessage, isGateOpen, closeGate, onboardingStep } = useMessageGuard();
+    const handleMessage = () => { if (therapist?.userId) guardedHandleMessage(therapist.userId); };
 
     const handleReviewSuccess = () => {
         setShowReviewForm(false);
@@ -83,6 +83,7 @@ export default function TherapistProfilePage() {
 
     return (
         <APIProvider apiKey={GOOGLE_MAPS_API_KEY}>
+            <MessageGateModal isOpen={isGateOpen} onClose={closeGate} onboardingStep={onboardingStep} />
             <div className="p-4 md:p-6 max-w-5xl mx-auto pb-24 lg:pb-8">
                 {/* Breadcrumb */}
                 <nav className="flex items-center gap-1 text-sm mb-6">

@@ -16,6 +16,13 @@ export const CUSTOMER_TYPES = {
     INDIVIDUAL: "individual",
 };
 
+export const APPROVAL_STATUS = {
+    PENDING: "pending",
+    REVIEW: "review",
+    APPROVED: "approved",
+    REJECTED: "rejected",
+};
+
 export const LICENSE_TYPE_TO_SERVICE_TYPE = Object.freeze({
     "Physical Therapist": "Physical Therapy",
     "Physical Therapist Assistant": "Physical Therapy",

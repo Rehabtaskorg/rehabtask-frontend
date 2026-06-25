@@ -11,6 +11,7 @@ import { getTherapistRedirect } from '@/lib/therapistRouteAccess';
 import { getCustomerRedirect } from '@/lib/customerRouteAccess';
 import { TherapistAccessProvider } from '@/contexts/TherapistAccessContext';
 import { AdminUserProvider } from '@/contexts/AdminUserContext';
+import { CustomerUserProvider } from '@/contexts/CustomerUserContext';
 import { SidebarProvider, useSidebar } from '@/contexts/SidebarContext';
 import { SocketProvider } from '@/components/providers/SocketProvider';
 import OnboardingBanner from '@/components/therapist/OnboardingBanner';
@@ -667,6 +668,15 @@ function DashboardInner({ user, pathname, sidebarOpen, setSidebarOpen, handleLog
                     <AdminUserProvider value={{ id: user.id, email: user.email, role: user.role, permissions: subAdminPermissions }}>
                         {children}
                     </AdminUserProvider>
+                ) : user.role === USER_ROLES.CUSTOMER ? (
+                    <CustomerUserProvider value={{
+                        customerType: user.profile?.customerType ?? null,
+                        onboardingComplete: user.profile?.onboardingComplete ?? false,
+                        onboardingStep: user.profile?.onboardingStep ?? 1,
+                        approvalStatus: user.profile?.approvalStatus ?? null,
+                    }}>
+                        {children}
+                    </CustomerUserProvider>
                 ) : (
                     children
                 )}
