@@ -16,12 +16,6 @@ export const INDIVIDUAL_ONBOARDING_STEP_ROUTES = {
     5: "/customer/onboarding/individual/activation",
 };
 
-const ALLOWED_DURING_ONBOARDING = [
-    "/customer/dashboard",
-    "/customer/profile",
-    "/customer/account-settings",
-];
-
 /**
  * @param {string} pathname
  * @param {Record<number, string>} stepRoutes
@@ -31,18 +25,11 @@ const ALLOWED_DURING_ONBOARDING = [
  */
 function resolveOnboardingRedirect(pathname, stepRoutes, onboardingStep, fallback) {
     const isOnOnboardingRoute = Object.values(stepRoutes).some((r) => pathname.startsWith(r));
-
-    if (!isOnOnboardingRoute) {
-        const isAllowed = ALLOWED_DURING_ONBOARDING.some((r) => pathname.startsWith(r));
-        return isAllowed ? null : (stepRoutes[onboardingStep] ?? fallback);
-    }
+    if (!isOnOnboardingRoute) return null;
 
     const stepEntry = Object.entries(stepRoutes).find(([, route]) => pathname.startsWith(route));
-    if (stepEntry) {
-        const targetStep = parseInt(stepEntry[0], 10);
-        if (targetStep > onboardingStep) {
-            return stepRoutes[onboardingStep] ?? fallback;
-        }
+    if (stepEntry && parseInt(stepEntry[0], 10) > onboardingStep) {
+        return stepRoutes[onboardingStep] ?? fallback;
     }
 
     return null;
