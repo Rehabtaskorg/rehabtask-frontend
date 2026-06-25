@@ -8,7 +8,13 @@ export const AGENCY_ONBOARDING_STEP_ROUTES = {
     5: "/customer/onboarding/agency/activation",
 };
 
-const SAFE_FALLBACK_ROUTE = "/customer/onboarding/agency/welcome";
+export const INDIVIDUAL_ONBOARDING_STEP_ROUTES = {
+    1: "/customer/onboarding/individual/welcome",
+    2: "/customer/onboarding/individual/personal-info",
+    3: "/customer/onboarding/individual/medical-info",
+    4: "/customer/onboarding/individual/consent-forms",
+    5: "/customer/onboarding/individual/activation",
+};
 
 const ALLOWED_DURING_ONBOARDING = [
     "/customer/dashboard",
@@ -17,42 +23,62 @@ const ALLOWED_DURING_ONBOARDING = [
 ];
 
 /**
- * Returns a redirect path if the customer should be redirected away from
- * the current route, or null if the route is allowed.
- * Prevents skipping ahead in onboarding via direct URL — mirrors therapistRouteAccess.js.
- *
+ * @param {string} pathname
+ * @param {Record<number, string>} stepRoutes
+ * @param {number} onboardingStep
+ * @param {string} fallback
+ * @returns {string|null}
+ */
+function resolveOnboardingRedirect(pathname, stepRoutes, onboardingStep, fallback) {
+    const isOnOnboardingRoute = Object.values(stepRoutes).some((r) => pathname.startsWith(r));
+
+    if (!isOnOnboardingRoute) {
+        const isAllowed = ALLOWED_DURING_ONBOARDING.some((r) => pathname.startsWith(r));
+        return isAllowed ? null : (stepRoutes[onboardingStep] ?? fallback);
+    }
+
+    const stepEntry = Object.entries(stepRoutes).find(([, route]) => pathname.startsWith(route));
+    if (stepEntry) {
+        const targetStep = parseInt(stepEntry[0], 10);
+        if (targetStep > onboardingStep) {
+            return stepRoutes[onboardingStep] ?? fallback;
+        }
+    }
+
+    return null;
+}
+
+/**
  * @param {string} pathname
  * @param {{ customerType: string, onboardingComplete: boolean, onboardingStep: number }} opts
  * @returns {string|null}
  */
 export function getCustomerRedirect(pathname, { customerType, onboardingComplete, onboardingStep }) {
-    const isOnAgencyOnboardingRoute = pathname.startsWith("/customer/onboarding/agency");
+    const isOnAgencyRoute = pathname.startsWith("/customer/onboarding/agency");
+    const isOnIndividualRoute = pathname.startsWith("/customer/onboarding/individual");
 
-    if (customerType !== CUSTOMER_TYPES.AGENCY) {
-        if (isOnAgencyOnboardingRoute) return "/customer/dashboard";
-        return null;
+    if (customerType === CUSTOMER_TYPES.AGENCY) {
+        if (isOnIndividualRoute) return "/customer/dashboard";
+        if (onboardingComplete) return null;
+        return resolveOnboardingRedirect(
+            pathname,
+            AGENCY_ONBOARDING_STEP_ROUTES,
+            onboardingStep,
+            AGENCY_ONBOARDING_STEP_ROUTES[1]
+        );
     }
 
-    const isOnOnboardingRoute = isOnAgencyOnboardingRoute;
-
-    if (!onboardingComplete) {
-        if (isOnOnboardingRoute) {
-            const stepEntry = Object.entries(AGENCY_ONBOARDING_STEP_ROUTES)
-                .find(([, route]) => pathname.startsWith(route));
-            if (stepEntry) {
-                const targetStep = parseInt(stepEntry[0], 10);
-                if (targetStep > onboardingStep) {
-                    return AGENCY_ONBOARDING_STEP_ROUTES[onboardingStep] ?? SAFE_FALLBACK_ROUTE;
-                }
-            }
-            return null;
-        }
-
-        const isAllowed = ALLOWED_DURING_ONBOARDING.some((r) => pathname.startsWith(r));
-        if (!isAllowed) {
-            return AGENCY_ONBOARDING_STEP_ROUTES[onboardingStep] ?? SAFE_FALLBACK_ROUTE;
-        }
+    if (customerType === CUSTOMER_TYPES.INDIVIDUAL) {
+        if (isOnAgencyRoute) return "/customer/dashboard";
+        if (onboardingComplete) return null;
+        return resolveOnboardingRedirect(
+            pathname,
+            INDIVIDUAL_ONBOARDING_STEP_ROUTES,
+            onboardingStep,
+            INDIVIDUAL_ONBOARDING_STEP_ROUTES[1]
+        );
     }
 
+    if (isOnAgencyRoute || isOnIndividualRoute) return "/customer/dashboard";
     return null;
 }

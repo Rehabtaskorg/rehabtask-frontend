@@ -3,15 +3,13 @@
 import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { MdClose, MdLock } from "react-icons/md";
-import { AGENCY_ONBOARDING_STEP_ROUTES } from "@/lib/customerRouteAccess";
+import { AGENCY_ONBOARDING_STEP_ROUTES, INDIVIDUAL_ONBOARDING_STEP_ROUTES } from "@/lib/customerRouteAccess";
+import { CUSTOMER_TYPES } from "@/lib/constants";
 
 /**
- * Modal shown when an incomplete agency customer tries to message a therapist.
- * Traps focus, restores it on close, dismissable via Escape or backdrop click.
- *
- * @param {{ isOpen: boolean, onClose: () => void, onboardingStep: number }} props
+ * @param {{ isOpen: boolean, onClose: () => void, onboardingStep: number, customerType: string|null }} props
  */
-export function MessageGateModal({ isOpen, onClose, onboardingStep }) {
+export function MessageGateModal({ isOpen, onClose, onboardingStep, customerType }) {
     const router = useRouter();
     const closeRef = useRef(null);
     const previousFocusRef = useRef(null);
@@ -35,9 +33,13 @@ export function MessageGateModal({ isOpen, onClose, onboardingStep }) {
 
     if (!isOpen) return null;
 
+    const isIndividual = customerType === CUSTOMER_TYPES.INDIVIDUAL;
+    const stepRoutes = isIndividual ? INDIVIDUAL_ONBOARDING_STEP_ROUTES : AGENCY_ONBOARDING_STEP_ROUTES;
+    const accountLabel = isIndividual ? "your account" : "your agency account";
+
     const handleContinue = () => {
         onClose();
-        router.push(AGENCY_ONBOARDING_STEP_ROUTES[onboardingStep] ?? AGENCY_ONBOARDING_STEP_ROUTES[1]);
+        router.push(stepRoutes[onboardingStep] ?? stepRoutes[1]);
     };
 
     return (
@@ -67,7 +69,7 @@ export function MessageGateModal({ isOpen, onClose, onboardingStep }) {
                         Complete your setup first
                     </h2>
                     <p className="text-text-muted text-sm leading-relaxed">
-                        Finish setting up your agency account to unlock messaging and start connecting with therapists.
+                        Finish setting up {accountLabel} to unlock messaging and start connecting with therapists.
                     </p>
                 </div>
 
