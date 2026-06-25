@@ -301,6 +301,12 @@ export default function DashboardLayout({ children }) {
         );
     }
 
+    // TODO: [BUG] "Redirecting to login..." flashes on valid sessions due to two issues:
+    // 1. `!user` is true during initial fetchUser() load, so this block shows before auth resolves.
+    // 2. Concurrent 401s from multiple API calls both attempt /token/refresh simultaneously;
+    //    Supabase token rotation rejects the second call, triggering a hard redirect even though
+    //    the session is valid. Fix: (a) separate loading/authError states so !user doesn't show
+    //    this screen, and (b) add server-side refresh deduplication or retry on rotation conflict.
     if (authError || !user) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-background-light ">
