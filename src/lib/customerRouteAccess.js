@@ -46,8 +46,8 @@ export function getCustomerRedirect(pathname, { customerType, onboardingComplete
 
     if (customerType === CUSTOMER_TYPES.AGENCY) {
         if (isOnIndividualRoute) return "/customer/dashboard";
-        if (onboardingComplete) return null;
-        return resolveOnboardingRedirect(
+        if (onboardingComplete && isOnAgencyRoute) return "/customer/dashboard";
+        if (!onboardingComplete) return resolveOnboardingRedirect(
             pathname,
             AGENCY_ONBOARDING_STEP_ROUTES,
             onboardingStep,
@@ -57,8 +57,8 @@ export function getCustomerRedirect(pathname, { customerType, onboardingComplete
 
     if (customerType === CUSTOMER_TYPES.INDIVIDUAL) {
         if (isOnAgencyRoute) return "/customer/dashboard";
-        if (onboardingComplete) return null;
-        return resolveOnboardingRedirect(
+        if (onboardingComplete && isOnIndividualRoute) return "/customer/dashboard";
+        if (!onboardingComplete) return resolveOnboardingRedirect(
             pathname,
             INDIVIDUAL_ONBOARDING_STEP_ROUTES,
             onboardingStep,
