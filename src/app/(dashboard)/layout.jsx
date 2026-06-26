@@ -8,12 +8,15 @@ import Image from 'next/image';
 import { authAPi } from '@/lib/auth.api';
 import { destroySocket } from '@/lib/socket';
 import { getTherapistRedirect } from '@/lib/therapistRouteAccess';
+import { getCustomerRedirect } from '@/lib/customerRouteAccess';
 import { TherapistAccessProvider } from '@/contexts/TherapistAccessContext';
 import { AdminUserProvider } from '@/contexts/AdminUserContext';
+import { CustomerUserProvider } from '@/contexts/CustomerUserContext';
 import { SidebarProvider, useSidebar } from '@/contexts/SidebarContext';
 import { SocketProvider } from '@/components/providers/SocketProvider';
 import OnboardingBanner from '@/components/therapist/OnboardingBanner';
 import useOnboardingStore from '@/store/onboardingStore';
+import useAgencyOnboardingStore from '@/store/agencyOnboardingStore';
 import { useUnreadCount } from '@/hooks/useMessages';
 import { useIdleTimeout } from '@/hooks/useIdleTimeout';
 import { LOGOUT_REASON, USER_ROLES, CUSTOMER_TYPES } from '@/lib/constants';
@@ -170,11 +173,15 @@ export default function DashboardLayout({ children }) {
                     isOnTherapistDashboard && userData.role === USER_ROLES.CUSTOMER;
 
                 if (shouldRedirectToTherapist) {
+                    setUser(userData);
+                    setLoading(false);
                     router.replace("/therapist/dashboard");
                     return;
                 }
 
                 if (shouldRedirectToCustomer) {
+                    setUser(userData);
+                    setLoading(false);
                     router.replace("/customer/dashboard");
                     return;
                 }
@@ -184,6 +191,8 @@ export default function DashboardLayout({ children }) {
                 if (!userData.profile && userData.role !== USER_ROLES.ADMIN && userData.role !== USER_ROLES.SUB_ADMIN) {
                     const isOnOnboarding = pathname.startsWith("/oauth/onboarding");
                     if (!isOnOnboarding) {
+                        setUser(userData);
+                        setLoading(false);
                         router.replace("/oauth/onboarding");
                         return;
                     }
@@ -199,8 +208,25 @@ export default function DashboardLayout({ children }) {
                     });
 
                     if (redirect && pathname !== redirect) {
+                        setUser(userData);
+                        setLoading(false);
                         router.replace(redirect);
-                        return; // Don't set user or loading=false; keep spinner until redirect
+                        return;
+                    }
+                }
+
+                if (userData.role === USER_ROLES.CUSTOMER) {
+                    const redirect = getCustomerRedirect(pathname, {
+                        customerType: userData.profile?.customerType ?? null,
+                        onboardingComplete: userData.profile?.onboardingComplete ?? false,
+                        onboardingStep: userData.profile?.onboardingStep ?? 1,
+                    });
+
+                    if (redirect && pathname !== redirect) {
+                        setUser(userData);
+                        setLoading(false);
+                        router.replace(redirect);
+                        return;
                     }
                 }
 
@@ -256,6 +282,7 @@ export default function DashboardLayout({ children }) {
             destroySocket();
             if (!preserveOnboardingState) {
                 useOnboardingStore.getState().reset();
+                useAgencyOnboardingStore.getState().reset();
             }
             posthog?.reset();
         }
@@ -279,7 +306,7 @@ export default function DashboardLayout({ children }) {
         );
     }
 
-    if (authError || !user) {
+    if (authError) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-background-light ">
                 <div className="text-center">
@@ -646,6 +673,15 @@ function DashboardInner({ user, pathname, sidebarOpen, setSidebarOpen, handleLog
                     <AdminUserProvider value={{ id: user.id, email: user.email, role: user.role, permissions: subAdminPermissions }}>
                         {children}
                     </AdminUserProvider>
+                ) : user.role === USER_ROLES.CUSTOMER ? (
+                    <CustomerUserProvider value={{
+                        customerType: user.profile?.customerType ?? null,
+                        onboardingComplete: user.profile?.onboardingComplete ?? false,
+                        onboardingStep: user.profile?.onboardingStep ?? 1,
+                        approvalStatus: user.profile?.approvalStatus ?? null,
+                    }}>
+                        {children}
+                    </CustomerUserProvider>
                 ) : (
                     children
                 )}

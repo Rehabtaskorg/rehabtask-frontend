@@ -6,6 +6,8 @@ import { Map, AdvancedMarker, InfoWindow, useMap } from "@vis.gl/react-google-ma
 import { MdStar, MdLocationOn, MdChatBubble } from "react-icons/md";
 import UserAvatar from "@/components/ui/UserAvatar";
 import TherapistPriceMarker from "@/components/public/TherapistPriceMarker";
+import { useMessageGuard } from "@/hooks/useMessageGuard";
+import { MessageGateModal } from "@/components/ui/MessageGateModal";
 
 const DEFAULT_CENTER = { lat: 34.0522, lng: -118.2437 };
 const DEFAULT_ZOOM = 11;
@@ -36,7 +38,7 @@ function MapBoundsFitter({ markers }) {
     return null;
 }
 
-function AggregateInfoWindow({ marker }) {
+function AggregateInfoWindow({ marker, onMessage }) {
     const router = useRouter();
 
     return (
@@ -74,7 +76,7 @@ function AggregateInfoWindow({ marker }) {
                             </button>
                             <button
                                 type="button"
-                                onClick={() => router.push(`/customer/messages?c=new:${t.userId}`)}
+                                onClick={() => onMessage(t.userId)}
                                 className="px-2.5 py-1 rounded-lg bg-primary text-white font-semibold text-[11px] flex items-center gap-1 hover:bg-primary/90 transition-colors"
                             >
                                 <MdChatBubble className="text-[10px]" />
@@ -96,6 +98,8 @@ export default function FindTherapistsMapPanel({
     onCloseInfoWindow,
     searchCenter,
 }) {
+    const { guardedHandleMessage, isGateOpen, closeGate, onboardingStep, customerType } = useMessageGuard();
+
     const initialCenter = useMemo(
         () => searchCenter || buildCenter(markers, DEFAULT_CENTER),
         [searchCenter, markers],
@@ -117,6 +121,7 @@ export default function FindTherapistsMapPanel({
 
     return (
         <div className="relative h-full w-full overflow-hidden">
+            <MessageGateModal isOpen={isGateOpen} onClose={closeGate} onboardingStep={onboardingStep} customerType={customerType} />
             <Map
                 mapId={MAP_ID}
                 defaultCenter={initialCenter}
@@ -157,7 +162,7 @@ export default function FindTherapistsMapPanel({
                         onCloseClick={() => onCloseInfoWindow?.()}
                         headerDisabled
                     >
-                        <AggregateInfoWindow marker={activeMarker} />
+                        <AggregateInfoWindow marker={activeMarker} onMessage={guardedHandleMessage} />
                     </InfoWindow>
                 )}
             </Map>

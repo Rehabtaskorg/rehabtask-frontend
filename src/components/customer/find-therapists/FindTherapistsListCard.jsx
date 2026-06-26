@@ -1,9 +1,11 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { MdStar, MdLocationOn, MdWorkHistory, MdVerified, MdChatBubble } from "react-icons/md";
+import { useRouter } from "next/navigation";
 import UserAvatar from "@/components/ui/UserAvatar";
+import { useMessageGuard } from "@/hooks/useMessageGuard";
+import { MessageGateModal } from "@/components/ui/MessageGateModal";
 
 export default function FindTherapistsListCard({
     therapist,
@@ -14,6 +16,7 @@ export default function FindTherapistsListCard({
     cardRef,
 }) {
     const router = useRouter();
+    const { guardedHandleMessage, isGateOpen, closeGate, onboardingStep, customerType } = useMessageGuard();
 
     const borderClass = isHighlighted
         ? "border-2 border-primary shadow-lg shadow-primary/10"
@@ -21,7 +24,7 @@ export default function FindTherapistsListCard({
 
     const handleMessage = (e) => {
         e.stopPropagation();
-        router.push(`/customer/messages?c=new:${therapist.userId}`);
+        guardedHandleMessage(therapist.userId);
     };
 
     const handleViewProfile = (e) => {
@@ -30,6 +33,8 @@ export default function FindTherapistsListCard({
     };
 
     return (
+        <>
+        <MessageGateModal isOpen={isGateOpen} onClose={closeGate} onboardingStep={onboardingStep} customerType={customerType} />
         <motion.div
             ref={cardRef}
             initial={{ opacity: 0, y: 12 }}
@@ -111,5 +116,6 @@ export default function FindTherapistsListCard({
                 </div>
             </div>
         </motion.div>
+        </>
     );
 }
