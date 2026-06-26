@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import { useIndividualOnboardingSync } from "@/hooks/useIndividualOnboardingSync";
 import useIndividualOnboardingStore from "@/store/individualOnboardingStore";
 
 const STEPS = [
@@ -10,19 +12,31 @@ const STEPS = [
     { number: 5, label: "Activation" },
 ];
 
-const TRACKABLE_STEPS = STEPS.filter((s) => s.number > 1 && s.number < 5);
-const TOTAL = TRACKABLE_STEPS.length;
-
 /**
- * @param {{ completedSteps: number[] }} props
+ * Progress bar for the Individual onboarding flow (5 steps).
+ * Syncs progress from the backend on mount and whenever currentStep changes.
  */
 export function IndividualOnboardingProgressBar() {
     const currentStep = useIndividualOnboardingStore((s) => s.currentStep);
-    const completedSteps = useIndividualOnboardingStore((s) => s.completedSteps);
+    const { syncStatus } = useIndividualOnboardingSync();
 
-    const completedCount = TRACKABLE_STEPS.filter((s) => completedSteps.includes(s.number)).length;
-    const progress = TOTAL === 0 ? 0 : Math.round((completedCount / TOTAL) * 100);
-    const currentLabel = STEPS.find((s) => s.number === currentStep)?.label ?? "";
+    const [progress, setProgress] = useState(0);
+    const [completedCount, setCompletedCount] = useState(null);
+    const [totalSteps, setTotalSteps] = useState(null);
+
+    useEffect(() => {
+        const loadProgress = async () => {
+            const status = await syncStatus();
+            if (status) {
+                setProgress(status.progress);
+                const completed = Object.values(status.steps).filter(Boolean).length;
+                setCompletedCount(completed);
+                setTotalSteps(Object.keys(status.steps).length);
+            }
+        };
+
+        loadProgress();
+    }, [syncStatus, currentStep]);
 
     return (
         <div className="bg-card-light rounded-xl p-6 shadow-sm border border-border-light mb-6">
@@ -31,7 +45,7 @@ export function IndividualOnboardingProgressBar() {
                     Onboarding Progress
                 </p>
                 <p className="text-text-main text-sm font-medium leading-normal">
-                    {completedCount} of {TOTAL} completed
+                    {totalSteps === null ? "Loading…" : `${completedCount} of ${totalSteps} completed`}
                 </p>
             </div>
 
@@ -45,7 +59,7 @@ export function IndividualOnboardingProgressBar() {
             <p className="text-text-muted text-sm mt-3 font-normal leading-normal">
                 {progress === 100
                     ? "✓ Profile complete — your account is now active"
-                    : currentLabel || "Complete your profile to get started"}
+                    : STEPS.find((s) => s.number === currentStep)?.label || "Complete your profile to get started"}
             </p>
         </div>
     );
