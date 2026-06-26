@@ -114,6 +114,13 @@ export default function CustomerPaymentsPage() {
     const hasPendingRefunds = summary?.pendingRefundAmount > 0;
     const hasConnectAccount = connectStatus?.connected && connectStatus?.onboardingComplete;
 
+    const failedPayoutRefunds = useMemo(() => {
+        if (!payments) return [];
+        return payments.flatMap(p => (p.customerRefunds || []).filter(cr => cr.status === "pending_connect" && cr.reason));
+    }, [payments]);
+    const hasFailedPayoutRefunds = failedPayoutRefunds.length > 0;
+    const failedPayoutTotal = failedPayoutRefunds.reduce((sum, cr) => sum + parseFloat(cr.amount), 0);
+
     return (
         <div className="flex-1 flex flex-col overflow-hidden">
             {/* Header */}
@@ -164,6 +171,38 @@ export default function CustomerPaymentsPage() {
                             </div>
                         </div>
                     ) : null}
+
+                    {/* Payout Failure Banner — bank transfer failed, customer needs to update bank account */}
+                    {hasFailedPayoutRefunds && (
+                        <div className="bg-card-light  rounded-xl border border-red-300  overflow-hidden">
+                            <div className="border-l-4 border-l-red-500 p-5">
+                                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                                    <div className="flex gap-4">
+                                        <div className="w-12 h-12 rounded-full bg-red-100  flex items-center justify-center text-red-600  shrink-0">
+                                            <MdWarning className="text-2xl" />
+                                        </div>
+                                        <div>
+                                            <span className="inline-block px-2 py-0.5 bg-red-100  text-red-700  text-[10px] font-bold rounded uppercase tracking-wider mb-1">
+                                                Bank Transfer Failed
+                                            </span>
+                                            <h4 className="text-text-main  font-bold">
+                                                Your refund of {formatCurrency(failedPayoutTotal)} could not be delivered
+                                            </h4>
+                                            <p className="text-sm text-text-muted  mt-0.5">
+                                                The transfer to your bank account was unsuccessful. Please update your bank account details to receive your refund.
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <Link
+                                        href="/customer/payout-setup"
+                                        className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-xl font-bold text-sm transition-colors shrink-0 text-center"
+                                    >
+                                        Update Bank Account
+                                    </Link>
+                                </div>
+                            </div>
+                        </div>
+                    )}
 
                     {/* Pending Refund Banner */}
                     {hasPendingRefunds && !connectStatus?.connected && (
@@ -636,6 +675,15 @@ export default function CustomerPaymentsPage() {
                                                                                     </div>
                                                                                 )}
                                                                                 {(payment.customerRefunds || []).map((cr) => {
+                                                                                    if (cr.status === "pending_connect" && cr.reason) {
+                                                                                        return (
+                                                                                            <div key={cr.id} className="relative pl-5">
+                                                                                                <div className="absolute left-0 top-1 w-3 h-3 rounded-full bg-red-500 animate-pulse" />
+                                                                                                <p className="text-xs text-red-600  font-semibold">Bank transfer failed ({formatCurrency(cr.amount)}) — update your bank account</p>
+                                                                                                <p className="text-[10px] text-text-muted ">{cr.reason}</p>
+                                                                                            </div>
+                                                                                        );
+                                                                                    }
                                                                                     if (cr.status === "pending_connect") {
                                                                                         return (
                                                                                             <div key={cr.id} className="relative pl-5">
