@@ -1,12 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { IndividualOnboardingProgressBar } from "@/components/features/onboarding/individual/IndividualOnboardingProgressBar";
+import { SignatureAgreementForm } from "@/components/features/onboarding/SignatureAgreementForm";
 import { SubStepDots } from "@/components/features/onboarding/SubStepDots";
-
-const SUB_STEPS = ["hipaa_consent", "treatment_consent"];
+import { useIndividualConsentForm } from "@/hooks/useIndividualConsentForm";
 
 const SUB_STEP_LABELS = {
     hipaa_consent: "HIPAA Consent",
@@ -20,7 +19,13 @@ const SUMMARIES = {
         "This form documents your informed consent to receive physical therapy and related rehabilitation services provided through the RehabTask platform.",
 };
 
-function RepresentativeFields() {
+/**
+ * Representative fields shown when the user checks "signing on behalf".
+ * All three fields are required if any are filled — enforced by Zod on the backend.
+ *
+ * @param {{ representativeName: string, representativeRelationship: string, representativeAuthority: string, onChange: Function }} props
+ */
+function RepresentativeFields({ representativeName, representativeRelationship, representativeAuthority, onChange }) {
     return (
         <div className="space-y-4 pt-4 border-t border-border-light">
             <p className="text-text-main text-sm font-semibold">Personal / Legal Representative</p>
@@ -32,6 +37,8 @@ function RepresentativeFields() {
                 <input
                     id="representativeName"
                     type="text"
+                    value={representativeName}
+                    onChange={(e) => onChange("representativeName", e.target.value)}
                     placeholder="e.g. Jane Doe"
                     className="w-full px-4 py-3 rounded-lg border border-border-light bg-input-light text-text-main focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none"
                 />
@@ -44,6 +51,8 @@ function RepresentativeFields() {
                 <input
                     id="representativeRelationship"
                     type="text"
+                    value={representativeRelationship}
+                    onChange={(e) => onChange("representativeRelationship", e.target.value)}
                     placeholder="e.g. Parent, Spouse, Guardian"
                     className="w-full px-4 py-3 rounded-lg border border-border-light bg-input-light text-text-main focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none"
                 />
@@ -56,6 +65,8 @@ function RepresentativeFields() {
                 <input
                     id="representativeAuthority"
                     type="text"
+                    value={representativeAuthority}
+                    onChange={(e) => onChange("representativeAuthority", e.target.value)}
                     placeholder="e.g. Power of Attorney, Parent, Guardian"
                     className="w-full px-4 py-3 rounded-lg border border-border-light bg-input-light text-text-main focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none"
                 />
@@ -64,112 +75,93 @@ function RepresentativeFields() {
     );
 }
 
-function ConsentSubForm({ subStepKey, onBack, onContinue, isLast }) {
+/**
+ * Wraps SignatureAgreementForm with the representative block for one consent sub-step.
+ *
+ * @param {{ subStepKey: string, content: string, loading: boolean, error: string, onSign: Function, onBack: Function, isLast: boolean }} props
+ */
+function ConsentSubStep({ subStepKey, content, loading, error, onSign, onBack, isLast }) {
     const [isRepresentative, setIsRepresentative] = useState(false);
+    const [repFields, setRepFields] = useState({
+        representativeName: "",
+        representativeRelationship: "",
+        representativeAuthority: "",
+    });
+
+    const handleRepFieldChange = (field, value) => {
+        setRepFields((prev) => ({ ...prev, [field]: value }));
+    };
+
+    const handleSign = (signature) => {
+        const representativeFields = isRepresentative
+            ? {
+                representativeName: repFields.representativeName || null,
+                representativeRelationship: repFields.representativeRelationship || null,
+                representativeAuthority: repFields.representativeAuthority || null,
+            }
+            : {
+                representativeName: null,
+                representativeRelationship: null,
+                representativeAuthority: null,
+            };
+        onSign(signature, representativeFields);
+    };
 
     return (
-        <div className="bg-card-light border border-border-light rounded-xl overflow-hidden shadow-sm">
-            <div className="p-8 space-y-6">
-                <p className="text-text-main text-base leading-relaxed">{SUMMARIES[subStepKey]}</p>
+        <div className="space-y-4">
+            <SignatureAgreementForm
+                title={SUB_STEP_LABELS[subStepKey]}
+                summary={SUMMARIES[subStepKey]}
+                content={content ?? "Loading document…"}
+                loading={loading}
+                error={error}
+                onSubmit={handleSign}
+                onBack={onBack}
+                submitLabel={isLast ? "Sign & Finish" : "Sign & Continue"}
+            />
 
-                <button
-                    type="button"
-                    className="flex items-center gap-2 px-5 py-3 rounded-lg border border-border-light text-text-main font-semibold hover:bg-muted-light transition-colors"
-                >
-                    Read Full Document
-                </button>
-
-                <div className="flex flex-col gap-2">
-                    <label className="flex items-center gap-2 text-sm font-semibold text-text-muted cursor-not-allowed">
-                        <input
-                            type="checkbox"
-                            disabled
-                            className="w-4 h-4 rounded border-border-light accent-primary disabled:cursor-not-allowed"
-                        />
-                        I have read and agree to the terms above
-                    </label>
-                    <p className="text-xs text-text-muted">Please read the full document to continue</p>
-                </div>
-
-                <div className="flex flex-col gap-2">
-                    <label htmlFor={`signature-${subStepKey}`} className="text-text-main text-sm font-semibold">
-                        Type your full legal name to sign
-                    </label>
+            <div className="bg-card-light border border-border-light rounded-xl px-8 py-6 shadow-sm">
+                <label className="flex items-center gap-2 cursor-pointer select-none">
                     <input
-                        id={`signature-${subStepKey}`}
-                        type="text"
-                        placeholder="e.g. John Doe"
-                        className="w-full px-4 py-3 rounded-lg border border-border-light bg-input-light text-text-main focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none"
+                        type="checkbox"
+                        checked={isRepresentative}
+                        onChange={(e) => setIsRepresentative(e.target.checked)}
+                        className="w-4 h-4 rounded border-border-light accent-primary"
                     />
-                    <p className="text-xs text-text-muted">This serves as your electronic signature</p>
-                </div>
+                    <span className="text-sm text-text-main font-semibold">
+                        I am signing on behalf of another person
+                    </span>
+                </label>
 
-                <div className="flex flex-col gap-2">
-                    <label className="flex items-center gap-2 cursor-pointer select-none">
-                        <input
-                            type="checkbox"
-                            checked={isRepresentative}
-                            onChange={(e) => setIsRepresentative(e.target.checked)}
-                            className="w-4 h-4 rounded border-border-light accent-primary"
-                        />
-                        <span className="text-sm text-text-main font-semibold">
-                            I am signing on behalf of another person
-                        </span>
-                    </label>
-                </div>
-
-                {isRepresentative && <RepresentativeFields />}
-            </div>
-
-            <div className="p-8 bg-muted-light flex flex-col sm:flex-row justify-between items-center gap-4 border-t border-border-light">
-                <button
-                    type="button"
-                    onClick={onBack}
-                    className="w-full sm:w-auto flex items-center justify-center gap-2 px-8 h-12 text-text-muted font-bold hover:text-text-main transition-colors"
-                >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                    </svg>
-                    Back
-                </button>
-                <button
-                    type="button"
-                    onClick={onContinue}
-                    className="w-full sm:w-auto px-10 h-12 bg-primary text-white font-bold rounded-lg shadow-lg shadow-primary/20 hover:brightness-95 transition-all flex items-center justify-center gap-2"
-                >
-                    {isLast ? "Sign & Finish" : "Sign & Continue"}
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                    </svg>
-                </button>
+                {isRepresentative && (
+                    <RepresentativeFields
+                        representativeName={repFields.representativeName}
+                        representativeRelationship={repFields.representativeRelationship}
+                        representativeAuthority={repFields.representativeAuthority}
+                        onChange={handleRepFieldChange}
+                    />
+                )}
             </div>
         </div>
     );
 }
 
+/**
+ * Individual onboarding Step 4 — Consent Forms.
+ * Two sub-forms: HIPAA Consent e-sign, Treatment Consent e-sign.
+ */
 export function IndividualConsentFormsForm() {
     usePageTitle("Consent Forms");
-    const router = useRouter();
-    const [subStepIndex, setSubStepIndex] = useState(0);
-
-    const currentKey = SUB_STEPS[subStepIndex];
-    const isLast = subStepIndex === SUB_STEPS.length - 1;
-
-    const handleBack = () => {
-        if (subStepIndex > 0) {
-            setSubStepIndex((i) => i - 1);
-        } else {
-            router.push("/customer/onboarding/individual/medical-info");
-        }
-    };
-
-    const handleContinue = () => {
-        if (!isLast) {
-            setSubStepIndex((i) => i + 1);
-        } else {
-            router.push("/customer/onboarding/individual/activation");
-        }
-    };
+    const {
+        subStepIndex,
+        totalSubSteps,
+        currentKey,
+        content,
+        loading,
+        error,
+        handleSign,
+        handleBack,
+    } = useIndividualConsentForm();
 
     return (
         <div className="min-h-screen bg-background-light py-10 px-4">
@@ -184,17 +176,20 @@ export function IndividualConsentFormsForm() {
                         Please review and sign the required consent documents.
                     </p>
                     <p className="text-text-main text-sm font-semibold mb-2">
-                        Form {subStepIndex + 1} of {SUB_STEPS.length} — {SUB_STEP_LABELS[currentKey]}
+                        Form {subStepIndex + 1} of {totalSubSteps} — {SUB_STEP_LABELS[currentKey]}
                     </p>
-                    <SubStepDots current={subStepIndex} total={SUB_STEPS.length} />
+                    <SubStepDots current={subStepIndex} total={totalSubSteps} />
                 </header>
 
-                <ConsentSubForm
+                <ConsentSubStep
                     key={currentKey}
                     subStepKey={currentKey}
+                    content={content[currentKey]}
+                    loading={loading}
+                    error={error}
+                    onSign={handleSign}
                     onBack={handleBack}
-                    onContinue={handleContinue}
-                    isLast={isLast}
+                    isLast={subStepIndex === totalSubSteps - 1}
                 />
             </div>
         </div>
