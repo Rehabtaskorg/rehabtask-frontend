@@ -42,11 +42,6 @@ function TherapistEarningsContent() {
     const [stripeStatus, setStripeStatus] = useState(null);
     const [stripeStatusLoading, setStripeStatusLoading] = useState(true);
 
-    useEffect(() => {
-        Promise.all([fetchPayouts(), fetchStripeStatus()]);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
-
     const fetchPayouts = async () => {
         try {
             const res = await api.get("/payments/payouts");
@@ -68,6 +63,10 @@ function TherapistEarningsContent() {
             setStripeStatusLoading(false);
         }
     };
+
+    useEffect(() => {
+        Promise.all([fetchPayouts(), fetchStripeStatus()]);
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     const handleExportCSV = () => {
         if (!data?.payments?.length) {

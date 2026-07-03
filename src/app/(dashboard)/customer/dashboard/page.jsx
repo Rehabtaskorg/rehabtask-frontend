@@ -106,6 +106,8 @@ export default function CustomerDashboard() {
         );
     }
 
+    const nowMs = new Date().getTime();
+
     return (
         <div className="p-4 md:p-6">
             <div className="max-w-7xl mx-auto space-y-6">
@@ -317,7 +319,7 @@ export default function CustomerDashboard() {
                                 <div className="space-y-3">
                                     {pendingConfirmations.slice(0, 5).map((item) => {
                                         const hoursAgo = item.completedAt
-                                            ? Math.floor((Date.now() - new Date(item.completedAt).getTime()) / (1000 * 60 * 60))
+                                            ? Math.floor((nowMs - new Date(item.completedAt).getTime()) / (1000 * 60 * 60))
                                             : null;
                                         const hoursLeft = hoursAgo !== null ? Math.max(0, 72 - hoursAgo) : null;
 
