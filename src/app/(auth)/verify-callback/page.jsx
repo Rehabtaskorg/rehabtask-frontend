@@ -1,10 +1,12 @@
 "use client";
 
+export const dynamic = "force-dynamic";
+
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { usePostHog } from "posthog-js/react";
 import { applyActionCode, checkActionCode } from "firebase/auth";
-import { firebaseAuth } from "@/lib/firebase";
+import { getFirebaseAuth } from "@/lib/firebase";
 import Alert from "@/components/ui/Alert";
 import Footer from "@/components/shared/Footer";
 import VerificationSuccess from "@/components/verification/VerificationSuccess";
@@ -49,11 +51,12 @@ function VerifyCallbackContent() {
             }
 
             try {
-                const actionInfo = await checkActionCode(firebaseAuth, oobCode);
+                const auth = getFirebaseAuth();
+                const actionInfo = await checkActionCode(auth, oobCode);
                 const email = actionInfo.data.email;
                 if (email) setVerifiedEmail(email);
 
-                await applyActionCode(firebaseAuth, oobCode);
+                await applyActionCode(auth, oobCode);
 
                 const response = await authAPi.verifyEmail(null, null, email);
                 const user = response?.data?.data?.user || null;

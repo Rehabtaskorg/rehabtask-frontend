@@ -1,5 +1,7 @@
 "use client";
 
+export const dynamic = "force-dynamic";
+
 import { useMemo, useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -11,7 +13,7 @@ import {
     updatePassword,
     signOut,
 } from "firebase/auth";
-import { firebaseAuth } from "@/lib/firebase";
+import { getFirebaseAuth } from "@/lib/firebase";
 import { authAPi } from "@/lib/auth.api";
 import PasswordInput from "@/components/ui/PasswordInput";
 import Button from "@/components/ui/Button";
@@ -71,7 +73,7 @@ function InviteAcceptContent() {
     useEffect(() => {
         const email = searchParams.get("email");
 
-        if (!email || !isSignInWithEmailLink(firebaseAuth, window.location.href)) {
+        if (!email || !isSignInWithEmailLink(getFirebaseAuth(), window.location.href)) {
             setIsValidLink(false);
             setError("Invalid or expired invite link. Please ask your administrator to resend the invitation.");
             setIsChecking(false);
@@ -126,7 +128,7 @@ function InviteAcceptContent() {
         setIsSubmitting(true);
 
         try {
-            const credential = await signInWithEmailLink(firebaseAuth, inviteEmail, window.location.href);
+            const credential = await signInWithEmailLink(getFirebaseAuth(), inviteEmail, window.location.href);
             const firebaseUser = credential.user;
 
             await updatePassword(firebaseUser, data.password);
@@ -138,7 +140,7 @@ function InviteAcceptContent() {
 
             await authAPi.verifyEmail(firebaseUser.uid, data.fullName);
 
-            await signOut(firebaseAuth);
+            await signOut(getFirebaseAuth());
 
             setSuccess("Password set successfully! Redirecting to login...");
 

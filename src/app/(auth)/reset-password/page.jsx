@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 export const metadata = { title: "Reset Password" };
 
 import ResetPasswordForm from "@/components/forms/ResetPasswordForm";

@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { MdLock, MdCheck } from "react-icons/md";
 import { useRouter, useSearchParams } from "next/navigation";
 import { confirmPasswordReset, verifyPasswordResetCode } from "firebase/auth";
-import { firebaseAuth } from "@/lib/firebase";
+import { getFirebaseAuth } from "@/lib/firebase";
 import PasswordInput from "../ui/PasswordInput";
 import Button from "../ui/Button";
 import Alert from "../ui/Alert";
@@ -54,7 +54,7 @@ function ResetPasswordForm() {
             }
 
             try {
-                await verifyPasswordResetCode(firebaseAuth, code);
+                await verifyPasswordResetCode(getFirebaseAuth(), code);
                 setOobCode(code);
                 setIsValidToken(true);
             } catch {
@@ -111,7 +111,7 @@ function ResetPasswordForm() {
         setIsSubmitting(true);
 
         try {
-            await confirmPasswordReset(firebaseAuth, oobCode, data.password);
+            await confirmPasswordReset(getFirebaseAuth(), oobCode, data.password);
 
             setSuccess("Password updated successfully! Redirecting...");
 
