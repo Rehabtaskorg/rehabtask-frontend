@@ -74,9 +74,13 @@ export const authAPi = {
         return api.post("/auth/email/resend", { email, recaptchaToken, recaptchaAction });
     },
 
-    /** Mark email as verified in the database. */
-    verifyEmail: async (userId, fullName) =>
-        api.post("/auth/verify-email", { userId, ...(fullName ? { fullName } : {}) }),
+    /** Mark email as verified in the database. Identify by userId or email. */
+    verifyEmail: async (userId, fullName, email) =>
+        api.post("/auth/verify-email", {
+            ...(userId ? { userId } : {}),
+            ...(email ? { email } : {}),
+            ...(fullName ? { fullName } : {}),
+        }),
 
     /** Send Supabase OAuth tokens to the backend for session creation. */
     processOAuth: async (accessToken, refreshToken) =>
