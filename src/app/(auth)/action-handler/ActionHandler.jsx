@@ -74,7 +74,9 @@ async function handleVerifyEmail(oobCode, continueUrl, router) {
         await authAPi.verifyEmail(null, null, email);
 
         const dest = continueUrl ? new URL(continueUrl).pathname : "/verify-callback";
-        router.replace(`${dest}?verified=true`);
+        const params = new URLSearchParams({ verified: "true" });
+        if (email) params.set("email", email);
+        router.replace(`${dest}?${params.toString()}`);
     } catch {
         router.replace("/verify-callback?error=invalid");
     }

@@ -5,14 +5,12 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { usePostHog } from "posthog-js/react";
 import Alert from "@/components/ui/Alert";
 import VerificationSuccess from "@/components/verification/VerificationSuccess";
-import { authAPi } from "@/lib/auth.api";
-import { getFirstName } from "@/utils/userSession";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { USER_ROLES } from "@/lib/constants";
 
 /**
- * Displays the result of email verification after the action handler at
- * /__/auth/action has processed the oobCode and synced state to Postgres.
+ * Displays the result of email verification after /action-handler has
+ * processed the oobCode and synced state to Postgres.
  * Receives ?verified=true on success or ?error=invalid on failure.
  *
  * @returns {JSX.Element}
@@ -24,7 +22,6 @@ export function VerifyCallbackContent() {
     const posthog = usePostHog();
 
     const [status, setStatus] = useState("loading");
-    const [userInfo, setUserInfo] = useState(null);
 
     useEffect(() => {
         const verified = searchParams.get("verified");
@@ -36,27 +33,13 @@ export function VerifyCallbackContent() {
         }
 
         if (verified === "true") {
-            authAPi.getCurrentUser()
-                .then((res) => {
-                    const user = res?.data?.data?.user || null;
-                    if (user) {
-                        setUserInfo(user);
-                        posthog?.capture("email_verified", { role: user?.role });
-                    }
-                    setStatus("success");
-
-                    if (user?.role === USER_ROLES.THERAPIST) {
-                        setTimeout(() => {
-                            router.push(`/login?verified=true&role=${USER_ROLES.THERAPIST}`);
-                        }, 2000);
-                    }
-                })
-                .catch(() => setStatus("success"));
+            posthog?.capture("email_verified");
+            setStatus("success");
             return;
         }
 
         setStatus("error");
-    }, [router, posthog, searchParams]);
+    }, [posthog, searchParams]);
 
     const handleContinue = () => {
         router.push(`/login?verified=true&role=${USER_ROLES.CUSTOMER}`);
@@ -72,19 +55,8 @@ export function VerifyCallbackContent() {
                     </div>
                 )}
 
-                {status === "success" && userInfo?.role === USER_ROLES.CUSTOMER && (
-                    <VerificationSuccess
-                        userName={getFirstName(userInfo.fullName)}
-                        onContinue={handleContinue}
-                    />
-                )}
-
-                {status === "success" && userInfo?.role === USER_ROLES.THERAPIST && (
-                    <Alert type="success" message="Email verified successfully! Redirecting to login..." />
-                )}
-
-                {status === "success" && !userInfo && (
-                    <Alert type="success" message="Email verified successfully! You can now log in." />
+                {status === "success" && (
+                    <VerificationSuccess onContinue={handleContinue} />
                 )}
 
                 {status === "error" && (
