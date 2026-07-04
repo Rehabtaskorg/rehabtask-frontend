@@ -4,8 +4,8 @@ import { Suspense } from "react";
 import { ActionHandler } from "./ActionHandler";
 
 /**
- * Identity Platform email action handler.
- * Receives mode, oobCode, and continueUrl from Identity Platform.
+ * Identity Platform email action handler page.
+ * Receives mode, oobCode, and continueUrl constructed by the backend.
  *
  * @returns {JSX.Element}
  */

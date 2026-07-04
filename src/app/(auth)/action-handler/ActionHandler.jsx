@@ -7,11 +7,9 @@ import { getFirebaseAuth } from "@/lib/firebase";
 import { authAPi } from "@/lib/auth.api";
 
 /**
- * Intercepts Identity Platform email action links.
- *
- * Identity Platform routes all email actions (verifyEmail, resetPassword,
- * signIn) through callbackUri — this page. It reads the oobCode, handles
- * the action, then redirects to the appropriate page.
+ * Processes Identity Platform email action links.
+ * The backend constructs links pointing here with mode, oobCode, and continueUrl.
+ * Handles verifyEmail, resetPassword, and signIn (sub-admin invite) modes.
  *
  * @returns {JSX.Element}
  */
@@ -35,8 +33,7 @@ export function ActionHandler() {
         }
 
         if (mode === "resetPassword") {
-            const params = new URLSearchParams({ oobCode });
-            router.replace(`/reset-password?${params.toString()}`);
+            router.replace(`/reset-password?${new URLSearchParams({ oobCode }).toString()}`);
             return;
         }
 
@@ -69,19 +66,14 @@ export function ActionHandler() {
 async function handleVerifyEmail(oobCode, continueUrl, router) {
     try {
         const auth = getFirebaseAuth();
-        const actionInfo = await import("firebase/auth").then(({ checkActionCode }) =>
-            checkActionCode(auth, oobCode)
-        );
+        const { checkActionCode } = await import("firebase/auth");
+        const actionInfo = await checkActionCode(auth, oobCode);
         const email = actionInfo.data.email;
 
         await applyActionCode(auth, oobCode);
-
         await authAPi.verifyEmail(null, null, email);
 
-        const dest = continueUrl
-            ? new URL(continueUrl).pathname
-            : "/verify-callback";
-
+        const dest = continueUrl ? new URL(continueUrl).pathname : "/verify-callback";
         router.replace(`${dest}?verified=true`);
     } catch {
         router.replace("/verify-callback?error=invalid");
