@@ -36,7 +36,7 @@ export function VerifyCallbackContent() {
         }
 
         if (verified === "true") {
-            authAPi.getMe()
+            authAPi.getCurrentUser()
                 .then((res) => {
                     const user = res?.data?.data?.user || null;
                     if (user) {
