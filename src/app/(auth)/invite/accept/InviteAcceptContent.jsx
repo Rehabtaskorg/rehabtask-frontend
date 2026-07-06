@@ -6,7 +6,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { MdLock, MdCheck } from "react-icons/md";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
-    isSignInWithEmailLink,
     signInWithEmailLink,
     updatePassword,
     signOut,
@@ -69,8 +68,9 @@ export function InviteAcceptContent() {
 
     useEffect(() => {
         const email = searchParams.get("email");
+        const oobCode = searchParams.get("oobCode");
 
-        if (!email || !isSignInWithEmailLink(getFirebaseAuth(), window.location.href)) {
+        if (!email || !oobCode) {
             setIsValidLink(false);
             setError("Invalid or expired invite link. Please ask your administrator to resend the invitation.");
             setIsChecking(false);
