@@ -125,7 +125,11 @@ export function InviteAcceptContent() {
         setIsSubmitting(true);
 
         try {
-            const credential = await signInWithEmailLink(getFirebaseAuth(), inviteEmail, window.location.href);
+            const oobCode = searchParams.get("oobCode");
+            const authDomain = process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN;
+            const apiKey = process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
+            const firebaseSignInUrl = `https://${authDomain}/__/auth/action?mode=signIn&oobCode=${encodeURIComponent(oobCode)}&apiKey=${encodeURIComponent(apiKey)}`;
+            const credential = await signInWithEmailLink(getFirebaseAuth(), inviteEmail, firebaseSignInUrl);
             const firebaseUser = credential.user;
 
             await updatePassword(firebaseUser, data.password);
