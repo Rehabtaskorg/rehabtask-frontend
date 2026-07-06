@@ -128,7 +128,8 @@ export function InviteAcceptContent() {
             const oobCode = searchParams.get("oobCode");
             const authDomain = process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN;
             const apiKey = process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
-            const firebaseSignInUrl = `https://${authDomain}/__/auth/action?mode=signIn&oobCode=${encodeURIComponent(oobCode)}&apiKey=${encodeURIComponent(apiKey)}`;
+            const tenantId = process.env.NEXT_PUBLIC_IDENTITY_PLATFORM_TENANT_ID;
+            const firebaseSignInUrl = `https://${authDomain}/__/auth/action?mode=signIn&oobCode=${encodeURIComponent(oobCode)}&apiKey=${encodeURIComponent(apiKey)}&tenantId=${encodeURIComponent(tenantId)}`;
             const credential = await signInWithEmailLink(getFirebaseAuth(), inviteEmail, firebaseSignInUrl);
             const firebaseUser = credential.user;
 
