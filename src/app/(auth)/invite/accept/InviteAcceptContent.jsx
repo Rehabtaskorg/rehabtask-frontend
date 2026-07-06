@@ -150,8 +150,6 @@ export function InviteAcceptContent() {
                 router.push("/login?invited=true");
             }, 1500);
         } catch (err) {
-            // TODO: remove after A10 debugging
-            console.error("[InviteAccept] error code:", err?.code, "message:", err?.message, err);
             const isLinkExpired =
                 err?.code === "auth/invalid-action-code" ||
                 err?.code === "auth/expired-action-code";
