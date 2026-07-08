@@ -149,7 +149,6 @@ jobs:
               --max-instances 10 \
               --memory 512Mi \
               --cpu 1 \
-              --allow-unauthenticated \
               --no-traffic \
               --cpu-boost \
               --timeout=300 \
@@ -164,7 +163,6 @@ jobs:
               --max-instances 5 \
               --memory 512Mi \
               --cpu 1 \
-              --allow-unauthenticated \
               --timeout=300 \
               --quiet
           fi
