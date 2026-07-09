@@ -1,8 +1,10 @@
 "use client";
 
+import { useState } from "react";
 import { MdArrowBack } from "react-icons/md";
 import { useRouter } from "next/navigation";
 import OnboardingProgressBar from "@/components/therapist/OnboardingProgressBar";
+import ConfirmModal from "@/components/ui/ConfirmModal";
 import StripeIdleCard from "./StripeIdleCard";
 import StripeEmbeddedForm from "./StripeEmbeddedForm";
 import StripeStatusCard from "./StripeStatusCard";
@@ -10,13 +12,14 @@ import { useStripeOnboarding } from "./useStripeOnboarding";
 import { STRIPE_STATUS } from "./constants";
 
 /**
- * Stripe Connect onboarding shell for therapists (step 5).
+ * Stripe Connect onboarding shell for therapists (step 8).
  * Delegates all state and logic to useStripeOnboarding.
  *
  * @returns {JSX.Element}
  */
 export default function StripeOnboardingView() {
     const router = useRouter();
+    const [showSkipConfirm, setShowSkipConfirm] = useState(false);
     const {
         status,
         error,
@@ -28,8 +31,10 @@ export default function StripeOnboardingView() {
         handleLoadError,
         handleEmbeddedFormStart,
         handleRetry,
-        handleSkipForNow,
+        confirmSkipForNow,
     } = useStripeOnboarding();
+
+    const handleSkipForNow = () => setShowSkipConfirm(true);
 
     return (
         <div className="min-h-screen bg-background-light py-10 px-4">
@@ -94,7 +99,7 @@ export default function StripeOnboardingView() {
                 {[STRIPE_STATUS.IDLE, STRIPE_STATUS.ERROR].includes(status) && (
                     <div className="mt-6 flex justify-center">
                         <button
-                            onClick={() => router.push("/therapist/onboarding/background-check")}
+                            onClick={() => router.push("/therapist/onboarding/compliance")}
                             className="flex items-center gap-2 text-text-muted hover:text-text-main transition-colors"
                         >
                             <MdArrowBack className="text-lg" />
@@ -102,6 +107,19 @@ export default function StripeOnboardingView() {
                         </button>
                     </div>
                 )}
+
+                <ConfirmModal
+                    isOpen={showSkipConfirm}
+                    onClose={() => setShowSkipConfirm(false)}
+                    onConfirm={() => {
+                        setShowSkipConfirm(false);
+                        confirmSkipForNow();
+                    }}
+                    title="Continue without payouts?"
+                    message="You can review and submit your application now, then set up payouts later from your Earnings page. This won't delay your review, but you won't be able to receive payments until payouts are set up."
+                    confirmLabel="Continue to Final Review"
+                    cancelLabel="Go Back"
+                />
             </div>
         </div>
     );

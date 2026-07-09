@@ -21,6 +21,20 @@ const useOnboardingStore = create(
             currentStep: 1,
             completedSteps: [],
 
+            personalInfo: {
+                dateOfBirth: "",
+                phone: "",
+                addressLine1: "",
+                addressLine2: "",
+                city: "",
+                state: "",
+                zipCode: "",
+                latitude: null,
+                longitude: null,
+                emergencyContactName: "",
+                emergencyContactPhone: "",
+            },
+
             professionalProfile: {
                 yearsOfExperience: null,
                 primaryLicenseType: "",
@@ -32,13 +46,28 @@ const useOnboardingStore = create(
             credentials: {
                 licenseNumber: "",
                 licenseState: "",
-                licenseDocuments: []
+                npiNumber: "",
+                additionalLicenseStates: [],
+                licenseDocuments: [],
             },
 
             availability: {
                 schedule: initialSchedule,
                 acceptingNewPatients: true,
                 workAreas: [],
+            },
+
+            insurance: {
+                doesHomeVisits: false,
+                documents: [],
+            },
+
+            identity: {
+                documents: [],
+            },
+
+            compliance: {
+                documents: [],
             },
 
             backgroundCheck: {
@@ -59,6 +88,11 @@ const useOnboardingStore = create(
             markStepComplete: (step) =>
                 set((state) => ({
                     completedSteps: [...new Set([...state.completedSteps, step])],
+                })),
+
+            updatePersonalInfo: (data) =>
+                set((state) => ({
+                    personalInfo: { ...state.personalInfo, ...data },
                 })),
 
             updateProfessionalProfile: (data) =>
@@ -119,6 +153,69 @@ const useOnboardingStore = create(
                         workAreas: (state.availability.workAreas || []).filter(
                             (_, i) => i !== index
                         ),
+                    },
+                })),
+
+            updateInsurance: (data) =>
+                set((state) => ({
+                    insurance: { ...state.insurance, ...data },
+                })),
+
+            addInsuranceDocument: (doc) =>
+                set((state) => ({
+                    insurance: {
+                        ...state.insurance,
+                        documents: [...state.insurance.documents, doc],
+                    },
+                })),
+
+            removeInsuranceDocument: (index) =>
+                set((state) => ({
+                    insurance: {
+                        ...state.insurance,
+                        documents: state.insurance.documents.filter((_, i) => i !== index),
+                    },
+                })),
+
+            updateIdentity: (data) =>
+                set((state) => ({
+                    identity: { ...state.identity, ...data },
+                })),
+
+            addIdentityDocument: (doc) =>
+                set((state) => ({
+                    identity: {
+                        ...state.identity,
+                        documents: [...state.identity.documents, doc],
+                    },
+                })),
+
+            removeIdentityDocument: (index) =>
+                set((state) => ({
+                    identity: {
+                        ...state.identity,
+                        documents: state.identity.documents.filter((_, i) => i !== index),
+                    },
+                })),
+
+            updateCompliance: (data) =>
+                set((state) => ({
+                    compliance: { ...state.compliance, ...data },
+                })),
+
+            addComplianceDocument: (doc) =>
+                set((state) => ({
+                    compliance: {
+                        ...state.compliance,
+                        documents: [...state.compliance.documents, doc],
+                    },
+                })),
+
+            removeComplianceDocument: (index) =>
+                set((state) => ({
+                    compliance: {
+                        ...state.compliance,
+                        documents: state.compliance.documents.filter((_, i) => i !== index),
                     },
                 })),
 
@@ -211,21 +308,18 @@ const useOnboardingStore = create(
             getAllData: () => {
                 const state = get();
                 return {
+                    personalInfo: state.personalInfo,
                     professionalProfile: state.professionalProfile,
                     credentials: state.credentials,
                     availability: state.availability,
+                    insurance: state.insurance,
+                    identity: state.identity,
+                    compliance: state.compliance,
                     backgroundCheck: state.backgroundCheck,
                     payment: state.payment,
                     currentStep: state.currentStep,
                     completedSteps: state.completedSteps,
                 };
-            },
-
-            getProgress: () => {
-                const state = get();
-                const totalSteps = 5;
-                const completed = state.completedSteps.length;
-                return Math.round((completed / totalSteps) * 100);
             },
 
             isStepCompleted: (step) => {
@@ -237,6 +331,19 @@ const useOnboardingStore = create(
                 set({
                     currentStep: 1,
                     completedSteps: [],
+                    personalInfo: {
+                        dateOfBirth: "",
+                        phone: "",
+                        addressLine1: "",
+                        addressLine2: "",
+                        city: "",
+                        state: "",
+                        zipCode: "",
+                        latitude: null,
+                        longitude: null,
+                        emergencyContactName: "",
+                        emergencyContactPhone: "",
+                    },
                     professionalProfile: {
                         yearsOfExperience: null,
                         primaryLicenseType: "",
@@ -247,12 +354,24 @@ const useOnboardingStore = create(
                     credentials: {
                         licenseNumber: "",
                         licenseState: "",
+                        npiNumber: "",
+                        additionalLicenseStates: [],
                         licenseDocuments: [],
                     },
                     availability: {
                         schedule: initialSchedule,
                         acceptingNewPatients: true,
                         workAreas: [],
+                    },
+                    insurance: {
+                        doesHomeVisits: false,
+                        documents: [],
+                    },
+                    identity: {
+                        documents: [],
+                    },
+                    compliance: {
+                        documents: [],
                     },
                     backgroundCheck: {
                         consent: false,
@@ -271,10 +390,13 @@ const useOnboardingStore = create(
             partialize: (state) => ({
                 currentStep: state.currentStep,
                 completedSteps: state.completedSteps,
+                personalInfo: state.personalInfo,
                 professionalProfile: state.professionalProfile,
                 credentials: {
                     licenseNumber: state.credentials.licenseNumber,
                     licenseState: state.credentials.licenseState,
+                    npiNumber: state.credentials.npiNumber,
+                    additionalLicenseStates: state.credentials.additionalLicenseStates,
                     // Only persist metadata, not object URLs
                     licenseDocuments: state.credentials.licenseDocuments.map(doc => ({
                         path: doc.path,
@@ -282,9 +404,37 @@ const useOnboardingStore = create(
                         fileSize: doc.fileSize,
                         documentType: doc.documentType,
                         mimeType: doc.mimeType,
-                    }))
+                    })),
                 },
                 availability: state.availability,
+                insurance: {
+                    doesHomeVisits: state.insurance.doesHomeVisits,
+                    documents: state.insurance.documents.map((doc) => ({
+                        path: doc.path,
+                        fileName: doc.fileName,
+                        fileSize: doc.fileSize,
+                        documentType: doc.documentType,
+                        mimeType: doc.mimeType,
+                    })),
+                },
+                identity: {
+                    documents: state.identity.documents.map((doc) => ({
+                        path: doc.path,
+                        fileName: doc.fileName,
+                        fileSize: doc.fileSize,
+                        documentType: doc.documentType,
+                        mimeType: doc.mimeType,
+                    })),
+                },
+                compliance: {
+                    documents: state.compliance.documents.map((doc) => ({
+                        path: doc.path,
+                        fileName: doc.fileName,
+                        fileSize: doc.fileSize,
+                        documentType: doc.documentType,
+                        mimeType: doc.mimeType,
+                    })),
+                },
                 backgroundCheck: {
                     consent: state.backgroundCheck.consent,
                     // Don't persist signature

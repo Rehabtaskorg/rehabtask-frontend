@@ -8,12 +8,15 @@ import Image from 'next/image';
 import { authAPi } from '@/lib/auth.api';
 import { destroySocket } from '@/lib/socket';
 import { getTherapistRedirect } from '@/lib/therapistRouteAccess';
+import { getCustomerRedirect } from '@/lib/customerRouteAccess';
 import { TherapistAccessProvider } from '@/contexts/TherapistAccessContext';
 import { AdminUserProvider } from '@/contexts/AdminUserContext';
+import { CustomerUserProvider } from '@/contexts/CustomerUserContext';
 import { SidebarProvider, useSidebar } from '@/contexts/SidebarContext';
 import { SocketProvider } from '@/components/providers/SocketProvider';
 import OnboardingBanner from '@/components/therapist/OnboardingBanner';
 import useOnboardingStore from '@/store/onboardingStore';
+import useAgencyOnboardingStore from '@/store/agencyOnboardingStore';
 import { useUnreadCount } from '@/hooks/useMessages';
 import { useIdleTimeout } from '@/hooks/useIdleTimeout';
 import { LOGOUT_REASON, USER_ROLES, CUSTOMER_TYPES } from '@/lib/constants';
@@ -170,11 +173,15 @@ export default function DashboardLayout({ children }) {
                     isOnTherapistDashboard && userData.role === USER_ROLES.CUSTOMER;
 
                 if (shouldRedirectToTherapist) {
+                    setUser(userData);
+                    setLoading(false);
                     router.replace("/therapist/dashboard");
                     return;
                 }
 
                 if (shouldRedirectToCustomer) {
+                    setUser(userData);
+                    setLoading(false);
                     router.replace("/customer/dashboard");
                     return;
                 }
@@ -184,6 +191,8 @@ export default function DashboardLayout({ children }) {
                 if (!userData.profile && userData.role !== USER_ROLES.ADMIN && userData.role !== USER_ROLES.SUB_ADMIN) {
                     const isOnOnboarding = pathname.startsWith("/oauth/onboarding");
                     if (!isOnOnboarding) {
+                        setUser(userData);
+                        setLoading(false);
                         router.replace("/oauth/onboarding");
                         return;
                     }
@@ -199,8 +208,25 @@ export default function DashboardLayout({ children }) {
                     });
 
                     if (redirect && pathname !== redirect) {
+                        setUser(userData);
+                        setLoading(false);
                         router.replace(redirect);
-                        return; // Don't set user or loading=false; keep spinner until redirect
+                        return;
+                    }
+                }
+
+                if (userData.role === USER_ROLES.CUSTOMER) {
+                    const redirect = getCustomerRedirect(pathname, {
+                        customerType: userData.profile?.customerType ?? null,
+                        onboardingComplete: userData.profile?.onboardingComplete ?? false,
+                        onboardingStep: userData.profile?.onboardingStep ?? 1,
+                    });
+
+                    if (redirect && pathname !== redirect) {
+                        setUser(userData);
+                        setLoading(false);
+                        router.replace(redirect);
+                        return;
                     }
                 }
 
@@ -231,17 +257,22 @@ export default function DashboardLayout({ children }) {
 
         fetchUser();
         return () => { isMounted = false; };
-    }, [router, pathname, posthog]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [router, posthog]);
 
     /**
      * Logs the current user out: calls the logout API, tears down the socket,
-     * resets client-side state, detaches PostHog, then navigates to the destination.
+     * detaches PostHog, then navigates to the destination.
      *
      * @param {string} [redirectTo="/"] - Path to navigate to after logout.
+     * @param {{ preserveOnboardingState?: boolean }} [options={}]
+     *   preserveOnboardingState: skip the onboarding store reset so the user can
+     *   resume exactly where they left off after re-authenticating. Use this for
+     *   idle-timeout logouts — the session expired but the user hasn't changed.
+     *   Explicit logout (clicking "Logout") must always reset to prevent data
+     *   leakage if a different account logs in on the same device.
      */
-    const handleLogout = useCallback(async (redirectTo = "/") => {
-        // Guard: onClick passes a MouseEvent when called directly from a button —
-        // treat that as "no redirect specified" and fall back to "/".
+    const handleLogout = useCallback(async (redirectTo = "/", { preserveOnboardingState = false } = {}) => {
         const destination = typeof redirectTo === "string" ? redirectTo : "/";
         try {
             await authAPi.logout();
@@ -249,13 +280,20 @@ export default function DashboardLayout({ children }) {
             // best-effort — session may already be invalid
         } finally {
             destroySocket();
-            useOnboardingStore.getState().reset();
+            if (!preserveOnboardingState) {
+                useOnboardingStore.getState().reset();
+                useAgencyOnboardingStore.getState().reset();
+            }
             posthog?.reset();
         }
         router.push(destination);
     }, [router, posthog]);
 
-    useIdleTimeout(user ? () => handleLogout(`/login?reason=${LOGOUT_REASON.IDLE_TIMEOUT}`) : null);
+    useIdleTimeout(
+        user
+            ? () => handleLogout(`/login?reason=${LOGOUT_REASON.IDLE_TIMEOUT}`, { preserveOnboardingState: true })
+            : null
+    );
 
     if (loading) {
         return (
@@ -268,7 +306,7 @@ export default function DashboardLayout({ children }) {
         );
     }
 
-    if (authError || !user) {
+    if (authError) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-background-light ">
                 <div className="text-center">
@@ -291,8 +329,9 @@ export default function DashboardLayout({ children }) {
         const status = tp?.approvalStatus ?? "pending";
         const step = tp?.onboardingStep ?? 1;
         const isComplete = tp?.onboardingComplete ?? false;
-        // Step 5+ means all essential steps are done — treat as functionally complete
-        const functionallyComplete = isComplete || step >= 5;
+        // Step 8 (Payment Setup) onward is functionally complete — payment is not
+        // a hard requirement for admin review. Step 9 (Final Review) just confirms.
+        const functionallyComplete = isComplete || step >= 8;
         return {
             approvalStatus: status,
             rejectionReason: tp?.rejectionReason ?? null,
@@ -634,6 +673,15 @@ function DashboardInner({ user, pathname, sidebarOpen, setSidebarOpen, handleLog
                     <AdminUserProvider value={{ id: user.id, email: user.email, role: user.role, permissions: subAdminPermissions }}>
                         {children}
                     </AdminUserProvider>
+                ) : user.role === USER_ROLES.CUSTOMER ? (
+                    <CustomerUserProvider value={{
+                        customerType: user.profile?.customerType ?? null,
+                        onboardingComplete: user.profile?.onboardingComplete ?? false,
+                        onboardingStep: user.profile?.onboardingStep ?? 1,
+                        approvalStatus: user.profile?.approvalStatus ?? null,
+                    }}>
+                        {children}
+                    </CustomerUserProvider>
                 ) : (
                     children
                 )}

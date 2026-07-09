@@ -238,7 +238,7 @@ export default function AdminTherapistDetailPage() {
                         <div className="flex justify-between gap-3">
                             <dt className="text-text-muted ">Onboarding progress</dt>
                             <dd className={`font-medium capitalize ${tp?.onboardingComplete ? 'text-emerald-600 ' : 'text-amber-600 '}`}>
-                                {tp?.onboardingComplete ? 'Complete' : `Step ${tp?.onboardingStep ?? 1} of 5`}
+                                {tp?.onboardingComplete ? 'Complete' : `Step ${tp?.onboardingStep ?? 1} of 9`}
                             </dd>
                         </div>
                         <div className="flex justify-between gap-3">

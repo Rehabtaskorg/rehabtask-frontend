@@ -5,11 +5,15 @@ import { useOnboardingSync } from "@/hooks/useOnboardingSync";
 import useOnboardingStore from "@/store/onboardingStore";
 
 const STEPS = [
-    { number: 1, label: "Profile", route: "/therapist/onboarding/profile" },
-    { number: 2, label: "Credentials", route: "/therapist/onboarding/credentials" },
-    { number: 3, label: "Availability", route: "/therapist/onboarding/availability" },
-    { number: 4, label: "Background Check", route: "/therapist/onboarding/background-check" },
-    { number: 5, label: "Payment Setup", route: "/therapist/onboarding/stripe" },
+    { number: 1, label: "Personal Information", route: "/therapist/onboarding/personal-info" },
+    { number: 2, label: "Professional Profile", route: "/therapist/onboarding/profile" },
+    { number: 3, label: "Credentials", route: "/therapist/onboarding/credentials" },
+    { number: 4, label: "Availability", route: "/therapist/onboarding/availability" },
+    { number: 5, label: "Insurance Uploads", route: "/therapist/onboarding/insurance" },
+    { number: 6, label: "Identity Verification", route: "/therapist/onboarding/identity" },
+    { number: 7, label: "Compliance Forms", route: "/therapist/onboarding/compliance" },
+    { number: 8, label: "Payment Setup", route: "/therapist/onboarding/stripe" },
+    { number: 9, label: "Final Review", route: "/therapist/onboarding/review" },
 ];
 
 export default function OnboardingProgressBar() {
@@ -17,7 +21,8 @@ export default function OnboardingProgressBar() {
     const { syncStatus } = useOnboardingSync();
 
     const [progress, setProgress] = useState(0);
-    const [completedCount, setCompletedCount] = useState(0);
+    const [completedCount, setCompletedCount] = useState(null);
+    const [totalSteps, setTotalSteps] = useState(null);
 
     useEffect(() => {
         const loadProgress = async () => {
@@ -25,10 +30,12 @@ export default function OnboardingProgressBar() {
             if (status) {
                 setProgress(status.progress);
 
-                // Count completed steps from backend
+                // Count completed steps from backend — denominator must come from
+                // the same steps object, since not all 9 planned steps are built yet
                 const { steps } = status;
                 const completed = Object.values(steps).filter(Boolean).length;
                 setCompletedCount(completed);
+                setTotalSteps(Object.keys(steps).length);
             }
         };
 
@@ -42,7 +49,7 @@ export default function OnboardingProgressBar() {
                     Onboarding Progress
                 </p>
                 <p className="text-text-main  text-sm font-medium leading-normal">
-                    {completedCount} of {STEPS.length} completed
+                    {totalSteps === null ? "Loading…" : `${completedCount} of ${totalSteps} completed`}
                 </p>
             </div>
 

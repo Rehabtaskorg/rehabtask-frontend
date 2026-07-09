@@ -16,7 +16,8 @@ import { MdLocationOn, MdClose } from "react-icons/md";
  * - onClear: called when the user clears the input
  * - placeholder: input placeholder text
  * - restrictToPostalCode: when true, only ZIP code predictions are shown (for therapist work areas)
- * - variant: "compact" (public search header) | "form" (dashboard forms with label)
+ * - restrictToAddress: when true, only street-level address predictions are shown (for address line 1)
+ * - variant: "compact" (public search header) | "form" (dashboard forms with label) | "stacked" (hero search)
  * - label / required / error / helperText / disabled: form-variant props
  */
 export default function LocationAutocomplete({
@@ -26,6 +27,7 @@ export default function LocationAutocomplete({
     onClear,
     placeholder = "Enter address, city, or ZIP",
     restrictToPostalCode = false,
+    restrictToAddress = false,
     variant = "compact",
     label,
     required = false,
@@ -68,6 +70,10 @@ export default function LocationAutocomplete({
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
+    useEffect(() => {
+        return () => clearTimeout(debounceTimer.current);
+    }, []);
+
     const fetchPredictions = useCallback((input) => {
         if (!autocompleteService.current || !input || input.length < 2) {
             setPredictions([]);
@@ -75,15 +81,21 @@ export default function LocationAutocomplete({
             return;
         }
 
+        const types = restrictToPostalCode
+            ? ["postal_code"]
+            : restrictToAddress
+                ? ["address"]
+                : ["geocode"];
+
         autocompleteService.current.getPlacePredictions(
             {
                 input,
                 componentRestrictions: { country: "us" },
-                types: restrictToPostalCode ? ["postal_code"] : ["geocode"],
+                types,
                 sessionToken: sessionToken.current,
             },
             (results, status) => {
-                if (status === google.maps.places.PlacesServiceStatus.OK && results) {
+                if (status === places.PlacesServiceStatus.OK && results) {
                     setPredictions(results.slice(0, 5));
                     setIsOpen(true);
                     setActiveIndex(-1);
@@ -93,7 +105,7 @@ export default function LocationAutocomplete({
                 }
             }
         );
-    }, [restrictToPostalCode]);
+    }, [restrictToPostalCode, restrictToAddress, places]);
 
     const handleInputChange = (e) => {
         const text = e.target.value;
@@ -114,23 +126,56 @@ export default function LocationAutocomplete({
     };
 
     const handleSelect = useCallback((prediction) => {
-        if (!geocoder.current || !places) return;
+        if (!geocoder.current || !places || !geocoding) return;
 
         onChange?.(prediction.description);
         setPredictions([]);
         setIsOpen(false);
 
+        // Extract city and state code from the prediction description — ground truth.
+        // Using description (rather than always trusting geocoder components) because
+        // geocoder components can return a neighborhood or village (e.g. "Bissell",
+        // "Leland Grove") instead of the city the user saw in the dropdown.
+        // Comma layout depends on the prediction type, so branch on it instead of
+        // assuming every description is "Street, City, ST ZIP, USA" — a ZIP-only or
+        // city-only prediction has fewer parts and the city/state aren't at the same
+        // indices, which previously let a state abbreviation leak into the city field.
+        const { cityFromDescription, stateFromDescription } = (() => {
+            const parts = prediction.description.split(",").map((p) => p.trim());
+            const types = prediction.types || [];
+
+            if (types.includes("postal_code")) {
+                // "62704, Springfield, IL, USA" or "62704, IL, USA" (no city available)
+                const city = parts.length >= 4 ? parts[1] : "";
+                const stateZipPart = parts.length >= 4 ? parts[2] : parts[1] || "";
+                return { cityFromDescription: city, stateFromDescription: stateZipPart.split(" ")[0] || "" };
+            }
+
+            if (types.includes("locality") || types.includes("political")) {
+                // "Springfield, IL, USA"
+                const city = parts[0] || "";
+                const stateZipPart = parts.length >= 2 ? parts[1] : "";
+                return { cityFromDescription: city, stateFromDescription: stateZipPart.split(" ")[0] || "" };
+            }
+
+            // Street address format: "Street, City, ST ZIP, USA"
+            // State is extracted from parts[2] ("ST ZIP") as a fallback for DC-style
+            // addresses where administrative_area_level_1 is sometimes absent in geocoder.
+            const city = parts.length >= 3 ? parts[1] : "";
+            const stateZipPart = parts.length >= 3 ? parts[2] : "";
+            return { cityFromDescription: city, stateFromDescription: stateZipPart.split(" ")[0] || "" };
+        })();
+
         geocoder.current.geocode(
             { placeId: prediction.place_id },
             (results, status) => {
-                if (status === google.maps.GeocoderStatus.OK && results?.[0]) {
+                // Use geocoding library constant — avoids bare google global reference
+                // which can throw ReferenceError if the Maps script isn't fully loaded.
+                if (status === geocoding.GeocoderStatus.OK && results?.[0]) {
                     const result = results[0];
                     const loc = result.geometry.location;
                     const components = result.address_components;
 
-                    const cityComp = components.find(
-                        (c) => c.types.includes("locality") || c.types.includes("sublocality_level_1")
-                    );
                     const stateComp = components.find((c) =>
                         c.types.includes("administrative_area_level_1")
                     );
@@ -140,7 +185,7 @@ export default function LocationAutocomplete({
 
                     // Reject state, country, or county-level selections — their center
                     // coordinates are too far from most cities to work with a 50-mile radius.
-                    if (!cityComp && !zipComp) {
+                    if (!cityFromDescription && !zipComp) {
                         setBroadLocationError(true);
                         onChange?.("");
                         onClear?.();
@@ -150,8 +195,9 @@ export default function LocationAutocomplete({
 
                     setBroadLocationError(false);
                     onSelect?.({
-                        city: cityComp?.long_name || "",
-                        state: stateComp?.short_name || "",
+                        city: cityFromDescription,
+                        // Prefer geocoder component (most accurate); fall back to description parse
+                        state: stateComp?.short_name || stateFromDescription,
                         zipCode: zipComp?.long_name || "",
                         latitude: loc.lat(),
                         longitude: loc.lng(),
@@ -162,7 +208,7 @@ export default function LocationAutocomplete({
                 }
             }
         );
-    }, [onChange, onSelect, onClear, places]);
+    }, [onChange, onSelect, onClear, places, geocoding]);
 
     const handleClearClick = () => {
         onChange?.("");
@@ -170,6 +216,10 @@ export default function LocationAutocomplete({
         setPredictions([]);
         setIsOpen(false);
         setBroadLocationError(false);
+        // Rotate session token so the next search starts a fresh billable session.
+        if (places) {
+            sessionToken.current = new places.AutocompleteSessionToken();
+        }
     };
 
     const handleKeyDown = (e) => {
@@ -214,14 +264,14 @@ export default function LocationAutocomplete({
                         autoComplete="off"
                         className={`
                             w-full pl-10 pr-10 py-3 rounded-xl
-                            bg-white 
+                            bg-white
                             border transition-all outline-none
                             ${
                                 error
                                     ? "border-red-500 focus:ring-2 focus:ring-red-500/20 focus:border-red-500"
                                     : "border-border-subtle  focus:ring-2 focus:ring-primary/20 focus:border-primary"
                             }
-                            text-text-main 
+                            text-text-main
                             placeholder:text-text-muted/50
                             disabled:opacity-50 disabled:cursor-not-allowed
                         `}
@@ -231,6 +281,7 @@ export default function LocationAutocomplete({
                             type="button"
                             onClick={handleClearClick}
                             className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                            aria-label="Clear address"
                         >
                             <MdClose className="text-lg" />
                         </button>
@@ -274,7 +325,6 @@ export default function LocationAutocomplete({
     const shellClass = isStacked
         ? "flex items-center bg-white px-4 py-4 rounded-xl border border-gray-200 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/10 transition-all"
         : `flex items-center bg-gray-50 px-4 py-3 rounded-lg border ${broadLocationError ? "border-red-400" : "border-gray-100"}`;
-    const iconClass = isStacked ? "text-gray-400 text-xl mr-3 shrink-0" : "text-gray-400 text-xl mr-3 shrink-0";
 
     return (
         <div className="flex-1 relative" ref={containerRef}>
@@ -284,7 +334,7 @@ export default function LocationAutocomplete({
                 </p>
             )}
             <div className={shellClass}>
-                <MdLocationOn className={iconClass} />
+                <MdLocationOn className="text-gray-400 text-xl mr-3 shrink-0" />
                 <input
                     type="text"
                     value={value || ""}
@@ -300,6 +350,7 @@ export default function LocationAutocomplete({
                         type="button"
                         onClick={handleClearClick}
                         className="text-gray-400 hover:text-gray-600 transition-colors ml-1 shrink-0"
+                        aria-label="Clear address"
                     >
                         <MdClose className="text-lg" />
                     </button>

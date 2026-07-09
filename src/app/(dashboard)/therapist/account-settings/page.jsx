@@ -17,10 +17,6 @@ function AccountSettingsContent() {
     const [accountStatus, setAccountStatus] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        fetchAccountStatus();
-    }, []);
-
     const fetchAccountStatus = async () => {
         try {
             const res = await api.get("/payments/connect/status");
@@ -31,6 +27,10 @@ function AccountSettingsContent() {
             setLoading(false);
         }
     };
+
+    useEffect(() => {
+        fetchAccountStatus();
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     if (loading) {
         return (
