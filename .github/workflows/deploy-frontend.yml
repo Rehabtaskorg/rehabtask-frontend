@@ -65,9 +65,8 @@ jobs:
             echo "SUPABASE_URL=${{ secrets.NEXT_PUBLIC_SUPABASE_URL_PROD }}" >> $GITHUB_ENV
             echo "SUPABASE_ANON_KEY=${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY_PROD }}" >> $GITHUB_ENV
             echo "IDENTITY_PLATFORM_TENANT_ID=${{ secrets.NEXT_PUBLIC_IDENTITY_PLATFORM_TENANT_ID_PROD }}" >> $GITHUB_ENV
+            echo "STRIPE_PUBLISHABLE_KEY=${{ secrets.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY_PROD }}" >> $GITHUB_ENV
             echo "IS_PROD=true" >> $GITHUB_ENV
-            # PostHog is production-only — staging and dev get empty strings so
-            # the SDK init guard (process.env.NEXT_PUBLIC_POSTHOG_KEY check) skips init
             echo "POSTHOG_KEY=${{ secrets.NEXT_PUBLIC_POSTHOG_KEY }}" >> $GITHUB_ENV
             echo "POSTHOG_HOST=${{ secrets.NEXT_PUBLIC_POSTHOG_HOST }}" >> $GITHUB_ENV
           elif [[ "${{ github.ref_name }}" == "staging" ]]; then
@@ -76,6 +75,7 @@ jobs:
             echo "SUPABASE_URL=${{ secrets.NEXT_PUBLIC_SUPABASE_URL_STAGING }}" >> $GITHUB_ENV
             echo "SUPABASE_ANON_KEY=${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY_STAGING }}" >> $GITHUB_ENV
             echo "IDENTITY_PLATFORM_TENANT_ID=${{ secrets.NEXT_PUBLIC_IDENTITY_PLATFORM_TENANT_ID_STAGING }}" >> $GITHUB_ENV
+            echo "STRIPE_PUBLISHABLE_KEY=${{ secrets.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY_STAGING }}" >> $GITHUB_ENV
             echo "IS_PROD=false" >> $GITHUB_ENV
             echo "POSTHOG_KEY=" >> $GITHUB_ENV
             echo "POSTHOG_HOST=" >> $GITHUB_ENV
@@ -85,10 +85,19 @@ jobs:
             echo "SUPABASE_URL=${{ secrets.NEXT_PUBLIC_SUPABASE_URL_DEV }}" >> $GITHUB_ENV
             echo "SUPABASE_ANON_KEY=${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY_DEV }}" >> $GITHUB_ENV
             echo "IDENTITY_PLATFORM_TENANT_ID=${{ secrets.NEXT_PUBLIC_IDENTITY_PLATFORM_TENANT_ID_DEV }}" >> $GITHUB_ENV
+            echo "STRIPE_PUBLISHABLE_KEY=${{ secrets.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY_DEV }}" >> $GITHUB_ENV
             echo "IS_PROD=false" >> $GITHUB_ENV
             echo "POSTHOG_KEY=" >> $GITHUB_ENV
             echo "POSTHOG_HOST=" >> $GITHUB_ENV
           fi
+
+      - name: Capture current serving revision
+        run: |
+          PREVIOUS_REVISION=$(gcloud run services describe ${{ env.SERVICE_NAME }} \
+            --region=${{ env.REGION }} \
+            --format="value(status.traffic[0].revisionName)" 2>/dev/null || echo "")
+          echo "PREVIOUS_REVISION=$PREVIOUS_REVISION" >> $GITHUB_ENV
+          echo "Previous revision: $PREVIOUS_REVISION"
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -116,7 +125,7 @@ jobs:
             --build-arg NEXT_PUBLIC_API_URL=${{ env.API_URL }} \
             --build-arg NEXT_PUBLIC_SUPABASE_URL=${{ env.SUPABASE_URL }} \
             --build-arg NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ env.SUPABASE_ANON_KEY }} \
-            --build-arg NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=${{ secrets.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY }} \
+            --build-arg NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=${{ env.STRIPE_PUBLISHABLE_KEY }} \
             --build-arg NEXT_PUBLIC_RECAPTCHA_SITE_KEY=${{ secrets.NEXT_PUBLIC_RECAPTCHA_SITE_KEY }} \
             --build-arg NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=${{ secrets.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY }} \
             --build-arg NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID=${{ secrets.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID }} \
@@ -163,29 +172,40 @@ jobs:
               --max-instances 5 \
               --memory 512Mi \
               --cpu 1 \
+              --no-traffic \
               --timeout=300 \
               --quiet
           fi
 
-      - name: Health check and switch traffic (production only)
-        if: env.IS_PROD == 'true'
+      - name: Health check and switch traffic
         run: |
           REVISION=$(gcloud run services describe ${{ env.SERVICE_NAME }} \
             --region=${{ env.REGION }} \
             --format="value(status.latestCreatedRevisionName)")
-          echo "New revision: $REVISION"
-          for i in {1..10}; do
+          echo "Polling revision: $REVISION"
+          for i in {1..18}; do
             STATUS=$(gcloud run revisions describe $REVISION \
               --region=${{ env.REGION }} \
               --format="value(status.conditions[0].status)")
-            echo "Attempt $i: Status=$STATUS"
             if [[ "$STATUS" == "True" ]]; then
-              echo "Revision is healthy. Switching traffic..."
+              echo "Revision $REVISION is healthy."
               gcloud run services update-traffic ${{ env.SERVICE_NAME }} \
                 --region=${{ env.REGION }} \
-                --to-latest
-              echo "Traffic switched."
+                --to-revisions=$REVISION=100
+              echo "Traffic switched. Deploy complete."
               exit 0
             fi
-            sleep 30
+            echo "Attempt $i: not ready. Waiting 20s..."
+            sleep 20
           done
+          echo "Revision failed health check."
+          if [[ -n "${{ env.PREVIOUS_REVISION }}" ]]; then
+            echo "Rolling back to ${{ env.PREVIOUS_REVISION }}..."
+            gcloud run services update-traffic ${{ env.SERVICE_NAME }} \
+              --region=${{ env.REGION }} \
+              --to-revisions=${{ env.PREVIOUS_REVISION }}=100
+            echo "Rolled back."
+          else
+            echo "No previous revision — manual intervention required."
+          fi
+          exit 1
