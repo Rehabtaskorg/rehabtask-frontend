@@ -193,6 +193,12 @@ export const changePasswordSchema = z.object({
  * @param {string} certificationEnd - YYYY-MM-DD
  * @returns {{certificationStart?: string, certificationEnd?: string}} Field-keyed error messages
  */
+export const adminEmailSchema = z.object({
+    to: z.email("Invalid email address"),
+    subject: z.string().min(1, "Subject is required").max(200, "Subject must be 200 characters or less"),
+    message: z.string().min(1, "Message is required").max(5000, "Message must be 5000 characters or less"),
+});
+
 export const validateCertificationPeriod = (certificationStart, certificationEnd) => {
     const errors = {};
     if (!certificationStart) errors.certificationStart = "Certification start date is required";

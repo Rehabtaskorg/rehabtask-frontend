@@ -7,6 +7,11 @@ export const notificationsApi = {
     markAllAsRead: () => api.put('/notifications/read-all'),
 };
 
+// Admin - Direct Email
+export const adminEmailApi = {
+    send: (data) => api.post('/admin/email', data),
+};
+
 // Admin - Users
 export const adminUsersApi = {
     list: (params) => api.get('/admin/users', { params }),

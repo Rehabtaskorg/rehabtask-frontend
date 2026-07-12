@@ -5,7 +5,7 @@ import {
     notificationsApi, adminUsersApi, adminTherapistsApi, adminDisputesApi,
     adminBookingsApi, adminSubscriptionsApi, adminPaymentsApi,
     adminCommissionApi, adminFaqsApi, adminNotificationsApi,
-    adminSubAdminsApi, adminAuditApi,
+    adminSubAdminsApi, adminAuditApi, adminEmailApi,
 } from '@/lib/admin';
 
 // Notifications (user-facing)
@@ -69,6 +69,11 @@ export const useUpdateUser = () => {
         onSuccess: () => qc.invalidateQueries({ queryKey: ['admin', 'users'] }),
     });
 };
+
+export const useSendAdminEmail = () =>
+    useMutation({
+        mutationFn: (data) => adminEmailApi.send(data),
+    });
 
 // Admin - Therapists
 export const useAdminTherapists = ({ enabled, ...params } = {}) =>
