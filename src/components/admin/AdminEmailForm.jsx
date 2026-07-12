@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { MdSend, MdCheckCircle, MdWarning } from "react-icons/md";
@@ -15,6 +16,7 @@ const DEFAULT_VALUES = { to: "", subject: "", message: "" };
  */
 export function AdminEmailForm() {
     const sendEmail = useSendAdminEmail();
+    const [recipientKey, setRecipientKey] = useState(0);
 
     const {
         register,
@@ -35,6 +37,7 @@ export function AdminEmailForm() {
         try {
             await sendEmail.mutateAsync(data);
             reset(DEFAULT_VALUES);
+            setRecipientKey((k) => k + 1);
         } catch {
         }
     };
@@ -59,6 +62,7 @@ export function AdminEmailForm() {
                             control={control}
                             render={({ field }) => (
                                 <AdminRecipientField
+                                    key={recipientKey}
                                     value={field.value}
                                     onChange={field.onChange}
                                     error={errors.to}
