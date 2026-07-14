@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { useConversationContext } from "@/hooks/useMessages";
 import { useMessagesPage } from "@/hooks/useMessagesPage";
@@ -12,6 +12,8 @@ import SharedFiles from "@/components/shared/messages/SharedFiles";
 import AttachmentsModal from "@/components/shared/messages/AttachmentsModal";
 import UserAvatar from "@/components/ui/UserAvatar";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import { MessageGateModal } from "@/components/ui/MessageGateModal";
+import { useCustomerUser } from "@/contexts/CustomerUserContext";
 import { MdSend } from "react-icons/md";
 
 function CustomerRightSidebar({ selectedConversation }) {
@@ -98,12 +100,14 @@ function CustomerRightSidebar({ selectedConversation }) {
                 )}
             </div>
 
-            {/* Direct request CTA — shown on all conversation types with a known therapist */}
-            {otherUser?.role === 'therapist' && (otherUser?.therapistProfile?.id || otherUser?.id) && (
+            {/* Direct request CTA — only shown when we have a valid therapist profile ID.
+                Falls back to nothing if the profile is incomplete, preventing the
+                "Target therapist not found" 404 that occurs when a Firebase UID is sent instead. */}
+            {otherUser?.role === 'therapist' && otherUser?.therapistProfile?.id && (
                 <div className="mt-4 space-y-2">
                     <p className="text-text-muted  text-[10px] font-bold uppercase tracking-widest">Actions</p>
                     <Link
-                        href={`/customer/requests/new?directTo=${otherUser.therapistProfile?.id || otherUser.id}`}
+                        href={`/customer/requests/new?directTo=${otherUser.therapistProfile.id}`}
                         onClick={() => trackEvent("direct_request_initiated", { source: "messages_sidebar" })}
                         className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-primary text-white text-sm font-bold hover:bg-primary/90 transition-colors"
                     >
@@ -159,11 +163,13 @@ function CustomerRightSidebar({ selectedConversation }) {
 
 export default function CustomerMessagesPage() {
     usePageTitle("Messages");
+    const customer = useCustomerUser();
     const {
         user, conversations, messages, selected, selectedConversation,
         convLoading, convError, convSessionExpired, msgLoading, msgError,
         mobileView, inputValue, setInputValue, uploading, replyingTo, setReplyingTo, scrollTrigger,
         hasMore, loadOlderMessages, loadingMore,
+        isMessageGateOpen, closeMessageGate,
         handleSelectConversation, handleBackToList, handleSendMessage, retryMessage,
     } = useMessagesPage("/customer/messages");
 
@@ -175,42 +181,50 @@ export default function CustomerMessagesPage() {
     ) : null;
 
     return (
-        <div className="flex h-[calc(100vh-4rem)] lg:h-[calc(100vh-112px)] min-h-125 rounded-xl border border-border-light  overflow-hidden shadow-sm">
-            {/* Left Panel */}
-            <aside className={`w-full md:w-80 shrink-0 flex flex-col border-r border-border-light  bg-background-light/30  ${mobileView === 'chat' ? 'hidden md:flex' : 'flex'}`}>
-                <ConversationList
-                    conversations={conversations}
-                    loading={convLoading}
-                    error={convError}
-                    sessionExpired={convSessionExpired}
-                    selected={selected}
-                    onSelect={handleSelectConversation}
-                    subtitle="Your therapist conversations"
-                    emptyDescription="Your conversations with therapists will appear here once messaging begins."
-                />
-            </aside>
+        <React.Fragment>
+            <MessageGateModal
+                isOpen={isMessageGateOpen}
+                onClose={closeMessageGate}
+                onboardingStep={customer?.onboardingStep ?? 1}
+                customerType={customer?.customerType ?? null}
+            />
+            <div className="flex h-[calc(100vh-4rem)] lg:h-[calc(100vh-112px)] min-h-125 rounded-xl border border-border-light  overflow-hidden shadow-sm">
+                {/* Left Panel */}
+                <aside className={`w-full md:w-80 shrink-0 flex flex-col border-r border-border-light  bg-background-light/30  ${mobileView === 'chat' ? 'hidden md:flex' : 'flex'}`}>
+                    <ConversationList
+                        conversations={conversations}
+                        loading={convLoading}
+                        error={convError}
+                        sessionExpired={convSessionExpired}
+                        selected={selected}
+                        onSelect={handleSelectConversation}
+                        subtitle="Your therapist conversations"
+                        emptyDescription="Your conversations with therapists will appear here once messaging begins."
+                    />
+                </aside>
 
-            {/* Center Panel */}
-            <section className={`flex-1 flex flex-col min-w-0 bg-card-light  ${mobileView === 'list' ? 'hidden md:flex' : 'flex'}`}>
-                {!selected ? (
-                    <ChatThread.NoConversationSelected />
-                ) : (
-                    <>
-                        <ChatHeader selected={selected} selectedConversation={selectedConversation} onBack={handleBackToList} headerActions={headerActions} />
-                        <ChatThread messages={messages} loading={msgLoading} error={msgError} currentUser={user} retryMessage={retryMessage} onReply={setReplyingTo} threadId={selected?.conversationId} hasMore={hasMore} loadOlderMessages={loadOlderMessages} loadingMore={loadingMore} scrollTrigger={scrollTrigger} />
-                        <MessageInput inputValue={inputValue} setInputValue={setInputValue} onSend={handleSendMessage} uploading={uploading} replyingTo={replyingTo} onCancelReply={() => setReplyingTo(null)} />
-                    </>
-                )}
-            </section>
+                {/* Center Panel */}
+                <section className={`flex-1 flex flex-col min-w-0 bg-card-light  ${mobileView === 'list' ? 'hidden md:flex' : 'flex'}`}>
+                    {!selected ? (
+                        <ChatThread.NoConversationSelected />
+                    ) : (
+                        <React.Fragment>
+                            <ChatHeader selected={selected} selectedConversation={selectedConversation} onBack={handleBackToList} headerActions={headerActions} />
+                            <ChatThread messages={messages} loading={msgLoading} error={msgError} currentUser={user} retryMessage={retryMessage} onReply={setReplyingTo} threadId={selected?.conversationId} hasMore={hasMore} loadOlderMessages={loadOlderMessages} loadingMore={loadingMore} scrollTrigger={scrollTrigger} />
+                            <MessageInput inputValue={inputValue} setInputValue={setInputValue} onSend={handleSendMessage} uploading={uploading} replyingTo={replyingTo} onCancelReply={() => setReplyingTo(null)} />
+                        </React.Fragment>
+                    )}
+                </section>
 
-            {/* Right Panel */}
-            <aside className={`hidden lg:flex w-72 shrink-0 flex-col border-l border-border-light  bg-background-light/30  overflow-y-auto ${selectedConversation ? '' : 'lg:hidden'}`}>
-                {selectedConversation && (
-                    <div className="p-6">
-                        <CustomerRightSidebar selectedConversation={selectedConversation} />
-                    </div>
-                )}
-            </aside>
-        </div>
+                {/* Right Panel */}
+                <aside className={`hidden lg:flex w-72 shrink-0 flex-col border-l border-border-light  bg-background-light/30  overflow-y-auto ${selectedConversation ? '' : 'lg:hidden'}`}>
+                    {selectedConversation && (
+                        <div className="p-6">
+                            <CustomerRightSidebar selectedConversation={selectedConversation} />
+                        </div>
+                    )}
+                </aside>
+            </div>
+        </React.Fragment>
     );
 }
