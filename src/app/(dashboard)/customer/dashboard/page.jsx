@@ -435,7 +435,7 @@ function SubscriptionWidget() {
                         <MdStars className="text-xl" />
                         <h5 className="font-bold text-lg">Free Plan</h5>
                     </div>
-                    <p className="text-white/70 text-sm">Upgrade to unlock more requests, therapists, and premium features.</p>
+                    <p className="text-white/70 text-sm">Upgrade to unlock more visits, job postings, and priority matching.</p>
                     <button onClick={() => router.push("/customer/subscription")} className="bg-white text-primary font-bold px-4 py-2 rounded-lg text-sm hover:bg-white/90 transition-colors">
                         Upgrade Plan
                     </button>

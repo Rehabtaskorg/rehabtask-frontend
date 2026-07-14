@@ -64,8 +64,8 @@ export default function NewRequestPage() {
     const [hasOffers, setHasOffers] = useState(false);
     const { subscription, usage } = useSubscription();
 
-    const requestLimit = subscription?.requestLimit;
-    const isAtRequestLimit = !isEditMode && requestLimit !== null && requestLimit < 999999 && usage.activeRequests >= requestLimit;
+    const jobPostingLimit = subscription?.jobPostingLimit;
+    const isAtRequestLimit = !isEditMode && jobPostingLimit !== null && jobPostingLimit < 999999 && usage.activeJobPostings >= jobPostingLimit;
 
     // Fire when the user hits their subscription request limit.
     useEffect(() => {
@@ -258,8 +258,8 @@ export default function NewRequestPage() {
                     <MdLock className="w-12 h-12 text-amber-500 mx-auto mb-4" />
                     <h2 className="text-xl font-bold text-text-main  mb-2">Request Limit Reached</h2>
                     <p className="text-text-muted  mb-4">
-                        You&apos;ve used all {requestLimit} of your active request slots ({usage.activeRequests}/{requestLimit}).
-                        Upgrade your plan to create more requests.
+                        You&apos;ve used all {jobPostingLimit} of your active job posting slots ({usage.activeJobPostings}/{jobPostingLimit}).
+                        Upgrade your plan to post more jobs.
                     </p>
                     <div className="flex gap-3 justify-center">
                         <Link href="/customer/requests" className="px-4 py-2 rounded-lg border border-border-light  text-text-main font-medium hover:bg-gray-50 ">
