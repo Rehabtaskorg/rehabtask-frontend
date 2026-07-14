@@ -301,13 +301,11 @@ export default function SubscriptionPage() {
                         current={usage.visitCount}
                         limit={subscription?.visitLimit >= 999999 ? null : subscription?.visitLimit}
                     />
-                    {currentPlan === PLAN_TYPES.FREE && (
-                        <UsageBar
-                            label="Active job postings"
-                            current={usage.activeJobPostings}
-                            limit={subscription?.jobPostingLimit >= 999999 ? null : subscription?.jobPostingLimit}
-                        />
-                    )}
+                    <UsageBar
+                        label="Active job postings"
+                        current={usage.activeJobPostings}
+                        limit={subscription?.jobPostingLimit >= 999999 ? null : subscription?.jobPostingLimit}
+                    />
                 </div>
             </div>
 
