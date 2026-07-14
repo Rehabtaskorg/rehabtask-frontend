@@ -65,6 +65,13 @@ export const SESSION_STATUS = {
     CANCELLATION_REQUESTED: "cancellation_requested",
 };
 
+export const PLAN_TYPES = {
+    FREE: "free",
+    PRO: "pro",
+    ENTERPRISE: "enterprise",
+    UNLIMITED: "unlimited",
+};
+
 export const BOOKING_STATUS = {
     PENDING: "pending",
     ACCEPTED: "accepted",

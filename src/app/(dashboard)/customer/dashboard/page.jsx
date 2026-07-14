@@ -400,7 +400,7 @@ function SubscriptionWidget() {
                         <MdAccessTime className="text-xl" />
                         <h5 className="font-bold text-lg">Free Trial — {trialDays} day{trialDays !== 1 ? "s" : ""} left</h5>
                     </div>
-                    <p className="text-white/70 text-sm">Upgrade before your trial ends to keep Standard plan features.</p>
+                    <p className="text-white/70 text-sm">Upgrade before your trial ends to keep your Pro plan features.</p>
                     <button onClick={() => router.push("/customer/subscription")} className="bg-white text-primary font-bold px-4 py-2 rounded-lg text-sm hover:bg-white/90 transition-colors">
                         View Plans
                     </button>
