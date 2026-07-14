@@ -57,9 +57,10 @@ export function useConversations(pollInterval) {
  * Phase 3: all sends go through POST /messages/c/:conversationId.
  *
  * @param {string} conversationId - UUID of the DirectConversation
- * @param {number} pollInterval - optional poll interval in ms
+ * @param {number} [pollInterval] - optional poll interval in ms
+ * @param {(error: unknown) => void} [onSendError] - called when a send mutation fails, before the optimistic message is marked failed
  */
-export function useMessages(conversationId, pollInterval) {
+export function useMessages(conversationId, pollInterval, onSendError) {
     const queryClient = useQueryClient();
     const { user } = useAuth();
     const { connected } = useSocketContext();
@@ -166,7 +167,7 @@ export function useMessages(conversationId, pollInterval) {
             queryClient.invalidateQueries({ queryKey: ["unreadCount"] });
         },
 
-        onError: (_error, _content, context) => {
+        onError: (error, _vars, context) => {
             queryClient.setQueryData(messagesQueryKey, (old) =>
                 old
                     ? old.map((m) =>
@@ -176,6 +177,7 @@ export function useMessages(conversationId, pollInterval) {
                     )
                     : []
             );
+            onSendError?.(error);
         },
 
         onSettled: (_data, error) => {
