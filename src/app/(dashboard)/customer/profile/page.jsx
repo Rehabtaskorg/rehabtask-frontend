@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { loadStripe } from "@stripe/stripe-js";
@@ -13,8 +13,9 @@ import { api } from "@/lib/api";
 import { paymentsApi } from "@/lib/payments.api";
 import {
     MdPerson, MdSecurity, MdBusiness, MdEdit, MdCheck, MdClose,
-    MdCreditCard, MdAdd, MdDeleteOutline, MdStar, MdStarOutline, MdLock,
+    MdCreditCard, MdAdd, MdDeleteOutline, MdStar, MdStarOutline, MdLock, MdWarning,
 } from "react-icons/md";
+import { CUSTOMER_TYPES } from "@/lib/constants";
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY);
 
@@ -336,7 +337,7 @@ export default function CustomerProfilePage() {
         fetchUser();
     }, []);
 
-    const isAgency = user?.profile?.customerType === "agency";
+    const isAgency = user?.profile?.customerType === CUSTOMER_TYPES.AGENCY;
 
     const handleStartEditAgency = () => {
         setAgencyName(user?.profile?.agencyName || "");
@@ -423,12 +424,18 @@ export default function CustomerProfilePage() {
                                             <input
                                                 type="text"
                                                 value={agencyName}
-                                                onChange={(e) => setAgencyName(e.target.value)}
-                                                className="w-full px-4 py-2.5 rounded-lg border border-border-light  bg-background-light  text-text-main  text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                                                onChange={(e) => {
+                                                    setAgencyName(e.target.value);
+                                                    if (saveError) setSaveError("");
+                                                }}
+                                                className={`w-full px-4 py-2.5 rounded-lg border bg-background-light  text-text-main  text-sm focus:outline-none focus:ring-2 focus:ring-primary ${saveError ? "border-red-400" : "border-border-light "}`}
                                                 placeholder="Enter your agency name"
                                             />
                                             {saveError && (
-                                                <p className="text-xs text-red-500">{saveError}</p>
+                                                <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-red-50  border border-red-200 ">
+                                                    <MdWarning className="text-red-500 text-sm shrink-0" />
+                                                    <p className="text-xs text-red-700  font-medium">{saveError}</p>
+                                                </div>
                                             )}
                                             <div className="flex items-center gap-2">
                                                 <button
