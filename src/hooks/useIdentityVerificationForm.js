@@ -21,6 +21,7 @@ export function useIdentityVerificationForm() {
     const upload = useIdentityDocumentUpload();
 
     const [loading, setLoading] = useState(false);
+    const [initializing, setInitializing] = useState(true);
 
     useEffect(() => {
         trackEvent("onboarding_step_viewed", { step: 6, step_name: "identity" });
@@ -28,7 +29,11 @@ export function useIdentityVerificationForm() {
     }, []);
 
     useEffect(() => {
-        syncData();
+        let cancelled = false;
+        syncData().finally(() => {
+            if (!cancelled) setInitializing(false);
+        });
+        return () => { cancelled = true; };
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
@@ -66,6 +71,7 @@ export function useIdentityVerificationForm() {
 
     return {
         loading,
+        initializing,
         uploadingType: upload.uploadingType,
         error: upload.error,
         getDocument: upload.getDocument,

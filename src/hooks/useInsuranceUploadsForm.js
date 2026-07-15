@@ -20,6 +20,7 @@ export function useInsuranceUploadsForm() {
     const upload = useInsuranceDocumentUpload();
 
     const [loading, setLoading] = useState(false);
+    const [initializing, setInitializing] = useState(true);
 
     useEffect(() => {
         trackEvent("onboarding_step_viewed", { step: 5, step_name: "insurance" });
@@ -27,7 +28,11 @@ export function useInsuranceUploadsForm() {
     }, []);
 
     useEffect(() => {
-        syncData();
+        let cancelled = false;
+        syncData().finally(() => {
+            if (!cancelled) setInitializing(false);
+        });
+        return () => { cancelled = true; };
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
@@ -76,6 +81,7 @@ export function useInsuranceUploadsForm() {
     return {
         insurance,
         loading,
+        initializing,
         uploadingType: upload.uploadingType,
         error: upload.error,
         getDocument: upload.getDocument,
