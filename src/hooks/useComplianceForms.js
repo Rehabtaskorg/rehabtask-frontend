@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import { useComplianceDocumentUpload } from "@/hooks/useComplianceDocumentUpload";
@@ -12,12 +12,25 @@ import { logger } from "@/lib/logger";
 const SUB_STEPS = ["w9", "independent_contractor_agreement", "hipaa_acknowledgment", "background_check_authorization"];
 
 /**
+ * Returns true if the given sub-step has already been completed
+ * based on the content snapshot from the API.
+ */
+const isStepComplete = (step, content) => {
+    if (!content) return false;
+    if (step === "w9") return Boolean(content.w9?.uploaded);
+    return Boolean(content.signed?.[step]);
+};
+
+/**
  * Drives the Compliance Forms onboarding step (Step 7): 4 sub-forms shown
  * one at a time (W-9 upload, Independent Contractor Agreement, HIPAA
  * Acknowledgment, Background Check Authorization — all 3 signature
  * documents share the SignatureAgreementForm component). Resumes on the
  * first incomplete sub-step on mount, rather than always starting at 1, so
  * a returning therapist doesn't have to re-sign what they already signed.
+ *
+ * Back navigation skips already-completed steps — once a document is signed
+ * or the W-9 uploaded, the user cannot navigate back to it.
  *
  * TODO: [NEXT] Uses manual useState+useEffect for server state instead of
  * React Query (see useFinalReview.js for the full note — same applies to
@@ -53,10 +66,7 @@ export function useComplianceForms() {
 
                 setContent(data);
 
-                const firstIncomplete = SUB_STEPS.findIndex((step) => {
-                    if (step === "w9") return !data.w9.uploaded;
-                    return !data.signed[step];
-                });
+                const firstIncomplete = SUB_STEPS.findIndex((step) => !isStepComplete(step, data));
                 setSubStep(firstIncomplete === -1 ? SUB_STEPS.length - 1 : firstIncomplete);
             } catch (err) {
                 logger.error("Failed to load compliance content:", err);
@@ -70,6 +80,14 @@ export function useComplianceForms() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
+    const completedSteps = useMemo(() => {
+        const result = new Set();
+        SUB_STEPS.forEach((step, i) => {
+            if (isStepComplete(step, content)) result.add(i);
+        });
+        return result;
+    }, [content]);
+
     const goToNextSubStep = () => {
         if (subStep < SUB_STEPS.length - 1) {
             setSubStep(subStep + 1);
@@ -82,10 +100,16 @@ export function useComplianceForms() {
     };
 
     const goToPreviousSubStep = () => {
-        if (subStep > 0) {
-            setSubStep(subStep - 1);
-        } else {
+        let target = subStep - 1;
+
+        while (target >= 0 && completedSteps.has(target)) {
+            target--;
+        }
+
+        if (target < 0) {
             router.push("/therapist/onboarding/identity");
+        } else {
+            setSubStep(target);
         }
     };
 
@@ -102,6 +126,10 @@ export function useComplianceForms() {
         setLoading(true);
         try {
             await onboardingAPI.signComplianceDocument({ documentType, signature });
+            setContent((prev) => ({
+                ...prev,
+                signed: { ...prev?.signed, [documentType]: true },
+            }));
             goToNextSubStep();
         } catch (err) {
             setError(err.response?.data?.message || "Failed to save your signature. Please try again.");
@@ -114,6 +142,7 @@ export function useComplianceForms() {
         subStep,
         totalSubSteps: SUB_STEPS.length,
         currentSubStepKey: SUB_STEPS[subStep],
+        completedSteps,
         content,
         initializing,
         loading,

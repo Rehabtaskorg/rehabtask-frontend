@@ -27,6 +27,11 @@ const SUMMARIES = {
  * Compliance Forms onboarding step (Step 7) — 4 sub-forms shown one at a
  * time: W-9 upload, then 3 e-signature documents sharing one reusable
  * read+agree+sign component.
+ *
+ * Each signature sub-form is keyed by its document type so React fully
+ * remounts it on every sub-step transition — this guarantees the checkbox,
+ * scroll gate, and signature field always start blank for each new document,
+ * preventing state bleed across compliance steps.
  */
 export function ComplianceFormsForm() {
     usePageTitle("Compliance Forms");
@@ -34,6 +39,7 @@ export function ComplianceFormsForm() {
         subStep,
         totalSubSteps,
         currentSubStepKey,
+        completedSteps,
         content,
         initializing,
         loading,
@@ -66,10 +72,10 @@ export function ComplianceFormsForm() {
                     <p className="text-text-muted text-lg font-normal leading-normal mb-4">
                         Please review and sign the required forms.
                     </p>
-                    <p className="text-text-main text-sm font-semibold mb-2">
+                    <p className="text-text-main text-sm font-semibold mb-4">
                         Form {subStep + 1} of {totalSubSteps} — {SUB_STEP_LABELS[currentSubStepKey]}
                     </p>
-                    <SubStepDots current={subStep} total={totalSubSteps} />
+                    <SubStepDots current={subStep} total={totalSubSteps} completedSteps={completedSteps} />
                 </header>
 
                 {currentSubStepKey === "w9" ? (
@@ -84,6 +90,7 @@ export function ComplianceFormsForm() {
                     />
                 ) : (
                     <SignatureAgreementForm
+                        key={currentSubStepKey}
                         title={SUB_STEP_LABELS[currentSubStepKey]}
                         summary={SUMMARIES[currentSubStepKey]}
                         content={content?.[toContentKey(currentSubStepKey)] ?? ""}
