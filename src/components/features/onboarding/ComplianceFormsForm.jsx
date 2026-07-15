@@ -1,5 +1,7 @@
 "use client";
 
+import { useRouter } from "next/navigation";
+import { MdCheckCircle } from "react-icons/md";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { useComplianceForms } from "@/hooks/useComplianceForms";
 import OnboardingProgressBar from "@/components/therapist/OnboardingProgressBar";
@@ -35,6 +37,7 @@ const SUMMARIES = {
  */
 export function ComplianceFormsForm() {
     usePageTitle("Compliance Forms");
+    const router = useRouter();
     const {
         subStep,
         totalSubSteps,
@@ -55,6 +58,29 @@ export function ComplianceFormsForm() {
             <div className="min-h-screen bg-background-light py-10 px-4">
                 <div className="max-w-4xl mx-auto">
                     <OnboardingProgressBar />
+                </div>
+            </div>
+        );
+    }
+
+    if (completedSteps.size === totalSubSteps) {
+        return (
+            <div className="min-h-screen bg-background-light py-10 px-4">
+                <div className="max-w-4xl mx-auto">
+                    <OnboardingProgressBar />
+                    <div className="bg-card-light border border-border-light rounded-xl shadow-sm p-10 flex flex-col items-center text-center gap-4 mt-8">
+                        <MdCheckCircle className="text-emerald-500 text-6xl" />
+                        <h2 className="text-2xl font-bold text-text-main">All compliance forms completed</h2>
+                        <p className="text-text-muted text-base max-w-md">
+                            You have already reviewed and signed all required documents. No further action is needed here.
+                        </p>
+                        <button
+                            onClick={() => router.push("/therapist/onboarding/stripe")}
+                            className="mt-2 px-8 py-3 bg-primary text-white font-bold rounded-lg hover:brightness-95 transition-all shadow-md shadow-primary/20"
+                        >
+                            Continue to Payment Setup
+                        </button>
+                    </div>
                 </div>
             </div>
         );
