@@ -143,7 +143,8 @@ export default function Step1ServiceDetails() {
                     <input
                         type="number"
                         step="0.01"
-                        min="0"
+                        min="0.01"
+                        max="9999.99"
                         value={step1.rate}
                         onChange={(e) => setStep1({ rate: e.target.value })}
                         placeholder="0.00"
@@ -152,6 +153,9 @@ export default function Step1ServiceDetails() {
                 </div>
                 {step1.rate && parseFloat(step1.rate) <= 0 && (
                     <p className="text-xs text-red-500 mt-1">Rate must be a positive number</p>
+                )}
+                {step1.rate && parseFloat(step1.rate) > 9999.99 && (
+                    <p className="text-xs text-red-500 mt-1">Rate cannot exceed $9,999.99</p>
                 )}
             </div>
 

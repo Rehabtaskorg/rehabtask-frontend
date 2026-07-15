@@ -238,11 +238,12 @@ export default function NewRequestPage() {
     };
 
     const hasVisitType = Boolean(step1.visitTypeId) || Boolean(step1.visitType && (step1.visitType !== "Other" || step1.visitTypeOther.trim()));
+    const rateValue = parseFloat(step1.rate);
     const isStep1Valid =
         step1.serviceType &&
         step1.description.trim().length >= 10 &&
         step1.preferredDate &&
-        step1.rate && parseFloat(step1.rate) > 0 &&
+        step1.rate && rateValue > 0 && rateValue <= 9999.99 &&
         hasVisitType &&
         step1.emr && (step1.emr !== "Other" || step1.emrOther.trim());
     const isStep2Valid =
