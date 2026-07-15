@@ -68,18 +68,34 @@ export function ComplianceFormsForm() {
             <div className="min-h-screen bg-background-light py-10 px-4">
                 <div className="max-w-4xl mx-auto">
                     <OnboardingProgressBar />
-                    <div className="bg-card-light border border-border-light rounded-xl shadow-sm p-10 flex flex-col items-center text-center gap-4 mt-8">
+                    <header className="mb-8 px-4">
+                        <h1 className="text-text-main text-4xl font-black leading-tight tracking-[-0.033em] mb-2">
+                            Compliance Forms
+                        </h1>
+                        <p className="text-text-muted text-lg font-normal leading-normal">
+                            Please review and sign the required forms.
+                        </p>
+                    </header>
+                    <div className="bg-card-light border border-border-light rounded-xl shadow-sm p-10 flex flex-col items-center text-center gap-4">
                         <MdCheckCircle className="text-emerald-500 text-6xl" />
                         <h2 className="text-2xl font-bold text-text-main">All compliance forms completed</h2>
                         <p className="text-text-muted text-base max-w-md">
                             You have already reviewed and signed all required documents. No further action is needed here.
                         </p>
-                        <button
-                            onClick={() => router.push("/therapist/onboarding/stripe")}
-                            className="mt-2 px-8 py-3 bg-primary text-white font-bold rounded-lg hover:brightness-95 transition-all shadow-md shadow-primary/20"
-                        >
-                            Continue to Payment Setup
-                        </button>
+                        <div className="flex items-center gap-4 mt-2">
+                            <button
+                                onClick={() => router.push("/therapist/onboarding/identity")}
+                                className="px-6 py-3 rounded-lg border border-border-light text-text-main font-semibold hover:bg-muted-light transition-colors"
+                            >
+                                Back
+                            </button>
+                            <button
+                                onClick={() => router.push("/therapist/onboarding/stripe")}
+                                className="px-8 py-3 bg-primary text-white font-bold rounded-lg hover:brightness-95 transition-all shadow-md shadow-primary/20"
+                            >
+                                Continue to Payment Setup
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
