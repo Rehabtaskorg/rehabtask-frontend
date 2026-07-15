@@ -14,6 +14,7 @@ export function IdentityVerificationForm() {
     usePageTitle("Identity Verification");
     const {
         loading,
+        initializing,
         uploadingType,
         error,
         getDocument,
@@ -22,6 +23,16 @@ export function IdentityVerificationForm() {
         onSubmit,
         goBack,
     } = useIdentityVerificationForm();
+
+    if (initializing) {
+        return (
+            <div className="min-h-screen bg-background-light py-10 px-4">
+                <div className="max-w-4xl mx-auto">
+                    <OnboardingProgressBar />
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-background-light py-10 px-4">

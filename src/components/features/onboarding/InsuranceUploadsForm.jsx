@@ -16,6 +16,7 @@ export function InsuranceUploadsForm() {
     const {
         insurance,
         loading,
+        initializing,
         uploadingType,
         error,
         getDocument,
@@ -25,6 +26,16 @@ export function InsuranceUploadsForm() {
         onSubmit,
         goBack,
     } = useInsuranceUploadsForm();
+
+    if (initializing) {
+        return (
+            <div className="min-h-screen bg-background-light py-10 px-4">
+                <div className="max-w-4xl mx-auto">
+                    <OnboardingProgressBar />
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-background-light py-10 px-4">
