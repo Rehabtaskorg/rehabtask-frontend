@@ -271,10 +271,12 @@ export default function CustomerBookingsPage() {
                                                     </div>
                                                 </td>
                                                 <td className="py-3.5 pr-4">
-                                                    <span className="text-sm text-text-main ">
-                                                        {booking.offer?.request?.serviceType || "—"}
-                                                    </span>
-                                                    <PatientBadge patient={booking.patient} />
+                                                    <div className="flex flex-col items-start gap-1">
+                                                        <span className="text-sm text-text-main ">
+                                                            {booking.offer?.request?.serviceType || "—"}
+                                                        </span>
+                                                        <PatientBadge patient={booking.patient} />
+                                                    </div>
                                                 </td>
                                                 <td className="py-3.5 pr-4">
                                                     <p className="text-sm text-text-main ">
