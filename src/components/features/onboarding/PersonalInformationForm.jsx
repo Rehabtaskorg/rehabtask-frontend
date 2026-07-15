@@ -202,7 +202,7 @@ export function PersonalInformationForm() {
                                         <div className="flex flex-col gap-2">
                                             <label
                                                 htmlFor="dateOfBirth"
-                                                className="text-text-main text-base font-semibold"
+                                                className="text-sm font-medium text-text-main"
                                             >
                                                 Date of Birth <span className="text-red-500">*</span>
                                             </label>
@@ -233,7 +233,7 @@ export function PersonalInformationForm() {
                                         <div className="flex flex-col gap-2">
                                             <label
                                                 htmlFor="emergencyContactName"
-                                                className="text-text-main text-base font-semibold"
+                                                className="text-sm font-medium text-text-main"
                                             >
                                                 Emergency Contact Name{" "}
                                                 <span className="text-text-muted font-normal text-sm">(optional)</span>
@@ -282,7 +282,7 @@ export function PersonalInformationForm() {
                                         <div className="flex flex-col gap-2">
                                             <label
                                                 htmlFor="addressLine2"
-                                                className="text-text-main text-base font-semibold"
+                                                className="text-sm font-medium text-text-main"
                                             >
                                                 Address Line 2{" "}
                                                 <span className="text-text-muted font-normal text-sm">(optional)</span>
@@ -300,7 +300,7 @@ export function PersonalInformationForm() {
                                         <div className="flex flex-col gap-2">
                                             <label
                                                 htmlFor="city"
-                                                className="text-text-main text-base font-semibold"
+                                                className="text-sm font-medium text-text-main"
                                             >
                                                 City <span className="text-red-500">*</span>
                                             </label>
@@ -323,7 +323,7 @@ export function PersonalInformationForm() {
                                             <div className="flex flex-col gap-2">
                                                 <label
                                                     htmlFor="state"
-                                                    className="text-text-main text-base font-semibold"
+                                                    className="text-sm font-medium text-text-main"
                                                 >
                                                     State <span className="text-red-500">*</span>
                                                 </label>
@@ -349,7 +349,7 @@ export function PersonalInformationForm() {
                                             <div className="flex flex-col gap-2">
                                                 <label
                                                     htmlFor="zipCode"
-                                                    className="text-text-main text-base font-semibold"
+                                                    className="text-sm font-medium text-text-main"
                                                 >
                                                     ZIP Code <span className="text-red-500">*</span>
                                                 </label>

@@ -245,7 +245,7 @@ export default function LocationAutocomplete({
         return (
             <div className="space-y-2" ref={containerRef}>
                 {label && (
-                    <label className="block text-sm font-bold text-text-main  uppercase tracking-wide">
+                    <label className="block text-sm font-medium text-text-main">
                         {label}
                         {required && <span className="text-red-500 ml-1">*</span>}
                     </label>
