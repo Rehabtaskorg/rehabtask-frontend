@@ -18,14 +18,14 @@ export function SubStepDots({ current, total, completedSteps = new Set() }) {
                     <div
                         key={i}
                         className={`relative h-1.5 flex-1 rounded-full transition-colors ${
-                            isCompleted
-                                ? "bg-emerald-500"
-                                : isActive
-                                    ? "bg-primary"
+                            isActive
+                                ? "bg-primary"
+                                : isCompleted
+                                    ? "bg-emerald-500"
                                     : "bg-border-light"
                         }`}
                     >
-                        {isCompleted && (
+                        {isCompleted && !isActive && (
                             <span className="absolute -top-3.5 left-1/2 -translate-x-1/2">
                                 <MdCheck className="text-emerald-500 text-sm" />
                             </span>

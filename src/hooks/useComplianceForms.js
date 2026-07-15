@@ -89,13 +89,19 @@ export function useComplianceForms() {
     }, [content]);
 
     const goToNextSubStep = () => {
-        if (subStep < SUB_STEPS.length - 1) {
-            setSubStep(subStep + 1);
-        } else {
+        let target = subStep + 1;
+
+        while (target < SUB_STEPS.length && completedSteps.has(target)) {
+            target++;
+        }
+
+        if (target >= SUB_STEPS.length) {
             trackEvent("onboarding_step_completed", { step: 7, step_name: "compliance" });
             markStepComplete(7);
             setCurrentStep(8);
             router.push("/therapist/onboarding/stripe");
+        } else {
+            setSubStep(target);
         }
     };
 
