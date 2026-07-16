@@ -26,8 +26,7 @@ export function useOnboardingSync() {
             if (steps.availability) markStepComplete(4);
             if (steps.insurance) markStepComplete(5);
             if (steps.identity) markStepComplete(6);
-            if (steps.compliance) markStepComplete(7);
-            if (steps.stripe) markStepComplete(8);
+            if (steps.stripe) markStepComplete(7);
 
             return {
                 progress: data.progress,

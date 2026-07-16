@@ -64,26 +64,7 @@ export const individualOnboardingAPI = {
     },
 
     /**
-     * Fetch rendered preview text for one individual consent document.
-     * @param {"hipaa_consent"|"treatment_consent"} documentType
-     * @returns {Promise<{ documentType: string, content: string }>}
-     */
-    getConsentContent: async (documentType) => {
-        const response = await api.get(`/individual/onboarding/consent/content/${documentType}`);
-        return response.data.data;
-    },
-
-    /**
-     * Record a typed-name signature on a consent document.
-     * @param {{ documentType: "hipaa_consent"|"treatment_consent", signature: string, representativeName?: string, representativeRelationship?: string, representativeAuthority?: string }} data
-     * @returns {Promise}
-     */
-    signConsent: async (data) => {
-        return api.post("/individual/onboarding/consent/sign", data);
-    },
-
-    /**
-     * Complete individual onboarding (Step 5 — Activation).
+     * Complete individual onboarding (Step 4 — Activation).
      * Sets approvalStatus = "approved" + onboardingComplete = true instantly.
      * @returns {Promise<{ customer: { id, onboardingComplete, approvalStatus } }>}
      */

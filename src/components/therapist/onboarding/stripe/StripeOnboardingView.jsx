@@ -99,7 +99,7 @@ export default function StripeOnboardingView() {
                 {[STRIPE_STATUS.IDLE, STRIPE_STATUS.ERROR].includes(status) && (
                     <div className="mt-6 flex justify-center">
                         <button
-                            onClick={() => router.push("/therapist/onboarding/compliance")}
+                            onClick={() => router.push("/therapist/onboarding/identity")}
                             className="flex items-center gap-2 text-text-muted hover:text-text-main transition-colors"
                         >
                             <MdArrowBack className="text-lg" />

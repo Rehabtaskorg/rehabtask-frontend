@@ -65,26 +65,7 @@ export const agencyOnboardingAPI = {
     },
 
     /**
-     * Fetch rendered preview text for one agency compliance document.
-     * @param {"service_agreement"|"hipaa_baa"} documentType
-     * @returns {Promise<{ documentType: string, content: string }>}
-     */
-    getAgencyComplianceContent: async (documentType) => {
-        const response = await api.get(`/agency/onboarding/compliance/content/${documentType}`);
-        return response.data.data;
-    },
-
-    /**
-     * Record an agency's typed-name signature on a compliance document.
-     * @param {{ documentType: "service_agreement"|"hipaa_baa", signature: string }} data
-     * @returns {Promise}
-     */
-    signAgencyCompliance: async (data) => {
-        return api.post("/agency/onboarding/compliance/sign", data);
-    },
-
-    /**
-     * Complete agency onboarding (Step 5 — Activation).
+     * Complete agency onboarding (Step 4 — Activation).
      * Sets approvalStatus = "approved" + onboardingComplete = true instantly.
      * @returns {Promise<{ customer: { id, onboardingComplete, approvalStatus } }>}
      */

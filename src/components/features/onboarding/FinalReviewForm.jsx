@@ -15,11 +15,10 @@ const CHECKLIST_STEPS = [
     { key: "availability", label: "Availability", step: 4 },
     { key: "insurance", label: "Insurance Uploads", step: 5 },
     { key: "identity", label: "Identity Verification", step: 6 },
-    { key: "compliance", label: "Compliance Forms", step: 7 },
 ];
 
 /**
- * Final Review (Step 9): a read-only checklist of every completed onboarding
+ * Final Review (Step 8): a read-only checklist of every completed onboarding
  * step plus Stripe's connection state, ending in a single "Submit for
  * Activation" action that calls the real completeOnboarding endpoint.
  */
@@ -89,7 +88,7 @@ export function FinalReviewForm() {
                                         </div>
                                     </div>
                                     <Link
-                                        href={ONBOARDING_STEP_ROUTES[8]}
+                                        href={ONBOARDING_STEP_ROUTES[7]}
                                         className="text-primary text-xs font-bold uppercase tracking-wide hover:underline"
                                     >
                                         Edit

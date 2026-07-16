@@ -38,6 +38,6 @@ export function useAgencyActivation() {
         submitting,
         error,
         onSubmit: handleSubmit,
-        onBack: () => router.push("/customer/onboarding/agency/compliance"),
+        onBack: () => router.push("/customer/onboarding/agency/upload-documents"),
     };
 }

@@ -61,7 +61,7 @@ export function useIdentityVerificationForm() {
             trackEvent("onboarding_step_completed", { step: 6, step_name: "identity" });
             markStepComplete(6);
             setCurrentStep(7);
-            router.push("/therapist/onboarding/compliance");
+            router.push("/therapist/onboarding/stripe");
         } catch (err) {
             upload.setError(err.response?.data?.message || "Failed to save identity verification documents. Please try again.");
         } finally {

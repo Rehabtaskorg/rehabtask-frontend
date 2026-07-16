@@ -13,9 +13,8 @@ export const ONBOARDING_STEP_ROUTES = {
     4: "/therapist/onboarding/availability",
     5: "/therapist/onboarding/insurance",
     6: "/therapist/onboarding/identity",
-    7: "/therapist/onboarding/compliance",
-    8: "/therapist/onboarding/stripe",
-    9: "/therapist/onboarding/review",
+    7: "/therapist/onboarding/stripe",
+    8: "/therapist/onboarding/review",
 };
 
 const SAFE_FALLBACK_ROUTE = "/therapist/dashboard";
@@ -30,7 +29,7 @@ const ALLOWED_DURING_ONBOARDING = [
 export function getTherapistRedirect(pathname, { onboardingComplete, onboardingStep }) {
     const isOnOnboardingRoute = pathname.startsWith("/therapist/onboarding");
 
-    if (!onboardingComplete && onboardingStep < 9) {
+    if (!onboardingComplete && onboardingStep < 8) {
         // Prevent skipping ahead in onboarding steps via direct URL
         if (isOnOnboardingRoute) {
             const stepEntry = Object.entries(ONBOARDING_STEP_ROUTES)

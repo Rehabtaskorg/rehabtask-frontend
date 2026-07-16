@@ -93,4 +93,10 @@ export const authAPi = {
     /** Refresh the access token using a refresh token. */
     refreshToken: async (refreshToken) =>
         api.post("/auth/token/refresh", { refreshToken }),
+
+    /** Get role-filtered sections of the unified legal agreement. */
+    getAgreementContent: async () => api.get("/auth/agreement/content"),
+
+    /** Record that the authenticated user has accepted the unified agreement. */
+    acceptAgreement: async () => api.post("/auth/agreement/accept"),
 };

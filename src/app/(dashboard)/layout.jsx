@@ -20,6 +20,7 @@ import useAgencyOnboardingStore from '@/store/agencyOnboardingStore';
 import { useUnreadCount } from '@/hooks/useMessages';
 import { useIdleTimeout } from '@/hooks/useIdleTimeout';
 import { LOGOUT_REASON, USER_ROLES, CUSTOMER_TYPES } from '@/lib/constants';
+import { UnifiedAgreementModal } from '@/components/features/auth/UnifiedAgreementModal';
 import {
     MdDashboard, MdSearch, MdSend, MdCalendarMonth,
     MdChatBubble, MdPayments, MdPerson,
@@ -148,6 +149,8 @@ export default function DashboardLayout({ children }) {
     const [loading, setLoading] = useState(true);
     const [authError, setAuthError] = useState(false);
     const [sidebarOpen, setSidebarOpen] = useState(false);
+    const [showAgreementModal, setShowAgreementModal] = useState(false);
+    const [refetchTrigger, setRefetchTrigger] = useState(0);
 
     // Close sidebar whenever the route changes
     useEffect(() => {
@@ -164,6 +167,14 @@ export default function DashboardLayout({ children }) {
                 if (!isMounted) return;
 
                 const userData = res.data.data.user;
+
+                if (!userData.hasAcceptedAgreement && userData.role !== USER_ROLES.ADMIN && userData.role !== USER_ROLES.SUB_ADMIN) {
+                    setUser(userData);
+                    setShowAgreementModal(true);
+                    setLoading(false);
+                    return;
+                }
+
                 const isOnCustomerDashboard = pathname.startsWith("/customer");
                 const isOnTherapistDashboard = pathname.startsWith("/therapist");
 
@@ -258,7 +269,7 @@ export default function DashboardLayout({ children }) {
         fetchUser();
         return () => { isMounted = false; };
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [router, posthog]);
+    }, [router, posthog, refetchTrigger]);
 
     /**
      * Logs the current user out: calls the logout API, tears down the socket,
@@ -316,6 +327,19 @@ export default function DashboardLayout({ children }) {
         );
     }
 
+    if (showAgreementModal) {
+        return (
+            <UnifiedAgreementModal
+                onAccepted={() => {
+                    setShowAgreementModal(false);
+                    setLoading(true);
+                    setRefetchTrigger((n) => n + 1);
+                }}
+                onDecline={() => handleLogout('/login')}
+            />
+        );
+    }
+
     const isOnOnboardingRoute = pathname.startsWith("/therapist/onboarding");
 
     // Backend returns both therapist and customer data under "profile" key
@@ -330,8 +354,8 @@ export default function DashboardLayout({ children }) {
         const step = tp?.onboardingStep ?? 1;
         const isComplete = tp?.onboardingComplete ?? false;
         // Step 8 (Payment Setup) onward is functionally complete — payment is not
-        // a hard requirement for admin review. Step 9 (Final Review) just confirms.
-        const functionallyComplete = isComplete || step >= 8;
+        // a hard requirement for admin review. Step 8 (Final Review) just confirms.
+        const functionallyComplete = isComplete || step >= 7;
         return {
             approvalStatus: status,
             rejectionReason: tp?.rejectionReason ?? null,

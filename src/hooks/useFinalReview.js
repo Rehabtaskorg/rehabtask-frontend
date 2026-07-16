@@ -9,19 +9,9 @@ import useOnboardingStore from "@/store/onboardingStore";
 import { logger } from "@/lib/logger";
 
 /**
- * Drives the Final Review step (Step 9): a read-only checklist of every
+ * Drives the Final Review step (Step 8): a read-only checklist of every
  * completed onboarding step plus Stripe's connection state, ending in the
  * one action that actually submits the application — completeOnboarding.
- *
- * TODO: [NEXT] This uses manual useState+useEffect for server state instead
- * of React Query, which CLAUDE.md specifies as the standard. Matches the
- * existing convention of all 8 other onboarding step hooks (useComplianceForms,
- * useStripeOnboarding, etc.) — none of them use React Query today. Migrating
- * just this one hook would make Step 9 inconsistent with its siblings instead
- * of consistent with the rest of the app, so it was deliberately left matching
- * the onboarding flow's existing pattern. Revisit as one full-flow migration
- * (all 9 step hooks together) when there's room to re-regression-test the
- * whole flow afterward — not as a one-off change to this file alone.
  */
 export function useFinalReview() {
     const router = useRouter();
@@ -35,7 +25,7 @@ export function useFinalReview() {
     const [error, setError] = useState("");
 
     useEffect(() => {
-        trackEvent("onboarding_step_viewed", { step: 9, step_name: "review" });
+        trackEvent("onboarding_step_viewed", { step: 8, step_name: "review" });
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
@@ -81,5 +71,6 @@ export function useFinalReview() {
         error,
         onSubmit: handleSubmit,
         onBack: () => router.push("/therapist/onboarding/stripe"),
+
     };
 }

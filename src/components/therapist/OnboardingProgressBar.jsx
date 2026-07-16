@@ -11,9 +11,8 @@ const STEPS = [
     { number: 4, label: "Availability", route: "/therapist/onboarding/availability" },
     { number: 5, label: "Insurance Uploads", route: "/therapist/onboarding/insurance" },
     { number: 6, label: "Identity Verification", route: "/therapist/onboarding/identity" },
-    { number: 7, label: "Compliance Forms", route: "/therapist/onboarding/compliance" },
-    { number: 8, label: "Payment Setup", route: "/therapist/onboarding/stripe" },
-    { number: 9, label: "Final Review", route: "/therapist/onboarding/review" },
+    { number: 7, label: "Payment Setup", route: "/therapist/onboarding/stripe" },
+    { number: 8, label: "Final Review", route: "/therapist/onboarding/review" },
 ];
 
 export default function OnboardingProgressBar() {

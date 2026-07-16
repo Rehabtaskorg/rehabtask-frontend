@@ -49,6 +49,7 @@ const useOnboardingStore = create(
                 npiNumber: "",
                 additionalLicenseStates: [],
                 licenseDocuments: [],
+                w9Document: null,
             },
 
             availability: {
@@ -63,10 +64,6 @@ const useOnboardingStore = create(
             },
 
             identity: {
-                documents: [],
-            },
-
-            compliance: {
                 documents: [],
             },
 
@@ -121,6 +118,16 @@ const useOnboardingStore = create(
                             (_, i) => i !== index
                         ),
                     },
+                })),
+
+            setW9Document: (doc) =>
+                set((state) => ({
+                    credentials: { ...state.credentials, w9Document: doc },
+                })),
+
+            clearW9Document: () =>
+                set((state) => ({
+                    credentials: { ...state.credentials, w9Document: null },
                 })),
 
             updateAvailability: (data) =>
@@ -195,27 +202,6 @@ const useOnboardingStore = create(
                     identity: {
                         ...state.identity,
                         documents: state.identity.documents.filter((_, i) => i !== index),
-                    },
-                })),
-
-            updateCompliance: (data) =>
-                set((state) => ({
-                    compliance: { ...state.compliance, ...data },
-                })),
-
-            addComplianceDocument: (doc) =>
-                set((state) => ({
-                    compliance: {
-                        ...state.compliance,
-                        documents: [...state.compliance.documents, doc],
-                    },
-                })),
-
-            removeComplianceDocument: (index) =>
-                set((state) => ({
-                    compliance: {
-                        ...state.compliance,
-                        documents: state.compliance.documents.filter((_, i) => i !== index),
                     },
                 })),
 
@@ -314,7 +300,6 @@ const useOnboardingStore = create(
                     availability: state.availability,
                     insurance: state.insurance,
                     identity: state.identity,
-                    compliance: state.compliance,
                     backgroundCheck: state.backgroundCheck,
                     payment: state.payment,
                     currentStep: state.currentStep,
@@ -357,6 +342,7 @@ const useOnboardingStore = create(
                         npiNumber: "",
                         additionalLicenseStates: [],
                         licenseDocuments: [],
+                        w9Document: null,
                     },
                     availability: {
                         schedule: initialSchedule,
@@ -368,9 +354,6 @@ const useOnboardingStore = create(
                         documents: [],
                     },
                     identity: {
-                        documents: [],
-                    },
-                    compliance: {
                         documents: [],
                     },
                     backgroundCheck: {
@@ -397,7 +380,6 @@ const useOnboardingStore = create(
                     licenseState: state.credentials.licenseState,
                     npiNumber: state.credentials.npiNumber,
                     additionalLicenseStates: state.credentials.additionalLicenseStates,
-                    // Only persist metadata, not object URLs
                     licenseDocuments: state.credentials.licenseDocuments.map(doc => ({
                         path: doc.path,
                         fileName: doc.fileName,
@@ -405,6 +387,13 @@ const useOnboardingStore = create(
                         documentType: doc.documentType,
                         mimeType: doc.mimeType,
                     })),
+                    w9Document: state.credentials.w9Document ? {
+                        path: state.credentials.w9Document.path,
+                        fileName: state.credentials.w9Document.fileName,
+                        fileSize: state.credentials.w9Document.fileSize,
+                        documentType: state.credentials.w9Document.documentType,
+                        mimeType: state.credentials.w9Document.mimeType,
+                    } : null,
                 },
                 availability: state.availability,
                 insurance: {
@@ -419,15 +408,6 @@ const useOnboardingStore = create(
                 },
                 identity: {
                     documents: state.identity.documents.map((doc) => ({
-                        path: doc.path,
-                        fileName: doc.fileName,
-                        fileSize: doc.fileSize,
-                        documentType: doc.documentType,
-                        mimeType: doc.mimeType,
-                    })),
-                },
-                compliance: {
-                    documents: state.compliance.documents.map((doc) => ({
                         path: doc.path,
                         fileName: doc.fileName,
                         fileSize: doc.fileSize,

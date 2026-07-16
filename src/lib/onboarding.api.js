@@ -64,20 +64,6 @@ export const onboardingAPI = {
     },
 
     /**
-     * Get the Compliance Forms step's rendered document previews + sign status (Step 7)
-     */
-    getComplianceContent: async () => {
-        return api.get("/therapist/onboarding/compliance/content");
-    },
-
-    /**
-     * Record a signature on one of the 3 Compliance Forms e-signature documents (Step 7)
-     */
-    signComplianceDocument: async (data) => {
-        return api.post("/therapist/onboarding/compliance/sign", data);
-    },
-
-    /**
      * Submit background check (Step 4)
      */
     submitBackgroundCheck: async (data) => {
@@ -85,7 +71,7 @@ export const onboardingAPI = {
     },
 
     /**
-     * Advance to Final Review (Step 9) once Stripe is finished or skipped.
+     * Advance to Final Review (Step 8) once Stripe is finished or skipped.
      * Never blocks on Stripe — it only records that the last step was reached.
      */
     advanceToFinalReview: async () => {

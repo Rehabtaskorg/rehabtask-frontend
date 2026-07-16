@@ -4,16 +4,14 @@ export const AGENCY_ONBOARDING_STEP_ROUTES = {
     1: "/customer/onboarding/agency/welcome",
     2: "/customer/onboarding/agency/business-profile",
     3: "/customer/onboarding/agency/upload-documents",
-    4: "/customer/onboarding/agency/compliance",
-    5: "/customer/onboarding/agency/activation",
+    4: "/customer/onboarding/agency/activation",
 };
 
 export const INDIVIDUAL_ONBOARDING_STEP_ROUTES = {
     1: "/customer/onboarding/individual/welcome",
     2: "/customer/onboarding/individual/personal-info",
     3: "/customer/onboarding/individual/medical-info",
-    4: "/customer/onboarding/individual/consent-forms",
-    5: "/customer/onboarding/individual/activation",
+    4: "/customer/onboarding/individual/activation",
 };
 
 /**

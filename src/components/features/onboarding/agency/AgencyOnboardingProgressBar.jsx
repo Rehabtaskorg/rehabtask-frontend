@@ -8,8 +8,7 @@ const STEPS = [
     { number: 1, label: "Welcome" },
     { number: 2, label: "Business Profile" },
     { number: 3, label: "Upload Documents" },
-    { number: 4, label: "Compliance Forms" },
-    { number: 5, label: "Activation" },
+    { number: 4, label: "Activation" },
 ];
 
 /**

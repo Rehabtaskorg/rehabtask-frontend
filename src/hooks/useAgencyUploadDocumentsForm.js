@@ -36,7 +36,7 @@ export function useAgencyUploadDocumentsForm() {
             return;
         }
 
-        const STEP3_TYPES = ["home_health_license", "medicare_medicaid_cert", "general_liability", "professional_liability"];
+        const STEP3_TYPES = ["home_health_license", "medicare_medicaid_cert", "general_liability", "professional_liability", "w9"];
 
         setLoading(true);
         try {
@@ -54,7 +54,7 @@ export function useAgencyUploadDocumentsForm() {
 
             markStepComplete(3);
             setCurrentStep(4);
-            router.push("/customer/onboarding/agency/compliance");
+            router.push("/customer/onboarding/agency/activation");
         } catch (err) {
             upload.setError(
                 err.response?.data?.message || "Failed to save documents. Please try again."

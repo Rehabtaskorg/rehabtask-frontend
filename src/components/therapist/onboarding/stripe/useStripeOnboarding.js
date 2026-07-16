@@ -29,7 +29,7 @@ export function useStripeOnboarding() {
     const [hasAutoRetried, setHasAutoRetried] = useState(false);
 
     useEffect(() => {
-        trackEvent("onboarding_step_viewed", { step: 8, step_name: "stripe" });
+        trackEvent("onboarding_step_viewed", { step: 7, step_name: "stripe" });
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
@@ -75,8 +75,8 @@ export function useStripeOnboarding() {
                 if (isPendingVerification) {
                     showToast.info("Your details have been submitted. We're verifying your account — this usually takes a few minutes.");
                 }
-                trackEvent("onboarding_step_completed", { step: 8, step_name: "stripe" });
-                markStepComplete(8);
+                trackEvent("onboarding_step_completed", { step: 7, step_name: "stripe" });
+                markStepComplete(7);
                 if (accountId) markStripeConnected(accountId);
                 try {
                     await onboardingAPI.advanceToFinalReview();

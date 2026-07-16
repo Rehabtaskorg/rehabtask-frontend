@@ -123,7 +123,7 @@ export function useIndividualMedicalInfoForm() {
             updateMedicalInfo(payload);
             markStepComplete(3);
             setCurrentStep(4);
-            router.push("/customer/onboarding/individual/consent-forms");
+            router.push("/customer/onboarding/individual/activation");
         } catch (err) {
             logger.error("Failed to save individual medical info:", err);
             setSubmitError(

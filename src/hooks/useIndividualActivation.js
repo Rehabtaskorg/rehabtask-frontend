@@ -38,6 +38,6 @@ export function useIndividualActivation() {
         submitting,
         error,
         onSubmit: handleSubmit,
-        onBack: () => router.push("/customer/onboarding/individual/consent-forms"),
+        onBack: () => router.push("/customer/onboarding/individual/medical-info"),
     };
 }

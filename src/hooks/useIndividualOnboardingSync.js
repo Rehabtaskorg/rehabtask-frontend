@@ -22,7 +22,6 @@ export function useIndividualOnboardingSync() {
             const { steps } = data;
             if (steps.personalInfo) markStepComplete(2);
             if (steps.medicalInfo) markStepComplete(3);
-            if (steps.consentForms) markStepComplete(4);
 
             return {
                 progress: data.progress,
