@@ -12,8 +12,8 @@ export const individualPersonalInfoSchema = z.object({
             if (isNaN(date.getTime())) return false;
             const now = new Date();
             const age = now.getFullYear() - date.getFullYear();
-            return age >= 0 && age <= 120;
-        }, "Please provide a valid date of birth"),
+            return age >= 18 && age <= 100;
+        }, "Must be between 18 and 100 years old"),
     addressLine1: z.string().min(1, "Address is required").max(255),
     addressLine2: z.string().max(255).optional().nullable(),
     city: z.string().min(1, "City is required").max(100),
