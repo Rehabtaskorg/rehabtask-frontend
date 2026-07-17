@@ -1,4 +1,44 @@
-import { USER_ROLES } from "@/lib/constants";
+import { USER_ROLES, AUTH_REDIRECT_STORAGE_KEY } from "@/lib/constants";
+
+const REDIRECT_TTL_MS = 30 * 60 * 1000;
+
+/**
+ * Persists a redirect descriptor to localStorage with a 30-minute TTL.
+ * Clears any existing entry when descriptor is falsy.
+ *
+ * @param {string | null | undefined} descriptor
+ */
+export function stashAuthRedirect(descriptor) {
+    if (typeof window === "undefined") return;
+    if (!descriptor) {
+        localStorage.removeItem(AUTH_REDIRECT_STORAGE_KEY);
+        return;
+    }
+    localStorage.setItem(
+        AUTH_REDIRECT_STORAGE_KEY,
+        JSON.stringify({ descriptor, expiresAt: Date.now() + REDIRECT_TTL_MS })
+    );
+}
+
+/**
+ * Reads and immediately removes the stashed redirect descriptor.
+ * Returns null if nothing is stashed, the entry is expired, or storage is corrupted.
+ *
+ * @returns {string | null}
+ */
+export function popAuthRedirect() {
+    if (typeof window === "undefined") return null;
+    try {
+        const raw = localStorage.getItem(AUTH_REDIRECT_STORAGE_KEY);
+        localStorage.removeItem(AUTH_REDIRECT_STORAGE_KEY);
+        if (!raw) return null;
+        const { descriptor, expiresAt } = JSON.parse(raw);
+        return Date.now() < expiresAt ? descriptor : null;
+    } catch {
+        localStorage.removeItem(AUTH_REDIRECT_STORAGE_KEY);
+        return null;
+    }
+}
 
 const DESCRIPTOR_SEPARATOR = ":";
 

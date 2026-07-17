@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { MdArrowForward, MdInfo } from "react-icons/md";
 import { FaGoogle } from "react-icons/fa";
 import Input from "../ui/Input";
@@ -15,6 +16,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { customerRegistrationSchema } from "@/lib/validationSchema";
 
 const CustomerRegistrationForm = () => {
+    const searchParams = useSearchParams();
+    const redirectTo = searchParams.get("redirect") || null;
+
     const [accountType, setAccountType] = useState("individual");
     const [googleLoading, setGoogleLoading] = useState(false);
 
@@ -32,8 +36,8 @@ const CustomerRegistrationForm = () => {
         }
     });
 
-    const { registerCustomer, isSubmitting, error, success, clearMessages } = useCustomerRegistration();
-    const { initiateGoogleLogin } = useGoogleAuth();
+    const { registerCustomer, isSubmitting, error, success, clearMessages } = useCustomerRegistration(redirectTo);
+    const { initiateGoogleLogin } = useGoogleAuth(redirectTo);
 
     const handleAccountTypeChange = (type) => {
         setAccountType(type);

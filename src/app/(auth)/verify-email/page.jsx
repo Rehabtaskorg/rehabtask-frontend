@@ -143,7 +143,7 @@ function EmailCollectForm() {
 }
 
 /**
- * Inner content for the verify-email page, reads the `email` search param.
+ * Inner content for the verify-email page, reads the `email` and `redirect` search params.
  * Renders EmailVerificationCard directly when a valid email is in the URL,
  * otherwise renders EmailCollectForm to capture the address first.
  *
@@ -154,10 +154,11 @@ function VerifyEmailContent() {
     const searchParams = useSearchParams();
     const rawEmail = searchParams.get("email") || "";
     const email = EMAIL_RE.test(rawEmail.trim()) ? rawEmail.trim() : null;
+    const redirect = searchParams.get("redirect") || null;
 
     const handleResendVerification = async () => {
         try {
-            const response = await authAPi.resendVerificationEmail(email);
+            const response = await authAPi.resendVerificationEmail(email, redirect);
             return response.data;
         } catch (err) {
             const error = new Error(

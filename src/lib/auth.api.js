@@ -68,10 +68,15 @@ export const authAPi = {
         api.post("/auth/password/change", { currentPassword, newPassword, confirmNewPassword }),
 
     /** Resend the email verification link. */
-    resendVerificationEmail: async (email) => {
+    resendVerificationEmail: async (email, redirect = null) => {
         const recaptchaAction = "RESEND_VERIFICATION";
         const recaptchaToken = await getRecaptchaToken(recaptchaAction);
-        return api.post("/auth/email/resend", { email, recaptchaToken, recaptchaAction });
+        return api.post("/auth/email/resend", {
+            email,
+            recaptchaToken,
+            recaptchaAction,
+            ...(redirect ? { redirect } : {}),
+        });
     },
 
     /** Mark email as verified in the database. Identify by userId or email. */

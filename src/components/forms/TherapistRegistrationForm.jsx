@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
@@ -16,6 +17,9 @@ import { MdInfo } from "react-icons/md";
 import { FaGoogle } from "react-icons/fa";
 
 const TherapistRegistrationForm = () => {
+    const searchParams = useSearchParams();
+    const redirectTo = searchParams.get("redirect") || null;
+
     const [googleLoading, setGoogleLoading] = useState(false);
 
     const { register, handleSubmit, formState: { errors }, control } = useForm({
@@ -24,9 +28,9 @@ const TherapistRegistrationForm = () => {
         reValidateMode: "onChange",
     });
 
-    const { registerTherapist, isSubmitting, error, success, clearMessages } = useTherapistRegistration();
+    const { registerTherapist, isSubmitting, error, success, clearMessages } = useTherapistRegistration(redirectTo);
 
-    const { initiateGoogleLogin } = useGoogleAuth();
+    const { initiateGoogleLogin } = useGoogleAuth(redirectTo);
 
     const onSubmit = async (data) => {
         await registerTherapist(data);

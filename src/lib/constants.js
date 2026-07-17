@@ -47,6 +47,7 @@ export const LOGOUT_REASON = {
     IDLE_TIMEOUT: "idle_timeout",
     DEACTIVATED: "deactivated",
     INVITED: "invited",
+    EMAIL_VERIFIED: "verified",
 };
 
 export const AUTH_REDIRECT_PARAM = "redirect";
