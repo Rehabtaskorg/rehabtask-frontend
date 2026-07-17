@@ -48,6 +48,7 @@ export const LOGOUT_REASON = {
     DEACTIVATED: "deactivated",
     INVITED: "invited",
     EMAIL_VERIFIED: "verified",
+    LOGGED_OUT: "logged_out",
 };
 
 export const AUTH_REDIRECT_PARAM = "redirect";

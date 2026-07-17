@@ -61,14 +61,16 @@ const LoginForm = ({ redirectTo = null }) => {
             {/* Card Header/Branding */}
             <div className="px-8 pt-8 pb-4">
                 <div className="mb-6">
-                    <Image
-                        src="/images/logo/rehabtask_horizontal.png"
-                        alt="RehabTask"
-                        width={160}
-                        height={49}
-                        className="h-10 w-auto"
-                        priority
-                    />
+                    <Link href="/" aria-label="Back to RehabTask home">
+                        <Image
+                            src="/images/logo/rehabtask_horizontal.png"
+                            alt="RehabTask"
+                            width={160}
+                            height={49}
+                            className="h-10 w-auto"
+                            priority
+                        />
+                    </Link>
                 </div>
                 <div className="flex flex-col gap-1">
                     <h1 className="text-2xl font-bold text-text-main ">

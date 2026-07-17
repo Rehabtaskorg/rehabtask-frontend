@@ -297,7 +297,7 @@ export default function DashboardLayout({ children }) {
             }
             posthog?.reset();
         }
-        router.push(destination);
+        router.replace(destination);
     }, [router, posthog]);
 
     useIdleTimeout(
@@ -534,7 +534,7 @@ function DashboardInner({ user, pathname, sidebarOpen, setSidebarOpen, handleLog
                         <div className={`mt-auto ${c ? 'p-2' : 'p-6'} space-y-1 border-t border-slate-100 `}>
                             <NavLink href="/therapist/profile" icon={MdPerson} label="My Profile" pathname={pathname} collapsed={c} />
                             <NavLink href="/therapist/account-settings" icon={MdSettings} label="Account Settings" pathname={pathname} collapsed={c} />
-                            <button onClick={() => handleLogout("/")} className={`sidebar-nav-link w-full text-red-500 hover:bg-red-50  ${c ? 'justify-center px-0! gap-0!' : 'text-left'}`} title={c ? "Logout" : undefined}>
+                            <button onClick={() => handleLogout(`/login?reason=${LOGOUT_REASON.LOGGED_OUT}`)} className={`sidebar-nav-link w-full text-red-500 hover:bg-red-50  ${c ? 'justify-center px-0! gap-0!' : 'text-left'}`} title={c ? "Logout" : undefined}>
                                 <MdLogout className="sidebar-icon shrink-0" />
                                 {!c && <span>Logout</span>}
                             </button>
@@ -573,7 +573,7 @@ function DashboardInner({ user, pathname, sidebarOpen, setSidebarOpen, handleLog
                             <NavLink href="/customer/subscription" icon={MdStars} label="Subscription" pathname={pathname} collapsed={c} />
                             <NavLink href="/customer/faqs" icon={MdQuestionAnswer} label="FAQs" pathname={pathname} collapsed={c} />
                             <NavLink href="/customer/profile" icon={MdSettings} label="Account Settings" pathname={pathname} collapsed={c} />
-                            <button onClick={() => handleLogout("/")} className={`sidebar-nav-link w-full text-red-500 hover:bg-red-50  ${c ? 'justify-center px-0! gap-0!' : 'text-left'}`} title={c ? "Logout" : undefined}>
+                            <button onClick={() => handleLogout(`/login?reason=${LOGOUT_REASON.LOGGED_OUT}`)} className={`sidebar-nav-link w-full text-red-500 hover:bg-red-50  ${c ? 'justify-center px-0! gap-0!' : 'text-left'}`} title={c ? "Logout" : undefined}>
                                 <MdLogout className="sidebar-icon shrink-0" />
                                 {!c && <span>Logout</span>}
                             </button>
@@ -659,7 +659,7 @@ function DashboardInner({ user, pathname, sidebarOpen, setSidebarOpen, handleLog
                         </nav>
                         <div className={`${c ? 'p-2' : 'p-4'} border-t border-slate-100  space-y-1`}>
                             <NavLink href="/admin/settings" icon={MdSettings} label="Settings" pathname={pathname} collapsed={c} />
-                            <button onClick={() => handleLogout("/")} className={`sidebar-nav-link w-full text-red-500 hover:bg-red-50  ${c ? 'justify-center px-0! gap-0!' : 'text-left'}`} title={c ? "Logout" : undefined}>
+                            <button onClick={() => handleLogout(`/login?reason=${LOGOUT_REASON.LOGGED_OUT}`)} className={`sidebar-nav-link w-full text-red-500 hover:bg-red-50  ${c ? 'justify-center px-0! gap-0!' : 'text-left'}`} title={c ? "Logout" : undefined}>
                                 <MdLogout className="sidebar-icon shrink-0" />
                                 {!c && <span>Logout</span>}
                             </button>
