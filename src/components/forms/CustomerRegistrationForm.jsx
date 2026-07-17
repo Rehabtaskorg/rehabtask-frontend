@@ -11,11 +11,13 @@ import Button from "../ui/Button";
 import Alert from "../ui/Alert";
 import { useCustomerRegistration } from "@/hooks/useCustomerRegistration";
 import { useGoogleAuth } from "@/hooks/useGoogleAuth";
+import { usePageTitle } from "@/hooks/usePageTitle";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { customerRegistrationSchema } from "@/lib/validationSchema";
 
 const CustomerRegistrationForm = () => {
+    usePageTitle("Create Account");
     const searchParams = useSearchParams();
     const redirectTo = searchParams.get("redirect") || null;
 

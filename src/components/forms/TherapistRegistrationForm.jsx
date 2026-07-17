@@ -13,10 +13,12 @@ import Alert from "../ui/Alert";
 import { therapistRegistrationSchema } from "@/lib/validationSchema";
 import { useTherapistRegistration } from "@/hooks/useTherapistRegistration";
 import { useGoogleAuth } from "@/hooks/useGoogleAuth";
+import { usePageTitle } from "@/hooks/usePageTitle";
 import { MdInfo } from "react-icons/md";
 import { FaGoogle } from "react-icons/fa";
 
 const TherapistRegistrationForm = () => {
+    usePageTitle("Therapist Registration");
     const searchParams = useSearchParams();
     const redirectTo = searchParams.get("redirect") || null;
 
