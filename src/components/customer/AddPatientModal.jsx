@@ -334,6 +334,8 @@ export default function AddPatientModal({ isOpen, onClose, onSuccess }) {
                                     zoom={14}
                                     mapId="patient-address-map"
                                     disableDefaultUI
+                                    gestureHandling="cooperative"
+                                    zoomControl
                                     className="w-full h-full"
                                 >
                                     <AdvancedMarker position={{ lat: latitude, lng: longitude }} />

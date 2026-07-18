@@ -147,6 +147,7 @@ export default function Step3Review({ onEditStep }) {
                                 zoom={15}
                                 mapId="request-review-map"
                                 disableDefaultUI
+                                gestureHandling="none"
                                 className="w-full h-full"
                             >
                                 <AdvancedMarker position={mapCenter} />

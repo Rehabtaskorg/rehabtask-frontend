@@ -88,6 +88,8 @@ export default function Step2Location() {
                         zoom={hasLocation ? SELECTED_ZOOM : undefined}
                         mapId="request-location-map"
                         disableDefaultUI
+                        gestureHandling="cooperative"
+                        zoomControl
                         className="w-full h-full"
                     >
                         {hasLocation && <AdvancedMarker position={mapCenter} />}
