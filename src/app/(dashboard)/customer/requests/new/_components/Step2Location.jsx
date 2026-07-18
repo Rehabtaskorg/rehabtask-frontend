@@ -2,13 +2,9 @@
 
 import { useState } from "react";
 import { MdLocationOn, MdCheck } from "react-icons/md";
-import { Map, AdvancedMarker } from "@vis.gl/react-google-maps";
 import useRequestStore from "@/store/requestStore";
 import LocationAutocomplete from "@/components/maps/LocationAutocomplete";
 
-const DEFAULT_CENTER = { lat: 39.8283, lng: -98.5795 };
-const DEFAULT_ZOOM = 4;
-const SELECTED_ZOOM = 13;
 
 export default function Step2Location() {
     const { step2, setStep2 } = useRequestStore();
@@ -37,9 +33,6 @@ export default function Step2Location() {
     };
 
     const hasLocation = step2.latitude !== null && step2.longitude !== null;
-    const mapCenter = hasLocation
-        ? { lat: step2.latitude, lng: step2.longitude }
-        : DEFAULT_CENTER;
 
     return (
         <div className="bg-card-light  border border-border-light  rounded-xl shadow-sm p-6 sm:p-8 space-y-6">
@@ -74,33 +67,6 @@ export default function Step2Location() {
                 </div>
             )}
 
-            <div>
-                <div className="flex items-center justify-between mb-2">
-                    <label className="text-xs font-semibold text-slate-500  uppercase tracking-wider">
-                        Map Preview
-                    </label>
-                </div>
-                <div className="aspect-video w-full rounded-xl overflow-hidden border border-border-light ">
-                    <Map
-                        defaultCenter={DEFAULT_CENTER}
-                        defaultZoom={DEFAULT_ZOOM}
-                        center={hasLocation ? mapCenter : undefined}
-                        zoom={hasLocation ? SELECTED_ZOOM : undefined}
-                        mapId="request-location-map"
-                        disableDefaultUI
-                        gestureHandling="cooperative"
-                        zoomControl
-                        className="w-full h-full"
-                    >
-                        {hasLocation && <AdvancedMarker position={mapCenter} />}
-                    </Map>
-                </div>
-                {!hasLocation && (
-                    <p className="text-xs text-text-muted  mt-1.5 text-center">
-                        Enter an address above to see the location on the map
-                    </p>
-                )}
-            </div>
         </div>
     );
 }
