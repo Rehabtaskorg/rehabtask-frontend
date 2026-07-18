@@ -240,7 +240,7 @@ export default function InlinePaymentSection({ booking, onPaymentSuccess }) {
                             stripe={stripePromise}
                             options={{ clientSecret: newCardClientSecret, appearance: getStripeAppearance() }}
                         >
-                            <NewCardCheckoutForm booking={booking} onSuccess={onPaymentSuccess} />
+                            <NewCardCheckoutForm booking={booking} totalAmount={perSessionRate * sessionsCount} onSuccess={onPaymentSuccess} />
                         </Elements>
                     </div>
                 )
