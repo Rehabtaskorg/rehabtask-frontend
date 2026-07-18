@@ -1,6 +1,7 @@
 "use client";
 
 import { MdEdit, MdVisibility, MdLocationOn, MdCalendarToday } from "react-icons/md";
+import { Map, AdvancedMarker } from "@vis.gl/react-google-maps";
 import useRequestStore from "@/store/requestStore";
 
 const formatReviewDate = (dateStr, timeStr) => {
@@ -17,6 +18,11 @@ const formatReviewDate = (dateStr, timeStr) => {
 
 export default function Step3Review({ onEditStep }) {
     const { step1, step2 } = useRequestStore();
+
+    const hasLocation = step2.latitude !== null && step2.longitude !== null;
+    const mapCenter = hasLocation
+        ? { lat: step2.latitude, lng: step2.longitude }
+        : { lat: 40.7128, lng: -74.006 };
 
     return (
         <div className="space-y-6">
@@ -130,6 +136,23 @@ export default function Step3Review({ onEditStep }) {
                             {step2.address || "—"}
                         </p>
                     </div>
+
+                    {hasLocation && (
+                        <div className="h-16 w-full rounded-lg overflow-hidden border border-border-light ">
+                            <Map
+                                defaultCenter={mapCenter}
+                                center={mapCenter}
+                                defaultZoom={15}
+                                zoom={15}
+                                mapId="request-review-map"
+                                disableDefaultUI
+                                gestureHandling="none"
+                                className="w-full h-full"
+                            >
+                                <AdvancedMarker position={mapCenter} />
+                            </Map>
+                        </div>
+                    )}
 
                 </div>
             </div>

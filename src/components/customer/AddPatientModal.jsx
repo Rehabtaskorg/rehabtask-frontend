@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { MdClose, MdPerson, MdCheck } from "react-icons/md";
+import { APIProvider, Map, AdvancedMarker } from "@vis.gl/react-google-maps";
 import { useCreatePatient } from "@/hooks/usePatients";
 import LocationAutocomplete from "@/components/maps/LocationAutocomplete";
 import { validateCertificationPeriod } from "@/lib/validationSchema";
@@ -196,6 +197,7 @@ export default function AddPatientModal({ isOpen, onClose, onSuccess }) {
 
     return (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={handleBackdropClick}>
+            <APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}>
                 <div className="bg-card-light  rounded-xl w-full max-w-140 shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
                     {/* Header */}
                     <div className="px-6 py-4 border-b border-border-light  flex items-center justify-between shrink-0">
@@ -324,6 +326,22 @@ export default function AddPatientModal({ isOpen, onClose, onSuccess }) {
                             </div>
                         )}
 
+                        {/* Map Preview */}
+                        {hasLocation && (
+                            <div className="rounded-xl overflow-hidden border border-border-light  h-40">
+                                <Map
+                                    center={{ lat: latitude, lng: longitude }}
+                                    zoom={14}
+                                    mapId="patient-address-map"
+                                    disableDefaultUI
+                                    gestureHandling="none"
+                                    className="w-full h-full"
+                                >
+                                    <AdvancedMarker position={{ lat: latitude, lng: longitude }} />
+                                </Map>
+                            </div>
+                        )}
+
                         {/* Email (optional) */}
                         <div>
                             <label className="block text-sm font-medium text-text-main  mb-1.5">
@@ -383,6 +401,7 @@ export default function AddPatientModal({ isOpen, onClose, onSuccess }) {
                         </div>
                     </form>
                 </div>
+            </APIProvider>
         </div>
     );
 }
