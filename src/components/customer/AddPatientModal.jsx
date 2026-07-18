@@ -198,9 +198,9 @@ export default function AddPatientModal({ isOpen, onClose, onSuccess }) {
     return (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={handleBackdropClick}>
             <APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}>
-                <div className="bg-card-light  rounded-xl w-full max-w-140 shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
+                <div className="bg-card-light  rounded-xl w-full max-w-140 shadow-2xl max-h-[90vh] flex flex-col">
                     {/* Header */}
-                    <div className="px-6 py-4 border-b border-border-light  flex items-center justify-between shrink-0">
+                    <div className="px-6 py-4 border-b border-border-light  flex items-center justify-between shrink-0 rounded-t-xl">
                         <h2 className="text-lg font-bold text-text-main ">Add New Patient</h2>
                         <button
                             onClick={handleClose}
@@ -212,7 +212,7 @@ export default function AddPatientModal({ isOpen, onClose, onSuccess }) {
                     </div>
 
                     {/* Scrollable Form */}
-                    <form onSubmit={handleSubmit} className="p-6 space-y-5 overflow-y-auto flex-1">
+                    <form onSubmit={handleSubmit} className="p-6 space-y-5 overflow-y-auto flex-1 rounded-b-xl">
                         {errors.form && (
                             <div className="bg-red-50  border border-red-200  text-red-700  px-4 py-3 rounded-lg text-sm">
                                 {errors.form}
