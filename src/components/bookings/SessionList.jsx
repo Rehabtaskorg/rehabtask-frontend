@@ -419,8 +419,8 @@ export default function SessionList({
                                         <div className="mt-1 text-[10px] space-y-0.5">
                                             <p className="text-amber-700  font-medium">
                                                 {role === "therapist"
-                                                    ? "You recorded an attempted visit (patient not home)."
-                                                    : "Therapist recorded an attempted visit (you weren't home)."}
+                                                    ? "You recorded an attempted visit."
+                                                    : "Therapist recorded an attempted visit."}
                                             </p>
                                             {session.attemptedRateCharged != null && (
                                                 <p className="text-text-muted ">

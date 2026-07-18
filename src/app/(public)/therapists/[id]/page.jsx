@@ -309,7 +309,7 @@ function TherapistPublicProfileContent() {
                                         parseFloat(profile.attemptedVisitRate) > 0 ? (
                                             <p className="text-xs text-gray-500 mb-4">
                                                 Attempted visit fee: <span className="font-semibold text-gray-700">${parseFloat(profile.attemptedVisitRate).toFixed(2)}</span>
-                                                <span className="text-gray-400 ml-1">(if patient is not home)</span>
+                                                <span className="text-gray-400 ml-1">(if session cannot proceed)</span>
                                             </p>
                                         ) : (
                                             <p className="text-xs text-emerald-600 font-medium mb-4">
