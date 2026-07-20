@@ -35,7 +35,7 @@ export default function BookingEscrowInfo({ booking, payment }) {
                     <div className="text-xs text-blue-700  space-y-0.5">
                         <p>{formatCurrency(grossReleased)} paid for confirmed sessions.</p>
                         {refundedAmount > 0 && (
-                            <p>{formatCurrency(refundedAmount)} refunded to you for missed/undelivered sessions.</p>
+                            <p>{formatCurrency(refundedAmount)} credited to your account for missed/undelivered sessions.</p>
                         )}
                         {stillInEscrow > 0 && (
                             <p>{formatCurrency(stillInEscrow)} held in escrow for upcoming sessions.</p>
@@ -52,7 +52,7 @@ export default function BookingEscrowInfo({ booking, payment }) {
                 <div className="flex items-start gap-2">
                     <MdCheckCircle className="text-emerald-600  text-sm mt-0.5 shrink-0" />
                     <p className="text-xs text-emerald-700 ">
-                        Series finalized. {formatCurrency(parseFloat(payment.refundedAmount))} has been refunded for undelivered sessions.
+                        Series finalized. {formatCurrency(parseFloat(payment.refundedAmount))} has been credited to your account for undelivered sessions.
                     </p>
                 </div>
             </div>

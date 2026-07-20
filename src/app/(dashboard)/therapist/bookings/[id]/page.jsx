@@ -97,7 +97,7 @@ export default function TherapistBookingDetailPage() {
         setCancellationActing(true);
         try {
             await bookingsApi.approveCancellation(params.id);
-            showToast.success("Cancellation approved. The customer will receive a full refund.");
+            showToast.success("Cancellation approved. The customer's payment will be credited back to their account.");
             await refetch();
         } catch (err) {
             showToast.error(err.response?.data?.message || "Failed to approve cancellation.");
@@ -157,7 +157,7 @@ export default function TherapistBookingDetailPage() {
     const handleApproveSessionCancellation = async (session) => {
         try {
             await bookingsApi.approveSessionCancellation(session.id);
-            showToast.success("Session cancellation approved. The customer will receive a refund.");
+            showToast.success("Session cancellation approved. The customer's payment will be credited back to their account.");
             await refetch();
         } catch (err) {
             showToast.error(err.response?.data?.message || "Failed to approve cancellation.");
@@ -261,7 +261,7 @@ export default function TherapistBookingDetailPage() {
         setFinalizing(true);
         try {
             await bookingsApi.finalizeBooking(params.id);
-            showToast.success("Booking finalized. Confirmed sessions have been paid out and the customer has been refunded for remaining sessions.");
+            showToast.success("Booking finalized. Confirmed sessions have been paid out and the customer has been credited for remaining sessions.");
             setShowFinalizeConfirm(false);
             refetch();
         } catch (err) {
@@ -867,7 +867,7 @@ export default function TherapistBookingDetailPage() {
                                         )}
                                         {payment?.status === "refunded" && (
                                             <p className="text-xs text-text-muted  mt-0.5">
-                                                Customer has been refunded.
+                                                Customer has been credited.
                                             </p>
                                         )}
                                     </div>
@@ -917,7 +917,7 @@ export default function TherapistBookingDetailPage() {
                                         <p className="text-xs font-bold text-amber-800  mb-1">Are you sure?</p>
                                         <p className="text-xs text-amber-700 ">
                                             This will release payment for {confirmedSessionCount} confirmed session{confirmedSessionCount !== 1 ? "s" : ""} and
-                                            refund the customer for {unconfirmedSessionCount} undelivered session{unconfirmedSessionCount !== 1 ? "s" : ""}.
+                                            credit the customer for {unconfirmedSessionCount} undelivered session{unconfirmedSessionCount !== 1 ? "s" : ""}.
                                             This cannot be undone.
                                         </p>
                                     </div>
@@ -955,7 +955,7 @@ export default function TherapistBookingDetailPage() {
                                     <p className="text-xs text-text-muted  mt-0.5">
                                         {paidOutSessionCount} session{paidOutSessionCount !== 1 ? "s" : ""} paid out
                                         {attemptedSessionCount > 0 && ` (${attemptedSessionCount} attempted visit${attemptedSessionCount !== 1 ? "s" : ""})`}.
-                                        {payment?.refundedAmount && ` Customer refunded ${formatCurrency(parseFloat(payment.refundedAmount))}.`}
+                                        {payment?.refundedAmount && ` Customer credited ${formatCurrency(parseFloat(payment.refundedAmount))}.`}
                                     </p>
                                 </div>
                             </div>

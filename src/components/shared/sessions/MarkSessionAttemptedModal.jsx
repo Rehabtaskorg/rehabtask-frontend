@@ -52,7 +52,7 @@ export default function MarkSessionAttemptedModal({
 
         try {
             await bookingsApi.markSessionAttempted(sessionId, trimmedReason);
-            showToast.success("Attempted visit recorded. Funds released and customer refunded.");
+            showToast.success("Attempted visit recorded. Funds released and customer credited.");
             setReason("");
             onSuccess?.();
             onClose();
@@ -126,7 +126,7 @@ export default function MarkSessionAttemptedModal({
                             <p className="text-[10px] text-emerald-600/80  mt-0.5">before commission</p>
                         </div>
                         <div className="px-4 py-3 rounded-lg bg-blue-50  border border-blue-200 ">
-                            <p className="text-[10px] uppercase tracking-wider font-bold text-blue-700 ">Refunded to customer</p>
+                            <p className="text-[10px] uppercase tracking-wider font-bold text-blue-700 ">Credited to customer</p>
                             <p className="mt-1 text-lg font-bold text-blue-700 ">${refundAmount.toFixed(2)}</p>
                             <p className="text-[10px] text-blue-600/80  mt-0.5">remainder of session</p>
                         </div>

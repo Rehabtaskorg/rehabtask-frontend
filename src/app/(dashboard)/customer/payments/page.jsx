@@ -17,7 +17,7 @@ const STATUS_CONFIG = {
     escrowed:       { label: "In Escrow", color: "bg-blue-50   text-blue-600   border border-blue-200 " },
     partially_released: { label: "In Escrow", color: "bg-blue-50 text-blue-600 border border-blue-200 " },
     released:       { label: "Completed", color: "bg-emerald-50 text-emerald-600 border border-emerald-200 " },
-    refunded:       { label: "Refunded",  color: "bg-slate-100  text-slate-600  border border-slate-200 " },
+    refunded:       { label: "Credited",  color: "bg-slate-100  text-slate-600  border border-slate-200 " },
     failed:         { label: "Failed",    color: "bg-red-50    text-red-600    border border-red-200 " },
 };
 
@@ -81,27 +81,27 @@ const getRefundDisplay = (customerRefunds, fallbackRefundedAmount) => {
             return { label: `${formatCurrency(completed)} sent · ${formatCurrency(pending)} pending`, color: "text-amber-600  font-semibold" };
         }
         if (pending > 0) {
-            return { label: `${formatCurrency(pending)} pending refund`, color: "text-amber-600  font-semibold" };
+            return { label: `${formatCurrency(pending)} pending credit`, color: "text-amber-600  font-semibold" };
         }
         if (transferred > 0 && card === 0) {
-            return { label: `${formatCurrency(transferred)} returned to your account`, color: "text-emerald-600  font-semibold" };
+            return { label: `${formatCurrency(transferred)} credited to your account`, color: "text-emerald-600  font-semibold" };
         }
         if (card > 0 && transferred === 0) {
-            return { label: `${formatCurrency(card)} returned to card`, color: "text-emerald-600  font-semibold" };
+            return { label: `${formatCurrency(card)} credited to your account`, color: "text-emerald-600  font-semibold" };
         }
         if (completed > 0) {
-            return { label: `${formatCurrency(completed)} refunded`, color: "text-emerald-600  font-semibold" };
+            return { label: `${formatCurrency(completed)} credited to your account`, color: "text-emerald-600  font-semibold" };
         }
     }
 
     if (fallbackRefundedAmount && refunds.length === 0) {
-        return { label: `${formatCurrency(fallbackRefundedAmount)} refunded`, color: "text-emerald-600  font-semibold" };
+        return { label: `${formatCurrency(fallbackRefundedAmount)} credited to your account`, color: "text-emerald-600  font-semibold" };
     }
     return null;
 };
 
 export default function CustomerPaymentsPage() {
-    usePageTitle("Payments & Refunds");
+    usePageTitle("Payments & Credits");
 
     const { data: payments, isLoading: paymentsLoading } = usePaymentHistory();
     const { data: summary, isLoading: summaryLoading }   = useRefundSummary();
@@ -162,7 +162,7 @@ export default function CustomerPaymentsPage() {
         { key: "all",       label: "All" },
         { key: "escrow",    label: "In Escrow" },
         { key: "completed", label: "Completed" },
-        { key: "refunded",  label: "Refunded" },
+        { key: "refunded",  label: "Credited" },
     ];
 
     return (
@@ -171,7 +171,7 @@ export default function CustomerPaymentsPage() {
             <header className="border-b border-border-light  bg-white/80  backdrop-blur-md sticky top-0 z-10 shrink-0">
                 <div className="flex justify-between items-center px-4 sm:px-8 py-4">
                     <h2 className="text-xl sm:text-2xl font-black tracking-tight text-text-main ">
-                        Payments &amp; Refunds
+                        Payments &amp; Credits
                     </h2>
                 </div>
             </header>
@@ -207,10 +207,10 @@ export default function CustomerPaymentsPage() {
                             <div className="bg-card-light  border-l-4 border-l-emerald-500 border border-border-light  rounded-xl p-5">
                                 <div className="flex items-center gap-2 mb-3">
                                     <MdCheckCircle className="text-emerald-500" />
-                                    <p className="text-xs font-bold text-text-muted  uppercase tracking-widest">Refunded</p>
+                                    <p className="text-xs font-bold text-text-muted  uppercase tracking-widest">Credits Issued</p>
                                 </div>
                                 <p className="text-3xl font-black text-emerald-500">{formatCurrency(summary.totalRefunded)}</p>
-                                <p className="text-xs text-text-muted  mt-1">Returned to you</p>
+                                <p className="text-xs text-text-muted  mt-1">Credited to your account</p>
                             </div>
                         </div>
                     ) : null}
@@ -229,10 +229,10 @@ export default function CustomerPaymentsPage() {
                                                 Bank Transfer Failed
                                             </span>
                                             <h4 className="text-text-main  font-bold">
-                                                Your refund of {formatCurrency(failedPayoutTotal)} could not be delivered
+                                                Your account credit of {formatCurrency(failedPayoutTotal)} could not be delivered
                                             </h4>
                                             <p className="text-sm text-text-muted  mt-0.5">
-                                                The transfer to your bank account was unsuccessful. Please update your bank account details to receive your refund.
+                                                The transfer to your bank account was unsuccessful. Please update your bank account details to receive your credit.
                                             </p>
                                         </div>
                                     </div>
@@ -261,10 +261,10 @@ export default function CustomerPaymentsPage() {
                                                 Action Required
                                             </span>
                                             <h4 className="text-text-main  font-bold">
-                                                You have {formatCurrency(summary.pendingRefundAmount)} in pending refunds
+                                                You have {formatCurrency(summary.pendingRefundAmount)} in pending credits
                                             </h4>
                                             <p className="text-sm text-text-muted  mt-0.5">
-                                                Set up your payout account to receive refunds directly to your bank account.
+                                                Set up your payout account to receive your credits directly to your bank account.
                                             </p>
                                         </div>
                                     </div>
@@ -294,7 +294,7 @@ export default function CustomerPaymentsPage() {
                                             </span>
                                             <h4 className="text-text-main  font-bold">Finish setting up your payout account</h4>
                                             <p className="text-sm text-text-muted  mt-0.5">
-                                                You have {formatCurrency(summary.pendingRefundAmount)} in pending refunds. Complete your account setup to receive them.
+                                                You have {formatCurrency(summary.pendingRefundAmount)} in pending credits. Complete your account setup to receive them.
                                             </p>
                                         </div>
                                     </div>
@@ -327,8 +327,8 @@ export default function CustomerPaymentsPage() {
                                     <div className="flex items-center gap-4">
                                         <div className="w-12 h-12 rounded-xl bg-red-100  flex items-center justify-center text-red-600 "><MdWarning className="text-2xl" /></div>
                                         <div>
-                                            <p className="text-sm font-bold text-red-700 ">Refund Account Restricted</p>
-                                            <p className="text-xs text-red-600/80  mt-0.5">Your refund account has been restricted. Complete the required information to restore it.</p>
+                                            <p className="text-sm font-bold text-red-700 ">Payout Account Restricted</p>
+                                            <p className="text-xs text-red-600/80  mt-0.5">Your payout account has been restricted. Complete the required information to restore it.</p>
                                         </div>
                                     </div>
                                     <Link href="/customer/payout-setup" className="shrink-0 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-xs font-bold transition-colors text-center">Restore Account</Link>
@@ -342,9 +342,9 @@ export default function CustomerPaymentsPage() {
                                     <div className="flex items-center gap-4">
                                         <div className="w-12 h-12 rounded-xl bg-amber-100  flex items-center justify-center text-amber-600 "><MdSchedule className="text-2xl" /></div>
                                         <div>
-                                            <p className="text-sm font-bold text-text-main ">Action Required — Refund Account</p>
+                                            <p className="text-sm font-bold text-text-main ">Action Required — Payout Account</p>
                                             <p className="text-xs text-text-muted  mt-0.5">
-                                                {deadlineDate ? `Stripe requires updated information by ${deadlineDate} or your refunds will be paused.` : "Stripe requires updated information to keep your refund account active."}
+                                                {deadlineDate ? `Stripe requires updated information by ${deadlineDate} or your payouts will be paused.` : "Stripe requires updated information to keep your payout account active."}
                                             </p>
                                         </div>
                                     </div>
@@ -385,7 +385,7 @@ export default function CustomerPaymentsPage() {
                                             </div>
                                         </div>
                                     </div>
-                                    {hasPendingRefunds && <p className="text-sm text-text-muted ">{formatCurrency(summary.pendingRefundAmount)} pending</p>}
+                                    {hasPendingRefunds && <p className="text-sm text-text-muted ">{formatCurrency(summary.pendingRefundAmount)} pending credit</p>}
                                 </div>
                             </div>
                         );
@@ -405,8 +405,8 @@ export default function CustomerPaymentsPage() {
                                     <div className="flex items-center gap-4">
                                         <div className="w-12 h-12 rounded-xl bg-red-100  flex items-center justify-center text-red-600 "><MdWarning className="text-2xl" /></div>
                                         <div>
-                                            <p className="text-sm font-bold text-red-700 ">Refund Account Restricted</p>
-                                            <p className="text-xs text-red-600/80  mt-0.5">Your refund account requires overdue information. Complete it now to restore your ability to receive refunds.</p>
+                                            <p className="text-sm font-bold text-red-700 ">Payout Account Restricted</p>
+                                            <p className="text-xs text-red-600/80  mt-0.5">Your payout account requires overdue information. Complete it now to restore your ability to receive credits.</p>
                                         </div>
                                     </div>
                                     <Link href="/customer/payout-setup" className="shrink-0 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-xs font-bold transition-colors text-center">Restore Account</Link>
@@ -420,9 +420,9 @@ export default function CustomerPaymentsPage() {
                                     <div className="flex items-center gap-4">
                                         <div className="w-12 h-12 rounded-xl bg-amber-100  flex items-center justify-center text-amber-600 "><MdSchedule className="text-2xl" /></div>
                                         <div>
-                                            <p className="text-sm font-bold text-text-main ">Action Required — Refund Account</p>
+                                            <p className="text-sm font-bold text-text-main ">Action Required — Payout Account</p>
                                             <p className="text-xs text-text-muted  mt-0.5">
-                                                {deadlineDate ? `Complete required information by ${deadlineDate} to keep your refund account active.` : "Stripe requires updated information to keep your refund account active."}
+                                                {deadlineDate ? `Complete required information by ${deadlineDate} to keep your payout account active.` : "Stripe requires updated information to keep your payout account active."}
                                             </p>
                                         </div>
                                     </div>
@@ -635,25 +635,25 @@ export default function CustomerPaymentsPage() {
                                                                             )}
                                                                             {transferredRefund > 0 && (
                                                                                 <div className="flex justify-between text-emerald-600 ">
-                                                                                    <span>Returned to your account</span>
+                                                                                    <span>Credited to your account</span>
                                                                                     <span>{formatCurrency(transferredRefund)}</span>
                                                                                 </div>
                                                                             )}
                                                                             {cardRefund > 0 && (
                                                                                 <div className="flex justify-between text-emerald-600 ">
-                                                                                    <span>Returned to card</span>
+                                                                                    <span>Credited to your account</span>
                                                                                     <span>{formatCurrency(cardRefund)}</span>
                                                                                 </div>
                                                                             )}
                                                                             {pendingRefund > 0 && (
                                                                                 <div className="flex justify-between text-amber-600 ">
-                                                                                    <span>Refund pending</span>
+                                                                                    <span>Credit pending</span>
                                                                                     <span>{formatCurrency(pendingRefund)}</span>
                                                                                 </div>
                                                                             )}
                                                                             {legacyRefund > 0 && (
                                                                                 <div className="flex justify-between text-emerald-600 ">
-                                                                                    <span>Refunded</span>
+                                                                                    <span>Credited to your account</span>
                                                                                     <span>{formatCurrency(legacyRefund)}</span>
                                                                                 </div>
                                                                             )}
@@ -702,21 +702,21 @@ export default function CustomerPaymentsPage() {
                                                                         if (cr.status === "pending_connect") return (
                                                                             <div key={cr.id} className="relative pl-5">
                                                                                 <div className="absolute left-0 top-1 w-3 h-3 rounded-full bg-amber-500 animate-pulse" />
-                                                                                <p className="text-xs text-text-main ">Refund pending ({formatCurrency(cr.amount)}) — awaiting payout setup</p>
+                                                                                <p className="text-xs text-text-main ">Credit pending ({formatCurrency(cr.amount)}) — awaiting payout setup</p>
                                                                                 <p className="text-[10px] text-text-muted ">{formatDate(cr.createdAt)}</p>
                                                                             </div>
                                                                         );
                                                                         if (cr.status === "transferred") return (
                                                                             <div key={cr.id} className="relative pl-5">
                                                                                 <div className="absolute left-0 top-1 w-3 h-3 rounded-full bg-emerald-500" />
-                                                                                <p className="text-xs font-medium text-text-main ">Refund returned to your account ({formatCurrency(cr.amount)})</p>
+                                                                                <p className="text-xs font-medium text-text-main ">Account credited ({formatCurrency(cr.amount)})</p>
                                                                                 <p className="text-[10px] text-text-muted ">{formatDate(cr.transferredAt)}</p>
                                                                             </div>
                                                                         );
                                                                         if (cr.status === "refunded_to_card") return (
                                                                             <div key={cr.id} className="relative pl-5">
                                                                                 <div className="absolute left-0 top-1 w-3 h-3 rounded-full bg-emerald-500" />
-                                                                                <p className="text-xs font-medium text-text-main ">Refund returned to card ({formatCurrency(cr.amount)})</p>
+                                                                                <p className="text-xs font-medium text-text-main ">Account credited ({formatCurrency(cr.amount)})</p>
                                                                                 <p className="text-[10px] text-text-muted ">{formatDate(cr.fallbackRefundAt)}</p>
                                                                             </div>
                                                                         );
@@ -725,7 +725,7 @@ export default function CustomerPaymentsPage() {
                                                                     {!payment.customerRefunds?.[0] && payment.refundedAt && (
                                                                         <div className="relative pl-5">
                                                                             <div className="absolute left-0 top-1 w-3 h-3 rounded-full bg-amber-500" />
-                                                                            <p className="text-xs font-medium text-text-main ">Refund issued</p>
+                                                                            <p className="text-xs font-medium text-text-main ">Account credited</p>
                                                                             <p className="text-[10px] text-text-muted ">{formatDate(payment.refundedAt)}</p>
                                                                         </div>
                                                                     )}

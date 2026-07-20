@@ -35,7 +35,7 @@ const PAYMENT_STATUS_CONFIG = {
         icon: MdRefresh,
         color: "text-slate-600 ",
         bg: "bg-slate-50 ",
-        label: { therapist: "Refunded", customer: "Refunded" },
+        label: { therapist: "Credited", customer: "Credited" },
     },
     failed: {
         icon: MdError,
@@ -51,7 +51,6 @@ export default function PaymentSummaryCard({ booking, role, onAction }) {
     const perSessionRate = parseFloat(booking.rate);
     const payment = booking.payment;
     const sessions = booking.sessions || [];
-    const session = sessions[0];
     // Effective plan: booking (authoritative) > offer override > request.
     // Legacy bookings have NULL override columns and fall through to request values.
     const plan = resolveVisitPlan({ booking, offer: booking.offer, request: booking.offer?.request });

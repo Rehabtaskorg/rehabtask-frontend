@@ -562,8 +562,8 @@ export default function CustomerBookingDetailPage() {
                                 <p className="text-sm font-bold text-red-900 mb-1">Request Cancellation</p>
                                 <p className="text-xs text-red-700 mb-3">
                                     {payment?.status === "escrowed"
-                                        ? <>Your request will be sent to {booking.therapist?.fullName}. They have 24 hours to approve or reject it. If they don&apos;t respond, your cancellation will be approved automatically and you&apos;ll receive a full refund.</>
-                                        : <>This booking will be cancelled immediately. No payment has been made, so no refund is needed.</>
+                                        ? <>Your request will be sent to {booking.therapist?.fullName}. They have 24 hours to approve or reject it. If they don&apos;t respond, your cancellation will be approved automatically and your payment will be credited back to your account.</>
+                                        : <>This booking will be cancelled immediately. No payment has been made, so no credit is needed.</>
                                     }
                                 </p>
                                 <textarea

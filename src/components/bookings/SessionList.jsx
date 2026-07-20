@@ -32,13 +32,13 @@ const getRefundPill = (session) => {
     const hasTransferred = refunds.some((r) => r.status === "transferred");
     const hasCard = refunds.some((r) => r.status === "refunded_to_card");
     if (hasPending) {
-        return { label: `${formatCurrency(total)} pending refund`, color: "bg-amber-50  text-amber-600 " };
+        return { label: `${formatCurrency(total)} pending credit`, color: "bg-amber-50  text-amber-600 " };
     }
     if (hasTransferred) {
-        return { label: `${formatCurrency(total)} returned to your account`, color: "bg-emerald-50  text-emerald-600 " };
+        return { label: `${formatCurrency(total)} credited to your account`, color: "bg-emerald-50  text-emerald-600 " };
     }
     if (hasCard) {
-        return { label: `${formatCurrency(total)} returned to card`, color: "bg-emerald-50  text-emerald-600 " };
+        return { label: `${formatCurrency(total)} credited to your account`, color: "bg-emerald-50  text-emerald-600 " };
     }
     return null;
 };

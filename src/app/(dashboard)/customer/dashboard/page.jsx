@@ -135,7 +135,7 @@ export default function CustomerDashboard() {
                         <MdPayments className="text-primary text-xl shrink-0" />
                         <div className="text-sm">
                             <span className="font-bold text-text-main ">
-                                You have ${parseFloat(refundSummary.pendingRefundAmount).toFixed(2)} in pending refunds.
+                                You have ${parseFloat(refundSummary.pendingRefundAmount).toFixed(2)} in pending credits.
                             </span>
                             <span className="text-text-muted  ml-1">
                                 Set up your payout account to receive them.
