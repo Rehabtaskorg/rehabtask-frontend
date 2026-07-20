@@ -101,7 +101,13 @@ export default function CustomerPaymentsPage() {
         if (filter === "all") return payments;
         if (filter === "escrow") return payments.filter(p => ["escrowed", "partially_released"].includes(p.status));
         if (filter === "completed") return payments.filter(p => p.status === "released");
-        if (filter === "refunded") return payments.filter(p => p.status === "refunded" || p.refundedAmount);
+        if (filter === "refunded") return payments.filter(p => {
+            if (getEffectiveStatus(p) === "refunded") return true;
+            const refunds = p.customerRefunds || [];
+            const hasCompletedRefund = refunds.some(r => r.status === "transferred" || r.status === "refunded_to_card");
+            const isStillEscrowed = p.status === "escrowed" || p.status === "partially_released";
+            return hasCompletedRefund && !isStillEscrowed;
+        });
         return payments;
     }, [payments, filter]);
 
