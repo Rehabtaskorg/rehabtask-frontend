@@ -28,6 +28,7 @@ export default function AddPatientModal({ isOpen, onClose, onSuccess }) {
 
     const [fullName, setFullName] = useState("");
     const [dateOfBirth, setDateOfBirth] = useState("");
+    const [gender, setGender] = useState("");
     const [certificationStart, setCertificationStart] = useState("");
     const [certificationEnd, setCertificationEnd] = useState("");
     const [email, setEmail] = useState("");
@@ -49,6 +50,7 @@ export default function AddPatientModal({ isOpen, onClose, onSuccess }) {
     const resetForm = () => {
         setFullName("");
         setDateOfBirth("");
+        setGender("");
         setCertificationStart("");
         setCertificationEnd("");
         setEmail("");
@@ -116,6 +118,7 @@ export default function AddPatientModal({ isOpen, onClose, onSuccess }) {
             await createPatient.mutateAsync({
                 fullName: fullName.trim(),
                 dateOfBirth,
+                gender: gender || undefined,
                 certificationStart,
                 certificationEnd,
                 email: email.trim() || undefined,
@@ -254,6 +257,22 @@ export default function AddPatientModal({ isOpen, onClose, onSuccess }) {
                                 />
                                 {errors.dateOfBirth && <p className="text-xs text-red-500 mt-1">{errors.dateOfBirth}</p>}
                             </div>
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-text-main  mb-1.5">
+                                Gender <span className="text-text-muted  font-normal text-xs">(Optional)</span>
+                            </label>
+                            <select
+                                value={gender}
+                                onChange={(e) => setGender(e.target.value)}
+                                className={fieldClass(false)}
+                            >
+                                <option value="">Select gender</option>
+                                <option value="male">Male</option>
+                                <option value="female">Female</option>
+                                <option value="other">Other</option>
+                            </select>
                         </div>
 
                         <div className="flex gap-3">

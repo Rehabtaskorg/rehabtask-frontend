@@ -26,7 +26,7 @@ import InlinePaymentSection from "@/components/bookings/InlinePaymentSection";
 import RequestRevisionModal from "@/components/shared/sessions/RequestRevisionModal";
 import MarkSessionMissedModal from "@/components/shared/sessions/MarkSessionMissedModal";
 import RevisionStatusBanner from "@/components/shared/sessions/RevisionStatusBanner";
-import PatientInfoBlock from "@/components/shared/patient/PatientInfoBlock";
+import { PatientInfoBlock } from "@/components/shared/patient/PatientInfoBlock";
 import ConfirmModal from "@/components/ui/ConfirmModal";
 
 export default function CustomerBookingDetailPage() {
@@ -328,7 +328,9 @@ export default function CustomerBookingDetailPage() {
                         </div>
                     </div>
 
-                    {booking.patient && <PatientInfoBlock patient={booking.patient} />}
+                    {booking.patient && (
+                        <PatientInfoBlock patient={booking.patient} therapist={booking.therapist} />
+                    )}
 
                     {/* Session details */}
                     <div className="bg-card-light  border border-border-light  rounded-xl p-5">

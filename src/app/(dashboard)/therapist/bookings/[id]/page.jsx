@@ -23,7 +23,7 @@ import { formatCurrency } from "@/utils/messages";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import BookingSharedFiles from "@/components/bookings/BookingSharedFiles";
-import PatientInfoBlock from "@/components/shared/patient/PatientInfoBlock";
+import { PatientInfoBlock } from "@/components/shared/patient/PatientInfoBlock";
 
 const formatDate = (dateStr) => {
     if (!dateStr) return "—";
@@ -486,6 +486,7 @@ export default function TherapistBookingDetailPage() {
                     {booking.patient && (
                         <PatientInfoBlock
                             patient={booking.patient}
+                            therapist={booking.therapist}
                             note="This patient information is shared because this booking is confirmed."
                         />
                     )}

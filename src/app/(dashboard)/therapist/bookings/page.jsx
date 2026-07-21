@@ -10,6 +10,7 @@ import { usePageTitle } from "@/hooks/usePageTitle";
 import { useTherapistAccess } from "@/contexts/TherapistAccessContext";
 import LockedPageOverlay from "@/components/therapist/LockedPageOverlay";
 import PatientBadge from "@/components/shared/patient/PatientBadge";
+import { formatShortDate } from "@/utils/dates";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -244,6 +245,11 @@ function TherapistBookingsContent() {
                                                             {booking.offer?.request?.serviceType || "—"}
                                                         </span>
                                                         <PatientBadge patient={booking.patient} />
+                                                        {booking.patient?.dateOfBirth && (
+                                                            <span className="text-[11px] text-text-muted ">
+                                                                DOB: {formatShortDate(booking.patient.dateOfBirth)}
+                                                            </span>
+                                                        )}
                                                     </div>
                                                 </td>
                                                 <td className="py-3.5 pr-4">
@@ -299,6 +305,11 @@ function TherapistBookingsContent() {
                                                     {booking.offer?.request?.serviceType || "—"}
                                                 </p>
                                                 <PatientBadge patient={booking.patient} />
+                                                {booking.patient?.dateOfBirth && (
+                                                    <p className="text-[11px] text-text-muted  mt-1 mb-1">
+                                                        DOB: {formatShortDate(booking.patient.dateOfBirth)}
+                                                    </p>
+                                                )}
                                                 <div className="flex items-center gap-4 text-xs text-text-muted ">
                                                     <span className="flex items-center gap-1">
                                                         <MdCalendarToday className="text-sm" />
