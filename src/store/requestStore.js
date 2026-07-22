@@ -97,8 +97,13 @@ const useRequestStore = create(
         }),
         {
             name: "new-request-form",
-            onRehydrateStorage: () => (state) => {
-                if (state) state.setHasHydrated(true);
+            onRehydrateStorage: () => {
+                console.log("[requestStore] onRehydrateStorage: hydration starting");
+                return (state, error) => {
+                    console.log("[requestStore] onRehydrateStorage callback — state:", state, "error:", error);
+                    if (state) state.setHasHydrated(true);
+                    else console.warn("[requestStore] state was null/undefined after rehydration");
+                };
             },
             partialize: (state) => ({
                 currentStep: state.currentStep,
