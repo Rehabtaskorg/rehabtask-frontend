@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { MdArrowBack, MdEdit, MdCancel, MdLocationOn, MdCheckCircle, MdChat, MdWarning } from "react-icons/md";
 import { api } from "@/lib/api";
+import useRequestStore from "@/store/requestStore";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import { formatDate, formatTime } from "@/utils/dates";
@@ -38,6 +39,7 @@ export default function CustomerRequestDetailPage() {
     const params = useParams();
     const router = useRouter();
     const { trackEvent } = useAnalytics();
+    const resetRequestStore = useRequestStore((state) => state.reset);
 
     const [request, setRequest] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -273,7 +275,10 @@ export default function CustomerRequestDetailPage() {
                         <div className="space-y-3">
                             {isEditable && (
                                 <button
-                                    onClick={() => router.push(`/customer/requests/new?edit=${request.id}`)}
+                                    onClick={() => {
+                                        resetRequestStore();
+                                        router.push(`/customer/requests/new?edit=${request.id}`);
+                                    }}
                                     className="w-full py-3 bg-card-light  border-2 border-primary text-primary hover:bg-primary/5  rounded-lg font-bold transition-all flex items-center justify-center gap-2 text-sm"
                                 >
                                     <MdEdit className="text-lg" /> Edit Request

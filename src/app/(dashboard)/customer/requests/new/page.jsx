@@ -113,10 +113,7 @@ export default function NewRequestPage() {
     // Edit mode: fetch existing request and pre-fill store
     useEffect(() => {
         if (!editId) {
-            // If navigating to create mode but store has stale edit data, reset it
-            if (editingRequestId) {
-                reset();
-            }
+            reset();
             setLoadingRequest(false);
             return;
         }
