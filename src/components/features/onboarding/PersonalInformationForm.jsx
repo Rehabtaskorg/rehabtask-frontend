@@ -175,7 +175,7 @@ export function PersonalInformationForm() {
                             Personal Information
                         </h1>
                         <p className="text-text-muted text-lg font-normal leading-normal">
-                            This information is required for identity verification and compliance.
+                            Tell us about yourself. This information is required for identity verification and compliance.
                         </p>
                     </header>
 
