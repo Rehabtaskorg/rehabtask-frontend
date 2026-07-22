@@ -205,16 +205,3 @@ export const insuranceSchema = z.object({
     (data) => !data.doesHomeVisits || data.documents.some((d) => d.documentType === "auto_insurance"),
     { message: "Auto Insurance is required because you indicated you perform home visits", path: ["documents"] }
 );
-
-export const backgroundCheckSchema = z.object({
-    consent: z
-        .boolean()
-        .refine((val) => val === true, {
-            error: "You must consent to the background check to proceed",
-        }),
-
-    signature: z
-        .string()
-        .min(2, "Please type your full legal name")
-        .max(255, "Signature must not exceed 255 characters"),
-})

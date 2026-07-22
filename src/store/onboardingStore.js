@@ -67,12 +67,6 @@ const useOnboardingStore = create(
                 documents: [],
             },
 
-            backgroundCheck: {
-                consent: false,
-                signature: "",
-                submittedAt: null,
-            },
-
             payment: {
                 stripeConnected: false,
                 stripeAccountId: null,
@@ -272,11 +266,6 @@ const useOnboardingStore = create(
             },
 
 
-            updateBackgroundCheck: (data) =>
-                set((state) => ({
-                    backgroundCheck: { ...state.backgroundCheck, ...data },
-                })),
-
             updatePayment: (data) =>
                 set((state) => ({
                     payment: { ...state.payment, ...data },
@@ -300,7 +289,6 @@ const useOnboardingStore = create(
                     availability: state.availability,
                     insurance: state.insurance,
                     identity: state.identity,
-                    backgroundCheck: state.backgroundCheck,
                     payment: state.payment,
                     currentStep: state.currentStep,
                     completedSteps: state.completedSteps,
@@ -356,11 +344,6 @@ const useOnboardingStore = create(
                     identity: {
                         documents: [],
                     },
-                    backgroundCheck: {
-                        consent: false,
-                        signature: "",
-                        submittedAt: null,
-                    },
                     payment: {
                         stripeConnected: false,
                         stripeAccountId: null,
@@ -414,10 +397,6 @@ const useOnboardingStore = create(
                         documentType: doc.documentType,
                         mimeType: doc.mimeType,
                     })),
-                },
-                backgroundCheck: {
-                    consent: state.backgroundCheck.consent,
-                    // Don't persist signature
                 },
                 payment: {
                     stripeConnected: state.payment.stripeConnected,

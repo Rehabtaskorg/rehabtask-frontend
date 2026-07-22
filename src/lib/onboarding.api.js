@@ -64,13 +64,6 @@ export const onboardingAPI = {
     },
 
     /**
-     * Submit background check (Step 4)
-     */
-    submitBackgroundCheck: async (data) => {
-        return api.post("/therapist/onboarding/background-check", data);
-    },
-
-    /**
      * Advance to Final Review (Step 8) once Stripe is finished or skipped.
      * Never blocks on Stripe — it only records that the last step was reached.
      */
