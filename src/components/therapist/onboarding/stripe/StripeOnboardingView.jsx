@@ -43,7 +43,7 @@ export default function StripeOnboardingView() {
 
                 <header className="mb-8 text-center px-4">
                     <h1 className="text-text-main text-4xl font-black leading-tight tracking-[-0.033em] mb-2">
-                        Setup Payouts
+                        Payment Setup
                     </h1>
                     <p className="text-text-muted text-lg">
                         Connect your bank account to receive payments for your sessions

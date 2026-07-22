@@ -93,7 +93,7 @@ export function IdentityVerificationForm() {
                                 disabled={loading || !!uploadingType}
                                 className="bg-primary text-white px-8 py-3 rounded-lg font-bold hover:brightness-95 transition-all shadow-md shadow-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                                {loading ? "Saving..." : "Verify & Continue"}
+                                {loading ? "Saving..." : "Save & Continue"}
                             </button>
                         </div>
                     </div>
