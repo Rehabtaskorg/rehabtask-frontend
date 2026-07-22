@@ -10,14 +10,14 @@ import { api } from "./api";
  * @returns {Promise<string|null>}
  */
 const getRecaptchaToken = async (action) => {
-    if (typeof window === "undefined" || !window.grecaptcha) return null;
+    if (typeof window === "undefined" || !window.grecaptcha?.enterprise) return null;
 
     const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
     if (!siteKey) return null;
 
     try {
-        await new Promise((resolve) => window.grecaptcha.ready(resolve));
-        return await window.grecaptcha.execute(siteKey, { action });
+        await new Promise((resolve) => window.grecaptcha.enterprise.ready(resolve));
+        return await window.grecaptcha.enterprise.execute(siteKey, { action });
     } catch {
         return null;
     }
