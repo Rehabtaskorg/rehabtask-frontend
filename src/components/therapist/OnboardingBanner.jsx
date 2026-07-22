@@ -139,7 +139,7 @@ export default function OnboardingBanner() {
                         onClick={handleResumeSetup}
                         className="px-4 py-2 rounded-lg text-sm font-semibold bg-primary text-white hover:brightness-95 transition-all"
                     >
-                        {progress === 0 ? "Start Setup" : "Continue Setup"}
+                        {progress === 0 ? "Start Onboarding" : "Continue Onboarding"}
                     </button>
                 </div>
             </div>
