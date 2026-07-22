@@ -361,11 +361,10 @@ export function CredentialsForm() {
 
                 <header className="mb-8 px-4">
                     <h1 className="text-text-main text-[28px] font-bold leading-tight mb-2">
-                        Verify Your Professional Status
+                        Professional Credentials
                     </h1>
                     <p className="text-text-muted text-base font-normal leading-normal">
-                        To ensure patient safety, we verify all licenses with state boards. This
-                        process usually takes 24-48 hours.
+                        Add your license details. We verify your credentials to ensure patient safety.
                     </p>
                 </header>
 
@@ -703,7 +702,7 @@ export function CredentialsForm() {
                                 disabled={loading || uploading}
                                 className="bg-primary text-white px-8 py-3 rounded-lg font-bold hover:brightness-95 transition-all shadow-md shadow-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                                {loading ? "Saving..." : "Continue to Availability"}
+                                {loading ? "Saving..." : "Save & Continue"}
                             </button>
                         </div>
                     </div>
