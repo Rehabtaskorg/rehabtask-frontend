@@ -115,28 +115,18 @@ export default function NewRequestPage() {
     // localStorage — without it, reset() fires before persisted data lands,
     // leaving stale editingRequestId in the store.
     useEffect(() => {
-        console.log("[NewRequestPage] edit effect — _hasHydrated:", _hasHydrated, "editId:", editId, "editingRequestId:", editingRequestId);
-
-        if (!_hasHydrated) {
-            console.log("[NewRequestPage] not hydrated yet, waiting...");
-            return;
-        }
+        if (!_hasHydrated) return;
 
         if (!editId) {
-            console.log("[NewRequestPage] no editId — calling reset(). editingRequestId was:", editingRequestId);
             reset();
             setLoadingRequest(false);
             return;
         }
 
-        // Skip fetch if the store already has the correct edit data loaded
         if (editingRequestId === editId) {
-            console.log("[NewRequestPage] editingRequestId matches editId, skipping fetch");
             setLoadingRequest(false);
             return;
         }
-
-        console.log("[NewRequestPage] fetching request:", editId);
 
         const fetchRequest = async () => {
             try {
