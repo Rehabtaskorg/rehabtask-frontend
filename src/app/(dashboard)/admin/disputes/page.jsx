@@ -418,7 +418,7 @@ export default function AdminDisputesPage() {
             setActionSuccess('Dispute assigned successfully.');
             setSelected(prev =>
                 prev?.id === id
-                    ? { ...prev, assignedAdmin: { id: assignedAdminId, email: adminUser?.email || '' }, status: prev.status === 'open' ? 'under_review' : prev.status }
+                    ? { ...prev, assignedAdmin: { id: assignedAdminId, email: adminUser?.email || '' } }
                     : prev
             );
         } catch (e) {
