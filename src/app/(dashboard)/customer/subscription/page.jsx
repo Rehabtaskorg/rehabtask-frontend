@@ -370,7 +370,7 @@ export default function SubscriptionPage() {
                                         <button
                                             onClick={() => handlePlanAction(plan.key)}
                                             disabled={upgradingPlan !== null}
-                                            className="w-full py-2.5 rounded-lg bg-primary text-white font-medium hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20 disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                                            className="w-full py-2.5 rounded-lg bg-primary text-white font-medium hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20 disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2 whitespace-nowrap"
                                         >
                                             {upgradingPlan === plan.key ? (isPaid ? "Upgrading..." : "Redirecting...") : (
                                                 <>
@@ -383,7 +383,7 @@ export default function SubscriptionPage() {
                                         <button
                                             onClick={() => handlePlanAction(plan.key)}
                                             disabled={upgradingPlan !== null || (!!pendingDowngrade && (pendingDowngrade === plan.key || pendingDowngrade === true))}
-                                            className="w-full py-2.5 rounded-lg border border-amber-300 text-amber-600 font-medium hover:bg-amber-50 transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                                            className="w-full py-2.5 rounded-lg border border-amber-300 text-amber-600 font-medium hover:bg-amber-50 transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2 whitespace-nowrap"
                                         >
                                             {(pendingDowngrade === plan.key || (pendingDowngrade === true && plan.rank < currentPlanRank)) ? (
                                                 "Downgrade scheduled"
