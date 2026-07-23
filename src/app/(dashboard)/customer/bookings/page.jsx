@@ -2,8 +2,8 @@
 
 import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 import { MdCalendarMonth, MdAdd, MdWarning, MdChevronRight, MdCalendarToday, MdChevronLeft, MdRefresh } from "react-icons/md";
+import UserAvatar from "@/components/ui/UserAvatar";
 import { useCustomerBookings } from "@/hooks/useBookings";
 import BookingStatusBadge from "@/components/bookings/BookingStatusBadge";
 import { formatCurrency } from "@/utils/messages";
@@ -239,7 +239,6 @@ export default function CustomerBookingsPage() {
                                 <tbody>
                                     {paginated.map((booking) => {
                                         const therapist = booking.therapist;
-                                        const initial = therapist?.fullName?.charAt(0) || "?";
                                         return (
                                             <tr
                                                 key={booking.id}
@@ -248,19 +247,11 @@ export default function CustomerBookingsPage() {
                                             >
                                                 <td className="py-3.5 pr-4">
                                                     <div className="flex items-center gap-3">
-                                                        {therapist?.profilePhotoUrl ? (
-                                                            <Image
-                                                                src={therapist.profilePhotoUrl}
-                                                                alt={therapist.fullName}
-                                                                width={36}
-                                                                height={36}
-                                                                className="w-9 h-9 rounded-full object-cover shrink-0"
-                                                            />
-                                                        ) : (
-                                                            <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm shrink-0">
-                                                                {initial}
-                                                            </div>
-                                                        )}
+                                                        <UserAvatar
+                                                            name={therapist?.fullName}
+                                                            photoUrl={therapist?.profilePhotoUrl}
+                                                            size="sm"
+                                                        />
                                                         <div className="min-w-0">
                                                             <p className="text-sm font-semibold text-text-main  truncate">
                                                                 {therapist?.fullName || "Therapist"}
@@ -314,7 +305,6 @@ export default function CustomerBookingsPage() {
                         <div className="lg:hidden space-y-2 p-4">
                             {paginated.map((booking) => {
                                 const therapist = booking.therapist;
-                                const initial = therapist?.fullName?.charAt(0) || "?";
                                 return (
                                     <button
                                         key={booking.id}
@@ -322,19 +312,11 @@ export default function CustomerBookingsPage() {
                                         className="w-full text-left p-4 rounded-xl border border-border-light  bg-card-light  hover:shadow-sm transition-all"
                                     >
                                         <div className="flex items-start gap-3">
-                                            {therapist?.profilePhotoUrl ? (
-                                                <Image
-                                                    src={therapist.profilePhotoUrl}
-                                                    alt={therapist.fullName}
-                                                    width={44}
-                                                    height={44}
-                                                    className="w-11 h-11 rounded-full object-cover shrink-0"
-                                                />
-                                            ) : (
-                                                <div className="w-11 h-11 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-base shrink-0">
-                                                    {initial}
-                                                </div>
-                                            )}
+                                            <UserAvatar
+                                                name={therapist?.fullName}
+                                                photoUrl={therapist?.profilePhotoUrl}
+                                                size="md"
+                                            />
                                             <div className="flex-1 min-w-0">
                                                 <div className="flex items-start justify-between gap-2 mb-1">
                                                     <h3 className="text-sm font-bold text-text-main  truncate">

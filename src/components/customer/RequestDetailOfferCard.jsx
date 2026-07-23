@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
 import {
     MdAttachMoney, MdCalendarToday, MdVideocam, MdPersonPin, MdInfo,
@@ -35,11 +36,28 @@ const OFFER_STATUS_STYLES = {
  * @param {Function} props.onRequestChange
  * @param {Function} props.onMessage
  */
+/**
+ * @param {Object} props
+ * @param {Object} props.offer
+ * @param {Object} props.request
+ * @param {string} props.declining
+ * @param {string} props.changeOfferId
+ * @param {string} props.changeNote
+ * @param {boolean} props.changingOffer
+ * @param {Function} props.onAccept
+ * @param {Function} props.onDecline
+ * @param {Function} props.onOpenChange
+ * @param {Function} props.onCloseChange
+ * @param {Function} props.onChangeNoteUpdate
+ * @param {Function} props.onRequestChange
+ * @param {Function} props.onMessage
+ */
 export default function RequestDetailOfferCard({
     offer, request, declining, changeOfferId, changeNote,
     changingOffer, onAccept, onDecline, onOpenChange,
     onCloseChange, onChangeNoteUpdate, onRequestChange, onMessage,
 }) {
+    const [imgError, setImgError] = useState(false);
     const therapist = offer.therapist || {};
     const initial = (therapist.fullName || "T").charAt(0).toUpperCase();
     const isExpired = offer.status === "pending" && offer.expiresAt && new Date(offer.expiresAt) <= new Date();
@@ -53,12 +71,13 @@ export default function RequestDetailOfferCard({
     return (
         <div className={`bg-card-light  rounded-xl p-5 shadow-sm border border-border-light  transition-all ${isExpired ? "opacity-60 border-dashed" : "hover:shadow-md"}`}>
             <div className="flex flex-col md:flex-row md:items-start gap-4">
-                {therapist.profilePhotoUrl ? (
+                {therapist.profilePhotoUrl && !imgError ? (
                     <Image
                         src={therapist.profilePhotoUrl}
                         alt={therapist.fullName}
                         width={56}
                         height={56}
+                        onError={() => setImgError(true)}
                         className="h-14 w-14 rounded-xl object-cover shrink-0"
                     />
                 ) : (

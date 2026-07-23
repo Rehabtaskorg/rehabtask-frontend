@@ -37,6 +37,7 @@ export default function CustomerBookingDetailPage() {
     const searchParams = useSearchParams();
     const { booking, loading, error, refetch } = useBookingDetail(params.id);
 
+    const [therapistImgError, setTherapistImgError] = useState(false);
     const [confirming, setConfirming] = useState(false);
     const [showConfirmDialog, setShowConfirmDialog] = useState(false);
     const [showRevisionModal, setShowRevisionModal] = useState(false);
@@ -292,12 +293,13 @@ export default function CustomerBookingDetailPage() {
                     {/* Therapist card */}
                     <div className="bg-card-light  border border-border-light  rounded-xl p-5">
                         <div className="flex items-start gap-4">
-                            {therapist?.profilePhotoUrl ? (
+                            {therapist?.profilePhotoUrl && !therapistImgError ? (
                                 <Image
                                     src={therapist.profilePhotoUrl}
                                     alt={therapist.fullName}
                                     width={56}
                                     height={56}
+                                    onError={() => setTherapistImgError(true)}
                                     className="w-14 h-14 rounded-xl object-cover shrink-0"
                                 />
                             ) : (

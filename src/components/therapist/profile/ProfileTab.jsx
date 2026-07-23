@@ -17,7 +17,7 @@ import { LICENSE_TYPES } from "@/lib/constants/credentials";
 import { onboardingAPI } from "@/lib/onboarding.api";
 import ProfileEditModal from "./ProfileEditModal";
 import Button from "@/components/ui/Button";
-import Image from "next/image";
+import UserAvatar from "@/components/ui/UserAvatar";
 
 const StatusBadge = ({ status }) => {
     const config = {
@@ -77,15 +77,6 @@ const ProfileTab = ({ profile, approvalStatus, onboardingComplete }) => {
 
     const isCredentialsLocked = onboardingComplete && (approvalStatus === "pending" || approvalStatus === "review");
 
-    const initials = profile?.fullName
-        ? profile.fullName
-            .split(" ")
-            .map((n) => n[0])
-            .join("")
-            .toUpperCase()
-            .slice(0, 2)
-        : "?";
-
     const licenseTypeLabel =
         LICENSE_TYPES.find((lt) => lt.value === profile?.primaryLicenseType)?.label ||
         profile?.primaryLicenseType ||
@@ -133,21 +124,12 @@ const ProfileTab = ({ profile, approvalStatus, onboardingComplete }) => {
                         </div>
 
                         <div className="flex flex-col sm:flex-row items-start gap-5 mb-5">
-                            {profile?.profilePhotoUrl ? (
-                                <Image
-                                    src={profile.profilePhotoUrl}
-                                    alt={profile.fullName}
-                                    width={96}
-                                    height={96}
-                                    className="w-24 h-24 rounded-full object-cover border-2 border-border-light  shrink-0"
-                                />
-                            ) : (
-                                <div className="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center border-2 border-border-light  shrink-0">
-                                    <span className="text-primary text-2xl font-bold">
-                                        {initials}
-                                    </span>
-                                </div>
-                            )}
+                            <UserAvatar
+                                name={profile?.fullName}
+                                photoUrl={profile?.profilePhotoUrl}
+                                size="xl"
+                                className="border-2 border-border-light"
+                            />
                             <div className="flex-1 min-w-0 space-y-1">
                                 <InfoRow label="Full Name" value={profile?.fullName} />
                                 <InfoRow label="Phone" value={profile?.phone} />

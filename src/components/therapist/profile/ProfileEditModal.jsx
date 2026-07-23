@@ -65,6 +65,7 @@ const profileEditSchema = z.object({
 
 const ProfileEditModal = ({ isOpen, onClose, profile, onSuccess }) => {
     const [photoUrl, setPhotoUrl] = useState(profile?.profilePhotoUrl || null);
+    const [imgError, setImgError] = useState(false);
     const [uploading, setUploading] = useState(false);
     const [alert, setAlert] = useState(null);
     const fileInputRef = useRef(null);
@@ -109,6 +110,7 @@ const ProfileEditModal = ({ isOpen, onClose, profile, onSuccess }) => {
 
         try {
             const result = await onboardingAPI.uploadProfilePhoto(file);
+            setImgError(false);
             setPhotoUrl(result.url);
         } catch (err) {
             setAlert({
@@ -193,15 +195,15 @@ const ProfileEditModal = ({ isOpen, onClose, profile, onSuccess }) => {
                     {/* Profile Photo */}
                     <div className="flex items-center gap-4">
                         <div className="relative">
-                            {photoUrl ? (
+                            {photoUrl && !imgError ? (
                                 <Image
                                     src={photoUrl}
                                     alt="profile"
                                     width={80}
                                     height={80}
+                                    onError={() => setImgError(true)}
                                     className="w-20 h-20 rounded-full object-cover border-2 border-border-light "
                                 />
-
                             ) : (
                                 <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center border-2 border-border-light ">
                                     <span className="text-primary text-xl font-bold">
