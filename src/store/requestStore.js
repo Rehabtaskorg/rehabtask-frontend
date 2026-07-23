@@ -10,8 +10,6 @@ const useRequestStore = create(
             patientId: null,
             targetTherapistId: null,
             editingRequestId: null,
-            _hasHydrated: false,
-            setHasHydrated: (val) => set({ _hasHydrated: val }),
             step1: {
                 serviceType: "",
                 description: "",
@@ -97,9 +95,6 @@ const useRequestStore = create(
         }),
         {
             name: "new-request-form",
-            onRehydrateStorage: () => (state) => {
-                if (state) state.setHasHydrated(true);
-            },
             partialize: (state) => ({
                 currentStep: state.currentStep,
                 patientId: state.patientId,

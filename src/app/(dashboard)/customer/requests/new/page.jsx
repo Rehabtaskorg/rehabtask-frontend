@@ -29,7 +29,7 @@ export default function NewRequestPage() {
     const {
         currentStep, nextStep, prevStep, reset, getPreferredDateISO,
         step1, step2, patientId, setPatientId, setStep2, editingRequestId, setEditData,
-        targetTherapistId, setTargetTherapistId, _hasHydrated,
+        targetTherapistId, setTargetTherapistId,
     } = useRequestStore();
 
     const isEditMode = !!editId;
@@ -110,20 +110,9 @@ export default function NewRequestPage() {
             });
     }, [directTo]);
 
-    // Edit mode: fetch existing request and pre-fill store.
-    // Depends on _hasHydrated so this re-runs after Zustand rehydrates from
-    // localStorage — without it, reset() fires before persisted data lands,
-    // leaving stale editingRequestId in the store.
     useEffect(() => {
-        if (!_hasHydrated) return;
-
         if (!editId) {
-            reset();
-            setLoadingRequest(false);
-            return;
-        }
-
-        if (editingRequestId === editId) {
+            useRequestStore.getState().reset();
             setLoadingRequest(false);
             return;
         }
@@ -148,7 +137,7 @@ export default function NewRequestPage() {
         };
         fetchRequest();
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [editId, _hasHydrated]);
+    }, [editId]);
 
     const isAgency = user?.profile?.customerType === CUSTOMER_TYPES.AGENCY;
     const { data: patients } = usePatients();
