@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -69,6 +69,12 @@ const ProfileEditModal = ({ isOpen, onClose, profile, onSuccess }) => {
     const [uploading, setUploading] = useState(false);
     const [alert, setAlert] = useState(null);
     const fileInputRef = useRef(null);
+    const alertRef = useRef(null);
+
+    const showAlert = useCallback((type, message) => {
+        setAlert({ type, message });
+        setTimeout(() => alertRef.current?.scrollIntoView({ behavior: "smooth", block: "center" }), 50);
+    }, []);
 
     const updateProfile = useUpdateProfile();
 
@@ -97,11 +103,11 @@ const ProfileEditModal = ({ isOpen, onClose, profile, onSuccess }) => {
         if (!file) return;
 
         if (!file.type.startsWith("image/")) {
-            setAlert({ type: "error", message: "Please select an image file." });
+            showAlert("error", "Please select an image file.");
             return;
         }
         if (file.size > 5 * 1024 * 1024) {
-            setAlert({ type: "error", message: "Image must be less than 5MB." });
+            showAlert("error", "Image must be less than 5MB.");
             return;
         }
 
@@ -113,10 +119,7 @@ const ProfileEditModal = ({ isOpen, onClose, profile, onSuccess }) => {
             setImgError(false);
             setPhotoUrl(result.url);
         } catch (err) {
-            setAlert({
-                type: "error",
-                message: err.response?.data?.message || "Failed to upload photo.",
-            });
+            showAlert("error", err.response?.data?.message || "Failed to upload photo.");
         } finally {
             setUploading(false);
         }
@@ -133,10 +136,7 @@ const ProfileEditModal = ({ isOpen, onClose, profile, onSuccess }) => {
             onSuccess?.();
             onClose();
         } catch (err) {
-            setAlert({
-                type: "error",
-                message: err.response?.data?.message || "Failed to update profile.",
-            });
+            showAlert("error", err.response?.data?.message || "Failed to update profile.");
         }
     }
 
@@ -185,11 +185,13 @@ const ProfileEditModal = ({ isOpen, onClose, profile, onSuccess }) => {
 
                 <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-6">
                     {alert && (
-                        <Alert
-                            type={alert.type}
-                            message={alert.message}
-                            onClose={() => setAlert(null)}
-                        />
+                        <div ref={alertRef}>
+                            <Alert
+                                type={alert.type}
+                                message={alert.message}
+                                onClose={() => setAlert(null)}
+                            />
+                        </div>
                     )}
 
                     {/* Profile Photo */}
