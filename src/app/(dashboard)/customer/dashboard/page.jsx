@@ -11,7 +11,6 @@ import {
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { useSubscription } from "@/hooks/useSubscription";
 import { useRefundSummary } from "@/hooks/usePayments";
-import useRequestStore from "@/store/requestStore";
 
 const STATUS_STYLES = {
     created: 'bg-blue-100 text-blue-700  ',
@@ -32,7 +31,6 @@ const STATUS_LABELS = {
 export default function CustomerDashboard() {
     usePageTitle("Dashboard");
     const router = useRouter();
-    const resetRequestStore = useRequestStore((state) => state.reset);
     const [stats, setStats] = useState({
         activeRequests: 0,
         upcomingBookings: 0,
@@ -226,7 +224,7 @@ export default function CustomerDashboard() {
                                         <tr>
                                             <td colSpan={6} className="px-6 py-8 text-center text-slate-500 ">
                                                 No requests yet.{' '}
-                                                <button onClick={() => { resetRequestStore(); router.push('/customer/requests/new'); }} className="text-primary font-semibold hover:underline">Create your first request</button>
+                                                <button onClick={() => router.push('/customer/requests/new')} className="text-primary font-semibold hover:underline">Create your first request</button>
                                             </td>
                                         </tr>
                                     ) : recentRequests.map(req => (

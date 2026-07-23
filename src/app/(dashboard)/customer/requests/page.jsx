@@ -6,7 +6,6 @@ import { useAnalytics } from "@/hooks/useAnalytics";
 import { MdAdd, MdSchedule, MdChevronLeft, MdChevronRight } from "react-icons/md";
 import { api } from "@/lib/api";
 import { usePageTitle } from "@/hooks/usePageTitle";
-import useRequestStore from "@/store/requestStore";
 import ExpandableRequestCard from "@/components/customer/ExpandableRequestCard";
 import ConfirmModal from "@/components/ui/ConfirmModal";
 import AcceptOfferModal from "@/components/customer/AcceptOfferModal";
@@ -25,7 +24,6 @@ export default function MyRequestsPage() {
     usePageTitle("My Requests");
     const router = useRouter();
     const { trackEvent } = useAnalytics();
-    const resetRequestStore = useRequestStore((state) => state.reset);
 
     const [requests, setRequests] = useState([]);
     const [pagination, setPagination] = useState({ page: 1, totalPages: 1, total: 0 });
@@ -188,7 +186,7 @@ export default function MyRequestsPage() {
                     My Requests
                 </h2>
                 <button
-                    onClick={() => { resetRequestStore(); router.push("/customer/requests/new"); }}
+                    onClick={() => router.push("/customer/requests/new")}
                     className="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 transition-colors"
                 >
                     <MdAdd className="text-lg" />
