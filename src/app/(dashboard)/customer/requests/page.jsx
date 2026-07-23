@@ -190,7 +190,7 @@ export default function MyRequestsPage() {
                     onClick={() => {
                         useRequestStore.persist.clearStorage();
                         useRequestStore.getState().reset();
-                        router.push("/customer/requests/new");
+                        window.location.href = "/customer/requests/new";
                     }}
                     className="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 transition-colors"
                 >
@@ -248,7 +248,7 @@ export default function MyRequestsPage() {
                                 </p>
                                 {activeFilter === "all" && (
                                     <button
-                                        onClick={() => router.push("/customer/requests/new")}
+                                        onClick={() => { useRequestStore.persist.clearStorage(); useRequestStore.getState().reset(); window.location.href = "/customer/requests/new"; }}
                                         className="text-primary hover:underline text-sm font-bold"
                                     >
                                         Create Your First Request
