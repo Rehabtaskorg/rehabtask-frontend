@@ -97,6 +97,7 @@ export default function NewRequestForm({ editId, directTo }) {
     useEffect(() => {
         if (!editId) {
             reset();
+            if (directTo) setTargetTherapistId(directTo);
             setLoadingRequest(false);
             return;
         }
