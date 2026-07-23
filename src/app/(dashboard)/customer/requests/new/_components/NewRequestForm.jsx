@@ -26,6 +26,10 @@ export default function NewRequestForm({ editId, directTo }) {
     const router = useRouter();
     const { trackEvent } = useAnalytics();
 
+    if (!editId) {
+        useRequestStore.getState().reset();
+    }
+
     const {
         currentStep, nextStep, prevStep, reset, getPreferredDateISO,
         step1, step2, patientId, setPatientId, setStep2, setEditData,
