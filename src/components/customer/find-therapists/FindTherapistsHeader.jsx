@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { MdAdd } from "react-icons/md";
+import useRequestStore from "@/store/requestStore";
 import LocationAutocomplete from "@/components/maps/LocationAutocomplete";
 import LicenseTypeAutocomplete from "@/components/public/LicenseTypeAutocomplete";
 
@@ -68,7 +69,7 @@ export default function FindTherapistsHeader({
 
                     <button
                         type="button"
-                        onClick={() => router.push("/customer/requests/new")}
+                        onClick={() => { useRequestStore.persist.clearStorage(); useRequestStore.getState().reset(); router.push("/customer/requests/new"); }}
                         className="hidden lg:flex shrink-0 bg-primary hover:bg-primary/90 text-white px-4 py-2.5 rounded-lg text-sm font-bold items-center gap-2 transition-colors"
                     >
                         <MdAdd className="text-lg" />
