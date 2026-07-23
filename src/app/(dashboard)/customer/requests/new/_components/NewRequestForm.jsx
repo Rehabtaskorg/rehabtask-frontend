@@ -179,7 +179,7 @@ export default function NewRequestForm({ editId, directTo }) {
                 await api.put(`/requests/${editId}`, payload);
                 trackEvent("request_edited", { service_type: step1.serviceType });
             } else {
-                payload.patientId = isAgency && !isDirectMode ? patientId : undefined;
+                payload.patientId = isAgency ? patientId : undefined;
                 const requestType = isDirectMode && targetTherapistId ? REQUEST_TYPE.DIRECT : REQUEST_TYPE.PUBLIC;
                 if (requestType === REQUEST_TYPE.DIRECT) {
                     payload.requestType = REQUEST_TYPE.DIRECT;
