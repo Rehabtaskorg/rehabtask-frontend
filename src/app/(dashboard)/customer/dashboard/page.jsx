@@ -6,461 +6,237 @@ import Link from "next/link";
 import { api } from "@/lib/api";
 import {
     MdWarning, MdClose, MdAssignment, MdArrowForward,
-    MdEvent, MdSchedule, MdCheckCircle, MdInfo, MdStars, MdAccessTime, MdPayments,
+    MdEvent, MdSchedule, MdCheckCircle, MdPayments,
 } from "react-icons/md";
 import { usePageTitle } from "@/hooks/usePageTitle";
-import { useSubscription } from "@/hooks/useSubscription";
 import { useRefundSummary } from "@/hooks/usePayments";
-import useRequestStore from "@/store/requestStore";
+import { BOOKING_STATUS } from "@/lib/constants";
+import { SubscriptionWidget } from "@/components/customer/dashboard/SubscriptionWidget";
+import { CancelledBookingsWidget } from "@/components/customer/dashboard/CancelledBookingsWidget";
+import { RecentRequestsTable } from "@/components/customer/dashboard/RecentRequestsTable";
+import { UpcomingBookingsTable } from "@/components/customer/dashboard/UpcomingBookingsTable";
+import { PendingConfirmationsPanel } from "@/components/customer/dashboard/PendingConfirmationsPanel";
 
-const STATUS_STYLES = {
-    created: 'bg-blue-100 text-blue-700  ',
-    offers_received: 'bg-amber-100 text-amber-700  ',
-    offers_accepted: 'bg-emerald-100 text-emerald-700  ',
-    completed: 'bg-emerald-100 text-emerald-700  ',
-    cancelled: 'bg-red-100 text-red-700  ',
-};
+const UPCOMING_STATUSES = [
+    BOOKING_STATUS.ACCEPTED,
+    BOOKING_STATUS.CONFIRMED,
+    BOOKING_STATUS.IN_PROGRESS,
+];
 
-const STATUS_LABELS = {
-    created: 'Created',
-    offers_received: 'Offers Received',
-    offers_accepted: 'Accepted',
-    completed: 'Completed',
-    cancelled: 'Cancelled',
-};
+const ACTIVE_REQUEST_STATUSES = ["created", "offers_received"];
 
 export default function CustomerDashboard() {
     usePageTitle("Dashboard");
     const router = useRouter();
+
     const [stats, setStats] = useState({
         activeRequests: 0,
         upcomingBookings: 0,
-        completedSessions: 0
+        completedSessions: 0,
     });
     const [recentRequests, setRecentRequests] = useState([]);
     const [upcomingBookings, setUpcomingBookings] = useState([]);
+    const [cancelledBookings, setCancelledBookings] = useState([]);
     const [pendingConfirmations, setPendingConfirmations] = useState([]);
     const [alertDismissed, setAlertDismissed] = useState(false);
     const [refundBannerDismissed, setRefundBannerDismissed] = useState(false);
     const [loading, setLoading] = useState(true);
+
     const { data: refundSummary } = useRefundSummary();
 
-    const fetchDashboardData = async () => {
-        try {
-            const [requestRes, bookingRes] = await Promise.all([
-                api.get("/requests/my-requests"),
-                api.get('/bookings/customer'),
-            ]);
+    useEffect(() => {
+        const fetchDashboardData = async () => {
+            try {
+                const [requestRes, bookingRes] = await Promise.all([
+                    api.get("/requests/my-requests"),
+                    api.get("/bookings/customer"),
+                ]);
 
-            const requests = Array.isArray(requestRes.data.data) ? requestRes.data.data : [];
-            const bookings = Array.isArray(bookingRes.data.data) ? bookingRes.data.data : [];
+                const requests = Array.isArray(requestRes.data.data) ? requestRes.data.data : [];
+                const bookings = Array.isArray(bookingRes.data.data) ? bookingRes.data.data : [];
 
-            const upcomingStatuses = ["accepted", "confirmed", "in_progress"];
-
-            setRecentRequests(requests.slice(0, 3));
-            setUpcomingBookings(bookings.filter(b => upcomingStatuses.includes(b.status)).slice(0, 3));
-            const pendingSessions = [];
-            for (const b of bookings) {
-                const totalSessions = b.sessions?.length || 1;
-                for (const s of (b.sessions || [])) {
-                    if (s.status === "completed_by_therapist") {
-                        pendingSessions.push({
-                            sessionId: s.id,
-                            sessionNumber: s.sessionNumber,
-                            totalSessions,
-                            completedAt: s.completedAt || s.updatedAt,
-                            bookingId: b.id,
-                            therapistName: b.therapist?.fullName || "Therapist",
-                            serviceType: b.offer?.request?.serviceType || b.serviceType || "Session",
-                            scheduledDate: b.scheduledDate,
-                        });
+                const pendingSessions = [];
+                for (const booking of bookings) {
+                    const totalSessions = booking.sessions?.length || 1;
+                    for (const session of booking.sessions || []) {
+                        if (session.status === "completed_by_therapist") {
+                            pendingSessions.push({
+                                sessionId: session.id,
+                                sessionNumber: session.sessionNumber,
+                                totalSessions,
+                                completedAt: session.completedAt || session.updatedAt,
+                                bookingId: booking.id,
+                                therapistName: booking.therapist?.fullName || "Therapist",
+                                serviceType: booking.offer?.request?.serviceType || booking.serviceType || "Session",
+                                scheduledDate: booking.scheduledDate,
+                            });
+                        }
                     }
                 }
+
+                setRecentRequests(requests.slice(0, 3));
+                setUpcomingBookings(
+                    bookings.filter((b) => UPCOMING_STATUSES.includes(b.status)).slice(0, 3)
+                );
+                setCancelledBookings(
+                    bookings.filter((b) => b.status === BOOKING_STATUS.CANCELLED).slice(0, 3)
+                );
+                setPendingConfirmations(pendingSessions);
+
+                setStats({
+                    activeRequests: requests.filter((r) => ACTIVE_REQUEST_STATUSES.includes(r.status)).length,
+                    upcomingBookings: bookings.filter((b) => UPCOMING_STATUSES.includes(b.status)).length,
+                    completedSessions: bookings.filter((b) => b.status === BOOKING_STATUS.COMPLETED).length,
+                });
+            } finally {
+                setLoading(false);
             }
-            setPendingConfirmations(pendingSessions);
+        };
 
-            setStats({
-                activeRequests: requests.filter(r => ["created", "offers_received"].includes(r.status)).length,
-                upcomingBookings: bookings.filter(b => upcomingStatuses.includes(b.status)).length,
-                completedSessions: bookings.filter(b => b.status === "completed").length,
-            });
-        } catch (error) {
-            console.error("Error fetching dashboard data:", error);
-        } finally {
-            setLoading(false);
-        }
-    }
-
-    useEffect(() => { fetchDashboardData(); }, []);
+        fetchDashboardData();
+    }, []);
 
     if (loading) {
         return (
             <div className="p-4 sm:p-8">
                 <div className="animate-pulse space-y-6 max-w-6xl mx-auto">
-                    <div className="h-16 bg-slate-200  rounded-xl"></div>
+                    <div className="h-16 bg-slate-200 rounded-xl" />
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                        {[1, 2, 3, 4].map(i => <div key={i} className="h-28 bg-slate-200  rounded-xl"></div>)}
+                        {[1, 2, 3, 4].map((i) => (
+                            <div key={i} className="h-28 bg-slate-200 rounded-xl" />
+                        ))}
                     </div>
-                    <div className="h-64 bg-slate-200  rounded-xl"></div>
+                    <div className="h-64 bg-slate-200 rounded-xl" />
                 </div>
             </div>
         );
     }
 
-    const nowMs = new Date().getTime();
+    const nowMs = Date.now();
 
     return (
         <div className="p-4 md:p-6">
             <div className="max-w-7xl mx-auto space-y-6">
 
-            {/* Alert Banner */}
-            {!alertDismissed && pendingConfirmations.length > 0 && (
-                <div className="flex items-center justify-between p-4 border border-amber-200 bg-amber-50  rounded-xl">
-                    <div className="flex items-center gap-3">
-                        <MdWarning className="text-amber-600 text-xl shrink-0" />
-                        <div className="text-sm">
-                            <span className="font-bold text-amber-900 ">Sessions Awaiting Your Confirmation.</span>
-                            <span className="text-amber-700  ml-1">You have sessions that will automatically release payment in 2 days.</span>
+                {!alertDismissed && pendingConfirmations.length > 0 && (
+                    <div className="flex items-center justify-between p-4 border border-amber-200 bg-amber-50 rounded-xl">
+                        <div className="flex items-center gap-3">
+                            <MdWarning className="text-amber-600 text-xl shrink-0" />
+                            <div className="text-sm">
+                                <span className="font-bold text-amber-900">Sessions Awaiting Your Confirmation.</span>
+                                <span className="text-amber-700 ml-1">You have sessions that will automatically release payment in 2 days.</span>
+                            </div>
                         </div>
-                    </div>
-                    <button onClick={() => setAlertDismissed(true)} className="text-amber-600 hover:text-amber-700 p-1 rounded">
-                        <MdClose className="text-lg" />
-                    </button>
-                </div>
-            )}
-
-            {/* Pending Refund Banner */}
-            {!refundBannerDismissed && refundSummary?.pendingRefundAmount > 0 && (
-                <div className="flex items-center justify-between p-4 border border-primary/30 bg-primary/5  rounded-xl">
-                    <div className="flex items-center gap-3">
-                        <MdPayments className="text-primary text-xl shrink-0" />
-                        <div className="text-sm">
-                            <span className="font-bold text-text-main ">
-                                You have ${parseFloat(refundSummary.pendingRefundAmount).toFixed(2)} in pending credits.
-                            </span>
-                            <span className="text-text-muted  ml-1">
-                                Set up your payout account to receive them.
-                            </span>
-                        </div>
-                    </div>
-                    <div className="flex items-center gap-2 shrink-0">
-                        <Link href="/customer/payments" className="text-primary text-sm font-bold hover:underline">
-                            View
-                        </Link>
-                        <button onClick={() => setRefundBannerDismissed(true)} className="text-text-muted hover:text-text-main  p-1 rounded">
+                        <button
+                            onClick={() => setAlertDismissed(true)}
+                            className="text-amber-600 hover:text-amber-700 p-1 rounded"
+                            aria-label="Dismiss alert"
+                        >
                             <MdClose className="text-lg" />
                         </button>
                     </div>
-                </div>
-            )}
+                )}
 
-            {/* Stats Grid */}
-            <div className="grid grid-cols-2 xl:grid-cols-4 gap-3 md:gap-4">
-                <button onClick={() => router.push('/customer/requests')} className="bg-card-light  border border-border-light  rounded-xl p-5 hover:shadow-md hover:border-primary/30 transition-all text-left">
-                    <div className="flex items-start justify-between mb-3">
-                        <div className="p-2.5 rounded-xl bg-amber-500">
-                            <MdAssignment className="text-xl text-white" />
-                        </div>
-                        <MdArrowForward className="text-slate-300  text-lg mt-0.5" />
-                    </div>
-                    <p className="text-2xl font-bold text-text-main ">{stats.activeRequests}</p>
-                    <p className="text-sm text-text-muted  mt-0.5">Open Requests</p>
-                </button>
-                <button onClick={() => router.push('/customer/bookings')} className="bg-card-light  border border-border-light  rounded-xl p-5 hover:shadow-md hover:border-primary/30 transition-all text-left">
-                    <div className="flex items-start justify-between mb-3">
-                        <div className="p-2.5 rounded-xl bg-blue-500">
-                            <MdEvent className="text-xl text-white" />
-                        </div>
-                        <MdArrowForward className="text-slate-300  text-lg mt-0.5" />
-                    </div>
-                    <p className="text-2xl font-bold text-text-main ">{stats.upcomingBookings}</p>
-                    <p className="text-sm text-text-muted  mt-0.5">Upcoming Sessions</p>
-                </button>
-                <button onClick={() => router.push('/customer/bookings')} className="bg-card-light  border border-border-light  rounded-xl p-5 hover:shadow-md hover:border-primary/30 transition-all text-left">
-                    <div className="flex items-start justify-between mb-3">
-                        <div className="p-2.5 rounded-xl bg-orange-500">
-                            <MdSchedule className="text-xl text-white" />
-                        </div>
-                        <MdArrowForward className="text-slate-300  text-lg mt-0.5" />
-                    </div>
-                    <p className="text-2xl font-bold text-text-main ">{pendingConfirmations.length}</p>
-                    <p className="text-sm text-text-muted  mt-0.5">Pending Confirmations</p>
-                </button>
-                <button onClick={() => router.push('/customer/bookings')} className="bg-card-light  border border-border-light  rounded-xl p-5 hover:shadow-md hover:border-primary/30 transition-all text-left">
-                    <div className="flex items-start justify-between mb-3">
-                        <div className="p-2.5 rounded-xl bg-emerald-500">
-                            <MdCheckCircle className="text-xl text-white" />
-                        </div>
-                        <MdArrowForward className="text-slate-300  text-lg mt-0.5" />
-                    </div>
-                    <p className="text-2xl font-bold text-text-main ">{stats.completedSessions}</p>
-                    <p className="text-sm text-text-muted  mt-0.5">Total Completed</p>
-                </button>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* Left 2/3 */}
-                <div className="lg:col-span-2 space-y-6">
-
-                    {/* Recent Requests Table */}
-                    <div className="bg-white  border border-slate-200  rounded-xl shadow-sm overflow-hidden">
-                        <div className="p-6 border-b border-slate-200  flex items-center justify-between">
-                            <h4 className="font-bold text-lg text-slate-900 ">Recent Requests</h4>
-                            <Link href="/customer/requests" className="text-sm font-semibold text-primary hover:underline">View All</Link>
-                        </div>
-                        <div className="overflow-x-auto">
-                            <table className="w-full text-sm text-left">
-                                <thead className="bg-primary/5 text-slate-500 font-medium">
-                                    <tr>
-                                        <th className="px-6 py-4">Service Type</th>
-                                        <th className="px-6 py-4">Location</th>
-                                        <th className="px-6 py-4">Preferred Date</th>
-                                        <th className="px-6 py-4">Status</th>
-                                        <th className="px-6 py-4">Offers</th>
-                                        <th className="px-6 py-4">Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-slate-100 ">
-                                    {recentRequests.length === 0 ? (
-                                        <tr>
-                                            <td colSpan={6} className="px-6 py-8 text-center text-slate-500 ">
-                                                No requests yet.{' '}
-                                                <button onClick={() => { useRequestStore.persist.clearStorage(); useRequestStore.getState().reset(); window.location.href = '/customer/requests/new'; }} className="text-primary font-semibold hover:underline">Create your first request</button>
-                                            </td>
-                                        </tr>
-                                    ) : recentRequests.map(req => (
-                                        <tr key={req.id} className="hover:bg-primary/5  transition-colors">
-                                            <td className="px-6 py-4 font-semibold text-slate-900 ">{req.serviceType}</td>
-                                            <td className="px-6 py-4 text-slate-700 ">{req.location}</td>
-                                            <td className="px-6 py-4 text-slate-700 ">
-                                                {req.preferredDate ? new Date(req.preferredDate).toLocaleDateString() : '—'}
-                                            </td>
-                                            <td className="px-6 py-4">
-                                                <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase ${STATUS_STYLES[req.status] || 'bg-slate-100 text-slate-600'}`}>
-                                                    {STATUS_LABELS[req.status] || req.status}
-                                                </span>
-                                            </td>
-                                            <td className="px-6 py-4 text-slate-700 ">{req.offers?.length || 0}</td>
-                                            <td className="px-6 py-4">
-                                                <button onClick={() => router.push(`/customer/requests/${req.id}`)} className="text-primary font-bold hover:underline cursor-pointer">View</button>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    {/* Upcoming Bookings Table */}
-                    <div className="bg-white  border border-slate-200  rounded-xl shadow-sm overflow-hidden">
-                        <div className="p-6 border-b border-slate-200  flex items-center justify-between">
-                            <h4 className="font-bold text-lg text-slate-900 ">Upcoming Bookings</h4>
-                            <Link href="/customer/bookings" className="text-sm font-semibold text-primary hover:underline">View All</Link>
-                        </div>
-                        <div className="overflow-x-auto">
-                            <table className="w-full text-sm text-left">
-                                <thead className="bg-primary/5 text-slate-500 font-medium">
-                                    <tr>
-                                        <th className="px-6 py-4">Therapist</th>
-                                        <th className="px-6 py-4">Patient</th>
-                                        <th className="px-6 py-4">Service Type</th>
-                                        <th className="px-6 py-4">Date &amp; Time</th>
-                                        <th className="px-6 py-4">Status</th>
-                                        <th className="px-6 py-4">Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-slate-100 ">
-                                    {upcomingBookings.length === 0 ? (
-                                        <tr>
-                                            <td colSpan={6} className="px-6 py-8 text-center text-slate-500 ">No upcoming bookings</td>
-                                        </tr>
-                                    ) : upcomingBookings.map(booking => (
-                                        <tr key={booking.id} className="hover:bg-primary/5  transition-colors">
-                                            <td className="px-6 py-4 font-semibold text-slate-900 ">{booking.therapist?.fullName || '—'}</td>
-                                            <td className="px-6 py-4 text-slate-700 ">{booking.patient?.fullName || 'Self'}</td>
-                                            <td className="px-6 py-4 text-slate-700 ">{booking.offer?.request?.serviceType || booking.serviceType || '—'}</td>
-                                            <td className="px-6 py-4 text-slate-700 ">
-                                                {booking.scheduledDate ? new Date(booking.scheduledDate).toLocaleDateString() : '—'}
-                                            </td>
-                                            <td className="px-6 py-4">
-                                                <span className="px-2 py-1 rounded bg-blue-100 text-blue-700   text-[10px] font-bold uppercase">Confirmed</span>
-                                            </td>
-                                            <td className="px-6 py-4">
-                                                <button onClick={() => router.push(`/customer/bookings/${booking.id}`)} className="text-primary font-bold hover:underline cursor-pointer">View Booking</button>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Right 1/3 */}
-                <div className="lg:col-span-1 space-y-6">
-                    {/* Pending Session Confirmations */}
-                    <div className="bg-white  border border-amber-500/30 rounded-xl shadow-sm overflow-hidden">
-                        <div className="p-5 bg-amber-50  border-b border-amber-500/30">
-                            <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-2">
-                                    <MdWarning className="text-amber-600 text-lg" />
-                                    <h4 className="font-bold text-amber-900  uppercase tracking-wider text-xs">Pending Confirmation</h4>
-                                </div>
-                                {pendingConfirmations.length > 0 && (
-                                    <span className="text-[10px] font-bold bg-amber-600 text-white px-2 py-0.5 rounded-full">
-                                        {pendingConfirmations.length}
-                                    </span>
-                                )}
+                {!refundBannerDismissed && refundSummary?.pendingRefundAmount > 0 && (
+                    <div className="flex items-center justify-between p-4 border border-primary/30 bg-primary/5 rounded-xl">
+                        <div className="flex items-center gap-3">
+                            <MdPayments className="text-primary text-xl shrink-0" />
+                            <div className="text-sm">
+                                <span className="font-bold text-text-main">
+                                    You have ${parseFloat(refundSummary.pendingRefundAmount).toFixed(2)} in pending credits.
+                                </span>
+                                <span className="text-text-muted ml-1">Set up your payout account to receive them.</span>
                             </div>
                         </div>
-                        <div className="p-4">
-                            {pendingConfirmations.length === 0 ? (
-                                <p className="text-sm text-slate-500  text-center py-4">No sessions pending confirmation</p>
-                            ) : (
-                                <div className="space-y-3">
-                                    {pendingConfirmations.slice(0, 5).map((item) => {
-                                        const hoursAgo = item.completedAt
-                                            ? Math.floor((nowMs - new Date(item.completedAt).getTime()) / (1000 * 60 * 60))
-                                            : null;
-                                        const hoursLeft = hoursAgo !== null ? Math.max(0, 72 - hoursAgo) : null;
-
-                                        return (
-                                            <button
-                                                key={item.sessionId}
-                                                onClick={() => router.push(`/customer/bookings/${item.bookingId}`)}
-                                                className="w-full p-3 rounded-xl border border-slate-200  hover:border-amber-400  hover:bg-amber-50/50  transition-all text-left"
-                                            >
-                                                <div className="flex items-start justify-between gap-2 mb-1">
-                                                    <p className="font-bold text-sm text-slate-900  truncate">{item.therapistName}</p>
-                                                    {hoursLeft !== null && (
-                                                        <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded shrink-0 ${
-                                                            hoursLeft <= 24
-                                                                ? "bg-red-100  text-red-600 "
-                                                                : "bg-amber-100  text-amber-600 "
-                                                        }`}>
-                                                            {hoursLeft}h left
-                                                        </span>
-                                                    )}
-                                                </div>
-                                                <p className="text-xs text-slate-500 ">
-                                                    {item.totalSessions > 1
-                                                        ? `Visit ${item.sessionNumber} of ${item.totalSessions} • `
-                                                        : ""}
-                                                    {item.serviceType}
-                                                </p>
-                                            </button>
-                                        );
-                                    })}
-                                    {pendingConfirmations.length > 5 && (
-                                        <Link
-                                            href="/customer/bookings"
-                                            className="block text-center text-xs font-semibold text-primary hover:underline py-2"
-                                        >
-                                            View all {pendingConfirmations.length} pending sessions
-                                        </Link>
-                                    )}
-                                </div>
-                            )}
-                            <div className="mt-3 bg-slate-50  p-3 rounded-xl flex items-start gap-2">
-                                <MdInfo className="text-slate-400 text-sm shrink-0 mt-0.5" />
-                                <p className="text-[11px] text-slate-500 leading-relaxed">
-                                    Sessions auto-confirm after 72 hours and payment is released to the therapist.
-                                </p>
-                            </div>
+                        <div className="flex items-center gap-2 shrink-0">
+                            <Link href="/customer/payments" className="text-primary text-sm font-bold hover:underline">
+                                View
+                            </Link>
+                            <button
+                                onClick={() => setRefundBannerDismissed(true)}
+                                className="text-text-muted hover:text-text-main p-1 rounded"
+                                aria-label="Dismiss refund banner"
+                            >
+                                <MdClose className="text-lg" />
+                            </button>
                         </div>
                     </div>
+                )}
 
-                    {/* Subscription Status */}
-                    <SubscriptionWidget />
+                <div className="grid grid-cols-2 xl:grid-cols-4 gap-3 md:gap-4">
+                    <StatCard
+                        icon={<MdAssignment className="text-xl text-white" />}
+                        iconBg="bg-amber-500"
+                        value={stats.activeRequests}
+                        label="Open Requests"
+                        onClick={() => router.push("/customer/requests")}
+                    />
+                    <StatCard
+                        icon={<MdEvent className="text-xl text-white" />}
+                        iconBg="bg-blue-500"
+                        value={stats.upcomingBookings}
+                        label="Upcoming Sessions"
+                        onClick={() => router.push("/customer/bookings")}
+                    />
+                    <StatCard
+                        icon={<MdSchedule className="text-xl text-white" />}
+                        iconBg="bg-orange-500"
+                        value={pendingConfirmations.length}
+                        label="Pending Confirmations"
+                        onClick={() => router.push("/customer/bookings")}
+                    />
+                    <StatCard
+                        icon={<MdCheckCircle className="text-xl text-white" />}
+                        iconBg="bg-emerald-500"
+                        value={stats.completedSessions}
+                        label="Total Completed"
+                        onClick={() => router.push("/customer/bookings")}
+                    />
                 </div>
-            </div>
-            </div>
-        </div>
-    )
 
-}
-
-function SubscriptionWidget() {
-    const { subscription } = useSubscription();
-    const router = useRouter();
-    const status = subscription?.status;
-    const plan = subscription?.planType || "free";
-    const isTrial = status === "trialing";
-    const isGrace = status === "grace_period";
-    const isFree = plan === "free" && !isTrial;
-
-    const trialDays = isTrial && subscription?.trialEndsAt
-        ? Math.max(0, Math.ceil((new Date(subscription.trialEndsAt) - new Date()) / (1000 * 60 * 60 * 24)))
-        : 0;
-
-    if (isTrial) {
-        return (
-            <div className="bg-primary p-6 rounded-xl text-white relative overflow-hidden">
-                <div className="relative z-10 space-y-3">
-                    <div className="flex items-center gap-2">
-                        <MdAccessTime className="text-xl" />
-                        <h5 className="font-bold text-lg">Free Trial — {trialDays} day{trialDays !== 1 ? "s" : ""} left</h5>
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div className="lg:col-span-2 space-y-6">
+                        <RecentRequestsTable
+                            requests={recentRequests}
+                            onViewRequest={(id) => router.push(`/customer/requests/${id}`)}
+                        />
+                        <UpcomingBookingsTable
+                            bookings={upcomingBookings}
+                            onViewBooking={(id) => router.push(`/customer/bookings/${id}`)}
+                        />
+                        <CancelledBookingsWidget cancelledBookings={cancelledBookings} />
                     </div>
-                    <p className="text-white/70 text-sm">Upgrade before your trial ends to keep your Pro plan features.</p>
-                    <button onClick={() => router.push("/customer/subscription")} className="bg-white text-primary font-bold px-4 py-2 rounded-lg text-sm hover:bg-white/90 transition-colors">
-                        View Plans
-                    </button>
-                </div>
-                <div className="absolute -bottom-8 -right-8 size-32 bg-white/10 rounded-full pointer-events-none" />
-            </div>
-        );
-    }
 
-    if (isGrace) {
-        return (
-            <div className="bg-amber-500 p-6 rounded-xl text-white relative overflow-hidden">
-                <div className="relative z-10 space-y-3">
-                    <div className="flex items-center gap-2">
-                        <MdWarning className="text-xl" />
-                        <h5 className="font-bold text-lg">Payment Overdue</h5>
+                    <div className="lg:col-span-1 space-y-6">
+                        <PendingConfirmationsPanel
+                            pendingConfirmations={pendingConfirmations}
+                            nowMs={nowMs}
+                            onViewBooking={(id) => router.push(`/customer/bookings/${id}`)}
+                        />
+                        <SubscriptionWidget />
                     </div>
-                    <p className="text-white/80 text-sm">Update your payment method to avoid being downgraded to Free.</p>
-                    <button onClick={() => router.push("/customer/subscription")} className="bg-white text-amber-600 font-bold px-4 py-2 rounded-lg text-sm hover:bg-white/90 transition-colors">
-                        Update Payment
-                    </button>
                 </div>
             </div>
-        );
-    }
-
-    if (isFree) {
-        return (
-            <div className="bg-primary p-6 rounded-xl text-white relative overflow-hidden">
-                <div className="relative z-10 space-y-3">
-                    <div className="flex items-center gap-2">
-                        <MdStars className="text-xl" />
-                        <h5 className="font-bold text-lg">Free Plan</h5>
-                    </div>
-                    <p className="text-white/70 text-sm">Upgrade to unlock more visits, job postings, and priority matching.</p>
-                    <button onClick={() => router.push("/customer/subscription")} className="bg-white text-primary font-bold px-4 py-2 rounded-lg text-sm hover:bg-white/90 transition-colors">
-                        Upgrade Plan
-                    </button>
-                </div>
-                <div className="absolute -bottom-8 -right-8 size-32 bg-white/10 rounded-full pointer-events-none" />
-            </div>
-        );
-    }
-
-    // Active paid plan — show current plan info
-    return (
-        <div className="bg-primary p-6 rounded-xl text-white relative overflow-hidden">
-            <div className="relative z-10 space-y-3">
-                <div className="flex items-center gap-2">
-                    <MdStars className="text-xl" />
-                    <h5 className="font-bold text-lg">{plan.charAt(0).toUpperCase() + plan.slice(1)} Plan</h5>
-                    <span className="px-2 py-0.5 text-xs font-semibold rounded-full bg-white/20">Active</span>
-                </div>
-                <p className="text-white/70 text-sm">Your subscription is active. Manage your plan and billing settings.</p>
-                <button onClick={() => router.push("/customer/subscription")} className="bg-white text-primary font-bold px-4 py-2 rounded-lg text-sm hover:bg-white/90 transition-colors">
-                    Manage Subscription
-                </button>
-            </div>
-            <div className="absolute -bottom-8 -right-8 size-32 bg-white/10 rounded-full pointer-events-none" />
         </div>
     );
 }
+
+/**
+ * @param {{ icon: React.ReactNode, iconBg: string, value: number, label: string, onClick: () => void }} props
+ */
+function StatCard({ icon, iconBg, value, label, onClick }) {
+    return (
+        <button
+            onClick={onClick}
+            className="bg-card-light border border-border-light rounded-xl p-5 hover:shadow-md hover:border-primary/30 transition-all text-left"
+        >
+            <div className="flex items-start justify-between mb-3">
+                <div className={`p-2.5 rounded-xl ${iconBg}`}>{icon}</div>
+                <MdArrowForward className="text-slate-300 text-lg mt-0.5" />
+            </div>
+            <p className="text-2xl font-bold text-text-main">{value}</p>
+            <p className="text-sm text-text-muted mt-0.5">{label}</p>
+        </button>
+    );
+}
+
