@@ -18,15 +18,23 @@ const formatDate = (dateStr) => {
 };
 
 /**
- * Renders the Recent Cancellations section on the customer dashboard.
- * Only mounts when the customer has at least one cancelled booking.
- * Shows up to 3 rows; links to /customer/bookings for the full list.
+ * Renders the Recent Cancellations section on a dashboard.
+ * Only mounts when there is at least one cancelled booking.
+ * Shows up to 3 rows; "View All" links to the role-appropriate bookings page.
  *
- * @param {{ cancelledBookings: Array<object> }} props
+ * @param {{
+ *   cancelledBookings: Array<object>,
+ *   partyLabel?: string,
+ *   bookingsHref?: string,
+ *   onViewBooking: (id: string) => void,
+ * }} props
  */
-export function CancelledBookingsWidget({ cancelledBookings }) {
-    const router = useRouter();
-
+export function CancelledBookingsWidget({
+    cancelledBookings,
+    partyLabel = "Therapist",
+    bookingsHref = "/customer/bookings",
+    onViewBooking,
+}) {
     if (!cancelledBookings.length) return null;
 
     return (
@@ -36,7 +44,7 @@ export function CancelledBookingsWidget({ cancelledBookings }) {
                     <MdCancel className="text-red-500 text-xl" />
                     <h4 className="font-bold text-lg text-slate-900">Recent Cancellations</h4>
                 </div>
-                <Link href="/customer/bookings" className="text-sm font-semibold text-primary hover:underline">
+                <Link href={bookingsHref} className="text-sm font-semibold text-primary hover:underline">
                     View All
                 </Link>
             </div>
@@ -44,7 +52,7 @@ export function CancelledBookingsWidget({ cancelledBookings }) {
                 <table className="w-full text-sm text-left">
                     <thead className="bg-red-50 text-slate-500 font-medium">
                         <tr>
-                            <th className="px-6 py-4">Therapist</th>
+                            <th className="px-6 py-4">{partyLabel}</th>
                             <th className="px-6 py-4">Service</th>
                             <th className="px-6 py-4">Cancelled On</th>
                             <th className="px-6 py-4">Action</th>
@@ -54,7 +62,9 @@ export function CancelledBookingsWidget({ cancelledBookings }) {
                         {cancelledBookings.map((booking) => (
                             <tr key={booking.id} className="hover:bg-red-50/40 transition-colors">
                                 <td className="px-6 py-4 font-semibold text-slate-900">
-                                    {booking.therapist?.fullName || "—"}
+                                    {partyLabel === "Customer"
+                                        ? (booking.customer?.fullName || booking.customer?.agencyName || "—")
+                                        : (booking.therapist?.fullName || "—")}
                                 </td>
                                 <td className="px-6 py-4 text-slate-700">
                                     {booking.offer?.request?.serviceType || booking.serviceType || "—"}
@@ -64,7 +74,7 @@ export function CancelledBookingsWidget({ cancelledBookings }) {
                                 </td>
                                 <td className="px-6 py-4">
                                     <button
-                                        onClick={() => router.push(`/customer/bookings/${booking.id}`)}
+                                        onClick={() => onViewBooking(booking.id)}
                                         className="text-primary font-bold hover:underline cursor-pointer"
                                     >
                                         View

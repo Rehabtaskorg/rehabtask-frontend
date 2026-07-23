@@ -204,7 +204,12 @@ export default function CustomerDashboard() {
                             bookings={upcomingBookings}
                             onViewBooking={(id) => router.push(`/customer/bookings/${id}`)}
                         />
-                        <CancelledBookingsWidget cancelledBookings={cancelledBookings} />
+                        <CancelledBookingsWidget
+                            cancelledBookings={cancelledBookings}
+                            partyLabel="Therapist"
+                            bookingsHref="/customer/bookings"
+                            onViewBooking={(id) => router.push(`/customer/bookings/${id}`)}
+                        />
                     </div>
 
                     <div className="lg:col-span-1 space-y-6">
