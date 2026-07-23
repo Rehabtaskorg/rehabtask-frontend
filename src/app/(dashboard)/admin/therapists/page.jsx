@@ -16,6 +16,7 @@ import {
     useRejectTherapist,
 } from '@/hooks/useAdmin';
 import ConfirmModal from '@/components/ui/ConfirmModal';
+import UserAvatar from '@/components/ui/UserAvatar';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -110,9 +111,11 @@ function TherapistSidePanel({ therapist, onClose, onApprove, onReject, loading, 
             <div className="flex-1 overflow-y-auto panel-scroll p-5 space-y-5">
                 {/* Identity */}
                 <div className="flex items-center gap-3">
-                    <div className="h-12 w-12 rounded-full bg-primary/10  flex items-center justify-center text-base font-bold text-primary shrink-0">
-                        {therapist.therapistProfile?.fullName?.charAt(0)?.toUpperCase() || 'T'}
-                    </div>
+                    <UserAvatar
+                        name={therapist.therapistProfile?.fullName}
+                        photoUrl={therapist.therapistProfile?.profilePhotoUrl}
+                        size="md"
+                    />
                     <div className="min-w-0">
                         <p className="font-semibold text-text-main  truncate">{therapist.therapistProfile?.fullName}</p>
                         <p className="text-sm text-text-muted  truncate">{therapist.email}</p>

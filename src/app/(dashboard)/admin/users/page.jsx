@@ -12,6 +12,7 @@ import {
     useDeactivateUser,
     useReactivateUser,
 } from '@/hooks/useAdmin';
+import UserAvatar from '@/components/ui/UserAvatar';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -23,10 +24,6 @@ const getDisplayName = (user) =>
     user.therapistProfile?.fullName ||
     user.email.split('@')[0];
 
-const getInitials = (user) => {
-    const name = user.customerProfile?.fullName || user.therapistProfile?.fullName || user.email;
-    return name.split(/\s+/).map(w => w[0]).join('').toUpperCase().slice(0, 2);
-};
 
 const ROLE_STYLES = {
     admin: 'bg-purple-100 text-purple-700  ',
@@ -45,7 +42,6 @@ function UserSidePanel({ user, onClose, onDeactivate, onReactivate, mutating }) 
     const [confirmDeactivate, setConfirmDeactivate] = useState(false);
     const [confirmReactivate, setConfirmReactivate] = useState(false);
     const displayName = getDisplayName(user);
-    const initials = getInitials(user);
 
     return (
         <div className="flex flex-col h-full">
@@ -64,9 +60,11 @@ function UserSidePanel({ user, onClose, onDeactivate, onReactivate, mutating }) 
             <div className="flex-1 overflow-y-auto panel-scroll p-5 space-y-5">
                 {/* Avatar + identity */}
                 <div className="flex items-center gap-3">
-                    <div className="h-12 w-12 rounded-full bg-primary/10  flex items-center justify-center text-base font-bold text-primary shrink-0">
-                        {initials}
-                    </div>
+                    <UserAvatar
+                        name={displayName}
+                        photoUrl={user.therapistProfile?.profilePhotoUrl}
+                        size="md"
+                    />
                     <div className="min-w-0">
                         <p className="font-semibold text-text-main  truncate">{displayName}</p>
                         <p className="text-sm text-text-muted  truncate">{user.email}</p>
@@ -390,9 +388,11 @@ export default function AdminUsersPage() {
                                             >
                                                 <td className="px-5 py-3.5">
                                                     <div className="flex items-center gap-3">
-                                                        <div className="h-9 w-9 rounded-full bg-primary/10  flex items-center justify-center text-xs font-bold text-primary shrink-0">
-                                                            {getInitials(user)}
-                                                        </div>
+                                                        <UserAvatar
+                                                            name={getDisplayName(user)}
+                                                            photoUrl={user.therapistProfile?.profilePhotoUrl}
+                                                            size="sm"
+                                                        />
                                                         <span className="font-medium text-text-main ">
                                                             {getDisplayName(user)}
                                                         </span>
