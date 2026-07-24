@@ -1,4 +1,4 @@
-import { api } from "./api";
+import { api } from "@/lib/api";
 
 // User facing notifications
 export const notificationsApi = {

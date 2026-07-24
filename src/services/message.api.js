@@ -1,4 +1,4 @@
-import { api } from "./api.js"
+import { api } from "@/lib/api"
 
 /**
  * Centralized messaging API calls — Phase 3: conversationId-based endpoints
