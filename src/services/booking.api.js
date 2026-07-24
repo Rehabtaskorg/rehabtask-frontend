@@ -1,4 +1,4 @@
-import { api } from "./api.js";
+import { api } from "@/lib/api";
 
 export const bookingsApi = {
     // Booking endpoints

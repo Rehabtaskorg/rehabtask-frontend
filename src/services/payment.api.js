@@ -1,4 +1,4 @@
-import { api } from "./api";
+import { api } from "@/lib/api";
 
 /**
  * API methods for payments, saved cards, customer Connect, and refunds.
