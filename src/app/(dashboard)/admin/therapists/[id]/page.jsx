@@ -14,7 +14,7 @@ import {
     useApproveTherapist,
     useRejectTherapist,
 } from '@/hooks/useAdmin';
-import { adminTherapistsApi } from '@/lib/admin';
+import { adminTherapistsApi } from '@/services/admin.api';
 
 const fmtDate = (d) =>
     d ? new Date(d).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : '—';

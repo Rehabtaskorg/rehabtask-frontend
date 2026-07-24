@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import useRequestStore from "@/store/requestStore";
+import useRequestStore from "@/stores/requestStore";
 
 const REQUEST_STATUS_STYLES = {
     created: "bg-blue-100 text-blue-700",

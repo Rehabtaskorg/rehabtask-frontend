@@ -1,6 +1,6 @@
 "use client";
 
-import useRequestStore from "@/store/requestStore";
+import useRequestStore from "@/stores/requestStore";
 import { useRequestOptions } from "@/hooks/useRequestOptions";
 import { useVisitTypes } from "@/hooks/useVisitTypes";
 import { localDateStr } from "@/utils/dates";

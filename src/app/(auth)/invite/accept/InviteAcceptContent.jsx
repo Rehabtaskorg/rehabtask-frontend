@@ -11,7 +11,7 @@ import {
     signOut,
 } from "firebase/auth";
 import { getFirebaseAuth } from "@/lib/firebase";
-import { authAPi } from "@/lib/auth.api";
+import { authAPi } from "@/services/auth.api";
 import PasswordInput from "@/components/ui/PasswordInput";
 import Button from "@/components/ui/Button";
 import Alert from "@/components/ui/Alert";

@@ -7,7 +7,7 @@ import Input from "../ui/Input";
 import Button from "../ui/Button";
 import Alert from "../ui/Alert";
 import Link from "next/link";
-import { forgotPasswordSchema } from "@/lib/validationSchema";
+import { forgotPasswordSchema } from "@/lib/validators/therapist.schema";
 import { usePasswordReset } from "@/hooks/usePasswordReset";
 
 const ForgotPasswordForm = () => {

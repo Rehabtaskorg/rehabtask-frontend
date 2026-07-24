@@ -14,7 +14,7 @@ import {
     MdSend,
 } from "react-icons/md";
 import { useMyOffers } from "@/hooks/useOffers";
-import { offersApi } from "@/lib/offers";
+import { offersApi } from "@/services/offer.api";
 import OfferFormFields from "@/components/therapist/OfferFormFields";
 import { formatCurrency } from "@/utils/messages";
 import { usePageTitle } from "@/hooks/usePageTitle";

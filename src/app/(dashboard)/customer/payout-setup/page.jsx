@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { MdArrowBack, MdLock, MdCheckCircle, MdError, MdAccountBalance, MdBolt, MdAutorenew, MdShield } from "react-icons/md";
 import { ConnectAccountOnboarding } from "@stripe/react-connect-js";
-import { paymentsApi } from "@/lib/payments.api";
+import { paymentsApi } from "@/services/payment.api";
 import { useRefundSummary, useCustomerConnectStatus } from "@/hooks/usePayments";
 import StripeConnectProvider from "@/components/stripe/StripeConnectProvider";
 import { usePageTitle } from "@/hooks/usePageTitle";

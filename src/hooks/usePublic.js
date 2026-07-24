@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
-import { publicApi } from "@/lib/public.api";
+import { publicApi } from "@/services/public.api";
 
 export function usePlatformStats() {
     return useQuery({

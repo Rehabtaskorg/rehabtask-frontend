@@ -5,7 +5,7 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { MdSend, MdCheckCircle, MdWarning } from "react-icons/md";
 import { useSendAdminEmail } from "@/hooks/useAdmin";
-import { adminEmailSchema } from "@/lib/validationSchema";
+import { adminEmailSchema } from "@/lib/validators/therapist.schema";
 import { AdminRecipientField } from "@/components/admin/AdminRecipientField";
 
 const DEFAULT_VALUES = { to: "", subject: "", message: "" };

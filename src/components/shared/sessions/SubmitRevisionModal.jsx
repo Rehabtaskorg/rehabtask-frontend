@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { MdClose, MdInfo, MdReply } from "react-icons/md";
-import { bookingsApi } from "@/lib/bookings.api";
+import { bookingsApi } from "@/services/booking.api";
 import { showToast } from "@/lib/toast";
 import { localDateTimeStr } from "@/utils/dates";
 

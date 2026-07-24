@@ -3,8 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAgencyDocumentUpload } from "@/hooks/useAgencyDocumentUpload";
-import useAgencyOnboardingStore from "@/store/agencyOnboardingStore";
-import { agencyOnboardingAPI } from "@/lib/agency.onboarding.api";
+import useAgencyOnboardingStore from "@/stores/agencyOnboardingStore";
+import { agencyOnboardingAPI } from "@/services/onboarding.agency.api";
 
 /**
  * Drives the Upload Required Documents step (Step 3) for agency onboarding:

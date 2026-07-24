@@ -6,7 +6,7 @@ import { useAnalytics } from "@/hooks/useAnalytics";
 import { MdAdd, MdSchedule, MdChevronLeft, MdChevronRight } from "react-icons/md";
 import { api } from "@/lib/api";
 import { usePageTitle } from "@/hooks/usePageTitle";
-import useRequestStore from "@/store/requestStore";
+import useRequestStore from "@/stores/requestStore";
 import ExpandableRequestCard from "@/components/customer/ExpandableRequestCard";
 import ConfirmModal from "@/components/ui/ConfirmModal";
 import AcceptOfferModal from "@/components/customer/AcceptOfferModal";

@@ -6,12 +6,12 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import { useOnboardingDataSync } from "@/hooks/useOnboardingDataSync";
-import useOnboardingStore from "@/store/onboardingStore";
+import useOnboardingStore from "@/stores/onboardingStore";
 import OnboardingProgressBar from "@/components/therapist/OnboardingProgressBar";
-import { professionalProfileSchema } from "@/lib/onboardingValidation";
+import { professionalProfileSchema } from "@/lib/validators/onboarding.schema";
 import { SPECIALIZATIONS } from "@/lib/constants/specializations";
 import { LICENSE_TYPES } from "@/lib/constants/credentials";
-import { onboardingAPI } from "@/lib/onboarding.api";
+import { onboardingAPI } from "@/services/onboarding.api";
 import { usePageTitle } from "@/hooks/usePageTitle";
 
 /**

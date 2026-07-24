@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { faqsApi } from "@/lib/faqs";
+import { faqsApi } from "@/services/faq.api";
 
 export const usePublicFaqs = () => {
     const { data, isLoading, error, refetch } = useQuery({
