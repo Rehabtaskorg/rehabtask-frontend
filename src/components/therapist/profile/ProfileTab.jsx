@@ -14,7 +14,7 @@ import {
     MdCheckCircle,
 } from "react-icons/md";
 import { LICENSE_TYPES } from "@/lib/constants/credentials";
-import { onboardingAPI } from "@/lib/onboarding.api";
+import { onboardingAPI } from "@/services/onboarding.api";
 import ProfileEditModal from "./ProfileEditModal";
 import Button from "@/components/ui/Button";
 import UserAvatar from "@/components/ui/UserAvatar";

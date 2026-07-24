@@ -5,7 +5,7 @@ import { MdClose, MdPerson, MdCheck } from "react-icons/md";
 import { APIProvider, Map, AdvancedMarker } from "@vis.gl/react-google-maps";
 import { useCreatePatient } from "@/hooks/usePatients";
 import LocationAutocomplete from "@/components/maps/LocationAutocomplete";
-import { validateCertificationPeriod } from "@/lib/validationSchema";
+import { validateCertificationPeriod } from "@/lib/validators/therapist.schema";
 
 const inputBase =
     "w-full bg-background-light  border border-border-light  rounded-lg px-4 py-2.5 text-sm text-text-main  focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all";

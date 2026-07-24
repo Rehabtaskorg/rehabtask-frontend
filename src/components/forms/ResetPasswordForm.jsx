@@ -11,7 +11,7 @@ import PasswordInput from "../ui/PasswordInput";
 import Button from "../ui/Button";
 import Alert from "../ui/Alert";
 import Link from "next/link";
-import { resetPasswordSchema } from "@/lib/validationSchema";
+import { resetPasswordSchema } from "@/lib/validators/therapist.schema";
 
 /**
  * Password reset form — reads oobCode from the URL (set by Identity Platform

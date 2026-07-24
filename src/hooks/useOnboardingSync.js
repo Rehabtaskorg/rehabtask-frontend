@@ -1,8 +1,8 @@
 "use client";
 
 import { useCallback } from "react";
-import { onboardingAPI } from "@/lib/onboarding.api";
-import useOnboardingStore from "@/store/onboardingStore";
+import { onboardingAPI } from "@/services/onboarding.api";
+import useOnboardingStore from "@/stores/onboardingStore";
 import { logger } from "@/lib/logger";
 
 /**

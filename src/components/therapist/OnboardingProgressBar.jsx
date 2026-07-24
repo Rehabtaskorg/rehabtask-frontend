@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useOnboardingSync } from "@/hooks/useOnboardingSync";
-import useOnboardingStore from "@/store/onboardingStore";
+import useOnboardingStore from "@/stores/onboardingStore";
 
 const STEPS = [
     { number: 1, label: "Personal Information", route: "/therapist/onboarding/personal-info" },

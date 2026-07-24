@@ -10,7 +10,7 @@ import Input from "../ui/Input";
 import PasswordInput from "../ui/PasswordInput";
 import Button from "../ui/Button";
 import Alert from "../ui/Alert";
-import { therapistRegistrationSchema } from "@/lib/validationSchema";
+import { therapistRegistrationSchema } from "@/lib/validators/therapist.schema";
 import { useTherapistRegistration } from "@/hooks/useTherapistRegistration";
 import { useGoogleAuth } from "@/hooks/useGoogleAuth";
 import { usePageTitle } from "@/hooks/usePageTitle";

@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useAnalytics } from "@/hooks/useAnalytics";
-import { onboardingAPI } from "@/lib/onboarding.api";
-import useOnboardingStore from "@/store/onboardingStore";
+import { onboardingAPI } from "@/services/onboarding.api";
+import useOnboardingStore from "@/stores/onboardingStore";
 import { showToast } from "@/lib/toast";
 import { STRIPE_STATUS, AUTO_RETRY_DELAY_MS } from "./constants";
 

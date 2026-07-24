@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { MdStars, MdCheckCircle, MdCreditCard, MdCancel, MdWarning, MdAccessTime, MdArrowUpward, MdArrowDownward } from "react-icons/md";
 import { useSubscription, useCreateCheckout, useCreateBillingPortal, useCancelSubscription, useResumeSubscription, useUpgradeSubscription, useDowngradeSubscription, useCancelScheduledDowngrade } from "@/hooks/useSubscription";
-import { subscriptionApi } from "@/lib/subscription.api";
+import { subscriptionApi } from "@/services/subscription.api";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import { PLAN_TYPES } from "@/lib/constants";

@@ -11,7 +11,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import Alert from "@/components/ui/Alert";
-import { oauthOnboardingSchema } from "@/lib/validationSchema";
+import { oauthOnboardingSchema } from "@/lib/validators/therapist.schema";
 import { useOAuthOnboarding } from "@/hooks/useOAuthOnboarding";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { AUTH_REDIRECT_PARAM } from "@/lib/constants";

@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { patientsApi } from "@/lib/patients.api";
+import { patientsApi } from "@/services/patient.api";
 
 export function usePatients() {
     return useQuery({

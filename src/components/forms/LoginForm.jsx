@@ -11,7 +11,7 @@ import PasswordInput from "@/components/ui/PasswordInput";
 import Button from "@/components/ui/Button";
 import Alert from "@/components/ui/Alert";
 import Link from "next/link";
-import { loginSchema } from "@/lib/validationSchema";
+import { loginSchema } from "@/lib/validators/therapist.schema";
 import { useLogin } from "@/hooks/useLogin";
 import { useGoogleAuth } from "@/hooks/useGoogleAuth";
 

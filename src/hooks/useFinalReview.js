@@ -4,8 +4,8 @@ import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import { useOnboardingSync } from "@/hooks/useOnboardingSync";
-import { onboardingAPI } from "@/lib/onboarding.api";
-import useOnboardingStore from "@/store/onboardingStore";
+import { onboardingAPI } from "@/services/onboarding.api";
+import useOnboardingStore from "@/stores/onboardingStore";
 import { logger } from "@/lib/logger";
 
 /**

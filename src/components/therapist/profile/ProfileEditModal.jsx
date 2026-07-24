@@ -7,7 +7,7 @@ import { z } from "zod";
 import { MdClose, MdEdit, MdCameraAlt, MdLock, MdInfo } from "react-icons/md";
 import { SPECIALIZATIONS } from "@/lib/constants/specializations";
 import { LICENSE_TYPES } from "@/lib/constants/credentials";
-import { onboardingAPI } from "@/lib/onboarding.api";
+import { onboardingAPI } from "@/services/onboarding.api";
 import { useUpdateProfile } from "@/hooks/useTherapistProfile";
 import Input from "@/components/ui/Input";
 import PhoneInput from "@/components/ui/PhoneInput";

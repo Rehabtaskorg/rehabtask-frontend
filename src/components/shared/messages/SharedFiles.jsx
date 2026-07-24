@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { messagesApi } from "@/lib/messages.api";
+import { messagesApi } from "@/services/message.api";
 import { MdDescription, MdInsertDriveFile, MdImage, MdDownload } from "react-icons/md";
 
 const isImageType = (mimeType) => mimeType?.startsWith("image/");

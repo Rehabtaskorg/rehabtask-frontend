@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { authAPi } from '@/lib/auth.api';
+import { authAPi } from '@/services/auth.api';
 
 /**
  * Manages the unified legal agreement modal flow.

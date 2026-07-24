@@ -10,7 +10,7 @@ import { usePatient, useUpdatePatient } from "@/hooks/usePatients";
 import LocationAutocomplete from "@/components/maps/LocationAutocomplete";
 import { formatShortDate } from "@/utils/dates";
 import { BOOKING_STATUS } from "@/lib/constants";
-import { validateCertificationPeriod } from "@/lib/validationSchema";
+import { validateCertificationPeriod } from "@/lib/validators/therapist.schema";
 
 const REQUEST_STATUS_CONFIG = {
     created:         { label: "Created",         color: "text-blue-500 bg-blue-50 " },

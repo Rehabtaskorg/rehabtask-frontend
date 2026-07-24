@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { applyActionCode } from "firebase/auth";
 import { getFirebaseAuth } from "@/lib/firebase";
-import { authAPi } from "@/lib/auth.api";
+import { authAPi } from "@/services/auth.api";
 
 /**
  * Processes Identity Platform email action links.

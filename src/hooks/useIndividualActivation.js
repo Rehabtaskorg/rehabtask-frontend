@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { individualOnboardingAPI } from "@/lib/individual.onboarding.api";
-import useIndividualOnboardingStore from "@/store/individualOnboardingStore";
+import { individualOnboardingAPI } from "@/services/onboarding.individual.api";
+import useIndividualOnboardingStore from "@/stores/individualOnboardingStore";
 import { logger } from "@/lib/logger";
 
 /**

@@ -9,7 +9,7 @@ import {
 } from "react-icons/md";
 import { useBookingDetail } from "@/hooks/useBookings";
 import { useBookingPolling, usePaymentRedirect } from "@/hooks/useBookingPolling";
-import { bookingsApi } from "@/lib/bookings.api";
+import { bookingsApi } from "@/services/booking.api";
 import { BOOKING_STATUS, USER_ROLES } from "@/lib/constants";
 import { resolveVisitPlan, computeTotalVisits } from "@/lib/visitPlan";
 import { formatCurrency } from "@/utils/messages";

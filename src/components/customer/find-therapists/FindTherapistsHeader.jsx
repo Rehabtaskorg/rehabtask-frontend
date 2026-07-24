@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { MdAdd } from "react-icons/md";
-import useRequestStore from "@/store/requestStore";
+import useRequestStore from "@/stores/requestStore";
 import LocationAutocomplete from "@/components/maps/LocationAutocomplete";
 import LicenseTypeAutocomplete from "@/components/public/LicenseTypeAutocomplete";
 
