@@ -8,9 +8,9 @@ import { Elements, PaymentElement, useStripe, useElements } from "@stripe/react-
 import { getStripeAppearance } from "@/lib/stripe.appearance";
 import ChangePasswordForm from "@/components/profile/ChangePasswordForm";
 import { usePageTitle } from "@/hooks/usePageTitle";
-import { authAPi } from "@/lib/auth.api";
+import { authAPi } from "@/services/auth.api";
 import { api } from "@/lib/api";
-import { paymentsApi } from "@/lib/payments.api";
+import { paymentsApi } from "@/services/payment.api";
 import {
     MdPerson, MdSecurity, MdBusiness, MdEdit, MdCheck, MdClose,
     MdCreditCard, MdAdd, MdDeleteOutline, MdStar, MdStarOutline, MdLock, MdWarning,

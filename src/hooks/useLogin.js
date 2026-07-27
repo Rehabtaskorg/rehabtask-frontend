@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { usePostHog } from "posthog-js/react";
-import { authAPi } from "@/lib/auth.api";
+import { authAPi } from "@/services/auth.api";
 import { USER_ROLES } from "@/lib/constants";
 import { resolveAuthRedirectTarget } from "@/lib/redirect";
 

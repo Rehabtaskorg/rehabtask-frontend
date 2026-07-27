@@ -7,7 +7,7 @@ import { loadStripe } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
 import { MdLock, MdInfo, MdCreditCard } from "react-icons/md";
 import { api } from "@/lib/api";
-import { paymentsApi } from "@/lib/payments.api";
+import { paymentsApi } from "@/services/payment.api";
 import { resolveVisitPlan, computeTotalVisits } from "@/lib/visitPlan";
 import { getStripeAppearance } from "@/lib/stripe.appearance";
 import { formatCurrency } from "@/utils/messages";

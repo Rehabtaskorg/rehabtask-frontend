@@ -4,7 +4,7 @@ import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { getRedirectResult, GoogleAuthProvider } from "firebase/auth";
 import { getFirebaseAuth } from "@/lib/firebase";
-import { authAPi } from "@/lib/auth.api";
+import { authAPi } from "@/services/auth.api";
 import { logger } from "@/lib/logger";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { AUTH_REDIRECT_STORAGE_KEY, AUTH_REDIRECT_PARAM } from "@/lib/constants";

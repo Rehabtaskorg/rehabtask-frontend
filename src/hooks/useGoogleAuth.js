@@ -1,7 +1,7 @@
 import { GoogleAuthProvider, signInWithPopup, signInWithRedirect } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import { getFirebaseAuth } from "@/lib/firebase";
-import { authAPi } from "@/lib/auth.api";
+import { authAPi } from "@/services/auth.api";
 import { logger } from "@/lib/logger";
 import { AUTH_REDIRECT_STORAGE_KEY, AUTH_REDIRECT_PARAM } from "@/lib/constants";
 import { resolveAuthRedirectTarget } from "@/lib/redirect";

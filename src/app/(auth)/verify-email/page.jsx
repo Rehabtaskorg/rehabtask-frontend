@@ -6,7 +6,7 @@ import { useSearchParams } from "next/navigation";
 import { MdMail, MdCheckCircle } from "react-icons/md";
 import EmailVerificationCard from "@/components/shared/EmailVerificationCard";
 import Footer from "@/components/shared/Footer";
-import { authAPi } from "@/lib/auth.api";
+import { authAPi } from "@/services/auth.api";
 import { usePageTitle } from "@/hooks/usePageTitle";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

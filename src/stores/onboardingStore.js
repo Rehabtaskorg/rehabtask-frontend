@@ -2,7 +2,7 @@
 
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { DEFAULT_TIME_BLOCK } from "@/lib/onboardingValidation";
+import { DEFAULT_TIME_BLOCK } from "@/lib/validators/onboarding.schema";
 
 const initialSchedule = {
     monday: { enabled: false, timeBlocks: [] },

@@ -8,9 +8,9 @@ import { useDropzone } from "react-dropzone";
 import { z } from "zod";
 import { MdInfoOutline, MdClose } from "react-icons/md";
 
-import useOnboardingStore from "@/store/onboardingStore";
-import { credentialsSchema } from "@/lib/onboardingValidation";
-import { onboardingAPI } from "@/lib/onboarding.api";
+import useOnboardingStore from "@/stores/onboardingStore";
+import { credentialsSchema } from "@/lib/validators/onboarding.schema";
+import { onboardingAPI } from "@/services/onboarding.api";
 import OnboardingProgressBar from "@/components/therapist/OnboardingProgressBar";
 import { US_STATES } from "@/lib/constants/credentials";
 import { useAuth } from "@/hooks/useAuth";

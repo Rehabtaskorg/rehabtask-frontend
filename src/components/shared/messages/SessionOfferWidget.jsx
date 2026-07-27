@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useQueryClient } from "@tanstack/react-query";
 import { useOfferDetails } from "@/hooks/useOffers";
-import { offersApi } from "@/lib/offers";
+import { offersApi } from "@/services/offer.api";
 import { useAuth } from "@/hooks/useAuth";
 import { formatCurrency, formatMessageTime } from "@/utils/messages";
 import { MdCheck, MdClose, MdEdit } from "react-icons/md";

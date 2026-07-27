@@ -1,4 +1,4 @@
-import { api } from "./api";
+import { api } from "@/lib/api";
 
 /**
  * Get a reCAPTCHA Enterprise token for a specific action.

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useIndividualOnboardingSync } from "@/hooks/useIndividualOnboardingSync";
-import useIndividualOnboardingStore from "@/store/individualOnboardingStore";
+import useIndividualOnboardingStore from "@/stores/individualOnboardingStore";
 
 const STEPS = [
     { number: 1, label: "Welcome" },

@@ -2,7 +2,7 @@
 
 import { MdEdit, MdVisibility, MdLocationOn, MdCalendarToday } from "react-icons/md";
 import { Map, AdvancedMarker } from "@vis.gl/react-google-maps";
-import useRequestStore from "@/store/requestStore";
+import useRequestStore from "@/stores/requestStore";
 
 const formatReviewDate = (dateStr, timeStr) => {
     if (!dateStr) return "—";

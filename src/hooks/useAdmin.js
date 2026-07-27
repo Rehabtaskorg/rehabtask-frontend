@@ -6,7 +6,7 @@ import {
     adminBookingsApi, adminSubscriptionsApi, adminPaymentsApi,
     adminCommissionApi, adminFaqsApi, adminNotificationsApi,
     adminSubAdminsApi, adminAuditApi, adminEmailApi,
-} from '@/lib/admin';
+} from '@/services/admin.api';
 
 // Notifications (user-facing)
 export const useNotifications = (params) =>

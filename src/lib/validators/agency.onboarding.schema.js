@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { US_STATES } from "./constants/credentials";
+import { US_STATES } from "../constants/credentials";
 
 const US_STATE_CODES = US_STATES.map((s) => s.code);
 

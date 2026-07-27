@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { messagesApi } from "@/lib/messages.api";
+import { messagesApi } from "@/services/message.api";
 import { useAuth } from "./useAuth";
 import { useSocketContext } from "@/components/providers/SocketProvider";
 

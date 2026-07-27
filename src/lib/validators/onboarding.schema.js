@@ -1,7 +1,7 @@
 import z from "zod";
 import { isValidPhoneNumber } from "react-phone-number-input";
-import { SPECIALIZATIONS } from "./constants/specializations";
-import { US_STATES } from "./constants/credentials";
+import { SPECIALIZATIONS } from "../constants/specializations";
+import { US_STATES } from "../constants/credentials";
 
 export const DEFAULT_TIME_BLOCK = { startTime: "09:00", endTime: "17:00" };
 

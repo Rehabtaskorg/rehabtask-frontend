@@ -7,7 +7,7 @@ import {
     MdCheckCircle, MdWarning, MdInfo, MdRefresh, MdSchedule, MdUpdate, MdEdit
 } from "react-icons/md";
 import { useBookingDetail } from "@/hooks/useBookings";
-import { bookingsApi } from "@/lib/bookings.api";
+import { bookingsApi } from "@/services/booking.api";
 import { BOOKING_STATUS, USER_ROLES } from "@/lib/constants";
 import { localDateStr } from "@/utils/dates";
 import { showToast } from "@/lib/toast";

@@ -5,8 +5,8 @@ import { useRouter } from "next/navigation";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import { useIdentityDocumentUpload } from "@/hooks/useIdentityDocumentUpload";
 import { useOnboardingDataSync } from "@/hooks/useOnboardingDataSync";
-import useOnboardingStore from "@/store/onboardingStore";
-import { onboardingAPI } from "@/lib/onboarding.api";
+import useOnboardingStore from "@/stores/onboardingStore";
+import { onboardingAPI } from "@/services/onboarding.api";
 
 /**
  * Drives the Identity Verification onboarding step (Step 6): two document

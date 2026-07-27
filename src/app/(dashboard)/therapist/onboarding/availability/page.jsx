@@ -8,9 +8,9 @@ import { useRouter } from "next/navigation";
 import { LuCalendar, LuPlus, LuX, LuMapPin } from "react-icons/lu";
 import { MdEdit, MdDelete, MdLocationOn } from "react-icons/md";
 
-import useOnboardingStore from "@/store/onboardingStore";
-import { availabilitySchema } from "@/lib/onboardingValidation";
-import { onboardingAPI } from "@/lib/onboarding.api";
+import useOnboardingStore from "@/stores/onboardingStore";
+import { availabilitySchema } from "@/lib/validators/onboarding.schema";
+import { onboardingAPI } from "@/services/onboarding.api";
 import { useOnboardingDataSync } from "@/hooks/useOnboardingDataSync";
 import OnboardingProgressBar from "@/components/therapist/OnboardingProgressBar";
 import WorkAreaFormModal from "@/components/therapist/profile/WorkAreaFormModal";

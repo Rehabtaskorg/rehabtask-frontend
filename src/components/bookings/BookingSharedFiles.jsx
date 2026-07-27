@@ -3,8 +3,8 @@
 import { useState, useRef, useCallback } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { MdAttachFile } from "react-icons/md";
-import { bookingsApi } from "@/lib/bookings.api";
-import { messagesApi } from "@/lib/messages.api";
+import { bookingsApi } from "@/services/booking.api";
+import { messagesApi } from "@/services/message.api";
 import SharedFiles from "@/components/shared/messages/SharedFiles";
 import AttachmentsModal from "@/components/shared/messages/AttachmentsModal";
 import { showToast } from "@/lib/toast";

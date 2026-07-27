@@ -1,4 +1,4 @@
-import { api } from "./api";
+import { api } from "@/lib/api";
 
 export const disputesApi = {
     create: (data) => api.post("/disputes", data),

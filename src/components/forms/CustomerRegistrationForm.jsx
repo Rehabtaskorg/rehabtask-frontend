@@ -14,7 +14,7 @@ import { useGoogleAuth } from "@/hooks/useGoogleAuth";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { customerRegistrationSchema } from "@/lib/validationSchema";
+import { customerRegistrationSchema } from "@/lib/validators/therapist.schema";
 
 const CustomerRegistrationForm = () => {
     usePageTitle("Create Account");
