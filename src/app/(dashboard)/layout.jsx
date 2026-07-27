@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { usePostHog } from 'posthog-js/react';
+import { useQueryClient } from '@tanstack/react-query';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -17,6 +18,7 @@ import { SocketProvider } from '@/components/providers/SocketProvider';
 import OnboardingBanner from '@/components/therapist/OnboardingBanner';
 import useOnboardingStore from '@/stores/onboardingStore';
 import useAgencyOnboardingStore from '@/stores/agencyOnboardingStore';
+import useRequestStore from '@/stores/requestStore';
 import { useUnreadCount } from '@/hooks/useMessages';
 import { useIdleTimeout } from '@/hooks/useIdleTimeout';
 import { LOGOUT_REASON, USER_ROLES, CUSTOMER_TYPES } from '@/lib/constants';
@@ -145,6 +147,7 @@ export default function DashboardLayout({ children }) {
     const router = useRouter();
     const pathname = usePathname();
     const posthog = usePostHog();
+    const queryClient = useQueryClient();
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
     const [authError, setAuthError] = useState(false);
@@ -292,13 +295,15 @@ export default function DashboardLayout({ children }) {
         } finally {
             destroySocket();
             if (!preserveOnboardingState) {
+                queryClient.clear();
                 useOnboardingStore.getState().reset();
                 useAgencyOnboardingStore.getState().reset();
+                useRequestStore.getState().reset();
             }
             posthog?.reset();
         }
         router.replace(destination);
-    }, [router, posthog]);
+    }, [router, posthog, queryClient]);
 
     useIdleTimeout(
         user
