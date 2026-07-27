@@ -81,6 +81,7 @@ function TherapistRequestsContent() {
     const [commissionRate, setCommissionRate] = useState(null);
 
     // ─── Data Fetching (server-side filtered + paginated) ───
+    // TODO: [NEXT] migrate fetchRequests to React Query — page uses raw axios + useState in violation of project conventions
 
     const fetchRequests = useCallback(async (appliedFilters, page) => {
         setLoading(true);
