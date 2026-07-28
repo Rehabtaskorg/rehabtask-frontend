@@ -262,7 +262,7 @@ function TherapistBookingsContent() {
                                                 </td>
                                                 <td className="py-3.5 pr-4">
                                                     <span className="text-sm font-bold text-emerald-600  font-mono">
-                                                        {earnings != null ? formatCurrency(earnings) : <>{formatCurrency(parseFloat(booking.rate))} <span className="text-xs font-normal text-text-muted ">(rate)</span></>}
+                                                        {earnings != null ? formatCurrency(earnings) : formatCurrency(parseFloat(booking.rate))}
                                                     </span>
                                                 </td>
                                                 <td className="py-3.5 pr-4">
@@ -316,7 +316,7 @@ function TherapistBookingsContent() {
                                                         {formatDate(booking.scheduledDate)}
                                                     </span>
                                                     <span className="font-bold text-emerald-600  font-mono">
-                                                        {earnings != null ? formatCurrency(earnings) : <>{formatCurrency(parseFloat(booking.rate))} <span className="font-normal text-text-muted ">(rate)</span></>}
+                                                        {earnings != null ? formatCurrency(earnings) : formatCurrency(parseFloat(booking.rate))}
                                                     </span>
                                                 </div>
                                             </div>
