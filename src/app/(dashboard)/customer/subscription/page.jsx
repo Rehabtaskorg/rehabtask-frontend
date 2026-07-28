@@ -60,7 +60,7 @@ const STATUS_BADGES = {
 /**
  * @param {{ label: string, current: number, limit: number|null }} props
  */
-function UsageBar({ label, current, limit }) {
+function UsageBar({ label, current, limit, tooltip }) {
     const isUnlimited = limit === null || limit >= 999999;
     const percentage = isUnlimited ? 0 : Math.min((current / limit) * 100, 100);
     const isAtLimit = !isUnlimited && current >= limit;
@@ -68,7 +68,19 @@ function UsageBar({ label, current, limit }) {
     return (
         <div className="space-y-1">
             <div className="flex justify-between text-sm">
-                <span className="text-text-muted">{label}</span>
+                <span className="flex items-center gap-1 text-text-muted">
+                    {label}
+                    {tooltip && (
+                        <span className="group relative inline-flex">
+                            <svg className="h-3.5 w-3.5 text-text-muted opacity-60 cursor-default" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
+                            </svg>
+                            <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 w-48 rounded-md bg-slate-800 px-2.5 py-1.5 text-xs text-white opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-10">
+                                {tooltip}
+                            </span>
+                        </span>
+                    )}
+                </span>
                 <span className={`font-medium ${isAtLimit ? "text-red-500" : "text-text-main"}`}>
                     {isUnlimited ? `${current} used · Unlimited` : `${current} / ${limit}`}
                 </span>
@@ -300,6 +312,7 @@ export default function SubscriptionPage() {
                         label="Visits this billing period"
                         current={usage.visitCount}
                         limit={subscription?.visitLimit >= 999999 ? null : subscription?.visitLimit}
+                        tooltip="Sessions are counted when you accept a therapist offer. Cancelled sessions are deducted."
                     />
                     <UsageBar
                         label="Active job postings"
