@@ -31,6 +31,14 @@ export const LICENSE_TYPE_TO_SERVICE_TYPE = Object.freeze({
     "Speech-Language Pathologist": "Speech Language Pathology (SLP)",
 });
 
+export const REQUEST_STATUS = {
+    CREATED: "created",
+    OFFERS_RECEIVED: "offers_received",
+    OFFERS_ACCEPTED: "offers_accepted",
+    COMPLETED: "completed",
+    CANCELLED: "cancelled",
+};
+
 export const REQUEST_TYPE = {
     PUBLIC: "PUBLIC",
     DIRECT: "DIRECT",

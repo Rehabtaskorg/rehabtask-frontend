@@ -2,21 +2,22 @@
 
 import Link from "next/link";
 import useRequestStore from "@/stores/requestStore";
+import { REQUEST_STATUS } from "@/lib/constants";
 
 const REQUEST_STATUS_STYLES = {
-    created: "bg-blue-100 text-blue-700",
-    offers_received: "bg-amber-100 text-amber-700",
-    offers_accepted: "bg-emerald-100 text-emerald-700",
-    completed: "bg-emerald-100 text-emerald-700",
-    cancelled: "bg-red-100 text-red-700",
+    [REQUEST_STATUS.CREATED]: "bg-blue-100 text-blue-700",
+    [REQUEST_STATUS.OFFERS_RECEIVED]: "bg-amber-100 text-amber-700",
+    [REQUEST_STATUS.OFFERS_ACCEPTED]: "bg-emerald-100 text-emerald-700",
+    [REQUEST_STATUS.COMPLETED]: "bg-emerald-100 text-emerald-700",
+    [REQUEST_STATUS.CANCELLED]: "bg-red-100 text-red-700",
 };
 
 const REQUEST_STATUS_LABELS = {
-    created: "Created",
-    offers_received: "Offers Received",
-    offers_accepted: "Accepted",
-    completed: "Completed",
-    cancelled: "Cancelled",
+    [REQUEST_STATUS.CREATED]: "Created",
+    [REQUEST_STATUS.OFFERS_RECEIVED]: "Offers Received",
+    [REQUEST_STATUS.OFFERS_ACCEPTED]: "Accepted",
+    [REQUEST_STATUS.COMPLETED]: "Completed",
+    [REQUEST_STATUS.CANCELLED]: "Cancelled",
 };
 
 /**

@@ -10,7 +10,7 @@ import {
 } from "react-icons/md";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { useRefundSummary } from "@/hooks/usePayments";
-import { BOOKING_STATUS } from "@/lib/constants";
+import { BOOKING_STATUS, REQUEST_STATUS } from "@/lib/constants";
 import { SubscriptionWidget } from "@/components/customer/dashboard/SubscriptionWidget";
 import { CancelledBookingsWidget } from "@/components/customer/dashboard/CancelledBookingsWidget";
 import { RecentRequestsTable } from "@/components/customer/dashboard/RecentRequestsTable";
@@ -23,7 +23,7 @@ const UPCOMING_STATUSES = [
     BOOKING_STATUS.IN_PROGRESS,
 ];
 
-const ACTIVE_REQUEST_STATUSES = ["created", "offers_received"];
+const ACTIVE_REQUEST_STATUSES = [REQUEST_STATUS.CREATED, REQUEST_STATUS.OFFERS_RECEIVED];
 
 export default function CustomerDashboard() {
     usePageTitle("Dashboard");
@@ -52,7 +52,7 @@ export default function CustomerDashboard() {
                     api.get("/bookings/customer"),
                 ]);
 
-                const requests = Array.isArray(requestRes.data.data) ? requestRes.data.data : [];
+                const requests = Array.isArray(requestRes.data.data?.requests) ? requestRes.data.data.requests : [];
                 const bookings = Array.isArray(bookingRes.data.data) ? bookingRes.data.data : [];
 
                 const pendingSessions = [];
