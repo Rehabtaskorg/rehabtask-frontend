@@ -372,18 +372,18 @@ export default function SubscriptionPage() {
 
                                 <div className="mt-6">
                                     {isCurrentPlan ? (
-                                        <button disabled className="w-full py-2.5 rounded-lg bg-gray-100 text-text-muted font-medium cursor-default">
+                                        <button disabled className="w-full min-h-[42px] py-2.5 px-3 rounded-lg bg-gray-100 text-text-muted font-medium cursor-default text-sm">
                                             Current Plan
                                         </button>
                                     ) : plan.key === PLAN_TYPES.FREE ? (
-                                        <button disabled className="w-full py-2.5 rounded-lg bg-gray-100 text-text-muted font-medium cursor-default">
+                                        <button disabled className="w-full min-h-[42px] py-2.5 px-3 rounded-lg bg-gray-100 text-text-muted font-medium cursor-default text-sm">
                                             Free Plan
                                         </button>
                                     ) : plan.rank > currentPlanRank || !isPaid || isTrial || isGracePeriod ? (
                                         <button
                                             onClick={() => handlePlanAction(plan.key)}
                                             disabled={upgradingPlan !== null}
-                                            className="w-full py-2.5 rounded-lg bg-primary text-white font-medium hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20 disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2 whitespace-nowrap"
+                                            className="w-full min-h-[42px] py-2.5 px-3 rounded-lg bg-primary text-white font-medium hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20 disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-center text-sm"
                                         >
                                             {upgradingPlan === plan.key ? (isPaid ? "Upgrading..." : "Redirecting...") : (
                                                 <>
@@ -396,7 +396,7 @@ export default function SubscriptionPage() {
                                         <button
                                             onClick={() => handlePlanAction(plan.key)}
                                             disabled={upgradingPlan !== null || (!!pendingDowngrade && (pendingDowngrade === plan.key || pendingDowngrade === true))}
-                                            className="w-full py-2.5 rounded-lg border border-amber-300 text-amber-600 font-medium hover:bg-amber-50 transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2 whitespace-nowrap"
+                                            className="w-full min-h-[42px] py-2.5 px-3 rounded-lg border border-amber-300 text-amber-600 font-medium hover:bg-amber-50 transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-center text-sm"
                                         >
                                             {(pendingDowngrade === plan.key || (pendingDowngrade === true && plan.rank < currentPlanRank)) ? (
                                                 "Downgrade scheduled"
