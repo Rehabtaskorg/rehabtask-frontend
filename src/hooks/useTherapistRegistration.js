@@ -35,6 +35,7 @@ export const useTherapistRegistration = (redirectTo = null) => {
                 password: formData.password,
                 fullName: formData.fullName,
                 phone: formData.phone,
+                smsOptIn: formData.smsOptIn ?? false,
             };
 
             const response = await authAPi.registerTherapist(payload);

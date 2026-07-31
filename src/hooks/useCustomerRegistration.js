@@ -36,6 +36,7 @@ export const useCustomerRegistration = (redirectTo = null) => {
                 fullName: formData.fullName,
                 phone: formData.phone,
                 customerType: formData.customerType,
+                smsOptIn: formData.smsOptIn ?? false,
                 agencyName: formData.customerType === CUSTOMER_TYPES.AGENCY
                     ? formData.agencyName
                     : undefined,
