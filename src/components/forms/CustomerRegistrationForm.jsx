@@ -33,6 +33,7 @@ const CustomerRegistrationForm = () => {
             fullName: "",
             email: "",
             phone: "",
+            smsOptIn: false,
             password: "",
             agencyName: ""
         }
@@ -170,6 +171,21 @@ const CustomerRegistrationForm = () => {
                     error={errors.phone?.message}
                     required
                 />
+
+                {/* SMS Opt-In */}
+                <div className="flex items-start gap-3">
+                    <input
+                        type="checkbox"
+                        id="smsOptIn"
+                        {...register("smsOptIn")}
+                        className="mt-0.5 h-4 w-4 shrink-0 rounded border-border text-primary focus:ring-primary"
+                    />
+                    <label htmlFor="smsOptIn" className="text-sm text-text-muted leading-snug">
+                        By checking this box, you agree to receive SMS appointment reminders and
+                        notifications from RehabTask. Message and data rates may apply.
+                        Reply STOP to opt out at any time.
+                    </label>
+                </div>
 
                 {/* Password */}
                 <div className="space-y-1.5">

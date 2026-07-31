@@ -19,9 +19,8 @@ const profileEditSchema = z.object({
     fullName: z.string().trim().min(2, "Name must be at least 2 characters"),
     phone: z
         .string()
-        .trim()
-        .min(1, "Phone is required")
         .regex(/^\+1\d{10}$/, "Phone must be in format +1XXXXXXXXXX"),
+    smsOptIn: z.boolean().optional(),
     yearsOfExperience: z.coerce
         .number({ invalid_type_error: "Must be a number" })
         .min(0, "Must be 0 or greater")
@@ -85,6 +84,7 @@ const ProfileEditModal = ({ isOpen, onClose, profile, onSuccess }) => {
         defaultValues: {
             fullName: profile?.fullName || "",
             phone: profile?.phone || "",
+            smsOptIn: profile?.smsOptIn ?? false,
             yearsOfExperience: profile?.yearsOfExperience || 0,
             specialization: profile?.specialization || "",
             ratePerVisit: profile?.ratePerVisit ? parseFloat(profile.ratePerVisit) : "",
@@ -254,6 +254,18 @@ const ProfileEditModal = ({ isOpen, onClose, profile, onSuccess }) => {
                             error={errors.phone?.message}
                             required
                         />
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                        <input
+                            type="checkbox"
+                            id="smsOptIn"
+                            {...register("smsOptIn")}
+                            className="mt-0.5 h-4 w-4 shrink-0 rounded border-border text-primary focus:ring-primary"
+                        />
+                        <label htmlFor="smsOptIn" className="text-sm text-text-muted leading-snug">
+                            Receive SMS appointment reminders and notifications
+                        </label>
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">

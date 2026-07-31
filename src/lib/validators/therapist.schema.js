@@ -14,11 +14,6 @@ const fullNameSchema = z
     .regex(/^[a-zA-Z\s'.-]+$/, 'Name can only contain letters, spaces, hyphens, and apostrophes')
     .trim();
 
-const licenseNumberSchema = z
-    .string()
-    .min(3, 'License number must be at least 3 characters')
-    .max(100, 'License number must not exceed 100 characters')
-    .trim();
 
 export const therapistRegistrationSchema = z
     .object({
@@ -29,6 +24,8 @@ export const therapistRegistrationSchema = z
             .transform((val) => val.trim().toLowerCase()),
 
         phone: phoneSchema,
+
+        smsOptIn: z.boolean().optional().default(false),
 
         password: z
             .string()
@@ -53,6 +50,8 @@ export const customerRegistrationSchema = z.object({
         .transform((val) => val.trim().toLowerCase()),
 
     phone: phoneSchema,
+
+    smsOptIn: z.boolean().optional().default(false),
 
     password: z
         .string()
@@ -100,6 +99,10 @@ export const oauthOnboardingSchema = z.object({
     }),
 
     fullName: fullNameSchema,
+
+    phone: phoneSchema,
+
+    smsOptIn: z.boolean().optional().default(false),
 
     // Customer fields - transform empty strings to undefined
     customerType: z
