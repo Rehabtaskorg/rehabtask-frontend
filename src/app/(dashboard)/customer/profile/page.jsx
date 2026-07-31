@@ -5,6 +5,9 @@ import { useSearchParams } from "next/navigation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements, PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
+import PhoneInputWithCountry from "react-phone-number-input";
+import { isValidPhoneNumber } from "react-phone-number-input";
+import "react-phone-number-input/style.css";
 import { getStripeAppearance } from "@/lib/stripe.appearance";
 import ChangePasswordForm from "@/components/profile/ChangePasswordForm";
 import { usePageTitle } from "@/hooks/usePageTitle";
@@ -377,8 +380,8 @@ export default function CustomerProfilePage() {
     };
 
     const handleSaveContact = async () => {
-        if (!/^\+1\d{10}$/.test(phone)) {
-            setPhoneError("Phone must be in format +1XXXXXXXXXX");
+        if (!phone || !isValidPhoneNumber(phone)) {
+            setPhoneError("Please enter a valid US phone number");
             return;
         }
         setSavingContact(true);
@@ -520,23 +523,35 @@ export default function CustomerProfilePage() {
                         {editingContact ? (
                             <div className="space-y-4">
                                 <div className="space-y-1.5">
-                                    <label className="block text-xs font-semibold text-text-muted  uppercase tracking-wider">
+                                    <label className="block text-xs font-semibold text-text-muted uppercase tracking-wider">
                                         Phone Number <span className="text-red-500">*</span>
                                     </label>
-                                    <input
-                                        type="tel"
+                                    <PhoneInputWithCountry
                                         value={phone}
-                                        onChange={(e) => {
-                                            setPhone(e.target.value);
+                                        onChange={(value) => {
+                                            setPhone(value || "");
                                             if (phoneError) setPhoneError("");
                                         }}
-                                        placeholder="+12015550100"
-                                        className={`w-full px-4 py-2.5 rounded-lg border bg-background-light  text-text-main  text-sm focus:outline-none focus:ring-2 focus:ring-primary ${phoneError ? "border-red-400" : "border-border-light "}`}
+                                        defaultCountry="US"
+                                        countries={["US"]}
+                                        international={false}
+                                        withCountryCallingCode
+                                        className={`
+                                            flex h-12 w-full items-center gap-2 rounded-xl border px-4
+                                            ${phoneError ? "border-red-500" : "border-border-subtle focus-within:border-primary"}
+                                            bg-white transition-colors
+                                            [&_.PhoneInputInput]:flex-1
+                                            [&_.PhoneInputInput]:bg-transparent
+                                            [&_.PhoneInputInput]:text-text-main
+                                            [&_.PhoneInputInput]:outline-none
+                                            [&_.PhoneInputInput]:placeholder:text-text-muted
+                                            [&_.PhoneInputCountry]:mr-2
+                                        `}
                                     />
                                     {phoneError && (
-                                        <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-red-50  border border-red-200 ">
+                                        <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-red-50 border border-red-200">
                                             <MdWarning className="text-red-500 text-sm shrink-0" />
-                                            <p className="text-xs text-red-700  font-medium">{phoneError}</p>
+                                            <p className="text-xs text-red-700 font-medium">{phoneError}</p>
                                         </div>
                                     )}
                                 </div>

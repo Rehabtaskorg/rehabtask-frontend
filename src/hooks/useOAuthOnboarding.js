@@ -20,7 +20,8 @@ export const useOAuthOnboarding = (redirectTo = null) => {
             const payload = {
                 role: formData.role,
                 fullName: formData.fullName,
-                phone: formData.phone
+                phone: formData.phone,
+                smsOptIn: formData.smsOptIn ?? false,
             };
 
             // Add role-specific fields
