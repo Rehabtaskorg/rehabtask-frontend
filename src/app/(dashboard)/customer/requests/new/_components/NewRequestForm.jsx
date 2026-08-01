@@ -48,6 +48,17 @@ export default function NewRequestForm({ editId, directTo }) {
     const jobPostingLimit = subscription?.jobPostingLimit;
     const isAtRequestLimit = !isEditMode && jobPostingLimit !== null && jobPostingLimit < 999999 && usage.activeJobPostings >= jobPostingLimit;
 
+    const visitsPerWeekValue = parseInt(step1.visitsPerWeek) || 0;
+    const numberOfWeeksValue = parseInt(step1.numberOfWeeks) || 0;
+    const requestedVisits = visitsPerWeekValue * numberOfWeeksValue;
+    const visitLimit = subscription?.visitLimit;
+    const sessionsUsed = usage?.sessionsUsed ?? 0;
+    const isAtVisitLimit = !isEditMode
+        && visitLimit != null
+        && visitLimit < 999999
+        && requestedVisits > 0
+        && (sessionsUsed + requestedVisits) > visitLimit;
+
     useEffect(() => {
         trackEvent("request_form_started", { is_direct: !!directTo, is_edit: !!editId });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -62,6 +73,18 @@ export default function NewRequestForm({ editId, directTo }) {
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isAtRequestLimit]);
+
+    useEffect(() => {
+        if (isAtVisitLimit) {
+            trackEvent("subscription_limit_reached", {
+                limit_type: "visits",
+                plan_type: subscription?.planType ?? null,
+                requested_visits: requestedVisits,
+                remaining_visits: visitLimit - sessionsUsed,
+            });
+        }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isAtVisitLimit]);
 
     useEffect(() => {
         if (directTo) {
@@ -198,8 +221,13 @@ export default function NewRequestForm({ editId, directTo }) {
             reset();
             router.push("/customer/requests");
         } catch (err) {
-            const msg = isEditMode ? "Failed to update request." : "Failed to create request.";
-            setError(err.response?.data?.message || `${msg} Please try again.`);
+            const code = err.response?.data?.code;
+            if (code === "VISIT_LIMIT_REACHED") {
+                setError(err.response.data.message + " Please upgrade your plan.");
+            } else {
+                const msg = isEditMode ? "Failed to update request." : "Failed to create request.";
+                setError(err.response?.data?.message || `${msg} Please try again.`);
+            }
             setSubmitting(false);
         }
     };
@@ -225,6 +253,30 @@ export default function NewRequestForm({ editId, directTo }) {
                     <p className="text-text-muted  mb-4">
                         You&apos;ve used all {jobPostingLimit} of your active job posting slots ({usage.activeJobPostings}/{jobPostingLimit}).
                         Upgrade your plan to post more jobs.
+                    </p>
+                    <div className="flex gap-3 justify-center">
+                        <Link href="/customer/requests" className="px-4 py-2 rounded-lg border border-border-light  text-text-main font-medium hover:bg-gray-50 ">
+                            Back to Requests
+                        </Link>
+                        <Link href="/customer/subscription" className="px-4 py-2 rounded-lg bg-primary text-white font-medium hover:bg-primary/90 transition-colors">
+                            Upgrade Plan
+                        </Link>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    if (isAtVisitLimit) {
+        const remaining = visitLimit - sessionsUsed;
+        return (
+            <div className="max-w-lg mx-auto mt-20 text-center">
+                <div className="bg-card-light  rounded-xl border border-border-light  p-8 shadow-sm">
+                    <MdLock className="w-12 h-12 text-amber-500 mx-auto mb-4" />
+                    <h2 className="text-xl font-bold text-text-main  mb-2">Visit Limit Reached</h2>
+                    <p className="text-text-muted  mb-4">
+                        This request requires {requestedVisits} visits but you only have {remaining} remaining this billing period ({sessionsUsed}/{visitLimit} used).
+                        Upgrade your plan to continue.
                     </p>
                     <div className="flex gap-3 justify-center">
                         <Link href="/customer/requests" className="px-4 py-2 rounded-lg border border-border-light  text-text-main font-medium hover:bg-gray-50 ">
