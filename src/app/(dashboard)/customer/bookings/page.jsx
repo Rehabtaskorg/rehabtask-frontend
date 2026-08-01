@@ -253,25 +253,42 @@ export default function CustomerBookingsPage() {
                                                             size="sm"
                                                         />
                                                         <div className="min-w-0">
-                                                            <p className="text-sm font-semibold text-text-main  truncate">
+                                                            <p className="text-sm font-semibold text-text-main truncate">
                                                                 {therapist?.fullName || "Therapist"}
                                                             </p>
-                                                            <p className="text-xs text-text-muted  truncate">
-                                                                {therapist?.specialization || "—"}
-                                                            </p>
+                                                            {therapist?.primaryLicenseType && (
+                                                                <p className="text-xs text-text-muted truncate">
+                                                                    {therapist.primaryLicenseType}
+                                                                </p>
+                                                            )}
                                                         </div>
                                                     </div>
                                                 </td>
                                                 <td className="py-3.5 pr-4">
-                                                    <div className="flex flex-col items-start gap-1">
-                                                        <span className="text-sm text-text-main ">
+                                                    <div className="flex flex-col items-start gap-0.5">
+                                                        <span className="text-sm text-text-main">
                                                             {booking.offer?.request?.serviceType || "—"}
                                                         </span>
-                                                        <PatientBadge patient={booking.patient} />
-                                                        {booking.patient?.certificationStart && booking.patient?.certificationEnd && (
-                                                            <span className="text-[11px] text-text-muted ">
-                                                                {formatShortDate(booking.patient.certificationStart)} – {formatShortDate(booking.patient.certificationEnd)}
-                                                            </span>
+                                                        {booking.patient && (
+                                                            <>
+                                                                <PatientBadge patient={booking.patient} />
+                                                                {booking.patient.dateOfBirth && (
+                                                                    <span className="text-[11px] text-text-muted">
+                                                                        DOB: {formatShortDate(booking.patient.dateOfBirth)}
+                                                                        {booking.patient.gender ? ` · ${booking.patient.gender}` : ""}
+                                                                    </span>
+                                                                )}
+                                                                {booking.patient.certificationStart && booking.patient.certificationEnd && (
+                                                                    <span className="text-[11px] text-text-muted">
+                                                                        Cert: {formatShortDate(booking.patient.certificationStart)} – {formatShortDate(booking.patient.certificationEnd)}
+                                                                    </span>
+                                                                )}
+                                                                {booking.patient.agency?.agencyName && (
+                                                                    <span className="text-[11px] text-text-muted truncate max-w-[200px]">
+                                                                        Agency: {booking.patient.agency.agencyName}
+                                                                    </span>
+                                                                )}
+                                                            </>
                                                         )}
                                                     </div>
                                                 </td>
@@ -324,14 +341,29 @@ export default function CustomerBookingsPage() {
                                                     </h3>
                                                     <BookingStatusBadge status={booking.status} />
                                                 </div>
-                                                <p className="text-xs text-text-muted  mb-2">
+                                                <p className="text-xs text-text-muted mb-1">
                                                     {booking.offer?.request?.serviceType || "—"}
                                                 </p>
-                                                <PatientBadge patient={booking.patient} />
-                                                {booking.patient?.certificationStart && booking.patient?.certificationEnd && (
-                                                    <p className="text-[11px] text-text-muted  mt-1 mb-1">
-                                                        {formatShortDate(booking.patient.certificationStart)} – {formatShortDate(booking.patient.certificationEnd)}
-                                                    </p>
+                                                {booking.patient && (
+                                                    <div className="mb-1 space-y-0.5">
+                                                        <PatientBadge patient={booking.patient} />
+                                                        {booking.patient.dateOfBirth && (
+                                                            <p className="text-[11px] text-text-muted">
+                                                                DOB: {formatShortDate(booking.patient.dateOfBirth)}
+                                                                {booking.patient.gender ? ` · ${booking.patient.gender}` : ""}
+                                                            </p>
+                                                        )}
+                                                        {booking.patient.certificationStart && booking.patient.certificationEnd && (
+                                                            <p className="text-[11px] text-text-muted">
+                                                                Cert: {formatShortDate(booking.patient.certificationStart)} – {formatShortDate(booking.patient.certificationEnd)}
+                                                            </p>
+                                                        )}
+                                                        {booking.patient.agency?.agencyName && (
+                                                            <p className="text-[11px] text-text-muted">
+                                                                Agency: {booking.patient.agency.agencyName}
+                                                            </p>
+                                                        )}
+                                                    </div>
                                                 )}
                                                 <div className="flex items-center gap-4 text-xs text-text-muted ">
                                                     <span className="flex items-center gap-1">
