@@ -75,18 +75,6 @@ export default function NewRequestForm({ editId, directTo }) {
     }, [isAtRequestLimit]);
 
     useEffect(() => {
-        if (isAtVisitLimit) {
-            trackEvent("subscription_limit_reached", {
-                limit_type: "visits",
-                plan_type: subscription?.planType ?? null,
-                requested_visits: requestedVisits,
-                remaining_visits: visitLimit - sessionsUsed,
-            });
-        }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [isAtVisitLimit]);
-
-    useEffect(() => {
         if (directTo) {
             if (targetTherapistId !== directTo) setTargetTherapistId(directTo);
         } else {
@@ -221,13 +209,8 @@ export default function NewRequestForm({ editId, directTo }) {
             reset();
             router.push("/customer/requests");
         } catch (err) {
-            const code = err.response?.data?.code;
-            if (code === "VISIT_LIMIT_REACHED") {
-                setError(err.response.data.message + " Please upgrade your plan.");
-            } else {
-                const msg = isEditMode ? "Failed to update request." : "Failed to create request.";
-                setError(err.response?.data?.message || `${msg} Please try again.`);
-            }
+            const msg = isEditMode ? "Failed to update request." : "Failed to create request.";
+            setError(err.response?.data?.message || `${msg} Please try again.`);
             setSubmitting(false);
         }
     };
@@ -253,30 +236,6 @@ export default function NewRequestForm({ editId, directTo }) {
                     <p className="text-text-muted  mb-4">
                         You&apos;ve used all {jobPostingLimit} of your active job posting slots ({usage.activeJobPostings}/{jobPostingLimit}).
                         Upgrade your plan to post more jobs.
-                    </p>
-                    <div className="flex gap-3 justify-center">
-                        <Link href="/customer/requests" className="px-4 py-2 rounded-lg border border-border-light  text-text-main font-medium hover:bg-gray-50 ">
-                            Back to Requests
-                        </Link>
-                        <Link href="/customer/subscription" className="px-4 py-2 rounded-lg bg-primary text-white font-medium hover:bg-primary/90 transition-colors">
-                            Upgrade Plan
-                        </Link>
-                    </div>
-                </div>
-            </div>
-        );
-    }
-
-    if (isAtVisitLimit) {
-        const remaining = visitLimit - sessionsUsed;
-        return (
-            <div className="max-w-lg mx-auto mt-20 text-center">
-                <div className="bg-card-light  rounded-xl border border-border-light  p-8 shadow-sm">
-                    <MdLock className="w-12 h-12 text-amber-500 mx-auto mb-4" />
-                    <h2 className="text-xl font-bold text-text-main  mb-2">Visit Limit Reached</h2>
-                    <p className="text-text-muted  mb-4">
-                        This request requires {requestedVisits} visits but you only have {remaining} remaining this billing period ({sessionsUsed}/{visitLimit} used).
-                        Upgrade your plan to continue.
                     </p>
                     <div className="flex gap-3 justify-center">
                         <Link href="/customer/requests" className="px-4 py-2 rounded-lg border border-border-light  text-text-main font-medium hover:bg-gray-50 ">
@@ -463,6 +422,33 @@ export default function NewRequestForm({ editId, directTo }) {
                                     </div>
                                 )}
                                 <Step3Review onEditStep={(s) => useRequestStore.getState().goToStep(s)} />
+                                {isAtVisitLimit && (
+                                    <div className="flex items-start gap-3 bg-amber-50  border border-amber-200  rounded-xl p-4">
+                                        <MdWarning className="text-amber-500 text-xl shrink-0 mt-0.5" />
+                                        <div className="flex-1 min-w-0">
+                                            <p className="text-sm font-semibold text-amber-800 ">Visit limit notice</p>
+                                            <p className="text-xs text-amber-700  mt-1 leading-relaxed">
+                                                This request requires <strong>{requestedVisits} visits</strong> but you only have <strong>{visitLimit - sessionsUsed} remaining</strong> this billing period ({sessionsUsed}/{visitLimit} used).
+                                                You can still post it, but you won&apos;t be able to accept any offers until you upgrade your plan or your visits reset.
+                                            </p>
+                                            <div className="flex gap-2 mt-3">
+                                                <Link
+                                                    href="/customer/subscription"
+                                                    className="px-3 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold transition-colors"
+                                                >
+                                                    Upgrade Plan
+                                                </Link>
+                                                <button
+                                                    onClick={handleSubmit}
+                                                    disabled={submitting}
+                                                    className="px-3 py-1.5 rounded-lg border border-amber-300  bg-white  hover:bg-amber-50  text-amber-800  text-xs font-bold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                                >
+                                                    {submitting ? "Posting..." : "Post Request Anyway"}
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
                             </>
                         )}
 
@@ -488,6 +474,7 @@ export default function NewRequestForm({ editId, directTo }) {
                     }
                     submitting={submitting}
                     isEditMode={isEditMode}
+                    hideSubmit={isAtVisitLimit}
                 />
             </div>
         </APIProvider>
