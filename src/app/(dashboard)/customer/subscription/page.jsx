@@ -310,7 +310,7 @@ export default function SubscriptionPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <UsageBar
                         label="Visits this billing period"
-                        current={usage.visitCount}
+                        current={usage.sessionsUsed}
                         limit={subscription?.visitLimit >= 999999 ? null : subscription?.visitLimit}
                         tooltip="Sessions are counted when you accept a therapist offer. Cancelled sessions are deducted."
                     />

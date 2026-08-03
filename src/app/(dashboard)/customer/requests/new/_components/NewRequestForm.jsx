@@ -52,7 +52,7 @@ export default function NewRequestForm({ editId, directTo }) {
     const numberOfWeeksValue = parseInt(step1.numberOfWeeks) || 0;
     const requestedVisits = visitsPerWeekValue * numberOfWeeksValue;
     const visitLimit = subscription?.visitLimit;
-    const sessionsUsed = usage?.visitCount ?? 0;
+    const sessionsUsed = usage?.sessionsUsed ?? 0;
     const isAtVisitLimit = !isEditMode
         && visitLimit != null
         && visitLimit < 999999

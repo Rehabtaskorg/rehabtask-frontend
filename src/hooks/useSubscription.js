@@ -17,7 +17,7 @@ export function useSubscription() {
 
     return {
         subscription: data?.subscription ?? null,
-        usage: data?.usage ?? { visitCount: 0, activeJobPostings: 0 },
+        usage: data?.usage ?? { sessionsUsed: 0, activeJobPostings: 0 },
         loading: isLoading,
         error,
         refetch,
