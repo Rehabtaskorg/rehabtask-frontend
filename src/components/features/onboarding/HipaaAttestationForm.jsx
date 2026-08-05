@@ -121,7 +121,8 @@ export function HipaaAttestationForm() {
 
             updateHipaa({ attested: true, document: certDoc });
             trackEvent("onboarding_step_completed", { step: 6, step_name: "hipaa" });
-            router.push("/therapist/onboarding/background-check");
+            // TODO: [NEXT] Route to /therapist/onboarding/background-check once that page is built
+            router.push("/therapist/onboarding/stripe");
         } catch (err) {
             setUploadError(err.response?.data?.message || err.message || "Failed to save. Please try again.");
         } finally {
