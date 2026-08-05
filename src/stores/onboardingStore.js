@@ -38,7 +38,12 @@ const useOnboardingStore = create(
             professionalProfile: {
                 yearsOfExperience: null,
                 primaryLicenseType: "",
-                specialization: "",
+                specialties: [],
+                languages: [],
+                certifications: [],
+                pastSettings: [],
+                populationExperience: [],
+                yearsInHomeHealth: null,
                 professionalSummary: "",
                 profilePhotoUrl: null,
             },
@@ -50,12 +55,20 @@ const useOnboardingStore = create(
                 additionalLicenseStates: [],
                 licenseDocuments: [],
                 w9Document: null,
+                evaluationRate: null,
+                travelFee: null,
             },
 
             availability: {
                 schedule: initialSchedule,
-                acceptingNewPatients: true,
+                availableFrom: null,
+                caseloadCapacity: null,
                 workAreas: [],
+            },
+
+            hipaa: {
+                attested: false,
+                document: null,
             },
 
             insurance: {
@@ -266,6 +279,11 @@ const useOnboardingStore = create(
             },
 
 
+            updateHipaa: (data) =>
+                set((state) => ({
+                    hipaa: { ...state.hipaa, ...data },
+                })),
+
             updatePayment: (data) =>
                 set((state) => ({
                     payment: { ...state.payment, ...data },
@@ -289,6 +307,7 @@ const useOnboardingStore = create(
                     availability: state.availability,
                     insurance: state.insurance,
                     identity: state.identity,
+                    hipaa: state.hipaa,
                     payment: state.payment,
                     currentStep: state.currentStep,
                     completedSteps: state.completedSteps,
@@ -320,7 +339,12 @@ const useOnboardingStore = create(
                     professionalProfile: {
                         yearsOfExperience: null,
                         primaryLicenseType: "",
-                        specialization: "",
+                        specialties: [],
+                        languages: [],
+                        certifications: [],
+                        pastSettings: [],
+                        populationExperience: [],
+                        yearsInHomeHealth: null,
                         professionalSummary: "",
                         profilePhotoUrl: null,
                     },
@@ -331,11 +355,18 @@ const useOnboardingStore = create(
                         additionalLicenseStates: [],
                         licenseDocuments: [],
                         w9Document: null,
+                        evaluationRate: null,
+                        travelFee: null,
                     },
                     availability: {
                         schedule: initialSchedule,
-                        acceptingNewPatients: true,
+                        availableFrom: null,
+                        caseloadCapacity: null,
                         workAreas: [],
+                    },
+                    hipaa: {
+                        attested: false,
+                        document: null,
                     },
                     insurance: {
                         doesHomeVisits: false,
@@ -363,7 +394,9 @@ const useOnboardingStore = create(
                     licenseState: state.credentials.licenseState,
                     npiNumber: state.credentials.npiNumber,
                     additionalLicenseStates: state.credentials.additionalLicenseStates,
-                    licenseDocuments: state.credentials.licenseDocuments.map(doc => ({
+                    evaluationRate: state.credentials.evaluationRate,
+                    travelFee: state.credentials.travelFee,
+                    licenseDocuments: state.credentials.licenseDocuments.map((doc) => ({
                         path: doc.path,
                         fileName: doc.fileName,
                         fileSize: doc.fileSize,
@@ -378,7 +411,12 @@ const useOnboardingStore = create(
                         mimeType: state.credentials.w9Document.mimeType,
                     } : null,
                 },
-                availability: state.availability,
+                availability: {
+                    schedule: state.availability.schedule,
+                    availableFrom: state.availability.availableFrom,
+                    caseloadCapacity: state.availability.caseloadCapacity,
+                    workAreas: state.availability.workAreas,
+                },
                 insurance: {
                     doesHomeVisits: state.insurance.doesHomeVisits,
                     documents: state.insurance.documents.map((doc) => ({
@@ -397,6 +435,16 @@ const useOnboardingStore = create(
                         documentType: doc.documentType,
                         mimeType: doc.mimeType,
                     })),
+                },
+                hipaa: {
+                    attested: state.hipaa.attested,
+                    document: state.hipaa.document ? {
+                        path: state.hipaa.document.path,
+                        fileName: state.hipaa.document.fileName,
+                        fileSize: state.hipaa.document.fileSize,
+                        documentType: state.hipaa.document.documentType,
+                        mimeType: state.hipaa.document.mimeType,
+                    } : null,
                 },
                 payment: {
                     stripeConnected: state.payment.stripeConnected,

@@ -94,7 +94,8 @@ export default function AvailabilityPage() {
         try {
             await onboardingAPI.saveAvailability({
                 schedule: data.schedule,
-                acceptingNewPatients: data.acceptingNewPatients,
+                availableFrom: data.availableFrom || null,
+                caseloadCapacity: data.caseloadCapacity ? Number(data.caseloadCapacity) : null,
                 workAreas: data.workAreas,
             });
 
@@ -147,46 +148,12 @@ export default function AvailabilityPage() {
                     <OnboardingProgressBar />
 
                     <header className="mb-8 px-4">
-                        <div className="flex flex-wrap justify-between items-end gap-6 mb-4">
-                            <div className="flex min-w-75 flex-col gap-2">
-                                <h1 className="text-text-main  text-4xl font-black leading-tight tracking-[-0.033em]">
-                                    Set Your Availability & Reach
-                                </h1>
-                                <p className="text-text-muted  text-lg font-normal leading-normal max-w-2xl">
-                                    Define when you&apos;re available and how far you&apos;re willing to
-                                    travel to treat patients.
-                                </p>
-                            </div>
-                            <div className="flex items-center gap-4 bg-card-light  border border-border-light  p-4 rounded-xl shadow-sm">
-                                <div className="flex flex-col">
-                                    <span className="text-sm font-bold text-text-main ">
-                                        Accepting New Patients
-                                    </span>
-                                    <span className="text-xs text-green-600  font-medium">
-                                        Profile will be live instantly
-                                    </span>
-                                </div>
-                                <Controller
-                                    name="acceptingNewPatients"
-                                    control={control}
-                                    render={({ field }) => (
-                                        <label className="relative inline-flex items-center cursor-pointer">
-                                            <input
-                                                type="checkbox"
-                                                checked={field.value}
-                                                onChange={(e) => {
-                                                    const newValue = e.target.checked;
-                                                    field.onChange(newValue);
-                                                    updateAvailability({ acceptingNewPatients: newValue });
-                                                }}
-                                                className="sr-only peer"
-                                            />
-                                            <div className="w-11 h-6 bg-gray-200  peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
-                                        </label>
-                                    )}
-                                />
-                            </div>
-                        </div>
+                        <h1 className="text-text-main text-4xl font-black leading-tight tracking-[-0.033em] mb-2">
+                            Set Your Availability & Reach
+                        </h1>
+                        <p className="text-text-muted text-lg font-normal leading-normal max-w-2xl">
+                            Define when you&apos;re available and how far you&apos;re willing to travel to treat patients.
+                        </p>
                     </header>
 
                     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-8">
@@ -447,13 +414,73 @@ export default function AvailabilityPage() {
                                     </button>
                                 </div>
 
+                                {/* Availability Start Date + Caseload */}
+                                <div className="bg-card-light border border-border-light rounded-xl p-6 flex flex-col gap-5 shadow-sm">
+                                    <h3 className="text-base font-bold text-text-main">Capacity</h3>
+
+                                    <div className="flex flex-col gap-2">
+                                        <label className="text-text-main text-sm font-semibold">
+                                            Available From{" "}
+                                            <span className="text-text-muted font-normal">(optional)</span>
+                                        </label>
+                                        <Controller
+                                            name="availableFrom"
+                                            control={control}
+                                            render={({ field }) => (
+                                                <DatePicker
+                                                    selected={field.value ? new Date(field.value) : null}
+                                                    onChange={(date) => {
+                                                        const iso = date ? date.toISOString() : null;
+                                                        field.onChange(iso);
+                                                        updateAvailability({ availableFrom: iso });
+                                                    }}
+                                                    minDate={new Date()}
+                                                    dateFormat="MMM d, yyyy"
+                                                    placeholderText="Select start date"
+                                                    className="w-full px-4 py-3 h-12 rounded-lg border border-border-light bg-input-light text-text-main focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all text-sm"
+                                                />
+                                            )}
+                                        />
+                                        <p className="text-xs text-text-muted">Leave blank if available immediately.</p>
+                                    </div>
+
+                                    <div className="flex flex-col gap-2">
+                                        <label className="text-text-main text-sm font-semibold">
+                                            Max Patients / Week{" "}
+                                            <span className="text-text-muted font-normal">(optional)</span>
+                                        </label>
+                                        <Controller
+                                            name="caseloadCapacity"
+                                            control={control}
+                                            render={({ field }) => (
+                                                <input
+                                                    type="number"
+                                                    min="1"
+                                                    max="999"
+                                                    value={field.value ?? ""}
+                                                    onChange={(e) => {
+                                                        const val = e.target.value === "" ? null : Number(e.target.value);
+                                                        field.onChange(val);
+                                                        updateAvailability({ caseloadCapacity: val });
+                                                    }}
+                                                    placeholder="e.g. 10"
+                                                    className="w-full px-4 py-3 h-12 rounded-lg border border-border-light bg-input-light text-text-main focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all text-sm"
+                                                />
+                                            )}
+                                        />
+                                        {errors.caseloadCapacity && (
+                                            <p className="text-red-500 text-sm">{errors.caseloadCapacity.message}</p>
+                                        )}
+                                    </div>
+                                </div>
+
                                 {/* Preview Card */}
-                                <div className="bg-primary/5  border border-primary/10  p-6 rounded-xl">
+                                <div className="bg-primary/5 border border-primary/10 p-6 rounded-xl">
                                     <h3 className="text-sm font-bold text-primary mb-2 flex items-center gap-2">
                                         <LuMapPin size={14} />
                                         Marketplace Preview
                                     </h3>
-                                    <p className="text-xs text-primary/80  leading-relaxed">
+                                    <p className="text-xs text-primary/80 leading-relaxed">
                                         Patients will see your availability and work areas when searching for therapists in their area.
                                     </p>
                                 </div>

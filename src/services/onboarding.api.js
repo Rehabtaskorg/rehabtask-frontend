@@ -50,6 +50,13 @@ export const onboardingAPI = {
     },
 
     /**
+     * Save HIPAA attestation + optional certificate upload (Step 7)
+     */
+    saveHipaaAttestation: async (data) => {
+        return api.post("/therapist/onboarding/hipaa", data);
+    },
+
+    /**
      * Save insurance documentation (Step 5)
      */
     saveInsurance: async (data) => {

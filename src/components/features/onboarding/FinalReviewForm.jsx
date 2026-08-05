@@ -15,6 +15,7 @@ const CHECKLIST_STEPS = [
     { key: "availability", label: "Availability", step: 4 },
     { key: "insurance", label: "Insurance Uploads", step: 5 },
     { key: "identity", label: "Identity Verification", step: 6 },
+    { key: "hipaa", label: "HIPAA Attestation", href: "/therapist/onboarding/hipaa" },
 ];
 
 /**
@@ -49,7 +50,7 @@ export function FinalReviewForm() {
                     ) : (
                         <>
                             <div className="space-y-1">
-                                {CHECKLIST_STEPS.map(({ key, label, step }) => (
+                                {CHECKLIST_STEPS.map(({ key, label, step, href }) => (
                                     <div
                                         key={key}
                                         className="flex items-center justify-between p-4 rounded-lg border-b border-border-light last:border-b-0"
@@ -63,7 +64,7 @@ export function FinalReviewForm() {
                                             <span className="text-sm font-semibold text-text-main">{label}</span>
                                         </div>
                                         <Link
-                                            href={ONBOARDING_STEP_ROUTES[step]}
+                                            href={href ?? ONBOARDING_STEP_ROUTES[step]}
                                             className="text-primary text-xs font-bold uppercase tracking-wide hover:underline"
                                         >
                                             Edit

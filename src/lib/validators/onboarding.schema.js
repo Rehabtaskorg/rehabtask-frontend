@@ -1,7 +1,13 @@
 import z from "zod";
 import { isValidPhoneNumber } from "react-phone-number-input";
-import { SPECIALIZATIONS } from "../constants/specializations";
 import { US_STATES } from "../constants/credentials";
+import {
+    THERAPIST_SPECIALTIES,
+    THERAPIST_LANGUAGES,
+    THERAPIST_CERTIFICATIONS,
+    THERAPIST_PAST_SETTINGS,
+    THERAPIST_POPULATIONS,
+} from "../constants/therapistAttributes";
 
 export const DEFAULT_TIME_BLOCK = { startTime: "09:00", endTime: "17:00" };
 
@@ -96,13 +102,45 @@ export const professionalProfileSchema = z.object({
         .string()
         .min(1, "Please select your license type"),
 
-    specialization: z
+    specialties: z
+        .array(z.string().refine((v) => THERAPIST_SPECIALTIES.includes(v), { message: "Invalid specialty" }))
+        .max(20)
+        .optional()
+        .default([]),
+
+    languages: z
+        .array(z.string().refine((v) => THERAPIST_LANGUAGES.includes(v), { message: "Invalid language" }))
+        .max(20)
+        .optional()
+        .default([]),
+
+    certifications: z
+        .array(z.string().refine((v) => THERAPIST_CERTIFICATIONS.includes(v), { message: "Invalid certification" }))
+        .max(20)
+        .optional()
+        .default([]),
+
+    pastSettings: z
+        .array(z.string().refine((v) => THERAPIST_PAST_SETTINGS.includes(v), { message: "Invalid past setting" }))
+        .max(20)
+        .optional()
+        .default([]),
+
+    populationExperience: z
+        .array(z.string().refine((v) => THERAPIST_POPULATIONS.includes(v), { message: "Invalid population" }))
+        .max(20)
+        .optional()
+        .default([]),
+
+    yearsInHomeHealth: z
         .string()
+        .trim()
         .optional()
         .nullable()
-        .refine((val) => !val || SPECIALIZATIONS.includes(val), {
-            message: "Selected specialization is invalid",
-        }),
+        .refine((val) => !val || (/^\d+$/.test(val) && Number(val) >= 0 && Number(val) <= 50), {
+            message: "Must be a number between 0 and 50",
+        })
+        .transform((val) => (val ? Number(val) : null)),
 
     professionalSummary: z
         .string()
@@ -151,7 +189,27 @@ export const credentialsSchema = z.object({
             mimeType: z.string().optional(),
         }))
         .min(1, "Please upload at least one license document")
-        .max(5, "You can upload a maximum of 5 license documents")
+        .max(5, "You can upload a maximum of 5 license documents"),
+
+    evaluationRate: z
+        .string()
+        .trim()
+        .optional()
+        .nullable()
+        .refine((val) => !val || (!isNaN(Number(val)) && Number(val) >= 0 && Number(val) <= 10000), {
+            message: "Must be between $0 and $10,000",
+        })
+        .transform((val) => (val ? Number(val) : null)),
+
+    travelFee: z
+        .string()
+        .trim()
+        .optional()
+        .nullable()
+        .refine((val) => !val || (!isNaN(Number(val)) && Number(val) >= 0 && Number(val) <= 500), {
+            message: "Must be between $0 and $500",
+        })
+        .transform((val) => (val ? Number(val) : null)),
 });
 
 export const availabilitySchema = z.object({
@@ -168,7 +226,15 @@ export const availabilitySchema = z.object({
         path: ["schedule"],
     }),
 
-    acceptingNewPatients: z.boolean(),
+    availableFrom: z.string().optional().nullable(),
+    caseloadCapacity: z
+        .union([z.string().trim(), z.number()])
+        .optional()
+        .nullable()
+        .refine((val) => val == null || val === "" || (Number(val) >= 1 && Number(val) <= 999), {
+            message: "Must be a number between 1 and 999",
+        })
+        .transform((val) => (val == null || val === "" ? null : Number(val))),
 
     workAreas: z
         .array(
@@ -182,6 +248,18 @@ export const availabilitySchema = z.object({
             })
         )
         .min(1, "Please add at least one work area"),
+});
+
+export const hipaaSchema = z.object({
+    attested: z.literal(true, { errorMap: () => ({ message: "You must confirm HIPAA compliance" }) }),
+    document: z.object({
+        url: z.string().optional(),
+        path: z.string().min(1),
+        fileName: z.string().min(1),
+        fileSize: z.number().positive(),
+        documentType: z.literal("hipaa_certificate"),
+        mimeType: z.string().optional(),
+    }).optional().nullable(),
 });
 
 const insuranceDocumentSchema = z.object({

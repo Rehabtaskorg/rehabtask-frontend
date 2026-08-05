@@ -21,6 +21,7 @@ export function useOnboardingDataSync() {
         updateAvailability,
         updateInsurance,
         updateIdentity,
+        updateHipaa,
     } = useOnboardingStore();
 
     const syncData = useCallback(async () => {
@@ -34,6 +35,7 @@ export function useOnboardingDataSync() {
             updateAvailability(data.availability);
             updateInsurance(data.insurance);
             updateIdentity(data.identity);
+            if (data.hipaa) updateHipaa(data.hipaa);
 
             return data;
         } catch (error) {
@@ -47,6 +49,7 @@ export function useOnboardingDataSync() {
         updateAvailability,
         updateInsurance,
         updateIdentity,
+        updateHipaa,
     ]);
 
     return { syncData };

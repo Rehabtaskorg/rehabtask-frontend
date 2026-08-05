@@ -71,16 +71,18 @@ export function CredentialsForm() {
             credentialsSchema
                 .omit({ licenseDocuments: true })
                 .extend({
-                    ratePerVisit: z.coerce
-                        .number()
-                        .min(0)
-                        .max(10000)
-                        .optional()
-                        .nullable()
-                        .transform((val) => (val === 0 ? null : val)),
+                    ratePerVisit: z.coerce.number().min(0).max(10000).optional().nullable().transform((val) => (val === 0 ? null : val)),
                     attemptedVisitRate: z.preprocess(
                         (val) => (val === "" || val === undefined ? null : val),
                         z.coerce.number().min(0).max(10000).nullable()
+                    ),
+                    evaluationRate: z.preprocess(
+                        (val) => (val === "" || val === undefined ? null : val),
+                        z.coerce.number().min(0).max(10000).nullable()
+                    ),
+                    travelFee: z.preprocess(
+                        (val) => (val === "" || val === undefined ? null : val),
+                        z.coerce.number().min(0).max(500).nullable()
                     ),
                 })
                 .refine(
@@ -88,10 +90,7 @@ export function CredentialsForm() {
                         if (data.attemptedVisitRate == null || data.ratePerVisit == null) return true;
                         return data.attemptedVisitRate <= data.ratePerVisit;
                     },
-                    {
-                        message: "Cannot be greater than your session rate",
-                        path: ["attemptedVisitRate"],
-                    }
+                    { message: "Cannot be greater than your session rate", path: ["attemptedVisitRate"] }
                 )
         ),
         defaultValues: {
@@ -100,6 +99,8 @@ export function CredentialsForm() {
             npiNumber: credentials.npiNumber || "",
             ratePerVisit: credentials.ratePerVisit?.toString() || "",
             attemptedVisitRate: credentials.attemptedVisitRate?.toString() || "",
+            evaluationRate: credentials.evaluationRate?.toString() || "",
+            travelFee: credentials.travelFee?.toString() || "",
         },
     });
 
@@ -120,6 +121,8 @@ export function CredentialsForm() {
                 npiNumber: creds.npiNumber || "",
                 ratePerVisit: creds.ratePerVisit?.toString() || "",
                 attemptedVisitRate: creds.attemptedVisitRate?.toString() || "",
+                evaluationRate: creds.evaluationRate?.toString() || "",
+                travelFee: creds.travelFee?.toString() || "",
             });
             setAdditionalStates(creds.additionalLicenseStates ?? []);
         });
@@ -205,12 +208,10 @@ export function CredentialsForm() {
                 licenseState: data.licenseState,
                 npiNumber: data.npiNumber || null,
                 additionalLicenseStates: additionalStates,
-                ...(data.ratePerVisit != null && data.ratePerVisit !== "" && {
-                    ratePerVisit: data.ratePerVisit,
-                }),
-                ...(data.attemptedVisitRate != null && {
-                    attemptedVisitRate: data.attemptedVisitRate,
-                }),
+                ...(data.ratePerVisit != null && data.ratePerVisit !== "" && { ratePerVisit: data.ratePerVisit }),
+                ...(data.attemptedVisitRate != null && { attemptedVisitRate: data.attemptedVisitRate }),
+                ...(data.evaluationRate != null && { evaluationRate: data.evaluationRate }),
+                ...(data.travelFee != null && { travelFee: data.travelFee }),
                 licenseDocuments: uploadedDocs.map((doc) => ({
                     path: doc.path,
                     fileName: doc.fileName,
@@ -538,6 +539,51 @@ export function CredentialsForm() {
                                 <p className="text-xs text-text-muted">
                                     Charged when you arrive but the patient isn&apos;t home. Must be less than or equal to your session rate. Leave blank if you won&apos;t charge for no-shows.
                                 </p>
+                            </div>
+                        </div>
+
+                        {/* Section 4b — Evaluation Rate + Travel Fee */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="flex flex-col gap-2">
+                                <label className="text-text-main text-sm font-semibold">
+                                    Evaluation Rate{" "}
+                                    <span className="text-text-muted font-normal">(optional)</span>
+                                </label>
+                                <div className="relative">
+                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted text-sm pointer-events-none">$</span>
+                                    <input
+                                        type="number"
+                                        min="0"
+                                        max="10000"
+                                        step="0.01"
+                                        {...register("evaluationRate")}
+                                        placeholder="120.00"
+                                        className="w-full pl-8 pr-4 py-3 h-12 rounded-lg border border-border-light bg-input-light text-text-main focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
+                                    />
+                                </div>
+                                <p className="text-xs text-text-muted">Your rate for initial evaluations. Leave blank if same as session rate.</p>
+                                {errors.evaluationRate && <p className="text-red-500 text-sm">{errors.evaluationRate.message}</p>}
+                            </div>
+
+                            <div className="flex flex-col gap-2">
+                                <label className="text-text-main text-sm font-semibold">
+                                    Travel Fee{" "}
+                                    <span className="text-text-muted font-normal">(optional)</span>
+                                </label>
+                                <div className="relative">
+                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted text-sm pointer-events-none">$</span>
+                                    <input
+                                        type="number"
+                                        min="0"
+                                        max="500"
+                                        step="0.01"
+                                        {...register("travelFee")}
+                                        placeholder="15.00"
+                                        className="w-full pl-8 pr-4 py-3 h-12 rounded-lg border border-border-light bg-input-light text-text-main focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
+                                    />
+                                </div>
+                                <p className="text-xs text-text-muted">Additional charge per visit for travel. Max $500. Leave blank if you don&apos;t charge for travel.</p>
+                                {errors.travelFee && <p className="text-red-500 text-sm">{errors.travelFee.message}</p>}
                             </div>
                         </div>
 
