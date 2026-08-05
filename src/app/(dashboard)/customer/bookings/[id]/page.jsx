@@ -675,6 +675,8 @@ export default function CustomerBookingDetailPage() {
                                         </p>
                                         <p className="text-xs text-emerald-700  mt-0.5">
                                             {payment?.status === "released"
+                                                // TODO: [BUG] payment.amount is total escrow amount, not what was actually released.
+                                                // Should use payment.releasedAmount so missed/attempted deductions are reflected correctly.
                                                 ? `Payment of ${formatCurrency(parseFloat(payment.amount))} has been released to the therapist.`
                                                 : "Payment will be released shortly."
                                             }
