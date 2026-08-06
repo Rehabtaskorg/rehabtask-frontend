@@ -1,6 +1,6 @@
 "use client";
 
-import { MdVerified, MdScience, MdGroups, MdAttachMoney, MdCalendarToday } from "react-icons/md";
+import { MdVerified, MdScience, MdGroups, MdAttachMoney, MdCalendarToday, MdBarChart, MdStar } from "react-icons/md";
 import { formatShortDate } from "@/utils/dates";
 
 /**
@@ -144,6 +144,28 @@ export function ClinicalProfileSection({ profile }) {
                         <span className="text-text-muted">Not yet attested</span>
                     )}
                 </DetailRow>
+            </SectionCard>
+
+            <SectionCard label="Performance" icon={<MdBarChart className="text-primary text-xl" />}>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-x-6">
+                    <DetailRow label="Completed Visits">
+                        {profile?.stats?.completedVisits ?? 0}
+                    </DetailRow>
+                    <DetailRow label="Member Since">
+                        {formatShortDate(profile?.stats?.memberSince)}
+                    </DetailRow>
+                    {profile?.stats?.reviewCount > 0 && (
+                        <DetailRow label="Average Rating">
+                            <span className="inline-flex items-center gap-1">
+                                <MdStar className="text-yellow-400 text-base" />
+                                {profile.stats.averageRating} / 5
+                                <span className="text-text-muted text-sm font-normal">
+                                    ({profile.stats.reviewCount} {profile.stats.reviewCount === 1 ? "review" : "reviews"})
+                                </span>
+                            </span>
+                        </DetailRow>
+                    )}
+                </div>
             </SectionCard>
         </div>
     );
