@@ -15,7 +15,9 @@ import {
 } from "react-icons/md";
 import { LICENSE_TYPES } from "@/lib/constants/credentials";
 import { onboardingAPI } from "@/services/onboarding.api";
+import { logger } from "@/lib/logger";
 import ProfileEditModal from "./ProfileEditModal";
+import { ClinicalProfileSection } from "./ClinicalProfileSection";
 import Button from "@/components/ui/Button";
 import UserAvatar from "@/components/ui/UserAvatar";
 
@@ -91,7 +93,7 @@ const ProfileTab = ({ profile, approvalStatus, onboardingComplete }) => {
                 window.open(url, "_blank");
             }
         } catch (err) {
-            console.error("Error fetching document URL:", err);
+            logger.error("Error fetching document URL:", err);
         } finally {
             setViewingDoc(null);
         }
@@ -167,7 +169,6 @@ const ProfileTab = ({ profile, approvalStatus, onboardingComplete }) => {
                         )}
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1">
-                            <InfoRow label="Specialization" value={profile?.specialization} />
                             <InfoRow
                                 label="Rate per Visit"
                                 value={profile?.ratePerVisit ? `$${parseFloat(profile.ratePerVisit).toFixed(2)}` : null}
@@ -204,6 +205,7 @@ const ProfileTab = ({ profile, approvalStatus, onboardingComplete }) => {
                             </div>
                         )}
                     </div>
+                    <ClinicalProfileSection profile={profile} />
                 </div>
 
                 {/* Right column */}
