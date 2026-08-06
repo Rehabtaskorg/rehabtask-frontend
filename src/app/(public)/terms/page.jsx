@@ -23,7 +23,7 @@ export default function TermsOfServicePage() {
                         <p>
                             By creating an account or using RehabTask (&quot;Platform&quot;), you agree to be bound by
                             these Terms of Service (&quot;Terms&quot;). If you do not agree, do not use the Platform.
-                            These Terms form a binding agreement between you and Steadfast Rehab LLC
+                            These Terms form a binding agreement between you and RehabTask
                             (&quot;Company&quot;, &quot;we&quot;, &quot;us&quot;).
                         </p>
                     </div>
@@ -118,7 +118,7 @@ export default function TermsOfServicePage() {
                         <h2 className="text-lg font-semibold mb-2">8. Therapist Independence</h2>
                         <p>
                             Therapists on RehabTask are independent professionals, not employees or agents of
-                            Steadfast Rehab LLC. We do not supervise, direct, or control the clinical services
+                            RehabTask. We do not supervise, direct, or control the clinical services
                             provided. The Company is not liable for the quality, safety, or outcome of any therapy
                             session arranged through the Platform.
                         </p>
@@ -127,7 +127,7 @@ export default function TermsOfServicePage() {
                     <div>
                         <h2 className="text-lg font-semibold mb-2">9. Intellectual Property</h2>
                         <p>
-                            All Platform content, design, and code are owned by Steadfast Rehab LLC or its
+                            All Platform content, design, and code are owned by RehabTask or its
                             licensors. You may not reproduce, distribute, or create derivative works without our
                             prior written consent. You retain ownership of content you upload (profile information,
                             messages) and grant us a limited licence to display and transmit it as necessary to
@@ -147,7 +147,7 @@ export default function TermsOfServicePage() {
                     <div>
                         <h2 className="text-lg font-semibold mb-2">11. Limitation of Liability</h2>
                         <p>
-                            To the maximum extent permitted by law, Steadfast Rehab LLC shall not be liable for any
+                            To the maximum extent permitted by law, RehabTask shall not be liable for any
                             indirect, incidental, special, consequential, or punitive damages arising from your use
                             of the Platform. Our total liability to you for any claim shall not exceed the amount you
                             paid to us in the 12 months preceding the claim.
@@ -175,7 +175,7 @@ export default function TermsOfServicePage() {
                     <div>
                         <h2 className="text-lg font-semibold mb-2">14. Contact</h2>
                         <p>
-                            Steadfast Rehab LLC
+                            RehabTask
                             <br />
                             Email:{" "}
                             <a href="mailto:support@rehabtask.com" className="text-primary underline">
