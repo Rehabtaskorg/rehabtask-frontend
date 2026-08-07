@@ -5,7 +5,7 @@ import { api } from "@/lib/api";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { logger } from "@/lib/logger";
 
-const DISCIPLINES = ["Physical Therapist", "Occupational Therapist", "Speech Therapist", "All"];
+const DISCIPLINES = ["Physical Therapist", "Occupational Therapist", "Speech Therapist"];
 
 /**
  * Accessible labeled toggle switch for a single boolean visit type flag.
@@ -85,8 +85,13 @@ export default function AdminVisitTypesPage() {
         }
     };
 
+    const universalTypes = visitTypes.filter((vt) => vt.discipline === "All");
     const grouped = DISCIPLINES.reduce((acc, d) => {
-        acc[d] = visitTypes.filter((vt) => vt.discipline === d);
+        if (d === "All") return acc;
+        acc[d] = [
+            ...visitTypes.filter((vt) => vt.discipline === d),
+            ...universalTypes,
+        ];
         return acc;
     }, {});
 
