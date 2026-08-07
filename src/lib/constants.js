@@ -31,6 +31,14 @@ export const LICENSE_TYPE_TO_SERVICE_TYPE = Object.freeze({
     "Speech-Language Pathologist": "Speech Language Pathology (SLP)",
 });
 
+export const LICENSE_TYPE_TO_DISCIPLINE = Object.freeze({
+    "Physical Therapist": "PT",
+    "Physical Therapist Assistant": "PTA",
+    "Occupational Therapist": "OT",
+    "Occupational Therapist Assistant": "COTA",
+    "Speech-Language Pathologist": "SLP",
+});
+
 export const REQUEST_STATUS = {
     CREATED: "created",
     OFFERS_RECEIVED: "offers_received",

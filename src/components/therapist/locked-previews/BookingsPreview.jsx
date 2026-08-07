@@ -5,30 +5,30 @@ const FILTER_TABS = [
     { label: "Cancelled", count: 2 },
 ];
 
-const TableRow = ({ statusColor, statusWidth, hasPatient }) => (
-    <tr className="border-b border-border-light  last:border-b-0">
+const TableRow = ({ statusColor, statusWidth }) => (
+    <tr className="border-b border-border-light last:border-b-0">
         <td className="py-3 px-4">
-            <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-full bg-primary/10 shrink-0" />
-                <div className="h-4 w-24 bg-slate-200  rounded" />
-            </div>
+            <div className="h-4 w-28 bg-slate-200 rounded mb-1" />
+            <div className="h-3 w-20 bg-slate-100 rounded" />
         </td>
         <td className="py-3 px-4">
-            <div className="h-4 w-28 bg-slate-100  rounded" />
-            {hasPatient && <div className="h-4 w-20 bg-amber-100  rounded-full mt-1" />}
+            <div className="h-4 w-10 bg-slate-100 rounded" />
         </td>
         <td className="py-3 px-4">
-            <div className="h-4 w-20 bg-slate-100  rounded" />
-            <div className="h-3 w-14 bg-slate-100  rounded mt-1" />
+            <div className="h-4 w-28 bg-slate-100 rounded" />
         </td>
         <td className="py-3 px-4">
-            <div className="h-4 w-16 bg-emerald-100  rounded" />
+            <div className="h-4 w-20 bg-slate-100 rounded" />
+            <div className="h-3 w-14 bg-slate-100 rounded mt-1" />
+        </td>
+        <td className="py-3 px-4">
+            <div className="h-4 w-16 bg-emerald-100 rounded" />
         </td>
         <td className="py-3 px-4">
             <div className={`h-6 ${statusWidth} ${statusColor} rounded-full`} />
         </td>
         <td className="py-3 px-2">
-            <div className="w-5 h-5 bg-slate-100  rounded" />
+            <div className="w-5 h-5 bg-slate-100 rounded" />
         </td>
     </tr>
 );
@@ -59,7 +59,7 @@ export default function BookingsPreview() {
                 <table className="w-full">
                     <thead>
                         <tr className="border-b border-border-light ">
-                            {["Customer", "Service", "Date & Time", "Earnings", "Status", ""].map((col) => (
+                            {["Patient", "Discipline", "Agency", "Date & Time", "Earnings", "Status", ""].map((col) => (
                                 <th key={col} className="py-3 px-4 text-left">
                                     <div className={`h-3 ${col ? "w-16" : "w-4"} bg-slate-200  rounded`} />
                                 </th>
@@ -67,12 +67,12 @@ export default function BookingsPreview() {
                         </tr>
                     </thead>
                     <tbody>
-                        <TableRow statusColor="bg-blue-100 " statusWidth="w-20" hasPatient={false} />
-                        <TableRow statusColor="bg-emerald-100 " statusWidth="w-22" hasPatient={true} />
-                        <TableRow statusColor="bg-blue-100 " statusWidth="w-20" hasPatient={false} />
-                        <TableRow statusColor="bg-amber-100 " statusWidth="w-24" hasPatient={false} />
-                        <TableRow statusColor="bg-emerald-100 " statusWidth="w-22" hasPatient={true} />
-                        <TableRow statusColor="bg-slate-100 " statusWidth="w-20" hasPatient={false} />
+                        <TableRow statusColor="bg-blue-100" statusWidth="w-20" />
+                        <TableRow statusColor="bg-emerald-100" statusWidth="w-22" />
+                        <TableRow statusColor="bg-blue-100" statusWidth="w-20" />
+                        <TableRow statusColor="bg-amber-100" statusWidth="w-24" />
+                        <TableRow statusColor="bg-emerald-100" statusWidth="w-22" />
+                        <TableRow statusColor="bg-slate-100" statusWidth="w-20" />
                     </tbody>
                 </table>
 
