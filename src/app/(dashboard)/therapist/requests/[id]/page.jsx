@@ -27,11 +27,6 @@ const formatDate = (dateStr) => {
     return new Date(dateStr).toLocaleDateString([], { month: "short", day: "numeric", year: "numeric" });
 };
 
-const formatTime = (dateStr) => {
-    if (!dateStr) return "";
-    return new Date(dateStr).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
-};
-
 export default function TherapistRequestDetailPage() {
     usePageTitle("Request Details");
     const router = useRouter();
@@ -73,17 +68,17 @@ export default function TherapistRequestDetailPage() {
 
             if (fetched.preferredDate) {
                 const date = new Date(fetched.preferredDate);
-                const localDateTime = new Date(date.getTime() - date.getTimezoneOffset() * 60000)
+                const localDate = new Date(date.getTime() - date.getTimezoneOffset() * 60000)
                     .toISOString()
-                    .slice(0, 16);
-                setOfferData(prev => ({ ...prev, proposedDate: localDateTime }));
+                    .slice(0, 10);
+                setOfferData(prev => ({ ...prev, proposedDate: localDate }));
             }
         } catch {
             // non-fatal — error state shown via empty request
         } finally {
             setLoading(false);
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [params.id]);
 
     useEffect(() => {
@@ -268,10 +263,6 @@ export default function TherapistRequestDetailPage() {
                             <div>
                                 <p className="text-xs font-bold text-text-muted  uppercase tracking-widest mb-1">Preferred Date</p>
                                 <p className="font-semibold text-text-main ">{formatDate(request.preferredDate)}</p>
-                            </div>
-                            <div>
-                                <p className="text-xs font-bold text-text-muted  uppercase tracking-widest mb-1">Time</p>
-                                <p className="font-semibold text-text-main ">{formatTime(request.preferredDate)}</p>
                             </div>
                             {request.rate != null && (
                                 <div>

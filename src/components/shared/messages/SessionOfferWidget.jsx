@@ -33,14 +33,6 @@ const formatOfferDate = (dateString) => {
     return d.toLocaleDateString([], { weekday: 'long', month: 'short', day: 'numeric' });
 }
 
-const formatOfferTime = (dateString) => {
-    if (!dateString) return '';
-    const d = new Date(dateString);
-    const start = d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
-    const end = new Date(d.getTime() + 60 * 60 * 1000).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
-    return `${start} - ${end}`;
-};
-
 const STATUS_TEXT = {
     pending: 'Awaiting patient response',
     accepted: 'Offer accepted by patient',
@@ -205,13 +197,9 @@ export default function SessionOfferWidget({ offerId }) {
 
                     {offer.proposedDate && (
                         <div className="flex items-center gap-4 bg-background-light  p-3 rounded-lg">
-                            <div className="flex flex-col flex-1 border-r border-border-light ">
+                            <div className="flex flex-col flex-1">
                                 <p className="text-text-muted  text-[10px] font-bold uppercase">Date</p>
                                 <p className="text-text-main  text-sm font-medium">{formatOfferDate(offer.proposedDate)}</p>
-                            </div>
-                            <div className="flex flex-col flex-1 pl-2">
-                                <p className="text-text-muted  text-[10px] font-bold uppercase">Time</p>
-                                <p className="text-text-main  text-sm font-medium">{formatOfferTime(offer.proposedDate)}</p>
                             </div>
                         </div>
                     )}

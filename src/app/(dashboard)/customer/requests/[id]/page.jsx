@@ -7,7 +7,7 @@ import { api } from "@/lib/api";
 import useRequestStore from "@/stores/requestStore";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { useAnalytics } from "@/hooks/useAnalytics";
-import { formatDate, formatTime } from "@/utils/dates";
+import { formatDate } from "@/utils/dates";
 import { PatientInfoBlock } from "@/components/shared/patient/PatientInfoBlock";
 import ConfirmModal from "@/components/ui/ConfirmModal";
 import AcceptOfferModal from "@/components/customer/AcceptOfferModal";
@@ -204,10 +204,6 @@ export default function CustomerRequestDetailPage() {
                             <div className="space-y-1">
                                 <p className="text-xs font-bold text-text-muted  uppercase tracking-widest">Preferred Date</p>
                                 <p className="font-semibold text-text-main ">{formatDate(request.preferredDate)}</p>
-                            </div>
-                            <div className="space-y-1">
-                                <p className="text-xs font-bold text-text-muted  uppercase tracking-widest">Time</p>
-                                <p className="font-semibold text-text-main ">{formatTime(request.preferredDate)}</p>
                             </div>
                             {request.rate && (
                                 <div className="space-y-1">

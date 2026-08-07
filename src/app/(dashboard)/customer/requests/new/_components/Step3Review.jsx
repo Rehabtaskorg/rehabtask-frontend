@@ -4,16 +4,13 @@ import { MdEdit, MdVisibility, MdLocationOn, MdCalendarToday } from "react-icons
 import { Map, AdvancedMarker } from "@vis.gl/react-google-maps";
 import useRequestStore from "@/stores/requestStore";
 
-const formatReviewDate = (dateStr, timeStr) => {
+const formatReviewDate = (dateStr) => {
     if (!dateStr) return "—";
-    const d = new Date(timeStr ? `${dateStr}T${timeStr}` : `${dateStr}T09:00`);
-    const datePart = d.toLocaleDateString([], {
+    return new Date(`${dateStr}T00:00`).toLocaleDateString([], {
         month: "short",
         day: "numeric",
         year: "numeric",
     });
-    const timePart = d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
-    return `${datePart} at ${timePart}`;
 };
 
 export default function Step3Review({ onEditStep }) {
@@ -61,11 +58,11 @@ export default function Step3Review({ onEditStep }) {
 
                     <div>
                         <p className="text-[10px] font-bold uppercase tracking-wider text-text-muted  mb-1">
-                            Preferred Date & Time
+                            Preferred Date
                         </p>
                         <p className="text-sm font-medium text-text-main  flex items-center gap-1.5">
                             <MdCalendarToday className="text-text-muted " />
-                            {formatReviewDate(step1.preferredDate, step1.preferredTime)}
+                            {formatReviewDate(step1.preferredDate)}
                         </p>
                     </div>
 

@@ -159,7 +159,7 @@ function MyOffersContent() {
             rate: parseFloat(offer.rate) || "",
             attemptedVisitRate: offer.attemptedVisitRate != null ? parseFloat(offer.attemptedVisitRate) : "",
             sessionType: offer.sessionType || "in_person",
-            proposedDate: offer.proposedDate ? new Date(offer.proposedDate).toISOString().slice(0, 16) : "",
+            proposedDate: offer.proposedDate ? new Date(offer.proposedDate).toISOString().slice(0, 10) : "",
             description: offer.description || "",
             planOverrideEnabled: hasOverride,
             visitTypeId: offer.visitTypeId || "",

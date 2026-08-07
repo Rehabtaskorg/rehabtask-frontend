@@ -9,7 +9,7 @@ import BookingStatusBadge from "@/components/bookings/BookingStatusBadge";
 import { PatientIdentityCell } from "@/components/bookings/PatientIdentityCell";
 import { formatCurrency } from "@/utils/messages";
 import { usePageTitle } from "@/hooks/usePageTitle";
-import { formatShortDate, formatTime } from "@/utils/dates";
+import { formatShortDate } from "@/utils/dates";
 import { CUSTOMER_TYPES, LICENSE_TYPE_TO_DISCIPLINE } from "@/lib/constants";
 
 const ITEMS_PER_PAGE = 10;
@@ -162,11 +162,10 @@ export default function CustomerBookingsPage() {
                         <button
                             key={tab.key}
                             onClick={() => handleFilterChange(tab.key)}
-                            className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
-                                isActive
-                                    ? "bg-primary text-white"
-                                    : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                            }`}
+                            className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${isActive
+                                ? "bg-primary text-white"
+                                : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                                }`}
                         >
                             {tab.label} ({counts[tab.key]})
                         </button>
@@ -204,7 +203,7 @@ export default function CustomerBookingsPage() {
                                         <th className="pb-3 pr-4">Discipline</th>
                                         <th className="pb-3 pr-4">Clinician</th>
                                         <th className="pb-3 pr-4">Agency</th>
-                                        <th className="pb-3 pr-4">Date & Time</th>
+                                        <th className="pb-3 pr-4">Date</th>
                                         <th className="pb-3 pr-4">Rate</th>
                                         <th className="pb-3 pr-4">Status</th>
                                         <th className="pb-3 w-8"></th>
@@ -258,7 +257,6 @@ export default function CustomerBookingsPage() {
                                                 </td>
                                                 <td className="py-3.5 pr-4">
                                                     <p className="text-sm text-text-main">{formatDate(booking.scheduledDate)}</p>
-                                                    <p className="text-xs text-text-muted">{formatTime(booking.scheduledDate)}</p>
                                                 </td>
                                                 <td className="py-3.5 pr-4">
                                                     <span className="text-sm font-bold text-primary font-mono">

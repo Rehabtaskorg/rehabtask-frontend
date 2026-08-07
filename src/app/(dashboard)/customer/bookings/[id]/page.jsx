@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import {
-    MdArrowBack, MdChat, MdCalendarToday, MdAccessTime, MdLocationOn, MdVideocam, MdPerson,
+    MdArrowBack, MdChat, MdCalendarToday, MdLocationOn, MdVideocam, MdPerson,
     MdCheckCircle, MdClose, MdWarning, MdInfo, MdRefresh, MdSchedule, MdUpdate,
 } from "react-icons/md";
 import { useBookingDetail } from "@/hooks/useBookings";
@@ -13,7 +13,7 @@ import { bookingsApi } from "@/services/booking.api";
 import { BOOKING_STATUS, USER_ROLES } from "@/lib/constants";
 import { resolveVisitPlan, computeTotalVisits } from "@/lib/visitPlan";
 import { formatCurrency } from "@/utils/messages";
-import { formatDate, formatTime } from "@/utils/dates";
+import { formatDate } from "@/utils/dates";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import BookingStatusBadge from "@/components/bookings/BookingStatusBadge";
@@ -353,13 +353,6 @@ export default function CustomerBookingDetailPage() {
                                 </div>
                             </div>
                             <div className="flex items-start gap-3">
-                                <MdAccessTime className="text-primary text-lg mt-0.5 shrink-0" />
-                                <div>
-                                    <p className="text-xs text-text-muted ">Time</p>
-                                    <p className="text-sm font-medium text-text-main ">{formatTime(session?.scheduledDate || booking.scheduledDate)}</p>
-                                </div>
-                            </div>
-                            <div className="flex items-start gap-3">
                                 {sessionType === "virtual"
                                     ? <MdVideocam className="text-primary text-lg mt-0.5 shrink-0" />
                                     : <MdLocationOn className="text-primary text-lg mt-0.5 shrink-0" />
@@ -419,7 +412,7 @@ export default function CustomerBookingDetailPage() {
                                     <div>
                                         <p className="text-sm font-bold text-amber-900 ">Reschedule Requested</p>
                                         <p className="text-xs text-amber-700  mt-0.5">
-                                            Therapist proposed: {formatDate(booking.proposedNewDate)} at {formatTime(booking.proposedNewDate)}
+                                            Therapist proposed: {formatDate(booking.proposedNewDate)}
                                         </p>
                                     </div>
                                 </div>
@@ -479,7 +472,7 @@ export default function CustomerBookingDetailPage() {
                                         <p className="text-xs text-yellow-600 mt-1 font-semibold">
                                             You have until{" "}
                                             {booking.cancellationRequestedAt
-                                                ? new Date(new Date(booking.cancellationRequestedAt).getTime() + 24 * 60 * 60 * 1000).toLocaleString([], { weekday: "short", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })
+                                                ? new Date(new Date(booking.cancellationRequestedAt).getTime() + 24 * 60 * 60 * 1000).toLocaleDateString([], { weekday: "short", month: "short", day: "numeric" })
                                                 : "24 hours from the request"}{" "}
                                             to respond. If you take no action, the request will be automatically declined and your booking will remain active.
                                         </p>

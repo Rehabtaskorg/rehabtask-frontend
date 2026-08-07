@@ -16,7 +16,7 @@ import {
 const formatTimestamp = (dateStr) => {
     if (!dateStr) return null;
     const d = new Date(dateStr);
-    return `${d.toLocaleDateString([], { month: "short", day: "numeric", year: "numeric" })} at ${d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}`;
+    return d.toLocaleDateString([], { month: "short", day: "numeric", year: "numeric" });
 };
 
 function TimelineStep({ icon: Icon, title, subtitle, timestamp, isCompleted, isWaiting, isCancelled, isLast, nextCompleted }) {

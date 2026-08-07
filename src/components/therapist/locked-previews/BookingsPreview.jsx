@@ -59,7 +59,7 @@ export default function BookingsPreview() {
                 <table className="w-full">
                     <thead>
                         <tr className="border-b border-border-light ">
-                            {["Patient", "Discipline", "Agency", "Date & Time", "Earnings", "Status", ""].map((col) => (
+                            {["Patient", "Discipline", "Agency", "Date", "Earnings", "Status", ""].map((col) => (
                                 <th key={col} className="py-3 px-4 text-left">
                                     <div className={`h-3 ${col ? "w-16" : "w-4"} bg-slate-200  rounded`} />
                                 </th>

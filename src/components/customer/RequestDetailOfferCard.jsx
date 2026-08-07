@@ -6,7 +6,7 @@ import {
     MdAttachMoney, MdCalendarToday, MdVideocam, MdPersonPin, MdInfo,
 } from "react-icons/md";
 import { resolveVisitPlan, hasPlanOverride, computeTotalVisits } from "@/lib/visitPlan";
-import { formatDate, formatTime } from "@/utils/dates";
+import { formatDate } from "@/utils/dates";
 
 const OFFER_STATUS_STYLES = {
     pending:          "bg-amber-100 text-amber-700  ",
@@ -152,7 +152,7 @@ export default function RequestDetailOfferCard({
 
                     <p className="text-xs text-text-muted  mt-2 flex items-center gap-1">
                         <MdCalendarToday className="text-sm" />
-                        Proposed: {formatDate(offer.proposedDate)} · {formatTime(offer.proposedDate)}
+                        Proposed: {formatDate(offer.proposedDate)}
                     </p>
 
                     {offer.description && (
@@ -183,7 +183,7 @@ export default function RequestDetailOfferCard({
                     )}
                     {!isExpired && offer.expiresAt && offer.status === "pending" && (
                         <p className="text-xs text-text-muted  mt-2">
-                            Expires: {formatDate(offer.expiresAt)} · {formatTime(offer.expiresAt)}
+                            Expires: {formatDate(offer.expiresAt)}
                         </p>
                     )}
                 </div>

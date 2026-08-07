@@ -5,8 +5,7 @@ import UserAvatar from "@/components/ui/UserAvatar";
 
 const formatDateTime = (dateStr) => {
     if (!dateStr) return "—";
-    const d = new Date(dateStr);
-    return `${d.toLocaleDateString([], { month: "short", day: "numeric", year: "numeric" })} • ${d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}`;
+    return new Date(dateStr).toLocaleDateString([], { month: "short", day: "numeric", year: "numeric" });
 };
 
 const formatSessionType = (type) => {

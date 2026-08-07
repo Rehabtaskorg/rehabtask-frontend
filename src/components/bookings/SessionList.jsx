@@ -7,7 +7,7 @@ import {
     MdCalendarToday, MdSchedule, MdTaskAlt, MdEdit, MdEventBusy,
     MdLocationOff, MdWarning,
 } from "react-icons/md";
-import { localDateTimeStr } from "@/utils/dates";
+import { localDateStr } from "@/utils/dates";
 import { MAX_VISIT_TITLE_LENGTH } from "@/lib/constants";
 
 const STATUS_CONFIG = {
@@ -51,11 +51,6 @@ const formatDate = (dateStr) => {
     if (!dateStr) return "Not scheduled";
     const d = new Date(dateStr);
     return d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", year: "numeric" });
-};
-
-const formatTime = (dateStr) => {
-    if (!dateStr) return "";
-    return new Date(dateStr).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
 };
 
 export default function SessionList({
@@ -105,7 +100,7 @@ export default function SessionList({
     const bookingAttemptedRate = attemptedRateRaw != null ? parseFloat(attemptedRateRaw) : null;
     const attemptedFeatureEnabled = attemptedRateFieldPresent && bookingAttemptedRate != null && bookingAttemptedRate > 0;
 
-    const todayStr = localDateTimeStr();
+    const todayStr = localDateStr();
 
     const handleScheduleSubmit = async (sessionId) => {
         if (!scheduleDate) return;
@@ -334,12 +329,12 @@ export default function SessionList({
                                             </p>
                                             {session.revisionLastSubmittedAt && (
                                                 <p className="text-text-muted ">
-                                                    Resubmitted on {formatDate(session.revisionLastSubmittedAt)} · {formatTime(session.revisionLastSubmittedAt)}
+                                                    Resubmitted on {formatDate(session.revisionLastSubmittedAt)}
                                                 </p>
                                             )}
                                             {session.revisionDueBy && (
                                                 <p className="text-text-muted ">
-                                                    Therapist committed to: {formatDate(session.revisionDueBy)} · {formatTime(session.revisionDueBy)}
+                                                    Therapist committed to: {formatDate(session.revisionDueBy)}
                                                 </p>
                                             )}
                                             {session.revisionReason && (
@@ -363,7 +358,7 @@ export default function SessionList({
                                             )}
                                             {session.revisionDueBy && (
                                                 <p className="text-text-muted ">
-                                                    Therapist will resubmit by {formatDate(session.revisionDueBy)} · {formatTime(session.revisionDueBy)}
+                                                    Therapist will resubmit by {formatDate(session.revisionDueBy)}
                                                 </p>
                                             )}
                                             {!session.revisionDueBy && (
@@ -382,7 +377,7 @@ export default function SessionList({
                                             )}
                                             {session.revisionDueBy && (
                                                 <p className="text-text-muted ">
-                                                    You committed to resubmit by {formatDate(session.revisionDueBy)} · {formatTime(session.revisionDueBy)}
+                                                    You committed to resubmit by {formatDate(session.revisionDueBy)}
                                                 </p>
                                             )}
                                         </div>
@@ -403,7 +398,7 @@ export default function SessionList({
                                             )}
                                             {session.missedAt && (
                                                 <p className="text-text-muted ">
-                                                    Marked on {formatDate(session.missedAt)} · {formatTime(session.missedAt)}
+                                                    Marked on {formatDate(session.missedAt)}
                                                 </p>
                                             )}
                                             {refundPill && (
@@ -436,7 +431,7 @@ export default function SessionList({
                                             )}
                                             {session.attemptedAt && (
                                                 <p className="text-text-muted ">
-                                                    Recorded on {formatDate(session.attemptedAt)} · {formatTime(session.attemptedAt)}
+                                                    Recorded on {formatDate(session.attemptedAt)}
                                                 </p>
                                             )}
                                             {refundPill && (
@@ -592,7 +587,7 @@ export default function SessionList({
                                         <div className="relative w-full flex-1">
                                             <MdCalendarToday className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" />
                                             <input
-                                                type="datetime-local"
+                                                type="date"
                                                 min={todayStr}
                                                 value={scheduleDate}
                                                 onChange={(e) => setScheduleDate(e.target.value)}

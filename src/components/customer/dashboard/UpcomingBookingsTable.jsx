@@ -27,7 +27,7 @@ export function UpcomingBookingsTable({ bookings, onViewBooking }) {
                             <th className="px-6 py-4">Patient</th>
                             <th className="px-6 py-4">Discipline</th>
                             <th className="px-6 py-4">Clinician</th>
-                            <th className="px-6 py-4">Date &amp; Time</th>
+                            <th className="px-6 py-4">Date</th>
                             <th className="px-6 py-4">Status</th>
                             <th className="px-6 py-4">Action</th>
                         </tr>
