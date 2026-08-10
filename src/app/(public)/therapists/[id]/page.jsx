@@ -6,7 +6,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import {
     MdStar, MdLocationOn, MdVerified, MdLock,
-    MdCall, MdEmail, MdInfo, MdArrowBack, MdBarChart, MdPhone,
+    MdCall, MdEmail, MdInfo, MdArrowBack, MdBarChart,
 } from "react-icons/md";
 import { useTherapistPublicProfile, useTherapistReviews } from "@/hooks/usePublic";
 import { useAppRole } from "@/hooks/useAppRole";
@@ -179,12 +179,6 @@ function TherapistPublicProfileContent() {
                                         )}
                                         {profile.npiNumber && (
                                             <p className="mt-2 text-sm text-gray-500">NPI: {profile.npiNumber}</p>
-                                        )}
-                                        {profile.phone && (
-                                            <div className="mt-1 flex items-center gap-1.5 text-sm text-gray-500">
-                                                <MdPhone className="text-base" />
-                                                {profile.phone}
-                                            </div>
                                         )}
                                     </div>
                                 </div>
