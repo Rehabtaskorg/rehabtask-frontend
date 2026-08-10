@@ -6,10 +6,11 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import {
     MdStar, MdLocationOn, MdVerified, MdLock,
-    MdCall, MdEmail, MdInfo, MdArrowBack, MdBarChart,
+    MdCall, MdEmail, MdInfo, MdArrowBack, MdBarChart, MdPhone,
 } from "react-icons/md";
 import { useTherapistPublicProfile, useTherapistReviews } from "@/hooks/usePublic";
 import { useAppRole } from "@/hooks/useAppRole";
+import { LICENSE_TYPE_TO_DISCIPLINE } from "@/lib/constants";
 import AuthGateModal from "@/components/public/AuthGateModal";
 import UserAvatar from "@/components/ui/UserAvatar";
 import Footer from "@/components/landing/Footer";
@@ -139,12 +140,14 @@ function TherapistPublicProfileContent() {
                                             </div>
                                         </div>
                                         <p className="text-primary text-lg font-medium mb-4">
-                                            {profile.primaryLicenseType}
+                                            {LICENSE_TYPE_TO_DISCIPLINE[profile.primaryLicenseType] ?? profile.primaryLicenseType}
                                         </p>
                                         <div className="flex flex-wrap gap-2">
-                                            <span className="bg-white border border-gray-200 text-gray-600 text-[10px] uppercase tracking-wider font-bold px-3 py-1.5 rounded-lg">
-                                                {profile.primaryLicenseType}
-                                            </span>
+                                            {profile.primaryLicenseType && (
+                                                <span className="bg-white border border-gray-200 text-gray-600 text-[10px] uppercase tracking-wider font-bold px-3 py-1.5 rounded-lg">
+                                                    {LICENSE_TYPE_TO_DISCIPLINE[profile.primaryLicenseType] ?? profile.primaryLicenseType}
+                                                </span>
+                                            )}
                                             {profile.yearsOfExperience && (
                                                 <span className="bg-white border border-gray-200 text-gray-600 text-[10px] uppercase tracking-wider font-bold px-3 py-1.5 rounded-lg">
                                                     {profile.yearsOfExperience} Years Experience
@@ -158,11 +161,30 @@ function TherapistPublicProfileContent() {
                                                     <MdVerified className="text-xs" /> HIPAA Certified
                                                 </span>
                                             )}
+                                            {profile.licenseVerified && (
+                                                <span className="bg-sky-50 border border-sky-200 text-sky-700 text-[10px] uppercase tracking-wider font-bold px-3 py-1.5 rounded-lg flex items-center gap-1">
+                                                    <MdVerified className="text-xs" /> License Verified
+                                                </span>
+                                            )}
+                                            {profile.insuranceVerified && (
+                                                <span className="bg-purple-50 border border-purple-200 text-purple-700 text-[10px] uppercase tracking-wider font-bold px-3 py-1.5 rounded-lg flex items-center gap-1">
+                                                    <MdVerified className="text-xs" /> Insured
+                                                </span>
+                                            )}
                                         </div>
                                         {primaryArea && (
                                             <div className="mt-4 flex items-center text-gray-500 gap-2">
                                                 <MdLocationOn className="text-lg" />
                                                 <span className="text-sm">{primaryArea.city}, {primaryArea.state}</span>
+                                            </div>
+                                        )}
+                                        {profile.npiNumber && (
+                                            <p className="mt-2 text-sm text-gray-500">NPI: {profile.npiNumber}</p>
+                                        )}
+                                        {profile.phone && (
+                                            <div className="mt-1 flex items-center gap-1.5 text-sm text-gray-500">
+                                                <MdPhone className="text-base" />
+                                                {profile.phone}
                                             </div>
                                         )}
                                     </div>
