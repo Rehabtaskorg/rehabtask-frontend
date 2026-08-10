@@ -195,6 +195,11 @@ const ProfileTab = ({ profile, approvalStatus, onboardingComplete }) => {
                                 value={profile?.licenseState}
                                 icon={<MdLock className="text-sm" />}
                             />
+                            <InfoRow
+                                label="NPI Number"
+                                value={profile?.npiNumber}
+                                icon={<MdLock className="text-sm" />}
+                            />
                         </div>
 
                         {profile?.professionalSummary && (
