@@ -72,10 +72,7 @@ export function CredentialsForm() {
                 .omit({ licenseDocuments: true })
                 .extend({
                     ratePerVisit: z.coerce.number({ required_error: "Rate per visit is required", invalid_type_error: "Rate per visit is required" }).min(1, "Rate per visit is required").max(10000, "Rate must be $10,000 or less"),
-                    attemptedVisitRate: z.preprocess(
-                        (val) => (val === "" || val === undefined ? null : val),
-                        z.coerce.number().min(0).max(10000).nullable()
-                    ),
+                    attemptedVisitRate: z.coerce.number({ required_error: "Attempted visit rate is required", invalid_type_error: "Attempted visit rate is required" }).min(0, "Must be $0 or greater").max(10000, "Must be $10,000 or less"),
                     evaluationRate: z.coerce.number({ required_error: "Evaluation rate is required", invalid_type_error: "Evaluation rate is required" }).min(1, "Evaluation rate is required").max(10000, "Rate must be $10,000 or less"),
                     travelFee: z.preprocess(
                         (val) => (val === "" || val === undefined ? null : val),
@@ -83,10 +80,7 @@ export function CredentialsForm() {
                     ),
                 })
                 .refine(
-                    (data) => {
-                        if (data.attemptedVisitRate == null || data.ratePerVisit == null) return true;
-                        return data.attemptedVisitRate <= data.ratePerVisit;
-                    },
+                    (data) => data.attemptedVisitRate <= data.ratePerVisit,
                     { message: "Cannot be greater than your session rate", path: ["attemptedVisitRate"] }
                 )
         ),
@@ -205,9 +199,9 @@ export function CredentialsForm() {
                 licenseState: data.licenseState,
                 npiNumber: data.npiNumber || null,
                 additionalLicenseStates: additionalStates,
-                ...(data.ratePerVisit != null && data.ratePerVisit !== "" && { ratePerVisit: data.ratePerVisit }),
-                ...(data.attemptedVisitRate != null && { attemptedVisitRate: data.attemptedVisitRate }),
-                ...(data.evaluationRate != null && { evaluationRate: data.evaluationRate }),
+                ratePerVisit: data.ratePerVisit,
+                attemptedVisitRate: data.attemptedVisitRate,
+                evaluationRate: data.evaluationRate,
                 ...(data.travelFee != null && { travelFee: data.travelFee }),
                 licenseDocuments: uploadedDocs.map((doc) => ({
                     path: doc.path,
@@ -513,8 +507,7 @@ export function CredentialsForm() {
 
                             <div className="flex flex-col gap-2">
                                 <label className="text-text-main text-sm font-semibold">
-                                    Attempted Visit Rate{" "}
-                                    <span className="text-text-muted font-normal">(optional)</span>
+                                    Attempted Visit Rate <span className="text-red-500">*</span>
                                 </label>
                                 <div className="relative">
                                     <span className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted text-sm pointer-events-none">
@@ -534,7 +527,7 @@ export function CredentialsForm() {
                                     <p className="text-red-500 text-sm">{errors.attemptedVisitRate.message}</p>
                                 )}
                                 <p className="text-xs text-text-muted">
-                                    Charged when you arrive but the patient isn&apos;t home. Must be less than or equal to your session rate. Leave blank if you won&apos;t charge for no-shows.
+                                    Charged when you arrive but the patient isn&apos;t home. Enter $0 if you don&apos;t charge for no-shows. Must be less than or equal to your session rate.
                                 </p>
                             </div>
                         </div>
