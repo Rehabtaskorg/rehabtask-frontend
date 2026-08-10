@@ -71,15 +71,12 @@ export function CredentialsForm() {
             credentialsSchema
                 .omit({ licenseDocuments: true })
                 .extend({
-                    ratePerVisit: z.coerce.number().min(0).max(10000).optional().nullable().transform((val) => (val === 0 ? null : val)),
+                    ratePerVisit: z.coerce.number({ required_error: "Rate per visit is required", invalid_type_error: "Rate per visit is required" }).min(1, "Rate per visit is required").max(10000, "Rate must be $10,000 or less"),
                     attemptedVisitRate: z.preprocess(
                         (val) => (val === "" || val === undefined ? null : val),
                         z.coerce.number().min(0).max(10000).nullable()
                     ),
-                    evaluationRate: z.preprocess(
-                        (val) => (val === "" || val === undefined ? null : val),
-                        z.coerce.number().min(0).max(10000).nullable()
-                    ),
+                    evaluationRate: z.coerce.number({ required_error: "Evaluation rate is required", invalid_type_error: "Evaluation rate is required" }).min(1, "Evaluation rate is required").max(10000, "Rate must be $10,000 or less"),
                     travelFee: z.preprocess(
                         (val) => (val === "" || val === undefined ? null : val),
                         z.coerce.number().min(0).max(500).nullable()
@@ -492,8 +489,7 @@ export function CredentialsForm() {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="flex flex-col gap-2">
                                 <label className="text-text-main text-sm font-semibold">
-                                    Rate per Visit{" "}
-                                    <span className="text-text-muted font-normal">(optional)</span>
+                                    Rate per Visit <span className="text-red-500">*</span>
                                 </label>
                                 <div className="relative">
                                     <span className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted text-sm pointer-events-none">
@@ -509,6 +505,7 @@ export function CredentialsForm() {
                                         className="w-full pl-8 pr-4 py-3 h-12 rounded-lg border border-border-light bg-input-light text-text-main focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
                                     />
                                 </div>
+                                {errors.ratePerVisit && <p className="text-red-500 text-sm">{errors.ratePerVisit.message}</p>}
                                 <p className="text-xs text-text-muted">
                                     Your standard rate per session. This will pre-fill your offers and show on your profile. You can adjust per offer.
                                 </p>
@@ -546,8 +543,7 @@ export function CredentialsForm() {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="flex flex-col gap-2">
                                 <label className="text-text-main text-sm font-semibold">
-                                    Evaluation Rate{" "}
-                                    <span className="text-text-muted font-normal">(optional)</span>
+                                    Evaluation Rate <span className="text-red-500">*</span>
                                 </label>
                                 <div className="relative">
                                     <span className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted text-sm pointer-events-none">$</span>

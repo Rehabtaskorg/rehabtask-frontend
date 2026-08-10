@@ -38,6 +38,7 @@ export function ProfessionalProfileForm() {
     const [submitError, setSubmitError] = useState("");
 
     const [specialties, setSpecialties] = useState(professionalProfile.specialties ?? []);
+    const [specialtiesError, setSpecialtiesError] = useState("");
     const [languages, setLanguages] = useState(professionalProfile.languages ?? []);
     const [certifications, setCertifications] = useState(professionalProfile.certifications ?? []);
     const [pastSettings, setPastSettings] = useState(professionalProfile.pastSettings ?? []);
@@ -116,6 +117,11 @@ export function ProfessionalProfileForm() {
     };
 
     const onSubmit = async (data) => {
+        if (specialties.length === 0) {
+            setSpecialtiesError("Please select at least one specialty");
+            return;
+        }
+        setSpecialtiesError("");
         setLoading(true);
         setSubmitError("");
         try {
@@ -259,16 +265,16 @@ export function ProfessionalProfileForm() {
                             {/* Specialties */}
                             <div className="flex flex-col gap-2">
                                 <label className="text-text-main text-base font-semibold">
-                                    Clinical Specialties{" "}
-                                    <span className="text-text-muted font-normal text-sm">(optional, multi-select)</span>
+                                    Clinical Specialties <span className="text-red-500">*</span>
                                 </label>
                                 <MultiSelectTagPicker
                                     options={THERAPIST_SPECIALTIES}
                                     selected={specialties}
-                                    onAdd={(v) => setSpecialties((p) => [...p, v])}
+                                    onAdd={(v) => { setSpecialties((p) => [...p, v]); setSpecialtiesError(""); }}
                                     onRemove={(v) => setSpecialties((p) => p.filter((x) => x !== v))}
                                     placeholder="Add a specialty..."
                                 />
+                                {specialtiesError && <p className="text-red-500 text-sm">{specialtiesError}</p>}
                             </div>
 
                             {/* Languages */}

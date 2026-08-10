@@ -16,6 +16,7 @@ import ReviewForm from "@/components/therapist/ReviewForm";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { useMessageGuard } from "@/hooks/useMessageGuard";
 import { MessageGateModal } from "@/components/ui/MessageGateModal";
+import { LICENSE_TYPE_TO_DISCIPLINE } from "@/lib/constants";
 
 const GOOGLE_MAPS_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 
@@ -120,7 +121,7 @@ export default function TherapistProfilePage() {
                                 </h1>
                                 {therapist.primaryLicenseType && (
                                     <span className="bg-sky-100  text-sky-700  text-xs font-bold px-2.5 py-0.5 rounded-full uppercase">
-                                        {therapist.primaryLicenseType}
+                                        {LICENSE_TYPE_TO_DISCIPLINE[therapist.primaryLicenseType] ?? therapist.primaryLicenseType}
                                     </span>
                                 )}
                                 <span className="inline-flex items-center gap-0.5 bg-emerald-100  text-emerald-700  text-xs font-bold px-2.5 py-0.5 rounded-full">
@@ -163,13 +164,18 @@ export default function TherapistProfilePage() {
                                 </p>
                             )}
 
-                            {/* Phone */}
-                            {therapist.phone && (
-                                <p className="flex items-center gap-1.5 text-sm text-text-muted  mb-4">
-                                    <MdPhone className="text-base" />
-                                    {therapist.phone}
-                                </p>
-                            )}
+                            {/* NPI + Phone */}
+                            <div className="flex flex-wrap items-center gap-4 text-sm text-text-muted mb-4">
+                                {therapist.npiNumber && (
+                                    <span>NPI: {therapist.npiNumber}</span>
+                                )}
+                                {therapist.phone && (
+                                    <span className="flex items-center gap-1.5">
+                                        <MdPhone className="text-base" />
+                                        {therapist.phone}
+                                    </span>
+                                )}
+                            </div>
 
                             {/* Actions */}
                             <button
@@ -406,7 +412,7 @@ export default function TherapistProfilePage() {
                                 {therapist.fullName}
                             </p>
                             <p className="text-xs text-text-muted  truncate">
-                                {therapist.primaryLicenseType}
+                                {LICENSE_TYPE_TO_DISCIPLINE[therapist.primaryLicenseType] ?? therapist.primaryLicenseType}
                             </p>
                         </div>
                     </div>

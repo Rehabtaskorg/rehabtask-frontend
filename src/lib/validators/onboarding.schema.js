@@ -104,9 +104,8 @@ export const professionalProfileSchema = z.object({
 
     specialties: z
         .array(z.string().refine((v) => THERAPIST_SPECIALTIES.includes(v), { message: "Invalid specialty" }))
-        .max(20)
-        .optional()
-        .default([]),
+        .min(1, "Please select at least one specialty")
+        .max(20),
 
     languages: z
         .array(z.string().refine((v) => THERAPIST_LANGUAGES.includes(v), { message: "Invalid language" }))
