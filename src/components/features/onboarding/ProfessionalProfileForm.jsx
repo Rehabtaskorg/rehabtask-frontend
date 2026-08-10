@@ -44,8 +44,6 @@ export function ProfessionalProfileForm() {
     const [pastSettings, setPastSettings] = useState(professionalProfile.pastSettings ?? []);
     const [populationExperience, setPopulationExperience] = useState(professionalProfile.populationExperience ?? []);
 
-    useEffect(() => { setValue("specialties", specialties); }, [specialties, setValue]);
-
     const { register, handleSubmit, formState: { errors }, setValue, reset, watch } = useForm({
         resolver: zodResolver(professionalProfileSchema),
         defaultValues: {
@@ -62,6 +60,8 @@ export function ProfessionalProfileForm() {
         },
         mode: "onSubmit",
     });
+
+    useEffect(() => { setValue("specialties", specialties); }, [specialties, setValue]);
 
     useEffect(() => {
         trackEvent("onboarding_step_viewed", { step: 2, step_name: "profile" });
