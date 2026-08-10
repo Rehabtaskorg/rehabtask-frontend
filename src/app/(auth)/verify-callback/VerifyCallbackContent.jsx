@@ -4,10 +4,12 @@ import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { usePostHog } from "posthog-js/react";
 import Alert from "@/components/ui/Alert";
-import VerificationSuccess from "@/components/verification/VerificationSuccess";
+import { VerificationSuccess } from "@/components/verification/VerificationSuccess";
 import { usePageTitle } from "@/hooks/usePageTitle";
-import { LOGOUT_REASON } from "@/lib/constants";
+import { LOGOUT_REASON, USER_ROLES } from "@/lib/constants";
 import { popAuthRedirect } from "@/lib/redirect";
+
+const VALID_ROLES = Object.values(USER_ROLES);
 
 /**
  * Displays the result of email verification after /action-handler has
@@ -42,6 +44,9 @@ export function VerifyCallbackContent() {
         setStatus("error");
     }, [posthog, searchParams]);
 
+    const rawRole = searchParams.get("role");
+    const role = VALID_ROLES.includes(rawRole) ? rawRole : USER_ROLES.CUSTOMER;
+
     const handleContinue = () => {
         const descriptor = searchParams.get("redirect") || popAuthRedirect();
         const params = new URLSearchParams({ reason: LOGOUT_REASON.EMAIL_VERIFIED });
@@ -60,7 +65,7 @@ export function VerifyCallbackContent() {
                 )}
 
                 {status === "success" && (
-                    <VerificationSuccess onContinue={handleContinue} />
+                    <VerificationSuccess role={role} onContinue={handleContinue} />
                 )}
 
                 {status === "error" && (

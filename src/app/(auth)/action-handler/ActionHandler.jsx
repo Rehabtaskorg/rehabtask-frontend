@@ -71,12 +71,15 @@ async function handleVerifyEmail(oobCode, continueUrl, router) {
         const email = actionInfo.data.email;
 
         await applyActionCode(auth, oobCode);
-        await authAPi.verifyEmail(null, null, email);
+        const verifyRes = await authAPi.verifyEmail(null, null, email);
+        const role = verifyRes?.data?.data?.user?.role ?? null;
 
         const parsed = continueUrl ? new URL(continueUrl) : null;
+        // TODO: [BUG] parsed.pathname discards origin — harmless while backend always uses FRONTEND_URL, but silently breaks on any cross-origin continueUrl
         const dest = parsed ? parsed.pathname : "/verify-callback";
         const params = new URLSearchParams({ verified: "true" });
         if (email) params.set("email", email);
+        if (role) params.set("role", role);
         if (parsed?.searchParams.get("redirect")) {
             params.set("redirect", parsed.searchParams.get("redirect"));
         }
