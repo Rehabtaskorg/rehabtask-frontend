@@ -10,7 +10,6 @@ import {
 } from "react-icons/md";
 import { useTherapistPublicProfile, useTherapistReviews } from "@/hooks/usePublic";
 import { useAppRole } from "@/hooks/useAppRole";
-import { LICENSE_TYPE_TO_DISCIPLINE } from "@/lib/constants";
 import AuthGateModal from "@/components/public/AuthGateModal";
 import UserAvatar from "@/components/ui/UserAvatar";
 import Footer from "@/components/landing/Footer";
@@ -140,12 +139,12 @@ function TherapistPublicProfileContent() {
                                             </div>
                                         </div>
                                         <p className="text-primary text-lg font-medium mb-4">
-                                            {LICENSE_TYPE_TO_DISCIPLINE[profile.primaryLicenseType] ?? profile.primaryLicenseType}
+                                            {profile.primaryLicenseType}
                                         </p>
                                         <div className="flex flex-wrap gap-2">
                                             {profile.primaryLicenseType && (
                                                 <span className="bg-white border border-gray-200 text-gray-600 text-[10px] uppercase tracking-wider font-bold px-3 py-1.5 rounded-lg">
-                                                    {LICENSE_TYPE_TO_DISCIPLINE[profile.primaryLicenseType] ?? profile.primaryLicenseType}
+                                                    {profile.primaryLicenseType}
                                                 </span>
                                             )}
                                             {profile.yearsOfExperience && (
