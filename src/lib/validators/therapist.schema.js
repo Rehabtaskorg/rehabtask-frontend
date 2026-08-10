@@ -1,11 +1,12 @@
 import z from "zod";
 
-const phoneSchema = z
-    .string()
-    .regex(
-        /^\+1\d{10}$/,
-        "Invalid phone number format. Use +1XXXXXXXXXX"
-    );
+const phoneSchema = z.preprocess(
+    (val) => (val == null || val === "" ? undefined : val),
+    z
+        .string({ required_error: "Phone number is required", invalid_type_error: "Phone number is required" })
+        .min(1, "Phone number is required")
+        .regex(/^\+1\d{10}$/, "Please enter a valid US phone number")
+);
 
 const fullNameSchema = z
     .string()
