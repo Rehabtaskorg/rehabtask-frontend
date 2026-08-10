@@ -44,6 +44,8 @@ export function ProfessionalProfileForm() {
     const [pastSettings, setPastSettings] = useState(professionalProfile.pastSettings ?? []);
     const [populationExperience, setPopulationExperience] = useState(professionalProfile.populationExperience ?? []);
 
+    useEffect(() => { setValue("specialties", specialties); }, [specialties, setValue]);
+
     const { register, handleSubmit, formState: { errors }, setValue, reset, watch } = useForm({
         resolver: zodResolver(professionalProfileSchema),
         defaultValues: {
