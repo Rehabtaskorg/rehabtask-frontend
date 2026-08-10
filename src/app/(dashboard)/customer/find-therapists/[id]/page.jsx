@@ -126,8 +126,20 @@ export default function TherapistProfilePage() {
                                 )}
                                 <span className="inline-flex items-center gap-0.5 bg-emerald-100  text-emerald-700  text-xs font-bold px-2.5 py-0.5 rounded-full">
                                     <MdVerified className="text-sm" />
-                                    Verified
+                                    Approved
                                 </span>
+                                {therapist.licenseVerified && (
+                                    <span className="inline-flex items-center gap-0.5 bg-blue-100 text-blue-700 text-xs font-bold px-2.5 py-0.5 rounded-full">
+                                        <MdVerified className="text-sm" />
+                                        License Verified
+                                    </span>
+                                )}
+                                {therapist.insuranceVerified && (
+                                    <span className="inline-flex items-center gap-0.5 bg-purple-100 text-purple-700 text-xs font-bold px-2.5 py-0.5 rounded-full">
+                                        <MdVerified className="text-sm" />
+                                        Insured
+                                    </span>
+                                )}
                             </div>
 
                             {/* Info line */}

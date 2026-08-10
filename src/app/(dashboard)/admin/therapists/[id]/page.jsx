@@ -6,8 +6,7 @@ import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import {
     MdArrowBack, MdVerifiedUser, MdDescription, MdLocationOn,
-    MdCheckCircle, MdEmail, MdCalendarMonth, MdPerson,
-    MdThumbUp, MdThumbDown, MdOpenInNew, MdWarning,
+    MdCheckCircle, MdThumbUp, MdThumbDown, MdOpenInNew, MdWarning,
 } from 'react-icons/md';
 import {
     useAdminTherapist,
@@ -15,6 +14,8 @@ import {
     useRejectTherapist,
 } from '@/hooks/useAdmin';
 import { adminTherapistsApi } from '@/services/admin.api';
+import { TherapistVerificationToggles } from '@/components/features/admin/TherapistVerificationToggles';
+import { APPROVAL_STATUS } from '@/lib/constants';
 
 const fmtDate = (d) =>
     d ? new Date(d).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : '—';
@@ -169,9 +170,9 @@ export default function AdminTherapistDetailPage() {
     }
 
     const tp = therapist.therapistProfile;
-    const isPending = ['pending', 'review'].includes(tp?.approvalStatus);
-    const isApproved = tp?.approvalStatus === 'approved';
-    const isRejected = tp?.approvalStatus === 'rejected';
+    const isPending = [APPROVAL_STATUS.PENDING, APPROVAL_STATUS.REVIEW].includes(tp?.approvalStatus);
+    const isApproved = tp?.approvalStatus === APPROVAL_STATUS.APPROVED;
+    const isRejected = tp?.approvalStatus === APPROVAL_STATUS.REJECTED;
 
     return (
         <div className="p-4 md:p-6 max-w-4xl mx-auto space-y-5">
@@ -295,6 +296,14 @@ export default function AdminTherapistDetailPage() {
                             </div>
                         )}
                     </dl>
+                    <div className="mt-4 pt-4 border-t border-border-light">
+                        <p className="text-xs font-semibold text-text-muted uppercase tracking-wide mb-3">Document Verification</p>
+                        <TherapistVerificationToggles
+                            therapistUserId={id}
+                            licenseVerified={tp?.licenseVerified ?? false}
+                            insuranceVerified={tp?.insuranceVerified ?? false}
+                        />
+                    </div>
                 </SectionCard>
 
             </div> {/* end 2-col grid */}

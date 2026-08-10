@@ -101,3 +101,8 @@ export const BOOKING_STATUS = {
     CANCELLED: "cancelled",
     CANCELLATION_REQUESTED: "cancellation_requested",
 };
+
+export const THERAPIST_VERIFICATION_FIELDS = Object.freeze({
+    LICENSE: "licenseVerified",
+    INSURANCE: "insuranceVerified",
+});

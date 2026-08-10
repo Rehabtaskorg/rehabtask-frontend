@@ -144,6 +144,26 @@ export function ClinicalProfileSection({ profile }) {
                         <span className="text-text-muted">Not yet attested</span>
                     )}
                 </DetailRow>
+                <DetailRow label="License Verification">
+                    {profile?.licenseVerified ? (
+                        <span className="inline-flex items-center gap-1.5 text-emerald-600 font-semibold">
+                            <MdVerified className="text-base" />
+                            Verified
+                        </span>
+                    ) : (
+                        <span className="text-amber-600 font-medium">Pending Review</span>
+                    )}
+                </DetailRow>
+                <DetailRow label="Insurance Verification">
+                    {profile?.insuranceVerified ? (
+                        <span className="inline-flex items-center gap-1.5 text-emerald-600 font-semibold">
+                            <MdVerified className="text-base" />
+                            Verified
+                        </span>
+                    ) : (
+                        <span className="text-amber-600 font-medium">Pending Review</span>
+                    )}
+                </DetailRow>
             </SectionCard>
 
             <SectionCard label="Performance" icon={<MdBarChart className="text-primary text-xl" />}>

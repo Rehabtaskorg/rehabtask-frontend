@@ -14,6 +14,7 @@ import {
     MdCheckCircle,
 } from "react-icons/md";
 import { LICENSE_TYPES } from "@/lib/constants/credentials";
+import { APPROVAL_STATUS } from "@/lib/constants";
 import { onboardingAPI } from "@/services/onboarding.api";
 import { logger } from "@/lib/logger";
 import ProfileEditModal from "./ProfileEditModal";
@@ -77,7 +78,7 @@ const ProfileTab = ({ profile, approvalStatus, onboardingComplete }) => {
     const [showEditModal, setShowEditModal] = useState(false);
     const [viewingDoc, setViewingDoc] = useState(null);
 
-    const isCredentialsLocked = onboardingComplete && (approvalStatus === "pending" || approvalStatus === "review");
+    const isCredentialsLocked = onboardingComplete && (approvalStatus === APPROVAL_STATUS.PENDING || approvalStatus === APPROVAL_STATUS.REVIEW);
 
     const licenseTypeLabel =
         LICENSE_TYPES.find((lt) => lt.value === profile?.primaryLicenseType)?.label ||
@@ -218,7 +219,7 @@ const ProfileTab = ({ profile, approvalStatus, onboardingComplete }) => {
                         <div className="space-y-3">
                             <div className="flex items-center justify-between">
                                 <span className="text-sm text-text-muted">Approval</span>
-                                {!onboardingComplete && profile?.approvalStatus === "pending" ? (
+                                {!onboardingComplete && profile?.approvalStatus === APPROVAL_STATUS.PENDING ? (
                                     <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-gray-100  text-text-muted ">
                                         Not Submitted
                                     </span>
@@ -253,7 +254,7 @@ const ProfileTab = ({ profile, approvalStatus, onboardingComplete }) => {
                         </div>
 
                         {/* Contextual status message for pending/review */}
-                        {(approvalStatus === "pending" || approvalStatus === "review") && (
+                        {(approvalStatus === APPROVAL_STATUS.PENDING || approvalStatus === APPROVAL_STATUS.REVIEW) && (
                             <div className="mt-4 pt-3 border-t border-border-light ">
                                 {onboardingComplete ? (
                                     <>
@@ -278,7 +279,7 @@ const ProfileTab = ({ profile, approvalStatus, onboardingComplete }) => {
                         )}
 
                         {/* Contextual status message for rejected */}
-                        {approvalStatus === "rejected" && (
+                        {approvalStatus === APPROVAL_STATUS.REJECTED && (
                             <div className="mt-4 pt-3 border-t border-red-200 ">
                                 <p className="text-xs font-semibold text-red-700 ">
                                     Action required — please update your credentials
@@ -339,7 +340,7 @@ const ProfileTab = ({ profile, approvalStatus, onboardingComplete }) => {
                         )}
 
                         {/* Update Credentials button for rejected therapists */}
-                        {approvalStatus === "rejected" && (
+                        {approvalStatus === APPROVAL_STATUS.REJECTED && (
                             <button
                                 onClick={() => window.location.href = "/therapist/onboarding/credentials"}
                                 className="mt-3 w-full px-4 py-2 rounded-lg text-sm font-semibold bg-red-600 text-white hover:brightness-95 transition-all"

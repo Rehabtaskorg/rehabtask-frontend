@@ -27,6 +27,7 @@ export const adminTherapistsApi = {
     get: (therapistUserId) => api.get(`/admin/therapists/${therapistUserId}`),
     approve: (therapistUserId) => api.put(`/admin/therapists/${therapistUserId}/approve`),
     reject: (therapistUserId, data) => api.put(`/admin/therapists/${therapistUserId}/reject`, data),
+    updateVerification: (therapistUserId, data) => api.put(`/admin/therapists/${therapistUserId}/verification`, data),
     getDocumentUrl: (therapistUserId, documentId) => api.get(`/admin/therapists/${therapistUserId}/documents/${documentId}`),
 };
 
