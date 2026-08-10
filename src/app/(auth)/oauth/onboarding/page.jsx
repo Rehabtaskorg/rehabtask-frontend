@@ -26,7 +26,7 @@ function OAuthOnboardingContent() {
 
     const { register, handleSubmit, watch, reset, formState: { errors }, setValue, control } = useForm({
         resolver: zodResolver(oauthOnboardingSchema),
-        mode: "onChange",
+        mode: "onTouched",
         reValidateMode: "onChange",
         defaultValues: {
             role: "",

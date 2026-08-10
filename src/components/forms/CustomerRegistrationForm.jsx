@@ -26,7 +26,7 @@ const CustomerRegistrationForm = () => {
 
     const { register, handleSubmit, formState: { errors }, setValue, clearErrors, control } = useForm({
         resolver: zodResolver(customerRegistrationSchema),
-        mode: "onChange",
+        mode: "onTouched",
         reValidateMode: "onChange",
         defaultValues: {
             customerType: "individual",

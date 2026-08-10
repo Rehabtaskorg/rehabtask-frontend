@@ -26,7 +26,7 @@ const TherapistRegistrationForm = () => {
 
     const { register, handleSubmit, formState: { errors }, control } = useForm({
         resolver: zodResolver(therapistRegistrationSchema),
-        mode: "onChange",
+        mode: "onTouched",
         reValidateMode: "onChange",
     });
 
