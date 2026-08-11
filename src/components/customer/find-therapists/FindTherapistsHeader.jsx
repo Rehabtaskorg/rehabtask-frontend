@@ -16,6 +16,7 @@ export default function FindTherapistsHeader({
     onLocationSelect,
     onLocationClear,
     onSearch,
+    locationError,
 }) {
     const router = useRouter();
     const handleSubmit = (e) => {
@@ -56,6 +57,7 @@ export default function FindTherapistsHeader({
                                 onSelect={onLocationSelect}
                                 onClear={onLocationClear}
                                 placeholder="City or zip code"
+                                locationError={locationError}
                             />
                         </div>
 

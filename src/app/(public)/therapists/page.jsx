@@ -88,29 +88,43 @@ function FindTherapistsContent() {
     const [gateOpen, setGateOpen] = useState(false);
     const [gateTrigger, setGateTrigger] = useState("default");
     const [gateEntityId, setGateEntityId] = useState(null);
+    const [locationError, setLocationError] = useState("");
 
     const searchTriggeredRef = useRef(false);
 
     const handleLocationSelect = useCallback((place) => {
         locationCoords.current = { latitude: place.latitude, longitude: place.longitude };
+        setLocationError("");
     }, []);
 
     const handleLocationClear = useCallback(() => {
         locationCoords.current = null;
+        setLocationError("");
+        setCommittedCoords(null);
+        setCurrentPage(1);
     }, []);
 
     const handleSearch = useCallback(() => {
+        if (locationInput.trim() && !locationCoords.current) {
+            setLocationError("Please select a location from the dropdown.");
+            return;
+        }
+        setLocationError("");
         searchTriggeredRef.current = true;
         setCommittedLicenseType(licenseType);
         setCommittedCoords(locationCoords.current ? { ...locationCoords.current } : null);
         setActiveDiscipline("all");
         setCurrentPage(1);
-    }, [licenseType]);
+    }, [licenseType, locationInput]);
 
     const handleDisciplineChange = useCallback((d) => {
         setActiveDiscipline(d);
         setCommittedLicenseType("");
         setLicenseType("");
+        setCommittedCoords(null);
+        setLocationInput("");
+        locationCoords.current = null;
+        setLocationError("");
         setCurrentPage(1);
     }, []);
 
@@ -178,6 +192,7 @@ function FindTherapistsContent() {
                 onLocationSelect={handleLocationSelect}
                 onLocationClear={handleLocationClear}
                 onSearch={handleSearch}
+                locationError={locationError}
             />
 
             <div className="min-h-screen md:h-screen md:pt-16 md:overflow-hidden bg-white flex flex-col">

@@ -53,6 +53,7 @@ export default function TherapistAppNavbar({
     onLocationSelect,
     onLocationClear,
     onSearch,
+    locationError,
 }) {
     const [menuOpen, setMenuOpen] = useState(false);
     const menuRef = useRef(null);
@@ -106,6 +107,7 @@ export default function TherapistAppNavbar({
                                 onSelect={onLocationSelect}
                                 onClear={onLocationClear}
                                 placeholder="City or zip code"
+                                locationError={locationError}
                             />
                         </div>
 
@@ -154,6 +156,7 @@ export default function TherapistAppNavbar({
                         onSelect={onLocationSelect}
                         onClear={onLocationClear}
                         placeholder="City or zip code"
+                        locationError={locationError}
                     />
                     <button
                         type="submit"

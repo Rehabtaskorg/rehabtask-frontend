@@ -34,6 +34,7 @@ export default function LocationAutocomplete({
     error,
     helperText,
     disabled = false,
+    locationError,
 }) {
     const places = useMapsLibrary("places");
     const geocoding = useMapsLibrary("geocoding");
@@ -322,15 +323,16 @@ export default function LocationAutocomplete({
 
     // compact variant (public search headers) & stacked variant (hero search)
     const isStacked = variant === "stacked";
+    const hasCompactError = broadLocationError || !!locationError;
     const shellClass = isStacked
         ? "flex items-center bg-white px-4 py-4 rounded-xl border border-gray-200 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/10 transition-all"
-        : `flex items-center bg-gray-50 px-4 py-3 rounded-lg border ${broadLocationError ? "border-red-400" : "border-gray-100"}`;
+        : `flex items-center bg-gray-50 px-4 py-3 rounded-lg border ${hasCompactError ? "border-red-400" : "border-gray-100"}`;
 
     return (
         <div className="flex-1 relative" ref={containerRef}>
-            {broadLocationError && (
-                <p className="absolute -top-6 left-0 text-xs text-red-500 font-medium whitespace-nowrap">
-                    Please select a city or ZIP code, not a state or country.
+            {(broadLocationError || locationError) && (
+                <p className="absolute -top-6 left-0 text-xs text-red-500 font-medium whitespace-nowrap" role="alert">
+                    {broadLocationError ? "Please select a city or ZIP code, not a state or country." : locationError}
                 </p>
             )}
             <div className={shellClass}>

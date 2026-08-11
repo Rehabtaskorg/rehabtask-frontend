@@ -74,25 +74,37 @@ function FindTherapistsContent() {
     const [sortBy, setSortBy] = useState("relevance");
     const [currentPage, setCurrentPage] = useState(1);
 
+    const [locationError, setLocationError] = useState("");
+
     const handleLocationSelect = useCallback((place) => {
         locationCoords.current = { latitude: place.latitude, longitude: place.longitude };
+        setLocationError("");
     }, []);
 
     const handleLocationClear = useCallback(() => {
         locationCoords.current = null;
+        setLocationError("");
+        setCommittedCoords(null);
+        setCurrentPage(1);
     }, []);
 
     const handleSearch = useCallback(() => {
+        if (locationInput.trim() && !locationCoords.current) {
+            setLocationError("Please select a location from the dropdown.");
+            return;
+        }
+        setLocationError("");
         setCommittedLicenseType(licenseType);
         setCommittedCoords(locationCoords.current ? { ...locationCoords.current } : null);
         setActiveDiscipline("all");
         setCurrentPage(1);
-    }, [licenseType]);
+    }, [licenseType, locationInput]);
 
     const handleClearFilters = useCallback(() => {
         setLicenseType("");
         setLocationInput("");
         locationCoords.current = null;
+        setLocationError("");
         setCommittedLicenseType("");
         setCommittedCoords(null);
         setActiveDiscipline("all");
@@ -104,6 +116,10 @@ function FindTherapistsContent() {
         setActiveDiscipline(d);
         setCommittedLicenseType("");
         setLicenseType("");
+        setCommittedCoords(null);
+        setLocationInput("");
+        locationCoords.current = null;
+        setLocationError("");
         setCurrentPage(1);
     }, []);
 
@@ -153,6 +169,7 @@ function FindTherapistsContent() {
                 onLocationSelect={handleLocationSelect}
                 onLocationClear={handleLocationClear}
                 onSearch={handleSearch}
+                locationError={locationError}
             />
 
             <FindTherapistsPillsRow
