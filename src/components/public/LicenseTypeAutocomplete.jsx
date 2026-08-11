@@ -22,6 +22,7 @@ const VARIANTS = {
 export default function LicenseTypeAutocomplete({
     value,
     onChange,
+    onClear,
     placeholder = "Discipline type",
     variant = "compact",
 }) {
@@ -77,6 +78,7 @@ export default function LicenseTypeAutocomplete({
         setInputValue("");
         onChange("");
         setOpen(false);
+        onClear?.();
     };
 
     const handleKeyDown = (e) => {

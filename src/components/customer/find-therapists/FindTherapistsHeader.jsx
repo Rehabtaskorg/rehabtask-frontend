@@ -17,6 +17,7 @@ export default function FindTherapistsHeader({
     onLocationClear,
     onSearch,
     locationError,
+    onDisciplineClear,
 }) {
     const router = useRouter();
     const handleSubmit = (e) => {
@@ -46,6 +47,7 @@ export default function FindTherapistsHeader({
                         <LicenseTypeAutocomplete
                             value={licenseType}
                             onChange={onLicenseTypeChange}
+                            onClear={onDisciplineClear}
                             placeholder="Discipline type"
                             variant="compact"
                         />

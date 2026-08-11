@@ -128,6 +128,11 @@ function FindTherapistsContent() {
         setCurrentPage(1);
     }, []);
 
+    const handleDisciplineClear = useCallback(() => {
+        setCommittedLicenseType("");
+        setCurrentPage(1);
+    }, []);
+
     const handleClearFilters = useCallback(() => {
         setLicenseType("");
         setLocationInput("");
@@ -193,6 +198,7 @@ function FindTherapistsContent() {
                 onLocationClear={handleLocationClear}
                 onSearch={handleSearch}
                 locationError={locationError}
+                onDisciplineClear={handleDisciplineClear}
             />
 
             <div className="min-h-screen md:h-screen md:pt-16 md:overflow-hidden bg-white flex flex-col">

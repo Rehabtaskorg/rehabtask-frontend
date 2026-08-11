@@ -123,6 +123,11 @@ function FindTherapistsContent() {
         setCurrentPage(1);
     }, []);
 
+    const handleDisciplineClear = useCallback(() => {
+        setCommittedLicenseType("");
+        setCurrentPage(1);
+    }, []);
+
     const searchParams = useMemo(() => {
         const params = { page: currentPage, limit: 20, sortBy };
 
@@ -170,6 +175,7 @@ function FindTherapistsContent() {
                 onLocationClear={handleLocationClear}
                 onSearch={handleSearch}
                 locationError={locationError}
+                onDisciplineClear={handleDisciplineClear}
             />
 
             <FindTherapistsPillsRow
