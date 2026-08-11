@@ -1,7 +1,7 @@
 import z from "zod";
 
 const phoneSchema = z.preprocess(
-    (val) => (val == null || val === "" ? undefined : val),
+    (val) => (val == null ? "" : val),
     z
         .string({ required_error: "Phone number is required", invalid_type_error: "Phone number is required" })
         .min(1, "Phone number is required")
