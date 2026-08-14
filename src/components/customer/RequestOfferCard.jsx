@@ -2,6 +2,7 @@
 
 import { MdCalendarToday } from "react-icons/md";
 import UserAvatar from "@/components/ui/UserAvatar";
+import { TherapistProfileLink } from "@/components/ui/TherapistProfileLink";
 
 const formatDateTime = (dateStr) => {
     if (!dateStr) return "—";
@@ -89,6 +90,7 @@ export default function RequestOfferCard({
                                     {offer.visitType}
                                 </span>
                             ) : null}
+                            <TherapistProfileLink therapist={therapist} className="mt-1.5" />
                         </div>
                     </div>
                 </div>
@@ -109,8 +111,6 @@ export default function RequestOfferCard({
                 </p>
             )}
 
-            {/* Attempted-visit rate disclosure — by accepting the offer the customer
-                consents to this fee in the event they aren't home for a session. */}
             {offer.attemptedVisitRate != null && (
                 parseFloat(offer.attemptedVisitRate) > 0 ? (
                     <div className="mt-2 px-3 py-2 rounded-lg bg-amber-50  border border-amber-200 ">

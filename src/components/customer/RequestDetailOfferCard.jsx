@@ -7,6 +7,7 @@ import {
 } from "react-icons/md";
 import { resolveVisitPlan, hasPlanOverride, computeTotalVisits } from "@/lib/visitPlan";
 import { formatDate } from "@/utils/dates";
+import { TherapistProfileLink } from "@/components/ui/TherapistProfileLink";
 
 const OFFER_STATUS_STYLES = {
     pending:          "bg-amber-100 text-amber-700  ",
@@ -28,22 +29,6 @@ const OFFER_STATUS_STYLES = {
  * @param {string}   props.changeOfferId      - offerId whose change form is open
  * @param {string}   props.changeNote
  * @param {boolean}  props.changingOffer
- * @param {Function} props.onAccept
- * @param {Function} props.onDecline
- * @param {Function} props.onOpenChange
- * @param {Function} props.onCloseChange
- * @param {Function} props.onChangeNoteUpdate
- * @param {Function} props.onRequestChange
- * @param {Function} props.onMessage
- */
-/**
- * @param {Object} props
- * @param {Object} props.offer
- * @param {Object} props.request
- * @param {string} props.declining
- * @param {string} props.changeOfferId
- * @param {string} props.changeNote
- * @param {boolean} props.changingOffer
  * @param {Function} props.onAccept
  * @param {Function} props.onDecline
  * @param {Function} props.onOpenChange
@@ -87,11 +72,14 @@ export default function RequestDetailOfferCard({
                 )}
 
                 <div className="flex-1 min-w-0">
-                    <div className="flex flex-wrap items-center gap-2 mb-1">
-                        <h4 className="font-bold text-text-main ">{therapist.fullName || "Therapist"}</h4>
-                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${OFFER_STATUS_STYLES[displayStatus]}`}>
-                            {displayStatus.replace(/_/g, " ")}
-                        </span>
+                    <div className="flex items-start justify-between gap-3 mb-1">
+                        <div className="flex flex-wrap items-center gap-2 min-w-0">
+                            <h4 className="font-bold text-text-main ">{therapist.fullName || "Therapist"}</h4>
+                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${OFFER_STATUS_STYLES[displayStatus]}`}>
+                                {displayStatus.replace(/_/g, " ")}
+                            </span>
+                        </div>
+                        <TherapistProfileLink therapist={therapist} className="shrink-0" />
                     </div>
                     {therapist.specialization && (
                         <p className="text-sm text-text-muted ">{therapist.specialization}</p>
