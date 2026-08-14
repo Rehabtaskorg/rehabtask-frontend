@@ -65,32 +65,32 @@ export default function RequestOfferCard({
                                 </p>
                             )}
                         </div>
-                        <div className="text-right shrink-0 max-w-40">
+                        <div className="text-right shrink-0 flex flex-col items-end gap-1">
                             <p className="text-sm font-bold text-primary  font-mono">
                                 ${parseFloat(offer.rate).toFixed(2)}
                                 <span className="text-xs text-text-muted  font-sans font-normal">/session</span>
                             </p>
                             {offer.sessionType && (
-                                <span className="text-[10px] font-medium text-text-muted  bg-slate-100  px-2 py-0.5 rounded-full mt-1 inline-block max-w-full truncate">
+                                <span className="text-[10px] font-medium text-text-muted  bg-slate-100  px-2 py-0.5 rounded-full">
                                     {formatSessionType(offer.sessionType)}
                                 </span>
                             )}
                             {offer.visitTypeRef ? (
                                 <span
-                                    className="text-[10px] font-medium text-blue-600  bg-blue-50  px-2 py-0.5 rounded-full mt-1 inline-block max-w-full truncate"
+                                    className="text-[10px] font-medium text-blue-600  bg-blue-50  px-2 py-0.5 rounded-full"
                                     title={`${offer.visitTypeRef.name} (${offer.visitTypeRef.code})`}
                                 >
                                     {offer.visitTypeRef.name} ({offer.visitTypeRef.code})
                                 </span>
                             ) : offer.visitType ? (
                                 <span
-                                    className="text-[10px] font-medium text-blue-600  bg-blue-50  px-2 py-0.5 rounded-full mt-1 inline-block max-w-full truncate"
+                                    className="text-[10px] font-medium text-blue-600  bg-blue-50  px-2 py-0.5 rounded-full"
                                     title={offer.visitType}
                                 >
                                     {offer.visitType}
                                 </span>
                             ) : null}
-                            <TherapistProfileLink therapist={therapist} className="mt-1.5" />
+                            <TherapistProfileLink therapist={therapist} />
                         </div>
                     </div>
                 </div>
