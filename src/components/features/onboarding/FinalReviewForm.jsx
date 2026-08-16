@@ -25,7 +25,7 @@ const CHECKLIST_STEPS = [
  */
 export function FinalReviewForm() {
     usePageTitle("Final Review");
-    const { steps, stripeConnected, initializing, submitting, error, onSubmit, onBack } = useFinalReview();
+    const { steps, stripeOnboardingComplete, initializing, submitting, error, onSubmit, onBack } = useFinalReview();
 
     return (
         <div className="min-h-screen bg-background-light py-10 px-4">
@@ -74,14 +74,14 @@ export function FinalReviewForm() {
 
                                 <div className="flex items-center justify-between p-4 rounded-lg">
                                     <div className="flex items-center gap-4">
-                                        {stripeConnected ? (
+                                        {stripeOnboardingComplete ? (
                                             <MdCheckCircle className="text-emerald-600 text-xl shrink-0" />
                                         ) : (
                                             <div className="w-5 h-5 rounded-full border-2 border-slate-300 shrink-0" />
                                         )}
                                         <div>
                                             <p className="text-sm font-semibold text-text-main">Payment Setup</p>
-                                            {!stripeConnected && (
+                                            {!stripeOnboardingComplete && (
                                                 <p className="text-xs text-text-muted italic">
                                                     Not set up — you can add this later from your Earnings page
                                                 </p>

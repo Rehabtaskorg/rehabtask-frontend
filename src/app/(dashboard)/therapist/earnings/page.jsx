@@ -93,8 +93,7 @@ function TherapistEarningsContent() {
     const hasEscrowedPayments = data.payments?.some((p) => p.status === "escrowed");
     const isStripeReady =
         stripeStatus?.connected &&
-        stripeStatus?.detailsSubmitted &&
-        stripeStatus?.chargesEnabled;
+        stripeStatus?.onboardingComplete;
 
     return (
         <div className="p-4 md:p-6 max-w-7xl mx-auto space-y-6 sm:space-y-8">

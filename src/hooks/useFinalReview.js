@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import { useOnboardingSync } from "@/hooks/useOnboardingSync";
@@ -19,10 +19,11 @@ export function useFinalReview() {
     const { syncStatus } = useOnboardingSync();
 
     const [steps, setSteps] = useState(null);
-    const [stripeConnected, setStripeConnected] = useState(false);
+    const [stripeOnboardingComplete, setStripeOnboardingComplete] = useState(false);
     const [initializing, setInitializing] = useState(true);
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState("");
+    const submittingRef = useRef(false);
 
     useEffect(() => {
         trackEvent("onboarding_step_viewed", { step: 8, step_name: "review" });
@@ -40,7 +41,7 @@ export function useFinalReview() {
             if (cancelled) return;
 
             if (status) setSteps(status.steps);
-            setStripeConnected(!!stripeRes?.data?.data?.connected);
+            setStripeOnboardingComplete(!!stripeRes?.data?.data?.onboardingComplete);
             setInitializing(false);
         })();
 
@@ -49,23 +50,28 @@ export function useFinalReview() {
     }, []);
 
     const handleSubmit = useCallback(async () => {
+        if (submittingRef.current) return;
+        submittingRef.current = true;
+
         setError("");
         setSubmitting(true);
         try {
             await onboardingAPI.completeOnboarding();
-            trackEvent("onboarding_completed", { has_stripe_connected: stripeConnected });
+            trackEvent("onboarding_completed", { has_stripe_connected: stripeOnboardingComplete });
             useOnboardingStore.getState().reset();
             router.push("/therapist/dashboard");
         } catch (err) {
             logger.error("Failed to complete onboarding:", err);
             setError(err.response?.data?.message || "Failed to submit your application. Please try again.");
             setSubmitting(false);
+        } finally {
+            submittingRef.current = false;
         }
-    }, [router, trackEvent, stripeConnected]);
+    }, [router, trackEvent, stripeOnboardingComplete]);
 
     return {
         steps,
-        stripeConnected,
+        stripeOnboardingComplete,
         initializing,
         submitting,
         error,

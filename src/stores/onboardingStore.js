@@ -289,12 +289,12 @@ const useOnboardingStore = create(
                     payment: { ...state.payment, ...data },
                 })),
 
-            markStripeConnected: (accountId) =>
+            markStripeConnected: (accountId, isReady = false) =>
                 set({
                     payment: {
                         stripeConnected: true,
                         stripeAccountId: accountId,
-                        onboardingComplete: true,
+                        onboardingComplete: isReady,
                     },
                 }),
 

@@ -45,13 +45,12 @@ function AccountSettingsContent() {
 
     const isFullyActive =
         accountStatus?.connected &&
-        accountStatus?.detailsSubmitted &&
-        accountStatus?.chargesEnabled;
+        accountStatus?.onboardingComplete;
 
     const isNotActive =
         accountStatus?.connected &&
         accountStatus?.detailsSubmitted &&
-        !accountStatus?.chargesEnabled;
+        !accountStatus?.onboardingComplete;
 
     const isPastDue = isNotActive && (accountStatus?.pastDueCount ?? 0) > 0;
     const isCurrentlyDue = isNotActive && !isPastDue && (accountStatus?.currentlyDueCount ?? 0) > 0;

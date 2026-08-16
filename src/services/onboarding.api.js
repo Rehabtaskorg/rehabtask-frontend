@@ -97,7 +97,7 @@ export const onboardingAPI = {
 
     /**
      * Check Stripe Connect account status.
-     * Returns { connected, detailsSubmitted, chargesEnabled, payoutsEnabled, accountId? }
+     * Returns { connected, detailsSubmitted, transfersActive, payoutsEnabled, onboardingComplete, accountId? }
      * Used server-side in the onboarding stripe page's onExit handler to verify
      * completion before calling completeOnboarding — never trust onExit alone.
      */

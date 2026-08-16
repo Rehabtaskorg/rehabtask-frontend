@@ -67,26 +67,30 @@ export function useStripeOnboarding() {
         setError(null);
         try {
             const res = await onboardingAPI.checkStripeStatus();
-            const { connected, detailsSubmitted, chargesEnabled, accountId } = res.data.data;
-            const isFullyComplete = connected && detailsSubmitted && chargesEnabled;
-            const isPendingVerification = connected && detailsSubmitted && !chargesEnabled;
+            const { connected, detailsSubmitted, onboardingComplete, accountId } = res.data.data;
+            const isFullyComplete = connected && onboardingComplete;
+            const isPendingVerification = connected && detailsSubmitted && !onboardingComplete;
 
-            if (isFullyComplete || isPendingVerification) {
-                if (isPendingVerification) {
-                    showToast.info("Your details have been submitted. We're verifying your account — this usually takes a few minutes.");
-                }
-                trackEvent("onboarding_step_completed", { step: 7, step_name: "stripe" });
-                markStepComplete(7);
-                if (accountId) markStripeConnected(accountId);
-                try {
-                    await onboardingAPI.advanceToFinalReview();
-                } catch { /* non-fatal — webhook covers this */ }
-                setStatus(STRIPE_STATUS.COMPLETE);
-                setTimeout(() => router.push("/therapist/onboarding/review"), 1500);
-            } else {
+            if (!isFullyComplete && !isPendingVerification) {
                 setStatus(STRIPE_STATUS.ONBOARDING);
                 setError("Your payout setup is incomplete. Please fill in all required fields to continue.");
+                return;
             }
+
+            if (isFullyComplete) {
+                if (accountId) markStripeConnected(accountId, true);
+            } else {
+                if (accountId) markStripeConnected(accountId, false);
+                showToast.info("Your details have been submitted. Stripe typically verifies accounts within 1–2 business days. We'll notify you when it's done.");
+            }
+
+            trackEvent("onboarding_step_completed", { step: 7, step_name: "stripe" });
+            markStepComplete(7);
+            try {
+                await onboardingAPI.advanceToFinalReview();
+            } catch { /* non-fatal — webhook covers this */ }
+            setStatus(STRIPE_STATUS.COMPLETE);
+            setTimeout(() => router.push("/therapist/onboarding/review"), 1500);
         } catch {
             setStatus(STRIPE_STATUS.ONBOARDING);
             setError("Could not verify your account status. Please try again or refresh the page.");
