@@ -15,17 +15,17 @@ const CHECKLIST_STEPS = [
     { key: "availability", label: "Availability", step: 4 },
     { key: "insurance", label: "Insurance Uploads", step: 5 },
     { key: "identity", label: "Identity Verification", step: 6 },
-    { key: "compliance", label: "Compliance Forms", step: 7 },
+    { key: "hipaa", label: "HIPAA Attestation", href: "/therapist/onboarding/hipaa" },
 ];
 
 /**
- * Final Review (Step 9): a read-only checklist of every completed onboarding
+ * Final Review (Step 8): a read-only checklist of every completed onboarding
  * step plus Stripe's connection state, ending in a single "Submit for
  * Activation" action that calls the real completeOnboarding endpoint.
  */
 export function FinalReviewForm() {
     usePageTitle("Final Review");
-    const { steps, stripeConnected, initializing, submitting, error, onSubmit, onBack } = useFinalReview();
+    const { steps, stripeOnboardingComplete, initializing, submitting, error, onSubmit, onBack } = useFinalReview();
 
     return (
         <div className="min-h-screen bg-background-light py-10 px-4">
@@ -50,7 +50,7 @@ export function FinalReviewForm() {
                     ) : (
                         <>
                             <div className="space-y-1">
-                                {CHECKLIST_STEPS.map(({ key, label, step }) => (
+                                {CHECKLIST_STEPS.map(({ key, label, step, href }) => (
                                     <div
                                         key={key}
                                         className="flex items-center justify-between p-4 rounded-lg border-b border-border-light last:border-b-0"
@@ -64,7 +64,7 @@ export function FinalReviewForm() {
                                             <span className="text-sm font-semibold text-text-main">{label}</span>
                                         </div>
                                         <Link
-                                            href={ONBOARDING_STEP_ROUTES[step]}
+                                            href={href ?? ONBOARDING_STEP_ROUTES[step]}
                                             className="text-primary text-xs font-bold uppercase tracking-wide hover:underline"
                                         >
                                             Edit
@@ -74,14 +74,14 @@ export function FinalReviewForm() {
 
                                 <div className="flex items-center justify-between p-4 rounded-lg">
                                     <div className="flex items-center gap-4">
-                                        {stripeConnected ? (
+                                        {stripeOnboardingComplete ? (
                                             <MdCheckCircle className="text-emerald-600 text-xl shrink-0" />
                                         ) : (
                                             <div className="w-5 h-5 rounded-full border-2 border-slate-300 shrink-0" />
                                         )}
                                         <div>
                                             <p className="text-sm font-semibold text-text-main">Payment Setup</p>
-                                            {!stripeConnected && (
+                                            {!stripeOnboardingComplete && (
                                                 <p className="text-xs text-text-muted italic">
                                                     Not set up — you can add this later from your Earnings page
                                                 </p>
@@ -89,7 +89,7 @@ export function FinalReviewForm() {
                                         </div>
                                     </div>
                                     <Link
-                                        href={ONBOARDING_STEP_ROUTES[8]}
+                                        href={ONBOARDING_STEP_ROUTES[7]}
                                         className="text-primary text-xs font-bold uppercase tracking-wide hover:underline"
                                     >
                                         Edit

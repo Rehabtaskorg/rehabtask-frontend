@@ -5,8 +5,8 @@ import { useRouter } from "next/navigation";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import { useIdentityDocumentUpload } from "@/hooks/useIdentityDocumentUpload";
 import { useOnboardingDataSync } from "@/hooks/useOnboardingDataSync";
-import useOnboardingStore from "@/store/onboardingStore";
-import { onboardingAPI } from "@/lib/onboarding.api";
+import useOnboardingStore from "@/stores/onboardingStore";
+import { onboardingAPI } from "@/services/onboarding.api";
 
 /**
  * Drives the Identity Verification onboarding step (Step 6): two document
@@ -61,7 +61,7 @@ export function useIdentityVerificationForm() {
             trackEvent("onboarding_step_completed", { step: 6, step_name: "identity" });
             markStepComplete(6);
             setCurrentStep(7);
-            router.push("/therapist/onboarding/compliance");
+            router.push("/therapist/onboarding/hipaa");
         } catch (err) {
             upload.setError(err.response?.data?.message || "Failed to save identity verification documents. Please try again.");
         } finally {

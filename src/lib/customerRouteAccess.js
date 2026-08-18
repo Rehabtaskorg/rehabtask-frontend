@@ -4,16 +4,14 @@ export const AGENCY_ONBOARDING_STEP_ROUTES = {
     1: "/customer/onboarding/agency/welcome",
     2: "/customer/onboarding/agency/business-profile",
     3: "/customer/onboarding/agency/upload-documents",
-    4: "/customer/onboarding/agency/compliance",
-    5: "/customer/onboarding/agency/activation",
+    4: "/customer/onboarding/agency/activation",
 };
 
 export const INDIVIDUAL_ONBOARDING_STEP_ROUTES = {
     1: "/customer/onboarding/individual/welcome",
     2: "/customer/onboarding/individual/personal-info",
     3: "/customer/onboarding/individual/medical-info",
-    4: "/customer/onboarding/individual/consent-forms",
-    5: "/customer/onboarding/individual/activation",
+    4: "/customer/onboarding/individual/activation",
 };
 
 /**
@@ -34,6 +32,20 @@ function resolveOnboardingRedirect(pathname, stepRoutes, onboardingStep, fallbac
 
     return null;
 }
+
+// TODO: [NEXT] Add pre-onboarding page guards for customer marketplace routes.
+// Pages that must be locked until onboardingComplete === true (mirror the therapist LockedPageOverlay pattern):
+//   - /customer/requests         (My Requests)
+//   - /customer/requests/new     (New Request — most critical)
+//   - /customer/find-therapists  (Browse & contact therapists)
+//   - /customer/bookings         (My Bookings — impossible pre-onboarding)
+//   - /customer/disputes         (stems from bookings — impossible pre-onboarding)
+//   - /customer/subscription     (only meaningful post-onboarding)
+//   - /customer/patients         (agency-only — agency onboarding must complete first)
+// Pages that must stay open: /customer/dashboard, /customer/profile, /customer/faqs
+// Recommended approach: create a CustomerAccessContext (mirrors TherapistAccessContext),
+// expose canAccessMarketplace = onboardingComplete, and add a guard at the top of each
+// page component (same pattern as therapist pages). Reuse or generalise LockedPageOverlay.
 
 /**
  * @param {string} pathname

@@ -5,7 +5,7 @@ import { MdClose, MdPerson, MdCheck } from "react-icons/md";
 import { APIProvider, Map, AdvancedMarker } from "@vis.gl/react-google-maps";
 import { useCreatePatient } from "@/hooks/usePatients";
 import LocationAutocomplete from "@/components/maps/LocationAutocomplete";
-import { validateCertificationPeriod } from "@/lib/validationSchema";
+import { validateCertificationPeriod } from "@/lib/validators/therapist.schema";
 
 const inputBase =
     "w-full bg-background-light  border border-border-light  rounded-lg px-4 py-2.5 text-sm text-text-main  focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all";
@@ -28,6 +28,7 @@ export default function AddPatientModal({ isOpen, onClose, onSuccess }) {
 
     const [fullName, setFullName] = useState("");
     const [dateOfBirth, setDateOfBirth] = useState("");
+    const [gender, setGender] = useState("");
     const [certificationStart, setCertificationStart] = useState("");
     const [certificationEnd, setCertificationEnd] = useState("");
     const [email, setEmail] = useState("");
@@ -49,6 +50,7 @@ export default function AddPatientModal({ isOpen, onClose, onSuccess }) {
     const resetForm = () => {
         setFullName("");
         setDateOfBirth("");
+        setGender("");
         setCertificationStart("");
         setCertificationEnd("");
         setEmail("");
@@ -116,6 +118,7 @@ export default function AddPatientModal({ isOpen, onClose, onSuccess }) {
             await createPatient.mutateAsync({
                 fullName: fullName.trim(),
                 dateOfBirth,
+                gender: gender || undefined,
                 certificationStart,
                 certificationEnd,
                 email: email.trim() || undefined,
@@ -256,6 +259,22 @@ export default function AddPatientModal({ isOpen, onClose, onSuccess }) {
                             </div>
                         </div>
 
+                        <div>
+                            <label className="block text-sm font-medium text-text-main  mb-1.5">
+                                Gender <span className="text-text-muted  font-normal text-xs">(Optional)</span>
+                            </label>
+                            <select
+                                value={gender}
+                                onChange={(e) => setGender(e.target.value)}
+                                className={fieldClass(false)}
+                            >
+                                <option value="">Select gender</option>
+                                <option value="male">Male</option>
+                                <option value="female">Female</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+
                         <div className="flex gap-3">
                             <div className="flex-1">
                                 <label className="block text-sm font-medium text-text-main  mb-1.5">
@@ -334,6 +353,7 @@ export default function AddPatientModal({ isOpen, onClose, onSuccess }) {
                                     zoom={14}
                                     mapId="patient-address-map"
                                     disableDefaultUI
+                                    gestureHandling="none"
                                     className="w-full h-full"
                                 >
                                     <AdvancedMarker position={{ lat: latitude, lng: longitude }} />

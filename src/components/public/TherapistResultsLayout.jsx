@@ -29,11 +29,36 @@ function ListSkeleton() {
     );
 }
 
-function EmptyState() {
+function EmptyState({ hasActiveFilters, onClear }) {
     return (
         <div className="text-center py-16">
             <p className="text-text-muted text-sm">No therapists match your search.</p>
             <p className="text-xs text-text-muted/70 mt-1">Try adjusting filters or searching a different area.</p>
+            {hasActiveFilters && (
+                <button
+                    onClick={onClear}
+                    className="mt-3 text-primary hover:underline text-sm font-bold"
+                >
+                    Clear all filters
+                </button>
+            )}
+        </div>
+    );
+}
+
+function ErrorState({ hasActiveFilters, onClear }) {
+    return (
+        <div className="text-center py-16">
+            <p className="text-text-muted text-sm">Something went wrong loading results.</p>
+            <p className="text-xs text-text-muted/70 mt-1">Please try again or refresh the page.</p>
+            {hasActiveFilters && (
+                <button
+                    onClick={onClear}
+                    className="mt-3 text-primary hover:underline text-sm font-bold"
+                >
+                    Clear all filters
+                </button>
+            )}
         </div>
     );
 }
@@ -61,11 +86,10 @@ function Pagination({ currentPage, totalPages, onPageChange }) {
                     <button
                         key={page}
                         onClick={() => onPageChange(page)}
-                        className={`w-9 h-9 rounded-lg text-sm font-bold transition-colors ${
-                            currentPage === page
+                        className={`w-9 h-9 rounded-lg text-sm font-bold transition-colors ${currentPage === page
                                 ? "bg-primary text-white"
                                 : "bg-muted-light text-text-muted hover:bg-muted-light/60"
-                        }`}
+                            }`}
                     >
                         {page}
                     </button>
@@ -83,11 +107,29 @@ function Pagination({ currentPage, totalPages, onPageChange }) {
     );
 }
 
-export default function TherapistResultsLayout({
+/**
+ * @param {object} props
+ * @param {Array} props.therapists
+ * @param {Array} props.mapMarkers
+ * @param {boolean} props.isLoading
+ * @param {boolean} props.isFetching
+ * @param {boolean} props.isError
+ * @param {string} props.sortBy
+ * @param {Function} props.onSortChange
+ * @param {number} props.currentPage
+ * @param {number} props.totalPages
+ * @param {Function} props.onPageChange
+ * @param {Function} props.onAuthGate
+ * @param {object|null} props.searchCenter
+ * @param {boolean} props.hasActiveFilters
+ * @param {Function} props.onClearFilters
+ */
+export function TherapistResultsLayout({
     therapists,
     mapMarkers = [],
     isLoading,
     isFetching,
+    isError,
     sortBy,
     onSortChange,
     currentPage,
@@ -95,6 +137,8 @@ export default function TherapistResultsLayout({
     onPageChange,
     onAuthGate,
     searchCenter,
+    hasActiveFilters,
+    onClearFilters,
 }) {
     const [hoveredTherapistId, setHoveredTherapistId] = useState(null);
     const [openMarkerId, setOpenMarkerId] = useState(null);
@@ -106,8 +150,6 @@ export default function TherapistResultsLayout({
 
     const openMarkerIsValid = mapMarkers.some((m) => m.id === openMarkerId);
     const activeOpenMarkerId = openMarkerIsValid ? openMarkerId : null;
-
-    const highlightedTherapistId = activeHoveredTherapistId;
 
     const findMarkerForTherapist = (therapistId) =>
         mapMarkers.find((m) => m.therapists.some((t) => t.id === therapistId));
@@ -141,9 +183,7 @@ export default function TherapistResultsLayout({
         }
     };
 
-    const handleCloseInfoWindow = () => {
-        setOpenMarkerId(null);
-    };
+    const handleCloseInfoWindow = () => setOpenMarkerId(null);
 
     const showMap = mobileView === "map";
     const showList = mobileView === "list";
@@ -156,29 +196,40 @@ export default function TherapistResultsLayout({
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-[360px_1fr] flex-1 min-h-0">
-                    <div
-                        className={`flex flex-col bg-gray-50 lg:overflow-hidden ${showMap ? "hidden lg:flex" : "flex"}`}
-                    >
+                    <div className={`flex flex-col bg-gray-50 lg:overflow-hidden ${showMap ? "hidden lg:flex" : "flex"}`}>
                         <div className="flex items-center justify-between px-5 sm:px-7 pt-3 pb-2">
                             <span className="text-xs text-text-muted">
                                 Sorted by{" "}
                                 <select
+                                    aria-label="Sort results by"
                                     value={sortBy}
                                     onChange={(e) => onSortChange(e.target.value)}
                                     className="text-primary font-semibold bg-transparent border-0 focus:ring-0 cursor-pointer"
                                 >
+                                    <option value="relevance">Relevance</option>
                                     <option value="rating">Highest Rated</option>
                                     <option value="experience">Most Experienced</option>
                                     <option value="newest">Newest</option>
                                 </select>
                             </span>
+                            {hasActiveFilters && (
+                                <button
+                                    type="button"
+                                    onClick={onClearFilters}
+                                    className="text-xs text-primary hover:underline font-semibold"
+                                >
+                                    Clear filters
+                                </button>
+                            )}
                         </div>
 
                         <div className={`flex-1 min-h-0 lg:overflow-y-auto overscroll-contain panel-scroll px-5 sm:px-7 pb-4 ${isFetching ? "opacity-60 pointer-events-none" : ""}`}>
                             {isLoading ? (
                                 <ListSkeleton />
+                            ) : isError ? (
+                                <ErrorState hasActiveFilters={hasActiveFilters} onClear={onClearFilters} />
                             ) : therapists.length === 0 ? (
-                                <EmptyState />
+                                <EmptyState hasActiveFilters={hasActiveFilters} onClear={onClearFilters} />
                             ) : (
                                 <div className="space-y-3">
                                     {therapists.map((t, i) => (
@@ -186,7 +237,7 @@ export default function TherapistResultsLayout({
                                             key={t.id}
                                             therapist={t}
                                             index={i}
-                                            isHighlighted={highlightedTherapistId === t.id}
+                                            isHighlighted={activeHoveredTherapistId === t.id}
                                             onHover={handleHoverCard}
                                             onSelect={handleSelectCard}
                                             onAuthGate={onAuthGate}
@@ -207,7 +258,7 @@ export default function TherapistResultsLayout({
                     <div className={`min-h-105 lg:min-h-0 ${showList ? "hidden lg:block" : "block"}`}>
                         <TherapistMapPanel
                             markers={mapMarkers}
-                            highlightedTherapistId={highlightedTherapistId}
+                            highlightedTherapistId={activeHoveredTherapistId}
                             openMarkerId={activeOpenMarkerId}
                             onMarkerClick={handleMarkerClick}
                             onCloseInfoWindow={handleCloseInfoWindow}
@@ -220,3 +271,5 @@ export default function TherapistResultsLayout({
         </section>
     );
 }
+
+export default TherapistResultsLayout;

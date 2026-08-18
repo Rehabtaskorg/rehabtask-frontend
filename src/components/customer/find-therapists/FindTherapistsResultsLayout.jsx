@@ -187,6 +187,17 @@ export default function FindTherapistsResultsLayout({
                     <div
                         className={`flex flex-col bg-muted-light  lg:overflow-hidden ${showMap ? "hidden lg:flex" : "flex"}`}
                     >
+                        {hasActiveFilters && (
+                            <div className="flex items-center justify-end px-5 sm:px-7 pt-3 pb-1">
+                                <button
+                                    type="button"
+                                    onClick={onClearFilters}
+                                    className="text-xs text-primary hover:underline font-semibold"
+                                >
+                                    Clear filters
+                                </button>
+                            </div>
+                        )}
                         <div className={`flex-1 min-h-0 lg:overflow-y-auto overscroll-contain panel-scroll px-5 sm:px-7 py-4 ${isFetching ? "opacity-60 pointer-events-none" : ""}`}>
                             {isLoading ? (
                                 <ListSkeleton />

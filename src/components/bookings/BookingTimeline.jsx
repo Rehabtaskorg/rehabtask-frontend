@@ -16,10 +16,10 @@ import {
 const formatTimestamp = (dateStr) => {
     if (!dateStr) return null;
     const d = new Date(dateStr);
-    return `${d.toLocaleDateString([], { month: "short", day: "numeric", year: "numeric" })} at ${d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}`;
+    return d.toLocaleDateString([], { month: "short", day: "numeric", year: "numeric" });
 };
 
-function TimelineStep({ icon: Icon, iconColor, title, subtitle, timestamp, isCompleted, isWaiting, isCancelled, isLast, nextCompleted }) {
+function TimelineStep({ icon: Icon, title, subtitle, timestamp, isCompleted, isWaiting, isCancelled, isLast, nextCompleted }) {
     const lineColor = isCompleted && nextCompleted
         ? "border-primary"
         : "border-dashed border-slate-300 ";
@@ -176,7 +176,7 @@ export default function BookingTimeline({ booking }) {
         if (payment?.status === "refunded") {
             steps.push({
                 icon: MdAccountBalanceWallet,
-                title: "Payment Refunded",
+                title: "Payment Credited",
                 timestamp: payment.releasedAt,
                 isCompleted: true,
             });
@@ -243,9 +243,9 @@ export default function BookingTimeline({ booking }) {
                 ? "Booking Finalized"
                 : "Payment Released";
             const subtitle = isFinalized
-                ? `Therapist paid for delivered sessions, customer refunded for remaining`
+                ? `Therapist paid for delivered sessions, customer credited for remaining`
                 : (hasReducedScope && released
-                    ? `Paid out for ${deliverableSessions.filter(s => s.status === "confirmed_by_customer").length} deliverable session${deliverableSessions.filter(s => s.status === "confirmed_by_customer").length !== 1 ? "s" : ""} (${reducedScopeLabel}, refunded separately)`
+                    ? `Paid out for ${deliverableSessions.filter(s => s.status === "confirmed_by_customer").length} deliverable session${deliverableSessions.filter(s => s.status === "confirmed_by_customer").length !== 1 ? "s" : ""} (${reducedScopeLabel}, credited separately)`
                     : null);
             steps.push({
                 icon: MdAccountBalanceWallet,

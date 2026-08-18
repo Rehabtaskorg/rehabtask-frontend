@@ -111,8 +111,8 @@ export default function StripeBalancePanel({ statusLoading, stripeStatus, isStri
         );
     }
 
-    // State 3 — connected + details submitted, charges not yet enabled
-    if (stripeStatus?.connected && stripeStatus?.detailsSubmitted && !stripeStatus?.chargesEnabled) {
+    // State 3 — connected + details submitted, not yet fully active
+    if (stripeStatus?.connected && stripeStatus?.detailsSubmitted && !stripeStatus?.onboardingComplete) {
         const isPastDue = (stripeStatus.pastDueCount ?? 0) > 0;
         const isCurrentlyDue = (stripeStatus.currentlyDueCount ?? 0) > 0;
         const hasUpcoming = stripeStatus.hasUpcomingRequirements;

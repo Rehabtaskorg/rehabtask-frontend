@@ -3,7 +3,7 @@
 import { use } from "react";
 import { useRouter } from "next/navigation";
 import {
-    MdArrowBack, MdGavel, MdRefresh, MdCalendarToday,
+    MdArrowBack, MdRefresh, MdCalendarToday,
     MdPerson, MdCheckCircle,
 } from "react-icons/md";
 import { useDisputeDetail } from "@/hooks/useDisputes";
@@ -155,9 +155,10 @@ export default function DisputeDetailPage({ params }) {
                                 <dt className="text-xs font-semibold text-text-muted  uppercase tracking-wide mb-1">Assigned To</dt>
                                 <dd className="text-sm text-text-main  flex items-center gap-1.5">
                                     <MdPerson className="text-text-muted text-xs" />
-                                    {dispute.assignedAdmin?.email || (
-                                        <span className="text-text-muted  italic">Pending assignment</span>
-                                    )}
+                                    {dispute.assignedAdminId
+                                        ? "RehabTask Support Team"
+                                        : <span className="text-text-muted  italic">Pending assignment</span>
+                                    }
                                 </dd>
                             </div>
                         </dl>

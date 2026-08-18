@@ -31,6 +31,29 @@ export const LICENSE_TYPE_TO_SERVICE_TYPE = Object.freeze({
     "Speech-Language Pathologist": "Speech Language Pathology (SLP)",
 });
 
+export const LICENSE_TYPE_TO_DISCIPLINE = Object.freeze({
+    "Physical Therapist": "PT",
+    "Physical Therapist Assistant": "PTA",
+    "Occupational Therapist": "OT",
+    "Occupational Therapist Assistant": "COTA",
+    "Speech-Language Pathologist": "SLP",
+});
+
+export const DISCIPLINE_PILLS = Object.freeze([
+    { key: "all", label: "All", licenseTypes: [] },
+    { key: "pt", label: "PT", licenseTypes: ["Physical Therapist", "Physical Therapist Assistant"] },
+    { key: "ot", label: "OT", licenseTypes: ["Occupational Therapist", "Occupational Therapist Assistant"] },
+    { key: "slp", label: "SLP", licenseTypes: ["Speech-Language Pathologist"] },
+]);
+
+export const REQUEST_STATUS = {
+    CREATED: "created",
+    OFFERS_RECEIVED: "offers_received",
+    OFFERS_ACCEPTED: "offers_accepted",
+    COMPLETED: "completed",
+    CANCELLED: "cancelled",
+};
+
 export const REQUEST_TYPE = {
     PUBLIC: "PUBLIC",
     DIRECT: "DIRECT",
@@ -47,6 +70,8 @@ export const LOGOUT_REASON = {
     IDLE_TIMEOUT: "idle_timeout",
     DEACTIVATED: "deactivated",
     INVITED: "invited",
+    EMAIL_VERIFIED: "verified",
+    LOGGED_OUT: "logged_out",
 };
 
 export const AUTH_REDIRECT_PARAM = "redirect";
@@ -83,3 +108,8 @@ export const BOOKING_STATUS = {
     CANCELLED: "cancelled",
     CANCELLATION_REQUESTED: "cancellation_requested",
 };
+
+export const THERAPIST_VERIFICATION_FIELDS = Object.freeze({
+    LICENSE: "licenseVerified",
+    INSURANCE: "insuranceVerified",
+});

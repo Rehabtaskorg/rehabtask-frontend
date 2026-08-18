@@ -6,7 +6,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import {
     MdStar, MdLocationOn, MdVerified, MdLock,
-    MdCall, MdEmail, MdInfo, MdArrowBack,
+    MdCall, MdEmail, MdInfo, MdArrowBack, MdBarChart,
 } from "react-icons/md";
 import { useTherapistPublicProfile, useTherapistReviews } from "@/hooks/usePublic";
 import { useAppRole } from "@/hooks/useAppRole";
@@ -101,6 +101,7 @@ function TherapistPublicProfileContent() {
     const reviewTotal = profile.reviewCount || 0;
     const primaryArea = profile.workAreas?.[0];
     const rate = profile.ratePerVisit ? parseFloat(profile.ratePerVisit) : null;
+    const hasAdditionalRates = profile.evaluationRate != null || profile.travelFee != null;
 
     return (
         <>
@@ -138,12 +139,14 @@ function TherapistPublicProfileContent() {
                                             </div>
                                         </div>
                                         <p className="text-primary text-lg font-medium mb-4">
-                                            {profile.primaryLicenseType}{profile.specialization ? ` · ${profile.specialization}` : ""}
+                                            {profile.primaryLicenseType}
                                         </p>
                                         <div className="flex flex-wrap gap-2">
-                                            <span className="bg-white border border-gray-200 text-gray-600 text-[10px] uppercase tracking-wider font-bold px-3 py-1.5 rounded-lg">
-                                                {profile.primaryLicenseType}
-                                            </span>
+                                            {profile.primaryLicenseType && (
+                                                <span className="bg-white border border-gray-200 text-gray-600 text-[10px] uppercase tracking-wider font-bold px-3 py-1.5 rounded-lg">
+                                                    {profile.primaryLicenseType}
+                                                </span>
+                                            )}
                                             {profile.yearsOfExperience && (
                                                 <span className="bg-white border border-gray-200 text-gray-600 text-[10px] uppercase tracking-wider font-bold px-3 py-1.5 rounded-lg">
                                                     {profile.yearsOfExperience} Years Experience
@@ -152,12 +155,30 @@ function TherapistPublicProfileContent() {
                                             <span className="bg-emerald-50 border border-emerald-200 text-emerald-700 text-[10px] uppercase tracking-wider font-bold px-3 py-1.5 rounded-lg flex items-center gap-1">
                                                 <MdVerified className="text-xs" /> Background Verified
                                             </span>
+                                            {profile.hipaaAttested && (
+                                                <span className="bg-blue-50 border border-blue-200 text-blue-700 text-[10px] uppercase tracking-wider font-bold px-3 py-1.5 rounded-lg flex items-center gap-1">
+                                                    <MdVerified className="text-xs" /> HIPAA Certified
+                                                </span>
+                                            )}
+                                            {profile.licenseVerified && (
+                                                <span className="bg-sky-50 border border-sky-200 text-sky-700 text-[10px] uppercase tracking-wider font-bold px-3 py-1.5 rounded-lg flex items-center gap-1">
+                                                    <MdVerified className="text-xs" /> License Verified
+                                                </span>
+                                            )}
+                                            {profile.insuranceVerified && (
+                                                <span className="bg-purple-50 border border-purple-200 text-purple-700 text-[10px] uppercase tracking-wider font-bold px-3 py-1.5 rounded-lg flex items-center gap-1">
+                                                    <MdVerified className="text-xs" /> Insured
+                                                </span>
+                                            )}
                                         </div>
                                         {primaryArea && (
                                             <div className="mt-4 flex items-center text-gray-500 gap-2">
                                                 <MdLocationOn className="text-lg" />
                                                 <span className="text-sm">{primaryArea.city}, {primaryArea.state}</span>
                                             </div>
+                                        )}
+                                        {profile.npiNumber && (
+                                            <p className="mt-2 text-sm text-gray-500">NPI: {profile.npiNumber}</p>
                                         )}
                                     </div>
                                 </div>
@@ -173,21 +194,124 @@ function TherapistPublicProfileContent() {
                                 </motion.section>
                             )}
 
-                            {/* Specialization */}
-                            {profile.specialization && (
+                            {/* Clinical Skills */}
+                            {(profile.specialties?.length > 0 || profile.languages?.length > 0 || profile.certifications?.length > 0) && (
                                 <motion.section initial={{ opacity: 0, y: 15 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }} className="space-y-3">
-                                    <h2 className="text-xl font-bold text-gray-900">Specialization</h2>
-                                    <div className="bg-gray-50 rounded-2xl p-6">
-                                        <div className="flex flex-wrap gap-3">
-                                            <span className="bg-primary/10 text-primary border border-primary/20 text-sm font-semibold px-4 py-2 rounded-lg">
-                                                {profile.specialization}
-                                            </span>
-                                            {profile.primaryLicenseType && (
-                                                <span className="bg-white border border-gray-200 text-gray-700 text-sm font-semibold px-4 py-2 rounded-lg">
-                                                    {profile.primaryLicenseType}
-                                                </span>
-                                            )}
+                                    <h2 className="text-xl font-bold text-gray-900">Clinical Skills</h2>
+                                    <div className="bg-gray-50 rounded-2xl p-6 space-y-4">
+                                        {profile.specialties?.length > 0 && (
+                                            <div>
+                                                <p className="text-xs text-gray-500 font-bold uppercase tracking-wider mb-2">Specialties</p>
+                                                <div className="flex flex-wrap gap-2">
+                                                    {profile.specialties.map((s) => (
+                                                        <span key={s} className="bg-primary/10 text-primary border border-primary/20 text-sm font-semibold px-3 py-1.5 rounded-lg">{s}</span>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        )}
+                                        {profile.languages?.length > 0 && (
+                                            <div>
+                                                <p className="text-xs text-gray-500 font-bold uppercase tracking-wider mb-2">Languages</p>
+                                                <div className="flex flex-wrap gap-2">
+                                                    {profile.languages.map((l) => (
+                                                        <span key={l} className="bg-white border border-gray-200 text-gray-700 text-sm font-semibold px-3 py-1.5 rounded-lg">{l}</span>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        )}
+                                        {profile.certifications?.length > 0 && (
+                                            <div>
+                                                <p className="text-xs text-gray-500 font-bold uppercase tracking-wider mb-2">Certifications</p>
+                                                <div className="flex flex-wrap gap-2">
+                                                    {profile.certifications.map((c) => (
+                                                        <span key={c} className="bg-emerald-50 border border-emerald-200 text-emerald-700 text-sm font-semibold px-3 py-1.5 rounded-lg">{c}</span>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                </motion.section>
+                            )}
+
+                            {/* Clinical Background */}
+                            {(profile.pastSettings?.length > 0 || profile.populationExperience?.length > 0 || profile.yearsInHomeHealth != null) && (
+                                <motion.section initial={{ opacity: 0, y: 15 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }} className="space-y-3">
+                                    <h2 className="text-xl font-bold text-gray-900">Clinical Background</h2>
+                                    <div className="bg-gray-50 rounded-2xl p-6 space-y-4">
+                                        {profile.pastSettings?.length > 0 && (
+                                            <div>
+                                                <p className="text-xs text-gray-500 font-bold uppercase tracking-wider mb-2">Past Settings</p>
+                                                <div className="flex flex-wrap gap-2">
+                                                    {profile.pastSettings.map((s) => (
+                                                        <span key={s} className="bg-white border border-gray-200 text-gray-700 text-sm font-semibold px-3 py-1.5 rounded-lg">{s}</span>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        )}
+                                        {profile.populationExperience?.length > 0 && (
+                                            <div>
+                                                <p className="text-xs text-gray-500 font-bold uppercase tracking-wider mb-2">Patient Population</p>
+                                                <div className="flex flex-wrap gap-2">
+                                                    {profile.populationExperience.map((p) => (
+                                                        <span key={p} className="bg-white border border-gray-200 text-gray-700 text-sm font-semibold px-3 py-1.5 rounded-lg">{p}</span>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        )}
+                                        {profile.yearsInHomeHealth != null && (
+                                            <div>
+                                                <p className="text-xs text-gray-500 font-bold uppercase tracking-wider mb-1">Years in Home Health</p>
+                                                <p className="text-sm font-semibold text-gray-800">
+                                                    {profile.yearsInHomeHealth} {profile.yearsInHomeHealth === 1 ? "year" : "years"}
+                                                </p>
+                                            </div>
+                                        )}
+                                    </div>
+                                </motion.section>
+                            )}
+
+                            {/* Additional Rates */}
+                            {hasAdditionalRates && (
+                                <motion.section initial={{ opacity: 0, y: 15 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }} className="space-y-3">
+                                    <h2 className="text-xl font-bold text-gray-900">Additional Rates</h2>
+                                    <div className="bg-gray-50 rounded-2xl p-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        {profile.evaluationRate != null && (
+                                            <div>
+                                                <p className="text-xs text-gray-500 font-bold uppercase tracking-wider mb-1">Evaluation Rate</p>
+                                                <p className="text-lg font-extrabold text-gray-900">${parseFloat(profile.evaluationRate).toFixed(2)}</p>
+                                            </div>
+                                        )}
+                                        {profile.travelFee != null && (
+                                            <div>
+                                                <p className="text-xs text-gray-500 font-bold uppercase tracking-wider mb-1">Travel Fee</p>
+                                                <p className="text-lg font-extrabold text-gray-900">${parseFloat(profile.travelFee).toFixed(2)}</p>
+                                            </div>
+                                        )}
+                                    </div>
+                                </motion.section>
+                            )}
+
+                            {/* Performance */}
+                            {(profile.stats?.completedVisits > 0 || profile.stats?.reviewCount > 0) && (
+                                <motion.section initial={{ opacity: 0, y: 15 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }} className="space-y-3">
+                                    <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                                        <MdBarChart className="text-primary" /> Performance
+                                    </h2>
+                                    <div className="bg-gray-50 rounded-2xl p-6 grid grid-cols-2 sm:grid-cols-3 gap-6">
+                                        <div className="text-center">
+                                            <p className="text-3xl font-extrabold text-gray-900">{profile.stats.completedVisits}</p>
+                                            <p className="text-xs text-gray-500 font-bold uppercase tracking-wider mt-1">Completed Visits</p>
                                         </div>
+                                        {profile.stats.reviewCount > 0 && (
+                                            <div className="text-center">
+                                                <p className="text-3xl font-extrabold text-gray-900 flex items-center justify-center gap-1">
+                                                    <MdStar className="text-amber-400 text-2xl" />{profile.stats.averageRating}
+                                                </p>
+                                                <p className="text-xs text-gray-500 font-bold uppercase tracking-wider mt-1">
+                                                    Avg Rating ({profile.stats.reviewCount} {profile.stats.reviewCount === 1 ? "review" : "reviews"})
+                                                </p>
+                                            </div>
+                                        )}
                                     </div>
                                 </motion.section>
                             )}
@@ -309,7 +433,7 @@ function TherapistPublicProfileContent() {
                                         parseFloat(profile.attemptedVisitRate) > 0 ? (
                                             <p className="text-xs text-gray-500 mb-4">
                                                 Attempted visit fee: <span className="font-semibold text-gray-700">${parseFloat(profile.attemptedVisitRate).toFixed(2)}</span>
-                                                <span className="text-gray-400 ml-1">(if patient is not home)</span>
+                                                <span className="text-gray-400 ml-1">(if session cannot proceed)</span>
                                             </p>
                                         ) : (
                                             <p className="text-xs text-emerald-600 font-medium mb-4">
@@ -346,8 +470,11 @@ function TherapistPublicProfileContent() {
                                     <div className="space-y-3">
                                         {[
                                             { label: "Discipline type", value: profile.primaryLicenseType },
-                                            { label: "Experience", value: profile.yearsOfExperience ? `${profile.yearsOfExperience} Years` : "—" },
+                                            { label: "Experience", value: profile.yearsOfExperience ? `${profile.yearsOfExperience} yrs` : "—" },
+                                            ...(profile.yearsInHomeHealth != null ? [{ label: "Home Health Exp.", value: `${profile.yearsInHomeHealth} yrs` }] : []),
                                             { label: "Rate", value: rate ? `$${rate}/visit` : "—" },
+                                            ...(profile.evaluationRate != null ? [{ label: "Evaluation Rate", value: `$${parseFloat(profile.evaluationRate).toFixed(2)}` }] : []),
+                                            ...(profile.travelFee != null ? [{ label: "Travel Fee", value: `$${parseFloat(profile.travelFee).toFixed(2)}` }] : []),
                                             ...(profile.attemptedVisitRate != null ? [{
                                                 label: "Attempted Visit",
                                                 value: parseFloat(profile.attemptedVisitRate) > 0

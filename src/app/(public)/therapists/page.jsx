@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useState, useCallback, useRef, useEffect } from "react";
+import { Suspense, useState, useCallback, useRef, useMemo, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { APIProvider } from "@vis.gl/react-google-maps";
 import { useSearchTherapists } from "@/hooks/usePublic";
@@ -11,9 +11,12 @@ import TherapistCompactHeader from "@/components/public/TherapistCompactHeader";
 import TherapistResultsLayout from "@/components/public/TherapistResultsLayout";
 import AuthGateModal from "@/components/public/AuthGateModal";
 import { aggregatePinsByLocation } from "@/lib/mapPinAggregation";
+import { DISCIPLINE_PILLS } from "@/lib/constants";
 
-const DISCIPLINE_MAP = { pt: "Physical Therapist", ot: "Occupational Therapist", slp: "Speech-Language Pathologist" };
-
+/**
+ * @param {object} t - Raw therapist from API
+ * @returns {object} Mapped therapist for UI
+ */
 function mapTherapist(t) {
     const firstArea = t.workAreas?.[0];
     const location = firstArea ? `${firstArea.city}, ${firstArea.state}` : "Location not specified";
@@ -31,11 +34,14 @@ function mapTherapist(t) {
     };
 }
 
+/**
+ * @param {Array} rawTherapists - Raw therapists from API
+ * @returns {Array} Map pins with coordinates
+ */
 function buildMapPins(rawTherapists) {
     const pins = [];
     for (const t of rawTherapists || []) {
-        const areas = t.workAreas || [];
-        for (const area of areas) {
+        for (const area of t.workAreas || []) {
             if (!area.latitude || !area.longitude) continue;
             pins.push({
                 id: `${t.id}__${area.city}_${area.state}_${area.latitude}_${area.longitude}`,
@@ -70,67 +76,95 @@ function FindTherapistsContent() {
 
     const [licenseType, setLicenseType] = useState(initialLicenseType);
     const [locationInput, setLocationInput] = useState(initialLocation);
-
     const locationCoords = useRef(initialCoords);
 
     const [committedLicenseType, setCommittedLicenseType] = useState(initialLicenseType);
     const [committedCoords, setCommittedCoords] = useState(initialCoords);
 
-    // --- Discipline pills (applied immediately on click) ---
     const [activeDiscipline, setActiveDiscipline] = useState("all");
-
-
-    const [sortBy, setSortBy] = useState("rating");
+    const [sortBy, setSortBy] = useState("relevance");
     const [currentPage, setCurrentPage] = useState(1);
 
     const [gateOpen, setGateOpen] = useState(false);
     const [gateTrigger, setGateTrigger] = useState("default");
     const [gateEntityId, setGateEntityId] = useState(null);
+    const [locationError, setLocationError] = useState("");
 
-    // Track whether the user has explicitly triggered a search (vs. initial page load)
     const searchTriggeredRef = useRef(false);
 
-    // Store coordinates when user selects a place from autocomplete
     const handleLocationSelect = useCallback((place) => {
         locationCoords.current = { latitude: place.latitude, longitude: place.longitude };
+        setLocationError("");
     }, []);
 
-    // Clear coordinates when user clears the location input
     const handleLocationClear = useCallback(() => {
         locationCoords.current = null;
+        setLocationError("");
+        setCommittedCoords(null);
+        setCurrentPage(1);
     }, []);
 
     const handleSearch = useCallback(() => {
+        if (locationInput.trim() && !locationCoords.current) {
+            setLocationError("Please select a location from the dropdown.");
+            return;
+        }
+        setLocationError("");
         searchTriggeredRef.current = true;
         setCommittedLicenseType(licenseType);
         setCommittedCoords(locationCoords.current ? { ...locationCoords.current } : null);
+        setActiveDiscipline("all");
         setCurrentPage(1);
-    }, [licenseType]);
+    }, [licenseType, locationInput]);
 
-
-    // Discipline pills apply immediately
     const handleDisciplineChange = useCallback((d) => {
         setActiveDiscipline(d);
+        setCommittedLicenseType("");
+        setLicenseType("");
+        setCommittedCoords(null);
+        setLocationInput("");
+        locationCoords.current = null;
+        setLocationError("");
         setCurrentPage(1);
     }, []);
 
-    const params = {
-        ...(committedCoords && {
-            latitude: committedCoords.latitude,
-            longitude: committedCoords.longitude,
-            radiusMiles: 50,
-        }),
-        // License type selector takes precedence; discipline pill is a fallback
-        ...(committedLicenseType
-            ? { primaryLicenseType: committedLicenseType }
-            : activeDiscipline !== "all" && { primaryLicenseType: DISCIPLINE_MAP[activeDiscipline] }
-        ),
-        sortBy,
-        page: currentPage,
-        limit: 9,
-    };
+    const handleDisciplineClear = useCallback(() => {
+        setCommittedLicenseType("");
+        setCurrentPage(1);
+    }, []);
 
-    const { data, isLoading, isFetching } = useSearchTherapists(params);
+    const handleClearFilters = useCallback(() => {
+        setLicenseType("");
+        setLocationInput("");
+        locationCoords.current = null;
+        setCommittedLicenseType("");
+        setCommittedCoords(null);
+        setActiveDiscipline("all");
+        setSortBy("relevance");
+        setCurrentPage(1);
+    }, []);
+
+    const searchParamsQuery = useMemo(() => {
+        const params = { page: currentPage, limit: 9, sortBy };
+
+        if (committedCoords) {
+            params.latitude = committedCoords.latitude;
+            params.longitude = committedCoords.longitude;
+        }
+
+        if (committedLicenseType) {
+            params.primaryLicenseType = committedLicenseType;
+        } else if (activeDiscipline !== "all") {
+            const pill = DISCIPLINE_PILLS.find((d) => d.key === activeDiscipline);
+            if (pill?.licenseTypes.length) {
+                params.primaryLicenseType = pill.licenseTypes.join(",");
+            }
+        }
+
+        return params;
+    }, [committedLicenseType, committedCoords, activeDiscipline, sortBy, currentPage]);
+
+    const { data, isLoading, isFetching, isError } = useSearchTherapists(searchParamsQuery);
 
     useEffect(() => {
         if (!data || isFetching || !searchTriggeredRef.current) return;
@@ -145,11 +179,13 @@ function FindTherapistsContent() {
     const mapMarkers = aggregatePinsByLocation(buildMapPins(data?.therapists));
     const pagination = data?.pagination || { page: 1, totalPages: 1, total: 0 };
 
-    const handleAuthGate = (trigger, entityId = null) => {
+    const hasActiveFilters = !!committedLicenseType || !!committedCoords || activeDiscipline !== "all" || sortBy !== "relevance";
+
+    const handleAuthGate = useCallback((trigger, entityId = null) => {
         setGateTrigger(trigger);
         setGateEntityId(entityId);
         setGateOpen(true);
-    };
+    }, []);
 
     return (
         <>
@@ -161,6 +197,8 @@ function FindTherapistsContent() {
                 onLocationSelect={handleLocationSelect}
                 onLocationClear={handleLocationClear}
                 onSearch={handleSearch}
+                locationError={locationError}
+                onDisciplineClear={handleDisciplineClear}
             />
 
             <div className="min-h-screen md:h-screen md:pt-16 md:overflow-hidden bg-white flex flex-col">
@@ -175,6 +213,7 @@ function FindTherapistsContent() {
                     mapMarkers={mapMarkers}
                     isLoading={isLoading}
                     isFetching={isFetching}
+                    isError={isError}
                     sortBy={sortBy}
                     onSortChange={(v) => { setSortBy(v); setCurrentPage(1); }}
                     currentPage={currentPage}
@@ -182,6 +221,8 @@ function FindTherapistsContent() {
                     onPageChange={setCurrentPage}
                     onAuthGate={handleAuthGate}
                     searchCenter={committedCoords ? { lat: committedCoords.latitude, lng: committedCoords.longitude } : null}
+                    hasActiveFilters={hasActiveFilters}
+                    onClearFilters={handleClearFilters}
                 />
             </div>
 

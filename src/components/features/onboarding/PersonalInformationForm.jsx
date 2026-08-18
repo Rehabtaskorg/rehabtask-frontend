@@ -7,13 +7,13 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { APIProvider } from "@vis.gl/react-google-maps";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import { useOnboardingDataSync } from "@/hooks/useOnboardingDataSync";
-import useOnboardingStore from "@/store/onboardingStore";
+import useOnboardingStore from "@/stores/onboardingStore";
 import OnboardingProgressBar from "@/components/therapist/OnboardingProgressBar";
 import PhoneInput from "@/components/ui/PhoneInput";
 import LocationAutocomplete from "@/components/maps/LocationAutocomplete";
-import { personalInfoSchema } from "@/lib/onboardingValidation";
+import { personalInfoSchema } from "@/lib/validators/onboarding.schema";
 import { US_STATES } from "@/lib/constants/credentials";
-import { onboardingAPI } from "@/lib/onboarding.api";
+import { onboardingAPI } from "@/services/onboarding.api";
 import { usePageTitle } from "@/hooks/usePageTitle";
 
 /** Max date for DOB input — must be at least 18 years old */
@@ -175,7 +175,7 @@ export function PersonalInformationForm() {
                             Personal Information
                         </h1>
                         <p className="text-text-muted text-lg font-normal leading-normal">
-                            This information is required for identity verification and compliance.
+                            Tell us about yourself. This information is required for identity verification and compliance.
                         </p>
                     </header>
 

@@ -2,7 +2,7 @@
 
 import { useVisitTypes } from "@/hooks/useVisitTypes";
 import { MdSchedule } from "react-icons/md";
-import { localDateTimeStr } from "@/utils/dates";
+import { localDateStr } from "@/utils/dates";
 
 export default function OfferFormFields({ formData, setFormData, serviceType }) {
     const { data: visitTypes = [] } = useVisitTypes({
@@ -90,9 +90,9 @@ export default function OfferFormFields({ formData, setFormData, serviceType }) 
                     Proposed First Session
                 </label>
                 <input
-                    type="datetime-local"
+                    type="date"
                     required
-                    min={localDateTimeStr()}
+                    min={localDateStr()}
                     value={formData.proposedDate}
                     onChange={(e) => setFormData((d) => ({ ...d, proposedDate: e.target.value }))}
                     className="w-full px-4 py-3 rounded-lg bg-background-light  border border-border-light  focus:ring-2 focus:ring-primary/20 focus:border-primary text-text-main  transition-all outline-none text-sm"

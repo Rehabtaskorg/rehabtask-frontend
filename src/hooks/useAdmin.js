@@ -6,7 +6,7 @@ import {
     adminBookingsApi, adminSubscriptionsApi, adminPaymentsApi,
     adminCommissionApi, adminFaqsApi, adminNotificationsApi,
     adminSubAdminsApi, adminAuditApi, adminEmailApi,
-} from '@/lib/admin';
+} from '@/services/admin.api';
 
 // Notifications (user-facing)
 export const useNotifications = (params) =>
@@ -104,6 +104,22 @@ export const useRejectTherapist = () => {
         mutationFn: ({ therapistUserId, reason }) =>
             adminTherapistsApi.reject(therapistUserId, { reason }),
         onSuccess: () => qc.invalidateQueries({ queryKey: ['admin', 'therapists'] }),
+    });
+};
+
+/**
+ * Mutation to toggle licenseVerified or insuranceVerified on a therapist profile.
+ * Admin-only action — invalidates the therapist detail query on success.
+ */
+export const useUpdateTherapistVerification = () => {
+    const qc = useQueryClient();
+    return useMutation({
+        mutationFn: ({ therapistUserId, field, value }) =>
+            adminTherapistsApi.updateVerification(therapistUserId, { field, value }),
+        onSuccess: (_, { therapistUserId }) => {
+            qc.invalidateQueries({ queryKey: ['admin', 'therapists', therapistUserId] });
+            qc.invalidateQueries({ queryKey: ['admin', 'therapists'] });
+        },
     });
 };
 

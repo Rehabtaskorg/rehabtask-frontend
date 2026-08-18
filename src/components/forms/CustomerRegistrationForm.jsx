@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { MdArrowForward, MdInfo } from "react-icons/md";
 import { FaGoogle } from "react-icons/fa";
 import Input from "../ui/Input";
@@ -10,30 +11,36 @@ import Button from "../ui/Button";
 import Alert from "../ui/Alert";
 import { useCustomerRegistration } from "@/hooks/useCustomerRegistration";
 import { useGoogleAuth } from "@/hooks/useGoogleAuth";
+import { usePageTitle } from "@/hooks/usePageTitle";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { customerRegistrationSchema } from "@/lib/validationSchema";
+import { customerRegistrationSchema } from "@/lib/validators/therapist.schema";
 
 const CustomerRegistrationForm = () => {
+    usePageTitle("Create Account");
+    const searchParams = useSearchParams();
+    const redirectTo = searchParams.get("redirect") || null;
+
     const [accountType, setAccountType] = useState("individual");
     const [googleLoading, setGoogleLoading] = useState(false);
 
     const { register, handleSubmit, formState: { errors }, setValue, clearErrors, control } = useForm({
         resolver: zodResolver(customerRegistrationSchema),
-        mode: "onChange",
+        mode: "onTouched",
         reValidateMode: "onChange",
         defaultValues: {
             customerType: "individual",
             fullName: "",
             email: "",
             phone: "",
+            smsOptIn: false,
             password: "",
             agencyName: ""
         }
     });
 
-    const { registerCustomer, isSubmitting, error, success, clearMessages } = useCustomerRegistration();
-    const { initiateGoogleLogin } = useGoogleAuth();
+    const { registerCustomer, isSubmitting, error, success, clearMessages } = useCustomerRegistration(redirectTo);
+    const { initiateGoogleLogin } = useGoogleAuth(redirectTo);
 
     const handleAccountTypeChange = (type) => {
         setAccountType(type);
@@ -164,6 +171,21 @@ const CustomerRegistrationForm = () => {
                     error={errors.phone?.message}
                     required
                 />
+
+                {/* SMS Opt-In */}
+                <div className="flex items-start gap-3">
+                    <input
+                        type="checkbox"
+                        id="smsOptIn"
+                        {...register("smsOptIn")}
+                        className="mt-0.5 h-4 w-4 shrink-0 rounded border-border text-primary focus:ring-primary"
+                    />
+                    <label htmlFor="smsOptIn" className="text-sm text-text-muted leading-snug">
+                        By checking this box, you agree to receive SMS appointment reminders and
+                        notifications from RehabTask. Message and data rates may apply.
+                        Reply STOP to opt out at any time.
+                    </label>
+                </div>
 
                 {/* Password */}
                 <div className="space-y-1.5">

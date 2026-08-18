@@ -28,6 +28,16 @@ const REASON_TOAST = {
             position: "top-center",
             autoClose: 8000,
         }),
+    [LOGOUT_REASON.EMAIL_VERIFIED]: () =>
+        showToast.success("Email verified! Please log in to continue.", {
+            position: "top-center",
+            autoClose: 6000,
+        }),
+    [LOGOUT_REASON.LOGGED_OUT]: () =>
+        showToast.info("You have been signed out.", {
+            position: "top-center",
+            autoClose: 4000,
+        }),
 };
 
 /**

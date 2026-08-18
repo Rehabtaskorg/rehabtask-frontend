@@ -43,7 +43,7 @@ export default function StripeOnboardingView() {
 
                 <header className="mb-8 text-center px-4">
                     <h1 className="text-text-main text-4xl font-black leading-tight tracking-[-0.033em] mb-2">
-                        Setup Payouts
+                        Payment Setup
                     </h1>
                     <p className="text-text-muted text-lg">
                         Connect your bank account to receive payments for your sessions
@@ -99,7 +99,7 @@ export default function StripeOnboardingView() {
                 {[STRIPE_STATUS.IDLE, STRIPE_STATUS.ERROR].includes(status) && (
                     <div className="mt-6 flex justify-center">
                         <button
-                            onClick={() => router.push("/therapist/onboarding/compliance")}
+                            onClick={() => router.push("/therapist/onboarding/identity")}
                             className="flex items-center gap-2 text-text-muted hover:text-text-main transition-colors"
                         >
                             <MdArrowBack className="text-lg" />

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTherapistAccess } from "@/contexts/TherapistAccessContext";
 import { ONBOARDING_STEP_ROUTES } from "@/lib/therapistRouteAccess";
-import useOnboardingStore from "@/store/onboardingStore";
+import useOnboardingStore from "@/stores/onboardingStore";
 import { MdLock, MdAccessTime, MdSearch, MdSend, MdCalendarMonth, MdChatBubble, MdPayments, MdInfo } from "react-icons/md";
 import ConfirmModal from "@/components/ui/ConfirmModal";
 import {

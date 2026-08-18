@@ -17,7 +17,7 @@ export default function StripeStatusCard({ variant, errorMessage, onRetry, onSki
                     <MdCheckCircle className="text-emerald-500 text-4xl" />
                 </div>
                 <p className="text-text-main font-bold text-xl">Payout setup complete!</p>
-                <p className="text-text-muted text-sm">Redirecting you to your dashboard…</p>
+                <p className="text-text-muted text-sm">Redirecting you to your final review…</p>
             </div>
         );
     }

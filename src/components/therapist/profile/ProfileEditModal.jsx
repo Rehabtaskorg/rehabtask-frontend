@@ -1,13 +1,12 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { MdClose, MdEdit, MdCameraAlt, MdLock, MdInfo } from "react-icons/md";
-import { SPECIALIZATIONS } from "@/lib/constants/specializations";
 import { LICENSE_TYPES } from "@/lib/constants/credentials";
-import { onboardingAPI } from "@/lib/onboarding.api";
+import { onboardingAPI } from "@/services/onboarding.api";
 import { useUpdateProfile } from "@/hooks/useTherapistProfile";
 import Input from "@/components/ui/Input";
 import PhoneInput from "@/components/ui/PhoneInput";
@@ -19,20 +18,12 @@ const profileEditSchema = z.object({
     fullName: z.string().trim().min(2, "Name must be at least 2 characters"),
     phone: z
         .string()
-        .trim()
-        .min(1, "Phone is required")
         .regex(/^\+1\d{10}$/, "Phone must be in format +1XXXXXXXXXX"),
+    smsOptIn: z.boolean().optional(),
     yearsOfExperience: z.coerce
         .number({ invalid_type_error: "Must be a number" })
         .min(0, "Must be 0 or greater")
         .max(50, "Must be 50 or less"),
-    specialization: z
-        .string()
-        .optional()
-        .nullable()
-        .refine((val) => !val || SPECIALIZATIONS.includes(val), {
-            message: "Invalid specialization",
-        }),
     ratePerVisit: z.coerce
         .number({ invalid_type_error: "Must be a number" })
         .min(0, "Must be 0 or greater")
@@ -65,9 +56,16 @@ const profileEditSchema = z.object({
 
 const ProfileEditModal = ({ isOpen, onClose, profile, onSuccess }) => {
     const [photoUrl, setPhotoUrl] = useState(profile?.profilePhotoUrl || null);
+    const [imgError, setImgError] = useState(false);
     const [uploading, setUploading] = useState(false);
     const [alert, setAlert] = useState(null);
     const fileInputRef = useRef(null);
+    const alertRef = useRef(null);
+
+    const showAlert = useCallback((type, message) => {
+        setAlert({ type, message });
+        setTimeout(() => alertRef.current?.scrollIntoView({ behavior: "smooth", block: "center" }), 50);
+    }, []);
 
     const updateProfile = useUpdateProfile();
 
@@ -78,8 +76,8 @@ const ProfileEditModal = ({ isOpen, onClose, profile, onSuccess }) => {
         defaultValues: {
             fullName: profile?.fullName || "",
             phone: profile?.phone || "",
+            smsOptIn: profile?.smsOptIn ?? false,
             yearsOfExperience: profile?.yearsOfExperience || 0,
-            specialization: profile?.specialization || "",
             ratePerVisit: profile?.ratePerVisit ? parseFloat(profile.ratePerVisit) : "",
             attemptedVisitRate: profile?.attemptedVisitRate != null ? parseFloat(profile.attemptedVisitRate) : "",
             professionalSummary: profile?.professionalSummary || "",
@@ -96,11 +94,11 @@ const ProfileEditModal = ({ isOpen, onClose, profile, onSuccess }) => {
         if (!file) return;
 
         if (!file.type.startsWith("image/")) {
-            setAlert({ type: "error", message: "Please select an image file." });
+            showAlert("error", "Please select an image file.");
             return;
         }
         if (file.size > 5 * 1024 * 1024) {
-            setAlert({ type: "error", message: "Image must be less than 5MB." });
+            showAlert("error", "Image must be less than 5MB.");
             return;
         }
 
@@ -109,12 +107,10 @@ const ProfileEditModal = ({ isOpen, onClose, profile, onSuccess }) => {
 
         try {
             const result = await onboardingAPI.uploadProfilePhoto(file);
+            setImgError(false);
             setPhotoUrl(result.url);
         } catch (err) {
-            setAlert({
-                type: "error",
-                message: err.response?.data?.message || "Failed to upload photo.",
-            });
+            showAlert("error", err.response?.data?.message || "Failed to upload photo.");
         } finally {
             setUploading(false);
         }
@@ -125,16 +121,12 @@ const ProfileEditModal = ({ isOpen, onClose, profile, onSuccess }) => {
         try {
             await updateProfile.mutateAsync({
                 ...data,
-                specialization: data.specialization || null,
                 profilePhotoUrl: photoUrl,
             });
             onSuccess?.();
             onClose();
         } catch (err) {
-            setAlert({
-                type: "error",
-                message: err.response?.data?.message || "Failed to update profile.",
-            });
+            showAlert("error", err.response?.data?.message || "Failed to update profile.");
         }
     }
 
@@ -183,25 +175,27 @@ const ProfileEditModal = ({ isOpen, onClose, profile, onSuccess }) => {
 
                 <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-6">
                     {alert && (
-                        <Alert
-                            type={alert.type}
-                            message={alert.message}
-                            onClose={() => setAlert(null)}
-                        />
+                        <div ref={alertRef}>
+                            <Alert
+                                type={alert.type}
+                                message={alert.message}
+                                onClose={() => setAlert(null)}
+                            />
+                        </div>
                     )}
 
                     {/* Profile Photo */}
                     <div className="flex items-center gap-4">
                         <div className="relative">
-                            {photoUrl ? (
+                            {photoUrl && !imgError ? (
                                 <Image
                                     src={photoUrl}
                                     alt="profile"
                                     width={80}
                                     height={80}
+                                    onError={() => setImgError(true)}
                                     className="w-20 h-20 rounded-full object-cover border-2 border-border-light "
                                 />
-
                             ) : (
                                 <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center border-2 border-border-light ">
                                     <span className="text-primary text-xl font-bold">
@@ -252,6 +246,18 @@ const ProfileEditModal = ({ isOpen, onClose, profile, onSuccess }) => {
                         />
                     </div>
 
+                    <div className="flex items-start gap-3">
+                        <input
+                            type="checkbox"
+                            id="smsOptIn"
+                            {...register("smsOptIn")}
+                            className="mt-0.5 h-4 w-4 shrink-0 rounded border-border text-primary focus:ring-primary"
+                        />
+                        <label htmlFor="smsOptIn" className="text-sm text-text-muted leading-snug">
+                            Receive SMS appointment reminders and notifications
+                        </label>
+                    </div>
+
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                         <Input
                             label="Years of Experience"
@@ -287,34 +293,6 @@ const ProfileEditModal = ({ isOpen, onClose, profile, onSuccess }) => {
                         <p className="text-xs text-text-muted ">
                             Charged when you arrive but the patient isn&apos;t home. Must be less than or equal to your session rate. Leave blank if you won&apos;t charge for no-shows. Changes only apply to new offers — existing bookings keep their original rate.
                         </p>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                        <div className="space-y-2">
-                            <label className="block text-sm font-bold text-text-main  uppercase tracking-wide">
-                                Specialization{" "}
-                                <span className="text-text-muted font-normal normal-case tracking-normal">(optional)</span>
-                            </label>
-                            <select
-                                {...register("specialization")}
-                                className={`w-full px-4 py-3 rounded-xl bg-white  border transition-all outline-none ${errors.specialization
-                                    ? "border-red-500 focus:ring-2 focus:ring-red-500/20"
-                                    : "border-border-subtle  focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                                    } text-text-main `}
-                            >
-                                <option value="">Select specialization...</option>
-                                {SPECIALIZATIONS.map((s) => (
-                                    <option key={s} value={s}>
-                                        {s}
-                                    </option>
-                                ))}
-                            </select>
-                            {errors.specialization && (
-                                <p className="text-xs text-red-500 font-medium">
-                                    {errors.specialization.message}
-                                </p>
-                            )}
-                        </div>
                     </div>
 
                     {/* Professional Summary */}

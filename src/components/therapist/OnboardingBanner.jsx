@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
-import { authAPi } from "@/lib/auth.api";
+import { authAPi } from "@/services/auth.api";
 import { useOnboardingSync } from "@/hooks/useOnboardingSync";
 import { ONBOARDING_STEP_ROUTES } from "@/lib/therapistRouteAccess";
 import ConfirmModal from "@/components/ui/ConfirmModal";
@@ -55,7 +55,7 @@ export default function OnboardingBanner() {
                 // Check if only Stripe is missing (all essential steps done)
                 const essentialStepsDone = steps?.personalInfo && steps?.profile &&
                     steps?.credentials && steps?.availability && steps?.insurance &&
-                    steps?.identity && steps?.compliance;
+                    steps?.identity;
 
                 if (essentialStepsDone) {
                     // All essential steps done, only Stripe is missing — show review banner
@@ -139,7 +139,7 @@ export default function OnboardingBanner() {
                         onClick={handleResumeSetup}
                         className="px-4 py-2 rounded-lg text-sm font-semibold bg-primary text-white hover:brightness-95 transition-all"
                     >
-                        {progress === 0 ? "Start Setup" : "Continue Setup"}
+                        {progress === 0 ? "Start Onboarding" : "Continue Onboarding"}
                     </button>
                 </div>
             </div>

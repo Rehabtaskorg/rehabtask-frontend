@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { disputesApi } from "@/lib/disputes";
+import { disputesApi } from "@/services/dispute.api";
 
 export function useMyDisputes() {
     const { data, isLoading, error, refetch } = useQuery({

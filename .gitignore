@@ -47,3 +47,4 @@ test.ts
 *.tsbuildinfo
 next-env.d.ts
 .claude/settings.local.json
+test.jsx

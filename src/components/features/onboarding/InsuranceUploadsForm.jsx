@@ -44,10 +44,10 @@ export function InsuranceUploadsForm() {
 
                 <header className="mb-8 px-4">
                     <h1 className="text-text-main text-4xl font-black leading-tight tracking-[-0.033em] mb-2">
-                        Insurance Documentation
+                        Insurance Uploads
                     </h1>
                     <p className="text-text-muted text-lg font-normal leading-normal">
-                        We require proof of liability insurance to protect you and your patients during home visits.
+                        These protect both you and your patients.
                     </p>
                 </header>
 
@@ -123,7 +123,7 @@ export function InsuranceUploadsForm() {
                                 disabled={loading || !!uploadingType}
                                 className="bg-primary text-white px-8 py-3 rounded-lg font-bold hover:brightness-95 transition-all shadow-md shadow-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                                {loading ? "Saving..." : "Continue to Identity Verification"}
+                                {loading ? "Saving..." : "Save & Continue"}
                             </button>
                         </div>
                     </div>

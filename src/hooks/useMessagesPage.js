@@ -6,7 +6,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useConversations, useMessages, useConversationContext } from "./useMessages";
 import { useAuth } from "./useAuth";
 import { useSocketContext } from "@/components/providers/SocketProvider";
-import { messagesApi } from "@/lib/messages.api";
+import { messagesApi } from "@/services/message.api";
 import { getDisplayName } from "@/utils/messages";
 import { useAnalytics } from "@/hooks/useAnalytics";
 

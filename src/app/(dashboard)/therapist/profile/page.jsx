@@ -14,6 +14,7 @@ import Button from "@/components/ui/Button";
 import { MdPerson, MdMap, MdSchedule, MdRefresh, MdInfo, MdError } from "react-icons/md";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import UserAvatar from "@/components/ui/UserAvatar";
+import { APPROVAL_STATUS } from "@/lib/constants";
 
 const TABS = [
     { key: "profile", label: "Profile", icon: MdPerson },
@@ -112,7 +113,7 @@ function TherapistProfileContent() {
                                 className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold capitalize ${approvalColor[profile.approvalStatus] || approvalColor.pending
                                     }`}
                             >
-                                {profile.approvalStatus === "review" ? "Under Review" : profile.approvalStatus}
+                                {profile.approvalStatus === APPROVAL_STATUS.REVIEW ? "Under Review" : profile.approvalStatus}
                             </span>
                         )}
                     </div>
@@ -120,7 +121,7 @@ function TherapistProfileContent() {
             </div>
 
             {/* Status Banner — shown for non-approved therapists */}
-            {!onboardingComplete && (approvalStatus === "pending" || approvalStatus === "review") && (
+            {!onboardingComplete && (approvalStatus === APPROVAL_STATUS.PENDING || approvalStatus === APPROVAL_STATUS.REVIEW) && (
                 <div className="flex items-start gap-3 p-4 mb-8 bg-blue-50  border border-blue-200  rounded-xl">
                     <MdInfo className="text-blue-600  text-xl shrink-0 mt-0.5" />
                     <div>
@@ -133,7 +134,7 @@ function TherapistProfileContent() {
                     </div>
                 </div>
             )}
-            {onboardingComplete && (approvalStatus === "pending" || approvalStatus === "review") && (
+            {onboardingComplete && (approvalStatus === APPROVAL_STATUS.PENDING || approvalStatus === APPROVAL_STATUS.REVIEW) && (
                 <div className="flex items-start gap-3 p-4 mb-8 bg-yellow-50  border border-yellow-200  rounded-xl">
                     <MdInfo className="text-yellow-600  text-xl shrink-0 mt-0.5" />
                     <div>
@@ -147,7 +148,7 @@ function TherapistProfileContent() {
                 </div>
             )}
 
-            {approvalStatus === "rejected" && (
+            {approvalStatus === APPROVAL_STATUS.REJECTED && (
                 <div className="flex items-start gap-3 p-4 mb-8 bg-red-50  border border-red-200  rounded-xl">
                     <MdError className="text-red-500 text-xl shrink-0 mt-0.5" />
                     <div>

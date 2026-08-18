@@ -1,10 +1,22 @@
 "use client";
 
+import Link from "next/link";
 import { motion } from "framer-motion";
 import { MdStar, MdLocationOn, MdWorkHistory, MdLock, MdVerified } from "react-icons/md";
 import UserAvatar from "@/components/ui/UserAvatar";
+import { LICENSE_TYPE_TO_DISCIPLINE } from "@/lib/constants";
 
-export default function TherapistListCard({
+/**
+ * @param {object} props
+ * @param {object} props.therapist
+ * @param {number} [props.index]
+ * @param {boolean} [props.isHighlighted]
+ * @param {Function} [props.onHover]
+ * @param {Function} [props.onSelect]
+ * @param {Function} [props.onAuthGate]
+ * @param {Function} [props.cardRef]
+ */
+export function TherapistListCard({
     therapist,
     index = 0,
     isHighlighted = false,
@@ -16,6 +28,8 @@ export default function TherapistListCard({
     const borderClass = isHighlighted
         ? "border-2 border-primary shadow-lg shadow-primary/10"
         : "border border-border-light hover:border-primary/30 hover:shadow-md";
+
+    const disciplineLabel = LICENSE_TYPE_TO_DISCIPLINE[therapist.licenseType] ?? therapist.licenseType ?? "Licensed";
 
     return (
         <motion.div
@@ -45,7 +59,7 @@ export default function TherapistListCard({
                             </h3>
                             <span className="inline-flex items-center gap-1 mt-1 bg-emerald-50 text-emerald-700 text-[9px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-wider">
                                 <MdVerified className="text-[11px]" />
-                                {therapist.licenseType || "Licensed"}
+                                {disciplineLabel}
                             </span>
                         </div>
                         <div className="text-right shrink-0">
@@ -86,13 +100,13 @@ export default function TherapistListCard({
                     </div>
 
                     <div className="flex items-center justify-end gap-3 mt-3">
-                        <a
+                        <Link
                             href={`/therapists/${therapist.id}`}
                             onClick={(e) => e.stopPropagation()}
                             className="text-xs font-semibold text-text-muted hover:text-primary transition-colors"
                         >
                             View Profile
-                        </a>
+                        </Link>
                         <button
                             type="button"
                             onClick={(e) => {
@@ -110,3 +124,5 @@ export default function TherapistListCard({
         </motion.div>
     );
 }
+
+export default TherapistListCard;

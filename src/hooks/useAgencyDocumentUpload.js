@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
-import useAgencyOnboardingStore from "@/store/agencyOnboardingStore";
-import { agencyOnboardingAPI } from "@/lib/agency.onboarding.api";
+import useAgencyOnboardingStore from "@/stores/agencyOnboardingStore";
+import { agencyOnboardingAPI } from "@/services/onboarding.agency.api";
 
 const MAX_FILE_SIZE = 25 * 1024 * 1024;
 const ALLOWED_MIME_TYPES = ["application/pdf", "image/jpeg", "image/jpg", "image/png"];

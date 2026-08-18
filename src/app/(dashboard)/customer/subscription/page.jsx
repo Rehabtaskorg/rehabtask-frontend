@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { MdStars, MdCheckCircle, MdCreditCard, MdCancel, MdWarning, MdAccessTime, MdArrowUpward, MdArrowDownward } from "react-icons/md";
 import { useSubscription, useCreateCheckout, useCreateBillingPortal, useCancelSubscription, useResumeSubscription, useUpgradeSubscription, useDowngradeSubscription, useCancelScheduledDowngrade } from "@/hooks/useSubscription";
-import { subscriptionApi } from "@/lib/subscription.api";
+import { subscriptionApi } from "@/services/subscription.api";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import { PLAN_TYPES } from "@/lib/constants";
@@ -60,7 +60,7 @@ const STATUS_BADGES = {
 /**
  * @param {{ label: string, current: number, limit: number|null }} props
  */
-function UsageBar({ label, current, limit }) {
+function UsageBar({ label, current, limit, tooltip }) {
     const isUnlimited = limit === null || limit >= 999999;
     const percentage = isUnlimited ? 0 : Math.min((current / limit) * 100, 100);
     const isAtLimit = !isUnlimited && current >= limit;
@@ -68,7 +68,19 @@ function UsageBar({ label, current, limit }) {
     return (
         <div className="space-y-1">
             <div className="flex justify-between text-sm">
-                <span className="text-text-muted">{label}</span>
+                <span className="flex items-center gap-1 text-text-muted">
+                    {label}
+                    {tooltip && (
+                        <span className="group relative inline-flex">
+                            <svg className="h-3.5 w-3.5 text-text-muted opacity-60 cursor-default" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
+                            </svg>
+                            <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 w-48 rounded-md bg-slate-800 px-2.5 py-1.5 text-xs text-white opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-10">
+                                {tooltip}
+                            </span>
+                        </span>
+                    )}
+                </span>
                 <span className={`font-medium ${isAtLimit ? "text-red-500" : "text-text-main"}`}>
                     {isUnlimited ? `${current} used · Unlimited` : `${current} / ${limit}`}
                 </span>
@@ -298,8 +310,9 @@ export default function SubscriptionPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <UsageBar
                         label="Visits this billing period"
-                        current={usage.visitCount}
+                        current={usage.sessionsUsed}
                         limit={subscription?.visitLimit >= 999999 ? null : subscription?.visitLimit}
+                        tooltip="Sessions are counted when you accept a therapist offer. Cancelled sessions are deducted."
                     />
                     <UsageBar
                         label="Active job postings"
@@ -359,18 +372,18 @@ export default function SubscriptionPage() {
 
                                 <div className="mt-6">
                                     {isCurrentPlan ? (
-                                        <button disabled className="w-full py-2.5 rounded-lg bg-gray-100 text-text-muted font-medium cursor-default">
+                                        <button disabled className="w-full min-h-[42px] py-2.5 px-3 rounded-lg bg-gray-100 text-text-muted font-medium cursor-default text-sm">
                                             Current Plan
                                         </button>
                                     ) : plan.key === PLAN_TYPES.FREE ? (
-                                        <button disabled className="w-full py-2.5 rounded-lg bg-gray-100 text-text-muted font-medium cursor-default">
+                                        <button disabled className="w-full min-h-[42px] py-2.5 px-3 rounded-lg bg-gray-100 text-text-muted font-medium cursor-default text-sm">
                                             Free Plan
                                         </button>
                                     ) : plan.rank > currentPlanRank || !isPaid || isTrial || isGracePeriod ? (
                                         <button
                                             onClick={() => handlePlanAction(plan.key)}
                                             disabled={upgradingPlan !== null}
-                                            className="w-full py-2.5 rounded-lg bg-primary text-white font-medium hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20 disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                                            className="w-full min-h-[42px] py-2.5 px-3 rounded-lg bg-primary text-white font-medium hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20 disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-center text-sm"
                                         >
                                             {upgradingPlan === plan.key ? (isPaid ? "Upgrading..." : "Redirecting...") : (
                                                 <>
@@ -383,7 +396,7 @@ export default function SubscriptionPage() {
                                         <button
                                             onClick={() => handlePlanAction(plan.key)}
                                             disabled={upgradingPlan !== null || (!!pendingDowngrade && (pendingDowngrade === plan.key || pendingDowngrade === true))}
-                                            className="w-full py-2.5 rounded-lg border border-amber-300 text-amber-600 font-medium hover:bg-amber-50 transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                                            className="w-full min-h-[42px] py-2.5 px-3 rounded-lg border border-amber-300 text-amber-600 font-medium hover:bg-amber-50 transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-center text-sm"
                                         >
                                             {(pendingDowngrade === plan.key || (pendingDowngrade === true && plan.rank < currentPlanRank)) ? (
                                                 "Downgrade scheduled"

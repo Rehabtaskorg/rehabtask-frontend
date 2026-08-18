@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { MdClose, MdWarning, MdInfo } from "react-icons/md";
-import { bookingsApi } from "@/lib/bookings.api";
+import { bookingsApi } from "@/services/booking.api";
 import { showToast } from "@/lib/toast";
 
 /**
@@ -42,17 +42,17 @@ export default function MarkSessionMissedModal({
             title: "Mark Session as Missed",
             subtitle: "Let the customer know you couldn't attend this session.",
             placeholder: "e.g. I had a medical emergency and couldn't make it to the scheduled session.",
-            infoText: "The customer will be refunded for this session. If they've set up a payout account, the money goes directly to their bank. Otherwise, they'll be prompted to set it up.",
+            infoText: "The customer will be credited for this session. If they've set up a payout account, the credit goes directly to their bank. Otherwise, they'll be prompted to set it up.",
             submitButton: "Mark as Missed",
-            successMessage: "Session marked as missed. Customer has been notified and will receive a refund.",
+            successMessage: "Session marked as missed. Customer has been notified and will be credited.",
         }
         : {
             title: "Report Missed Visit",
             subtitle: "Let us know the therapist did not attend this session.",
             placeholder: "e.g. The therapist did not show up for the scheduled appointment and did not contact me.",
-            infoText: "Once reported, you'll be refunded for this session. The therapist will be notified. If they dispute this, our support team will review.",
+            infoText: "Once reported, you'll be credited for this session. The therapist will be notified. If they dispute this, our support team will review.",
             submitButton: "Report Missed Visit",
-            successMessage: "Missed visit reported. Your refund is being processed.",
+            successMessage: "Missed visit reported. Your account credit is being processed.",
         };
 
     const handleSubmit = async (e) => {
@@ -164,7 +164,7 @@ export default function MarkSessionMissedModal({
                         <div className="text-xs text-text-main  leading-relaxed space-y-1">
                             {refundAmount != null && (
                                 <p>
-                                    <span className="font-bold">${parseFloat(refundAmount).toFixed(2)}</span> will be refunded to the customer for this session.
+                                    <span className="font-bold">${parseFloat(refundAmount).toFixed(2)}</span> will be credited to the customer for this session.
                                 </p>
                             )}
                             <p className="text-text-muted ">

@@ -14,10 +14,13 @@ import {
     MdCheckCircle,
 } from "react-icons/md";
 import { LICENSE_TYPES } from "@/lib/constants/credentials";
-import { onboardingAPI } from "@/lib/onboarding.api";
+import { APPROVAL_STATUS } from "@/lib/constants";
+import { onboardingAPI } from "@/services/onboarding.api";
+import { logger } from "@/lib/logger";
 import ProfileEditModal from "./ProfileEditModal";
+import { ClinicalProfileSection } from "./ClinicalProfileSection";
 import Button from "@/components/ui/Button";
-import Image from "next/image";
+import UserAvatar from "@/components/ui/UserAvatar";
 
 const StatusBadge = ({ status }) => {
     const config = {
@@ -75,16 +78,7 @@ const ProfileTab = ({ profile, approvalStatus, onboardingComplete }) => {
     const [showEditModal, setShowEditModal] = useState(false);
     const [viewingDoc, setViewingDoc] = useState(null);
 
-    const isCredentialsLocked = onboardingComplete && (approvalStatus === "pending" || approvalStatus === "review");
-
-    const initials = profile?.fullName
-        ? profile.fullName
-            .split(" ")
-            .map((n) => n[0])
-            .join("")
-            .toUpperCase()
-            .slice(0, 2)
-        : "?";
+    const isCredentialsLocked = onboardingComplete && (approvalStatus === APPROVAL_STATUS.PENDING || approvalStatus === APPROVAL_STATUS.REVIEW);
 
     const licenseTypeLabel =
         LICENSE_TYPES.find((lt) => lt.value === profile?.primaryLicenseType)?.label ||
@@ -100,7 +94,7 @@ const ProfileTab = ({ profile, approvalStatus, onboardingComplete }) => {
                 window.open(url, "_blank");
             }
         } catch (err) {
-            console.error("Error fetching document URL:", err);
+            logger.error("Error fetching document URL:", err);
         } finally {
             setViewingDoc(null);
         }
@@ -133,21 +127,12 @@ const ProfileTab = ({ profile, approvalStatus, onboardingComplete }) => {
                         </div>
 
                         <div className="flex flex-col sm:flex-row items-start gap-5 mb-5">
-                            {profile?.profilePhotoUrl ? (
-                                <Image
-                                    src={profile.profilePhotoUrl}
-                                    alt={profile.fullName}
-                                    width={96}
-                                    height={96}
-                                    className="w-24 h-24 rounded-full object-cover border-2 border-border-light  shrink-0"
-                                />
-                            ) : (
-                                <div className="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center border-2 border-border-light  shrink-0">
-                                    <span className="text-primary text-2xl font-bold">
-                                        {initials}
-                                    </span>
-                                </div>
-                            )}
+                            <UserAvatar
+                                name={profile?.fullName}
+                                photoUrl={profile?.profilePhotoUrl}
+                                size="xl"
+                                className="border-2 border-border-light"
+                            />
                             <div className="flex-1 min-w-0 space-y-1">
                                 <InfoRow label="Full Name" value={profile?.fullName} />
                                 <InfoRow label="Phone" value={profile?.phone} />
@@ -185,7 +170,6 @@ const ProfileTab = ({ profile, approvalStatus, onboardingComplete }) => {
                         )}
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1">
-                            <InfoRow label="Specialization" value={profile?.specialization} />
                             <InfoRow
                                 label="Rate per Visit"
                                 value={profile?.ratePerVisit ? `$${parseFloat(profile.ratePerVisit).toFixed(2)}` : null}
@@ -211,6 +195,11 @@ const ProfileTab = ({ profile, approvalStatus, onboardingComplete }) => {
                                 value={profile?.licenseState}
                                 icon={<MdLock className="text-sm" />}
                             />
+                            <InfoRow
+                                label="NPI Number"
+                                value={profile?.npiNumber}
+                                icon={<MdLock className="text-sm" />}
+                            />
                         </div>
 
                         {profile?.professionalSummary && (
@@ -222,6 +211,7 @@ const ProfileTab = ({ profile, approvalStatus, onboardingComplete }) => {
                             </div>
                         )}
                     </div>
+                    <ClinicalProfileSection profile={profile} />
                 </div>
 
                 {/* Right column */}
@@ -234,7 +224,7 @@ const ProfileTab = ({ profile, approvalStatus, onboardingComplete }) => {
                         <div className="space-y-3">
                             <div className="flex items-center justify-between">
                                 <span className="text-sm text-text-muted">Approval</span>
-                                {!onboardingComplete && profile?.approvalStatus === "pending" ? (
+                                {!onboardingComplete && profile?.approvalStatus === APPROVAL_STATUS.PENDING ? (
                                     <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-gray-100  text-text-muted ">
                                         Not Submitted
                                     </span>
@@ -269,7 +259,7 @@ const ProfileTab = ({ profile, approvalStatus, onboardingComplete }) => {
                         </div>
 
                         {/* Contextual status message for pending/review */}
-                        {(approvalStatus === "pending" || approvalStatus === "review") && (
+                        {(approvalStatus === APPROVAL_STATUS.PENDING || approvalStatus === APPROVAL_STATUS.REVIEW) && (
                             <div className="mt-4 pt-3 border-t border-border-light ">
                                 {onboardingComplete ? (
                                     <>
@@ -294,7 +284,7 @@ const ProfileTab = ({ profile, approvalStatus, onboardingComplete }) => {
                         )}
 
                         {/* Contextual status message for rejected */}
-                        {approvalStatus === "rejected" && (
+                        {approvalStatus === APPROVAL_STATUS.REJECTED && (
                             <div className="mt-4 pt-3 border-t border-red-200 ">
                                 <p className="text-xs font-semibold text-red-700 ">
                                     Action required — please update your credentials
@@ -355,7 +345,7 @@ const ProfileTab = ({ profile, approvalStatus, onboardingComplete }) => {
                         )}
 
                         {/* Update Credentials button for rejected therapists */}
-                        {approvalStatus === "rejected" && (
+                        {approvalStatus === APPROVAL_STATUS.REJECTED && (
                             <button
                                 onClick={() => window.location.href = "/therapist/onboarding/credentials"}
                                 className="mt-3 w-full px-4 py-2 rounded-lg text-sm font-semibold bg-red-600 text-white hover:brightness-95 transition-all"

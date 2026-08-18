@@ -10,6 +10,7 @@ const DOCUMENTS = [
     { key: "medicare_medicaid_cert", label: "Medicare / Medicaid Certification", required: false },
     { key: "general_liability", label: "General Liability Insurance", required: true },
     { key: "professional_liability", label: "Professional Liability Insurance", required: true },
+    { key: "w9", label: "W-9 Tax Form", required: false },
 ];
 
 /**

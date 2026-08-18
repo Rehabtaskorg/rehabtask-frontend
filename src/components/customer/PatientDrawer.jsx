@@ -10,7 +10,7 @@ import { usePatient, useUpdatePatient } from "@/hooks/usePatients";
 import LocationAutocomplete from "@/components/maps/LocationAutocomplete";
 import { formatShortDate } from "@/utils/dates";
 import { BOOKING_STATUS } from "@/lib/constants";
-import { validateCertificationPeriod } from "@/lib/validationSchema";
+import { validateCertificationPeriod } from "@/lib/validators/therapist.schema";
 
 const REQUEST_STATUS_CONFIG = {
     created:         { label: "Created",         color: "text-blue-500 bg-blue-50 " },
@@ -59,6 +59,7 @@ export default function PatientDrawer({ patientId, onClose }) {
         setEditData({
             fullName:            patient.fullName || "",
             dateOfBirth:         patient.dateOfBirth ? patient.dateOfBirth.split("T")[0] : "",
+            gender:              patient.gender || "",
             certificationStart:  patient.certificationStart ? patient.certificationStart.split("T")[0] : "",
             certificationEnd:    patient.certificationEnd ? patient.certificationEnd.split("T")[0] : "",
             email:               patient.email || "",
@@ -135,6 +136,7 @@ export default function PatientDrawer({ patientId, onClose }) {
                 data: {
                     fullName:            editData.fullName.trim(),
                     dateOfBirth:         editData.dateOfBirth || undefined,
+                    gender:              editData.gender || undefined,
                     certificationStart:  editData.certificationStart || undefined,
                     certificationEnd:    editData.certificationEnd || undefined,
                     email:               editData.email?.trim() || "",
@@ -280,6 +282,19 @@ export default function PatientDrawer({ patientId, onClose }) {
                                                         className={inputClass}
                                                     />
                                                     {editErrors.dateOfBirth && <p className="text-xs text-red-500 mt-1">{editErrors.dateOfBirth}</p>}
+                                                </div>
+                                                <div className="flex-1">
+                                                    <label className="block text-xs font-semibold text-text-muted  mb-1">Gender</label>
+                                                    <select
+                                                        value={editData.gender || ""}
+                                                        onChange={(e) => setEditData((d) => ({ ...d, gender: e.target.value }))}
+                                                        className={inputClass}
+                                                    >
+                                                        <option value="">Select gender</option>
+                                                        <option value="male">Male</option>
+                                                        <option value="female">Female</option>
+                                                        <option value="other">Other</option>
+                                                    </select>
                                                 </div>
                                             </div>
                                             <div className="flex gap-3">

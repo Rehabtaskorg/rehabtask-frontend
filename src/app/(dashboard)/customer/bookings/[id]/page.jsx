@@ -4,16 +4,16 @@ import { useState } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import {
-    MdArrowBack, MdChat, MdCalendarToday, MdAccessTime, MdLocationOn, MdVideocam, MdPerson,
+    MdArrowBack, MdChat, MdCalendarToday, MdLocationOn, MdVideocam, MdPerson,
     MdCheckCircle, MdClose, MdWarning, MdInfo, MdRefresh, MdSchedule, MdUpdate,
 } from "react-icons/md";
 import { useBookingDetail } from "@/hooks/useBookings";
 import { useBookingPolling, usePaymentRedirect } from "@/hooks/useBookingPolling";
-import { bookingsApi } from "@/lib/bookings.api";
+import { bookingsApi } from "@/services/booking.api";
 import { BOOKING_STATUS, USER_ROLES } from "@/lib/constants";
 import { resolveVisitPlan, computeTotalVisits } from "@/lib/visitPlan";
 import { formatCurrency } from "@/utils/messages";
-import { formatDate, formatTime } from "@/utils/dates";
+import { formatDate } from "@/utils/dates";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import BookingStatusBadge from "@/components/bookings/BookingStatusBadge";
@@ -26,7 +26,7 @@ import InlinePaymentSection from "@/components/bookings/InlinePaymentSection";
 import RequestRevisionModal from "@/components/shared/sessions/RequestRevisionModal";
 import MarkSessionMissedModal from "@/components/shared/sessions/MarkSessionMissedModal";
 import RevisionStatusBanner from "@/components/shared/sessions/RevisionStatusBanner";
-import PatientInfoBlock from "@/components/shared/patient/PatientInfoBlock";
+import { PatientInfoBlock } from "@/components/shared/patient/PatientInfoBlock";
 import ConfirmModal from "@/components/ui/ConfirmModal";
 
 export default function CustomerBookingDetailPage() {
@@ -37,6 +37,7 @@ export default function CustomerBookingDetailPage() {
     const searchParams = useSearchParams();
     const { booking, loading, error, refetch } = useBookingDetail(params.id);
 
+    const [therapistImgError, setTherapistImgError] = useState(false);
     const [confirming, setConfirming] = useState(false);
     const [showConfirmDialog, setShowConfirmDialog] = useState(false);
     const [showRevisionModal, setShowRevisionModal] = useState(false);
@@ -292,12 +293,13 @@ export default function CustomerBookingDetailPage() {
                     {/* Therapist card */}
                     <div className="bg-card-light  border border-border-light  rounded-xl p-5">
                         <div className="flex items-start gap-4">
-                            {therapist?.profilePhotoUrl ? (
+                            {therapist?.profilePhotoUrl && !therapistImgError ? (
                                 <Image
                                     src={therapist.profilePhotoUrl}
                                     alt={therapist.fullName}
                                     width={56}
                                     height={56}
+                                    onError={() => setTherapistImgError(true)}
                                     className="w-14 h-14 rounded-xl object-cover shrink-0"
                                 />
                             ) : (
@@ -328,7 +330,9 @@ export default function CustomerBookingDetailPage() {
                         </div>
                     </div>
 
-                    {booking.patient && <PatientInfoBlock patient={booking.patient} />}
+                    {booking.patient && (
+                        <PatientInfoBlock patient={booking.patient} therapist={booking.therapist} />
+                    )}
 
                     {/* Session details */}
                     <div className="bg-card-light  border border-border-light  rounded-xl p-5">
@@ -346,13 +350,6 @@ export default function CustomerBookingDetailPage() {
                                 <div>
                                     <p className="text-xs text-text-muted ">Date</p>
                                     <p className="text-sm font-medium text-text-main ">{formatDate(session?.scheduledDate || booking.scheduledDate)}</p>
-                                </div>
-                            </div>
-                            <div className="flex items-start gap-3">
-                                <MdAccessTime className="text-primary text-lg mt-0.5 shrink-0" />
-                                <div>
-                                    <p className="text-xs text-text-muted ">Time</p>
-                                    <p className="text-sm font-medium text-text-main ">{formatTime(session?.scheduledDate || booking.scheduledDate)}</p>
                                 </div>
                             </div>
                             <div className="flex items-start gap-3">
@@ -415,7 +412,7 @@ export default function CustomerBookingDetailPage() {
                                     <div>
                                         <p className="text-sm font-bold text-amber-900 ">Reschedule Requested</p>
                                         <p className="text-xs text-amber-700  mt-0.5">
-                                            Therapist proposed: {formatDate(booking.proposedNewDate)} at {formatTime(booking.proposedNewDate)}
+                                            Therapist proposed: {formatDate(booking.proposedNewDate)}
                                         </p>
                                     </div>
                                 </div>
@@ -475,7 +472,7 @@ export default function CustomerBookingDetailPage() {
                                         <p className="text-xs text-yellow-600 mt-1 font-semibold">
                                             You have until{" "}
                                             {booking.cancellationRequestedAt
-                                                ? new Date(new Date(booking.cancellationRequestedAt).getTime() + 24 * 60 * 60 * 1000).toLocaleString([], { weekday: "short", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })
+                                                ? new Date(new Date(booking.cancellationRequestedAt).getTime() + 24 * 60 * 60 * 1000).toLocaleDateString([], { weekday: "short", month: "short", day: "numeric" })
                                                 : "24 hours from the request"}{" "}
                                             to respond. If you take no action, the request will be automatically declined and your booking will remain active.
                                         </p>
@@ -562,8 +559,8 @@ export default function CustomerBookingDetailPage() {
                                 <p className="text-sm font-bold text-red-900 mb-1">Request Cancellation</p>
                                 <p className="text-xs text-red-700 mb-3">
                                     {payment?.status === "escrowed"
-                                        ? <>Your request will be sent to {booking.therapist?.fullName}. They have 24 hours to approve or reject it. If they don&apos;t respond, your cancellation will be approved automatically and you&apos;ll receive a full refund.</>
-                                        : <>This booking will be cancelled immediately. No payment has been made, so no refund is needed.</>
+                                        ? <>Your request will be sent to {booking.therapist?.fullName}. They have 24 hours to approve or reject it. If they don&apos;t respond, your cancellation will be approved automatically and your payment will be credited back to your account.</>
+                                        : <>This booking will be cancelled immediately. No payment has been made, so no credit is needed.</>
                                     }
                                 </p>
                                 <textarea
@@ -671,6 +668,8 @@ export default function CustomerBookingDetailPage() {
                                         </p>
                                         <p className="text-xs text-emerald-700  mt-0.5">
                                             {payment?.status === "released"
+                                                // TODO: [BUG] payment.amount is total escrow amount, not what was actually released.
+                                                // Should use payment.releasedAmount so missed/attempted deductions are reflected correctly.
                                                 ? `Payment of ${formatCurrency(parseFloat(payment.amount))} has been released to the therapist.`
                                                 : "Payment will be released shortly."
                                             }

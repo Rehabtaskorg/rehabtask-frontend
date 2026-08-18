@@ -3,12 +3,13 @@
 import { useState } from "react";
 import { MdLocationOn, MdCheck } from "react-icons/md";
 import { Map, AdvancedMarker } from "@vis.gl/react-google-maps";
-import useRequestStore from "@/store/requestStore";
+import useRequestStore from "@/stores/requestStore";
 import LocationAutocomplete from "@/components/maps/LocationAutocomplete";
 
 const DEFAULT_CENTER = { lat: 39.8283, lng: -98.5795 };
 const DEFAULT_ZOOM = 4;
 const SELECTED_ZOOM = 13;
+
 
 export default function Step2Location() {
     const { step2, setStep2 } = useRequestStore();
@@ -88,6 +89,7 @@ export default function Step2Location() {
                         zoom={hasLocation ? SELECTED_ZOOM : undefined}
                         mapId="request-location-map"
                         disableDefaultUI
+                        gestureHandling="none"
                         className="w-full h-full"
                     >
                         {hasLocation && <AdvancedMarker position={mapCenter} />}
@@ -99,6 +101,7 @@ export default function Step2Location() {
                     </p>
                 )}
             </div>
+
         </div>
     );
 }

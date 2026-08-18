@@ -5,15 +5,18 @@ import { useSearchParams } from "next/navigation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements, PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
+import PhoneInputWithCountry from "react-phone-number-input";
+import { isValidPhoneNumber } from "react-phone-number-input";
+import "react-phone-number-input/style.css";
 import { getStripeAppearance } from "@/lib/stripe.appearance";
 import ChangePasswordForm from "@/components/profile/ChangePasswordForm";
 import { usePageTitle } from "@/hooks/usePageTitle";
-import { authAPi } from "@/lib/auth.api";
+import { authAPi } from "@/services/auth.api";
 import { api } from "@/lib/api";
-import { paymentsApi } from "@/lib/payments.api";
+import { paymentsApi } from "@/services/payment.api";
 import {
     MdPerson, MdSecurity, MdBusiness, MdEdit, MdCheck, MdClose,
-    MdCreditCard, MdAdd, MdDeleteOutline, MdStar, MdStarOutline, MdLock, MdWarning,
+    MdCreditCard, MdAdd, MdDeleteOutline, MdStar, MdStarOutline, MdLock, MdWarning, MdPhone,
 } from "react-icons/md";
 import { CUSTOMER_TYPES } from "@/lib/constants";
 
@@ -314,10 +317,17 @@ export default function CustomerProfilePage() {
     const [activeTab, setActiveTab] = useState("account");
 
     const [user, setUser] = useState(null);
+
     const [editingAgency, setEditingAgency] = useState(false);
     const [agencyName, setAgencyName] = useState("");
     const [saving, setSaving] = useState(false);
     const [saveError, setSaveError] = useState("");
+
+    const [editingContact, setEditingContact] = useState(false);
+    const [phone, setPhone] = useState("");
+    const [smsOptIn, setSmsOptIn] = useState(false);
+    const [phoneError, setPhoneError] = useState("");
+    const [savingContact, setSavingContact] = useState(false);
 
     useEffect(() => {
         if (tabFromUrl && TABS.some((t) => t.key === tabFromUrl)) {
@@ -361,6 +371,34 @@ export default function CustomerProfilePage() {
             setSaving(false);
         }
     }
+
+    const handleStartEditContact = () => {
+        setPhone(user?.profile?.phone || "");
+        setSmsOptIn(user?.profile?.smsOptIn ?? false);
+        setPhoneError("");
+        setEditingContact(true);
+    };
+
+    const handleSaveContact = async () => {
+        if (!phone || !isValidPhoneNumber(phone)) {
+            setPhoneError("Please enter a valid US phone number");
+            return;
+        }
+        setSavingContact(true);
+        setPhoneError("");
+        try {
+            await api.put("/customers/profile", { phone, smsOptIn });
+            setUser((prev) => ({
+                ...prev,
+                profile: { ...prev.profile, phone, smsOptIn },
+            }));
+            setEditingContact(false);
+        } catch (err) {
+            setPhoneError(err.response?.data?.message || "Failed to update contact details.");
+        } finally {
+            setSavingContact(false);
+        }
+    };
 
     return (
         <div className="p-4 md:p-6 space-y-6 max-w-7xl mx-auto w-full">
@@ -472,6 +510,110 @@ export default function CustomerProfilePage() {
                             </div>
                         </div>
                     )}
+
+                    {/* Contact Details */}
+                    <div className="bg-card-light  border border-border-light  rounded-xl p-6">
+                        <div className="flex items-center gap-2 mb-4">
+                            <MdPhone className="text-primary text-xl" />
+                            <span className="text-sm font-bold text-text-main  uppercase tracking-wide">
+                                Contact &amp; Notifications
+                            </span>
+                        </div>
+
+                        {editingContact ? (
+                            <div className="space-y-4">
+                                <div className="space-y-1.5">
+                                    <label className="block text-xs font-semibold text-text-muted uppercase tracking-wider">
+                                        Phone Number <span className="text-red-500">*</span>
+                                    </label>
+                                    <PhoneInputWithCountry
+                                        value={phone}
+                                        onChange={(value) => {
+                                            setPhone(value || "");
+                                            if (phoneError) setPhoneError("");
+                                        }}
+                                        defaultCountry="US"
+                                        countries={["US"]}
+                                        international={false}
+                                        withCountryCallingCode
+                                        className={`
+                                            flex h-12 w-full items-center gap-2 rounded-xl border px-4
+                                            ${phoneError ? "border-red-500" : "border-border-subtle focus-within:border-primary"}
+                                            bg-white transition-colors
+                                            [&_.PhoneInputInput]:flex-1
+                                            [&_.PhoneInputInput]:bg-transparent
+                                            [&_.PhoneInputInput]:text-text-main
+                                            [&_.PhoneInputInput]:outline-none
+                                            [&_.PhoneInputInput]:placeholder:text-text-muted
+                                            [&_.PhoneInputCountry]:mr-2
+                                        `}
+                                    />
+                                    {phoneError && (
+                                        <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-red-50 border border-red-200">
+                                            <MdWarning className="text-red-500 text-sm shrink-0" />
+                                            <p className="text-xs text-red-700 font-medium">{phoneError}</p>
+                                        </div>
+                                    )}
+                                </div>
+
+                                <div className="flex items-start gap-3">
+                                    <input
+                                        type="checkbox"
+                                        id="smsOptInProfile"
+                                        checked={smsOptIn}
+                                        onChange={(e) => setSmsOptIn(e.target.checked)}
+                                        className="mt-0.5 h-4 w-4 shrink-0 rounded border-border text-primary focus:ring-primary"
+                                    />
+                                    <label htmlFor="smsOptInProfile" className="text-sm text-text-muted leading-snug">
+                                        Receive SMS appointment reminders and notifications. Message and data rates may apply. Reply STOP to opt out at any time.
+                                    </label>
+                                </div>
+
+                                <div className="flex items-center gap-2">
+                                    <button
+                                        onClick={handleSaveContact}
+                                        disabled={savingContact}
+                                        className="flex items-center gap-1 px-3 py-1.5 bg-primary hover:bg-primary/90 text-white text-sm font-bold rounded-lg transition-colors disabled:opacity-50"
+                                    >
+                                        <MdCheck className="text-base" />
+                                        {savingContact ? "Saving..." : "Save"}
+                                    </button>
+                                    <button
+                                        onClick={() => setEditingContact(false)}
+                                        className="flex items-center gap-1 px-3 py-1.5 text-text-muted  hover:text-text-main  text-sm font-bold transition-colors"
+                                    >
+                                        <MdClose className="text-base" />
+                                        Cancel
+                                    </button>
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="space-y-3">
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <p className="text-xs font-semibold text-text-muted  uppercase tracking-wider mb-1">
+                                            Phone Number
+                                        </p>
+                                        <p className="text-sm font-medium text-text-main ">
+                                            {user?.profile?.phone || "Not set"}
+                                        </p>
+                                    </div>
+                                    <button
+                                        onClick={handleStartEditContact}
+                                        className="p-1.5 bg-slate-100  hover:bg-slate-200  rounded-lg transition-colors text-text-muted "
+                                    >
+                                        <MdEdit className="text-base" />
+                                    </button>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <div className={`w-2 h-2 rounded-full ${user?.profile?.smsOptIn ? "bg-green-500" : "bg-gray-300 "}`} />
+                                    <p className="text-sm text-text-muted ">
+                                        SMS notifications {user?.profile?.smsOptIn ? "enabled" : "disabled"}
+                                    </p>
+                                </div>
+                            </div>
+                        )}
+                    </div>
 
                     {/* Security Section Info Card */}
                     <div className="bg-linear-to-r from-blue-50 to-indigo-50   border border-blue-200  rounded-xl p-6">

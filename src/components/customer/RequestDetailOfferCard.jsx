@@ -1,11 +1,13 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
 import {
     MdAttachMoney, MdCalendarToday, MdVideocam, MdPersonPin, MdInfo,
 } from "react-icons/md";
 import { resolveVisitPlan, hasPlanOverride, computeTotalVisits } from "@/lib/visitPlan";
-import { formatDate, formatTime } from "@/utils/dates";
+import { formatDate } from "@/utils/dates";
+import { TherapistProfileLink } from "@/components/ui/TherapistProfileLink";
 
 const OFFER_STATUS_STYLES = {
     pending:          "bg-amber-100 text-amber-700  ",
@@ -40,6 +42,7 @@ export default function RequestDetailOfferCard({
     changingOffer, onAccept, onDecline, onOpenChange,
     onCloseChange, onChangeNoteUpdate, onRequestChange, onMessage,
 }) {
+    const [imgError, setImgError] = useState(false);
     const therapist = offer.therapist || {};
     const initial = (therapist.fullName || "T").charAt(0).toUpperCase();
     const isExpired = offer.status === "pending" && offer.expiresAt && new Date(offer.expiresAt) <= new Date();
@@ -53,12 +56,13 @@ export default function RequestDetailOfferCard({
     return (
         <div className={`bg-card-light  rounded-xl p-5 shadow-sm border border-border-light  transition-all ${isExpired ? "opacity-60 border-dashed" : "hover:shadow-md"}`}>
             <div className="flex flex-col md:flex-row md:items-start gap-4">
-                {therapist.profilePhotoUrl ? (
+                {therapist.profilePhotoUrl && !imgError ? (
                     <Image
                         src={therapist.profilePhotoUrl}
                         alt={therapist.fullName}
                         width={56}
                         height={56}
+                        onError={() => setImgError(true)}
                         className="h-14 w-14 rounded-xl object-cover shrink-0"
                     />
                 ) : (
@@ -68,11 +72,14 @@ export default function RequestDetailOfferCard({
                 )}
 
                 <div className="flex-1 min-w-0">
-                    <div className="flex flex-wrap items-center gap-2 mb-1">
-                        <h4 className="font-bold text-text-main ">{therapist.fullName || "Therapist"}</h4>
-                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${OFFER_STATUS_STYLES[displayStatus]}`}>
-                            {displayStatus.replace(/_/g, " ")}
-                        </span>
+                    <div className="flex items-start justify-between gap-3 mb-1">
+                        <div className="flex flex-wrap items-center gap-2 min-w-0">
+                            <h4 className="font-bold text-text-main ">{therapist.fullName || "Therapist"}</h4>
+                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${OFFER_STATUS_STYLES[displayStatus]}`}>
+                                {displayStatus.replace(/_/g, " ")}
+                            </span>
+                        </div>
+                        <TherapistProfileLink therapist={therapist} className="shrink-0" />
                     </div>
                     {therapist.specialization && (
                         <p className="text-sm text-text-muted ">{therapist.specialization}</p>
@@ -133,7 +140,7 @@ export default function RequestDetailOfferCard({
 
                     <p className="text-xs text-text-muted  mt-2 flex items-center gap-1">
                         <MdCalendarToday className="text-sm" />
-                        Proposed: {formatDate(offer.proposedDate)} · {formatTime(offer.proposedDate)}
+                        Proposed: {formatDate(offer.proposedDate)}
                     </p>
 
                     {offer.description && (
@@ -144,8 +151,8 @@ export default function RequestDetailOfferCard({
                         parseFloat(offer.attemptedVisitRate) > 0 ? (
                             <div className="mt-3 px-3 py-2 rounded-lg bg-amber-50  border border-amber-200 ">
                                 <p className="text-[11px] text-amber-800 ">
-                                    <span className="font-semibold">If you&apos;re not home when therapist arrives:</span>{" "}
-                                    ${parseFloat(offer.attemptedVisitRate).toFixed(2)} attempted visit fee
+                                    For attempted visits that do not proceed, you will be charged a{" "}
+                                    <span className="font-semibold">${parseFloat(offer.attemptedVisitRate).toFixed(2)} attempted visit fee.</span>
                                 </p>
                             </div>
                         ) : (
@@ -164,7 +171,7 @@ export default function RequestDetailOfferCard({
                     )}
                     {!isExpired && offer.expiresAt && offer.status === "pending" && (
                         <p className="text-xs text-text-muted  mt-2">
-                            Expires: {formatDate(offer.expiresAt)} · {formatTime(offer.expiresAt)}
+                            Expires: {formatDate(offer.expiresAt)}
                         </p>
                     )}
                 </div>

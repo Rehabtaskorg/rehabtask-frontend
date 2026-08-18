@@ -8,7 +8,7 @@ import { useCreateDispute } from "@/hooks/useDisputes";
 import { usePageTitle } from "@/hooks/usePageTitle";
 
 const DISPUTE_TYPES = [
-    { value: "billing", label: "Billing", description: "Issues with charges, payments, or refunds" },
+    { value: "billing", label: "Billing", description: "Issues with charges, payments, or credits" },
     { value: "service_quality", label: "Service Quality", description: "Unsatisfactory service or unprofessional conduct" },
     { value: "no_show", label: "No Show", description: "Therapist did not show up for the session" },
     { value: "communication", label: "Communication", description: "Unresponsive or miscommunication issues" },

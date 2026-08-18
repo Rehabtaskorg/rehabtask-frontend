@@ -4,9 +4,9 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { individualMedicalInfoSchema } from "@/lib/individualOnboardingValidation";
-import { individualOnboardingAPI } from "@/lib/individual.onboarding.api";
-import useIndividualOnboardingStore from "@/store/individualOnboardingStore";
+import { individualMedicalInfoSchema } from "@/lib/validators/individual.onboarding.schema";
+import { individualOnboardingAPI } from "@/services/onboarding.individual.api";
+import useIndividualOnboardingStore from "@/stores/individualOnboardingStore";
 import { logger } from "@/lib/logger";
 
 /**
@@ -123,7 +123,7 @@ export function useIndividualMedicalInfoForm() {
             updateMedicalInfo(payload);
             markStepComplete(3);
             setCurrentStep(4);
-            router.push("/customer/onboarding/individual/consent-forms");
+            router.push("/customer/onboarding/individual/activation");
         } catch (err) {
             logger.error("Failed to save individual medical info:", err);
             setSubmitError(

@@ -3,11 +3,11 @@
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import {
-    MdArrowBack, MdChat, MdCalendarToday, MdAccessTime, MdLocationOn, MdVideocam, MdPerson,
+    MdArrowBack, MdChat, MdCalendarToday, MdLocationOn, MdVideocam, MdPerson,
     MdCheckCircle, MdWarning, MdInfo, MdRefresh, MdSchedule, MdUpdate, MdEdit
 } from "react-icons/md";
 import { useBookingDetail } from "@/hooks/useBookings";
-import { bookingsApi } from "@/lib/bookings.api";
+import { bookingsApi } from "@/services/booking.api";
 import { BOOKING_STATUS, USER_ROLES } from "@/lib/constants";
 import { localDateStr } from "@/utils/dates";
 import { showToast } from "@/lib/toast";
@@ -23,17 +23,13 @@ import { formatCurrency } from "@/utils/messages";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import BookingSharedFiles from "@/components/bookings/BookingSharedFiles";
-import PatientInfoBlock from "@/components/shared/patient/PatientInfoBlock";
+import { PatientInfoBlock } from "@/components/shared/patient/PatientInfoBlock";
 
 const formatDate = (dateStr) => {
     if (!dateStr) return "—";
     return new Date(dateStr).toLocaleDateString([], { weekday: "long", month: "long", day: "numeric", year: "numeric" });
 };
 
-const formatTime = (dateStr) => {
-    if (!dateStr) return "—";
-    return new Date(dateStr).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
-};
 
 export default function TherapistBookingDetailPage() {
     usePageTitle("Booking Details");
@@ -61,7 +57,6 @@ export default function TherapistBookingDetailPage() {
     // Reschedule states
     const [showRescheduleModal, setShowRescheduleModal] = useState(false);
     const [rescheduleDate, setRescheduleDate] = useState("");
-    const [rescheduleTime, setRescheduleTime] = useState("");
     const [rescheduling, setRescheduling] = useState(false);
 
     // Revision extend states
@@ -97,7 +92,7 @@ export default function TherapistBookingDetailPage() {
         setCancellationActing(true);
         try {
             await bookingsApi.approveCancellation(params.id);
-            showToast.success("Cancellation approved. The customer will receive a full refund.");
+            showToast.success("Cancellation approved. The customer's payment will be credited back to their account.");
             await refetch();
         } catch (err) {
             showToast.error(err.response?.data?.message || "Failed to approve cancellation.");
@@ -157,7 +152,7 @@ export default function TherapistBookingDetailPage() {
     const handleApproveSessionCancellation = async (session) => {
         try {
             await bookingsApi.approveSessionCancellation(session.id);
-            showToast.success("Session cancellation approved. The customer will receive a refund.");
+            showToast.success("Session cancellation approved. The customer's payment will be credited back to their account.");
             await refetch();
         } catch (err) {
             showToast.error(err.response?.data?.message || "Failed to approve cancellation.");
@@ -205,14 +200,13 @@ export default function TherapistBookingDetailPage() {
     };
 
     const handleRequestReschedule = async () => {
-        if (!rescheduleDate || !rescheduleTime) return;
+        if (!rescheduleDate) return;
         setRescheduling(true);
         try {
-            const newDate = new Date(`${rescheduleDate}T${rescheduleTime}`).toISOString();
+            const newDate = new Date(rescheduleDate).toISOString();
             await bookingsApi.rescheduleBooking(params.id, newDate);
             setShowRescheduleModal(false);
             setRescheduleDate("");
-            setRescheduleTime("");
             showToast.success("Reschedule request sent. Waiting for customer response.");
             await refetch();
         } catch (err) {
@@ -261,7 +255,7 @@ export default function TherapistBookingDetailPage() {
         setFinalizing(true);
         try {
             await bookingsApi.finalizeBooking(params.id);
-            showToast.success("Booking finalized. Confirmed sessions have been paid out and the customer has been refunded for remaining sessions.");
+            showToast.success("Booking finalized. Confirmed sessions have been paid out and the customer has been credited for remaining sessions.");
             setShowFinalizeConfirm(false);
             refetch();
         } catch (err) {
@@ -376,7 +370,7 @@ export default function TherapistBookingDetailPage() {
                             <p className="text-xs text-yellow-600 mt-1 font-semibold">
                                 You have until{" "}
                                 {booking.cancellationRequestedAt
-                                    ? new Date(new Date(booking.cancellationRequestedAt).getTime() + 24 * 60 * 60 * 1000).toLocaleString([], { weekday: "short", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })
+                                    ? new Date(new Date(booking.cancellationRequestedAt).getTime() + 24 * 60 * 60 * 1000).toLocaleDateString([], { weekday: "short", month: "short", day: "numeric" })
                                     : "24 hours from the request"}{" "}
                                 to respond. If you take no action, the cancellation will be approved automatically.
                             </p>
@@ -486,6 +480,7 @@ export default function TherapistBookingDetailPage() {
                     {booking.patient && (
                         <PatientInfoBlock
                             patient={booking.patient}
+                            therapist={booking.therapist}
                             note="This patient information is shared because this booking is confirmed."
                         />
                     )}
@@ -506,13 +501,6 @@ export default function TherapistBookingDetailPage() {
                                 <div>
                                     <p className="text-xs text-text-muted ">Date</p>
                                     <p className="text-sm font-medium text-text-main ">{formatDate(session?.scheduledDate || booking.scheduledDate)}</p>
-                                </div>
-                            </div>
-                            <div className="flex items-start gap-3">
-                                <MdAccessTime className="text-primary text-lg mt-0.5 shrink-0" />
-                                <div>
-                                    <p className="text-xs text-text-muted ">Time</p>
-                                    <p className="text-sm font-medium text-text-main ">{formatTime(session?.scheduledDate || booking.scheduledDate)}</p>
                                 </div>
                             </div>
                             <div className="flex items-start gap-3">
@@ -624,7 +612,7 @@ export default function TherapistBookingDetailPage() {
                                     <div className="flex-1">
                                         <p className="text-sm font-bold text-amber-900 ">Reschedule Requested</p>
                                         <p className="text-xs text-amber-700  mt-0.5">
-                                            You proposed: {formatDate(booking.proposedNewDate)} at {formatTime(booking.proposedNewDate)}
+                                            You proposed: {formatDate(booking.proposedNewDate)}
                                         </p>
                                         <p className="text-xs text-amber-600  mt-1 italic">
                                             Waiting for customer response...
@@ -649,39 +637,28 @@ export default function TherapistBookingDetailPage() {
                             <div className="bg-card-light  border border-border-light  rounded-xl p-5">
                                 <h4 className="text-sm font-bold text-text-main  mb-1">Request Reschedule</h4>
                                 <p className="text-xs text-text-muted  mb-4">
-                                    Propose a new date and time. The customer will be notified and can accept or decline.
+                                    Propose a new date. The customer will be notified and can accept or decline.
                                 </p>
-                                <div className="grid grid-cols-2 gap-3 mb-4">
-                                    <div>
-                                        <label className="text-xs font-bold text-text-muted  block mb-1">Date</label>
-                                        <input
-                                            type="date"
-                                            value={rescheduleDate}
-                                            onChange={(e) => setRescheduleDate(e.target.value)}
-                                            min={localDateStr()}
-                                            className="w-full text-sm rounded-lg bg-white  border border-border-light  p-2 focus:ring-primary focus:outline-none text-text-main "
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="text-xs font-bold text-text-muted  block mb-1">Time</label>
-                                        <input
-                                            type="time"
-                                            value={rescheduleTime}
-                                            onChange={(e) => setRescheduleTime(e.target.value)}
-                                            className="w-full text-sm rounded-lg bg-white  border border-border-light  p-2 focus:ring-primary focus:outline-none text-text-main "
-                                        />
-                                    </div>
+                                <div className="mb-4">
+                                    <label className="text-xs font-bold text-text-muted  block mb-1">Date</label>
+                                    <input
+                                        type="date"
+                                        value={rescheduleDate}
+                                        onChange={(e) => setRescheduleDate(e.target.value)}
+                                        min={localDateStr()}
+                                        className="w-full text-sm rounded-lg bg-white  border border-border-light  p-2 focus:ring-primary focus:outline-none text-text-main "
+                                    />
                                 </div>
                                 <div className="flex items-center gap-2">
                                     <button
                                         onClick={handleRequestReschedule}
-                                        disabled={rescheduling || !rescheduleDate || !rescheduleTime}
+                                        disabled={rescheduling || !rescheduleDate}
                                         className="bg-primary hover:bg-primary/90 text-white px-5 py-2 rounded-lg text-sm font-bold disabled:opacity-50 transition-colors"
                                     >
                                         {rescheduling ? "Sending..." : "Send Request"}
                                     </button>
                                     <button
-                                        onClick={() => { setShowRescheduleModal(false); setRescheduleDate(""); setRescheduleTime(""); }}
+                                        onClick={() => { setShowRescheduleModal(false); setRescheduleDate(""); }}
                                         className="text-sm text-slate-500  font-bold hover:text-text-main  transition-colors"
                                     >
                                         Cancel
@@ -867,7 +844,7 @@ export default function TherapistBookingDetailPage() {
                                         )}
                                         {payment?.status === "refunded" && (
                                             <p className="text-xs text-text-muted  mt-0.5">
-                                                Customer has been refunded.
+                                                Customer has been credited.
                                             </p>
                                         )}
                                     </div>
@@ -917,7 +894,7 @@ export default function TherapistBookingDetailPage() {
                                         <p className="text-xs font-bold text-amber-800  mb-1">Are you sure?</p>
                                         <p className="text-xs text-amber-700 ">
                                             This will release payment for {confirmedSessionCount} confirmed session{confirmedSessionCount !== 1 ? "s" : ""} and
-                                            refund the customer for {unconfirmedSessionCount} undelivered session{unconfirmedSessionCount !== 1 ? "s" : ""}.
+                                            credit the customer for {unconfirmedSessionCount} undelivered session{unconfirmedSessionCount !== 1 ? "s" : ""}.
                                             This cannot be undone.
                                         </p>
                                     </div>
@@ -955,7 +932,7 @@ export default function TherapistBookingDetailPage() {
                                     <p className="text-xs text-text-muted  mt-0.5">
                                         {paidOutSessionCount} session{paidOutSessionCount !== 1 ? "s" : ""} paid out
                                         {attemptedSessionCount > 0 && ` (${attemptedSessionCount} attempted visit${attemptedSessionCount !== 1 ? "s" : ""})`}.
-                                        {payment?.refundedAmount && ` Customer refunded ${formatCurrency(parseFloat(payment.refundedAmount))}.`}
+                                        {payment?.refundedAmount && ` Customer credited ${formatCurrency(parseFloat(payment.refundedAmount))}.`}
                                     </p>
                                 </div>
                             </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
@@ -9,24 +10,29 @@ import Input from "../ui/Input";
 import PasswordInput from "../ui/PasswordInput";
 import Button from "../ui/Button";
 import Alert from "../ui/Alert";
-import { therapistRegistrationSchema } from "@/lib/validationSchema";
+import { therapistRegistrationSchema } from "@/lib/validators/therapist.schema";
 import { useTherapistRegistration } from "@/hooks/useTherapistRegistration";
 import { useGoogleAuth } from "@/hooks/useGoogleAuth";
+import { usePageTitle } from "@/hooks/usePageTitle";
 import { MdInfo } from "react-icons/md";
 import { FaGoogle } from "react-icons/fa";
 
 const TherapistRegistrationForm = () => {
+    usePageTitle("Therapist Registration");
+    const searchParams = useSearchParams();
+    const redirectTo = searchParams.get("redirect") || null;
+
     const [googleLoading, setGoogleLoading] = useState(false);
 
     const { register, handleSubmit, formState: { errors }, control } = useForm({
         resolver: zodResolver(therapistRegistrationSchema),
-        mode: "onChange",
+        mode: "onTouched",
         reValidateMode: "onChange",
     });
 
-    const { registerTherapist, isSubmitting, error, success, clearMessages } = useTherapistRegistration();
+    const { registerTherapist, isSubmitting, error, success, clearMessages } = useTherapistRegistration(redirectTo);
 
-    const { initiateGoogleLogin } = useGoogleAuth();
+    const { initiateGoogleLogin } = useGoogleAuth(redirectTo);
 
     const onSubmit = async (data) => {
         await registerTherapist(data);
@@ -126,6 +132,20 @@ const TherapistRegistrationForm = () => {
                     {...register("confirmPassword")}
                     required
                 />
+
+                <div className="flex items-start gap-3">
+                    <input
+                        type="checkbox"
+                        id="smsOptIn"
+                        {...register("smsOptIn")}
+                        className="mt-0.5 h-4 w-4 shrink-0 rounded border-border text-primary focus:ring-primary"
+                    />
+                    <label htmlFor="smsOptIn" className="text-sm text-text-muted leading-snug">
+                        By checking this box, you agree to receive SMS appointment reminders and
+                        notifications from RehabTask. Message and data rates may apply.
+                        Reply STOP to opt out at any time.
+                    </label>
+                </div>
 
                 {/* CTA */}
                 <div className="pt-6 space-y-4">

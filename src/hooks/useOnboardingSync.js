@@ -1,8 +1,8 @@
 "use client";
 
 import { useCallback } from "react";
-import { onboardingAPI } from "@/lib/onboarding.api";
-import useOnboardingStore from "@/store/onboardingStore";
+import { onboardingAPI } from "@/services/onboarding.api";
+import useOnboardingStore from "@/stores/onboardingStore";
 import { logger } from "@/lib/logger";
 
 /**
@@ -26,8 +26,7 @@ export function useOnboardingSync() {
             if (steps.availability) markStepComplete(4);
             if (steps.insurance) markStepComplete(5);
             if (steps.identity) markStepComplete(6);
-            if (steps.compliance) markStepComplete(7);
-            if (steps.stripe) markStepComplete(8);
+            if (steps.stripe) markStepComplete(7);
 
             return {
                 progress: data.progress,

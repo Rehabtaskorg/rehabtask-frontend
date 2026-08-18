@@ -21,12 +21,6 @@ const fmt$ = (v) =>
 const fmtDate = (d) =>
     d ? new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—';
 
-const fmtDateTime = (d) =>
-    d ? new Date(d).toLocaleString('en-US', {
-        weekday: 'short', month: 'short', day: 'numeric',
-        year: 'numeric', hour: '2-digit', minute: '2-digit',
-    }) : '—';
-
 // Full DB enum: pending | confirmed | in_progress | completed | cancelled | reschedule_requested
 const BOOKING_STYLES = {
     pending:              'bg-amber-100  text-amber-700    ',
@@ -196,7 +190,7 @@ function BookingSidePanel({ booking, onClose, onCancel, onApproveReschedule, onD
                     <div className="flex justify-between gap-3">
                         <dt className="text-text-muted ">Scheduled</dt>
                         <dd className="font-medium text-text-main  text-right">
-                            {fmtDateTime(booking.scheduledDate)}
+                            {fmtDate(booking.scheduledDate)}
                         </dd>
                     </div>
 
@@ -204,7 +198,7 @@ function BookingSidePanel({ booking, onClose, onCancel, onApproveReschedule, onD
                         <div className="flex justify-between gap-3">
                             <dt className="text-text-muted ">Proposed Date</dt>
                             <dd className="font-medium text-orange-600  text-right">
-                                {fmtDateTime(booking.proposedNewDate)}
+                                {fmtDate(booking.proposedNewDate)}
                             </dd>
                         </div>
                     )}
@@ -258,7 +252,7 @@ function BookingSidePanel({ booking, onClose, onCancel, onApproveReschedule, onD
                                         </p>
                                         <p className="text-[10px] text-text-muted ">
                                             {s.scheduledDate
-                                                ? new Date(s.scheduledDate).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" })
+                                                ? new Date(s.scheduledDate).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
                                                 : "Not scheduled"}
                                         </p>
                                     </div>

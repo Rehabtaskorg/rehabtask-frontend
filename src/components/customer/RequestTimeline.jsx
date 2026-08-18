@@ -1,5 +1,5 @@
 import { MdCheckCircle } from "react-icons/md";
-import { formatDate, formatTime } from "@/utils/dates";
+import { formatDate } from "@/utils/dates";
 
 /**
  * Vertical timeline showing the progression of a customer therapy request.
@@ -19,7 +19,7 @@ export default function RequestTimeline({ request, offers }) {
                 <TimelineStep
                     completed={currentIdx >= 0}
                     label="Request Created"
-                    date={`${formatDate(request.createdAt)} · ${formatTime(request.createdAt)}`}
+                    date={formatDate(request.createdAt)}
                 />
                 <TimelineStep
                     completed={currentIdx >= 1}
@@ -57,13 +57,12 @@ export default function RequestTimeline({ request, offers }) {
 function TimelineStep({ completed, current, label, date }) {
     return (
         <div className="relative flex items-start gap-4">
-            <div className={`z-10 h-6 w-6 rounded-full flex items-center justify-center ring-4 ring-card-light  shrink-0 ${
-                completed
+            <div className={`z-10 h-6 w-6 rounded-full flex items-center justify-center ring-4 ring-card-light  shrink-0 ${completed
                     ? "bg-emerald-500 text-white"
                     : current
                         ? "bg-primary text-white"
                         : "bg-slate-200  border-2 border-slate-300 "
-            }`}>
+                }`}>
                 {completed && <MdCheckCircle className="text-sm" />}
                 {current && !completed && <div className="h-2 w-2 rounded-full bg-white" />}
             </div>

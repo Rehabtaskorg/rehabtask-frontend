@@ -16,6 +16,7 @@ import {
     useReactivateUser,
     useUpdateUser,
 } from '@/hooks/useAdmin';
+import UserAvatar from '@/components/ui/UserAvatar';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -27,10 +28,6 @@ const getDisplayName = (user) =>
     user.therapistProfile?.fullName ||
     user.email.split('@')[0];
 
-const getInitials = (user) => {
-    const name = user.customerProfile?.fullName || user.therapistProfile?.fullName || user.email;
-    return name.split(/\s+/).map(w => w[0]).join('').toUpperCase().slice(0, 2);
-};
 
 const ROLE_STYLES = {
     admin: 'bg-purple-100 text-purple-700  ',
@@ -255,7 +252,6 @@ export default function AdminUserDetailPage() {
     };
 
     const displayName = getDisplayName(user);
-    const initials = getInitials(user);
     const isTherapist = user.role === 'therapist';
     const isCustomer = user.role === 'customer';
     const tp = user.therapistProfile;
@@ -291,9 +287,11 @@ export default function AdminUserDetailPage() {
             <div className="bg-card-light  border border-border-light  rounded-xl p-5">
                 <div className="flex flex-col sm:flex-row sm:items-start gap-4">
                     {/* Avatar */}
-                    <div className="h-16 w-16 rounded-2xl bg-primary/10  flex items-center justify-center text-xl font-bold text-primary shrink-0">
-                        {initials}
-                    </div>
+                    <UserAvatar
+                        name={displayName}
+                        photoUrl={user.therapistProfile?.profilePhotoUrl}
+                        size="xl"
+                    />
 
                     {/* Identity */}
                     <div className="flex-1 min-w-0">

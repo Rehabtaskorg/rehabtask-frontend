@@ -87,12 +87,12 @@ export default function DashboardPendingView() {
                     />
                     <div>
                         <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 ">
-                            Welcome, {firstName}
+                            Welcome to RehabTask!
                         </h2>
                         <p className="text-sm text-text-muted  mt-0.5">
                             {onboardingComplete
                                 ? "Your account is being reviewed"
-                                : "Complete your onboarding to get started"}
+                                : "Let's get your therapist account activated. This takes about 5–10 minutes."}
                         </p>
                     </div>
                 </header>
