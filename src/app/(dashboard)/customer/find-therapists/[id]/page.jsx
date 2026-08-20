@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import {
-    MdChevronRight, MdVerified, MdWork, MdPhone, MdChat, MdStar, MdChevronLeft, MdRefresh, MdArrowBack, MdAttachMoney, MdBarChart,
+    MdChevronRight, MdVerified, MdWork, MdPhone, MdChat, MdStar, MdChevronLeft, MdRefresh, MdArrowBack, MdAttachMoney, MdBarChart, MdLock,
 } from "react-icons/md";
 import { APIProvider } from "@vis.gl/react-google-maps";
 import { useTherapistPublicProfile, useTherapistReviews } from "@/hooks/useTherapistSearch";
@@ -181,10 +181,18 @@ export default function TherapistProfilePage() {
                                 {therapist.npiNumber && (
                                     <span>NPI: {therapist.npiNumber}</span>
                                 )}
-                                {therapist.phone && (
-                                    <span className="flex items-center gap-1.5">
+                                {therapist.canViewContact ? (
+                                    therapist.phone && (
+                                        <span className="flex items-center gap-1.5">
+                                            <MdPhone className="text-base" />
+                                            {therapist.phone}
+                                        </span>
+                                    )
+                                ) : (
+                                    <span className="flex items-center gap-1.5 text-text-muted" title="Accept an offer to unlock contact info">
                                         <MdPhone className="text-base" />
-                                        {therapist.phone}
+                                        <span className="blur-sm select-none">(555) 000-0000</span>
+                                        <MdLock className="text-xs" />
                                     </span>
                                 )}
                             </div>
