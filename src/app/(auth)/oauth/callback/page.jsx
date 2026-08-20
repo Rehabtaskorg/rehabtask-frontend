@@ -2,28 +2,14 @@
 
 import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { getRedirectResult, GoogleAuthProvider } from "firebase/auth";
+import { getRedirectResult } from "firebase/auth";
 import { getFirebaseAuth } from "@/lib/firebase";
 import { authAPi } from "@/services/auth.api";
 import { logger } from "@/lib/logger";
 import { usePageTitle } from "@/hooks/usePageTitle";
-import { AUTH_REDIRECT_STORAGE_KEY, AUTH_REDIRECT_PARAM } from "@/lib/constants";
-import { resolveAuthRedirectTarget } from "@/lib/redirect";
+import { AUTH_REDIRECT_PARAM, ROLE_DASHBOARDS } from "@/lib/constants";
+import { popAuthRedirect, resolveAuthRedirectTarget } from "@/lib/redirect";
 
-function consumePendingRedirect() {
-    const stored = sessionStorage.getItem(AUTH_REDIRECT_STORAGE_KEY);
-    sessionStorage.removeItem(AUTH_REDIRECT_STORAGE_KEY);
-    return stored;
-}
-
-function getDashboardPath(role) {
-    const map = {
-        customer: "/customer/dashboard",
-        therapist: "/therapist/dashboard",
-        admin: "/admin/dashboard",
-    };
-    return map[role] ?? "/dashboard";
-}
 
 const OAuthCallback = () => {
     usePageTitle("Signing In");
@@ -52,13 +38,13 @@ const OAuthCallback = () => {
 
                 setStatusMessage("Signing you in...");
 
-                const idToken = await result.user.getIdToken();
+                const idToken = await result.user.getIdToken(true);
                 const refreshToken = result.user.refreshToken;
 
                 const response = await authAPi.processOAuth(idToken, refreshToken);
                 const { user } = response.data.data;
 
-                const redirectDescriptor = consumePendingRedirect();
+                const redirectDescriptor = popAuthRedirect();
 
                 if (user.needsOnboarding) {
                     const onboardingTarget = redirectDescriptor
@@ -69,7 +55,7 @@ const OAuthCallback = () => {
                 }
 
                 const target = resolveAuthRedirectTarget(redirectDescriptor, user.role);
-                router.replace(target ?? getDashboardPath(user.role));
+                router.replace(target ?? ROLE_DASHBOARDS[user.role] ?? "/login");
             } catch (error) {
                 logger.error("[OAuthCallback] Redirect result processing failed", error);
                 router.replace(`/login?error=${encodeURIComponent("Authentication failed. Please try again.")}`);

@@ -11,6 +11,13 @@ export const USER_ROLES = {
     SUB_ADMIN: "sub_admin",
 };
 
+export const ROLE_DASHBOARDS = {
+    [USER_ROLES.CUSTOMER]: "/customer/dashboard",
+    [USER_ROLES.THERAPIST]: "/therapist/dashboard",
+    [USER_ROLES.ADMIN]: "/admin/dashboard",
+    [USER_ROLES.SUB_ADMIN]: "/admin/dashboard",
+};
+
 export const CUSTOMER_TYPES = {
     AGENCY: "agency",
     INDIVIDUAL: "individual",

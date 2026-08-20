@@ -32,6 +32,7 @@ const LoginForm = ({ redirectTo = null }) => {
 
     const [resendingEmail, setResendingEmail] = useState(false);
     const [googleLoading, setGoogleLoading] = useState(false);
+    const [googleError, setGoogleError] = useState(null);
 
     const onSubmit = async (data) => {
         await login(data);
@@ -45,15 +46,15 @@ const LoginForm = ({ redirectTo = null }) => {
 
     const handleGoogleLogin = async () => {
         setGoogleLoading(true);
+        setGoogleError(null);
         clearError();
 
         const result = await initiateGoogleLogin();
 
         if (!result.success) {
+            setGoogleError(result.error ?? "Failed to sign in with Google. Please try again.");
             setGoogleLoading(false);
-            // You might want to show an error here
         }
-        // If successful, user will be redirected, no need to set loading to false
     };
 
     return (
@@ -90,6 +91,14 @@ const LoginForm = ({ redirectTo = null }) => {
                         type={needsEmailVerification ? "warning" : "error"}
                         message={error}
                         onClose={clearError}
+                    />
+                )}
+
+                {googleError && (
+                    <Alert
+                        type="error"
+                        message={googleError}
+                        onClose={() => setGoogleError(null)}
                     />
                 )}
 

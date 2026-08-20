@@ -8,6 +8,8 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { authAPi } from '@/services/auth.api';
 import { destroySocket } from '@/lib/socket';
+import { signOut } from 'firebase/auth';
+import { getFirebaseAuth } from '@/lib/firebase';
 import { getTherapistRedirect } from '@/lib/therapistRouteAccess';
 import { getCustomerRedirect } from '@/lib/customerRouteAccess';
 import { TherapistAccessProvider } from '@/contexts/TherapistAccessContext';
@@ -294,6 +296,11 @@ export default function DashboardLayout({ children }) {
             // best-effort — session may already be invalid
         } finally {
             destroySocket();
+            try {
+                await signOut(getFirebaseAuth());
+            } catch (_) {
+                // best-effort — Firebase session teardown must never block the logout redirect
+            }
             if (!preserveOnboardingState) {
                 queryClient.clear();
                 useOnboardingStore.getState().reset();

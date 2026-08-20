@@ -3,34 +3,21 @@ import { useRouter } from "next/navigation";
 import { getFirebaseAuth } from "@/lib/firebase";
 import { authAPi } from "@/services/auth.api";
 import { logger } from "@/lib/logger";
-import { AUTH_REDIRECT_STORAGE_KEY, AUTH_REDIRECT_PARAM } from "@/lib/constants";
-import { resolveAuthRedirectTarget } from "@/lib/redirect";
-
-function getDashboardPath(role) {
-    const map = {
-        customer: "/customer/dashboard",
-        therapist: "/therapist/dashboard",
-        admin: "/admin/dashboard",
-    };
-    return map[role] ?? "/dashboard";
-}
+import { AUTH_REDIRECT_PARAM, ROLE_DASHBOARDS } from "@/lib/constants";
+import { stashAuthRedirect, resolveAuthRedirectTarget } from "@/lib/redirect";
 
 /**
  * @param {string | null} [redirectTo] - encoded `trigger:entityId` redirect descriptor to
- * resume at after the OAuth round trip; stashed in sessionStorage since it must survive
- * the provider redirect cycle on mobile, and resolved to a dashboard path by the oauth
- * callback/onboarding pages once the user's role is known.
+ * resume at after the OAuth round trip; stashed in localStorage (via stashAuthRedirect) so
+ * it survives the provider redirect cycle on mobile, and resolved to a dashboard path by the
+ * oauth callback/onboarding pages once the user's role is known.
  */
 export const useGoogleAuth = (redirectTo = null) => {
     const router = useRouter();
 
     const initiateGoogleLogin = async () => {
         try {
-            if (redirectTo) {
-                sessionStorage.setItem(AUTH_REDIRECT_STORAGE_KEY, redirectTo);
-            } else {
-                sessionStorage.removeItem(AUTH_REDIRECT_STORAGE_KEY);
-            }
+            stashAuthRedirect(redirectTo);
 
             const auth = getFirebaseAuth();
             const provider = new GoogleAuthProvider();
@@ -52,7 +39,7 @@ export const useGoogleAuth = (redirectTo = null) => {
                 throw popupError;
             }
 
-            const idToken = await firebaseUser.getIdToken();
+            const idToken = await firebaseUser.getIdToken(true);
             const response = await authAPi.processOAuth(idToken, firebaseUser.refreshToken);
             const { user } = response.data.data;
 
@@ -65,7 +52,7 @@ export const useGoogleAuth = (redirectTo = null) => {
             }
 
             const target = resolveAuthRedirectTarget(redirectTo, user.role);
-            router.replace(target ?? getDashboardPath(user.role));
+            router.replace(target ?? ROLE_DASHBOARDS[user.role] ?? "/login");
             return { success: true };
         } catch (error) {
             logger.error("[useGoogleAuth] Google sign-in failed", error);
