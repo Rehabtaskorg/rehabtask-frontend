@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { usePostHog } from "posthog-js/react";
 import { authAPi } from "@/services/auth.api";
+import { useAnalytics } from "@/hooks/useAnalytics";
 import { USER_ROLES } from "@/lib/constants";
 import { stashAuthRedirect } from "@/lib/redirect";
 
@@ -19,7 +19,7 @@ import { stashAuthRedirect } from "@/lib/redirect";
  */
 export const useTherapistRegistration = (redirectTo = null) => {
     const router = useRouter();
-    const posthog = usePostHog();
+    const { trackEvent } = useAnalytics();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState(null);
     const [success, setSuccess] = useState(null);
@@ -41,7 +41,15 @@ export const useTherapistRegistration = (redirectTo = null) => {
             const response = await authAPi.registerTherapist(payload);
             setSuccess(response.data.message);
 
-            posthog?.capture("user_signed_up", { role: USER_ROLES.THERAPIST });
+            const hasRedirect = Boolean(redirectTo);
+            trackEvent("user_signed_up", {
+                role: USER_ROLES.THERAPIST,
+                signup_source: hasRedirect ? "public_referral" : "direct",
+            });
+
+            if (hasRedirect) {
+                trackEvent("therapist_signup_from_public_referral", { hasRedirect: true });
+            }
 
             stashAuthRedirect(redirectTo);
 

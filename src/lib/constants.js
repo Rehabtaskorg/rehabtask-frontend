@@ -84,6 +84,16 @@ export const LOGOUT_REASON = {
 export const AUTH_REDIRECT_PARAM = "redirect";
 export const AUTH_REDIRECT_STORAGE_KEY = "pending_auth_redirect";
 
+export const AUTH_GATE_TRIGGERS = Object.freeze({
+    MESSAGE: "message",
+    CONTACT: "contact",
+    PROFILE: "profile",
+    REQUEST: "request",
+    OFFER: "offer",
+    REFERRAL: "referral",
+    DEFAULT: "default",
+});
+
 export const PUBLIC_SEARCH_RADIUS_MILES = 50;
 
 export const SESSION_STATUS = {

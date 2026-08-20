@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { MdSchedule, MdLocationOn, MdCalendarToday, MdGroups, MdLock } from "react-icons/md";
+import { AUTH_GATE_TRIGGERS } from "@/lib/constants";
 
 const SERVICE_COLORS = {
     "Physical Therapy": "bg-blue-50 text-blue-700 border-blue-200",
@@ -95,7 +96,7 @@ export default function RequestPublicCard({ request, index = 0, onAuthGate }) {
                 </span>
                 <div className="flex items-center gap-2">
                     <button
-                        onClick={() => onAuthGate("offer", request.id)}
+                        onClick={() => onAuthGate(AUTH_GATE_TRIGGERS.REFERRAL, request.id)}
                         className="flex items-center gap-1.5 bg-primary text-white font-semibold text-xs px-5 py-2.5 rounded-lg hover:bg-primary/90 transition-colors"
                     >
                         <MdLock className="text-xs" /> Send Offer

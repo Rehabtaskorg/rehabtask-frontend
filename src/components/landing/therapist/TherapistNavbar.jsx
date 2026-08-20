@@ -11,7 +11,12 @@ const NAV_LINKS = [
     { label: "For Therapists", href: "/therapist-jobs" },
 ];
 
-export default function Navbar() {
+/**
+ * Navbar variant for the therapist landing page.
+ * Identical to the main Navbar but the primary CTA is "Join as a Therapist"
+ * pointing to /register/therapist instead of the customer sign-up flow.
+ */
+export function TherapistNavbar() {
     const [mobileOpen, setMobileOpen] = useState(false);
 
     return (
@@ -49,10 +54,10 @@ export default function Navbar() {
                             Log in
                         </Link>
                         <Link
-                            href="/register/customer"
+                            href="/register/therapist"
                             className="px-5 py-2 text-sm font-semibold text-white bg-primary rounded-lg hover:bg-primary/90 transition-colors"
                         >
-                            Sign up
+                            Join as a Therapist
                         </Link>
                     </div>
 
@@ -82,8 +87,8 @@ export default function Navbar() {
                         <Link href="/login" className="py-2.5 text-sm font-medium text-gray-700 text-center">
                             Log in
                         </Link>
-                        <Link href="/register/customer" className="py-2.5 text-sm font-semibold text-white bg-primary rounded-lg text-center">
-                            Sign up
+                        <Link href="/register/therapist" className="py-2.5 text-sm font-semibold text-white bg-primary rounded-lg text-center">
+                            Join as a Therapist
                         </Link>
                     </div>
                 </div>
