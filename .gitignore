@@ -41,6 +41,7 @@ yarn-error.log*
 
 # Claude Code context (local only)
 CLAUDE.md
+.claude
 docs/
 test.ts
 # typescript

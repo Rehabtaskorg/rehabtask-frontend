@@ -17,6 +17,7 @@ import { MdArrowBack, MdPerson, MdAdd, MdLock, MdWarning } from "react-icons/md"
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { useSubscription } from "@/hooks/useSubscription";
 import { REQUEST_TYPE, LICENSE_TYPE_TO_SERVICE_TYPE, CUSTOMER_TYPES } from "@/lib/constants";
+import { isDateTodayOrLater } from "@/utils/dates";
 import { useAnalytics } from "@/hooks/useAnalytics";
 
 /**
@@ -61,7 +62,7 @@ export default function NewRequestForm({ editId, directTo }) {
 
     useEffect(() => {
         trackEvent("request_form_started", { is_direct: !!directTo, is_edit: !!editId });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     useEffect(() => {
@@ -71,7 +72,7 @@ export default function NewRequestForm({ editId, directTo }) {
                 plan_type: subscription?.planType ?? null,
             });
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isAtRequestLimit]);
 
     useEffect(() => {
@@ -80,7 +81,7 @@ export default function NewRequestForm({ editId, directTo }) {
         } else {
             if (targetTherapistId) setTargetTherapistId(null);
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [directTo, editId]);
 
     useEffect(() => {
@@ -133,7 +134,7 @@ export default function NewRequestForm({ editId, directTo }) {
         };
         fetchRequest();
         return () => { cancelled = true; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const isAgency = user?.profile?.customerType === CUSTOMER_TYPES.AGENCY;
@@ -210,7 +211,7 @@ export default function NewRequestForm({ editId, directTo }) {
             router.push("/customer/requests");
         } catch (err) {
             const msg = isEditMode ? "Failed to update request." : "Failed to create request.";
-            setError(err.response?.data?.message || `${msg} Please try again.`);
+            setError(err.response?.data?.errors?.[0]?.message || err.response?.data?.message || `${msg} Please try again.`);
             setSubmitting(false);
         }
     };
@@ -221,6 +222,7 @@ export default function NewRequestForm({ editId, directTo }) {
         step1.serviceType &&
         step1.description.trim().length >= 10 &&
         step1.preferredDate &&
+        isDateTodayOrLater(step1.preferredDate) &&
         step1.rate && rateValue > 0 && rateValue <= 9999.99 &&
         hasVisitType &&
         step1.emr && (step1.emr !== "Other" || step1.emrOther.trim());

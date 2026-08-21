@@ -1,9 +1,10 @@
 "use client";
 
+import { useState } from "react";
 import useRequestStore from "@/stores/requestStore";
 import { useRequestOptions } from "@/hooks/useRequestOptions";
 import { useVisitTypes } from "@/hooks/useVisitTypes";
-import { localDateStr } from "@/utils/dates";
+import { localDateStr, isDateTodayOrLater } from "@/utils/dates";
 
 const SERVICE_TYPES = [
     { value: "", label: "Select a service type..." },
@@ -29,6 +30,7 @@ export default function Step1ServiceDetails() {
     });
 
     const todayStr = localDateStr();
+    const [dateTouched, setDateTouched] = useState(false);
 
     const handleServiceTypeChange = (e) => {
         const newServiceType = e.target.value;
@@ -118,9 +120,13 @@ export default function Step1ServiceDetails() {
                         type="date"
                         value={step1.preferredDate}
                         min={todayStr}
+                        onBlur={() => setDateTouched(true)}
                         onChange={(e) => setStep1({ preferredDate: e.target.value })}
                         className={INPUT_CLASS}
                     />
+                    {dateTouched && step1.preferredDate && !isDateTodayOrLater(step1.preferredDate) && (
+                        <p className="text-xs text-red-500 mt-1">Preferred date must be today or later.</p>
+                    )}
                 </div>
                 <div>
                     <label className={LABEL_CLASS}>Preferred Time (optional)</label>

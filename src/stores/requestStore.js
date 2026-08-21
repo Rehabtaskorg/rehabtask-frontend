@@ -2,6 +2,7 @@
 
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { localDateStr, localDateTimeParts } from "@/utils/dates";
 
 const useRequestStore = create(
     persist(
@@ -52,8 +53,9 @@ const useRequestStore = create(
             // Edit mode: pre-fill store from an existing request
             setEditData: (request) => {
                 const date = request.preferredDate ? new Date(request.preferredDate) : null;
-                const preferredDate = date ? date.toISOString().split("T")[0] : "";
-                const preferredTime = date ? date.toTimeString().slice(0, 5) : "";
+                const { date: preferredDate, time: preferredTime } = date
+                    ? localDateTimeParts(date)
+                    : { date: "", time: "" };
 
                 set({
                     editingRequestId: request.id,
@@ -103,18 +105,25 @@ const useRequestStore = create(
                 step1: state.step1,
                 step2: state.step2,
             }),
-            merge: (persisted, current) => ({
-                ...current,
-                ...persisted,
-                step1: {
-                    ...current.step1,
-                    ...(persisted?.step1 || {}),
-                },
-                step2: {
-                    ...current.step2,
-                    ...(persisted?.step2 || {}),
-                },
-            }),
+            merge: (persisted, current) => {
+                const persistedStep1 = persisted?.step1 || {};
+                const stalePastDate =
+                    persistedStep1.preferredDate &&
+                    persistedStep1.preferredDate < localDateStr();
+                return {
+                    ...current,
+                    ...persisted,
+                    step1: {
+                        ...current.step1,
+                        ...persistedStep1,
+                        ...(stalePastDate ? { preferredDate: "" } : {}),
+                    },
+                    step2: {
+                        ...current.step2,
+                        ...(persisted?.step2 || {}),
+                    },
+                };
+            },
         }
     )
 );
