@@ -23,7 +23,7 @@ import useAgencyOnboardingStore from '@/stores/agencyOnboardingStore';
 import useRequestStore from '@/stores/requestStore';
 import { useUnreadCount } from '@/hooks/useMessages';
 import { useIdleTimeout } from '@/hooks/useIdleTimeout';
-import { LOGOUT_REASON, USER_ROLES, CUSTOMER_TYPES } from '@/lib/constants';
+import { LOGOUT_REASON, USER_ROLES, CUSTOMER_TYPES, APPROVAL_STATUS } from '@/lib/constants';
 import { UnifiedAgreementModal } from '@/components/features/auth/UnifiedAgreementModal';
 import {
     MdDashboard, MdSearch, MdSend, MdCalendarMonth,
@@ -219,7 +219,7 @@ export default function DashboardLayout({ children }) {
                 if (userData.role === USER_ROLES.THERAPIST) {
                     const redirect = getTherapistRedirect(pathname, {
                         onboardingComplete: userData.profile?.onboardingComplete ?? false,
-                        approvalStatus: userData.profile?.approvalStatus ?? "pending",
+                        approvalStatus: userData.profile?.approvalStatus ?? APPROVAL_STATUS.PENDING,
                         onboardingStep: userData.profile?.onboardingStep ?? 1,
                     });
 
@@ -362,7 +362,7 @@ export default function DashboardLayout({ children }) {
     // Compute therapist access state for context and sidebar
     const therapistAccess = user?.role === USER_ROLES.THERAPIST ? (() => {
         const tp = user.profile; // Backend maps therapistProfile → "profile"
-        const status = tp?.approvalStatus ?? "pending";
+        const status = tp?.approvalStatus ?? APPROVAL_STATUS.PENDING;
         const step = tp?.onboardingStep ?? 1;
         const isComplete = tp?.onboardingComplete ?? false;
         // Step 8 (Payment Setup) onward is functionally complete — payment is not
@@ -373,10 +373,10 @@ export default function DashboardLayout({ children }) {
             rejectionReason: tp?.rejectionReason ?? null,
             onboardingComplete: functionallyComplete,
             onboardingStep: step,
-            canAccessMarketplace: status === "approved",
+            canAccessMarketplace: status === APPROVAL_STATUS.APPROVED,
             canEditPersonalInfo: status !== "incomplete",
-            canEditCredentials: status === "approved" || status === "rejected",
-            isFullyApproved: status === "approved" && functionallyComplete,
+            canEditCredentials: status === APPROVAL_STATUS.APPROVED || status === APPROVAL_STATUS.REJECTED,
+            isFullyApproved: status === APPROVAL_STATUS.APPROVED && functionallyComplete,
         };
     })() : null;
 

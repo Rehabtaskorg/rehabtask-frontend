@@ -9,8 +9,10 @@ import {
 } from "react-icons/md";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { useAuth } from "@/hooks/useAuth";
+import { useTherapistAccess } from "@/contexts/TherapistAccessContext";
 import { REQUEST_TYPE } from "@/lib/constants";
 import { useAnalytics } from "@/hooks/useAnalytics";
+import LockedPageOverlay from "@/components/therapist/LockedPageOverlay";
 import OfferFormFields from "@/components/therapist/OfferFormFields";
 import { getCustomerLabel } from "@/utils/request";
 
@@ -27,7 +29,22 @@ const formatDate = (dateStr) => {
     return new Date(dateStr).toLocaleDateString([], { month: "short", day: "numeric", year: "numeric" });
 };
 
+/**
+ * Request detail route for therapists.
+ * Gates on marketplace access so unapproved therapists see the locked state
+ * instead of a failed fetch.
+ */
 export default function TherapistRequestDetailPage() {
+    const { canAccessMarketplace } = useTherapistAccess();
+    if (!canAccessMarketplace) return <LockedPageOverlay pageType="requests" />;
+    return <TherapistRequestDetailContent />;
+}
+
+/**
+ * Full request detail view and offer submission form.
+ * Only rendered once marketplace access is confirmed.
+ */
+function TherapistRequestDetailContent() {
     usePageTitle("Request Details");
     const router = useRouter();
     const params = useParams();
@@ -39,6 +56,7 @@ export default function TherapistRequestDetailPage() {
         : '';
     const [request, setRequest] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [errorStatus, setErrorStatus] = useState(null);
     const [commissionRate, setCommissionRate] = useState(null);
     const [offerData, setOfferData] = useState({
         rate: "",
@@ -73,8 +91,8 @@ export default function TherapistRequestDetailPage() {
                     .slice(0, 10);
                 setOfferData(prev => ({ ...prev, proposedDate: localDate }));
             }
-        } catch {
-            // non-fatal — error state shown via empty request
+        } catch (err) {
+            setErrorStatus(err?.response?.status ?? 0);
         } finally {
             setLoading(false);
         }
@@ -190,7 +208,9 @@ export default function TherapistRequestDetailPage() {
             <div className="p-4 md:p-6 max-w-6xl mx-auto">
                 <div className="bg-red-50  border border-red-200  rounded-xl p-6 text-center">
                     <MdWarning className="text-3xl text-red-500 mx-auto mb-2" />
-                    <p className="text-red-800  font-bold">Request not found</p>
+                    <p className="text-red-800  font-bold">
+                        {errorStatus === 404 ? "Request not found" : "Something went wrong. Please try again."}
+                    </p>
                     <button onClick={() => router.push("/therapist/requests")} className="mt-3 text-sm text-primary font-bold hover:underline">
                         Back to Browse Requests
                     </button>
