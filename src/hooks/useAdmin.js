@@ -2,7 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
-    notificationsApi, adminUsersApi, adminTherapistsApi, adminDisputesApi,
+    notificationsApi, adminUsersApi, adminTherapistsApi, adminCustomersApi, adminDisputesApi,
     adminBookingsApi, adminSubscriptionsApi, adminPaymentsApi,
     adminCommissionApi, adminFaqsApi, adminNotificationsApi,
     adminSubAdminsApi, adminAuditApi, adminEmailApi,
@@ -122,6 +122,20 @@ export const useUpdateTherapistVerification = () => {
         },
     });
 };
+
+// Admin - Customers
+/**
+ * Paginated list of customers for the admin review queue.
+ * Returns `{ customers, pagination }` from the server.
+ *
+ * @param {{ approvalStatus?: string, customerType?: string, search?: string, sortOrder?: string, page?: number, limit?: number, enabled?: boolean }} params
+ */
+export const useAdminCustomers = ({ enabled, ...params } = {}) =>
+    useQuery({
+        queryKey: ['admin', 'customers', params],
+        queryFn: () => adminCustomersApi.list(params).then(r => r.data.data),
+        enabled: enabled !== false,
+    });
 
 // Admin - Disputes
 export const useAdminDisputes = ({ enabled, ...params } = {}) =>

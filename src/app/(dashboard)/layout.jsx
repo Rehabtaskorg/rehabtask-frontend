@@ -390,6 +390,7 @@ export default function DashboardLayout({ children }) {
     const adminNavItems = [
         { href: '/admin/users', icon: MdManageAccounts, label: 'Users', permission: 'users' },
         { href: '/admin/therapists', icon: MdVerifiedUser, label: 'Therapists', permission: 'therapists' },
+        { href: '/admin/customers', icon: MdPeople, label: 'Customer Applications', permission: 'customers' },
         { href: '/admin/disputes', icon: MdGavel, label: 'Disputes', permission: 'disputes' },
         { href: '/admin/bookings', icon: MdCalendarMonth, label: 'Bookings', permission: 'bookings' },
         { href: '/admin/subscriptions', icon: MdCardMembership, label: 'Subscriptions', permission: 'subscriptions' },
