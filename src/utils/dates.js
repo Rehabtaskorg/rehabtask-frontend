@@ -30,6 +30,22 @@ export const formatRelativeDate = (dateStr) => {
     return formatShortDate(dateStr);
 };
 
+/**
+ * Derives age in years from a date-only string (YYYY-MM-DD).
+ * Splits on "T" first to avoid UTC/local off-by-one when a full ISO timestamp is passed.
+ * @param {string|null|undefined} dateOnly
+ * @returns {number|null}
+ */
+export const calculateAge = (dateOnly) => {
+    if (!dateOnly) return null;
+    const [year, month, day] = dateOnly.split("T")[0].split("-").map(Number);
+    const today = new Date();
+    let age = today.getFullYear() - year;
+    const monthDiff = today.getMonth() + 1 - month;
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < day)) age--;
+    return age;
+};
+
 const pad = (n) => String(n).padStart(2, "0");
 
 /**

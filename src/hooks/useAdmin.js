@@ -137,6 +137,46 @@ export const useAdminCustomers = ({ enabled, ...params } = {}) =>
         enabled: enabled !== false,
     });
 
+/**
+ * Full detail for a single customer, for the admin review page.
+ * @param {string} customerUserId - Firebase UID
+ */
+export const useAdminCustomer = (customerUserId) =>
+    useQuery({
+        queryKey: ['admin', 'customers', customerUserId],
+        queryFn: () => adminCustomersApi.get(customerUserId).then(r => r.data.data),
+        enabled: !!customerUserId,
+    });
+
+/**
+ * Approve a customer. Invalidates both the detail and list queries.
+ */
+export const useApproveCustomer = () => {
+    const qc = useQueryClient();
+    return useMutation({
+        mutationFn: (customerUserId) => adminCustomersApi.approve(customerUserId),
+        onSuccess: (_, customerUserId) => {
+            qc.invalidateQueries({ queryKey: ['admin', 'customers', customerUserId] });
+            qc.invalidateQueries({ queryKey: ['admin', 'customers'] });
+        },
+    });
+};
+
+/**
+ * Reject a customer with a required reason. Invalidates both the detail and list queries.
+ */
+export const useRejectCustomer = () => {
+    const qc = useQueryClient();
+    return useMutation({
+        mutationFn: ({ customerUserId, reason }) =>
+            adminCustomersApi.reject(customerUserId, { reason }),
+        onSuccess: (_, { customerUserId }) => {
+            qc.invalidateQueries({ queryKey: ['admin', 'customers', customerUserId] });
+            qc.invalidateQueries({ queryKey: ['admin', 'customers'] });
+        },
+    });
+};
+
 // Admin - Disputes
 export const useAdminDisputes = ({ enabled, ...params } = {}) =>
     useQuery({
