@@ -1,4 +1,25 @@
-import { CUSTOMER_TYPES } from "./constants";
+import { CUSTOMER_TYPES, APPROVAL_STATUS } from "./constants";
+
+export const CUSTOMER_GATE_STATE = {
+    REJECTED: "rejected",
+    INCOMPLETE: "incomplete",
+    REVIEW: "review",
+    NONE: "none",
+};
+
+/**
+ * Derives the messaging/access gate state from a customer's profile.
+ * Ordering is load-bearing: rejected always takes priority over incomplete.
+ *
+ * @param {{ approvalStatus: string|null, onboardingComplete: boolean }} customer
+ * @returns {string} One of CUSTOMER_GATE_STATE values
+ */
+export function resolveCustomerGateState({ approvalStatus, onboardingComplete }) {
+    if (approvalStatus === APPROVAL_STATUS.REJECTED) return CUSTOMER_GATE_STATE.REJECTED;
+    if (!onboardingComplete) return CUSTOMER_GATE_STATE.INCOMPLETE;
+    if (approvalStatus === APPROVAL_STATUS.APPROVED) return CUSTOMER_GATE_STATE.NONE;
+    return CUSTOMER_GATE_STATE.REVIEW;
+}
 
 export const AGENCY_ONBOARDING_STEP_ROUTES = {
     1: "/customer/onboarding/agency/welcome",

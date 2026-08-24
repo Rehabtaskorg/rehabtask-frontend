@@ -13,7 +13,6 @@ import AttachmentsModal from "@/components/shared/messages/AttachmentsModal";
 import UserAvatar from "@/components/ui/UserAvatar";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { MessageGateModal } from "@/components/ui/MessageGateModal";
-import { useCustomerUser } from "@/contexts/CustomerUserContext";
 import { MdSend } from "react-icons/md";
 
 function CustomerRightSidebar({ selectedConversation }) {
@@ -163,13 +162,12 @@ function CustomerRightSidebar({ selectedConversation }) {
 
 export default function CustomerMessagesPage() {
     usePageTitle("Messages");
-    const customer = useCustomerUser();
     const {
         user, conversations, messages, selected, selectedConversation,
         convLoading, convError, convSessionExpired, msgLoading, msgError,
         mobileView, inputValue, setInputValue, uploading, replyingTo, setReplyingTo, scrollTrigger,
         hasMore, loadOlderMessages, loadingMore,
-        isMessageGateOpen, closeMessageGate,
+        isMessageGateOpen, closeMessageGate, messageGateProps,
         handleSelectConversation, handleBackToList, handleSendMessage, retryMessage,
     } = useMessagesPage("/customer/messages");
 
@@ -185,8 +183,7 @@ export default function CustomerMessagesPage() {
             <MessageGateModal
                 isOpen={isMessageGateOpen}
                 onClose={closeMessageGate}
-                onboardingStep={customer?.onboardingStep ?? 1}
-                customerType={customer?.customerType ?? null}
+                {...messageGateProps}
             />
             <div className="flex h-[calc(100vh-4rem)] lg:h-[calc(100vh-112px)] min-h-125 rounded-xl border border-border-light  overflow-hidden shadow-sm">
                 {/* Left Panel */}

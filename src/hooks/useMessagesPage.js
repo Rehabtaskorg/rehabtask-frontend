@@ -8,6 +8,9 @@ import { useAuth } from "./useAuth";
 import { useSocketContext } from "@/components/providers/SocketProvider";
 import { messagesApi } from "@/services/message.api";
 import { getDisplayName } from "@/utils/messages";
+import { MESSAGE_GATE_ERROR_CODES } from "@/lib/constants";
+import { resolveCustomerGateState } from "@/lib/customerRouteAccess";
+import { useCustomerUser } from "@/contexts/CustomerUserContext";
 import { useAnalytics } from "@/hooks/useAnalytics";
 
 /**
@@ -25,6 +28,7 @@ export function useMessagesPage(basePath) {
     const { conversations, loading: convLoading, error: convError, sessionExpired: convSessionExpired, refetch: refetchConversations } = useConversations();
     const { user } = useAuth();
     const { trackEvent } = useAnalytics();
+    const customer = useCustomerUser();
 
     const [selectedConversation, setSelectedConversation] = useState(null);
     const { joinConversation, leaveConversation } = useSocketContext();
@@ -63,10 +67,10 @@ export function useMessagesPage(basePath) {
     const [directSendError, setDirectSendError] = useState(null);
     const directSendingRef = useRef(false);
 
-    // Message gate — shown when the backend returns 403 FORBIDDEN (onboarding incomplete)
+    // Message gate — shown when the backend returns 403 with a gate error code
     const [isMessageGateOpen, setIsMessageGateOpen] = useState(false);
     const handleSendError = useCallback((err) => {
-        if (err?.response?.status === 403 && err?.response?.data?.code === "FORBIDDEN") {
+        if (err?.response?.status === 403 && MESSAGE_GATE_ERROR_CODES.has(err?.response?.data?.code)) {
             setIsMessageGateOpen(true);
         }
     }, []);
@@ -259,7 +263,7 @@ export function useMessagesPage(basePath) {
                 queryClient.invalidateQueries({ queryKey: ["unreadCount"] });
                 setScrollTrigger(t => t + 1);
             } catch (err) {
-                if (err?.response?.status === 403 && err?.response?.data?.code === "FORBIDDEN") {
+                if (err?.response?.status === 403 && MESSAGE_GATE_ERROR_CODES.has(err?.response?.data?.code)) {
                     setIsMessageGateOpen(true);
                 } else {
                     setDirectSendError("Failed to send message. Please try again.");
@@ -336,7 +340,7 @@ export function useMessagesPage(basePath) {
                 optimisticAttachments.forEach(a => {
                     if (a._localPreviewUrl) URL.revokeObjectURL(a._localPreviewUrl);
                 });
-                if (err?.response?.status === 403 && err?.response?.data?.code === "FORBIDDEN") {
+                if (err?.response?.status === 403 && MESSAGE_GATE_ERROR_CODES.has(err?.response?.data?.code)) {
                     setIsMessageGateOpen(true);
                 } else {
                     setDirectSendError(err.response?.data?.message || "Failed to upload files. Please try again.");
@@ -399,6 +403,15 @@ export function useMessagesPage(basePath) {
         // Message gate
         isMessageGateOpen,
         closeMessageGate: () => setIsMessageGateOpen(false),
+        messageGateProps: {
+            gateState: resolveCustomerGateState({
+                approvalStatus: customer?.approvalStatus ?? null,
+                onboardingComplete: customer?.onboardingComplete ?? false,
+            }),
+            onboardingStep: customer?.onboardingStep ?? 1,
+            customerType: customer?.customerType ?? null,
+            rejectionReason: customer?.rejectionReason ?? null,
+        },
 
         // Actions
         handleSelectConversation,

@@ -30,6 +30,12 @@ export const APPROVAL_STATUS = {
     REJECTED: "rejected",
 };
 
+export const MESSAGE_GATE_ERROR_CODES = new Set([
+    "FORBIDDEN",
+    "ONBOARDING_INCOMPLETE",
+    "NOT_APPROVED",
+]);
+
 export const LICENSE_TYPE_TO_SERVICE_TYPE = Object.freeze({
     "Physical Therapist": "Physical Therapy",
     "Physical Therapist Assistant": "Physical Therapy",

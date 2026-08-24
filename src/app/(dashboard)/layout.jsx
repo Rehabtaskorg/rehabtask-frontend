@@ -18,6 +18,7 @@ import { CustomerUserProvider } from '@/contexts/CustomerUserContext';
 import { SidebarProvider, useSidebar } from '@/contexts/SidebarContext';
 import { SocketProvider } from '@/components/providers/SocketProvider';
 import OnboardingBanner from '@/components/therapist/OnboardingBanner';
+import { CustomerStatusBanner } from '@/components/customer/CustomerStatusBanner';
 import useOnboardingStore from '@/stores/onboardingStore';
 import useAgencyOnboardingStore from '@/stores/agencyOnboardingStore';
 import useRequestStore from '@/stores/requestStore';
@@ -716,7 +717,10 @@ function DashboardInner({ user, pathname, sidebarOpen, setSidebarOpen, handleLog
                         onboardingComplete: user.profile?.onboardingComplete ?? false,
                         onboardingStep: user.profile?.onboardingStep ?? 1,
                         approvalStatus: user.profile?.approvalStatus ?? null,
+                        rejectionReason: user.profile?.rejectionReason ?? null,
+                        canAccessMarketplace: user.profile?.approvalStatus === APPROVAL_STATUS.APPROVED,
                     }}>
+                        <CustomerStatusBanner />
                         {children}
                     </CustomerUserProvider>
                 ) : (

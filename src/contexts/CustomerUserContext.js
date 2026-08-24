@@ -3,7 +3,7 @@
 import { createContext, useContext } from "react";
 
 /**
- * @typedef {{ customerType: string|null, onboardingComplete: boolean, onboardingStep: number, approvalStatus: string }} CustomerUser
+ * @typedef {{ customerType: string|null, onboardingComplete: boolean, onboardingStep: number, approvalStatus: string|null, rejectionReason: string|null, canAccessMarketplace: boolean }} CustomerUser
  */
 
 const CustomerUserContext = createContext(null);
