@@ -14,7 +14,7 @@ export default function PendingApprovalPage() {
                     Thank you for completing your application. Our team will review your account within <strong>2–5 business days</strong>.
                 </p>
                 <p className="text-sm text-text-muted leading-relaxed">
-                    You'll receive an email at the address you registered with once a decision has been made.
+                    You&apos;ll receive an email at the address you registered with once a decision has been made.
                 </p>
             </div>
         </div>
