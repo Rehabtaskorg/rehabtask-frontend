@@ -7,6 +7,8 @@ import { subscriptionApi } from "@/services/subscription.api";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import { PLAN_TYPES } from "@/lib/constants";
+import { useCustomerUser } from "@/contexts/CustomerUserContext";
+import { CustomerLockedPageOverlay } from "@/components/customer/CustomerLockedPageOverlay";
 
 const PLANS = [
     {
@@ -98,6 +100,14 @@ function UsageBar({ label, current, limit, tooltip }) {
 }
 
 export default function SubscriptionPage() {
+    const customer = useCustomerUser();
+    if (!customer?.canAccessMarketplace) {
+        return <CustomerLockedPageOverlay pageType="subscription" />;
+    }
+    return <SubscriptionPageContent />;
+}
+
+function SubscriptionPageContent() {
     usePageTitle("Subscription");
     const { trackEvent } = useAnalytics();
     const { subscription, usage, loading } = useSubscription();

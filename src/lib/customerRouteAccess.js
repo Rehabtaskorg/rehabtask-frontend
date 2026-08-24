@@ -54,19 +54,14 @@ function resolveOnboardingRedirect(pathname, stepRoutes, onboardingStep, fallbac
     return null;
 }
 
-// TODO: [NEXT] Add pre-onboarding page guards for customer marketplace routes.
-// Pages that must be locked until onboardingComplete === true (mirror the therapist LockedPageOverlay pattern):
-//   - /customer/requests         (My Requests)
-//   - /customer/requests/new     (New Request — most critical)
+// TODO: [NEXT] Lock remaining customer marketplace routes using CustomerLockedPageOverlay.
+// CA-10 locked /customer/requests/new and /customer/subscription (canAccessMarketplace gate).
+// Still open (backend returns 403 on mutations but no designed lock screen on the page):
+//   - /customer/requests         (My Requests list)
 //   - /customer/find-therapists  (Browse & contact therapists)
-//   - /customer/bookings         (My Bookings — impossible pre-onboarding)
-//   - /customer/disputes         (stems from bookings — impossible pre-onboarding)
-//   - /customer/subscription     (only meaningful post-onboarding)
-//   - /customer/patients         (agency-only — agency onboarding must complete first)
-// Pages that must stay open: /customer/dashboard, /customer/profile, /customer/faqs
-// Recommended approach: create a CustomerAccessContext (mirrors TherapistAccessContext),
-// expose canAccessMarketplace = onboardingComplete, and add a guard at the top of each
-// page component (same pattern as therapist pages). Reuse or generalise LockedPageOverlay.
+//   - /customer/bookings         (My Bookings)
+//   - /customer/disputes         (stems from bookings)
+//   - /customer/patients         (agency-only)
 
 /**
  * @param {string} pathname
