@@ -57,7 +57,7 @@ export function IndividualOnboardingProgressBar() {
 
             <p className="text-text-muted text-sm mt-3 font-normal leading-normal">
                 {progress === 100
-                    ? "✓ Profile complete — your account is now active"
+                    ? "✓ Profile complete — awaiting review"
                     : STEPS.find((s) => s.number === currentStep)?.label || "Complete your profile to get started"}
             </p>
         </div>
