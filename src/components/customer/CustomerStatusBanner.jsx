@@ -1,6 +1,7 @@
 "use client";
 
 import { MdAccessTime, MdInfo } from "react-icons/md";
+import { usePathname } from "next/navigation";
 import { useCustomerUser } from "@/contexts/CustomerUserContext";
 import { resolveCustomerGateState, CUSTOMER_GATE_STATE } from "@/lib/customerRouteAccess";
 
@@ -11,6 +12,7 @@ import { resolveCustomerGateState, CUSTOMER_GATE_STATE } from "@/lib/customerRou
  */
 export function CustomerStatusBanner() {
     const customer = useCustomerUser();
+    const pathname = usePathname();
 
     const gateState = resolveCustomerGateState({
         approvalStatus: customer?.approvalStatus ?? null,
@@ -18,6 +20,7 @@ export function CustomerStatusBanner() {
     });
 
     if (gateState === CUSTOMER_GATE_STATE.NONE) return null;
+    if (pathname === "/customer/pending-approval") return null;
 
     const isRejected = gateState === CUSTOMER_GATE_STATE.REJECTED;
 
