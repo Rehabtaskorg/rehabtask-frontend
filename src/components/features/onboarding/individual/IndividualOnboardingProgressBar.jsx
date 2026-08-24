@@ -8,7 +8,7 @@ const STEPS = [
     { number: 1, label: "Welcome" },
     { number: 2, label: "Personal Information" },
     { number: 3, label: "Medical Information" },
-    { number: 4, label: "Activation" },
+    { number: 4, label: "Submit" },
 ];
 
 /**
