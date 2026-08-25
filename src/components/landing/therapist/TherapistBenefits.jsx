@@ -42,7 +42,7 @@ export function TherapistBenefits() {
         <section className="py-20 bg-white">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <FadeIn className="text-center mb-14">
-                    <h2 className="mt-2 text-3xl md:text-4xl font-bold" style={{ color: "#2EC4B6" }}>
+                    <h2 className="mt-2 text-3xl md:text-4xl font-bold text-primary">
                         Why Therapists Choose RehabTask
                     </h2>
                     <p className="mt-3 text-gray-500 max-w-2xl mx-auto">

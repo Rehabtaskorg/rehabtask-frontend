@@ -32,7 +32,7 @@ export function HowItWorks({ steps = DEFAULT_STEPS }) {
         <section className="py-20 bg-white">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <FadeIn className="text-center mb-14">
-                    <h2 className="mt-2 text-3xl md:text-4xl font-bold" style={{ color: "#2EC4B6" }}>How RehabTask Works</h2>
+                    <h2 className="mt-2 text-3xl md:text-4xl font-bold text-primary">How RehabTask Works</h2>
                     <p className="mt-3 text-gray-500">From request to placement, in minutes</p>
                 </FadeIn>
 
