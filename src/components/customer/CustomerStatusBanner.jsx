@@ -23,6 +23,7 @@ export function CustomerStatusBanner() {
     });
 
     if (gateState === CUSTOMER_GATE_STATE.NONE) return null;
+    if (gateState === CUSTOMER_GATE_STATE.INCOMPLETE) return null;
     if (SUPPRESSED_ROUTES.includes(pathname)) return null;
 
     const isRejected = gateState === CUSTOMER_GATE_STATE.REJECTED;
