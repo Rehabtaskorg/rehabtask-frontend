@@ -39,8 +39,8 @@ export function WorkAndGetPaid() {
                     </FadeIn>
 
                     <FadeIn className="order-1 lg:order-2">
-                        <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center mb-5">
-                            <MdPayments className="text-xl text-accent-strong" />
+                        <div className="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center mb-5">
+                            <MdPayments className="text-2xl text-accent-strong" />
                         </div>
                         <p className="text-xs font-bold uppercase tracking-[0.15em] text-accent-strong mb-3">
                             From work to payout
@@ -51,7 +51,7 @@ export function WorkAndGetPaid() {
                         <ul className="mt-6 space-y-3">
                             {FEATURES.map((f) => (
                                 <li key={f.label} className="flex items-center gap-3 text-sm text-gray-700">
-                                    <f.icon className="text-accent-strong shrink-0 text-lg" />
+                                    <f.icon className="text-accent-strong shrink-0 text-xl" />
                                     {f.label}
                                 </li>
                             ))}

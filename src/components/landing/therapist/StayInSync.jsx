@@ -19,8 +19,8 @@ export function StayInSync() {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 xl:gap-16 items-center">
 
                     <FadeIn>
-                        <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center mb-5">
-                            <MdMessage className="text-xl text-accent-strong" />
+                        <div className="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center mb-5">
+                            <MdMessage className="text-2xl text-accent-strong" />
                         </div>
                         <p className="text-xs font-bold uppercase tracking-[0.15em] text-accent-strong mb-3">
                             Keep the conversation
@@ -31,7 +31,7 @@ export function StayInSync() {
                         <ul className="mt-6 space-y-3">
                             {SYNC_ITEMS.map((item) => (
                                 <li key={item} className="flex items-center gap-3 text-sm text-gray-700">
-                                    <MdCheckCircle className="text-accent-strong shrink-0 text-lg" />
+                                    <MdCheckCircle className="text-accent-strong shrink-0 text-xl" />
                                     {item}
                                 </li>
                             ))}

@@ -14,7 +14,7 @@ export function SeeTheOpportunityCTA() {
         <Link
             href="/requests"
             onClick={() => trackEvent("browse_referrals_clicked", { source: "opportunity_preview" })}
-            className="group inline-flex items-center gap-2 mt-8 px-6 py-3 text-sm font-semibold text-white bg-accent-strong rounded-lg hover:bg-accent-strong/90 transition-colors"
+            className="group inline-flex items-center gap-2 mt-8 px-6 py-3 text-sm font-semibold text-white bg-primary rounded-lg hover:bg-primary/90 transition-colors"
         >
             Browse Opportunities
             <span className="group-hover:translate-x-0.5 transition-transform" aria-hidden="true">&rarr;</span>

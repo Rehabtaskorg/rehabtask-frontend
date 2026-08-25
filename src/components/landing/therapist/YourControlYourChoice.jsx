@@ -48,10 +48,10 @@ export function YourControlYourChoice() {
 
                 <FadeIn delay={0.1}>
                     <ul className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-8 xl:gap-0 xl:divide-x xl:divide-border-light">
-                        {ITEMS.map((item, i) => (
+                        {ITEMS.map((item) => (
                             <li key={item.title} className="flex flex-col items-center text-center xl:px-6">
-                                <div className="w-14 h-14 rounded-full bg-accent/10 flex items-center justify-center mb-4">
-                                    <item.icon className="text-2xl text-accent-strong" />
+                                <div className="w-16 h-16 rounded-full bg-accent/10 flex items-center justify-center mb-4">
+                                    <item.icon className="text-3xl text-accent-strong" />
                                 </div>
                                 <h3 className="text-sm font-bold text-primary mb-1">{item.title}</h3>
                                 <p className="text-sm text-gray-500 leading-relaxed">{item.description}</p>

@@ -51,8 +51,8 @@ export function SeeTheOpportunity() {
                         <ul className="mt-4 grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-3">
                             {UPFRONT_ITEMS.map((item) => (
                                 <li key={item.label} className="flex items-center gap-2">
-                                    <div className="w-8 h-8 rounded-full bg-accent/10 flex items-center justify-center shrink-0">
-                                        <item.icon className="text-sm text-accent-strong" />
+                                    <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center shrink-0">
+                                        <item.icon className="text-lg text-accent-strong" />
                                     </div>
                                     <span className="text-sm font-medium text-gray-700">{item.label}</span>
                                 </li>

@@ -65,7 +65,7 @@ export function TherapistHowItWorks() {
                                         {i + 1}
                                     </span>
                                     <div className="w-16 h-16 rounded-full bg-accent/10 flex items-center justify-center">
-                                        <step.icon className="text-2xl text-accent-strong" />
+                                        <step.icon className="text-3xl text-accent-strong" />
                                     </div>
                                 </div>
 

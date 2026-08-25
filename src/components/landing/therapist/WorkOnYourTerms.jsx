@@ -65,8 +65,8 @@ export function WorkOnYourTerms() {
                                 hover
                                 className="bg-white border border-border-light rounded-2xl p-6 hover:shadow-lg transition-all duration-200"
                             >
-                                <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-4 ${card.iconBg}`}>
-                                    <card.icon className={`text-xl ${card.iconColor}`} />
+                                <div className={`w-14 h-14 rounded-full flex items-center justify-center mb-4 ${card.iconBg}`}>
+                                    <card.icon className={`text-3xl ${card.iconColor}`} />
                                 </div>
                                 <h3 className="text-base font-bold text-primary mb-2">{card.title}</h3>
                                 <span className={`block h-0.5 w-10 rounded-full mb-3 ${card.accentColor}`} aria-hidden="true" />
