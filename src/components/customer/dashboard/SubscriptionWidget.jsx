@@ -3,13 +3,16 @@
 import { useRouter } from "next/navigation";
 import { MdStars, MdWarning, MdAccessTime } from "react-icons/md";
 import { useSubscription } from "@/hooks/useSubscription";
+import { useCustomerUser } from "@/contexts/CustomerUserContext";
 
 /**
  * Displays the customer's current subscription state in the dashboard sidebar.
  * Renders a contextual CTA for trial, grace period, free, or active paid plans.
+ * Hidden for unapproved customers — billing has no meaning until approval.
  */
 export function SubscriptionWidget() {
     const { subscription } = useSubscription();
+    const customer = useCustomerUser();
     const router = useRouter();
 
     const status = subscription?.status;
@@ -21,6 +24,8 @@ export function SubscriptionWidget() {
     const trialDays = isTrial && subscription?.trialEndsAt
         ? Math.max(0, Math.ceil((new Date(subscription.trialEndsAt) - new Date()) / (1000 * 60 * 60 * 24)))
         : 0;
+
+    if (!customer?.canAccessMarketplace) return null;
 
     if (isTrial) {
         return (

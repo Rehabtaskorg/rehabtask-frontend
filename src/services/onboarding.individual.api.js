@@ -71,4 +71,13 @@ export const individualOnboardingAPI = {
     completeIndividualOnboarding: async () => {
         return api.post("/individual/onboarding/complete");
     },
+
+    /**
+     * Resubmit a rejected individual application for review.
+     * @param {string|null} note - Optional explanation when no documents changed
+     * @returns {Promise<{ customer: { id, onboardingComplete, approvalStatus } }>}
+     */
+    resubmitIndividualApplication: async (note = null) => {
+        return api.post("/individual/onboarding/resubmit", { note });
+    },
 };

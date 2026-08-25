@@ -55,6 +55,7 @@ function fmtDate(iso) {
 export function CustomerTableRow({ customer }) {
     const displayName = resolveDisplayName(customer);
     const location = [customer.city, customer.state].filter(Boolean).join(', ') || '—';
+    const isResubmitted = customer.approvalStatus === APPROVAL_STATUS.REVIEW && Boolean(customer.rejectionReason);
 
     return (
         <tr className="hover:bg-slate-50 transition-colors cursor-pointer">
@@ -72,10 +73,15 @@ export function CustomerTableRow({ customer }) {
                 </Link>
             </td>
             <td className="px-4 py-3">
-                <Link href={`/admin/customers/${customer.user.id}`} className="block">
+                <Link href={`/admin/customers/${customer.user.id}`} className="flex items-center gap-1.5 flex-wrap">
                     <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${STATUS_STYLES[customer.approvalStatus] || 'bg-slate-100 text-slate-600'}`}>
                         {STATUS_LABELS[customer.approvalStatus] || customer.approvalStatus}
                     </span>
+                    {isResubmitted && (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 text-xs font-medium">
+                            Resubmitted
+                        </span>
+                    )}
                 </Link>
             </td>
             <td className="px-4 py-3">

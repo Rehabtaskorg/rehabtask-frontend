@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { MdLock, MdAccessTime, MdInfo } from "react-icons/md";
 import { useCustomerUser } from "@/contexts/CustomerUserContext";
@@ -41,21 +42,21 @@ export function CustomerLockedPageOverlay({ pageType }) {
     const accountLabel = isIndividual ? "your account" : "your agency account";
 
     const icon = isRejected
-        ? <MdInfo className="text-3xl text-red-500" />
+        ? <MdInfo className="text-3xl text-amber-600" />
         : isIncomplete
             ? <MdLock className="text-3xl text-primary" />
             : <MdAccessTime className="text-3xl text-amber-500" />;
 
-    const iconBg = isRejected ? "bg-red-50" : isIncomplete ? "bg-primary/10" : "bg-amber-50";
+    const iconBg = isRejected || !isIncomplete ? "bg-amber-50" : "bg-primary/10";
 
     const title = isRejected
-        ? "Application Not Approved"
+        ? "Action Required"
         : isIncomplete
             ? "Complete your setup first"
             : "Account Under Review";
 
     const body = isRejected
-        ? (customer?.rejectionReason || "Your application was not approved. Please contact support for assistance.")
+        ? "Your application needs an update before we can approve it. Review the reviewer's notes and resubmit."
         : isIncomplete
             ? `Finish setting up ${accountLabel} to unlock this page and start connecting with therapists.`
             : "Our team is reviewing your account. You'll be notified by email once a decision has been made.";
@@ -93,12 +94,20 @@ export function CustomerLockedPageOverlay({ pageType }) {
                         </button>
                     )}
                     {isRejected && (
-                        <a
-                            href="mailto:support@rehabtask.com"
-                            className="w-full h-11 bg-red-500 text-white font-bold rounded-lg hover:brightness-95 transition-all flex items-center justify-center"
-                        >
-                            Contact Support
-                        </a>
+                        <>
+                            <Link
+                                href="/customer/application-review"
+                                className="w-full h-11 bg-primary text-white font-bold rounded-lg hover:brightness-95 transition-all flex items-center justify-center"
+                            >
+                                Review and fix
+                            </Link>
+                            <a
+                                href="mailto:support@rehabtask.com"
+                                className="text-xs font-semibold text-text-muted underline hover:no-underline text-center"
+                            >
+                                Contact Support
+                            </a>
+                        </>
                     )}
                     {!isIncomplete && !isRejected && (
                         <button
