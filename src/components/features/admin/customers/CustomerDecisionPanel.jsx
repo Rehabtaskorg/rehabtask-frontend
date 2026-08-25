@@ -68,10 +68,64 @@ export function CustomerDecisionPanel({ customer, customerUserId }) {
 
     if (approvalStatus === APPROVAL_STATUS.APPROVED) {
         return (
-            <div className="bg-green-50 border border-green-200 rounded-xl p-5">
-                <p className="text-sm font-semibold text-green-800">Account approved</p>
-                {approvedAt && (
-                    <p className="text-xs text-green-700 mt-0.5">Approved on {formatShortDate(approvedAt)}</p>
+            <div className="space-y-4">
+                <div className="bg-green-50 border border-green-200 rounded-xl p-5">
+                    <p className="text-sm font-semibold text-green-800">Account approved</p>
+                    {approvedAt && (
+                        <p className="text-xs text-green-700 mt-0.5">Approved on {formatShortDate(approvedAt)}</p>
+                    )}
+                </div>
+                {actionError && (
+                    <p className="text-xs text-red-600 bg-red-50 border border-red-200 rounded px-3 py-2">{actionError}</p>
+                )}
+                {!showRejectForm ? (
+                    <button
+                        onClick={() => { setShowRejectForm(true); setActionError(""); }}
+                        disabled={reject.isPending}
+                        className="w-full px-4 py-2 text-sm font-semibold bg-white border border-red-300 text-red-600 hover:bg-red-50 rounded-lg transition disabled:opacity-50"
+                    >
+                        Reject
+                    </button>
+                ) : (
+                    <div className="space-y-3">
+                        <div>
+                            <label htmlFor="reject-reason" className="block text-xs font-medium text-text-main mb-1">
+                                Rejection reason <span className="text-red-500">*</span>
+                            </label>
+                            <textarea
+                                id="reject-reason"
+                                value={rejectReason}
+                                onChange={(e) => { setRejectReason(e.target.value); setRejectError(""); }}
+                                maxLength={500}
+                                rows={4}
+                                placeholder="Explain why this account cannot be approved (min 10 characters)…"
+                                className="w-full px-3 py-2 text-sm border border-border-light rounded-lg bg-background-light text-text-main placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary resize-none transition"
+                            />
+                            <div className="flex justify-between mt-1">
+                                {rejectError
+                                    ? <p className="text-xs text-red-600">{rejectError}</p>
+                                    : <span />
+                                }
+                                <span className="text-xs text-text-muted">{rejectReason.length}/500</span>
+                            </div>
+                        </div>
+                        <div className="flex gap-3">
+                            <button
+                                onClick={handleReject}
+                                disabled={reject.isPending}
+                                className="flex-1 px-4 py-2 text-sm font-semibold bg-red-600 hover:bg-red-700 text-white rounded-lg transition disabled:opacity-50"
+                            >
+                                {reject.isPending ? "Rejecting…" : "Confirm Rejection"}
+                            </button>
+                            <button
+                                onClick={() => { setShowRejectForm(false); setRejectReason(""); setRejectError(""); }}
+                                disabled={reject.isPending}
+                                className="px-4 py-2 text-sm border border-border-light text-text-muted rounded-lg hover:bg-slate-50 transition disabled:opacity-50"
+                            >
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
                 )}
             </div>
         );
