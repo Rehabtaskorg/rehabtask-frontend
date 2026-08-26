@@ -4,6 +4,7 @@ import { SeeTheOpportunityCTA } from "@/components/landing/therapist/SeeTheOppor
 import {
     MdLocationOn,
     MdEventNote,
+    MdRepeat,
     MdBusiness,
     MdCalendarToday,
     MdAssignment,
