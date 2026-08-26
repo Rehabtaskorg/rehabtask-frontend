@@ -3,7 +3,6 @@ import FadeIn from "@/components/ui/FadeIn";
 import { SeeTheOpportunityCTA } from "@/components/landing/therapist/SeeTheOpportunityCTA";
 import {
     MdLocationOn,
-    MdAttachMoney,
     MdEventNote,
     MdRepeat,
     MdBusiness,
@@ -15,7 +14,6 @@ const THERAPIST_PHOTO = "https://images.unsplash.com/photo-1559839734-2b71ea197e
 
 const UPFRONT_ITEMS = [
     { icon: MdLocationOn, label: "Location & distance" },
-    { icon: MdAttachMoney, label: "Rate" },
     { icon: MdEventNote, label: "Visit type" },
     { icon: MdRepeat, label: "Frequency" },
     { icon: MdBusiness, label: "Agency" },
