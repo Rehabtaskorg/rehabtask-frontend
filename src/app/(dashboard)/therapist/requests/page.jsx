@@ -396,13 +396,16 @@ function TherapistRequestsContent() {
                                                     </div>
                                                 )}
                                                 <div className="flex items-center justify-between mt-3 pt-3 border-t border-border-light">
-                                                    <div className="flex items-center gap-3">
-                                                        <span className="flex items-center gap-1 text-xs text-text-muted">
-                                                            <MdLocationOn className="text-[15px] text-text-muted/70" /> {req.location ? "Nearby" : "—"}
+                                                    <div className="flex items-center gap-3 min-w-0">
+                                                        <span className="flex items-center gap-1 text-xs text-text-muted min-w-0">
+                                                            <MdLocationOn className="text-[15px] text-text-muted/70 shrink-0" />
+                                                            <span className="truncate">
+                                                                {req.location ? (() => { const parts = req.location.split(",").map(p => p.trim()); return parts.length >= 2 ? `${parts[parts.length - 2]}, ${parts[parts.length - 1]}` : req.location; })() : "—"}
+                                                            </span>
                                                         </span>
-                                                        <span className="flex items-center gap-1 text-xs text-text-muted">
+                                                        <span className="flex items-center gap-1 text-xs text-text-muted shrink-0">
                                                             <MdCalendarToday className="text-[14px] text-text-muted/70" />
-                                                            {req.preferredDate ? new Date(req.preferredDate).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "Flexible"}
+                                                            Preferred Date: {req.preferredDate ? new Date(req.preferredDate).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "Flexible"}
                                                         </span>
                                                     </div>
                                                     {myOffer ? (
