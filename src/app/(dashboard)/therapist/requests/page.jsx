@@ -352,14 +352,11 @@ function TherapistRequestsContent() {
                                                         handleSelectRequest(req);
                                                     }
                                                 }}
-                                                className={`relative overflow-hidden w-full text-left p-4 rounded-2xl transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 ${isSelected
-                                                    ? "border border-transparent bg-primary/[0.04] shadow-md ring-2 ring-primary/60 ring-offset-0"
+                                                className={`w-full text-left p-4 rounded-2xl transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 ${isSelected
+                                                    ? "border border-primary/20 bg-primary/[0.04] shadow-lg ring-2 ring-primary/30 ring-offset-0"
                                                     : "bg-white border border-border-light hover:shadow-lg hover:border-accent/40"
                                                     }`}
                                             >
-                                                {isSelected && (
-                                                    <span className="absolute left-0 top-0 bottom-0 w-1 rounded-l-2xl bg-accent" aria-hidden="true" />
-                                                )}
                                                 <div className="flex justify-between items-start mb-2">
                                                     <div className="flex flex-wrap items-center gap-1.5">
                                                         <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-[0.15em] ${getServiceTypeStyle(req.serviceType)}`}>{req.serviceType}</span>
@@ -374,12 +371,19 @@ function TherapistRequestsContent() {
                                                 <h4 className="font-bold text-base text-primary leading-tight tracking-tight mb-0.5">
                                                     {getCustomerLabel(req.customer) || req.serviceType}
                                                 </h4>
-                                                {req.visitsPerWeek && req.numberOfWeeks && (
-                                                    <div className="flex items-center gap-1 text-xs font-semibold text-accent-strong bg-accent/10 px-2 py-1 rounded-full mb-2 w-fit">
-                                                        <MdRefresh className="text-[13px]" />
-                                                        {req.visitsPerWeek}x/week · {req.numberOfWeeks} weeks ({req.visitsPerWeek * req.numberOfWeeks} visits)
-                                                    </div>
-                                                )}
+                                                <div className="flex flex-wrap items-center gap-1.5 mb-2">
+                                                    {req.visitsPerWeek && req.numberOfWeeks && (
+                                                        <div className="flex items-center gap-1 text-xs font-semibold text-accent-strong bg-accent/10 px-2 py-1 rounded-full">
+                                                            <MdRefresh className="text-[13px]" />
+                                                            {req.visitsPerWeek}x/week · {req.numberOfWeeks} weeks ({req.visitsPerWeek * req.numberOfWeeks} visits)
+                                                        </div>
+                                                    )}
+                                                    {req.emr && (
+                                                        <span className="text-[11px] font-semibold text-text-muted bg-slate-100 px-2 py-1 rounded-full truncate max-w-[140px]" title={req.emr}>
+                                                            EMR: {req.emr}
+                                                        </span>
+                                                    )}
+                                                </div>
                                                 <p className="text-sm text-text-muted line-clamp-2 mb-2 leading-relaxed">{req.description}</p>
                                                 {req.specialInstructions && (
                                                     <div className="pl-2.5 border-l-2 border-amber-300 mb-2">
