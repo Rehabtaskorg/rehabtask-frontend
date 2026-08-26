@@ -275,6 +275,22 @@ export default function Step1ServiceDetails() {
                     )}
                 </div>
             </div>
+
+            {/* Special Instructions */}
+            <div>
+                <label htmlFor="special-instructions" className={LABEL_CLASS}>
+                    Special Instructions (optional)
+                </label>
+                <textarea
+                    id="special-instructions"
+                    rows={3}
+                    maxLength={1000}
+                    value={step1.specialInstructions}
+                    onChange={(e) => setStep1({ specialInstructions: e.target.value })}
+                    placeholder="e.g. EVV IN KINNSER"
+                    className={`${INPUT_CLASS} resize-none`}
+                />
+            </div>
         </div>
     );
 }

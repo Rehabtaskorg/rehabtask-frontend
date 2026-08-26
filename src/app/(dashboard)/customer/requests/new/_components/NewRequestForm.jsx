@@ -183,6 +183,9 @@ export default function NewRequestForm({ editId, directTo }) {
                     ? { visitTypeId: step1.visitTypeId }
                     : { visitType: step1.visitType === "Other" ? step1.visitTypeOther : step1.visitType }),
                 emr: step1.emr === "Other" ? step1.emrOther : step1.emr,
+                ...(isEditMode
+                    ? { specialInstructions: step1.specialInstructions.trim() || null }
+                    : (step1.specialInstructions.trim() && { specialInstructions: step1.specialInstructions.trim() })),
                 ...(step1.visitsPerWeek && { visitsPerWeek: parseInt(step1.visitsPerWeek) }),
                 ...(step1.numberOfWeeks && { numberOfWeeks: parseInt(step1.numberOfWeeks) }),
             };

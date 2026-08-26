@@ -108,6 +108,17 @@ export default function Step3Review({ onEditStep }) {
                             </p>
                         </div>
                     </div>
+
+                    {step1.specialInstructions && (
+                        <div className="pt-2 border-t border-border-light ">
+                            <p className="text-[10px] font-bold uppercase tracking-wider text-text-muted  mb-1">
+                                Special Instructions
+                            </p>
+                            <p className="text-sm text-text-main  leading-relaxed whitespace-pre-wrap">
+                                {step1.specialInstructions}
+                            </p>
+                        </div>
+                    )}
                 </div>
             </div>
 

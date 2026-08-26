@@ -4,6 +4,29 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { localDateStr, localDateTimeParts } from "@/utils/dates";
 
+const INITIAL_STEP1 = {
+    serviceType: "",
+    description: "",
+    preferredDate: "",
+    preferredTime: "",
+    rate: "",
+    visitType: "",
+    visitTypeId: "",
+    visitTypeName: "",
+    emr: "",
+    emrOther: "",
+    visitTypeOther: "",
+    specialInstructions: "",
+    visitsPerWeek: "",
+    numberOfWeeks: "",
+};
+
+const INITIAL_STEP2 = {
+    address: "",
+    latitude: null,
+    longitude: null,
+};
+
 const useRequestStore = create(
     persist(
         (set, get) => ({
@@ -11,26 +34,8 @@ const useRequestStore = create(
             patientId: null,
             targetTherapistId: null,
             editingRequestId: null,
-            step1: {
-                serviceType: "",
-                description: "",
-                preferredDate: "",
-                preferredTime: "",
-                rate: "",
-                visitType: "",
-                visitTypeId: "",
-                visitTypeName: "",
-                emr: "",
-                emrOther: "",
-                visitTypeOther: "",
-                visitsPerWeek: "",
-                numberOfWeeks: "",
-            },
-            step2: {
-                address: "",
-                latitude: null,
-                longitude: null,
-            },
+            step1: { ...INITIAL_STEP1 },
+            step2: { ...INITIAL_STEP2 },
 
             // Actions
             setPatientId: (id) => set({ patientId: id }),
@@ -46,8 +51,8 @@ const useRequestStore = create(
                     patientId: null,
                     targetTherapistId: null,
                     editingRequestId: null,
-                    step1: { serviceType: "", description: "", preferredDate: "", preferredTime: "", rate: "", visitType: "", visitTypeId: "", visitTypeName: "", emr: "", emrOther: "", visitTypeOther: "", visitsPerWeek: "", numberOfWeeks: "" },
-                    step2: { address: "", latitude: null, longitude: null },
+                    step1: { ...INITIAL_STEP1 },
+                    step2: { ...INITIAL_STEP2 },
                 }),
 
             // Edit mode: pre-fill store from an existing request
@@ -74,6 +79,7 @@ const useRequestStore = create(
                         emr: request.emr || "",
                         emrOther: "",
                         visitTypeOther: "",
+                        specialInstructions: request.specialInstructions || "",
                         visitsPerWeek: request.visitsPerWeek ? String(request.visitsPerWeek) : "",
                         numberOfWeeks: request.numberOfWeeks ? String(request.numberOfWeeks) : "",
                     },

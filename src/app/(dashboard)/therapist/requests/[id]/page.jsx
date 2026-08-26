@@ -341,6 +341,17 @@ function TherapistRequestDetailContent() {
                                 <p className="text-text-main  leading-relaxed text-sm">{request.description}</p>
                             </div>
                         )}
+
+                        {request.specialInstructions && (
+                            <div className="bg-amber-50 rounded-xl p-5 border border-amber-200 mt-6">
+                                <p className="text-[10px] font-bold text-amber-800 uppercase tracking-widest mb-2">
+                                    Special Instructions
+                                </p>
+                                <p className="text-sm text-amber-900 leading-relaxed whitespace-pre-wrap">
+                                    {request.specialInstructions}
+                                </p>
+                            </div>
+                        )}
                     </section>
 
                     {/* Patient identity hidden from therapist pre-booking */}

@@ -380,6 +380,16 @@ function TherapistRequestsContent() {
                                                         {req.visitsPerWeek}x/week · {req.numberOfWeeks} weeks ({req.visitsPerWeek * req.numberOfWeeks} visits)
                                                     </div>
                                                 )}
+                                                {req.specialInstructions && (
+                                                    <div className="mb-2">
+                                                        <p className="text-[10px] font-bold uppercase tracking-wider text-text-muted mb-0.5">
+                                                            Special Instructions
+                                                        </p>
+                                                        <p className="text-xs text-text-main line-clamp-2 leading-relaxed">
+                                                            {req.specialInstructions}
+                                                        </p>
+                                                    </div>
+                                                )}
                                                 <div className="flex items-center justify-between">
                                                     <div className="flex items-center gap-3">
                                                         <span className="flex items-center gap-1 text-xs text-text-muted ">
