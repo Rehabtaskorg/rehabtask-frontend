@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import {
-    MdChevronRight, MdVerified, MdWork, MdPhone, MdChat, MdStar, MdChevronLeft, MdRefresh, MdArrowBack, MdAttachMoney, MdBarChart, MdLock,
+    MdChevronRight, MdVerified, MdWork, MdPhone, MdEmail, MdChat, MdStar, MdChevronLeft, MdRefresh, MdArrowBack, MdAttachMoney, MdBarChart, MdLock,
 } from "react-icons/md";
 import { APIProvider } from "@vis.gl/react-google-maps";
 import { useTherapistPublicProfile, useTherapistReviews } from "@/hooks/useTherapistSearch";
@@ -192,6 +192,20 @@ export default function TherapistProfilePage() {
                                     <span className="flex items-center gap-1.5 text-text-muted" title="Accept an offer to unlock contact info">
                                         <MdPhone className="text-base" />
                                         <span className="blur-sm select-none">(555) 000-0000</span>
+                                        <MdLock className="text-xs" />
+                                    </span>
+                                )}
+                                {therapist.canViewContact ? (
+                                    therapist.email && (
+                                        <span className="flex items-center gap-1.5">
+                                            <MdEmail className="text-base" />
+                                            {therapist.email}
+                                        </span>
+                                    )
+                                ) : (
+                                    <span className="flex items-center gap-1.5 text-text-muted" title="Accept an offer to unlock contact info">
+                                        <MdEmail className="text-base" />
+                                        <span className="blur-sm select-none">name@example.com</span>
                                         <MdLock className="text-xs" />
                                     </span>
                                 )}
