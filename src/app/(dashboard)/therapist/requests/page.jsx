@@ -23,7 +23,7 @@ import TherapistRequestFilters, { FilterToggleButton } from "@/components/therap
 const getCityState = (location) => {
     if (!location) return "—";
     const parts = location.split(",").map((p) => p.trim());
-    return parts.length >= 2 ? `${parts[parts.length - 2]}, ${parts[parts.length - 1]}` : location;
+    return parts.length >= 2 ? `${parts[0]}, ${parts[1]}` : location;
 };
 
 const getServiceTypeStyle = (serviceType) => {
