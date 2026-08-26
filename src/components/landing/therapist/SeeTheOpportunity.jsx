@@ -78,33 +78,44 @@ export function SeeTheOpportunity() {
                             className="hidden lg:block absolute top-6 -right-4 xl:-right-8 w-64 xl:w-72 rounded-xl bg-white shadow-2xl ring-1 ring-black/5 p-4"
                             aria-hidden="true"
                         >
-                            <div className="flex items-center justify-between mb-3">
-                                <span className="text-sm font-bold text-primary">Physical Therapy</span>
-                                <span className="text-[10px] font-bold text-accent-strong bg-accent/10 px-2 py-0.5 rounded-full uppercase tracking-wide">New Request</span>
+                            <div className="flex items-center justify-between mb-2">
+                                <span className="text-[10px] font-bold uppercase tracking-wider text-accent-strong bg-accent/10 px-2.5 py-1 rounded-full">
+                                    Physical Therapy
+                                </span>
+                                <span className="text-[10px] font-bold text-accent-strong bg-accent/10 px-2 py-0.5 rounded-full uppercase tracking-wide">
+                                    New Request
+                                </span>
                             </div>
-                            <div className="space-y-2 text-xs text-gray-600">
-                                <div className="flex items-center gap-2">
-                                    <MdAttachMoney className="text-gray-400 shrink-0" />
-                                    <span>$95 / session</span>
-                                    <span className="ml-auto text-gray-400">In Person</span>
-                                </div>
+
+                            <p className="text-sm font-bold text-primary leading-tight mb-1">
+                                Sunshine Home Health Agency
+                            </p>
+
+                            <div className="flex flex-wrap items-center gap-1.5 mb-2">
+                                <span className="flex items-center gap-1 text-[11px] font-semibold text-accent-strong bg-accent/10 px-2 py-0.5 rounded-full">
+                                    <MdRepeat className="text-[11px]" />
+                                    2–3x/week · 8 weeks
+                                </span>
+                                <span className="text-[11px] font-semibold text-gray-500 bg-slate-100 px-2 py-0.5 rounded-full">
+                                    EMR: KINNSER
+                                </span>
+                            </div>
+
+                            <div className="space-y-1.5 text-xs text-gray-600">
                                 <div className="flex items-center gap-2">
                                     <MdLocationOn className="text-gray-400 shrink-0" />
-                                    <span>Downtown Austin, TX (8 mi)</span>
+                                    <span>1420 W 6th St, Austin, TX 78703 (8 mi)</span>
                                 </div>
                                 <div className="flex items-center gap-2">
                                     <MdCalendarToday className="text-gray-400 shrink-0" />
                                     <span>SOC: Sep 15, 2026</span>
                                 </div>
                                 <div className="flex items-center gap-2">
-                                    <MdRepeat className="text-gray-400 shrink-0" />
-                                    <span>2–3x per week</span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <MdBusiness className="text-gray-400 shrink-0" />
-                                    <span>Referring Agency</span>
+                                    <MdEventNote className="text-gray-400 shrink-0" />
+                                    <span>In Person</span>
                                 </div>
                             </div>
+
                             <button className="mt-3 text-xs font-semibold text-accent-strong flex items-center gap-1 hover:gap-2 transition-all">
                                 View details <span>&rarr;</span>
                             </button>
