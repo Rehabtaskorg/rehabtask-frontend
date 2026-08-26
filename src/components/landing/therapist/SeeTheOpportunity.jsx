@@ -4,7 +4,6 @@ import { SeeTheOpportunityCTA } from "@/components/landing/therapist/SeeTheOppor
 import {
     MdLocationOn,
     MdEventNote,
-    MdRepeat,
     MdBusiness,
     MdCalendarToday,
     MdAssignment,
@@ -90,10 +89,6 @@ export function SeeTheOpportunity() {
                             </p>
 
                             <div className="flex flex-wrap items-center gap-1.5 mb-2">
-                                <span className="flex items-center gap-1 text-[11px] font-semibold text-accent-strong bg-accent/10 px-2 py-0.5 rounded-full">
-                                    <MdRepeat className="text-[11px]" />
-                                    2–3x/week · 8 weeks
-                                </span>
                                 <span className="text-[11px] font-semibold text-gray-500 bg-slate-100 px-2 py-0.5 rounded-full">
                                     EMR: KINNSER
                                 </span>
