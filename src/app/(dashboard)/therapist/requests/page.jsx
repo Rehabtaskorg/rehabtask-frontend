@@ -23,12 +23,12 @@ import TherapistRequestFilters, { FilterToggleButton } from "@/components/therap
 const getServiceTypeStyle = (serviceType) => {
     const st = serviceType?.toLowerCase() || "";
     if (st.includes("physical") || st.includes("pt"))
-        return "bg-blue-100 text-blue-700  ";
+        return "bg-blue-100 text-blue-700";
     if (st.includes("occupational") || st.includes("ot"))
-        return "bg-purple-100 text-purple-700  ";
+        return "bg-purple-100 text-purple-700";
     if (st.includes("speech") || st.includes("slp"))
-        return "bg-emerald-100 text-emerald-700  ";
-    return "bg-slate-100 text-slate-700  ";
+        return "bg-emerald-100 text-emerald-700";
+    return "bg-slate-100 text-slate-700";
 };
 
 const timeAgo = (dateStr) => {
@@ -352,62 +352,63 @@ function TherapistRequestsContent() {
                                                         handleSelectRequest(req);
                                                     }
                                                 }}
-                                                className={`w-full text-left p-4 rounded-xl transition-all ${isSelected
-                                                    ? "border-l-4 border-l-primary border border-primary/20 bg-primary/5  shadow-md"
-                                                    : "bg-white  border border-border-light  hover:shadow-sm hover:border-slate-300 "
+                                                className={`relative overflow-hidden w-full text-left p-4 rounded-2xl transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 ${isSelected
+                                                    ? "border border-transparent bg-primary/[0.04] shadow-md ring-2 ring-primary/60 ring-offset-0"
+                                                    : "bg-white border border-border-light hover:shadow-lg hover:border-accent/40"
                                                     }`}
                                             >
+                                                {isSelected && (
+                                                    <span className="absolute left-0 top-0 bottom-0 w-1 rounded-l-2xl bg-accent" aria-hidden="true" />
+                                                )}
                                                 <div className="flex justify-between items-start mb-2">
                                                     <div className="flex flex-wrap items-center gap-1.5">
-                                                        <span className={`px-2.5 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider ${getServiceTypeStyle(req.serviceType)}`}>{req.serviceType}</span>
+                                                        <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-[0.15em] ${getServiceTypeStyle(req.serviceType)}`}>{req.serviceType}</span>
                                                         {req.requestType === REQUEST_TYPE.DIRECT && (
-                                                            <span className="px-2.5 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-indigo-100 text-indigo-700  ">
+                                                            <span className="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-[0.15em] bg-accent/15 text-accent-strong">
                                                                 Direct
                                                             </span>
                                                         )}
                                                     </div>
-                                                    <span className="text-[11px] text-text-muted  font-medium shrink-0 ml-2">{timeAgo(req.createdAt)}</span>
+                                                    <span className="text-[11px] text-text-muted font-medium shrink-0 ml-2">{timeAgo(req.createdAt)}</span>
                                                 </div>
-                                                <h4 className="font-bold text-text-main mb-0.5 leading-tight">{req.serviceType}</h4>
-                                                {getCustomerLabel(req.customer) && (
-                                                    <p className="text-xs text-text-muted mb-1 font-medium">{getCustomerLabel(req.customer)}</p>
-                                                )}
-                                                <p className="text-sm text-text-muted line-clamp-2 mb-3 leading-relaxed">{req.description}</p>
-                                                {/* Patient identity hidden from therapist — visible only after booking */}
+                                                <h4 className="font-bold text-base text-primary leading-tight tracking-tight mb-0.5">
+                                                    {getCustomerLabel(req.customer) || req.serviceType}
+                                                </h4>
                                                 {req.visitsPerWeek && req.numberOfWeeks && (
-                                                    <div className="flex items-center gap-1 text-xs font-semibold text-indigo-600  bg-indigo-50  px-2 py-1 rounded-md mb-2 w-fit">
+                                                    <div className="flex items-center gap-1 text-xs font-semibold text-accent-strong bg-accent/10 px-2 py-1 rounded-full mb-2 w-fit">
                                                         <MdRefresh className="text-[13px]" />
                                                         {req.visitsPerWeek}x/week · {req.numberOfWeeks} weeks ({req.visitsPerWeek * req.numberOfWeeks} visits)
                                                     </div>
                                                 )}
+                                                <p className="text-sm text-text-muted line-clamp-2 mb-2 leading-relaxed">{req.description}</p>
                                                 {req.specialInstructions && (
-                                                    <div className="mb-2">
-                                                        <p className="text-[10px] font-bold uppercase tracking-wider text-text-muted mb-0.5">
+                                                    <div className="pl-2.5 border-l-2 border-amber-300 mb-2">
+                                                        <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-amber-700 mb-0.5">
                                                             Special Instructions
                                                         </p>
-                                                        <p className="text-xs text-text-main line-clamp-2 leading-relaxed">
+                                                        <p className="text-xs text-text-muted line-clamp-1 leading-relaxed">
                                                             {req.specialInstructions}
                                                         </p>
                                                     </div>
                                                 )}
-                                                <div className="flex items-center justify-between">
+                                                <div className="flex items-center justify-between mt-3 pt-3 border-t border-border-light">
                                                     <div className="flex items-center gap-3">
-                                                        <span className="flex items-center gap-1 text-xs text-text-muted ">
-                                                            <MdLocationOn className="text-[15px]" /> {req.location ? "Nearby" : "—"}
+                                                        <span className="flex items-center gap-1 text-xs text-text-muted">
+                                                            <MdLocationOn className="text-[15px] text-text-muted/70" /> {req.location ? "Nearby" : "—"}
                                                         </span>
-                                                        <span className="flex items-center gap-1 text-xs text-text-muted ">
-                                                            <MdCalendarToday className="text-[14px]" />
+                                                        <span className="flex items-center gap-1 text-xs text-text-muted">
+                                                            <MdCalendarToday className="text-[14px] text-text-muted/70" />
                                                             {req.preferredDate ? new Date(req.preferredDate).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "Flexible"}
                                                         </span>
                                                     </div>
                                                     {myOffer ? (
-                                                        <span className="text-xs font-bold text-primary bg-primary/10 px-2 py-1 rounded flex items-center gap-1">
+                                                        <span className="text-xs font-bold text-accent-strong bg-accent/10 px-2 py-1 rounded-full flex items-center gap-1">
                                                             <MdCheckCircle className="text-[13px]" /> My Offer Sent
                                                         </span>
                                                     ) : offerCount > 0 ? (
-                                                        <span className="text-xs font-bold text-amber-600 bg-amber-50  px-2 py-1 rounded">{offerCount} Offer{offerCount > 1 ? "s" : ""}</span>
+                                                        <span className="text-xs font-bold text-amber-600 bg-amber-50 px-2 py-1 rounded-full">{offerCount} Offer{offerCount > 1 ? "s" : ""}</span>
                                                     ) : (
-                                                        <span className="text-xs text-text-muted  italic">No offers yet</span>
+                                                        <span className="text-xs text-text-muted/80">No offers yet</span>
                                                     )}
                                                 </div>
                                             </button>
