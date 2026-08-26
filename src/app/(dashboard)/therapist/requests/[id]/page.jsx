@@ -107,15 +107,11 @@ function TherapistRequestDetailContent() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [params.id]);
 
-    // Pre-fill rate: profile rate > request rate > empty
-    // Single effect handles both sources to avoid race conditions
     useEffect(() => {
         if (profileRate) {
             setOfferData(prev => ({ ...prev, rate: profileRate }));
-        } else if (request?.rate) {
-            setOfferData(prev => ({ ...prev, rate: parseFloat(request.rate).toFixed(2) }));
         }
-    }, [profileRate, request]);
+    }, [profileRate]);
 
     useEffect(() => {
         if (profileAttemptedRate !== '') {
@@ -284,12 +280,6 @@ function TherapistRequestDetailContent() {
                                 <p className="text-xs font-bold text-text-muted  uppercase tracking-widest mb-1">Preferred Date</p>
                                 <p className="font-semibold text-text-main ">{formatDate(request.preferredDate)}</p>
                             </div>
-                            {request.rate != null && (
-                                <div>
-                                    <p className="text-xs font-bold text-text-muted  uppercase tracking-widest mb-1">Rate</p>
-                                    <p className="font-bold text-emerald-600 ">${parseFloat(request.rate).toFixed(2)}/visit</p>
-                                </div>
-                            )}
                             {(request.visitTypeRef || request.visitType) && (
                                 <div>
                                     <p className="text-xs font-bold text-text-muted  uppercase tracking-widest mb-1">Visit Type</p>

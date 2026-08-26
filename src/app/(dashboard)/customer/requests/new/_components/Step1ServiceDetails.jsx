@@ -139,32 +139,6 @@ export default function Step1ServiceDetails() {
                 </div>
             </div>
 
-            {/* Rate per Visit */}
-            <div>
-                <label className={LABEL_CLASS}>
-                    Rate per Visit <span className="text-red-500">*</span>
-                </label>
-                <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400  font-semibold text-sm">$</span>
-                    <input
-                        type="number"
-                        step="0.01"
-                        min="0.01"
-                        max="9999.99"
-                        value={step1.rate}
-                        onChange={(e) => setStep1({ rate: e.target.value })}
-                        placeholder="0.00"
-                        className={`${INPUT_CLASS} pl-7 font-mono`}
-                    />
-                </div>
-                {step1.rate && parseFloat(step1.rate) <= 0 && (
-                    <p className="text-xs text-red-500 mt-1">Rate must be a positive number</p>
-                )}
-                {step1.rate && parseFloat(step1.rate) > 9999.99 && (
-                    <p className="text-xs text-red-500 mt-1">Rate cannot exceed $9,999.99</p>
-                )}
-            </div>
-
             {/* Frequency (optional) — not applicable to evaluation visits */}
             {!isEvaluationVisit && (
                 <div>
@@ -201,11 +175,6 @@ export default function Step1ServiceDetails() {
                         <div className="mt-2 px-3 py-2 rounded-lg bg-primary/5  border border-primary/20">
                             <p className="text-sm font-semibold text-primary">
                                 {parseInt(step1.visitsPerWeek) * parseInt(step1.numberOfWeeks)} visits total
-                                {step1.rate && parseFloat(step1.rate) > 0 && (
-                                    <span className="text-text-muted  font-normal">
-                                        {" "}· ${(parseFloat(step1.rate) * parseInt(step1.visitsPerWeek) * parseInt(step1.numberOfWeeks)).toFixed(2)} estimated total
-                                    </span>
-                                )}
                             </p>
                         </div>
                     )}

@@ -136,12 +136,6 @@ export default function TherapistRequestDetailPanel({
                             {request.offers?.length || 0} offer{request.offers?.length !== 1 ? "s" : ""}
                         </p>
                     </div>
-                    {request.rate != null && (
-                        <div className="p-3 rounded-lg border border-border-light ">
-                            <p className="text-[10px] font-bold text-text-muted  uppercase tracking-widest">Rate per Visit</p>
-                            <p className="text-sm font-semibold text-text-main  mt-1">${parseFloat(request.rate).toFixed(2)}</p>
-                        </div>
-                    )}
                     {visitTypeLabel && (
                         <div className="p-3 rounded-lg border border-border-light ">
                             <p className="text-[10px] font-bold text-text-muted  uppercase tracking-widest">Visit Type</p>

@@ -73,24 +73,11 @@ export default function Step3Review({ onEditStep }) {
                             </p>
                             <p className="text-sm font-semibold text-primary">
                                 {step1.visitsPerWeek}x/week · {step1.numberOfWeeks} week{parseInt(step1.numberOfWeeks) > 1 ? "s" : ""} ({parseInt(step1.visitsPerWeek) * parseInt(step1.numberOfWeeks)} visits total)
-                                {step1.rate && parseFloat(step1.rate) > 0 && (
-                                    <span className="text-text-muted  font-normal ml-2">
-                                        · ${(parseFloat(step1.rate) * parseInt(step1.visitsPerWeek) * parseInt(step1.numberOfWeeks)).toFixed(2)} estimated total
-                                    </span>
-                                )}
                             </p>
                         </div>
                     )}
 
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2 border-t border-border-light ">
-                        <div>
-                            <p className="text-[10px] font-bold uppercase tracking-wider text-text-muted  mb-1">
-                                Rate per Visit
-                            </p>
-                            <p className="text-sm font-medium text-text-main ">
-                                {step1.rate ? `$${parseFloat(step1.rate).toFixed(2)}` : "—"}
-                            </p>
-                        </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-border-light ">
                         <div>
                             <p className="text-[10px] font-bold uppercase tracking-wider text-text-muted  mb-1">
                                 Visit Type

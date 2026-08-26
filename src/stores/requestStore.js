@@ -9,7 +9,6 @@ const INITIAL_STEP1 = {
     description: "",
     preferredDate: "",
     preferredTime: "",
-    rate: "",
     visitType: "",
     visitTypeId: "",
     visitTypeName: "",
@@ -71,7 +70,6 @@ const useRequestStore = create(
                         description: request.description || "",
                         preferredDate,
                         preferredTime,
-                        rate: request.rate ? String(parseFloat(request.rate)) : "",
                         // Prefer FK if populated; fall back to legacy string
                         visitType: request.visitTypeRef ? "" : (request.visitType || ""),
                         visitTypeId: request.visitTypeId || request.visitTypeRef?.id || "",
@@ -112,7 +110,7 @@ const useRequestStore = create(
                 step2: state.step2,
             }),
             merge: (persisted, current) => {
-                const persistedStep1 = persisted?.step1 || {};
+                const { rate: _staleRate, ...persistedStep1 } = persisted?.step1 || {};
                 const stalePastDate =
                     persistedStep1.preferredDate &&
                     persistedStep1.preferredDate < localDateStr();
