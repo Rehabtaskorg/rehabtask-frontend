@@ -3,18 +3,27 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useCustomerUser } from "@/contexts/CustomerUserContext";
-import { CUSTOMER_TYPES, APPROVAL_STATUS } from "@/lib/constants";
+import { APPROVAL_STATUS } from "@/lib/constants";
+import { resolveCustomerGateState } from "@/lib/customerRouteAccess";
 
+/**
+ * Guards the "message a therapist" action behind onboarding and approval state.
+ * Opens the MessageGateModal when the customer is not yet approved.
+ *
+ * @returns {{ guardedHandleMessage: (therapistUserId: string) => void, isGateOpen: boolean, closeGate: () => void, gateProps: object }}
+ */
 export function useMessageGuard() {
     const router = useRouter();
     const customer = useCustomerUser();
     const [isGateOpen, setIsGateOpen] = useState(false);
 
+    const approvalStatus = customer?.approvalStatus ?? null;
+    const onboardingComplete = customer?.onboardingComplete ?? false;
     const customerType = customer?.customerType ?? null;
-    const isApproved = customer?.approvalStatus === APPROVAL_STATUS.APPROVED;
-    const isBlocked =
-        (customerType === CUSTOMER_TYPES.AGENCY || customerType === CUSTOMER_TYPES.INDIVIDUAL) &&
-        !isApproved;
+    const rejectionReason = customer?.rejectionReason ?? null;
+    const onboardingStep = customer?.onboardingStep ?? 1;
+
+    const isBlocked = approvalStatus !== APPROVAL_STATUS.APPROVED;
 
     const guardedHandleMessage = (therapistUserId) => {
         if (isBlocked) {
@@ -28,7 +37,11 @@ export function useMessageGuard() {
         guardedHandleMessage,
         isGateOpen,
         closeGate: () => setIsGateOpen(false),
-        onboardingStep: customer?.onboardingStep ?? 1,
-        customerType,
+        gateProps: {
+            gateState: resolveCustomerGateState({ approvalStatus, onboardingComplete }),
+            onboardingStep,
+            customerType,
+            rejectionReason,
+        },
     };
 }

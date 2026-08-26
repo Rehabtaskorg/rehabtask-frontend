@@ -29,7 +29,7 @@ export function AgencyWelcomeScreen() {
                 <div className="bg-card-light border border-border-light rounded-xl overflow-hidden shadow-sm">
                     <div className="p-8 space-y-6">
                         <p className="text-text-main text-base leading-relaxed">
-                            To activate your agency account you&apos;ll complete the following steps:
+                            To apply for access you&apos;ll complete the following steps:
                         </p>
 
                         <ol className="space-y-4">
@@ -37,7 +37,7 @@ export function AgencyWelcomeScreen() {
                                 { step: 1, label: "Business Profile", desc: "Agency details, address, and billing contact" },
                                 { step: 2, label: "Upload Documents", desc: "State license and insurance certificates" },
                                 { step: 3, label: "Compliance Forms", desc: "W-9, Service Agreement, and HIPAA BAA e-signatures" },
-                                { step: 4, label: "Activation", desc: "Submit your agency for review and approval" },
+                                { step: 4, label: "Submit Application", desc: "Review and submit your application for approval" },
                             ].map(({ step, label, desc }) => (
                                 <li key={step} className="flex items-start gap-4">
                                     <span className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 text-primary text-sm font-bold flex items-center justify-center">
@@ -51,12 +51,12 @@ export function AgencyWelcomeScreen() {
                             ))}
                         </ol>
 
-                        <div className="bg-blue-50 px-6 py-4 rounded-lg flex items-start gap-3 border border-blue-100">
-                            <svg className="h-5 w-5 text-blue-500 mt-0.5 shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                                <path clipRule="evenodd" fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" />
+                        <div className="bg-amber-50 px-6 py-4 rounded-lg flex items-start gap-3 border border-amber-100">
+                            <svg className="h-5 w-5 text-amber-500 mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                             </svg>
-                            <p className="text-sm text-blue-700">
-                                Your account will be activated immediately once you complete all steps.
+                            <p className="text-sm text-amber-800">
+                                After submitting, our team will review your application within <strong>2–5 business days</strong> and notify you by email.
                             </p>
                         </div>
                     </div>

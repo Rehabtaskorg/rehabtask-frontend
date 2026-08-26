@@ -2,7 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
-    notificationsApi, adminUsersApi, adminTherapistsApi, adminDisputesApi,
+    notificationsApi, adminUsersApi, adminTherapistsApi, adminCustomersApi, adminDisputesApi,
     adminBookingsApi, adminSubscriptionsApi, adminPaymentsApi,
     adminCommissionApi, adminFaqsApi, adminNotificationsApi,
     adminSubAdminsApi, adminAuditApi, adminEmailApi,
@@ -119,6 +119,60 @@ export const useUpdateTherapistVerification = () => {
         onSuccess: (_, { therapistUserId }) => {
             qc.invalidateQueries({ queryKey: ['admin', 'therapists', therapistUserId] });
             qc.invalidateQueries({ queryKey: ['admin', 'therapists'] });
+        },
+    });
+};
+
+// Admin - Customers
+/**
+ * Paginated list of customers for the admin review queue.
+ * Returns `{ customers, pagination }` from the server.
+ *
+ * @param {{ approvalStatus?: string, customerType?: string, search?: string, sortOrder?: string, page?: number, limit?: number, enabled?: boolean }} params
+ */
+export const useAdminCustomers = ({ enabled, ...params } = {}) =>
+    useQuery({
+        queryKey: ['admin', 'customers', params],
+        queryFn: () => adminCustomersApi.list(params).then(r => r.data.data),
+        enabled: enabled !== false,
+    });
+
+/**
+ * Full detail for a single customer, for the admin review page.
+ * @param {string} customerUserId - Firebase UID
+ */
+export const useAdminCustomer = (customerUserId) =>
+    useQuery({
+        queryKey: ['admin', 'customers', customerUserId],
+        queryFn: () => adminCustomersApi.get(customerUserId).then(r => r.data.data),
+        enabled: !!customerUserId,
+    });
+
+/**
+ * Approve a customer. Invalidates both the detail and list queries.
+ */
+export const useApproveCustomer = () => {
+    const qc = useQueryClient();
+    return useMutation({
+        mutationFn: (customerUserId) => adminCustomersApi.approve(customerUserId),
+        onSuccess: (_, customerUserId) => {
+            qc.invalidateQueries({ queryKey: ['admin', 'customers', customerUserId] });
+            qc.invalidateQueries({ queryKey: ['admin', 'customers'] });
+        },
+    });
+};
+
+/**
+ * Reject a customer with a required reason. Invalidates both the detail and list queries.
+ */
+export const useRejectCustomer = () => {
+    const qc = useQueryClient();
+    return useMutation({
+        mutationFn: ({ customerUserId, reason }) =>
+            adminCustomersApi.reject(customerUserId, { reason }),
+        onSuccess: (_, { customerUserId }) => {
+            qc.invalidateQueries({ queryKey: ['admin', 'customers', customerUserId] });
+            qc.invalidateQueries({ queryKey: ['admin', 'customers'] });
         },
     });
 };

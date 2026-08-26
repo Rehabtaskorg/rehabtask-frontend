@@ -98,7 +98,7 @@ export default function FindTherapistsMapPanel({
     onCloseInfoWindow,
     searchCenter,
 }) {
-    const { guardedHandleMessage, isGateOpen, closeGate, onboardingStep, customerType } = useMessageGuard();
+    const { guardedHandleMessage, isGateOpen, closeGate, gateProps } = useMessageGuard();
 
     const initialCenter = useMemo(
         () => searchCenter || buildCenter(markers, DEFAULT_CENTER),
@@ -121,7 +121,7 @@ export default function FindTherapistsMapPanel({
 
     return (
         <div className="relative h-full w-full overflow-hidden">
-            <MessageGateModal isOpen={isGateOpen} onClose={closeGate} onboardingStep={onboardingStep} customerType={customerType} />
+            <MessageGateModal isOpen={isGateOpen} onClose={closeGate} {...gateProps} />
             <Map
                 mapId={MAP_ID}
                 defaultCenter={initialCenter}

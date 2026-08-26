@@ -1,4 +1,25 @@
-import { CUSTOMER_TYPES } from "./constants";
+import { CUSTOMER_TYPES, APPROVAL_STATUS } from "./constants";
+
+export const CUSTOMER_GATE_STATE = {
+    REJECTED: "rejected",
+    INCOMPLETE: "incomplete",
+    REVIEW: "review",
+    NONE: "none",
+};
+
+/**
+ * Derives the messaging/access gate state from a customer's profile.
+ * Ordering is load-bearing: rejected always takes priority over incomplete.
+ *
+ * @param {{ approvalStatus: string|null, onboardingComplete: boolean }} customer
+ * @returns {string} One of CUSTOMER_GATE_STATE values
+ */
+export function resolveCustomerGateState({ approvalStatus, onboardingComplete }) {
+    if (approvalStatus === APPROVAL_STATUS.REJECTED) return CUSTOMER_GATE_STATE.REJECTED;
+    if (!onboardingComplete) return CUSTOMER_GATE_STATE.INCOMPLETE;
+    if (approvalStatus === APPROVAL_STATUS.APPROVED) return CUSTOMER_GATE_STATE.NONE;
+    return CUSTOMER_GATE_STATE.REVIEW;
+}
 
 export const AGENCY_ONBOARDING_STEP_ROUTES = {
     1: "/customer/onboarding/agency/welcome",
@@ -33,19 +54,14 @@ function resolveOnboardingRedirect(pathname, stepRoutes, onboardingStep, fallbac
     return null;
 }
 
-// TODO: [NEXT] Add pre-onboarding page guards for customer marketplace routes.
-// Pages that must be locked until onboardingComplete === true (mirror the therapist LockedPageOverlay pattern):
-//   - /customer/requests         (My Requests)
-//   - /customer/requests/new     (New Request — most critical)
+// TODO: [NEXT] Lock remaining customer marketplace routes using CustomerLockedPageOverlay.
+// CA-10 locked /customer/requests/new and /customer/subscription (canAccessMarketplace gate).
+// Still open (backend returns 403 on mutations but no designed lock screen on the page):
+//   - /customer/requests         (My Requests list)
 //   - /customer/find-therapists  (Browse & contact therapists)
-//   - /customer/bookings         (My Bookings — impossible pre-onboarding)
-//   - /customer/disputes         (stems from bookings — impossible pre-onboarding)
-//   - /customer/subscription     (only meaningful post-onboarding)
-//   - /customer/patients         (agency-only — agency onboarding must complete first)
-// Pages that must stay open: /customer/dashboard, /customer/profile, /customer/faqs
-// Recommended approach: create a CustomerAccessContext (mirrors TherapistAccessContext),
-// expose canAccessMarketplace = onboardingComplete, and add a guard at the top of each
-// page component (same pattern as therapist pages). Reuse or generalise LockedPageOverlay.
+//   - /customer/bookings         (My Bookings)
+//   - /customer/disputes         (stems from bookings)
+//   - /customer/patients         (agency-only)
 
 /**
  * @param {string} pathname

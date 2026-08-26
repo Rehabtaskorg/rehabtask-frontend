@@ -7,7 +7,7 @@ export default function ForTherapists() {
         <section className="py-20">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <FadeIn className="text-center mb-10">
-                    <h2 className="mt-2 text-3xl md:text-4xl font-bold" style={{ color: "#2EC4B6" }}>Get Matched. Get Booked. Get to Work.</h2>
+                    <h2 className="mt-2 text-3xl md:text-4xl font-bold text-primary">Get Matched. Get Booked. Get to Work.</h2>
                     <p className="mt-3 text-gray-500 max-w-2xl mx-auto">
                         Manage your schedule, set your rates, and accept cases with a single tap. Choose what fits, when it fits and stay consistently booked without the back-and-forth.
                     </p>

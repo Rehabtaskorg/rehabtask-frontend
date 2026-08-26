@@ -1,4 +1,4 @@
-import { USER_ROLES, AUTH_REDIRECT_STORAGE_KEY } from "@/lib/constants";
+import { USER_ROLES, AUTH_REDIRECT_STORAGE_KEY, AUTH_GATE_TRIGGERS } from "@/lib/constants";
 
 const REDIRECT_TTL_MS = 30 * 60 * 1000;
 
@@ -74,7 +74,8 @@ const TARGET_RESOLVERS = {
         contact: (entityId) => `/customer/find-therapists/${entityId}`,
     },
     [USER_ROLES.THERAPIST]: {
-        offer: (entityId) => `/therapist/requests/${entityId}`,
+        [AUTH_GATE_TRIGGERS.OFFER]: (entityId) => `/therapist/requests/${entityId}`,
+        [AUTH_GATE_TRIGGERS.REFERRAL]: (entityId) => `/therapist/requests/${entityId}`,
     },
 };
 

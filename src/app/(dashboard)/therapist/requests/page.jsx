@@ -20,15 +20,21 @@ import TherapistRequestFilters, { FilterToggleButton } from "@/components/therap
 
 // ─── Helpers ────────────────────────────────────────────────
 
+const getCityState = (location) => {
+    if (!location) return "—";
+    const parts = location.split(",").map((p) => p.trim());
+    return parts.length >= 2 ? `${parts[0]}, ${parts[1]}` : location;
+};
+
 const getServiceTypeStyle = (serviceType) => {
     const st = serviceType?.toLowerCase() || "";
     if (st.includes("physical") || st.includes("pt"))
-        return "bg-blue-100 text-blue-700  ";
+        return "bg-blue-100 text-blue-700";
     if (st.includes("occupational") || st.includes("ot"))
-        return "bg-purple-100 text-purple-700  ";
+        return "bg-purple-100 text-purple-700";
     if (st.includes("speech") || st.includes("slp"))
-        return "bg-emerald-100 text-emerald-700  ";
-    return "bg-slate-100 text-slate-700  ";
+        return "bg-emerald-100 text-emerald-700";
+    return "bg-slate-100 text-slate-700";
 };
 
 const timeAgo = (dateStr) => {
@@ -352,52 +358,68 @@ function TherapistRequestsContent() {
                                                         handleSelectRequest(req);
                                                     }
                                                 }}
-                                                className={`w-full text-left p-4 rounded-xl transition-all ${isSelected
-                                                    ? "border-l-4 border-l-primary border border-primary/20 bg-primary/5  shadow-md"
-                                                    : "bg-white  border border-border-light  hover:shadow-sm hover:border-slate-300 "
+                                                className={`w-full text-left p-4 rounded-2xl transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 ${isSelected
+                                                    ? "border border-primary/20 bg-primary/[0.04] shadow-lg ring-2 ring-primary/30 ring-offset-0"
+                                                    : "bg-white border border-border-light hover:shadow-lg hover:border-accent/40"
                                                     }`}
                                             >
                                                 <div className="flex justify-between items-start mb-2">
                                                     <div className="flex flex-wrap items-center gap-1.5">
-                                                        <span className={`px-2.5 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider ${getServiceTypeStyle(req.serviceType)}`}>{req.serviceType}</span>
+                                                        <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-[0.15em] ${getServiceTypeStyle(req.serviceType)}`}>{req.serviceType}</span>
                                                         {req.requestType === REQUEST_TYPE.DIRECT && (
-                                                            <span className="px-2.5 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-indigo-100 text-indigo-700  ">
+                                                            <span className="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-[0.15em] bg-accent/15 text-accent-strong">
                                                                 Direct
                                                             </span>
                                                         )}
                                                     </div>
-                                                    <span className="text-[11px] text-text-muted  font-medium shrink-0 ml-2">{timeAgo(req.createdAt)}</span>
+                                                    <span className="text-[11px] text-text-muted font-medium shrink-0 ml-2">{timeAgo(req.createdAt)}</span>
                                                 </div>
-                                                <h4 className="font-bold text-text-main mb-0.5 leading-tight">{req.serviceType}</h4>
-                                                {getCustomerLabel(req.customer) && (
-                                                    <p className="text-xs text-text-muted mb-1 font-medium">{getCustomerLabel(req.customer)}</p>
-                                                )}
-                                                <p className="text-sm text-text-muted line-clamp-2 mb-3 leading-relaxed">{req.description}</p>
-                                                {/* Patient identity hidden from therapist — visible only after booking */}
-                                                {req.visitsPerWeek && req.numberOfWeeks && (
-                                                    <div className="flex items-center gap-1 text-xs font-semibold text-indigo-600  bg-indigo-50  px-2 py-1 rounded-md mb-2 w-fit">
-                                                        <MdRefresh className="text-[13px]" />
-                                                        {req.visitsPerWeek}x/week · {req.numberOfWeeks} weeks ({req.visitsPerWeek * req.numberOfWeeks} visits)
+                                                <h4 className="font-bold text-base text-primary leading-tight tracking-tight mb-0.5">
+                                                    {getCustomerLabel(req.customer) || req.serviceType}
+                                                </h4>
+                                                <div className="flex flex-wrap items-center gap-1.5 mb-2">
+                                                    {req.visitsPerWeek && req.numberOfWeeks && (
+                                                        <div className="flex items-center gap-1 text-xs font-semibold text-accent-strong bg-accent/10 px-2 py-1 rounded-full">
+                                                            <MdRefresh className="text-[13px]" />
+                                                            {req.visitsPerWeek}x/week · {req.numberOfWeeks} weeks ({req.visitsPerWeek * req.numberOfWeeks} visits)
+                                                        </div>
+                                                    )}
+                                                    {req.emr && (
+                                                        <span className="text-[11px] font-semibold text-text-muted bg-slate-100 px-2 py-1 rounded-full truncate max-w-[140px]" title={req.emr}>
+                                                            EMR: {req.emr}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                                <p className="text-sm text-text-muted line-clamp-2 mb-2 leading-relaxed">{req.description}</p>
+                                                {req.specialInstructions && (
+                                                    <div className="pl-2.5 border-l-2 border-amber-300 mb-2">
+                                                        <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-amber-700 mb-0.5">
+                                                            Special Instructions
+                                                        </p>
+                                                        <p className="text-xs text-text-muted line-clamp-1 leading-relaxed">
+                                                            {req.specialInstructions}
+                                                        </p>
                                                     </div>
                                                 )}
-                                                <div className="flex items-center justify-between">
-                                                    <div className="flex items-center gap-3">
-                                                        <span className="flex items-center gap-1 text-xs text-text-muted ">
-                                                            <MdLocationOn className="text-[15px]" /> {req.location ? "Nearby" : "—"}
+                                                <div className="flex items-center justify-between mt-3 pt-3 border-t border-border-light">
+                                                    <div className="flex items-center gap-3 min-w-0">
+                                                        <span className="flex items-center gap-1 text-xs text-text-muted min-w-0">
+                                                            <MdLocationOn className="text-[15px] text-text-muted/70 shrink-0" />
+                                                            <span className="truncate">{getCityState(req.location)}</span>
                                                         </span>
-                                                        <span className="flex items-center gap-1 text-xs text-text-muted ">
-                                                            <MdCalendarToday className="text-[14px]" />
-                                                            {req.preferredDate ? new Date(req.preferredDate).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "Flexible"}
+                                                        <span className="flex items-center gap-1 text-xs text-text-muted shrink-0">
+                                                            <MdCalendarToday className="text-[14px] text-text-muted/70" />
+                                                            Preferred Date: {req.preferredDate ? new Date(req.preferredDate).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "Flexible"}
                                                         </span>
                                                     </div>
                                                     {myOffer ? (
-                                                        <span className="text-xs font-bold text-primary bg-primary/10 px-2 py-1 rounded flex items-center gap-1">
+                                                        <span className="text-xs font-bold text-accent-strong bg-accent/10 px-2 py-1 rounded-full flex items-center gap-1">
                                                             <MdCheckCircle className="text-[13px]" /> My Offer Sent
                                                         </span>
                                                     ) : offerCount > 0 ? (
-                                                        <span className="text-xs font-bold text-amber-600 bg-amber-50  px-2 py-1 rounded">{offerCount} Offer{offerCount > 1 ? "s" : ""}</span>
+                                                        <span className="text-xs font-bold text-amber-600 bg-amber-50 px-2 py-1 rounded-full">{offerCount} Offer{offerCount > 1 ? "s" : ""}</span>
                                                     ) : (
-                                                        <span className="text-xs text-text-muted  italic">No offers yet</span>
+                                                        <span className="text-xs text-text-muted/80">No offers yet</span>
                                                     )}
                                                 </div>
                                             </button>

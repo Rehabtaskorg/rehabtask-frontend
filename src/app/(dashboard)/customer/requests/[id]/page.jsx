@@ -205,12 +205,6 @@ export default function CustomerRequestDetailPage() {
                                 <p className="text-xs font-bold text-text-muted  uppercase tracking-widest">Preferred Date</p>
                                 <p className="font-semibold text-text-main ">{formatDate(request.preferredDate)}</p>
                             </div>
-                            {request.rate && (
-                                <div className="space-y-1">
-                                    <p className="text-xs font-bold text-text-muted  uppercase tracking-widest">Rate</p>
-                                    <p className="font-bold text-emerald-600 ">${parseFloat(request.rate).toFixed(2)}/visit</p>
-                                </div>
-                            )}
                         </div>
                         {request.description && (
                             <div className="pt-6 border-t border-border-light  mt-6">

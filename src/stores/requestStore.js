@@ -2,6 +2,29 @@
 
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { localDateStr, localDateTimeParts } from "@/utils/dates";
+
+const INITIAL_STEP1 = {
+    serviceType: "",
+    description: "",
+    preferredDate: "",
+    preferredTime: "",
+    visitType: "",
+    visitTypeId: "",
+    visitTypeName: "",
+    emr: "",
+    emrOther: "",
+    visitTypeOther: "",
+    specialInstructions: "",
+    visitsPerWeek: "",
+    numberOfWeeks: "",
+};
+
+const INITIAL_STEP2 = {
+    address: "",
+    latitude: null,
+    longitude: null,
+};
 
 const useRequestStore = create(
     persist(
@@ -10,26 +33,8 @@ const useRequestStore = create(
             patientId: null,
             targetTherapistId: null,
             editingRequestId: null,
-            step1: {
-                serviceType: "",
-                description: "",
-                preferredDate: "",
-                preferredTime: "",
-                rate: "",
-                visitType: "",
-                visitTypeId: "",
-                visitTypeName: "",
-                emr: "",
-                emrOther: "",
-                visitTypeOther: "",
-                visitsPerWeek: "",
-                numberOfWeeks: "",
-            },
-            step2: {
-                address: "",
-                latitude: null,
-                longitude: null,
-            },
+            step1: { ...INITIAL_STEP1 },
+            step2: { ...INITIAL_STEP2 },
 
             // Actions
             setPatientId: (id) => set({ patientId: id }),
@@ -45,15 +50,16 @@ const useRequestStore = create(
                     patientId: null,
                     targetTherapistId: null,
                     editingRequestId: null,
-                    step1: { serviceType: "", description: "", preferredDate: "", preferredTime: "", rate: "", visitType: "", visitTypeId: "", visitTypeName: "", emr: "", emrOther: "", visitTypeOther: "", visitsPerWeek: "", numberOfWeeks: "" },
-                    step2: { address: "", latitude: null, longitude: null },
+                    step1: { ...INITIAL_STEP1 },
+                    step2: { ...INITIAL_STEP2 },
                 }),
 
             // Edit mode: pre-fill store from an existing request
             setEditData: (request) => {
                 const date = request.preferredDate ? new Date(request.preferredDate) : null;
-                const preferredDate = date ? date.toISOString().split("T")[0] : "";
-                const preferredTime = date ? date.toTimeString().slice(0, 5) : "";
+                const { date: preferredDate, time: preferredTime } = date
+                    ? localDateTimeParts(date)
+                    : { date: "", time: "" };
 
                 set({
                     editingRequestId: request.id,
@@ -64,7 +70,6 @@ const useRequestStore = create(
                         description: request.description || "",
                         preferredDate,
                         preferredTime,
-                        rate: request.rate ? String(parseFloat(request.rate)) : "",
                         // Prefer FK if populated; fall back to legacy string
                         visitType: request.visitTypeRef ? "" : (request.visitType || ""),
                         visitTypeId: request.visitTypeId || request.visitTypeRef?.id || "",
@@ -72,6 +77,7 @@ const useRequestStore = create(
                         emr: request.emr || "",
                         emrOther: "",
                         visitTypeOther: "",
+                        specialInstructions: request.specialInstructions || "",
                         visitsPerWeek: request.visitsPerWeek ? String(request.visitsPerWeek) : "",
                         numberOfWeeks: request.numberOfWeeks ? String(request.numberOfWeeks) : "",
                     },
@@ -103,18 +109,25 @@ const useRequestStore = create(
                 step1: state.step1,
                 step2: state.step2,
             }),
-            merge: (persisted, current) => ({
-                ...current,
-                ...persisted,
-                step1: {
-                    ...current.step1,
-                    ...(persisted?.step1 || {}),
-                },
-                step2: {
-                    ...current.step2,
-                    ...(persisted?.step2 || {}),
-                },
-            }),
+            merge: (persisted, current) => {
+                const { rate: _staleRate, ...persistedStep1 } = persisted?.step1 || {};
+                const stalePastDate =
+                    persistedStep1.preferredDate &&
+                    persistedStep1.preferredDate < localDateStr();
+                return {
+                    ...current,
+                    ...persisted,
+                    step1: {
+                        ...current.step1,
+                        ...persistedStep1,
+                        ...(stalePastDate ? { preferredDate: "" } : {}),
+                    },
+                    step2: {
+                        ...current.step2,
+                        ...(persisted?.step2 || {}),
+                    },
+                };
+            },
         }
     )
 );

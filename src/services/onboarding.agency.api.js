@@ -72,4 +72,13 @@ export const agencyOnboardingAPI = {
     completeAgencyOnboarding: async () => {
         return api.post("/agency/onboarding/complete");
     },
+
+    /**
+     * Resubmit a rejected agency application for review.
+     * @param {string|null} note - Optional explanation when no documents changed
+     * @returns {Promise<{ customer: { id, onboardingComplete, approvalStatus } }>}
+     */
+    resubmitAgencyApplication: async (note = null) => {
+        return api.post("/agency/onboarding/resubmit", { note });
+    },
 };

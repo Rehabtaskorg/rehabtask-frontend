@@ -11,6 +11,13 @@ export const USER_ROLES = {
     SUB_ADMIN: "sub_admin",
 };
 
+export const ROLE_DASHBOARDS = {
+    [USER_ROLES.CUSTOMER]: "/customer/dashboard",
+    [USER_ROLES.THERAPIST]: "/therapist/dashboard",
+    [USER_ROLES.ADMIN]: "/admin/dashboard",
+    [USER_ROLES.SUB_ADMIN]: "/admin/dashboard",
+};
+
 export const CUSTOMER_TYPES = {
     AGENCY: "agency",
     INDIVIDUAL: "individual",
@@ -22,6 +29,12 @@ export const APPROVAL_STATUS = {
     APPROVED: "approved",
     REJECTED: "rejected",
 };
+
+export const MESSAGE_GATE_ERROR_CODES = new Set([
+    "FORBIDDEN",
+    "ONBOARDING_INCOMPLETE",
+    "NOT_APPROVED",
+]);
 
 export const LICENSE_TYPE_TO_SERVICE_TYPE = Object.freeze({
     "Physical Therapist": "Physical Therapy",
@@ -76,6 +89,16 @@ export const LOGOUT_REASON = {
 
 export const AUTH_REDIRECT_PARAM = "redirect";
 export const AUTH_REDIRECT_STORAGE_KEY = "pending_auth_redirect";
+
+export const AUTH_GATE_TRIGGERS = Object.freeze({
+    MESSAGE: "message",
+    CONTACT: "contact",
+    PROFILE: "profile",
+    REQUEST: "request",
+    OFFER: "offer",
+    REFERRAL: "referral",
+    DEFAULT: "default",
+});
 
 export const PUBLIC_SEARCH_RADIUS_MILES = 50;
 

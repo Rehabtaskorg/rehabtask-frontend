@@ -1,9 +1,10 @@
 "use client";
 
+import { useState } from "react";
 import useRequestStore from "@/stores/requestStore";
 import { useRequestOptions } from "@/hooks/useRequestOptions";
 import { useVisitTypes } from "@/hooks/useVisitTypes";
-import { localDateStr } from "@/utils/dates";
+import { localDateStr, isDateTodayOrLater } from "@/utils/dates";
 
 const SERVICE_TYPES = [
     { value: "", label: "Select a service type..." },
@@ -29,6 +30,7 @@ export default function Step1ServiceDetails() {
     });
 
     const todayStr = localDateStr();
+    const [dateTouched, setDateTouched] = useState(false);
 
     const handleServiceTypeChange = (e) => {
         const newServiceType = e.target.value;
@@ -118,9 +120,13 @@ export default function Step1ServiceDetails() {
                         type="date"
                         value={step1.preferredDate}
                         min={todayStr}
+                        onBlur={() => setDateTouched(true)}
                         onChange={(e) => setStep1({ preferredDate: e.target.value })}
                         className={INPUT_CLASS}
                     />
+                    {dateTouched && step1.preferredDate && !isDateTodayOrLater(step1.preferredDate) && (
+                        <p className="text-xs text-red-500 mt-1">Preferred date must be today or later.</p>
+                    )}
                 </div>
                 <div>
                     <label className={LABEL_CLASS}>Preferred Time (optional)</label>
@@ -131,32 +137,6 @@ export default function Step1ServiceDetails() {
                         className={INPUT_CLASS}
                     />
                 </div>
-            </div>
-
-            {/* Rate per Visit */}
-            <div>
-                <label className={LABEL_CLASS}>
-                    Rate per Visit <span className="text-red-500">*</span>
-                </label>
-                <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400  font-semibold text-sm">$</span>
-                    <input
-                        type="number"
-                        step="0.01"
-                        min="0.01"
-                        max="9999.99"
-                        value={step1.rate}
-                        onChange={(e) => setStep1({ rate: e.target.value })}
-                        placeholder="0.00"
-                        className={`${INPUT_CLASS} pl-7 font-mono`}
-                    />
-                </div>
-                {step1.rate && parseFloat(step1.rate) <= 0 && (
-                    <p className="text-xs text-red-500 mt-1">Rate must be a positive number</p>
-                )}
-                {step1.rate && parseFloat(step1.rate) > 9999.99 && (
-                    <p className="text-xs text-red-500 mt-1">Rate cannot exceed $9,999.99</p>
-                )}
             </div>
 
             {/* Frequency (optional) — not applicable to evaluation visits */}
@@ -195,11 +175,6 @@ export default function Step1ServiceDetails() {
                         <div className="mt-2 px-3 py-2 rounded-lg bg-primary/5  border border-primary/20">
                             <p className="text-sm font-semibold text-primary">
                                 {parseInt(step1.visitsPerWeek) * parseInt(step1.numberOfWeeks)} visits total
-                                {step1.rate && parseFloat(step1.rate) > 0 && (
-                                    <span className="text-text-muted  font-normal">
-                                        {" "}· ${(parseFloat(step1.rate) * parseInt(step1.visitsPerWeek) * parseInt(step1.numberOfWeeks)).toFixed(2)} estimated total
-                                    </span>
-                                )}
                             </p>
                         </div>
                     )}
@@ -268,6 +243,22 @@ export default function Step1ServiceDetails() {
                         />
                     )}
                 </div>
+            </div>
+
+            {/* Special Instructions */}
+            <div>
+                <label htmlFor="special-instructions" className={LABEL_CLASS}>
+                    Special Instructions (optional)
+                </label>
+                <textarea
+                    id="special-instructions"
+                    rows={3}
+                    maxLength={1000}
+                    value={step1.specialInstructions}
+                    onChange={(e) => setStep1({ specialInstructions: e.target.value })}
+                    placeholder="e.g. EVV IN KINNSER"
+                    className={`${INPUT_CLASS} resize-none`}
+                />
             </div>
         </div>
     );

@@ -2,14 +2,21 @@
 
 import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { MdClose, MdLock } from "react-icons/md";
-import { AGENCY_ONBOARDING_STEP_ROUTES, INDIVIDUAL_ONBOARDING_STEP_ROUTES } from "@/lib/customerRouteAccess";
+import { MdClose, MdLock, MdAccessTime, MdInfo } from "react-icons/md";
+import { AGENCY_ONBOARDING_STEP_ROUTES, INDIVIDUAL_ONBOARDING_STEP_ROUTES, CUSTOMER_GATE_STATE } from "@/lib/customerRouteAccess";
 import { CUSTOMER_TYPES } from "@/lib/constants";
 
 /**
- * @param {{ isOpen: boolean, onClose: () => void, onboardingStep: number, customerType: string|null }} props
+ * @param {{
+ *   isOpen: boolean,
+ *   onClose: () => void,
+ *   gateState: string,
+ *   onboardingStep: number,
+ *   customerType: string|null,
+ *   rejectionReason: string|null,
+ * }} props
  */
-export function MessageGateModal({ isOpen, onClose, onboardingStep, customerType }) {
+export function MessageGateModal({ isOpen, onClose, gateState, onboardingStep, customerType, rejectionReason }) {
     const router = useRouter();
     const closeRef = useRef(null);
     const previousFocusRef = useRef(null);
@@ -33,6 +40,9 @@ export function MessageGateModal({ isOpen, onClose, onboardingStep, customerType
 
     if (!isOpen) return null;
 
+    const isIncomplete = gateState === CUSTOMER_GATE_STATE.INCOMPLETE;
+    const isRejected = gateState === CUSTOMER_GATE_STATE.REJECTED;
+
     const isIndividual = customerType === CUSTOMER_TYPES.INDIVIDUAL;
     const stepRoutes = isIndividual ? INDIVIDUAL_ONBOARDING_STEP_ROUTES : AGENCY_ONBOARDING_STEP_ROUTES;
     const accountLabel = isIndividual ? "your account" : "your agency account";
@@ -41,6 +51,26 @@ export function MessageGateModal({ isOpen, onClose, onboardingStep, customerType
         onClose();
         router.push(stepRoutes[onboardingStep] ?? stepRoutes[1]);
     };
+
+    const icon = isRejected
+        ? <MdInfo className="text-2xl text-red-500" />
+        : isIncomplete
+            ? <MdLock className="text-2xl text-primary" />
+            : <MdAccessTime className="text-2xl text-amber-500" />;
+
+    const iconBg = isRejected ? "bg-red-50" : isIncomplete ? "bg-primary/10" : "bg-amber-50";
+
+    const title = isRejected
+        ? "Application Not Approved"
+        : isIncomplete
+            ? "Complete your setup first"
+            : "Application Under Review";
+
+    const body = isRejected
+        ? (rejectionReason || "Your application was not approved. Please contact support for assistance.")
+        : isIncomplete
+            ? `Finish setting up ${accountLabel} to unlock messaging and start connecting with therapists.`
+            : "Our team is reviewing your account. You’ll be notified by email once a decision has been made.";
 
     return (
         <div
@@ -62,31 +92,41 @@ export function MessageGateModal({ isOpen, onClose, onboardingStep, customerType
                 </button>
 
                 <div className="flex flex-col items-center text-center gap-3">
-                    <span className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center">
-                        <MdLock className="text-2xl text-primary" />
+                    <span className={`w-14 h-14 rounded-full ${iconBg} flex items-center justify-center`}>
+                        {icon}
                     </span>
                     <h2 id="message-gate-title" className="text-text-main text-xl font-black">
-                        Complete your setup first
+                        {title}
                     </h2>
                     <p className="text-text-muted text-sm leading-relaxed">
-                        Finish setting up {accountLabel} to unlock messaging and start connecting with therapists.
+                        {body}
                     </p>
                 </div>
 
                 <div className="flex flex-col gap-3">
-                    <button
-                        type="button"
-                        onClick={handleContinue}
-                        className="w-full h-11 bg-primary text-white font-bold rounded-lg hover:brightness-95 transition-all"
-                    >
-                        Continue Onboarding
-                    </button>
+                    {isIncomplete && (
+                        <button
+                            type="button"
+                            onClick={handleContinue}
+                            className="w-full h-11 bg-primary text-white font-bold rounded-lg hover:brightness-95 transition-all"
+                        >
+                            Continue Onboarding
+                        </button>
+                    )}
+                    {isRejected && (
+                        <a
+                            href="mailto:support@rehabtask.com"
+                            className="w-full h-11 bg-red-500 text-white font-bold rounded-lg hover:brightness-95 transition-all flex items-center justify-center"
+                        >
+                            Contact Support
+                        </a>
+                    )}
                     <button
                         type="button"
                         onClick={onClose}
                         className="w-full h-11 text-text-muted font-semibold hover:text-text-main transition-colors"
                     >
-                        Maybe Later
+                        {isIncomplete || isRejected ? "Maybe Later" : "Close"}
                     </button>
                 </div>
             </div>

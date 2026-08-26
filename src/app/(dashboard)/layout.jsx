@@ -8,6 +8,8 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { authAPi } from '@/services/auth.api';
 import { destroySocket } from '@/lib/socket';
+import { signOut } from 'firebase/auth';
+import { getFirebaseAuth } from '@/lib/firebase';
 import { getTherapistRedirect } from '@/lib/therapistRouteAccess';
 import { getCustomerRedirect } from '@/lib/customerRouteAccess';
 import { TherapistAccessProvider } from '@/contexts/TherapistAccessContext';
@@ -16,12 +18,13 @@ import { CustomerUserProvider } from '@/contexts/CustomerUserContext';
 import { SidebarProvider, useSidebar } from '@/contexts/SidebarContext';
 import { SocketProvider } from '@/components/providers/SocketProvider';
 import OnboardingBanner from '@/components/therapist/OnboardingBanner';
+import { CustomerStatusBanner } from '@/components/customer/CustomerStatusBanner';
 import useOnboardingStore from '@/stores/onboardingStore';
 import useAgencyOnboardingStore from '@/stores/agencyOnboardingStore';
 import useRequestStore from '@/stores/requestStore';
 import { useUnreadCount } from '@/hooks/useMessages';
 import { useIdleTimeout } from '@/hooks/useIdleTimeout';
-import { LOGOUT_REASON, USER_ROLES, CUSTOMER_TYPES } from '@/lib/constants';
+import { LOGOUT_REASON, USER_ROLES, CUSTOMER_TYPES, APPROVAL_STATUS } from '@/lib/constants';
 import { UnifiedAgreementModal } from '@/components/features/auth/UnifiedAgreementModal';
 import {
     MdDashboard, MdSearch, MdSend, MdCalendarMonth,
@@ -217,7 +220,7 @@ export default function DashboardLayout({ children }) {
                 if (userData.role === USER_ROLES.THERAPIST) {
                     const redirect = getTherapistRedirect(pathname, {
                         onboardingComplete: userData.profile?.onboardingComplete ?? false,
-                        approvalStatus: userData.profile?.approvalStatus ?? "pending",
+                        approvalStatus: userData.profile?.approvalStatus ?? APPROVAL_STATUS.PENDING,
                         onboardingStep: userData.profile?.onboardingStep ?? 1,
                     });
 
@@ -294,6 +297,11 @@ export default function DashboardLayout({ children }) {
             // best-effort — session may already be invalid
         } finally {
             destroySocket();
+            try {
+                await signOut(getFirebaseAuth());
+            } catch (_) {
+                // best-effort — Firebase session teardown must never block the logout redirect
+            }
             if (!preserveOnboardingState) {
                 queryClient.clear();
                 useOnboardingStore.getState().reset();
@@ -355,7 +363,7 @@ export default function DashboardLayout({ children }) {
     // Compute therapist access state for context and sidebar
     const therapistAccess = user?.role === USER_ROLES.THERAPIST ? (() => {
         const tp = user.profile; // Backend maps therapistProfile → "profile"
-        const status = tp?.approvalStatus ?? "pending";
+        const status = tp?.approvalStatus ?? APPROVAL_STATUS.PENDING;
         const step = tp?.onboardingStep ?? 1;
         const isComplete = tp?.onboardingComplete ?? false;
         // Step 8 (Payment Setup) onward is functionally complete — payment is not
@@ -366,10 +374,10 @@ export default function DashboardLayout({ children }) {
             rejectionReason: tp?.rejectionReason ?? null,
             onboardingComplete: functionallyComplete,
             onboardingStep: step,
-            canAccessMarketplace: status === "approved",
+            canAccessMarketplace: status === APPROVAL_STATUS.APPROVED,
             canEditPersonalInfo: status !== "incomplete",
-            canEditCredentials: status === "approved" || status === "rejected",
-            isFullyApproved: status === "approved" && functionallyComplete,
+            canEditCredentials: status === APPROVAL_STATUS.APPROVED || status === APPROVAL_STATUS.REJECTED,
+            isFullyApproved: status === APPROVAL_STATUS.APPROVED && functionallyComplete,
         };
     })() : null;
 
@@ -383,6 +391,7 @@ export default function DashboardLayout({ children }) {
     const adminNavItems = [
         { href: '/admin/users', icon: MdManageAccounts, label: 'Users', permission: 'users' },
         { href: '/admin/therapists', icon: MdVerifiedUser, label: 'Therapists', permission: 'therapists' },
+        { href: '/admin/customers', icon: MdPeople, label: 'Customer Applications', permission: 'customers' },
         { href: '/admin/disputes', icon: MdGavel, label: 'Disputes', permission: 'disputes' },
         { href: '/admin/bookings', icon: MdCalendarMonth, label: 'Bookings', permission: 'bookings' },
         { href: '/admin/subscriptions', icon: MdCardMembership, label: 'Subscriptions', permission: 'subscriptions' },
@@ -575,7 +584,7 @@ function DashboardInner({ user, pathname, sidebarOpen, setSidebarOpen, handleLog
                             <NavLink href="/customer/disputes" icon={MdGavel} label="Disputes" pathname={pathname} collapsed={c} />
                             <CustomerMessagesLink pathname={pathname} collapsed={c} />
                             <NavLink href="/customer/payments" icon={MdPayments} label="Payments & Credits" pathname={pathname} collapsed={c} />
-                            <NavLink href="/customer/subscription" icon={MdStars} label="Subscription" pathname={pathname} collapsed={c} />
+                            <NavLink href="/customer/subscription" icon={MdStars} label="Subscription" pathname={pathname} collapsed={c} locked={user.profile?.approvalStatus !== APPROVAL_STATUS.APPROVED} />
                             <NavLink href="/customer/faqs" icon={MdQuestionAnswer} label="FAQs" pathname={pathname} collapsed={c} />
                             <NavLink href="/customer/profile" icon={MdSettings} label="Account Settings" pathname={pathname} collapsed={c} />
                             <button onClick={() => handleLogout(`/login?reason=${LOGOUT_REASON.LOGGED_OUT}`)} className={`sidebar-nav-link w-full text-red-500 hover:bg-red-50  ${c ? 'justify-center px-0! gap-0!' : 'text-left'}`} title={c ? "Logout" : undefined}>
@@ -708,7 +717,10 @@ function DashboardInner({ user, pathname, sidebarOpen, setSidebarOpen, handleLog
                         onboardingComplete: user.profile?.onboardingComplete ?? false,
                         onboardingStep: user.profile?.onboardingStep ?? 1,
                         approvalStatus: user.profile?.approvalStatus ?? null,
+                        rejectionReason: user.profile?.rejectionReason ?? null,
+                        canAccessMarketplace: user.profile?.approvalStatus === APPROVAL_STATUS.APPROVED,
                     }}>
+                        <CustomerStatusBanner />
                         {children}
                     </CustomerUserProvider>
                 ) : (

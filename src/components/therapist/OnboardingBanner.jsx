@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 import { authAPi } from "@/services/auth.api";
 import { useOnboardingSync } from "@/hooks/useOnboardingSync";
 import { ONBOARDING_STEP_ROUTES } from "@/lib/therapistRouteAccess";
+import { APPROVAL_STATUS } from "@/lib/constants";
 import ConfirmModal from "@/components/ui/ConfirmModal";
 import { MdInfo } from "react-icons/md";
 
@@ -47,7 +48,7 @@ export default function OnboardingBanner() {
             setResumeStep(onboardingStep);
 
             // Rejection always takes priority regardless of onboarding completeness
-            if (approvalStatus === "rejected") {
+            if (approvalStatus === APPROVAL_STATUS.REJECTED) {
                 setRejectionReason(userData.profile?.rejectionReason ?? null);
                 setBannerType("rejected");
                 setShowBanner(true);
@@ -67,11 +68,11 @@ export default function OnboardingBanner() {
                     setProgress(backendProgress);
                     setShowBanner(true);
                 }
-            } else if (approvalStatus === "review" || approvalStatus === "pending") {
+            } else if (approvalStatus === APPROVAL_STATUS.REVIEW || approvalStatus === APPROVAL_STATUS.PENDING) {
                 // Onboarding complete, under review
                 setBannerType("review");
                 setShowBanner(true);
-            } else if (approvalStatus === "approved") {
+            } else if (approvalStatus === APPROVAL_STATUS.APPROVED) {
                 // Approved - show once then hide
                 const hasSeenApproval = localStorage.getItem("hasSeenApprovalBanner");
                 if (!hasSeenApproval) {
@@ -80,7 +81,7 @@ export default function OnboardingBanner() {
                 } else {
                     setShowBanner(false);
                 }
-            } else if (approvalStatus === "rejected") {
+            } else if (approvalStatus === APPROVAL_STATUS.REJECTED) {
                 // Rejected - show rejection banner
                 setBannerType("rejected");
                 setShowBanner(true);

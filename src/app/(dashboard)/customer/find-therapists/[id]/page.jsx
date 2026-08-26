@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import {
-    MdChevronRight, MdVerified, MdWork, MdPhone, MdChat, MdStar, MdChevronLeft, MdRefresh, MdArrowBack, MdAttachMoney, MdBarChart,
+    MdChevronRight, MdVerified, MdWork, MdPhone, MdEmail, MdChat, MdStar, MdChevronLeft, MdRefresh, MdArrowBack, MdAttachMoney, MdBarChart, MdLock,
 } from "react-icons/md";
 import { APIProvider } from "@vis.gl/react-google-maps";
 import { useTherapistPublicProfile, useTherapistReviews } from "@/hooks/useTherapistSearch";
@@ -33,7 +33,7 @@ export default function TherapistProfilePage() {
 
     const [showReviewForm, setShowReviewForm] = useState(false);
 
-    const { guardedHandleMessage, isGateOpen, closeGate, onboardingStep, customerType } = useMessageGuard();
+    const { guardedHandleMessage, isGateOpen, closeGate, gateProps } = useMessageGuard();
     const handleMessage = () => { if (therapist?.userId) guardedHandleMessage(therapist.userId); };
 
     const handleReviewSuccess = () => {
@@ -84,7 +84,7 @@ export default function TherapistProfilePage() {
 
     return (
         <APIProvider apiKey={GOOGLE_MAPS_API_KEY}>
-            <MessageGateModal isOpen={isGateOpen} onClose={closeGate} onboardingStep={onboardingStep} customerType={customerType} />
+            <MessageGateModal isOpen={isGateOpen} onClose={closeGate} {...gateProps} />
             <div className="p-4 md:p-6 max-w-5xl mx-auto pb-24 lg:pb-8">
                 {/* Breadcrumb */}
                 <nav className="flex items-center gap-1 text-sm mb-6">
@@ -181,10 +181,32 @@ export default function TherapistProfilePage() {
                                 {therapist.npiNumber && (
                                     <span>NPI: {therapist.npiNumber}</span>
                                 )}
-                                {therapist.phone && (
-                                    <span className="flex items-center gap-1.5">
+                                {therapist.canViewContact ? (
+                                    therapist.phone && (
+                                        <span className="flex items-center gap-1.5">
+                                            <MdPhone className="text-base" />
+                                            {therapist.phone}
+                                        </span>
+                                    )
+                                ) : (
+                                    <span className="flex items-center gap-1.5 text-text-muted" title="Accept an offer to unlock contact info">
                                         <MdPhone className="text-base" />
-                                        {therapist.phone}
+                                        <span className="blur-sm select-none">(555) 000-0000</span>
+                                        <MdLock className="text-xs" />
+                                    </span>
+                                )}
+                                {therapist.canViewContact ? (
+                                    therapist.email && (
+                                        <span className="flex items-center gap-1.5">
+                                            <MdEmail className="text-base" />
+                                            {therapist.email}
+                                        </span>
+                                    )
+                                ) : (
+                                    <span className="flex items-center gap-1.5 text-text-muted" title="Accept an offer to unlock contact info">
+                                        <MdEmail className="text-base" />
+                                        <span className="blur-sm select-none">name@example.com</span>
+                                        <MdLock className="text-xs" />
                                     </span>
                                 )}
                             </div>

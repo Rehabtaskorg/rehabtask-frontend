@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTherapistAccess } from "@/contexts/TherapistAccessContext";
 import { ONBOARDING_STEP_ROUTES } from "@/lib/therapistRouteAccess";
+import { APPROVAL_STATUS } from "@/lib/constants";
 import useOnboardingStore from "@/stores/onboardingStore";
 import { MdLock, MdAccessTime, MdSearch, MdSend, MdCalendarMonth, MdChatBubble, MdPayments, MdInfo } from "react-icons/md";
 import ConfirmModal from "@/components/ui/ConfirmModal";
@@ -33,8 +34,8 @@ export default function LockedPageOverlay({ pageType }) {
     const Preview = meta.Preview;
 
     const isOnboardingIncomplete = !onboardingComplete;
-    const isUnderReview = onboardingComplete && (approvalStatus === "pending" || approvalStatus === "review");
-    const isRejected = approvalStatus === "rejected";
+    const isUnderReview = onboardingComplete && (approvalStatus === APPROVAL_STATUS.PENDING || approvalStatus === APPROVAL_STATUS.REVIEW);
+    const isRejected = approvalStatus === APPROVAL_STATUS.REJECTED;
 
     const handleCTA = () => {
         if (isRejected) {

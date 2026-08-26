@@ -31,6 +31,16 @@ export const adminTherapistsApi = {
     getDocumentUrl: (therapistUserId, documentId) => api.get(`/admin/therapists/${therapistUserId}/documents/${documentId}`),
 };
 
+// Admin - Customers
+export const adminCustomersApi = {
+    list: (params) => api.get('/admin/customers', { params }),
+    get: (customerUserId) => api.get(`/admin/customers/${customerUserId}`),
+    approve: (customerUserId) => api.put(`/admin/customers/${customerUserId}/approve`),
+    reject: (customerUserId, data) => api.put(`/admin/customers/${customerUserId}/reject`, data),
+    getDocumentUrl: (customerUserId, documentId) =>
+        api.get(`/admin/customers/${customerUserId}/documents/${documentId}`),
+};
+
 // Admin - Disputes
 export const adminDisputesApi = {
     list: (params) => api.get('/admin/disputes', { params }),

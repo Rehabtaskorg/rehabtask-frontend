@@ -1,12 +1,14 @@
 "use client";
 
-import { Suspense, useState, useCallback, useRef } from "react";
+import { Suspense, useState, useCallback, useRef, useEffect } from "react";
 import { APIProvider } from "@vis.gl/react-google-maps";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { MdSearch, MdChevronLeft, MdChevronRight, MdWork, MdInfo, MdArrowForward } from "react-icons/md";
 import { usePublicRequests } from "@/hooks/usePublic";
 import { useAppRole } from "@/hooks/useAppRole";
+import { useAnalytics } from "@/hooks/useAnalytics";
+import { AUTH_GATE_TRIGGERS, DISCIPLINE_PILLS, LICENSE_TYPE_TO_SERVICE_TYPE } from "@/lib/constants";
 import RequestPublicCard from "@/components/public/RequestPublicCard";
 import LocationAutocomplete from "@/components/maps/LocationAutocomplete";
 import AuthGateModal from "@/components/public/AuthGateModal";
@@ -14,14 +16,23 @@ import CTABanner from "@/components/public/CTABanner";
 import Footer from "@/components/landing/Footer";
 import Navbar from "@/components/landing/Navbar";
 
-const DISCIPLINE_MAP = {
-    pt: "Physical Therapy",
-    ot: "Occupational Therapy",
-    slp: "Speech Language Pathology (SLP)",
+const DISCIPLINE_LABELS = {
+    all: "All",
+    pt: "PT / PTA",
+    ot: "OT / COTA",
+    slp: "SLP",
 };
+
+function getServiceTypeFilter(disciplineKey) {
+    const pill = DISCIPLINE_PILLS.find((p) => p.key === disciplineKey);
+    if (!pill || pill.licenseTypes.length === 0) return undefined;
+    const serviceTypes = [...new Set(pill.licenseTypes.map((lt) => LICENSE_TYPE_TO_SERVICE_TYPE[lt]).filter(Boolean))];
+    return serviceTypes[0];
+}
 
 function BrowseRequestsContent() {
     const userRole = useAppRole();
+    const { trackEvent } = useAnalytics();
 
     const [searchInput, setSearchInput] = useState("");
     const [locationInput, setLocationInput] = useState("");
@@ -35,7 +46,7 @@ function BrowseRequestsContent() {
     const [currentPage, setCurrentPage] = useState(1);
 
     const [gateOpen, setGateOpen] = useState(false);
-    const [gateTrigger, setGateTrigger] = useState("default");
+    const [gateTrigger, setGateTrigger] = useState(AUTH_GATE_TRIGGERS.DEFAULT);
     const [gateEntityId, setGateEntityId] = useState(null);
 
     const handleLocationSelect = useCallback((place) => {
@@ -69,7 +80,7 @@ function BrowseRequestsContent() {
             longitude: committedCoords.longitude,
             radiusMiles: 50,
         }),
-        ...(activeDiscipline !== "all" && { serviceType: DISCIPLINE_MAP[activeDiscipline] }),
+        ...(activeDiscipline !== "all" && { serviceType: getServiceTypeFilter(activeDiscipline) }),
         page: currentPage,
         limit: 6,
     };
@@ -78,7 +89,16 @@ function BrowseRequestsContent() {
     const requests = data?.requests || [];
     const pagination = data?.pagination || { page: 1, totalPages: 1, total: 0 };
 
+    useEffect(() => {
+        if (!isLoading && !isFetching && data) {
+            trackEvent("public_referrals_viewed", { count: pagination.total });
+        }
+    }, [data, isLoading, isFetching, pagination.total, trackEvent]);
+
     const handleAuthGate = (trigger, entityId = null) => {
+        if (trigger === AUTH_GATE_TRIGGERS.REFERRAL) {
+            trackEvent("public_referral_clicked");
+        }
         setGateTrigger(trigger);
         setGateEntityId(entityId);
         setGateOpen(true);
@@ -96,16 +116,14 @@ function BrowseRequestsContent() {
 
                         <form onSubmit={handleSubmit} className="flex flex-col md:flex-row gap-3 bg-white p-2 rounded-xl border border-gray-200 shadow-sm">
                             <div className="flex gap-1.5 p-1 bg-gray-50 rounded-lg">
-                                {[{ key: "all", label: "All" }, { key: "pt", label: "PT" }, { key: "ot", label: "OT" }, { key: "slp", label: "SLP" }].map((d) => (
+                                {DISCIPLINE_PILLS.map((d) => (
                                     <button
                                         key={d.key}
                                         type="button"
                                         onClick={() => handleDisciplineChange(d.key)}
-                                        className={`px-4 py-2 text-sm font-semibold rounded-lg transition-colors ${
-                                            activeDiscipline === d.key ? "bg-primary text-white" : "text-gray-500 hover:bg-gray-100"
-                                        }`}
+                                        className={`px-4 py-2 text-sm font-semibold rounded-lg transition-colors ${activeDiscipline === d.key ? "bg-primary text-white" : "text-gray-500 hover:bg-gray-100"}`}
                                     >
-                                        {d.label}
+                                        {DISCIPLINE_LABELS[d.key]}
                                     </button>
                                 ))}
                             </div>

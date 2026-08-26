@@ -24,7 +24,7 @@ export function useAgencyActivation() {
         try {
             await agencyOnboardingAPI.completeAgencyOnboarding();
             reset();
-            window.location.href = "/customer/dashboard";
+            window.location.href = "/customer/pending-approval";
         } catch (err) {
             logger.error("Failed to complete agency onboarding", err);
             setError(

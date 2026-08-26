@@ -5,7 +5,7 @@ import { useParams, useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import {
     MdArrowBack, MdChat, MdCalendarToday, MdLocationOn, MdVideocam, MdPerson,
-    MdCheckCircle, MdClose, MdWarning, MdInfo, MdRefresh, MdSchedule, MdUpdate,
+    MdCheckCircle, MdClose, MdWarning, MdInfo, MdRefresh, MdSchedule, MdUpdate, MdPhone, MdLock,
 } from "react-icons/md";
 import { useBookingDetail } from "@/hooks/useBookings";
 import { useBookingPolling, usePaymentRedirect } from "@/hooks/useBookingPolling";
@@ -314,8 +314,17 @@ export default function CustomerBookingDetailPage() {
                                 {therapist?.specialization && (
                                     <p className="text-sm text-text-muted  mt-0.5">{therapist.specialization}</p>
                                 )}
-                                {therapist?.phone && (
-                                    <p className="text-xs text-text-muted  mt-1">{therapist.phone}</p>
+                                {therapist?.phone ? (
+                                    <p className="text-xs text-text-muted mt-1 flex items-center gap-1">
+                                        <MdPhone className="text-xs" />
+                                        {therapist.phone}
+                                    </p>
+                                ) : (
+                                    <p className="text-xs text-text-muted mt-1 flex items-center gap-1" title="Accept an offer to unlock contact info">
+                                        <MdPhone className="text-xs" />
+                                        <span className="blur-sm select-none">(555) 000-0000</span>
+                                        <MdLock className="text-xs" />
+                                    </p>
                                 )}
                             </div>
                             {["accepted", "confirmed", "in_progress", "completed", "reschedule_requested"].includes(booking.status) && (

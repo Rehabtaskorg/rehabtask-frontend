@@ -24,7 +24,7 @@ export function useIndividualActivation() {
         try {
             await individualOnboardingAPI.completeIndividualOnboarding();
             reset();
-            window.location.href = "/customer/dashboard";
+            window.location.href = "/customer/pending-approval";
         } catch (err) {
             logger.error("Failed to complete individual onboarding", err);
             setError(
