@@ -20,6 +20,12 @@ import TherapistRequestFilters, { FilterToggleButton } from "@/components/therap
 
 // ─── Helpers ────────────────────────────────────────────────
 
+const getCityState = (location) => {
+    if (!location) return "—";
+    const parts = location.split(",").map((p) => p.trim());
+    return parts.length >= 2 ? `${parts[parts.length - 2]}, ${parts[parts.length - 1]}` : location;
+};
+
 const getServiceTypeStyle = (serviceType) => {
     const st = serviceType?.toLowerCase() || "";
     if (st.includes("physical") || st.includes("pt"))
@@ -399,9 +405,7 @@ function TherapistRequestsContent() {
                                                     <div className="flex items-center gap-3 min-w-0">
                                                         <span className="flex items-center gap-1 text-xs text-text-muted min-w-0">
                                                             <MdLocationOn className="text-[15px] text-text-muted/70 shrink-0" />
-                                                            <span className="truncate">
-                                                                {req.location ? (() => { const parts = req.location.split(",").map(p => p.trim()); return parts.length >= 2 ? `${parts[parts.length - 2]}, ${parts[parts.length - 1]}` : req.location; })() : "—"}
-                                                            </span>
+                                                            <span className="truncate">{getCityState(req.location)}</span>
                                                         </span>
                                                         <span className="flex items-center gap-1 text-xs text-text-muted shrink-0">
                                                             <MdCalendarToday className="text-[14px] text-text-muted/70" />
