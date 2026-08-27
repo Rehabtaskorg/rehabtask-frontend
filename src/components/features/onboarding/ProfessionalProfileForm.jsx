@@ -196,10 +196,15 @@ export function ProfessionalProfileForm() {
                                     </label>
                                 </div>
                                 <div className="flex flex-col items-center">
-                                    <h3 className="text-text-main text-xl font-bold tracking-tight">Professional Headshot</h3>
+                                    <h3 className="text-text-main text-xl font-bold tracking-tight">
+                                        Professional Headshot <span className="text-red-500">*</span>
+                                    </h3>
                                     <p className="text-text-muted text-sm max-w-xs mt-1">
                                         A high-quality, professional photo increases profile views by up to 40%
                                     </p>
+                                    {errors.profilePhotoUrl && (
+                                        <p className="text-red-500 text-sm mt-2">{errors.profilePhotoUrl.message}</p>
+                                    )}
                                 </div>
                             </div>
                         </div>
