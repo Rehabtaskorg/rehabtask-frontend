@@ -135,6 +135,17 @@ const ProfileTab = ({ profile, approvalStatus, onboardingComplete }) => {
                             />
                             <div className="flex-1 min-w-0 space-y-1">
                                 <InfoRow label="Full Name" value={profile?.fullName} />
+                                <InfoRow
+                                    label="Email"
+                                    value={
+                                        profile?.email ? (
+                                            <span className="flex flex-col gap-0.5">
+                                                <span>{profile.email}</span>
+                                                <span className="text-xs text-text-muted font-normal">Shared with customers after a booking is confirmed</span>
+                                            </span>
+                                        ) : null
+                                    }
+                                />
                                 <InfoRow label="Phone" value={profile?.phone} />
                                 <InfoRow
                                     label="Years of Experience"
