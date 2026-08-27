@@ -1,4 +1,5 @@
 import z from "zod";
+import { CUSTOMER_TYPES } from "@/lib/constants";
 
 const phoneSchema = z.preprocess(
     (val) => (val == null ? "" : val),
@@ -62,14 +63,14 @@ export const customerRegistrationSchema = z.object({
             "Password must contain uppercase, lowercase, number, and symbol"
         ),
 
-    customerType: z.enum(["individual", "agency"], {
+    customerType: z.enum([CUSTOMER_TYPES.INDIVIDUAL, CUSTOMER_TYPES.AGENCY], {
         required_error: "Please select account type"
     }),
 
     agencyName: z.string().optional(),
 }).refine(
     (data) => {
-        if (data.customerType === "agency") {
+        if (data.customerType === CUSTOMER_TYPES.AGENCY) {
             return !!data.agencyName && data.agencyName.trim().length >= 2;
         }
         return true;
@@ -109,7 +110,7 @@ export const oauthOnboardingSchema = z.object({
     customerType: z
         .string()
         .transform((val) => val === "" ? undefined : val)
-        .pipe(z.enum(["individual", "agency"]).optional()),
+        .pipe(z.enum([CUSTOMER_TYPES.INDIVIDUAL, CUSTOMER_TYPES.AGENCY]).optional()),
 
     agencyName: z
         .string()
@@ -134,7 +135,7 @@ export const oauthOnboardingSchema = z.object({
     }
 ).refine(
     (data) => {
-        if (data.role === "customer" && data.customerType === "agency") {
+        if (data.role === "customer" && data.customerType === CUSTOMER_TYPES.AGENCY) {
             return !!data.agencyName?.trim();
         }
         return true;

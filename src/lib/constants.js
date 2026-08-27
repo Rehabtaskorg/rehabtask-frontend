@@ -23,6 +23,11 @@ export const CUSTOMER_TYPES = {
     INDIVIDUAL: "individual",
 };
 
+export const CUSTOMER_TYPE_OPTIONS = Object.freeze([
+    { value: CUSTOMER_TYPES.INDIVIDUAL, label: "Individual Patient", icon: "MdPerson" },
+    { value: CUSTOMER_TYPES.AGENCY, label: "Home Health Agency", icon: "MdBusiness" },
+]);
+
 export const APPROVAL_STATUS = {
     PENDING: "pending",
     REVIEW: "review",
