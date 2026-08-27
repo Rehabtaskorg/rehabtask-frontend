@@ -40,20 +40,32 @@ export const CustomerTypeStep = ({ onSelect, onGoogleSignup, isGoogleLoading = f
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {CUSTOMER_TYPE_OPTIONS.map(({ value, label, icon }) => {
                         const Icon = OPTION_ICONS[icon];
+                        const isSelected = selectedType === value;
                         return (
                             <label key={value} className="relative flex cursor-pointer">
                                 <input
                                     type="radio"
                                     name="customerType"
                                     value={value}
-                                    checked={selectedType === value}
+                                    checked={isSelected}
                                     onChange={() => setSelectedType(value)}
                                     onClick={() => onSelect(value)}
                                     className="peer sr-only"
                                 />
-                                <span className="flex w-full flex-col items-center gap-3 rounded-xl border-2 border-border-subtle bg-white p-6 text-center transition-all hover:border-primary/50 peer-checked:border-primary peer-checked:bg-primary/5 peer-checked:text-primary peer-focus-visible:ring-2 peer-focus-visible:ring-primary/40">
-                                    <Icon className="text-4xl" aria-hidden="true" />
-                                    <span className="text-base font-bold text-text-main">{label}</span>
+                                <span className={`flex w-full flex-col items-center gap-4 rounded-2xl border-2 bg-white p-8 text-center transition-all duration-150 shadow-sm hover:shadow-md hover:border-primary/40 peer-focus-visible:ring-2 peer-focus-visible:ring-primary/40 peer-focus-visible:ring-offset-2 ${isSelected ? "border-primary shadow-md" : "border-border-light"}`}>
+                                    <span className={`flex items-center justify-center w-14 h-14 rounded-full transition-colors duration-150 ${isSelected ? "bg-primary text-white" : "bg-primary/8 text-primary"}`}>
+                                        <Icon className="text-2xl" aria-hidden="true" />
+                                    </span>
+                                    <span className={`text-base font-bold leading-snug transition-colors duration-150 ${isSelected ? "text-primary" : "text-text-main"}`}>
+                                        {label}
+                                    </span>
+                                    {isSelected && (
+                                        <span className="absolute top-3 right-3 flex h-5 w-5 items-center justify-center rounded-full bg-primary">
+                                            <svg className="h-3 w-3 text-white" fill="none" viewBox="0 0 12 12" aria-hidden="true">
+                                                <path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                                            </svg>
+                                        </span>
+                                    )}
                                 </span>
                             </label>
                         );
