@@ -343,10 +343,10 @@ export function ProfessionalProfileForm() {
                             <div className="flex flex-col gap-2">
                                 <label className="flex justify-between items-center">
                                     <span className="text-text-main text-base font-semibold">
-                                        Professional Summary <span className="text-red-500">*</span>
+                                        Professional Summary <span className="text-text-muted text-xs font-normal">(optional)</span>
                                     </span>
                                     <span className="text-xs text-gray-400 font-normal">
-                                        Min 100 characters ({watch("professionalSummary")?.length || 0}/2000)
+                                        {watch("professionalSummary")?.length || 0}/2000
                                     </span>
                                 </label>
                                 <textarea

@@ -40,8 +40,10 @@ const profileEditSchema = z.object({
     ),
     professionalSummary: z
         .string()
-        .min(100, "Must be at least 100 characters")
-        .max(2000, "Cannot exceed 2000 characters"),
+        .max(2000, "Cannot exceed 2000 characters")
+        .refine((val) => val === "" || val.length >= 100, "Must be at least 100 characters if provided")
+        .optional()
+        .or(z.literal("")),
 }).refine(
     (data) => {
         if (data.attemptedVisitRate == null || data.ratePerVisit == null) return true;
