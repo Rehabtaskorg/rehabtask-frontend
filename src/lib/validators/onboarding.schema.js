@@ -149,8 +149,10 @@ export const professionalProfileSchema = z.object({
         .or(z.literal("")),
 
     profilePhotoUrl: z
-        .string({ required_error: "A professional headshot is required" })
-        .url("Invalid profile photo URL"),
+        .string()
+        .url("Invalid profile photo URL")
+        .nullable()
+        .refine((val) => val !== null && val !== "", "A professional headshot is required"),
 });
 
 export const credentialsSchema = z.object({
