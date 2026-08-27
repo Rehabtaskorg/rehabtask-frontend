@@ -107,12 +107,12 @@ export function ProfessionalProfileForm() {
         try {
             const result = await onboardingAPI.uploadProfilePhoto(file);
             setProfilePhoto(result.url);
-            setValue("profilePhotoUrl", result.url);
+            setValue("profilePhotoUrl", result.url, { shouldValidate: true });
             URL.revokeObjectURL(preview);
         } catch (err) {
             alert(err.message || "Failed to upload photo. Please try again.");
             setProfilePhoto(professionalProfile.profilePhotoUrl || null);
-            setValue("profilePhotoUrl", professionalProfile.profilePhotoUrl || null);
+            setValue("profilePhotoUrl", professionalProfile.profilePhotoUrl || null, { shouldValidate: true });
         } finally {
             setUploadingPhoto(false);
         }
