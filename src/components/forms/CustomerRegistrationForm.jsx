@@ -1,11 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { CustomerTypeStep } from "@/components/forms/CustomerTypeStep";
 import { CustomerDetailsStep } from "@/components/forms/CustomerDetailsStep";
 import { useGoogleAuth } from "@/hooks/useGoogleAuth";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import { useCustomerRegistration } from "@/hooks/useCustomerRegistration";
+import { customerRegistrationSchema } from "@/lib/validators/therapist.schema";
 import { AUTH_REDIRECT_PARAM, CUSTOMER_TYPES } from "@/lib/constants";
 
 const CUSTOMER_TYPE_PARAM = "type";
@@ -25,6 +29,39 @@ export const CustomerRegistrationForm = () => {
 
     const [isGoogleLoading, setIsGoogleLoading] = useState(false);
     const { initiateGoogleLogin } = useGoogleAuth(redirectTo);
+
+    const { register, control, handleSubmit, setValue, clearErrors, formState: { errors } } = useForm({
+        resolver: zodResolver(customerRegistrationSchema),
+        mode: "onTouched",
+        reValidateMode: "onChange",
+        defaultValues: {
+            customerType: customerType ?? CUSTOMER_TYPES.INDIVIDUAL,
+            fullName: "",
+            email: "",
+            phone: "",
+            smsOptIn: false,
+            password: "",
+            agencyName: "",
+        },
+    });
+
+    const { registerCustomer, isSubmitting, error, success, clearMessages } = useCustomerRegistration(redirectTo);
+
+    useEffect(() => {
+        if (!customerType) return;
+        setValue("customerType", customerType, { shouldValidate: false });
+        if (customerType !== CUSTOMER_TYPES.AGENCY) {
+            setValue("agencyName", "", { shouldValidate: false });
+            clearErrors("agencyName");
+        }
+    }, [customerType, setValue, clearErrors]);
+
+    const onSubmit = async (data) => {
+        await registerCustomer({
+            ...data,
+            agencyName: data.customerType === CUSTOMER_TYPES.AGENCY ? data.agencyName : null,
+        });
+    };
 
     const handleSelectType = (selectedType) => {
         const params = new URLSearchParams();
@@ -52,8 +89,16 @@ export const CustomerRegistrationForm = () => {
     return (
         <CustomerDetailsStep
             customerType={customerType}
-            redirectTo={redirectTo}
             onChangeType={router.back}
+            register={register}
+            control={control}
+            errors={errors}
+            handleSubmit={handleSubmit}
+            onSubmit={onSubmit}
+            isSubmitting={isSubmitting}
+            error={error}
+            success={success}
+            clearMessages={clearMessages}
         />
     );
 };

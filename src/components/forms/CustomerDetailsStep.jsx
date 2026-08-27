@@ -1,55 +1,47 @@
 "use client";
 
 import { MdArrowForward, MdInfo } from "react-icons/md";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import Input from "@/components/ui/Input";
 import PhoneInput from "@/components/ui/PhoneInput";
 import PasswordInput from "@/components/ui/PasswordInput";
 import Button from "@/components/ui/Button";
 import { CustomerDetailsHeader } from "@/components/forms/CustomerDetailsHeader";
-import { useCustomerRegistration } from "@/hooks/useCustomerRegistration";
-import { customerRegistrationSchema } from "@/lib/validators/therapist.schema";
 import { CUSTOMER_TYPES } from "@/lib/constants";
 
 /**
- * Step 2 of customer registration — the account details form.
+ * Step 2 of customer registration — presentational account details form.
  *
- * The account type is fixed by the caller (derived from the validated URL param)
- * and seeded into React Hook Form as the single source of truth for `customerType`.
+ * Owns no state. All form methods and submission state are supplied by
+ * CustomerRegistrationForm so values persist across account-type switches.
  *
  * @param {object} props
- * @param {string} props.customerType - Validated customer type from the URL, one of CUSTOMER_TYPES
- * @param {string | null} [props.redirectTo] - Encoded `trigger:entityId` descriptor to resume after verification
- * @param {() => void} props.onChangeType - Called when the user wants to return to the type chooser
+ * @param {string} props.customerType - Validated customer type, one of CUSTOMER_TYPES
+ * @param {() => void} props.onChangeType - Returns the user to the type chooser
+ * @param {import("react-hook-form").UseFormRegister<object>} props.register - RHF field registrar
+ * @param {import("react-hook-form").Control<object>} props.control - RHF control for PhoneInput
+ * @param {Record<string, { message?: string }>} props.errors - RHF formState errors
+ * @param {import("react-hook-form").UseFormHandleSubmit<object>} props.handleSubmit - RHF submit wrapper
+ * @param {(data: object) => Promise<void>} props.onSubmit - Validated submit handler
+ * @param {boolean} props.isSubmitting - True while the registration request is in flight
+ * @param {string | null} props.error - Registration error message to surface
+ * @param {string | null} props.success - Registration success message to surface
+ * @param {() => void} props.clearMessages - Dismisses the visible alert
  * @returns {JSX.Element}
  */
-export const CustomerDetailsStep = ({ customerType, redirectTo = null, onChangeType }) => {
+export const CustomerDetailsStep = ({
+    customerType,
+    onChangeType,
+    register,
+    control,
+    errors,
+    handleSubmit,
+    onSubmit,
+    isSubmitting,
+    error,
+    success,
+    clearMessages,
+}) => {
     const isAgency = customerType === CUSTOMER_TYPES.AGENCY;
-
-    const { register, handleSubmit, formState: { errors }, control } = useForm({
-        resolver: zodResolver(customerRegistrationSchema),
-        mode: "onTouched",
-        reValidateMode: "onChange",
-        defaultValues: {
-            customerType,
-            fullName: "",
-            email: "",
-            phone: "",
-            smsOptIn: false,
-            password: "",
-            agencyName: "",
-        },
-    });
-
-    const { registerCustomer, isSubmitting, error, success, clearMessages } = useCustomerRegistration(redirectTo);
-
-    const onSubmit = async (data) => {
-        await registerCustomer({
-            ...data,
-            agencyName: data.customerType === CUSTOMER_TYPES.AGENCY ? data.agencyName : null,
-        });
-    };
 
     return (
         <div className="max-w-md mx-auto w-full">
@@ -62,8 +54,6 @@ export const CustomerDetailsStep = ({ customerType, redirectTo = null, onChangeT
             />
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 mt-8">
-                <input type="hidden" {...register("customerType")} />
-
                 <Input
                     label={isAgency ? "Agency Contact Name" : "Full Name"}
                     placeholder={isAgency ? "e.g., John Smith (Agency Director)" : "e.g., John Doe"}
