@@ -17,6 +17,7 @@ import { LICENSE_TYPES } from "@/lib/constants/credentials";
 import { APPROVAL_STATUS } from "@/lib/constants";
 import { onboardingAPI } from "@/services/onboarding.api";
 import { logger } from "@/lib/logger";
+import { useUpdateProfile } from "@/hooks/useTherapistProfile";
 import ProfileEditModal from "./ProfileEditModal";
 import { ClinicalProfileSection } from "./ClinicalProfileSection";
 import Button from "@/components/ui/Button";
@@ -77,6 +78,8 @@ const InfoRow = ({ label, value, icon }) => (
 const ProfileTab = ({ profile, approvalStatus, onboardingComplete }) => {
     const [showEditModal, setShowEditModal] = useState(false);
     const [viewingDoc, setViewingDoc] = useState(null);
+    const [smsOptIn, setSmsOptIn] = useState(profile?.smsOptIn ?? false);
+    const updateProfile = useUpdateProfile();
 
     const isCredentialsLocked = onboardingComplete && (approvalStatus === APPROVAL_STATUS.PENDING || approvalStatus === APPROVAL_STATUS.REVIEW);
 
@@ -84,6 +87,17 @@ const ProfileTab = ({ profile, approvalStatus, onboardingComplete }) => {
         LICENSE_TYPES.find((lt) => lt.value === profile?.primaryLicenseType)?.label ||
         profile?.primaryLicenseType ||
         "—";
+
+    const handleSmsToggle = async () => {
+        const next = !smsOptIn;
+        setSmsOptIn(next);
+        try {
+            await updateProfile.mutateAsync({ phone: profile?.phone, smsOptIn: next });
+        } catch (err) {
+            setSmsOptIn(!next);
+            logger.error("Failed to update SMS preference:", err);
+        }
+    };
 
     const handleViewDocument = async (docId) => {
         setViewingDoc(docId);
@@ -147,6 +161,27 @@ const ProfileTab = ({ profile, approvalStatus, onboardingComplete }) => {
                                     }
                                 />
                                 <InfoRow label="Phone" value={profile?.phone} />
+                                <div className="flex items-center justify-between py-2">
+                                    <div>
+                                        <p className="text-sm text-text-muted">SMS Notifications</p>
+                                        <p className="text-xs text-text-muted mt-0.5">
+                                            {smsOptIn ? "Receiving appointment reminders via SMS" : "SMS reminders disabled"}
+                                        </p>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        role="switch"
+                                        aria-checked={smsOptIn}
+                                        aria-label="Toggle SMS notifications"
+                                        onClick={handleSmsToggle}
+                                        disabled={!onboardingComplete || updateProfile.isPending}
+                                        className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${smsOptIn ? "bg-primary" : "bg-gray-300"}`}
+                                    >
+                                        <span
+                                            className={`pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow transition-transform ${smsOptIn ? "translate-x-5" : "translate-x-0"}`}
+                                        />
+                                    </button>
+                                </div>
                                 <InfoRow
                                     label="Years of Experience"
                                     value={
