@@ -49,7 +49,6 @@ export const CustomerTypeStep = ({ onSelect, onGoogleSignup, isGoogleLoading = f
                                     value={value}
                                     checked={isSelected}
                                     onChange={() => setSelectedType(value)}
-                                    onClick={() => onSelect(value)}
                                     className="peer sr-only"
                                 />
                                 <span className={`flex w-full flex-col items-center gap-4 rounded-2xl border-2 bg-white p-8 text-center transition-all duration-150 shadow-sm hover:shadow-md hover:border-primary/40 peer-focus-visible:ring-2 peer-focus-visible:ring-primary/40 peer-focus-visible:ring-offset-2 ${isSelected ? "border-primary shadow-md" : "border-border-light"}`}>
