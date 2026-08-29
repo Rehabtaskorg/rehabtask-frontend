@@ -17,12 +17,12 @@ const BUSINESS_OPTIONS = [
     {
         value: STRIPE_BUSINESS_STRUCTURE.SOLE_PROPRIETORSHIP,
         title: "Sole proprietorship",
-        description: "Your personal name, DOB, SSN last 4, and your business EIN",
+        description: "Your personal name, date of birth, and last 4 digits of your SSN",
     },
     {
         value: STRIPE_BUSINESS_STRUCTURE.SINGLE_MEMBER_LLC,
         title: "Single-member LLC",
-        description: "Your personal name, DOB, SSN last 4, and your business EIN",
+        description: "Your personal name, date of birth, and last 4 digits of your SSN",
     },
     {
         value: STRIPE_BUSINESS_STRUCTURE.MULTI_MEMBER_LLC,
