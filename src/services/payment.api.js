@@ -14,7 +14,7 @@ export const paymentsApi = {
     getPaymentHistory: () => api.get("/payments/history"),
 
     // Customer Connect (payout account for refunds)
-    createCustomerConnectAccount: () => api.post("/payments/customer-connect/create"),
+    createCustomerConnectAccount: (data) => api.post("/payments/customer-connect/create", data),
     getCustomerConnectStatus: () => api.get("/payments/customer-connect/status"),
     createCustomerAccountSession: () => api.post("/payments/customer-connect/account-session"),
 

@@ -8,13 +8,16 @@ import { ConnectAccountOnboarding } from "@stripe/react-connect-js";
 import { paymentsApi } from "@/services/payment.api";
 import { useRefundSummary, useCustomerConnectStatus } from "@/hooks/usePayments";
 import StripeConnectProvider from "@/components/stripe/StripeConnectProvider";
+import { CustomerPayoutStructureStep } from "@/components/customer/payouts/CustomerPayoutStructureStep";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { showToast } from "@/lib/toast";
+import { logger } from "@/lib/logger";
 import { useQueryClient } from "@tanstack/react-query";
 
 const STATUS = {
     INITIALIZING: "initializing",
     IDLE: "idle",
+    STRUCTURE: "structure",
     CREATING: "creating",
     ONBOARDING: "onboarding",
     VERIFYING: "verifying",
@@ -59,11 +62,13 @@ export default function PayoutSetupPage() {
         /* eslint-enable react-hooks/set-state-in-effect */
     }, [connectStatus]);
 
-    const handleCreateAccount = async () => {
+    const handleShowStructureStep = () => setStatus(STATUS.STRUCTURE);
+
+    const handleCreateAccount = async (businessStructure) => {
         setStatus(STATUS.CREATING);
         setError(null);
         try {
-            await paymentsApi.createCustomerConnectAccount();
+            await paymentsApi.createCustomerConnectAccount({ businessStructure });
             setStatus(STATUS.ONBOARDING);
         } catch (err) {
             setError(err.response?.data?.message || "Failed to set up your payout account. Please try again.");
@@ -101,7 +106,7 @@ export default function PayoutSetupPage() {
     }, [queryClient, router]);
 
     const handleStripeLoadError = useCallback((err) => {
-        console.error("[CustomerPayoutSetup] SDK load error:", err);
+        logger.error("[CustomerPayoutSetup] SDK load error:", err);
         setStripeLoadError("Failed to load the payout setup module. Please check your connection and refresh the page.");
     }, []);
 
@@ -113,7 +118,7 @@ export default function PayoutSetupPage() {
         setError(null);
         setStripeLoadError(null);
         setEmbeddedFormLoaded(false);
-        setStatus(connectStatus?.connected ? STATUS.ONBOARDING : STATUS.IDLE);
+        setStatus(connectStatus?.connected ? STATUS.ONBOARDING : STATUS.STRUCTURE);
     };
 
     const isOnboardingStep = status === STATUS.ONBOARDING;
@@ -182,7 +187,7 @@ export default function PayoutSetupPage() {
                             </div>
 
                             <button
-                                onClick={handleCreateAccount}
+                                onClick={handleShowStructureStep}
                                 className="w-full bg-primary hover:bg-primary/90 text-white px-8 py-4 rounded-xl font-bold transition-colors flex items-center justify-center gap-2"
                             >
                                 <MdAccountBalance className="text-lg" />
@@ -221,6 +226,11 @@ export default function PayoutSetupPage() {
                             </div>
                         </div>
                     </div>
+                )}
+
+                {/* STRUCTURE — business structure pre-screen */}
+                {status === STATUS.STRUCTURE && (
+                    <CustomerPayoutStructureStep onConfirm={handleCreateAccount} />
                 )}
 
                 {/* CREATING */}

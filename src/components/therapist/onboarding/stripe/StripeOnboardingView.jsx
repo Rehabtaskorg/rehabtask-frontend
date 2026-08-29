@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import OnboardingProgressBar from "@/components/therapist/OnboardingProgressBar";
 import ConfirmModal from "@/components/ui/ConfirmModal";
 import StripeIdleCard from "./StripeIdleCard";
+import { StripeBusinessStructureStep } from "./StripeBusinessStructureStep";
 import StripeEmbeddedForm from "./StripeEmbeddedForm";
 import StripeStatusCard from "./StripeStatusCard";
 import { useStripeOnboarding } from "./useStripeOnboarding";
@@ -57,6 +58,10 @@ export default function StripeOnboardingView() {
                         <StripeIdleCard onSetup={handleCreateAccount} onSkip={handleSkipForNow} />
                     )}
 
+                    {status === STRIPE_STATUS.STRUCTURE && (
+                        <StripeBusinessStructureStep onConfirm={handleCreateAccount} />
+                    )}
+
                     {status === STRIPE_STATUS.CREATING && <StripeStatusCard variant="creating" />}
 
                     {status === STRIPE_STATUS.ONBOARDING && (
@@ -96,7 +101,7 @@ export default function StripeOnboardingView() {
                     )}
                 </div>
 
-                {[STRIPE_STATUS.IDLE, STRIPE_STATUS.ERROR].includes(status) && (
+                {[STRIPE_STATUS.IDLE, STRIPE_STATUS.STRUCTURE, STRIPE_STATUS.ERROR].includes(status) && (
                     <div className="mt-6 flex justify-center">
                         <button
                             onClick={() => router.push("/therapist/onboarding/identity")}
