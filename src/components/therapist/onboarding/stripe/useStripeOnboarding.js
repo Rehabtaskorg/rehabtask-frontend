@@ -44,6 +44,7 @@ export function useStripeOnboarding() {
                     setStatus(STRIPE_STATUS.STRUCTURE);
                 }
             } catch {
+                // TODO: [BUG] API failure should show ERROR with a retry CTA, not IDLE (renders marketing card). See docs/TODOs.md.
                 setStatus(STRIPE_STATUS.IDLE);
             }
         };

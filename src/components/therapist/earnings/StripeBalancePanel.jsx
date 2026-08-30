@@ -101,7 +101,7 @@ export default function StripeBalancePanel({ statusLoading, stripeStatus, isStri
                         </div>
                     </div>
                     <button
-                        onClick={() => router.push("/therapist/onboarding/stripe")}
+                        onClick={() => router.push("/therapist/payouts")}
                         className="shrink-0 px-5 py-2.5 bg-primary hover:brightness-95 text-white rounded-lg font-semibold text-sm transition-all"
                     >
                         Set Up Payouts
@@ -140,7 +140,7 @@ export default function StripeBalancePanel({ statusLoading, stripeStatus, isStri
                             </div>
                         </div>
                         <button
-                            onClick={() => router.push("/therapist/onboarding/stripe")}
+                            onClick={() => router.push("/therapist/payouts")}
                             className="shrink-0 px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-lg font-semibold text-sm transition-colors"
                         >
                             Restore My Account
@@ -168,7 +168,7 @@ export default function StripeBalancePanel({ statusLoading, stripeStatus, isStri
                             </div>
                         </div>
                         <button
-                            onClick={() => router.push("/therapist/onboarding/stripe")}
+                            onClick={() => router.push("/therapist/payouts")}
                             className="shrink-0 px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-white rounded-lg font-semibold text-sm transition-colors"
                         >
                             Complete Now
@@ -196,7 +196,7 @@ export default function StripeBalancePanel({ statusLoading, stripeStatus, isStri
                             </div>
                         </div>
                         <button
-                            onClick={() => router.push("/therapist/onboarding/stripe")}
+                            onClick={() => router.push("/therapist/payouts")}
                             className="shrink-0 px-5 py-2.5 bg-primary hover:brightness-95 text-white rounded-lg font-semibold text-sm transition-colors"
                         >
                             Review Requirements

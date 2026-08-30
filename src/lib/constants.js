@@ -155,3 +155,8 @@ export const STRIPE_COMPANY_STRUCTURES = new Set([
     STRIPE_BUSINESS_STRUCTURE.MULTI_MEMBER_LLC,
     STRIPE_BUSINESS_STRUCTURE.PRIVATE_CORPORATION,
 ]);
+
+export const ANALYTICS_EVENTS = {
+    PAYOUT_REPAIR_STARTED: "payout_account_repair_started",
+    PAYOUT_REPAIR_COMPLETED: "payout_account_repair_completed",
+};

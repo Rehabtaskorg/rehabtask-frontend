@@ -137,7 +137,7 @@ export default function DashboardApprovedView() {
                             </div>
                         </div>
                         <button
-                            onClick={() => router.push("/therapist/onboarding/stripe")}
+                            onClick={() => router.push("/therapist/payouts")}
                             className="bg-primary hover:bg-primary/90 text-white px-5 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 transition-all shrink-0 w-full sm:w-auto justify-center"
                         >
                             Set Up Payouts <MdArrowForward className="text-lg" />

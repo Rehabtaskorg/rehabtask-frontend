@@ -7,9 +7,21 @@ import { MdCheckCircle, MdError } from "react-icons/md";
  * Renders a spinner card, a success card, or an account-creation error card
  * depending on the `variant` prop.
  *
- * @param {{ variant: "initializing" | "creating" | "verifying" | "complete" | "error", errorMessage?: string, onRetry?: () => void, onSkip?: () => void }} props
+ * @param {{ variant: "initializing" | "creating" | "verifying" | "complete" | "payoutUpdated" | "error", errorMessage?: string, onRetry?: () => void, onSkip?: () => void }} props
  */
 export default function StripeStatusCard({ variant, errorMessage, onRetry, onSkip }) {
+    if (variant === "payoutUpdated") {
+        return (
+            <div className="bg-card-light border border-border-light rounded-xl p-12 shadow-sm flex flex-col items-center gap-4">
+                <div className="w-16 h-16 bg-emerald-500/10 rounded-full flex items-center justify-center">
+                    <MdCheckCircle className="text-emerald-500 text-4xl" />
+                </div>
+                <p className="text-text-main font-bold text-xl">Payout account updated</p>
+                <p className="text-text-muted text-sm">Taking you back to your earnings…</p>
+            </div>
+        );
+    }
+
     if (variant === "complete") {
         return (
             <div className="bg-card-light border border-border-light rounded-xl p-12 shadow-sm flex flex-col items-center gap-4">

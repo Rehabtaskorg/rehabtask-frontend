@@ -9,7 +9,7 @@ const INDIVIDUAL_OPTIONS = [
     {
         value: STRIPE_BUSINESS_STRUCTURE.INDIVIDUAL,
         title: "Individual / Sole practitioner",
-        description: "Your personal name, date of birth, and last 4 digits of your SSN",
+        description: "Your personal name, date of birth, and last 4 digits of your SSN. No separate business registration.",
     },
 ];
 
@@ -17,7 +17,7 @@ const BUSINESS_OPTIONS = [
     {
         value: STRIPE_BUSINESS_STRUCTURE.SOLE_PROPRIETORSHIP,
         title: "Sole proprietorship",
-        description: "Your personal name, date of birth, and last 4 digits of your SSN",
+        description: "Your legal business name and EIN. You have a registered business name with a separate tax ID.",
     },
     {
         value: STRIPE_BUSINESS_STRUCTURE.SINGLE_MEMBER_LLC,
