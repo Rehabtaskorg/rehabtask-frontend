@@ -111,6 +111,32 @@ export default function StripeBalancePanel({ statusLoading, stripeStatus, isStri
         );
     }
 
+    if (stripeStatus?.connected && !stripeStatus?.detailsSubmitted) {
+        return (
+            <div className="bg-amber-50 border border-amber-200 rounded-xl shadow-sm p-6">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div className="flex items-start gap-4">
+                        <div className="w-11 h-11 bg-amber-500/10 rounded-full flex items-center justify-center shrink-0">
+                            <MdWarning className="text-xl text-amber-500" />
+                        </div>
+                        <div>
+                            <p className="font-bold text-text-main">Complete your payout account setup</p>
+                            <p className="text-sm text-text-muted mt-0.5">
+                                Your account was created but setup is not finished. Complete all required fields to start receiving payments.
+                            </p>
+                        </div>
+                    </div>
+                    <button
+                        onClick={() => router.push("/therapist/payouts")}
+                        className="shrink-0 px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-white rounded-lg font-semibold text-sm transition-colors"
+                    >
+                        Complete Setup
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
     // State 3 — connected + details submitted, not yet fully active
     if (stripeStatus?.connected && stripeStatus?.detailsSubmitted && !stripeStatus?.onboardingComplete) {
         const isPastDue = (stripeStatus.pastDueCount ?? 0) > 0;

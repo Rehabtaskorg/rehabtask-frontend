@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { api } from "@/lib/api";
-import { MdNotifications, MdWarning, MdArrowForward, MdNearMe, MdPendingActions, MdCheckCircle, MdCalendarToday } from "react-icons/md";
+import { MdNotifications, MdArrowForward, MdNearMe, MdPendingActions, MdCheckCircle, MdCalendarToday } from "react-icons/md";
 import { useAuth } from "@/hooks/useAuth";
 import UserAvatar from "@/components/ui/UserAvatar";
 import { BOOKING_STATUS } from "@/lib/constants";
@@ -12,6 +12,7 @@ import { logger } from "@/lib/logger";
 import { NearbyRequestsTable } from "./components/NearbyRequestsTable";
 import { TherapistUpcomingBookingsTable } from "./components/TherapistUpcomingBookingsTable";
 import { CancelledBookingsWidget } from "@/components/customer/dashboard/CancelledBookingsWidget";
+import { StripeSetupBanner } from "./components/StripeSetupBanner";
 
 const UPCOMING_STATUSES = [
     BOOKING_STATUS.ACCEPTED,
@@ -124,25 +125,21 @@ export default function DashboardApprovedView() {
                 </header>
 
                 {stripeStatus !== null && !stripeStatus?.connected && (
-                    <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                        <div className="flex gap-3">
-                            <MdWarning className="text-amber-600 text-xl shrink-0" />
-                            <div>
-                                <p className="text-slate-900 font-bold text-sm sm:text-base leading-tight">
-                                    Set up your payout account to receive earnings.
-                                </p>
-                                <p className="text-amber-800 text-xs sm:text-sm mt-1">
-                                    Action required to enable automated earnings transfers to your bank.
-                                </p>
-                            </div>
-                        </div>
-                        <button
-                            onClick={() => router.push("/therapist/payouts")}
-                            className="bg-primary hover:bg-primary/90 text-white px-5 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 transition-all shrink-0 w-full sm:w-auto justify-center"
-                        >
-                            Set Up Payouts <MdArrowForward className="text-lg" />
-                        </button>
-                    </div>
+                    <StripeSetupBanner
+                        title="Set up your payout account to receive earnings."
+                        description="Action required to enable automated earnings transfers to your bank."
+                        ctaLabel="Set Up Payouts"
+                        onCtaClick={() => router.push("/therapist/payouts")}
+                    />
+                )}
+
+                {stripeStatus?.connected && !stripeStatus?.detailsSubmitted && (
+                    <StripeSetupBanner
+                        title="Complete your payout account setup"
+                        description="Your account was created but setup is not finished. Complete all required fields to start receiving payments."
+                        ctaLabel="Complete Setup"
+                        onCtaClick={() => router.push("/therapist/payouts")}
+                    />
                 )}
 
                 <div className="grid grid-cols-2 xl:grid-cols-4 gap-3 md:gap-4">
