@@ -38,13 +38,12 @@ const BUSINESS_OPTIONS = [
 
 /**
  * Pre-screen that captures how the payee is registered before a Stripe Connect
- * account is created. The structure determines which verification fields Stripe
- * asks for, and cannot be changed after the account exists.
+ * account is created. The structure determines which verification fields Stripe asks for.
  *
- * @param {{ onConfirm: (structure: string) => void, showIndividual?: boolean, showBusiness?: boolean, isSubmitting?: boolean }} props
+ * @param {{ onConfirm: (structure: string) => void, onSkip?: () => void, showIndividual?: boolean, showBusiness?: boolean, isSubmitting?: boolean }} props
  * @returns {JSX.Element}
  */
-export const StripeBusinessStructureStep = ({ onConfirm, showIndividual = true, showBusiness = true, isSubmitting = false }) => {
+export const StripeBusinessStructureStep = ({ onConfirm, onSkip = null, showIndividual = true, showBusiness = true, isSubmitting = false }) => {
     const [selected, setSelected] = useState(null);
 
     const handleConfirm = () => {
@@ -92,7 +91,7 @@ export const StripeBusinessStructureStep = ({ onConfirm, showIndividual = true, 
             <div className="mb-6">
                 <h2 className="text-xl font-bold text-text-main mb-2">How are you registered?</h2>
                 <p className="text-text-muted text-sm">
-                    This determines what information you will be asked to verify. It cannot be changed later, so choose the option that matches your tax filing.
+                    This determines what information you will be asked to verify. Choose the option that matches how you file taxes. If you need to change this later, contact support.
                 </p>
             </div>
 
@@ -118,6 +117,21 @@ export const StripeBusinessStructureStep = ({ onConfirm, showIndividual = true, 
                 <Button fullWidth onClick={handleConfirm} disabled={!selected} loading={isSubmitting}>
                     Continue
                 </Button>
+
+                {onSkip && (
+                    <div className="mt-4 text-center">
+                        <button
+                            type="button"
+                            onClick={onSkip}
+                            className="text-text-muted hover:text-text-main text-sm font-semibold transition-colors"
+                        >
+                            I&apos;ll set this up later
+                        </button>
+                        <p className="text-xs text-text-muted mt-1">
+                            You can set up payouts anytime from Payment Settings. This won&apos;t delay your review.
+                        </p>
+                    </div>
+                )}
             </div>
 
             <div className="flex items-center gap-2 text-text-muted text-xs mt-4 justify-center">
