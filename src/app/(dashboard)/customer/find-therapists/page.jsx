@@ -5,7 +5,7 @@ import { APIProvider } from "@vis.gl/react-google-maps";
 import { useTherapistSearch } from "@/hooks/useTherapistSearch";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { aggregatePinsByLocation } from "@/lib/mapPinAggregation";
-import { DISCIPLINE_PILLS } from "@/lib/constants";
+import { DISCIPLINE_PILLS, getDisciplineKeyForLicenseType } from "@/lib/constants";
 import FindTherapistsHeader from "@/components/customer/find-therapists/FindTherapistsHeader";
 import FindTherapistsPillsRow from "@/components/customer/find-therapists/FindTherapistsPillsRow";
 import FindTherapistsResultsLayout from "@/components/customer/find-therapists/FindTherapistsResultsLayout";
@@ -96,7 +96,7 @@ function FindTherapistsContent() {
         setLocationError("");
         setCommittedLicenseType(licenseType);
         setCommittedCoords(locationCoords.current ? { ...locationCoords.current } : null);
-        setActiveDiscipline("all");
+        setActiveDiscipline(getDisciplineKeyForLicenseType(licenseType));
         setCurrentPage(1);
     }, [licenseType, locationInput]);
 
@@ -116,15 +116,12 @@ function FindTherapistsContent() {
         setActiveDiscipline(d);
         setCommittedLicenseType("");
         setLicenseType("");
-        setCommittedCoords(null);
-        setLocationInput("");
-        locationCoords.current = null;
-        setLocationError("");
         setCurrentPage(1);
     }, []);
 
     const handleDisciplineClear = useCallback(() => {
         setCommittedLicenseType("");
+        setActiveDiscipline("all");
         setCurrentPage(1);
     }, []);
 

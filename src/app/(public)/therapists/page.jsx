@@ -11,7 +11,7 @@ import TherapistCompactHeader from "@/components/public/TherapistCompactHeader";
 import TherapistResultsLayout from "@/components/public/TherapistResultsLayout";
 import AuthGateModal from "@/components/public/AuthGateModal";
 import { aggregatePinsByLocation } from "@/lib/mapPinAggregation";
-import { DISCIPLINE_PILLS } from "@/lib/constants";
+import { DISCIPLINE_PILLS, getDisciplineKeyForLicenseType } from "@/lib/constants";
 
 /**
  * @param {object} t - Raw therapist from API
@@ -81,7 +81,7 @@ function FindTherapistsContent() {
     const [committedLicenseType, setCommittedLicenseType] = useState(initialLicenseType);
     const [committedCoords, setCommittedCoords] = useState(initialCoords);
 
-    const [activeDiscipline, setActiveDiscipline] = useState("all");
+    const [activeDiscipline, setActiveDiscipline] = useState(() => getDisciplineKeyForLicenseType(initialLicenseType));
     const [sortBy, setSortBy] = useState("relevance");
     const [currentPage, setCurrentPage] = useState(1);
 
@@ -113,7 +113,7 @@ function FindTherapistsContent() {
         searchTriggeredRef.current = true;
         setCommittedLicenseType(licenseType);
         setCommittedCoords(locationCoords.current ? { ...locationCoords.current } : null);
-        setActiveDiscipline("all");
+        setActiveDiscipline(getDisciplineKeyForLicenseType(licenseType));
         setCurrentPage(1);
     }, [licenseType, locationInput]);
 
@@ -121,15 +121,12 @@ function FindTherapistsContent() {
         setActiveDiscipline(d);
         setCommittedLicenseType("");
         setLicenseType("");
-        setCommittedCoords(null);
-        setLocationInput("");
-        locationCoords.current = null;
-        setLocationError("");
         setCurrentPage(1);
     }, []);
 
     const handleDisciplineClear = useCallback(() => {
         setCommittedLicenseType("");
+        setActiveDiscipline("all");
         setCurrentPage(1);
     }, []);
 

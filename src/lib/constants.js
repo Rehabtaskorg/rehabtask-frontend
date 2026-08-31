@@ -62,7 +62,27 @@ export const DISCIPLINE_PILLS = Object.freeze([
     { key: "pt", label: "PT", licenseTypes: ["Physical Therapist", "Physical Therapist Assistant"] },
     { key: "ot", label: "OT", licenseTypes: ["Occupational Therapist", "Occupational Therapist Assistant"] },
     { key: "slp", label: "SLP", licenseTypes: ["Speech-Language Pathologist"] },
+    { key: "pta", label: "PTA", licenseTypes: ["Physical Therapist Assistant"] },
+    { key: "ota", label: "OTA", licenseTypes: ["Occupational Therapist Assistant"] },
 ]);
+
+/**
+ * Maps a license type string (as stored in the DB) to its matching DISCIPLINE_PILLS key.
+ * Checks single-type pills first so "Physical Therapist Assistant" resolves to "pta", not "pt".
+ * @param {string} licenseType
+ * @returns {string} pill key — "all" if no match
+ */
+export function getDisciplineKeyForLicenseType(licenseType) {
+    if (!licenseType) return "all";
+    const exact = DISCIPLINE_PILLS.find(
+        (p) => p.licenseTypes.length === 1 && p.licenseTypes[0].toLowerCase() === licenseType.toLowerCase()
+    );
+    if (exact) return exact.key;
+    const grouped = DISCIPLINE_PILLS.find(
+        (p) => p.licenseTypes.length > 1 && p.licenseTypes.some((lt) => lt.toLowerCase() === licenseType.toLowerCase())
+    );
+    return grouped ? grouped.key : "all";
+}
 
 export const REQUEST_STATUS = {
     CREATED: "created",
