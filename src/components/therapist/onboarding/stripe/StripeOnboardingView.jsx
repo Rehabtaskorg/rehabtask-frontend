@@ -59,7 +59,7 @@ export default function StripeOnboardingView() {
                     )}
 
                     {status === STRIPE_STATUS.STRUCTURE && (
-                        <StripeBusinessStructureStep onConfirm={handleCreateAccount} onSkip={handleSkipForNow} />
+                        <StripeBusinessStructureStep onConfirm={handleCreateAccount} onSkip={handleSkipForNow} showProductDescription />
                     )}
 
                     {status === STRIPE_STATUS.CREATING && <StripeStatusCard variant="creating" />}

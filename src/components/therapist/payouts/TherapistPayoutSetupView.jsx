@@ -64,7 +64,7 @@ export function TherapistPayoutSetupView() {
                 {status === STRIPE_STATUS.INITIALIZING && <StripeStatusCard variant="initializing" />}
 
                 {status === STRIPE_STATUS.STRUCTURE && (
-                    <StripeBusinessStructureStep onConfirm={handleCreateAccount} />
+                    <StripeBusinessStructureStep onConfirm={handleCreateAccount} showProductDescription />
                 )}
 
                 {status === STRIPE_STATUS.CREATING && <StripeStatusCard variant="creating" />}

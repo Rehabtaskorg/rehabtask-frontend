@@ -3,7 +3,9 @@
 import { useState } from "react";
 import { MdLock } from "react-icons/md";
 import Button from "@/components/ui/Button";
-import { STRIPE_BUSINESS_STRUCTURE } from "@/lib/constants";
+import { Textarea } from "@/components/ui/Textarea";
+import { StripeStructureOption } from "./StripeStructureOption";
+import { STRIPE_BUSINESS_STRUCTURE, PRODUCT_DESCRIPTION_MIN_LENGTH, PRODUCT_DESCRIPTION_MAX_LENGTH } from "@/lib/constants";
 
 const INDIVIDUAL_OPTIONS = [
     {
@@ -37,53 +39,43 @@ const BUSINESS_OPTIONS = [
 ];
 
 /**
- * Pre-screen that captures how the payee is registered before a Stripe Connect
- * account is created. The structure determines which verification fields Stripe asks for.
+ * Pre-screen that captures how the payee is registered and, optionally, a short
+ * product description before a Stripe Connect account is created.
  *
- * @param {{ onConfirm: (structure: string) => void, onSkip?: () => void, showIndividual?: boolean, showBusiness?: boolean, isSubmitting?: boolean }} props
+ * @param {{
+ *   onConfirm: (structure: string, productDescription?: string) => void,
+ *   onSkip?: () => void,
+ *   showIndividual?: boolean,
+ *   showBusiness?: boolean,
+ *   showProductDescription?: boolean,
+ *   isSubmitting?: boolean
+ * }} props
  * @returns {JSX.Element}
  */
-export const StripeBusinessStructureStep = ({ onConfirm, onSkip = null, showIndividual = true, showBusiness = true, isSubmitting = false }) => {
+export const StripeBusinessStructureStep = ({
+    onConfirm,
+    onSkip = null,
+    showIndividual = true,
+    showBusiness = true,
+    showProductDescription = false,
+    isSubmitting = false,
+}) => {
     const [selected, setSelected] = useState(null);
+    const [description, setDescription] = useState("");
+    const [descriptionTouched, setDescriptionTouched] = useState(false);
+
+    const descriptionTrimmed = description.trim();
+    const descriptionTooShort = descriptionTrimmed.length < PRODUCT_DESCRIPTION_MIN_LENGTH;
+    const descriptionError = descriptionTouched && descriptionTooShort
+        ? `Please describe your services in at least ${PRODUCT_DESCRIPTION_MIN_LENGTH} characters.`
+        : null;
+
+    const isContinueDisabled =
+        !selected || (showProductDescription && descriptionTooShort);
 
     const handleConfirm = () => {
-        if (selected) onConfirm(selected);
-    };
-
-    const renderOption = ({ value, title, description }) => {
-        const isSelected = selected === value;
-        return (
-            <label
-                key={value}
-                className={`flex items-start gap-3 p-4 rounded-lg border cursor-pointer transition-all ${isSelected
-                    ? "border-primary bg-primary/5 ring-1 ring-primary"
-                    : "border-border-light hover:border-primary/40"
-                    }`}
-            >
-                <input
-                    type="radio"
-                    name="businessStructure"
-                    value={value}
-                    checked={isSelected}
-                    onChange={() => setSelected(value)}
-                    aria-describedby={`desc-${value}`}
-                    className="sr-only"
-                />
-                <span
-                    aria-hidden="true"
-                    className={`mt-0.5 w-5 h-5 rounded-full border-2 shrink-0 flex items-center justify-center ${isSelected ? "border-primary" : "border-slate-300"
-                        }`}
-                >
-                    {isSelected && <span className="w-2.5 h-2.5 rounded-full bg-primary" />}
-                </span>
-                <span className="flex flex-col gap-1">
-                    <span className="text-sm font-semibold text-text-main">{title}</span>
-                    <span id={`desc-${value}`} className="text-xs text-text-muted leading-relaxed">
-                        {description}
-                    </span>
-                </span>
-            </label>
-        );
+        if (isContinueDisabled) return;
+        onConfirm(selected, showProductDescription ? descriptionTrimmed : undefined);
     };
 
     return (
@@ -101,20 +93,51 @@ export const StripeBusinessStructureStep = ({ onConfirm, onSkip = null, showIndi
                 {showIndividual && (
                     <div className="space-y-3">
                         <p className="text-xs font-bold uppercase tracking-wide text-text-muted">Individual</p>
-                        {INDIVIDUAL_OPTIONS.map(renderOption)}
+                        {INDIVIDUAL_OPTIONS.map((opt) => (
+                            <StripeStructureOption
+                                key={opt.value}
+                                {...opt}
+                                isSelected={selected === opt.value}
+                                onChange={setSelected}
+                            />
+                        ))}
                     </div>
                 )}
 
                 {showBusiness && (
                     <div className="space-y-3">
                         <p className="text-xs font-bold uppercase tracking-wide text-text-muted">Registered Business</p>
-                        {BUSINESS_OPTIONS.map(renderOption)}
+                        {BUSINESS_OPTIONS.map((opt) => (
+                            <StripeStructureOption
+                                key={opt.value}
+                                {...opt}
+                                isSelected={selected === opt.value}
+                                onChange={setSelected}
+                            />
+                        ))}
                     </div>
                 )}
             </fieldset>
 
+            {showProductDescription && (
+                <div className="mt-6">
+                    <Textarea
+                        label="What services do you provide?"
+                        value={description}
+                        onChange={(e) => setDescription(e.target.value)}
+                        onBlur={() => setDescriptionTouched(true)}
+                        rows={3}
+                        maxLength={PRODUCT_DESCRIPTION_MAX_LENGTH}
+                        placeholder="Outpatient physical therapy services for adults, including post-surgical rehabilitation and mobility training."
+                        helperText="Briefly describe the therapy services you offer. This appears on your payment account and helps our payments processor verify your practice."
+                        error={descriptionError}
+                        aria-invalid={!!descriptionError}
+                    />
+                </div>
+            )}
+
             <div className="mt-8">
-                <Button fullWidth onClick={handleConfirm} disabled={!selected} loading={isSubmitting}>
+                <Button fullWidth onClick={handleConfirm} disabled={isContinueDisabled} loading={isSubmitting}>
                     Continue
                 </Button>
 

@@ -50,11 +50,11 @@ export function useTherapistPayouts() {
         checkAccount();
     }, [trackEvent]);
 
-    const handleCreateAccount = async (businessStructure) => {
+    const handleCreateAccount = async (businessStructure, productDescription) => {
         setStatus(STRIPE_STATUS.CREATING);
         setError(null);
         try {
-            await paymentsApi.createTherapistConnectAccount({ businessStructure });
+            await paymentsApi.createTherapistConnectAccount({ businessStructure, productDescription });
             setStatus(STRIPE_STATUS.ONBOARDING);
         } catch (err) {
             setError(err.response?.data?.message || "Failed to set up your payment account. Please try again.");

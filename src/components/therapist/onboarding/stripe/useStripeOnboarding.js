@@ -51,11 +51,11 @@ export function useStripeOnboarding() {
         checkExistingAccount();
     }, []);
 
-    const handleCreateAccount = async (businessStructure) => {
+    const handleCreateAccount = async (businessStructure, productDescription) => {
         setStatus(STRIPE_STATUS.CREATING);
         setError(null);
         try {
-            await onboardingAPI.createStripeAccount({ businessStructure });
+            await onboardingAPI.createStripeAccount({ businessStructure, productDescription });
             setStatus(STRIPE_STATUS.ONBOARDING);
         } catch (err) {
             setError(err.response?.data?.message || "Failed to set up your payment account. Please try again.");
