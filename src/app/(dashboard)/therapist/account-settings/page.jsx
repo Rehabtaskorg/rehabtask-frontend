@@ -6,6 +6,7 @@ import { api } from "@/lib/api";
 import ChangePasswordForm from "@/components/profile/ChangePasswordForm";
 import { MdPayments, MdSettings, MdCheckCircle, MdTrendingUp, MdError, MdWarning, MdInfo } from "react-icons/md";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import { logger } from "@/lib/logger";
 
 export default function TherapistAccountSettingsPage() {
     usePageTitle("Account Settings");
@@ -22,7 +23,7 @@ function AccountSettingsContent() {
             const res = await api.get("/payments/connect/status");
             setAccountStatus(res.data.data);
         } catch (error) {
-            console.error("Error fetching account status:", error);
+            logger.error("Error fetching account status:", error);
         } finally {
             setLoading(false);
         }
@@ -97,7 +98,7 @@ function AccountSettingsContent() {
                             </p>
                         </div>
                         <button
-                            onClick={() => router.push("/therapist/onboarding/stripe")}
+                            onClick={() => router.push("/therapist/payouts")}
                             className="bg-primary hover:brightness-95 text-white px-6 py-3 rounded-lg font-semibold transition-all"
                         >
                             Set Up Payouts
@@ -120,7 +121,7 @@ function AccountSettingsContent() {
                             </p>
                         </div>
                         <button
-                            onClick={() => router.push("/therapist/onboarding/stripe")}
+                            onClick={() => router.push("/therapist/payouts")}
                             className="bg-primary hover:brightness-95 text-white px-6 py-3 rounded-lg font-semibold transition-all"
                         >
                             Complete Setup
@@ -141,7 +142,7 @@ function AccountSettingsContent() {
                             </div>
                         </div>
                         <button
-                            onClick={() => router.push("/therapist/onboarding/stripe")}
+                            onClick={() => router.push("/therapist/payouts")}
                             className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
                         >
                             Restore My Account
@@ -164,7 +165,7 @@ function AccountSettingsContent() {
                             </div>
                         </div>
                         <button
-                            onClick={() => router.push("/therapist/onboarding/stripe")}
+                            onClick={() => router.push("/therapist/payouts")}
                             className="bg-amber-500 hover:bg-amber-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
                         >
                             Complete Now
@@ -187,7 +188,7 @@ function AccountSettingsContent() {
                             </div>
                         </div>
                         <button
-                            onClick={() => router.push("/therapist/onboarding/stripe")}
+                            onClick={() => router.push("/therapist/payouts")}
                             className="bg-primary hover:brightness-95 text-white px-6 py-3 rounded-lg font-semibold transition-all"
                         >
                             Review Requirements

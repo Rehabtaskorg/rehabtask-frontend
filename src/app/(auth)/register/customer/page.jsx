@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import Header from "@/components/shared/Header";
 import CustomerRegistrationSidebar from "@/components/shared/CustomerRegistrationSidebar";
 import Footer from "@/components/shared/Footer";
-import CustomerRegistrationForm from "@/components/forms/CustomerRegistrationForm";
+import { CustomerRegistrationForm } from "@/components/forms/CustomerRegistrationForm";
 
 export default function CustomerRegisterPage() {
     return (

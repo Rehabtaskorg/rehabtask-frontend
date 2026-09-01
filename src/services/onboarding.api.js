@@ -91,8 +91,8 @@ export const onboardingAPI = {
      * is rendered client-side via ConnectAccountOnboarding using a separate
      * Account Session (fetchClientSecret in StripeConnectProvider).
      */
-    createStripeAccount: async () => {
-        return api.post("/payments/connect/create");
+    createStripeAccount: async (data) => {
+        return api.post("/payments/connect/create", data);
     },
 
     /**

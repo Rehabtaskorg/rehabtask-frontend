@@ -3,6 +3,8 @@ export const DEFAULT_WORK_AREA_RADIUS_MILES = 25;
 export const MAX_SEARCH_RADIUS_MILES = 100;
 export const RADIUS_FILTER_STEP_MILES = 25;
 export const MAX_VISIT_TITLE_LENGTH = 100;
+export const PRODUCT_DESCRIPTION_MIN_LENGTH = 10;
+export const PRODUCT_DESCRIPTION_MAX_LENGTH = 500;
 
 export const USER_ROLES = {
     CUSTOMER: "customer",
@@ -22,6 +24,11 @@ export const CUSTOMER_TYPES = {
     AGENCY: "agency",
     INDIVIDUAL: "individual",
 };
+
+export const CUSTOMER_TYPE_OPTIONS = Object.freeze([
+    { value: CUSTOMER_TYPES.INDIVIDUAL, label: "Individual Patient", icon: "MdPerson" },
+    { value: CUSTOMER_TYPES.AGENCY, label: "Home Health Agency", icon: "MdBusiness" },
+]);
 
 export const APPROVAL_STATUS = {
     PENDING: "pending",
@@ -57,7 +64,27 @@ export const DISCIPLINE_PILLS = Object.freeze([
     { key: "pt", label: "PT", licenseTypes: ["Physical Therapist", "Physical Therapist Assistant"] },
     { key: "ot", label: "OT", licenseTypes: ["Occupational Therapist", "Occupational Therapist Assistant"] },
     { key: "slp", label: "SLP", licenseTypes: ["Speech-Language Pathologist"] },
+    { key: "pta", label: "PTA", licenseTypes: ["Physical Therapist Assistant"] },
+    { key: "ota", label: "OTA", licenseTypes: ["Occupational Therapist Assistant"] },
 ]);
+
+/**
+ * Maps a license type string (as stored in the DB) to its matching DISCIPLINE_PILLS key.
+ * Checks single-type pills first so "Physical Therapist Assistant" resolves to "pta", not "pt".
+ * @param {string} licenseType
+ * @returns {string} pill key — "all" if no match
+ */
+export function getDisciplineKeyForLicenseType(licenseType) {
+    if (!licenseType) return "all";
+    const exact = DISCIPLINE_PILLS.find(
+        (p) => p.licenseTypes.length === 1 && p.licenseTypes[0].toLowerCase() === licenseType.toLowerCase()
+    );
+    if (exact) return exact.key;
+    const grouped = DISCIPLINE_PILLS.find(
+        (p) => p.licenseTypes.length > 1 && p.licenseTypes.some((lt) => lt.toLowerCase() === licenseType.toLowerCase())
+    );
+    return grouped ? grouped.key : "all";
+}
 
 export const REQUEST_STATUS = {
     CREATED: "created",
@@ -136,3 +163,22 @@ export const THERAPIST_VERIFICATION_FIELDS = Object.freeze({
     LICENSE: "licenseVerified",
     INSURANCE: "insuranceVerified",
 });
+export const STRIPE_BUSINESS_STRUCTURE = {
+    INDIVIDUAL: "individual",
+    SOLE_PROPRIETORSHIP: "sole_proprietorship",
+    SINGLE_MEMBER_LLC: "single_member_llc",
+    MULTI_MEMBER_LLC: "multi_member_llc",
+    PRIVATE_CORPORATION: "private_corporation",
+};
+
+export const STRIPE_COMPANY_STRUCTURES = new Set([
+    STRIPE_BUSINESS_STRUCTURE.SOLE_PROPRIETORSHIP,
+    STRIPE_BUSINESS_STRUCTURE.SINGLE_MEMBER_LLC,
+    STRIPE_BUSINESS_STRUCTURE.MULTI_MEMBER_LLC,
+    STRIPE_BUSINESS_STRUCTURE.PRIVATE_CORPORATION,
+]);
+
+export const ANALYTICS_EVENTS = {
+    PAYOUT_REPAIR_STARTED: "payout_account_repair_started",
+    PAYOUT_REPAIR_COMPLETED: "payout_account_repair_completed",
+};

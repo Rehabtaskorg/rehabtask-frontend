@@ -19,7 +19,6 @@ const profileEditSchema = z.object({
     phone: z
         .string()
         .regex(/^\+1\d{10}$/, "Phone must be in format +1XXXXXXXXXX"),
-    smsOptIn: z.boolean().optional(),
     yearsOfExperience: z.coerce
         .number({ invalid_type_error: "Must be a number" })
         .min(0, "Must be 0 or greater")
@@ -41,8 +40,10 @@ const profileEditSchema = z.object({
     ),
     professionalSummary: z
         .string()
-        .min(100, "Must be at least 100 characters")
-        .max(2000, "Cannot exceed 2000 characters"),
+        .max(2000, "Cannot exceed 2000 characters")
+        .refine((val) => val === "" || val.length >= 100, "Must be at least 100 characters if provided")
+        .optional()
+        .or(z.literal("")),
 }).refine(
     (data) => {
         if (data.attemptedVisitRate == null || data.ratePerVisit == null) return true;
@@ -76,7 +77,6 @@ const ProfileEditModal = ({ isOpen, onClose, profile, onSuccess }) => {
         defaultValues: {
             fullName: profile?.fullName || "",
             phone: profile?.phone || "",
-            smsOptIn: profile?.smsOptIn ?? false,
             yearsOfExperience: profile?.yearsOfExperience || 0,
             ratePerVisit: profile?.ratePerVisit ? parseFloat(profile.ratePerVisit) : "",
             attemptedVisitRate: profile?.attemptedVisitRate != null ? parseFloat(profile.attemptedVisitRate) : "",
@@ -244,18 +244,6 @@ const ProfileEditModal = ({ isOpen, onClose, profile, onSuccess }) => {
                             error={errors.phone?.message}
                             required
                         />
-                    </div>
-
-                    <div className="flex items-start gap-3">
-                        <input
-                            type="checkbox"
-                            id="smsOptIn"
-                            {...register("smsOptIn")}
-                            className="mt-0.5 h-4 w-4 shrink-0 rounded border-border text-primary focus:ring-primary"
-                        />
-                        <label htmlFor="smsOptIn" className="text-sm text-text-muted leading-snug">
-                            Receive SMS appointment reminders and notifications
-                        </label>
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">

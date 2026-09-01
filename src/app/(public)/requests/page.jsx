@@ -23,6 +23,8 @@ const DISCIPLINE_LABELS = {
     slp: "SLP",
 };
 
+const REQUEST_DISCIPLINE_PILLS = DISCIPLINE_PILLS.filter((p) => p.key in DISCIPLINE_LABELS);
+
 function getServiceTypeFilter(disciplineKey) {
     const pill = DISCIPLINE_PILLS.find((p) => p.key === disciplineKey);
     if (!pill || pill.licenseTypes.length === 0) return undefined;
@@ -116,7 +118,7 @@ function BrowseRequestsContent() {
 
                         <form onSubmit={handleSubmit} className="flex flex-col md:flex-row gap-3 bg-white p-2 rounded-xl border border-gray-200 shadow-sm">
                             <div className="flex gap-1.5 p-1 bg-gray-50 rounded-lg">
-                                {DISCIPLINE_PILLS.map((d) => (
+                                {REQUEST_DISCIPLINE_PILLS.map((d) => (
                                     <button
                                         key={d.key}
                                         type="button"

@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import OnboardingProgressBar from "@/components/therapist/OnboardingProgressBar";
 import ConfirmModal from "@/components/ui/ConfirmModal";
 import StripeIdleCard from "./StripeIdleCard";
+import { StripeBusinessStructureStep } from "./StripeBusinessStructureStep";
 import StripeEmbeddedForm from "./StripeEmbeddedForm";
 import StripeStatusCard from "./StripeStatusCard";
 import { useStripeOnboarding } from "./useStripeOnboarding";
@@ -57,6 +58,10 @@ export default function StripeOnboardingView() {
                         <StripeIdleCard onSetup={handleCreateAccount} onSkip={handleSkipForNow} />
                     )}
 
+                    {status === STRIPE_STATUS.STRUCTURE && (
+                        <StripeBusinessStructureStep onConfirm={handleCreateAccount} onSkip={handleSkipForNow} showProductDescription />
+                    )}
+
                     {status === STRIPE_STATUS.CREATING && <StripeStatusCard variant="creating" />}
 
                     {status === STRIPE_STATUS.ONBOARDING && (
@@ -96,7 +101,7 @@ export default function StripeOnboardingView() {
                     )}
                 </div>
 
-                {[STRIPE_STATUS.IDLE, STRIPE_STATUS.ERROR].includes(status) && (
+                {[STRIPE_STATUS.IDLE, STRIPE_STATUS.STRUCTURE, STRIPE_STATUS.ERROR].includes(status) && (
                     <div className="mt-6 flex justify-center">
                         <button
                             onClick={() => router.push("/therapist/onboarding/identity")}
@@ -116,7 +121,7 @@ export default function StripeOnboardingView() {
                         confirmSkipForNow();
                     }}
                     title="Continue without payouts?"
-                    message="You can review and submit your application now, then set up payouts later from your Earnings page. This won't delay your review, but you won't be able to receive payments until payouts are set up."
+                    message="You can review and submit your application now, then set up payouts later from Payment Settings. This won't delay your review, but you won't be able to receive payments until payouts are set up."
                     confirmLabel="Continue to Final Review"
                     cancelLabel="Go Back"
                 />

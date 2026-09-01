@@ -13,8 +13,12 @@ export const paymentsApi = {
     // Payment history
     getPaymentHistory: () => api.get("/payments/history"),
 
+    // Therapist Connect (payout account for earnings)
+    createTherapistConnectAccount: (data) => api.post("/payments/connect/create", data),
+    getTherapistConnectStatus: () => api.get("/payments/connect/status"),
+
     // Customer Connect (payout account for refunds)
-    createCustomerConnectAccount: () => api.post("/payments/customer-connect/create"),
+    createCustomerConnectAccount: (data) => api.post("/payments/customer-connect/create", data),
     getCustomerConnectStatus: () => api.get("/payments/customer-connect/status"),
     createCustomerAccountSession: () => api.post("/payments/customer-connect/account-session"),
 

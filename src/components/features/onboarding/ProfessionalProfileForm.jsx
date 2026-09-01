@@ -107,12 +107,12 @@ export function ProfessionalProfileForm() {
         try {
             const result = await onboardingAPI.uploadProfilePhoto(file);
             setProfilePhoto(result.url);
-            setValue("profilePhotoUrl", result.url);
+            setValue("profilePhotoUrl", result.url, { shouldValidate: true });
             URL.revokeObjectURL(preview);
         } catch (err) {
             alert(err.message || "Failed to upload photo. Please try again.");
             setProfilePhoto(professionalProfile.profilePhotoUrl || null);
-            setValue("profilePhotoUrl", professionalProfile.profilePhotoUrl || null);
+            setValue("profilePhotoUrl", professionalProfile.profilePhotoUrl || null, { shouldValidate: true });
         } finally {
             setUploadingPhoto(false);
         }
@@ -196,10 +196,15 @@ export function ProfessionalProfileForm() {
                                     </label>
                                 </div>
                                 <div className="flex flex-col items-center">
-                                    <h3 className="text-text-main text-xl font-bold tracking-tight">Professional Headshot</h3>
+                                    <h3 className="text-text-main text-xl font-bold tracking-tight">
+                                        Professional Headshot <span className="text-red-500">*</span>
+                                    </h3>
                                     <p className="text-text-muted text-sm max-w-xs mt-1">
                                         A high-quality, professional photo increases profile views by up to 40%
                                     </p>
+                                    {errors.profilePhotoUrl && (
+                                        <p className="text-red-500 text-sm mt-2">{errors.profilePhotoUrl.message}</p>
+                                    )}
                                 </div>
                             </div>
                         </div>
@@ -343,10 +348,10 @@ export function ProfessionalProfileForm() {
                             <div className="flex flex-col gap-2">
                                 <label className="flex justify-between items-center">
                                     <span className="text-text-main text-base font-semibold">
-                                        Professional Summary <span className="text-red-500">*</span>
+                                        Professional Summary <span className="text-text-muted text-xs font-normal">(optional)</span>
                                     </span>
                                     <span className="text-xs text-gray-400 font-normal">
-                                        Min 100 characters ({watch("professionalSummary")?.length || 0}/2000)
+                                        {watch("professionalSummary")?.length || 0}/2000
                                     </span>
                                 </label>
                                 <textarea

@@ -2,6 +2,7 @@
 export const STRIPE_STATUS = {
     INITIALIZING: "initializing",
     IDLE: "idle",
+    STRUCTURE: "structure",
     CREATING: "creating",
     ONBOARDING: "onboarding",
     VERIFYING: "verifying",
