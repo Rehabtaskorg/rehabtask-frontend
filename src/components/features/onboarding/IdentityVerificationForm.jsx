@@ -3,11 +3,15 @@
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { useIdentityVerificationForm } from "@/hooks/useIdentityVerificationForm";
 import OnboardingProgressBar from "@/components/therapist/OnboardingProgressBar";
-import { DocumentDropzone } from "@/components/features/onboarding/DocumentDropzone";
+import { DocumentDropzone, PHOTO_ONLY_ACCEPTED_TYPES } from "@/components/features/onboarding/DocumentDropzone";
+import { IDENTITY_DOCUMENT_TYPES } from "@/lib/constants";
+
+const PHOTO_FORMAT_HINT = "JPG or PNG (max. 25MB)";
 
 /**
  * Identity verification form — onboarding Step 6.
- * Government ID front is required; back is optional (not applicable for passports).
+ * Driver's license and government ID front are required; government ID back is
+ * optional (not applicable for passports).
  * Storage only — no OCR or automated verification.
  */
 export function IdentityVerificationForm() {
@@ -44,7 +48,7 @@ export function IdentityVerificationForm() {
                         Identity Verification
                     </h1>
                     <p className="text-text-muted text-lg font-normal leading-normal">
-                        Upload a government-issued photo ID. We use this to confirm your identity.
+                        Upload your driver&apos;s license and a government-issued photo ID. We use these to confirm your identity.
                     </p>
                 </header>
 
@@ -52,22 +56,38 @@ export function IdentityVerificationForm() {
                     <div className="bg-card-light border border-border-light rounded-xl p-8 space-y-6 shadow-sm">
 
                         <DocumentDropzone
+                            label="Driver's License"
+                            required
+                            helperText="Photo of your valid driver's license — JPG or PNG only"
+                            acceptedTypes={PHOTO_ONLY_ACCEPTED_TYPES}
+                            formatHint={PHOTO_FORMAT_HINT}
+                            document={getDocument(IDENTITY_DOCUMENT_TYPES.DRIVERS_LICENSE)}
+                            uploading={uploadingType === IDENTITY_DOCUMENT_TYPES.DRIVERS_LICENSE}
+                            onDrop={handleDrop(IDENTITY_DOCUMENT_TYPES.DRIVERS_LICENSE)}
+                            onRemove={handleRemove(IDENTITY_DOCUMENT_TYPES.DRIVERS_LICENSE)}
+                        />
+
+                        <DocumentDropzone
                             label="Government ID — Front"
                             required
-                            helperText="Driver's license or passport"
-                            document={getDocument("government_id_front")}
-                            uploading={uploadingType === "government_id_front"}
-                            onDrop={handleDrop("government_id_front")}
-                            onRemove={handleRemove("government_id_front")}
+                            helperText="Passport, state ID, or military ID"
+                            acceptedTypes={PHOTO_ONLY_ACCEPTED_TYPES}
+                            formatHint={PHOTO_FORMAT_HINT}
+                            document={getDocument(IDENTITY_DOCUMENT_TYPES.GOVERNMENT_ID_FRONT)}
+                            uploading={uploadingType === IDENTITY_DOCUMENT_TYPES.GOVERNMENT_ID_FRONT}
+                            onDrop={handleDrop(IDENTITY_DOCUMENT_TYPES.GOVERNMENT_ID_FRONT)}
+                            onRemove={handleRemove(IDENTITY_DOCUMENT_TYPES.GOVERNMENT_ID_FRONT)}
                         />
 
                         <DocumentDropzone
                             label="Government ID — Back (optional)"
                             helperText="Not applicable for passports"
-                            document={getDocument("government_id_back")}
-                            uploading={uploadingType === "government_id_back"}
-                            onDrop={handleDrop("government_id_back")}
-                            onRemove={handleRemove("government_id_back")}
+                            acceptedTypes={PHOTO_ONLY_ACCEPTED_TYPES}
+                            formatHint={PHOTO_FORMAT_HINT}
+                            document={getDocument(IDENTITY_DOCUMENT_TYPES.GOVERNMENT_ID_BACK)}
+                            uploading={uploadingType === IDENTITY_DOCUMENT_TYPES.GOVERNMENT_ID_BACK}
+                            onDrop={handleDrop(IDENTITY_DOCUMENT_TYPES.GOVERNMENT_ID_BACK)}
+                            onRemove={handleRemove(IDENTITY_DOCUMENT_TYPES.GOVERNMENT_ID_BACK)}
                         />
 
                         {error && <p className="text-red-500 text-sm">{error}</p>}

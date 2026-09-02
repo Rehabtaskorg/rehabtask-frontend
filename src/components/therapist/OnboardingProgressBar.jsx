@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import { useOnboardingSync } from "@/hooks/useOnboardingSync";
 import useOnboardingStore from "@/stores/onboardingStore";
 
@@ -11,6 +12,7 @@ const STEPS = [
     { number: 4, label: "Availability", route: "/therapist/onboarding/availability" },
     { number: 5, label: "Insurance Uploads", route: "/therapist/onboarding/insurance" },
     { number: 6, label: "Identity Verification", route: "/therapist/onboarding/identity" },
+    { number: 7, label: "HIPAA Attestation", route: "/therapist/onboarding/hipaa" },
     { number: 7, label: "Payment Setup", route: "/therapist/onboarding/stripe" },
     { number: 8, label: "Final Review", route: "/therapist/onboarding/review" },
 ];
@@ -18,6 +20,7 @@ const STEPS = [
 export default function OnboardingProgressBar() {
     const { currentStep } = useOnboardingStore();
     const { syncStatus } = useOnboardingSync();
+    const pathname = usePathname();
 
     const [progress, setProgress] = useState(0);
     const [completedCount, setCompletedCount] = useState(null);
@@ -41,6 +44,11 @@ export default function OnboardingProgressBar() {
         loadProgress();
     }, [syncStatus, currentStep]) // re-sync when current step changes
 
+    const currentStepLabel = (
+        STEPS.find((s) => pathname?.startsWith(s.route)) ??
+        STEPS.find((s) => s.number === currentStep)
+    )?.label;
+
     return (
         <div className="bg-card-light  rounded-xl p-6 shadow-sm border border-border-light  mb-6">
             <div className="flex gap-6 justify-between items-center mb-3">
@@ -62,7 +70,7 @@ export default function OnboardingProgressBar() {
             <p className="text-text-muted  text-sm mt-3 font-normal leading-normal">
                 {progress === 100
                     ? "✓ Profile complete - awaiting review"
-                    : STEPS.find((s) => s.number === currentStep)?.label || "Complete your profile to start accepting patients"
+                    : currentStepLabel || "Complete your profile to start accepting patients"
                 }
             </p>
         </div>
