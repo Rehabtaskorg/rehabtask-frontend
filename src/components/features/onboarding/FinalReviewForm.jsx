@@ -14,7 +14,7 @@ const CHECKLIST_STEPS = [
     { key: "credentials", label: "Credentials", step: 3 },
     { key: "availability", label: "Availability", step: 4 },
     { key: "insurance", label: "Insurance Uploads", step: 5 },
-    { key: "identity", label: "Identity Verification", step: 6 },
+    { key: "identity", label: "Identity Verification (Driver's License & Government ID)", step: 6 },
     { key: "hipaa", label: "HIPAA Attestation", href: "/therapist/onboarding/hipaa" },
 ];
 

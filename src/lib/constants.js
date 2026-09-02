@@ -163,6 +163,22 @@ export const THERAPIST_VERIFICATION_FIELDS = Object.freeze({
     LICENSE: "licenseVerified",
     INSURANCE: "insuranceVerified",
 });
+
+export const IDENTITY_DOCUMENT_TYPES = Object.freeze({
+    GOVERNMENT_ID_FRONT: "government_id_front",
+    GOVERNMENT_ID_BACK: "government_id_back",
+    DRIVERS_LICENSE: "drivers_license",
+});
+
+export const PHOTO_ONLY_DOCUMENT_TYPES = Object.freeze([
+    IDENTITY_DOCUMENT_TYPES.GOVERNMENT_ID_FRONT,
+    IDENTITY_DOCUMENT_TYPES.GOVERNMENT_ID_BACK,
+    IDENTITY_DOCUMENT_TYPES.DRIVERS_LICENSE,
+]);
+
+export const PHOTO_MIME_TYPES = Object.freeze(["image/jpeg", "image/jpg", "image/png"]);
+export const DOCUMENT_MIME_TYPES = Object.freeze(["application/pdf", ...PHOTO_MIME_TYPES]);
+
 export const STRIPE_BUSINESS_STRUCTURE = {
     INDIVIDUAL: "individual",
     SOLE_PROPRIETORSHIP: "sole_proprietorship",
@@ -177,6 +193,16 @@ export const STRIPE_COMPANY_STRUCTURES = new Set([
     STRIPE_BUSINESS_STRUCTURE.MULTI_MEMBER_LLC,
     STRIPE_BUSINESS_STRUCTURE.PRIVATE_CORPORATION,
 ]);
+
+// TODO: [BUG] refunded_to_card is unreachable — no stripe.refunds.create() call exists in the
+// backend and nothing ever writes this status. It survives only in the Prisma enum and dead read
+// paths. Removing it needs a Postgres enum recreate migration; tracked separately, not Phase 1.
+export const CUSTOMER_REFUND_STATUS = {
+    PENDING_CONNECT: "pending_connect",
+    TRANSFERRED: "transferred",
+    REFUNDED_TO_CARD: "refunded_to_card",
+    PAYOUT_FAILED: "payout_failed",
+};
 
 export const ANALYTICS_EVENTS = {
     PAYOUT_REPAIR_STARTED: "payout_account_repair_started",

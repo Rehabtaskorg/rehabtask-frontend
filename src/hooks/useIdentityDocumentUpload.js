@@ -4,13 +4,20 @@ import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import useOnboardingStore from "@/stores/onboardingStore";
 import { onboardingAPI } from "@/services/onboarding.api";
+import {
+    PHOTO_ONLY_DOCUMENT_TYPES,
+    PHOTO_MIME_TYPES,
+    DOCUMENT_MIME_TYPES,
+} from "@/lib/constants";
 
 const MAX_FILE_SIZE = 25 * 1024 * 1024;
-const ALLOWED_MIME_TYPES = ["application/pdf", "image/jpeg", "image/jpg", "image/png"];
+
+const allowedMimeTypesFor = (documentType) =>
+    PHOTO_ONLY_DOCUMENT_TYPES.includes(documentType) ? PHOTO_MIME_TYPES : DOCUMENT_MIME_TYPES;
 
 /**
  * Upload/remove logic for a single identity document slot, keyed by
- * documentType. Shared by both dropzones on the Identity Verification step.
+ * documentType. Shared by all dropzones on the Identity Verification step.
  */
 export function useIdentityDocumentUpload() {
     const { user } = useAuth();
@@ -30,8 +37,13 @@ export function useIdentityDocumentUpload() {
             setError(`${file.name} is too large. Maximum size is 25MB.`);
             return;
         }
-        if (!ALLOWED_MIME_TYPES.includes(file.type)) {
-            setError(`${file.name} has invalid type. Only PDF, JPEG, and PNG are allowed.`);
+        const allowedMimeTypes = allowedMimeTypesFor(documentType);
+        if (!allowedMimeTypes.includes(file.type)) {
+            setError(
+                PHOTO_ONLY_DOCUMENT_TYPES.includes(documentType)
+                    ? `${file.name} must be a JPG or PNG photo. PDFs are not accepted for identity verification.`
+                    : `${file.name} has invalid type. Only PDF, JPEG, and PNG are allowed.`
+            );
             return;
         }
         if (!user) {
@@ -51,7 +63,7 @@ export function useIdentityDocumentUpload() {
                 mimeType: result.mimeType,
             });
         } catch (err) {
-            setError(`Failed to upload ${file.name}. ${err.message}`);
+            setError(`Failed to upload ${file.name}. ${err.response?.data?.message ?? "Please try again."}`);
         } finally {
             setUploadingType(null);
         }

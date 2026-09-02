@@ -7,10 +7,12 @@ import { useIdentityDocumentUpload } from "@/hooks/useIdentityDocumentUpload";
 import { useOnboardingDataSync } from "@/hooks/useOnboardingDataSync";
 import useOnboardingStore from "@/stores/onboardingStore";
 import { onboardingAPI } from "@/services/onboarding.api";
+import { identitySchema } from "@/lib/validators/onboarding.schema";
 
 /**
- * Drives the Identity Verification onboarding step (Step 6): two document
- * upload slots (front required, back optional), validation, and submission.
+ * Drives the Identity Verification onboarding step (Step 6): three document
+ * upload slots (driver's license and government ID front required, government
+ * ID back optional), validation, and submission.
  * Storage only — no OCR or automated verification.
  */
 export function useIdentityVerificationForm() {
@@ -41,22 +43,23 @@ export function useIdentityVerificationForm() {
         e.preventDefault();
         upload.setError("");
 
-        if (!upload.getDocument("government_id_front")) {
-            upload.setError("A front photo of your government ID is required");
+        const documents = identity.documents.map((doc) => ({
+            path: doc.path,
+            fileName: doc.fileName,
+            fileSize: doc.fileSize,
+            documentType: doc.documentType,
+            mimeType: doc.mimeType,
+        }));
+
+        const parsed = identitySchema.safeParse({ documents });
+        if (!parsed.success) {
+            upload.setError(parsed.error.issues[0]?.message ?? "Please upload all required documents.");
             return;
         }
 
         setLoading(true);
         try {
-            const documents = identity.documents.map((doc) => ({
-                path: doc.path,
-                fileName: doc.fileName,
-                fileSize: doc.fileSize,
-                documentType: doc.documentType,
-                mimeType: doc.mimeType,
-            }));
-
-            await onboardingAPI.saveIdentityVerification({ documents });
+            await onboardingAPI.saveIdentityVerification({ documents: parsed.data.documents });
 
             trackEvent("onboarding_step_completed", { step: 6, step_name: "identity" });
             markStepComplete(6);

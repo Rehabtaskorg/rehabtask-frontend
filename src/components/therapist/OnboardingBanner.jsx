@@ -5,7 +5,8 @@ import { useCallback, useEffect, useState } from "react";
 import { authAPi } from "@/services/auth.api";
 import { useOnboardingSync } from "@/hooks/useOnboardingSync";
 import { ONBOARDING_STEP_ROUTES } from "@/lib/therapistRouteAccess";
-import { APPROVAL_STATUS } from "@/lib/constants";
+import { APPROVAL_STATUS, USER_ROLES } from "@/lib/constants";
+import { logger } from "@/lib/logger";
 import ConfirmModal from "@/components/ui/ConfirmModal";
 import { MdInfo } from "react-icons/md";
 
@@ -29,7 +30,7 @@ export default function OnboardingBanner() {
             const userData = res.data.data.user;
 
             // Only show banner for therapists
-            if (userData.role !== "therapist") {
+            if (userData.role !== USER_ROLES.THERAPIST) {
                 setShowBanner(false);
                 setIsLoading(false);
                 return;
@@ -90,7 +91,7 @@ export default function OnboardingBanner() {
                 setShowBanner(false);
             }
         } catch (error) {
-            console.error("Error checking onboarding status:", error);
+            logger.error("Error checking onboarding status:", error);
             setShowBanner(false);
         } finally {
             setIsLoading(false);

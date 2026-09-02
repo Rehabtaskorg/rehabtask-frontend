@@ -2,9 +2,15 @@
 
 import { useDropzone } from "react-dropzone";
 
-const ACCEPTED_TYPES = {
+export const DEFAULT_ACCEPTED_TYPES = {
+    "image/jpeg": [".jpeg", ".jpg"],
+    "image/png": [".png"],
     "application/pdf": [".pdf"],
-    "image/*": [".jpeg", ".jpg", ".png"],
+};
+
+export const PHOTO_ONLY_ACCEPTED_TYPES = {
+    "image/jpeg": [".jpeg", ".jpg"],
+    "image/png": [".png"],
 };
 
 /**
@@ -19,6 +25,8 @@ const ACCEPTED_TYPES = {
  *   uploading?: boolean,
  *   disabled?: boolean,
  *   error?: string,
+ *   acceptedTypes?: Record<string, string[]>,
+ *   formatHint?: string,
  *   onDrop: (files: File[]) => void,
  *   onRemove: () => void,
  * }} props
@@ -31,12 +39,14 @@ export function DocumentDropzone({
     uploading = false,
     disabled = false,
     error,
+    acceptedTypes = DEFAULT_ACCEPTED_TYPES,
+    formatHint = "PDF, JPG or PNG (max. 25MB)",
     onDrop,
     onRemove,
 }) {
     const { getRootProps, getInputProps, isDragActive } = useDropzone({
         onDrop,
-        accept: ACCEPTED_TYPES,
+        accept: acceptedTypes,
         multiple: false,
         maxFiles: 1,
         disabled: disabled || uploading || !!document,
@@ -68,11 +78,10 @@ export function DocumentDropzone({
             ) : (
                 <div
                     {...getRootProps()}
-                    className={`border-2 border-dashed border-border-light rounded-xl p-8 flex flex-col items-center justify-center bg-muted-light transition-colors ${
-                        disabled || uploading
-                            ? "opacity-50 cursor-not-allowed"
-                            : "hover:bg-primary/5 hover:border-primary cursor-pointer group"
-                    }`}
+                    className={`border-2 border-dashed border-border-light rounded-xl p-8 flex flex-col items-center justify-center bg-muted-light transition-colors ${disabled || uploading
+                        ? "opacity-50 cursor-not-allowed"
+                        : "hover:bg-primary/5 hover:border-primary cursor-pointer group"
+                        }`}
                 >
                     <input {...getInputProps()} />
                     {uploading ? (
@@ -91,7 +100,7 @@ export function DocumentDropzone({
                                 {isDragActive ? "Drop file here..." : "Click to upload or drag and drop"}
                             </p>
                             <p className="text-text-muted text-xs mt-1 text-center">
-                                PDF, JPG or PNG (max. 25MB)
+                                {formatHint}
                             </p>
                         </>
                     )}

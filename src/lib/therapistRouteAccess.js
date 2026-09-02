@@ -17,6 +17,15 @@ export const ONBOARDING_STEP_ROUTES = {
     8: "/therapist/onboarding/review",
 };
 
+/**
+ * Onboarding routes that sit between numbered steps and so have no entry in
+ * ONBOARDING_STEP_ROUTES. Maps each to the onboardingStep a therapist must have
+ * reached for the route to be accessible, closing the direct-URL skip gap.
+ */
+const STEP_ROUTE_OVERRIDES = {
+    "/therapist/onboarding/hipaa": 7,
+};
+
 const SAFE_FALLBACK_ROUTE = "/therapist/dashboard";
 
 const ALLOWED_DURING_ONBOARDING = [
@@ -32,6 +41,16 @@ export function getTherapistRedirect(pathname, { onboardingComplete, onboardingS
     if (!onboardingComplete && onboardingStep < 8) {
         // Prevent skipping ahead in onboarding steps via direct URL
         if (isOnOnboardingRoute) {
+            const overrideEntry = Object.entries(STEP_ROUTE_OVERRIDES)
+                .find(([route]) => pathname.startsWith(route));
+            if (overrideEntry) {
+                const requiredStep = overrideEntry[1];
+                if (onboardingStep < requiredStep) {
+                    return ONBOARDING_STEP_ROUTES[onboardingStep] || SAFE_FALLBACK_ROUTE;
+                }
+                return null;
+            }
+
             const stepEntry = Object.entries(ONBOARDING_STEP_ROUTES)
                 .find(([, route]) => pathname.startsWith(route));
             if (stepEntry) {
