@@ -79,6 +79,7 @@ export function useIdentityVerificationForm() {
         error: upload.error,
         getDocument: upload.getDocument,
         handleDrop: upload.handleDrop,
+        handleDropRejected: upload.handleDropRejected,
         handleRemove: upload.handleRemove,
         onSubmit,
         goBack: () => router.push("/therapist/onboarding/insurance"),

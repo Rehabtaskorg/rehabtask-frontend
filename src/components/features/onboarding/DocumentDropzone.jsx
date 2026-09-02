@@ -42,10 +42,12 @@ export function DocumentDropzone({
     acceptedTypes = DEFAULT_ACCEPTED_TYPES,
     formatHint = "PDF, JPG or PNG (max. 25MB)",
     onDrop,
+    onDropRejected,
     onRemove,
 }) {
     const { getRootProps, getInputProps, isDragActive } = useDropzone({
         onDrop,
+        onDropRejected,
         accept: acceptedTypes,
         multiple: false,
         maxFiles: 1,

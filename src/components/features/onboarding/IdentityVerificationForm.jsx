@@ -23,6 +23,7 @@ export function IdentityVerificationForm() {
         error,
         getDocument,
         handleDrop,
+        handleDropRejected,
         handleRemove,
         onSubmit,
         goBack,
@@ -64,6 +65,7 @@ export function IdentityVerificationForm() {
                             document={getDocument(IDENTITY_DOCUMENT_TYPES.DRIVERS_LICENSE)}
                             uploading={uploadingType === IDENTITY_DOCUMENT_TYPES.DRIVERS_LICENSE}
                             onDrop={handleDrop(IDENTITY_DOCUMENT_TYPES.DRIVERS_LICENSE)}
+                            onDropRejected={handleDropRejected(IDENTITY_DOCUMENT_TYPES.DRIVERS_LICENSE)}
                             onRemove={handleRemove(IDENTITY_DOCUMENT_TYPES.DRIVERS_LICENSE)}
                         />
 
@@ -76,6 +78,7 @@ export function IdentityVerificationForm() {
                             document={getDocument(IDENTITY_DOCUMENT_TYPES.GOVERNMENT_ID_FRONT)}
                             uploading={uploadingType === IDENTITY_DOCUMENT_TYPES.GOVERNMENT_ID_FRONT}
                             onDrop={handleDrop(IDENTITY_DOCUMENT_TYPES.GOVERNMENT_ID_FRONT)}
+                            onDropRejected={handleDropRejected(IDENTITY_DOCUMENT_TYPES.GOVERNMENT_ID_FRONT)}
                             onRemove={handleRemove(IDENTITY_DOCUMENT_TYPES.GOVERNMENT_ID_FRONT)}
                         />
 
@@ -87,6 +90,7 @@ export function IdentityVerificationForm() {
                             document={getDocument(IDENTITY_DOCUMENT_TYPES.GOVERNMENT_ID_BACK)}
                             uploading={uploadingType === IDENTITY_DOCUMENT_TYPES.GOVERNMENT_ID_BACK}
                             onDrop={handleDrop(IDENTITY_DOCUMENT_TYPES.GOVERNMENT_ID_BACK)}
+                            onDropRejected={handleDropRejected(IDENTITY_DOCUMENT_TYPES.GOVERNMENT_ID_BACK)}
                             onRemove={handleRemove(IDENTITY_DOCUMENT_TYPES.GOVERNMENT_ID_BACK)}
                         />
 
