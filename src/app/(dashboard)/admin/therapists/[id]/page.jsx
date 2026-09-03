@@ -16,6 +16,7 @@ import {
 import { adminTherapistsApi } from '@/services/admin.api';
 import { TherapistVerificationToggles } from '@/components/features/admin/TherapistVerificationToggles';
 import { APPROVAL_STATUS } from '@/lib/constants';
+import { UserText } from '@/components/ui/UserText';
 
 const fmtDate = (d) =>
     d ? new Date(d).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : '—';
@@ -257,9 +258,9 @@ export default function AdminTherapistDetailPage() {
                         {tp?.bio && (
                             <div className="pt-3 border-t border-border-light ">
                                 <dt className="text-text-muted  mb-1.5">Bio</dt>
-                                <dd className="text-text-main  leading-relaxed text-sm">
+                                <UserText as="dd" className="text-text-main leading-relaxed text-sm">
                                     {tp.bio}
-                                </dd>
+                                </UserText>
                             </div>
                         )}
                     </dl>

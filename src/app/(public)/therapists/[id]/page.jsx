@@ -12,6 +12,7 @@ import { useTherapistPublicProfile, useTherapistReviews } from "@/hooks/usePubli
 import { useAppRole } from "@/hooks/useAppRole";
 import AuthGateModal from "@/components/public/AuthGateModal";
 import UserAvatar from "@/components/ui/UserAvatar";
+import { UserText } from "@/components/ui/UserText";
 import Footer from "@/components/landing/Footer";
 import Navbar from "@/components/landing/Navbar";
 import { useAnalytics } from "@/hooks/useAnalytics";
@@ -114,7 +115,7 @@ function TherapistPublicProfileContent() {
 
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
                         {/* Left Column */}
-                        <div className="lg:col-span-8 space-y-10">
+                        <div className="lg:col-span-8 space-y-10 min-w-0">
                             {/* Profile Header */}
                             <motion.section initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="bg-gray-50 rounded-2xl p-8">
                                 <div className="flex flex-col md:flex-row gap-6 items-start md:items-center">
@@ -189,7 +190,7 @@ function TherapistPublicProfileContent() {
                                 <motion.section initial={{ opacity: 0, y: 15 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }} className="space-y-3">
                                     <h2 className="text-xl font-bold text-gray-900">About</h2>
                                     <div className="bg-gray-50 rounded-2xl p-8">
-                                        <p className="text-gray-600 leading-relaxed text-lg">{profile.professionalSummary}</p>
+                                        <UserText className="text-gray-600 leading-relaxed text-lg">{profile.professionalSummary}</UserText>
                                     </div>
                                 </motion.section>
                             )}
@@ -391,7 +392,7 @@ function TherapistPublicProfileContent() {
                                                         </div>
                                                     </div>
                                                     {review.comment && (
-                                                        <p className="text-sm text-gray-600 leading-relaxed">{review.comment}</p>
+                                                        <UserText className="text-sm text-gray-600 leading-relaxed">{review.comment}</UserText>
                                                     )}
                                                 </div>
                                             ))}
