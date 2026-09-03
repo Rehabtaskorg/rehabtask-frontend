@@ -9,7 +9,8 @@
  */
 export const UserText = ({ as: Component = "p", className = "", preserveLineBreaks = false, children }) => (
     <Component
-        className={`[overflow-wrap:anywhere]${preserveLineBreaks ? " whitespace-pre-wrap" : ""} ${className}`.trim()}
+        style={{ overflowWrap: "anywhere", wordBreak: "break-word" }}
+        className={`min-w-0${preserveLineBreaks ? " whitespace-pre-wrap" : ""} ${className}`.trim()}
     >
         {children}
     </Component>
