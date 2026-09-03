@@ -187,9 +187,9 @@ function TherapistPublicProfileContent() {
 
                             {/* About — public */}
                             {profile.professionalSummary && (
-                                <motion.section initial={{ opacity: 0, y: 15 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }} className="space-y-3">
+                                <motion.section initial={{ opacity: 0, y: 15 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }} className="space-y-3 min-w-0">
                                     <h2 className="text-xl font-bold text-gray-900">About</h2>
-                                    <div className="bg-gray-50 rounded-2xl p-8">
+                                    <div className="bg-gray-50 rounded-2xl p-8 min-w-0 overflow-hidden">
                                         <UserText className="text-gray-600 leading-relaxed text-lg">{profile.professionalSummary}</UserText>
                                     </div>
                                 </motion.section>
@@ -363,7 +363,7 @@ function TherapistPublicProfileContent() {
                             )}
 
                             {/* Reviews — first 3 public, rest gated */}
-                            <motion.section initial={{ opacity: 0, y: 15 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }} className="space-y-4">
+                            <motion.section initial={{ opacity: 0, y: 15 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }} className="space-y-4 min-w-0">
                                 <h2 className="text-xl font-bold text-gray-900">Reviews ({reviewTotal})</h2>
 
                                 {reviewTotal === 0 ? (
@@ -374,7 +374,7 @@ function TherapistPublicProfileContent() {
                                     <>
                                         <div className="space-y-4">
                                             {(reviewsData?.reviews || []).slice(0, 3).map((review) => (
-                                                <div key={review.id} className="bg-gray-50 p-6 rounded-2xl">
+                                                <div key={review.id} className="bg-gray-50 p-6 rounded-2xl min-w-0 overflow-hidden">
                                                     <div className="flex justify-between items-start mb-3">
                                                         <div className="flex items-center gap-3">
                                                             <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm shrink-0">
