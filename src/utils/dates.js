@@ -59,6 +59,19 @@ export const localDateStr = (offsetMs = 0) => {
 };
 
 /**
+ * Returns a local datetime string in YYYY-MM-DDTHH:MM format for use as the `min`
+ * attribute on datetime-local inputs. offsetMs shifts the result forward in time.
+ * @param {number} offsetMs
+ * @returns {string}
+ */
+export const localDateTimeStr = (offsetMs = 0) => {
+    const d = new Date(Date.now() + offsetMs);
+    const date = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+    const time = `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    return `${date}T${time}`;
+};
+
+/**
  * Returns true when a YYYY-MM-DD string is today or a future date, in local time.
  * Uses string comparison — YYYY-MM-DD is zero-padded and lexicographically sortable.
  * @param {string} dateStr
