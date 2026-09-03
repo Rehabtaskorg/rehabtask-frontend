@@ -46,9 +46,6 @@ export const bookingsApi = {
     requestSessionRevision: async (sessionId, reason) => {
         return api.post(`/sessions/${sessionId}/request-revision`, { reason });
     },
-    submitSessionRevision: async (sessionId, dueBy) => {
-        return api.post(`/sessions/${sessionId}/submit-revision`, { dueBy });
-    },
     respondToRevision: async (sessionId, dueBy) => {
         return api.post(`/sessions/${sessionId}/revision-respond`, { dueBy });
     },
