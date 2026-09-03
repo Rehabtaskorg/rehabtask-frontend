@@ -28,6 +28,14 @@ export function useIdentityDocumentUpload() {
     const getDocument = (documentType) =>
         identity.documents.find((d) => d.documentType === documentType) ?? null;
 
+    const handleDropRejected = (documentType) => () => {
+        setError(
+            PHOTO_ONLY_DOCUMENT_TYPES.includes(documentType)
+                ? "This slot only accepts JPG or PNG photos. PDFs are not accepted for identity verification."
+                : "Invalid file type. Only PDF, JPEG, and PNG are allowed."
+        );
+    };
+
     const handleDrop = (documentType) => async (files) => {
         const file = files[0];
         if (!file) return;
@@ -86,5 +94,5 @@ export function useIdentityDocumentUpload() {
         removeIdentityDocument(index);
     };
 
-    return { uploadingType, error, setError, getDocument, handleDrop, handleRemove };
+    return { uploadingType, error, setError, getDocument, handleDrop, handleDropRejected, handleRemove };
 }
