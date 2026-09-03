@@ -22,6 +22,7 @@ import ProfileEditModal from "./ProfileEditModal";
 import { ClinicalProfileSection } from "./ClinicalProfileSection";
 import Button from "@/components/ui/Button";
 import UserAvatar from "@/components/ui/UserAvatar";
+import { UserText } from "@/components/ui/UserText";
 
 const StatusBadge = ({ status }) => {
     const config = {
@@ -251,9 +252,9 @@ const ProfileTab = ({ profile, approvalStatus, onboardingComplete }) => {
                         {profile?.professionalSummary && (
                             <div className="mt-4 pt-4 border-t border-border-light ">
                                 <p className="text-sm text-text-muted mb-1">Professional Summary</p>
-                                <p className="text-sm text-text-main  leading-relaxed whitespace-pre-wrap">
+                                <UserText className="text-sm text-text-main leading-relaxed" preserveLineBreaks>
                                     {profile.professionalSummary}
-                                </p>
+                                </UserText>
                             </div>
                         )}
                     </div>

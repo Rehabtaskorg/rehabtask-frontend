@@ -16,6 +16,7 @@ import ReviewForm from "@/components/therapist/ReviewForm";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { useMessageGuard } from "@/hooks/useMessageGuard";
 import { MessageGateModal } from "@/components/ui/MessageGateModal";
+import { UserText } from "@/components/ui/UserText";
 import { LICENSE_TYPE_TO_DISCIPLINE } from "@/lib/constants";
 
 const GOOGLE_MAPS_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
@@ -171,9 +172,9 @@ export default function TherapistProfilePage() {
 
                             {/* Summary */}
                             {therapist.professionalSummary && (
-                                <p className="text-sm text-text-muted  leading-relaxed mb-3">
+                                <UserText className="text-sm text-text-muted leading-relaxed mb-3">
                                     {therapist.professionalSummary}
-                                </p>
+                                </UserText>
                             )}
 
                             {/* NPI + Phone */}
