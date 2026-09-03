@@ -13,7 +13,7 @@ import { localDateTimeStr } from "@/utils/dates";
  * to a date by which they'll have the updated work ready. Status stays
  * in_revision. Step 2 (resubmit) happens via the Resubmit button.
  */
-export default function SubmitRevisionModal({
+export function SubmitRevisionModal({
     isOpen,
     onClose,
     sessionId,

@@ -133,6 +133,8 @@ export const SESSION_STATUS = {
     PENDING_SCHEDULE: "pending_schedule",
     SCHEDULED: "scheduled",
     IN_PROGRESS: "in_progress",
+    COMPLETED_BY_THERAPIST: "completed_by_therapist",
+    IN_REVISION: "in_revision",
     CONFIRMED_BY_CUSTOMER: "confirmed_by_customer",
     MISSED: "missed",
     ATTEMPTED: "attempted",
