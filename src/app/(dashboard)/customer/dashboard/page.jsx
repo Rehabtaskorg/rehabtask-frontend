@@ -18,6 +18,7 @@ import { UpcomingBookingsTable } from "@/components/customer/dashboard/UpcomingB
 import { PendingConfirmationsPanel } from "@/components/customer/dashboard/PendingConfirmationsPanel";
 
 const UPCOMING_STATUSES = [
+    BOOKING_STATUS.PENDING_PAYMENT,
     BOOKING_STATUS.ACCEPTED,
     BOOKING_STATUS.CONFIRMED,
     BOOKING_STATUS.IN_PROGRESS,

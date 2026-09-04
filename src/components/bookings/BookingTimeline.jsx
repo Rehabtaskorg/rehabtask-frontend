@@ -12,6 +12,9 @@ import {
     MdAccountBalanceWallet,
     MdReceipt,
 } from "react-icons/md";
+import { BOOKING_STATUS } from "@/lib/constants";
+import { getPendingPaymentDeadline } from "@/lib/bookingPayment";
+import { formatClockTime } from "@/utils/dates";
 
 const formatTimestamp = (dateStr) => {
     if (!dateStr) return null;
@@ -117,8 +120,8 @@ export default function BookingTimeline({ booking }) {
     const allTherapistComplete = isMultiSession
         ? deliverableSessions.length > 0 && deliverableSessions.every(s => ["completed_by_therapist", "confirmed_by_customer"].includes(s.status))
         : !!session?.completedAt;
-    const isCancelled = booking.status === "cancelled";
-    const isFinalized = booking.status === "finalized";
+    const isCancelled = booking.status === BOOKING_STATUS.CANCELLED;
+    const isFinalized = booking.status === BOOKING_STATUS.FINALIZED;
 
     // Build steps dynamically
     const steps = [];
@@ -132,10 +135,12 @@ export default function BookingTimeline({ booking }) {
     });
 
     // 2. Payment Escrowed (or awaiting payment)
-    if (!payment && ["pending", "accepted"].includes(booking.status)) {
+    if (!payment && [BOOKING_STATUS.PENDING, BOOKING_STATUS.PENDING_PAYMENT, BOOKING_STATUS.ACCEPTED].includes(booking.status)) {
+        const holdUntil = formatClockTime(getPendingPaymentDeadline(booking));
         steps.push({
             icon: MdPayments,
             title: "Awaiting Payment",
+            subtitle: holdUntil ? `Slot held until ${holdUntil}` : null,
             isWaiting: true,
         });
     } else if (payment) {

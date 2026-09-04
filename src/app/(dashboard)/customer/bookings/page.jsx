@@ -10,7 +10,9 @@ import { PatientIdentityCell } from "@/components/bookings/PatientIdentityCell";
 import { formatCurrency } from "@/utils/messages";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { formatShortDate } from "@/utils/dates";
-import { CUSTOMER_TYPES, LICENSE_TYPE_TO_DISCIPLINE } from "@/lib/constants";
+import { BOOKING_STATUS, CUSTOMER_TYPES, LICENSE_TYPE_TO_DISCIPLINE } from "@/lib/constants";
+import { getPendingPaymentDeadline, isPendingPaymentExpired } from "@/lib/bookingPayment";
+import { formatClockTime } from "@/utils/dates";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -21,8 +23,16 @@ const FILTER_TABS = [
     { key: "cancelled", label: "Cancelled" },
 ];
 
-const isUpcoming = (status) =>
-    ["pending", "accepted", "confirmed", "in_progress", "reschedule_requested"].includes(status);
+const UPCOMING_STATUSES = Object.freeze([
+    BOOKING_STATUS.PENDING,
+    BOOKING_STATUS.PENDING_PAYMENT,
+    BOOKING_STATUS.ACCEPTED,
+    BOOKING_STATUS.CONFIRMED,
+    BOOKING_STATUS.IN_PROGRESS,
+    BOOKING_STATUS.RESCHEDULE_REQUESTED,
+]);
+
+const isUpcoming = (status) => UPCOMING_STATUSES.includes(status);
 
 const formatDate = (dateStr) => {
     if (!dateStr) return "—";
@@ -46,21 +56,29 @@ export default function CustomerBookingsPage() {
     );
 
     const paymentNeeded = useMemo(
-        () => bookings.find((b) => b.status === "accepted"),
+        () =>
+            bookings.find(
+                (b) => b.status === BOOKING_STATUS.PENDING_PAYMENT && !isPendingPaymentExpired(b)
+            ) ?? bookings.find((b) => b.status === BOOKING_STATUS.ACCEPTED),
         [bookings]
+    );
+
+    const paymentDeadline = useMemo(
+        () => formatClockTime(getPendingPaymentDeadline(paymentNeeded)),
+        [paymentNeeded]
     );
 
     const counts = useMemo(() => ({
         all: bookings.length,
         upcoming: bookings.filter((b) => isUpcoming(b.status)).length,
-        completed: bookings.filter((b) => b.status === "completed").length,
-        cancelled: bookings.filter((b) => b.status === "cancelled").length,
+        completed: bookings.filter((b) => b.status === BOOKING_STATUS.COMPLETED).length,
+        cancelled: bookings.filter((b) => b.status === BOOKING_STATUS.CANCELLED).length,
     }), [bookings]);
 
     const filtered = useMemo(() => {
         if (activeFilter === "upcoming") return bookings.filter((b) => isUpcoming(b.status));
-        if (activeFilter === "completed") return bookings.filter((b) => b.status === "completed");
-        if (activeFilter === "cancelled") return bookings.filter((b) => b.status === "cancelled");
+        if (activeFilter === "completed") return bookings.filter((b) => b.status === BOOKING_STATUS.COMPLETED);
+        if (activeFilter === "cancelled") return bookings.filter((b) => b.status === BOOKING_STATUS.CANCELLED);
         return bookings;
     }, [bookings, activeFilter]);
 
@@ -144,7 +162,9 @@ export default function CustomerBookingsPage() {
                 <div className="mx-4 sm:mx-8 mt-4 flex items-center gap-3 px-4 py-3 rounded-lg bg-blue-50 border border-blue-200">
                     <MdWarning className="text-blue-600 text-lg shrink-0" />
                     <p className="text-sm text-blue-800 flex-1">
-                        You have a booking awaiting payment. Complete payment to confirm your session.
+                        {paymentDeadline
+                            ? `Complete payment — slot held until ${paymentDeadline}.`
+                            : "You have a booking awaiting payment. Complete payment to confirm your session."}
                     </p>
                     <button
                         onClick={() => router.push(`/customer/bookings/${paymentNeeded.id}`)}

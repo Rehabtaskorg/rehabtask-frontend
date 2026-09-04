@@ -151,6 +151,7 @@ export const PLAN_TYPES = {
 
 export const BOOKING_STATUS = {
     PENDING: "pending",
+    PENDING_PAYMENT: "pending_payment",
     ACCEPTED: "accepted",
     CONFIRMED: "confirmed",
     IN_PROGRESS: "in_progress",
