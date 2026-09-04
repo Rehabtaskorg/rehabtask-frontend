@@ -13,7 +13,7 @@ import {
     MdReceipt,
 } from "react-icons/md";
 import { BOOKING_STATUS } from "@/lib/constants";
-import { getPendingPaymentDeadline } from "@/lib/bookingPayment";
+import { getPendingPaymentDeadline, isPendingPaymentExpired } from "@/lib/bookingPayment";
 import { formatClockTime } from "@/utils/dates";
 
 const formatTimestamp = (dateStr) => {
@@ -136,12 +136,14 @@ export default function BookingTimeline({ booking }) {
 
     // 2. Payment Escrowed (or awaiting payment)
     if (!payment && [BOOKING_STATUS.PENDING, BOOKING_STATUS.PENDING_PAYMENT, BOOKING_STATUS.ACCEPTED].includes(booking.status)) {
+        const expired = isPendingPaymentExpired(booking);
         const holdUntil = formatClockTime(getPendingPaymentDeadline(booking));
         steps.push({
             icon: MdPayments,
-            title: "Awaiting Payment",
-            subtitle: holdUntil ? `Slot held until ${holdUntil}` : null,
-            isWaiting: true,
+            title: expired ? "Payment Window Closed" : "Awaiting Payment",
+            subtitle: expired ? "Reservation is being released" : holdUntil ? `Slot held until ${holdUntil}` : null,
+            isWaiting: !expired,
+            isCancelled: expired,
         });
     } else if (payment) {
         const escrowed = ["escrowed", "partially_released", "released", "refunded"].includes(payment.status);

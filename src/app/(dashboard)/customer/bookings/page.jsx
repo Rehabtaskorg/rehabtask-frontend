@@ -284,7 +284,7 @@ export default function CustomerBookingsPage() {
                                                     </span>
                                                 </td>
                                                 <td className="py-3.5 pr-4">
-                                                    <BookingStatusBadge status={booking.status} />
+                                                    <BookingStatusBadge status={booking.status} isExpired={isPendingPaymentExpired(booking)} />
                                                 </td>
                                                 <td className="py-3.5">
                                                     <MdChevronRight className="text-lg text-text-muted" />
@@ -324,7 +324,7 @@ export default function CustomerBookingsPage() {
                                                     {discipline} · {therapist?.fullName || "—"}
                                                 </p>
                                             </div>
-                                            <BookingStatusBadge status={booking.status} />
+                                            <BookingStatusBadge status={booking.status} isExpired={isPendingPaymentExpired(booking)} />
                                         </div>
                                         {agencyName && (
                                             <p className="text-xs text-text-muted mb-1">{agencyName}</p>

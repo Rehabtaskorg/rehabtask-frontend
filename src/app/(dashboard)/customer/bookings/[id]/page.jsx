@@ -291,7 +291,7 @@ export default function CustomerBookingDetailPage() {
                         ID: {booking.id.slice(0, 8)}...
                     </p>
                 </div>
-                <BookingStatusBadge status={booking.status} size="md" />
+                <BookingStatusBadge status={booking.status} size="md" isExpired={pendingPaymentExpired} />
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
