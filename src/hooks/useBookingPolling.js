@@ -1,14 +1,16 @@
 "use client";
+/* eslint-disable react-hooks/exhaustive-deps */
 
 import { useEffect } from "react";
+import { BOOKING_STATUS } from "@/lib/constants";
+import { PAYABLE_BOOKING_STATUSES } from "@/lib/bookingPayment";
 
 export function useBookingPolling({ booking, refetch, awaitingPaymentUpdate, setAwaitingPaymentUpdate }) {
     useEffect(() => {
-        if (booking && ["confirmed", "in_progress"].includes(booking.status)) {
+        if (booking && [BOOKING_STATUS.CONFIRMED, BOOKING_STATUS.IN_PROGRESS].includes(booking.status)) {
             const interval = setInterval(refetch, 5000);
             return () => clearInterval(interval);
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [booking?.status, refetch]);
 
     useEffect(() => {
@@ -19,10 +21,9 @@ export function useBookingPolling({ booking, refetch, awaitingPaymentUpdate, set
     }, [awaitingPaymentUpdate, refetch, setAwaitingPaymentUpdate]);
 
     useEffect(() => {
-        if (awaitingPaymentUpdate && booking && !["pending", "accepted"].includes(booking.status)) {
+        if (awaitingPaymentUpdate && booking && !PAYABLE_BOOKING_STATUSES.includes(booking.status)) {
             setAwaitingPaymentUpdate(false);
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [awaitingPaymentUpdate, booking?.status]);
 }
 
@@ -42,6 +43,5 @@ export function usePaymentRedirect({ params, searchParams, setShowPaymentBanner,
         if (redirectStatus === "failed") {
             window.history.replaceState({}, "", `/customer/bookings/${params.id}`);
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [searchParams, params.id]);
 }

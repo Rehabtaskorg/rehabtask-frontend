@@ -96,3 +96,16 @@ export const localDateTimeParts = (date) => {
     const min = String(date.getMinutes()).padStart(2, "0");
     return { date: `${y}-${m}-${d}`, time: `${h}:${min}` };
 };
+
+/**
+ * Formats a deadline as a local clock time ("3:42 PM") for hold/expiry banners.
+ * Returns null for a missing date so callers can branch on absence.
+ * @param {string|Date|null|undefined} dateStr
+ * @returns {string|null}
+ */
+export const formatClockTime = (dateStr) => {
+    if (!dateStr) return null;
+    const d = new Date(dateStr);
+    if (Number.isNaN(d.getTime())) return null;
+    return d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+};

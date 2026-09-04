@@ -9,6 +9,7 @@ import {
     MdUpdate,
     MdPayment,
     MdWarning,
+    MdTimer,
 } from "react-icons/md";
 
 const STATUS_CONFIG = {
@@ -17,6 +18,12 @@ const STATUS_CONFIG = {
         text: "text-amber-800 ",
         icon: MdPending,
         label: "Pending Payment",
+    },
+    pending_payment: {
+        bg: "bg-orange-100 ",
+        text: "text-orange-800 ",
+        icon: MdTimer,
+        label: "Payment Required",
     },
     accepted: {
         bg: "bg-teal-100 ",

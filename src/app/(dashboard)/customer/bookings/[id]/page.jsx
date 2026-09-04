@@ -6,14 +6,16 @@ import Image from "next/image";
 import {
     MdArrowBack, MdChat, MdCalendarToday, MdLocationOn, MdVideocam, MdPerson,
     MdCheckCircle, MdClose, MdWarning, MdInfo, MdRefresh, MdSchedule, MdUpdate, MdPhone, MdLock,
+    MdTimer,
 } from "react-icons/md";
 import { useBookingDetail } from "@/hooks/useBookings";
 import { useBookingPolling, usePaymentRedirect } from "@/hooks/useBookingPolling";
 import { bookingsApi } from "@/services/booking.api";
 import { BOOKING_STATUS, USER_ROLES } from "@/lib/constants";
+import { PAYABLE_BOOKING_STATUSES, getPendingPaymentDeadline, isPendingPaymentExpired } from "@/lib/bookingPayment";
 import { resolveVisitPlan, computeTotalVisits } from "@/lib/visitPlan";
 import { formatCurrency } from "@/utils/messages";
-import { formatDate } from "@/utils/dates";
+import { formatDate, formatClockTime } from "@/utils/dates";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import BookingStatusBadge from "@/components/bookings/BookingStatusBadge";
@@ -245,6 +247,10 @@ export default function CustomerBookingDetailPage() {
         ? sessions.length > 0 && sessions.every(s => s.status === "confirmed_by_customer")
         : session?.status === "confirmed_by_customer";
 
+    const isPendingPayment = booking.status === BOOKING_STATUS.PENDING_PAYMENT;
+    const pendingPaymentExpired = isPendingPaymentExpired(booking);
+    const pendingPaymentDeadline = formatClockTime(getPendingPaymentDeadline(booking));
+
     return (
         <div className="p-4 md:p-6 max-w-6xl mx-auto">
             {showPaymentBanner && (
@@ -327,7 +333,13 @@ export default function CustomerBookingDetailPage() {
                                     </p>
                                 )}
                             </div>
-                            {["accepted", "confirmed", "in_progress", "completed", "reschedule_requested"].includes(booking.status) && (
+                            {[
+                                BOOKING_STATUS.ACCEPTED,
+                                BOOKING_STATUS.CONFIRMED,
+                                BOOKING_STATUS.IN_PROGRESS,
+                                BOOKING_STATUS.COMPLETED,
+                                BOOKING_STATUS.RESCHEDULE_REQUESTED,
+                            ].includes(booking.status) && (
                                 <button
                                     onClick={() => router.push(`/customer/messages?c=booking:${params.id}`)}
                                     className="flex items-center gap-1.5 px-3 py-2 border border-primary text-primary rounded-lg text-xs font-bold hover:bg-primary/5 transition-colors shrink-0"
@@ -414,7 +426,7 @@ export default function CustomerBookingDetailPage() {
 
                     {/* Action area */}
                     <div className="space-y-4">
-                        {booking.status === "reschedule_requested" && booking.proposedNewDate && (
+                        {booking.status === BOOKING_STATUS.RESCHEDULE_REQUESTED && booking.proposedNewDate && (
                             <div className="bg-amber-50  border border-amber-200  rounded-xl p-5">
                                 <div className="flex items-start gap-3 mb-3">
                                     <MdUpdate className="text-amber-600  text-lg mt-0.5 shrink-0" />
@@ -444,7 +456,29 @@ export default function CustomerBookingDetailPage() {
                             </div>
                         )}
 
-                        {["pending", "accepted"].includes(booking.status) && (!payment || ["intent_created", "requires_action", "failed"].includes(payment.status)) && (
+                        {isPendingPayment && (
+                            <div className={`rounded-xl p-5 border ${pendingPaymentExpired ? "bg-slate-50 border-border-light" : "bg-amber-50 border-amber-200"}`}>
+                                <div className="flex items-start gap-3">
+                                    <MdTimer className={`text-lg mt-0.5 shrink-0 ${pendingPaymentExpired ? "text-text-muted" : "text-amber-600"}`} />
+                                    <div className="flex-1">
+                                        <p className={`text-sm font-bold ${pendingPaymentExpired ? "text-text-main" : "text-amber-900"}`}>
+                                            {pendingPaymentExpired ? "Payment window closed" : "Complete payment to confirm this booking"}
+                                        </p>
+                                        <p className={`text-xs mt-0.5 ${pendingPaymentExpired ? "text-text-muted" : "text-amber-700"}`}>
+                                            {pendingPaymentExpired
+                                                ? "This reservation has expired and is being released. The offer will return to your request so you can accept it again."
+                                                : pendingPaymentDeadline
+                                                    ? `Your slot is held until ${pendingPaymentDeadline}. Your therapist is not notified and cannot start work until payment completes.`
+                                                    : "Your slot is held for a limited time. Your therapist is not notified and cannot start work until payment completes."}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {PAYABLE_BOOKING_STATUSES.includes(booking.status) &&
+                            !pendingPaymentExpired &&
+                            (!payment || ["intent_created", "requires_action", "failed"].includes(payment.status)) && (
                             <div id="inline-payment">
                                 <InlinePaymentSection booking={booking} onPaymentSuccess={handlePaymentSuccess} />
                             </div>
@@ -667,7 +701,7 @@ export default function CustomerBookingDetailPage() {
                             </div>
                         )}
 
-                        {booking.status !== "finalized" && (allConfirmed || payment?.status === "released") && (
+                        {booking.status !== BOOKING_STATUS.FINALIZED && (allConfirmed || payment?.status === "released") && (
                             <div className="bg-emerald-50  border border-emerald-200  rounded-xl p-5">
                                 <div className="flex items-start gap-3">
                                     <MdCheckCircle className="text-emerald-600  text-lg mt-0.5 shrink-0" />
@@ -688,7 +722,7 @@ export default function CustomerBookingDetailPage() {
                             </div>
                         )}
 
-                        {booking.status === "cancelled" && (
+                        {booking.status === BOOKING_STATUS.CANCELLED && (
                             <div className="bg-slate-50  border border-border-light  rounded-xl p-5">
                                 <div className="flex items-start gap-3">
                                     <MdInfo className="text-text-muted  text-lg mt-0.5 shrink-0" />
