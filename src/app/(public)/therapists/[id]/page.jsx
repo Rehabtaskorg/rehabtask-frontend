@@ -184,15 +184,21 @@ function TherapistPublicProfileContent() {
                                 </div>
                             </motion.section>
 
-                            {/* About — public */}
-                            {profile.professionalSummary && (
-                                <motion.section initial={{ opacity: 0, y: 15 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }} className="space-y-3">
-                                    <h2 className="text-xl font-bold text-gray-900">About</h2>
-                                    <div className="bg-gray-50 rounded-2xl p-8">
-                                        <p className="text-gray-600 leading-relaxed text-lg">{profile.professionalSummary}</p>
-                                    </div>
-                                </motion.section>
-                            )}
+                            {/*
+                                About (public) — HIDDEN (product decision, 2026-09-07).
+                                professionalSummary is still returned by the API and is
+                                unchanged in the data layer; only this public render is hidden.
+                                To restore: uncomment this block as-is.
+
+                                {profile.professionalSummary && (
+                                    <motion.section initial={{ opacity: 0, y: 15 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }} className="space-y-3">
+                                        <h2 className="text-xl font-bold text-gray-900">About</h2>
+                                        <div className="bg-gray-50 rounded-2xl p-8">
+                                            <p className="text-gray-600 leading-relaxed text-lg">{profile.professionalSummary}</p>
+                                        </div>
+                                    </motion.section>
+                                )}
+                            */}
 
                             {/* Clinical Skills */}
                             {(profile.specialties?.length > 0 || profile.languages?.length > 0 || profile.certifications?.length > 0) && (
