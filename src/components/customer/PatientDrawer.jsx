@@ -119,7 +119,8 @@ export default function PatientDrawer({ patientId, onClose }) {
         Object.assign(errs, validateCertificationPeriod(editData.certificationStart, editData.certificationEnd));
         if (editData.email?.trim() && !/\S+@\S+\.\S+/.test(editData.email.trim()))
             errs.email = "Please enter a valid email";
-        if (editData.phone?.trim() && !/^\+1\d{10}$/.test(editData.phone.trim()))
+        if (!editData.phone?.trim()) errs.phone = "Phone number is required";
+        else if (!/^\+1\d{10}$/.test(editData.phone.trim()))
             errs.phone = "Please enter a valid 10-digit US phone number";
         if (editData.zipCode?.trim() && !/^\d{5}(-\d{4})?$/.test(editData.zipCode.trim()))
             errs.zipCode = "Enter a valid US zip code (e.g. 90210)";
@@ -140,7 +141,7 @@ export default function PatientDrawer({ patientId, onClose }) {
                     certificationStart:  editData.certificationStart || undefined,
                     certificationEnd:    editData.certificationEnd || undefined,
                     email:               editData.email?.trim() || "",
-                    phone:        editData.phone?.trim() || "",
+                    phone:        editData.phone.trim(),
                     addressLine1: editData.addressLine1?.trim() || "",
                     city:         editData.city?.trim() || "",
                     state:        editData.state?.trim() || "",
@@ -364,7 +365,7 @@ export default function PatientDrawer({ patientId, onClose }) {
                                             </div>
                                             <div>
                                                 <label className="block text-xs font-semibold text-text-muted  mb-1">
-                                                    Phone <span className="text-text-muted/50 font-normal">(Optional)</span>
+                                                    Phone <span className="text-red-500">*</span>
                                                 </label>
                                                 <div className={`flex items-center rounded-lg border overflow-hidden ${editErrors.phone ? "border-red-400 " : "border-border-light "} bg-background-light `}>
                                                     <span className="px-3 py-2 text-sm text-text-muted  border-r border-border-light  select-none bg-slate-50  shrink-0">
