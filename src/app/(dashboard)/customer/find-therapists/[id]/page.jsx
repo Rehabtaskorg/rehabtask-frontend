@@ -170,12 +170,17 @@ export default function TherapistProfilePage() {
                                 />
                             </div>
 
-                            {/* Summary */}
-                            {therapist.professionalSummary && (
-                                <UserText className="text-sm text-text-muted leading-relaxed mb-3">
-                                    {therapist.professionalSummary}
-                                </UserText>
-                            )}
+                            {/*
+                                Summary — HIDDEN (product decision, 2026-09-07).
+                                Data layer unchanged; only this render is hidden.
+                                To restore: uncomment this block as-is.
+
+                                {therapist.professionalSummary && (
+                                    <UserText className="text-sm text-text-muted leading-relaxed mb-3">
+                                        {therapist.professionalSummary}
+                                    </UserText>
+                                )}
+                            */}
 
                             {/* NPI + Phone */}
                             <div className="flex flex-wrap items-center gap-4 text-sm text-text-muted mb-4">
