@@ -283,38 +283,47 @@ const ProfileEditModal = ({ isOpen, onClose, profile, onSuccess }) => {
                         </p>
                     </div>
 
-                    {/* Professional Summary */}
-                    <div className="space-y-2">
-                        <div className="flex items-center justify-between">
-                            <label className="block text-sm font-bold text-text-main  uppercase tracking-wide">
-                                Professional Summary <span className="text-red-500">*</span>
-                            </label>
-                            <span
-                                className={`text-xs font-medium ${summaryLength < 100
-                                    ? "text-red-500"
-                                    : summaryLength > 1800
-                                        ? "text-yellow-500"
-                                        : "text-text-muted"
-                                    }`}
-                            >
-                                {summaryLength}/2000
-                            </span>
+                    {/*
+                        Professional Summary — HIDDEN (product decision, 2026-09-07).
+                        Includes the label, the character counter, the textarea, and the
+                        error message. profileEditSchema still validates professionalSummary
+                        (see the rule near the top of this file) and summaryValue /
+                        summaryLength above are still computed — intentionally left in place
+                        so this block can be restored by uncommenting alone.
+                        To restore: uncomment this block as-is.
+
+                        <div className="space-y-2">
+                            <div className="flex items-center justify-between">
+                                <label className="block text-sm font-bold text-text-main  uppercase tracking-wide">
+                                    Professional Summary <span className="text-red-500">*</span>
+                                </label>
+                                <span
+                                    className={`text-xs font-medium ${summaryLength < 100
+                                        ? "text-red-500"
+                                        : summaryLength > 1800
+                                            ? "text-yellow-500"
+                                            : "text-text-muted"
+                                        }`}
+                                >
+                                    {summaryLength}/2000
+                                </span>
+                            </div>
+                            <textarea
+                                {...register("professionalSummary")}
+                                rows={5}
+                                className={`w-full px-4 py-3 rounded-xl bg-white  border transition-all outline-none resize-none ${errors.professionalSummary
+                                    ? "border-red-500 focus:ring-2 focus:ring-red-500/20"
+                                    : "border-border-subtle  focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                                    } text-text-main  placeholder:text-text-muted/50`}
+                                placeholder="Describe your experience, approach, and areas of expertise..."
+                            />
+                            {errors.professionalSummary && (
+                                <p className="text-xs text-red-500 font-medium">
+                                    {errors.professionalSummary.message}
+                                </p>
+                            )}
                         </div>
-                        <textarea
-                            {...register("professionalSummary")}
-                            rows={5}
-                            className={`w-full px-4 py-3 rounded-xl bg-white  border transition-all outline-none resize-none ${errors.professionalSummary
-                                ? "border-red-500 focus:ring-2 focus:ring-red-500/20"
-                                : "border-border-subtle  focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                                } text-text-main  placeholder:text-text-muted/50`}
-                            placeholder="Describe your experience, approach, and areas of expertise..."
-                        />
-                        {errors.professionalSummary && (
-                            <p className="text-xs text-red-500 font-medium">
-                                {errors.professionalSummary.message}
-                            </p>
-                        )}
-                    </div>
+                    */}
 
                     {/* Read-only credentials */}
                     <div className="bg-muted-light  rounded-xl p-4 border border-border-light ">

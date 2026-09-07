@@ -249,14 +249,20 @@ const ProfileTab = ({ profile, approvalStatus, onboardingComplete }) => {
                             />
                         </div>
 
-                        {profile?.professionalSummary && (
-                            <div className="mt-4 pt-4 border-t border-border-light ">
-                                <p className="text-sm text-text-muted mb-1">Professional Summary</p>
-                                <UserText className="text-sm text-text-main leading-relaxed" preserveLineBreaks>
-                                    {profile.professionalSummary}
-                                </UserText>
-                            </div>
-                        )}
+                        {/*
+                            Professional Summary (read-only) — HIDDEN (product decision, 2026-09-07).
+                            Data layer unchanged; only this render is hidden.
+                            To restore: uncomment this block as-is.
+
+                            {profile?.professionalSummary && (
+                                <div className="mt-4 pt-4 border-t border-border-light ">
+                                    <p className="text-sm text-text-muted mb-1">Professional Summary</p>
+                                    <UserText className="text-sm text-text-main leading-relaxed" preserveLineBreaks>
+                                        {profile.professionalSummary}
+                                    </UserText>
+                                </div>
+                            )}
+                        */}
                     </div>
                     <ClinicalProfileSection profile={profile} />
                 </div>
