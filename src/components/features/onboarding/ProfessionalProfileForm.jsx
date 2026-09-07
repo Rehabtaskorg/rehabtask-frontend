@@ -344,24 +344,31 @@ export function ProfessionalProfileForm() {
                                 />
                             </div>
 
-                            {/* Professional Summary */}
-                            <div className="flex flex-col gap-2">
-                                <label className="flex justify-between items-center">
-                                    <span className="text-text-main text-base font-semibold">
-                                        Professional Summary <span className="text-text-muted text-xs font-normal">(optional)</span>
-                                    </span>
-                                    <span className="text-xs text-gray-400 font-normal">
-                                        {watch("professionalSummary")?.length || 0}/2000
-                                    </span>
-                                </label>
-                                <textarea
-                                    {...register("professionalSummary")}
-                                    className="w-full min-h-36 resize-none rounded-lg border border-border-light bg-input-light text-text-main focus:ring-2 focus:ring-primary focus:border-transparent p-4 text-base leading-relaxed outline-none placeholder:text-text-muted"
-                                    placeholder="Share a brief bio about your therapeutic approach, areas of interest, and why you love what you do..."
-                                    maxLength={2000}
-                                />
-                                {errors.professionalSummary && <p className="text-red-500 text-sm">{errors.professionalSummary.message}</p>}
-                            </div>
+                            {/*
+                                Professional Summary — HIDDEN (product decision, 2026-09-07).
+                                UI intentionally hidden; the field remains optional and fully
+                                functional in the data layer (defaultValues, reset, and the
+                                onSubmit payload still carry professionalSummary).
+                                To restore: uncomment this block as-is.
+
+                                <div className="flex flex-col gap-2">
+                                    <label className="flex justify-between items-center">
+                                        <span className="text-text-main text-base font-semibold">
+                                            Professional Summary <span className="text-text-muted text-xs font-normal">(optional)</span>
+                                        </span>
+                                        <span className="text-xs text-gray-400 font-normal">
+                                            {watch("professionalSummary")?.length || 0}/2000
+                                        </span>
+                                    </label>
+                                    <textarea
+                                        {...register("professionalSummary")}
+                                        className="w-full min-h-36 resize-none rounded-lg border border-border-light bg-input-light text-text-main focus:ring-2 focus:ring-primary focus:border-transparent p-4 text-base leading-relaxed outline-none placeholder:text-text-muted"
+                                        placeholder="Share a brief bio about your therapeutic approach, areas of interest, and why you love what you do..."
+                                        maxLength={2000}
+                                    />
+                                    {errors.professionalSummary && <p className="text-red-500 text-sm">{errors.professionalSummary.message}</p>}
+                                </div>
+                            */}
 
                             {submitError && <p className="text-red-500 text-sm">{submitError}</p>}
                         </div>

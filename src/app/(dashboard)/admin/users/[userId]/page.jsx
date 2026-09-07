@@ -453,12 +453,19 @@ export default function AdminUserDetailPage() {
                                 <option value="Occupational Therapist Assistant">OT Assistant (OTA)</option>
                             </select>
                         </div>
-                        <EditableTextarea
-                            label="Professional Summary"
-                            value={editForm.professionalSummary || ''}
-                            onChange={(v) => setEditForm(f => ({ ...f, professionalSummary: v }))}
-                            placeholder="Therapist professional summary..."
-                        />
+                        {/*
+                            Professional Summary — HIDDEN (product decision, 2026-09-07).
+                            Admin edit control only; the field is still loaded into editForm
+                            and still diffed on save, so existing values are preserved.
+                            To restore: uncomment this block as-is.
+
+                            <EditableTextarea
+                                label="Professional Summary"
+                                value={editForm.professionalSummary || ''}
+                                onChange={(v) => setEditForm(f => ({ ...f, professionalSummary: v }))}
+                                placeholder="Therapist professional summary..."
+                            />
+                        */}
                     </SectionCard>
                 ) : (
                     <SectionCard title="Therapist Profile">
