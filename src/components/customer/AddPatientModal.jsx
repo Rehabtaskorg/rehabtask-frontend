@@ -16,7 +16,7 @@ const inputBase =
 // via src/lib/config.js. Pre-existing issues — needs a dedicated refactor.
 /**
  * Modal for creating a new patient under an agency account.
- * Includes address autocomplete with map preview, and optional email/phone fields.
+ * Includes address autocomplete with map preview and an optional email field.
  *
  * @param {Object} props
  * @param {boolean} props.isOpen
@@ -103,7 +103,8 @@ export default function AddPatientModal({ isOpen, onClose, onSuccess }) {
         if (!zipCode.trim()) newErrors.zipCode = "Zip code is required";
         else if (!/^\d{5}(-\d{4})?$/.test(zipCode.trim())) newErrors.zipCode = "Enter a valid US zip code (e.g. 90210)";
         if (email.trim() && !/\S+@\S+\.\S+/.test(email)) newErrors.email = "Please enter a valid email";
-        if (phone.trim() && !/^\+1\d{10}$/.test(phone.trim())) {
+        if (!phone.trim()) newErrors.phone = "Phone number is required";
+        else if (!/^\+1\d{10}$/.test(phone.trim())) {
             newErrors.phone = "Please enter a valid 10-digit US phone number";
         }
         setErrors(newErrors);
@@ -122,7 +123,7 @@ export default function AddPatientModal({ isOpen, onClose, onSuccess }) {
                 certificationStart,
                 certificationEnd,
                 email: email.trim() || undefined,
-                phone: phone.trim() || undefined,
+                phone: phone.trim(),
                 addressLine1: addressLine1.trim(),
                 city: city.trim(),
                 state: state.trim(),
@@ -376,10 +377,10 @@ export default function AddPatientModal({ isOpen, onClose, onSuccess }) {
                             {errors.email && <p className="text-xs text-red-500 mt-1">{errors.email}</p>}
                         </div>
 
-                        {/* Phone (optional) */}
+                        {/* Phone (required) */}
                         <div>
                             <label className="block text-sm font-medium text-text-main  mb-1.5">
-                                Phone <span className="text-text-muted  font-normal text-xs">(Optional)</span>
+                                Phone <span className="text-red-500">*</span>
                             </label>
                             <div className={`flex items-center rounded-lg border overflow-hidden ${errors.phone ? "border-red-400 " : "border-border-light "} bg-background-light `}>
                                 <span className="px-3 py-2.5 text-sm text-text-muted  border-r border-border-light  select-none bg-slate-50  shrink-0">
