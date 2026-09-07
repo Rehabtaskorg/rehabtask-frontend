@@ -53,9 +53,6 @@ export default function RequestPublicCard({ request, index = 0, onAuthGate }) {
                 )}
             </div>
 
-            {/* Description */}
-            <p className="text-gray-700 text-sm leading-relaxed mb-4 line-clamp-3">{request.description}</p>
-
             {/* Details grid */}
             <div className="grid grid-cols-3 gap-4 py-4 border-y border-gray-100 mb-5">
                 <div>
