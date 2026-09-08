@@ -1,3 +1,5 @@
+import { APPROVAL_STATUS } from "@/lib/constants";
+
 const MARKETPLACE_ROUTES = [
     "/therapist/requests",
     "/therapist/offers",
@@ -28,6 +30,8 @@ const STEP_ROUTE_OVERRIDES = {
 
 const SAFE_FALLBACK_ROUTE = "/therapist/dashboard";
 
+const ONBOARDING_LOCKED_STATUSES = [APPROVAL_STATUS.REVIEW, APPROVAL_STATUS.APPROVED];
+
 const ALLOWED_DURING_ONBOARDING = [
     "/therapist/dashboard",
     "/therapist/profile",
@@ -35,8 +39,12 @@ const ALLOWED_DURING_ONBOARDING = [
     ...MARKETPLACE_ROUTES,
 ];
 
-export function getTherapistRedirect(pathname, { onboardingComplete, onboardingStep }) {
+export function getTherapistRedirect(pathname, { onboardingComplete, onboardingStep, approvalStatus }) {
     const isOnOnboardingRoute = pathname.startsWith("/therapist/onboarding");
+
+    if (isOnOnboardingRoute && ONBOARDING_LOCKED_STATUSES.includes(approvalStatus)) {
+        return SAFE_FALLBACK_ROUTE;
+    }
 
     if (!onboardingComplete && onboardingStep < 8) {
         // Prevent skipping ahead in onboarding steps via direct URL
