@@ -1,4 +1,5 @@
 import { MdDescription } from 'react-icons/md';
+import { PendingReviewBadge } from '@/components/features/admin/PendingReviewBadge';
 import { THERAPIST_STATUS_STYLES, THERAPIST_STATUS_FALLBACK, fmtDate } from './therapistStatusStyles';
 
 /**
@@ -33,9 +34,12 @@ export function TherapistTableRow({ therapist, isSelected, onSelect }) {
                 {profile?.primaryLicenseType || '—'}
             </td>
             <td className="px-5 py-4">
-                <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium capitalize ${THERAPIST_STATUS_STYLES[profile?.approvalStatus] ?? THERAPIST_STATUS_FALLBACK}`}>
-                    {profile?.approvalStatus}
-                </span>
+                <div className="flex flex-col items-start gap-1">
+                    <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium capitalize ${THERAPIST_STATUS_STYLES[profile?.approvalStatus] ?? THERAPIST_STATUS_FALLBACK}`}>
+                        {profile?.approvalStatus}
+                    </span>
+                    <PendingReviewBadge pendingReviewAt={profile?.pendingReviewAt} />
+                </div>
             </td>
             <td className="px-5 py-4 text-text-muted  hidden lg:table-cell">
                 {fmtDate(therapist.createdAt)}

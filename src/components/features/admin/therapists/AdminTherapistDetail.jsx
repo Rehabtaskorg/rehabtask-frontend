@@ -102,7 +102,11 @@ export function AdminTherapistDetail() {
                 <TherapistAccountDecision therapist={therapist} therapistUserId={id} />
             </div>
 
-            <TherapistDocumentsSection documents={tp?.licenseDocuments} therapistUserId={id} />
+            <TherapistDocumentsSection
+                documents={tp?.licenseDocuments}
+                therapistUserId={id}
+                reviewStartedAt={tp?.reviewStartedAt}
+            />
 
             <TherapistServiceAreas workAreas={tp?.workAreas} />
 

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { MdDescription, MdOpenInNew } from 'react-icons/md';
 import { adminTherapistsApi } from '@/services/admin.api';
+import { DocumentReviewFlags } from '@/components/features/admin/DocumentReviewFlags';
 import { fmtDateLong } from './therapistStatusStyles';
 
 const formatFileSize = (bytes) => {
@@ -14,9 +15,9 @@ const formatFileSize = (bytes) => {
 
 /**
  * A single license document with a "View" action that opens a signed URL.
- * @param {{ doc: object, therapistUserId: string }} props
+ * @param {{ doc: object, therapistUserId: string, reviewStartedAt?: string|null }} props
  */
-export function TherapistDocumentRow({ doc, therapistUserId }) {
+export function TherapistDocumentRow({ doc, therapistUserId, reviewStartedAt }) {
     const [loading, setLoading] = useState(false);
 
     const handleView = async () => {
@@ -51,6 +52,13 @@ export function TherapistDocumentRow({ doc, therapistUserId }) {
                         {meta && <span className="capitalize">{meta}</span>}
                         {meta && ' · '}Uploaded {fmtDateLong(doc.uploadedAt || doc.createdAt)}
                     </p>
+                    <div className="mt-1">
+                        <DocumentReviewFlags
+                            uploadedAt={doc.uploadedAt || doc.createdAt}
+                            reviewStartedAt={reviewStartedAt}
+                            supersedesId={doc.supersedesId}
+                        />
+                    </div>
                 </div>
             </div>
             <div className="shrink-0">

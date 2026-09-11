@@ -27,6 +27,7 @@ export const adminTherapistsApi = {
     get: (therapistUserId) => api.get(`/admin/therapists/${therapistUserId}`),
     approve: (therapistUserId) => api.put(`/admin/therapists/${therapistUserId}/approve`),
     reject: (therapistUserId, data) => api.put(`/admin/therapists/${therapistUserId}/reject`, data),
+    clearReview: (therapistUserId) => api.put(`/admin/therapists/${therapistUserId}/clear-review`),
     updateVerification: (therapistUserId, data) => api.put(`/admin/therapists/${therapistUserId}/verification`, data),
     getDocumentUrl: (therapistUserId, documentId) => api.get(`/admin/therapists/${therapistUserId}/documents/${documentId}`),
 };
@@ -37,6 +38,7 @@ export const adminCustomersApi = {
     get: (customerUserId) => api.get(`/admin/customers/${customerUserId}`),
     approve: (customerUserId) => api.put(`/admin/customers/${customerUserId}/approve`),
     reject: (customerUserId, data) => api.put(`/admin/customers/${customerUserId}/reject`, data),
+    clearReview: (customerUserId) => api.put(`/admin/customers/${customerUserId}/clear-review`),
     getDocumentUrl: (customerUserId, documentId) =>
         api.get(`/admin/customers/${customerUserId}/documents/${documentId}`),
 };

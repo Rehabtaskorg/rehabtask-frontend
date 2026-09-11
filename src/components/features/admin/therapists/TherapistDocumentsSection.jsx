@@ -3,9 +3,9 @@ import { TherapistDocumentRow } from './TherapistDocumentRow';
 
 /**
  * "License Documents" card listing every uploaded document.
- * @param {{ documents: object[]|undefined, therapistUserId: string }} props
+ * @param {{ documents: object[]|undefined, therapistUserId: string, reviewStartedAt?: string|null }} props
  */
-export function TherapistDocumentsSection({ documents, therapistUserId }) {
+export function TherapistDocumentsSection({ documents, therapistUserId, reviewStartedAt }) {
     return (
         <SectionCard title={`License Documents (${documents?.length ?? 0})`}>
             {!documents?.length ? (
@@ -13,7 +13,12 @@ export function TherapistDocumentsSection({ documents, therapistUserId }) {
             ) : (
                 <div className="space-y-2.5">
                     {documents.map(doc => (
-                        <TherapistDocumentRow key={doc.id} doc={doc} therapistUserId={therapistUserId} />
+                        <TherapistDocumentRow
+                            key={doc.id}
+                            doc={doc}
+                            therapistUserId={therapistUserId}
+                            reviewStartedAt={reviewStartedAt}
+                        />
                     ))}
                 </div>
             )}

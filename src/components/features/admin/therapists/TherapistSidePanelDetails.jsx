@@ -1,5 +1,6 @@
 import { MdDescription, MdCheckCircle } from 'react-icons/md';
 import UserAvatar from '@/components/ui/UserAvatar';
+import { PendingReviewBadge } from '@/components/features/admin/PendingReviewBadge';
 import { APPROVAL_STATUS } from '@/lib/constants';
 import { THERAPIST_STATUS_STYLES, THERAPIST_STATUS_FALLBACK, fmtDate } from './therapistStatusStyles';
 
@@ -25,9 +26,12 @@ export function TherapistSidePanelDetails({ therapist, error, success }) {
                 </div>
             </div>
 
-            <span className={`inline-flex px-2.5 py-1 rounded-full text-xs font-medium capitalize ${THERAPIST_STATUS_STYLES[profile?.approvalStatus] ?? THERAPIST_STATUS_FALLBACK}`}>
-                {profile?.approvalStatus}
-            </span>
+            <div className="flex flex-wrap items-center gap-2">
+                <span className={`inline-flex px-2.5 py-1 rounded-full text-xs font-medium capitalize ${THERAPIST_STATUS_STYLES[profile?.approvalStatus] ?? THERAPIST_STATUS_FALLBACK}`}>
+                    {profile?.approvalStatus}
+                </span>
+                <PendingReviewBadge pendingReviewAt={profile?.pendingReviewAt} size="md" />
+            </div>
 
             <dl className="space-y-3 text-sm">
                 <div className="flex justify-between gap-3">

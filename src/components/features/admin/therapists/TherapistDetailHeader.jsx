@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { MdArrowBack, MdCheckCircle, MdWarning, MdOpenInNew } from 'react-icons/md';
+import { PendingReviewBadge } from '@/components/features/admin/PendingReviewBadge';
 import { THERAPIST_STATUS_STYLES, THERAPIST_STATUS_FALLBACK, fmtDateLong } from './therapistStatusStyles';
 
 /**
@@ -41,6 +42,7 @@ export function TherapistDetailHeader({ therapist, actionSuccess, actionError })
                             <span className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium capitalize ${THERAPIST_STATUS_STYLES[tp?.approvalStatus] ?? THERAPIST_STATUS_FALLBACK}`}>
                                 {tp?.approvalStatus}
                             </span>
+                            <PendingReviewBadge pendingReviewAt={tp?.pendingReviewAt} size="md" />
                         </div>
                         <p className="text-sm text-text-muted ">{therapist.email}</p>
                         <p className="text-xs text-text-muted  mt-1">
