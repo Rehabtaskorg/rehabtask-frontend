@@ -149,6 +149,32 @@ export const onboardingAPI = {
     },
 
     /**
+     * Replace an existing document with a new upload. The backend soft-deletes
+     * the old record and links the new one via `supersedesId`, so the document
+     * type is inherited and must not be sent.
+     *
+     * @param {string} documentId - Document being superseded.
+     * @param {File} file - Replacement file.
+     * @returns {Promise<Object>} The newly created document record.
+     */
+    replaceDocument: async (documentId, file) => {
+        const formData = new FormData();
+        formData.append("file", file);
+
+        const response = await api.post(
+            `/therapist/onboarding/document/${documentId}/replace`,
+            formData,
+            {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                }
+            }
+        );
+
+        return response.data.data;
+    },
+
+    /**
      * Get all therapist documents
      */
     getDocuments: async () => {
