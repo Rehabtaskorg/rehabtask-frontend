@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { PendingReviewBadge } from "@/components/features/admin/PendingReviewBadge";
 import { APPROVAL_STATUS, CUSTOMER_TYPES } from "@/lib/constants";
 
 const STATUS_STYLES = {
@@ -82,6 +83,7 @@ export function CustomerTableRow({ customer }) {
                             Resubmitted
                         </span>
                     )}
+                    <PendingReviewBadge pendingReviewAt={customer.pendingReviewAt} />
                 </Link>
             </td>
             <td className="px-4 py-3">

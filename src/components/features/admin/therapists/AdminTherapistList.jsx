@@ -4,12 +4,10 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { usePageTitle } from '@/hooks/usePageTitle';
-import {
-    useAdminTherapists,
-    useApproveTherapist,
-    useRejectTherapist,
-} from '@/hooks/useAdmin';
+import { useAdminTherapists } from '@/hooks/useAdmin';
+import { useTherapistQueueActions } from '@/hooks/useTherapistQueueActions';
 import { APPROVAL_STATUS } from '@/lib/constants';
+import { PendingReviewFilter } from '@/components/features/admin/PendingReviewFilter';
 import { TherapistStatusTabs } from './TherapistStatusTabs';
 import { TherapistSearchInput } from './TherapistSearchInput';
 import { TherapistTable } from './TherapistTable';
@@ -27,12 +25,15 @@ export function AdminTherapistList() {
     const searchParams = useSearchParams();
 
     const [approvalFilter, setApprovalFilter] = useState(searchParams.get('approvalStatus') || '');
+    const [isPendingReviewOnly, setIsPendingReviewOnly] = useState(searchParams.get('pendingReview') === 'true');
     const [search, setSearch] = useState('');
     const [debouncedSearch, setDebounced] = useState('');
     const [page, setPage] = useState(1);
     const [selected, setSelected] = useState(null);
-    const [actionError, setActionError] = useState('');
-    const [actionSuccess, setActionSuccess] = useState('');
+
+    const {
+        actionError, actionSuccess, isMutating, handleApprove, handleReject, resetFeedback,
+    } = useTherapistQueueActions({ setSelected });
 
     useEffect(() => {
         const t = setTimeout(() => { setDebounced(search); setPage(1); }, 400);
@@ -42,6 +43,7 @@ export function AdminTherapistList() {
     const params = {
         ...(debouncedSearch && { search: debouncedSearch }),
         ...(approvalFilter && { approvalStatus: approvalFilter }),
+        ...(isPendingReviewOnly && { pendingReview: 'true' }),
         page,
         limit: PAGE_SIZE,
     };
@@ -50,64 +52,41 @@ export function AdminTherapistList() {
     const pendingBadge = pendingCountData?.pagination?.total ?? 0;
     const { data: reviewCountData } = useAdminTherapists({ approvalStatus: APPROVAL_STATUS.REVIEW, limit: 1 });
     const reviewBadge = reviewCountData?.pagination?.total ?? 0;
+    const { data: pendingReviewCountData } = useAdminTherapists({ pendingReview: 'true', limit: 1 });
+    const pendingReviewBadge = pendingReviewCountData?.pagination?.total ?? 0;
 
     const { data, isLoading, error } = useAdminTherapists(params);
-    const approve = useApproveTherapist();
-    const reject = useRejectTherapist();
-    const mutating = approve.isPending || reject.isPending;
 
     const therapists = data?.therapists ?? [];
     const pagination = data?.pagination;
-
-    const handleApprove = async (therapistUserId) => {
-        setActionError(''); setActionSuccess('');
-        try {
-            await approve.mutateAsync(therapistUserId);
-            setActionSuccess('Application approved successfully.');
-            setSelected(prev =>
-                prev?.id === therapistUserId
-                    ? { ...prev, therapistProfile: { ...prev.therapistProfile, approvalStatus: APPROVAL_STATUS.APPROVED } }
-                    : prev
-            );
-        } catch (e) {
-            setActionError(e?.response?.data?.message || 'Failed to approve application.');
-        }
-    };
-
-    const handleReject = async (therapistUserId, reason) => {
-        setActionError(''); setActionSuccess('');
-        try {
-            await reject.mutateAsync({ therapistUserId, reason });
-            setActionSuccess('Application rejected.');
-            setSelected(prev =>
-                prev?.id === therapistUserId
-                    ? { ...prev, therapistProfile: { ...prev.therapistProfile, approvalStatus: APPROVAL_STATUS.REJECTED, rejectionReason: reason } }
-                    : prev
-            );
-        } catch (e) {
-            setActionError(e?.response?.data?.message || 'Failed to reject application.');
-        }
-    };
 
     const handleTabChange = (value) => {
         setApprovalFilter(value);
         setPage(1);
         setSelected(null);
-        setActionError('');
-        setActionSuccess('');
+        resetFeedback();
+    };
+
+    const handlePendingReviewToggle = (next) => {
+        setIsPendingReviewOnly(next);
+        setPage(1);
+        setSelected(null);
+        resetFeedback();
     };
 
     const handleRowSelect = (therapist) => {
         setSelected(prev => prev?.id === therapist.id ? null : therapist);
-        setActionError('');
-        setActionSuccess('');
+        resetFeedback();
     };
 
     const closePanel = () => {
         setSelected(null);
-        setActionError('');
-        setActionSuccess('');
+        resetFeedback();
     };
+
+    const emptyFilterLabel = isPendingReviewOnly
+        ? `${approvalFilter} pending-review`.trim()
+        : (approvalFilter || '');
 
     return (
         <div className="flex min-h-screen relative">
@@ -126,6 +105,14 @@ export function AdminTherapistList() {
                     reviewBadge={reviewBadge}
                 />
 
+                <div className="mb-4">
+                    <PendingReviewFilter
+                        isActive={isPendingReviewOnly}
+                        onToggle={handlePendingReviewToggle}
+                        count={pendingReviewBadge}
+                    />
+                </div>
+
                 <TherapistSearchInput
                     value={search}
                     onChange={setSearch}
@@ -138,7 +125,7 @@ export function AdminTherapistList() {
                     error={error}
                     selectedId={selected?.id ?? null}
                     onSelect={handleRowSelect}
-                    emptyFilterLabel={approvalFilter || ''}
+                    emptyFilterLabel={emptyFilterLabel}
                     page={page}
                     pagination={pagination}
                     onPageChange={setPage}
@@ -152,7 +139,7 @@ export function AdminTherapistList() {
                     onClose={closePanel}
                     onApprove={handleApprove}
                     onReject={handleReject}
-                    loading={mutating}
+                    loading={isMutating}
                     error={actionError}
                     success={actionSuccess}
                 />

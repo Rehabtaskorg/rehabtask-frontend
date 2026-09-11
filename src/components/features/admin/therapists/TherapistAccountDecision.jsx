@@ -1,6 +1,7 @@
 import { APPROVAL_STATUS } from '@/lib/constants';
 import { TherapistVerificationToggles } from '@/components/features/admin/TherapistVerificationToggles';
 import { SectionCard } from './SectionCard';
+import { TherapistClearReview } from './TherapistClearReview';
 import { fmtDateLong } from './therapistStatusStyles';
 
 /**
@@ -44,6 +45,13 @@ export function TherapistAccountDecision({ therapist, therapistUserId }) {
                     </div>
                 )}
             </dl>
+            <TherapistClearReview
+                therapistUserId={therapistUserId}
+                approvalStatus={tp?.approvalStatus}
+                pendingReviewAt={tp?.pendingReviewAt}
+                fullName={tp?.fullName}
+                className="mt-4"
+            />
             <div className="mt-4 pt-4 border-t border-border-light">
                 <p className="text-xs font-semibold text-text-muted uppercase tracking-wide mb-3">Document Verification</p>
                 <TherapistVerificationToggles
