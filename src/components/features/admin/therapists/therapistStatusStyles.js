@@ -12,3 +12,6 @@ export const THERAPIST_STATUS_FALLBACK = 'bg-slate-100 text-slate-600';
 
 export const fmtDate = (d) =>
     d ? new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—';
+
+export const fmtDateLong = (d) =>
+    d ? new Date(d).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : '—';
