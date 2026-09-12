@@ -70,18 +70,18 @@ export function FileRow({
 }) {
     return (
         <div
-            className={`flex items-start justify-between gap-3 rounded-xl border border-border-light p-3 ${className}`}
+            className={`flex flex-col gap-3 rounded-xl border border-border-light p-3 ${className}`}
         >
             <div className="flex min-w-0 items-start gap-3">
                 <FileRowIcon mimeType={mimeType} />
-                <div className="min-w-0">
-                    <p className="truncate text-sm font-medium text-text-main">{fileName}</p>
+                <div className="min-w-0 flex-1">
+                    <p className="break-words text-sm font-medium text-text-main">{fileName}</p>
                     {meta && <p className="mt-0.5 text-xs text-text-muted">{meta}</p>}
                     {footer && <div className="mt-1">{footer}</div>}
                 </div>
             </div>
 
-            <div className="flex shrink-0 items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
                 {statusLabel && <Badge variant={statusVariant}>{statusLabel}</Badge>}
                 {actions}
             </div>

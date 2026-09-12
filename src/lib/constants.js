@@ -182,6 +182,19 @@ export const PHOTO_ONLY_DOCUMENT_TYPES = Object.freeze([
 export const PHOTO_MIME_TYPES = Object.freeze(["image/jpeg", "image/jpg", "image/png"]);
 export const DOCUMENT_MIME_TYPES = Object.freeze(["application/pdf", ...PHOTO_MIME_TYPES]);
 
+/**
+ * documentType values that a profile-level verification flag actually applies
+ * to. Mirrors `DOCUMENT_CATEGORIES.license`/`.insurance` in the backend's
+ * `utils/constants.js` — kept narrow to just these two, since identity and
+ * compliance documents have no matching verification flag on the profile.
+ */
+export const LICENSE_DOCUMENT_TYPES = Object.freeze(["license"]);
+export const INSURANCE_DOCUMENT_TYPES = Object.freeze([
+    "general_liability",
+    "professional_liability",
+    "auto_insurance",
+]);
+
 export const STRIPE_BUSINESS_STRUCTURE = {
     INDIVIDUAL: "individual",
     SOLE_PROPRIETORSHIP: "sole_proprietorship",
