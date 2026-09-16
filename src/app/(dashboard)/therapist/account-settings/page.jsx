@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "@/lib/api";
 import ChangePasswordForm from "@/components/profile/ChangePasswordForm";
+import TwoFactorSettings from "@/components/profile/TwoFactorSettings";
 import { MdPayments, MdSettings, MdCheckCircle, MdTrendingUp, MdError, MdWarning, MdInfo } from "react-icons/md";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { logger } from "@/lib/logger";
@@ -238,6 +239,8 @@ function AccountSettingsContent() {
                     </div>
                 )}
             </div>
+
+            <TwoFactorSettings />
 
             <ChangePasswordForm />
         </div>

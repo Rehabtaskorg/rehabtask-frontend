@@ -70,6 +70,17 @@ export const useUpdateUser = () => {
     });
 };
 
+export const useResetUserTwoFactor = () => {
+    const qc = useQueryClient();
+    return useMutation({
+        mutationFn: ({ userId, reason }) => adminUsersApi.resetTwoFactor(userId, reason),
+        onSuccess: (_data, { userId }) => {
+            qc.invalidateQueries({ queryKey: ['admin', 'users'] });
+            qc.invalidateQueries({ queryKey: ['admin', 'users', userId] });
+        },
+    });
+};
+
 export const useSendAdminEmail = () =>
     useMutation({
         mutationFn: (data) => adminEmailApi.send(data),

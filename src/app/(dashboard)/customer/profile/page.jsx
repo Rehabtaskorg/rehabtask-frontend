@@ -10,6 +10,7 @@ import { isValidPhoneNumber } from "react-phone-number-input";
 import "react-phone-number-input/style.css";
 import { getStripeAppearance } from "@/lib/stripe.appearance";
 import ChangePasswordForm from "@/components/profile/ChangePasswordForm";
+import TwoFactorSettings from "@/components/profile/TwoFactorSettings";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { authAPi } from "@/services/auth.api";
 import { api } from "@/lib/api";
@@ -626,15 +627,17 @@ export default function CustomerProfilePage() {
                                     Account Security
                                 </h3>
                                 <p className="text-sm text-blue-800  mb-3">
-                                    Keep your account secure by using a strong password and changing it regularly.
+                                    Keep your account secure with two-factor authentication and a strong password.
                                 </p>
                                 <div className="text-xs text-blue-700  space-y-1">
                                     <p>&#x1f4a1; <strong>Tip:</strong> Use a unique password that you don&apos;t use anywhere else</p>
-                                    <p>&#x1f512; <strong>Best Practice:</strong> Change your password every 3-6 months</p>
+                                    <p>&#x1f512; <strong>Best Practice:</strong> Enable SMS two-factor authentication for stronger protection</p>
                                 </div>
                             </div>
                         </div>
                     </div>
+
+                    <TwoFactorSettings />
 
                     <ChangePasswordForm />
                 </>

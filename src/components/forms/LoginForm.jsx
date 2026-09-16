@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { MdLogin } from "react-icons/md";
@@ -26,13 +26,28 @@ const LoginForm = ({ redirectTo = null }) => {
         reValidateMode: "onChange",
     });
 
-    const { login, isSubmitting, error, needsEmailVerification, resendVerification, clearError } = useLogin(redirectTo);
+    const { login, verifyTwoFactor, resendTwoFactor, switchTwoFactorMethod, twoFactorChallenge, isSubmitting, error, needsEmailVerification, resendVerification, clearError } = useLogin(redirectTo);
 
     const { initiateGoogleLogin } = useGoogleAuth(redirectTo);
 
     const [resendingEmail, setResendingEmail] = useState(false);
     const [googleLoading, setGoogleLoading] = useState(false);
     const [googleError, setGoogleError] = useState(null);
+    const [twoFactorCode, setTwoFactorCode] = useState("");
+    const [resendCooldown, setResendCooldown] = useState(0);
+
+    useEffect(() => {
+        if (!twoFactorChallenge) return undefined;
+        setResendCooldown(60);
+        setTwoFactorCode("");
+        return undefined;
+    }, [twoFactorChallenge]);
+
+    useEffect(() => {
+        if (!resendCooldown) return undefined;
+        const timer = window.setInterval(() => setResendCooldown((value) => Math.max(0, value - 1)), 1000);
+        return () => window.clearInterval(timer);
+    }, [resendCooldown]);
 
     const onSubmit = async (data) => {
         await login(data);
@@ -56,6 +71,48 @@ const LoginForm = ({ redirectTo = null }) => {
             setGoogleLoading(false);
         }
     };
+
+    if (twoFactorChallenge) {
+        return (
+            <div className="w-full max-w-120 bg-white shadow-xl rounded-xl overflow-hidden border border-border-subtle">
+                <div className="px-8 pt-8 pb-4">
+                    <h1 className="text-2xl font-bold text-text-main">Verify Your Identity</h1>
+                    <p className="text-text-muted text-sm mt-2">We sent a 6-digit {twoFactorChallenge.method === "sms" ? "text message" : "email"} code to {twoFactorChallenge.destination}.</p>
+                </div>
+                <form onSubmit={(event) => { event.preventDefault(); verifyTwoFactor(twoFactorCode); }} className="px-8 py-4 space-y-4">
+                    {error && <Alert type="error" message={error} onClose={clearError} />}
+                    <Input label="Verification code" inputMode="numeric" maxLength={6} value={twoFactorCode} onChange={(event) => setTwoFactorCode(event.target.value.replace(/\D/g, ""))} required />
+                    <Button type="submit" variant="primary" size="lg" fullWidth loading={isSubmitting} disabled={isSubmitting || twoFactorCode.length !== 6}>Verify</Button>
+                    <button type="button" onClick={async () => { if (!resendCooldown) { const result = await resendTwoFactor(); if (result.success) setResendCooldown(60); } }} disabled={isSubmitting || resendCooldown > 0} className="w-full text-sm text-primary font-semibold hover:underline disabled:opacity-50">{resendCooldown ? `Resend code in ${resendCooldown}s` : "Resend code"}</button>
+                    {twoFactorChallenge.availableMethods?.length > 1 && (
+                        <div className="space-y-2 border-t border-border-subtle pt-4">
+                            <p className="text-center text-xs font-semibold uppercase tracking-wide text-text-muted">Try another method</p>
+                            <div className="flex flex-wrap justify-center gap-2">
+                                {twoFactorChallenge.availableMethods.filter((method) => method !== twoFactorChallenge.method).map((method) => (
+                                    <button
+                                        key={method}
+                                        type="button"
+                                        onClick={async () => {
+                                            const result = await switchTwoFactorMethod(method);
+                                            if (result.success) {
+                                                setTwoFactorCode("");
+                                                setResendCooldown(60);
+                                            }
+                                        }}
+                                        disabled={isSubmitting}
+                                        className="rounded-lg border border-border-subtle px-4 py-2 text-sm font-semibold text-primary hover:bg-primary/5 disabled:opacity-50"
+                                    >
+                                        Use {method === "sms" ? "SMS" : "email"}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                    <button type="button" onClick={clearError} disabled={isSubmitting} className="w-full text-sm text-primary font-semibold hover:underline disabled:opacity-50">Return to login</button>
+                </form>
+            </div>
+        );
+    }
 
     return (
         <div className="w-full max-w-120 bg-white  shadow-xl rounded-xl overflow-hidden border border-border-subtle ">
