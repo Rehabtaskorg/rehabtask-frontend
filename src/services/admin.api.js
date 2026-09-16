@@ -19,7 +19,6 @@ export const adminUsersApi = {
     update: (userId, data) => api.put(`/admin/users/${userId}`, data),
     deactivate: (userId) => api.put(`/admin/users/${userId}/deactivate`),
     reactivate: (userId) => api.put(`/admin/users/${userId}/reactivate`),
-    resetTwoFactor: (userId, reason) => api.post(`/admin/users/${userId}/2fa/reset`, { reason }),
 };
 
 // Admin - Therapists
