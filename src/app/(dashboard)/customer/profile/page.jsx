@@ -16,7 +16,7 @@ import { authAPi } from "@/services/auth.api";
 import { api } from "@/lib/api";
 import { paymentsApi } from "@/services/payment.api";
 import {
-    MdPerson, MdSecurity, MdBusiness, MdEdit, MdCheck, MdClose,
+    MdPerson, MdBusiness, MdEdit, MdCheck, MdClose,
     MdCreditCard, MdAdd, MdDeleteOutline, MdStar, MdStarOutline, MdLock, MdWarning, MdPhone,
 } from "react-icons/md";
 import { CUSTOMER_TYPES } from "@/lib/constants";
@@ -614,27 +614,6 @@ export default function CustomerProfilePage() {
                                 </div>
                             </div>
                         )}
-                    </div>
-
-                    {/* Security Section Info Card */}
-                    <div className="bg-linear-to-r from-blue-50 to-indigo-50   border border-blue-200  rounded-xl p-6">
-                        <div className="flex items-start gap-4">
-                            <div className="p-2 bg-blue-500/10 rounded-lg">
-                                <MdSecurity className="text-blue-600  text-2xl" />
-                            </div>
-                            <div className="flex-1">
-                                <h3 className="text-lg font-bold text-blue-900  mb-2">
-                                    Account Security
-                                </h3>
-                                <p className="text-sm text-blue-800  mb-3">
-                                    Keep your account secure with two-factor authentication and a strong password.
-                                </p>
-                                <div className="text-xs text-blue-700  space-y-1">
-                                    <p>&#x1f4a1; <strong>Tip:</strong> Use a unique password that you don&apos;t use anywhere else</p>
-                                    <p>&#x1f512; <strong>Best Practice:</strong> Enable SMS two-factor authentication for stronger protection</p>
-                                </div>
-                            </div>
-                        </div>
                     </div>
 
                     <TwoFactorSettings />
