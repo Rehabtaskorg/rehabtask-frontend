@@ -1,20 +1,56 @@
 "use client";
 
+import { useState } from "react";
+import { APIProvider } from "@vis.gl/react-google-maps";
 import Input from "@/components/ui/Input";
+import LocationAutocomplete from "@/components/maps/LocationAutocomplete";
 import { US_STATES } from "@/lib/constants/credentials";
 
-export function AddressFields({ register, errors, idPrefix }) {
+const toStreetAddress = (formattedAddress, city) => {
+    if (!formattedAddress) return "";
+    const [street] = formattedAddress.split(",");
+    const trimmed = street.trim();
+    return trimmed && trimmed !== city ? trimmed : formattedAddress;
+};
+
+export function AddressFields({ register, errors, setValue, idPrefix, defaultAddressLine1 = "" }) {
     const stateFieldId = `${idPrefix}-address-state`;
+    const [addressLine1Display, setAddressLine1Display] = useState(defaultAddressLine1);
+
+    const handleAddressSelect = ({ formattedAddress, city, state, zipCode }) => {
+        const street = toStreetAddress(formattedAddress, city);
+        setAddressLine1Display(street);
+        setValue("addressLine1", street, { shouldValidate: false, shouldDirty: true });
+        setValue("city", city, { shouldValidate: false, shouldDirty: true });
+        setValue("state", state, { shouldValidate: false, shouldDirty: true });
+        setValue("zipCode", zipCode, { shouldValidate: false, shouldDirty: true });
+    };
+
+    const handleAddressClear = () => {
+        setAddressLine1Display("");
+        setValue("addressLine1", "", { shouldValidate: false, shouldDirty: true });
+        setValue("city", "", { shouldValidate: false, shouldDirty: true });
+        setValue("state", "", { shouldValidate: false, shouldDirty: true });
+        setValue("zipCode", "", { shouldValidate: false, shouldDirty: true });
+    };
 
     return (
         <>
-            <Input
-                label="Address Line 1"
-                placeholder="e.g. 233 S Wacker Dr"
-                error={errors.addressLine1?.message}
-                required
-                {...register("addressLine1")}
-            />
+            <APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}>
+                <LocationAutocomplete
+                    label="Address Line 1"
+                    required
+                    variant="form"
+                    restrictToAddress
+                    placeholder="e.g. 233 S Wacker Dr"
+                    value={addressLine1Display}
+                    onChange={setAddressLine1Display}
+                    onSelect={handleAddressSelect}
+                    onClear={handleAddressClear}
+                    error={errors.addressLine1?.message}
+                    helperText="Select from the dropdown to auto-fill city, state and ZIP"
+                />
+            </APIProvider>
 
             <Input
                 label="Address Line 2 — optional"
