@@ -4,6 +4,7 @@ import { MdDescription, MdOpenInNew, MdSwapHoriz } from "react-icons/md";
 import { FileRow } from "@/components/ui/FileRow";
 import { BADGE_VARIANTS } from "@/components/ui/Badge";
 import Alert from "@/components/ui/Alert";
+import ConfirmModal from "@/components/ui/ConfirmModal";
 import { DOCUMENT_MIME_TYPES, LICENSE_DOCUMENT_TYPES, INSURANCE_DOCUMENT_TYPES } from "@/lib/constants";
 import { formatShortDate } from "@/utils/dates";
 import { useDocumentActions } from "@/hooks/useDocumentActions";
@@ -57,9 +58,12 @@ export function DocumentsCard({ profile, footerAction }) {
         fileInputRef,
         viewingDocId,
         replacingDocId,
+        isConfirmOpen,
         error,
         handleViewDocument,
         startReplace,
+        confirmReplace,
+        cancelReplace,
         handleReplaceFileChange,
         clearError,
     } = useDocumentActions();
@@ -142,6 +146,15 @@ export function DocumentsCard({ profile, footerAction }) {
             />
 
             {footerAction}
+
+            <ConfirmModal
+                isOpen={isConfirmOpen}
+                onClose={cancelReplace}
+                onConfirm={confirmReplace}
+                title="Replace this document?"
+                message="You'll choose a new file next. The current document is archived and your profile is flagged for re-review, which does not affect your visibility or bookings."
+                confirmLabel="Choose new file"
+            />
         </div>
     );
 }
