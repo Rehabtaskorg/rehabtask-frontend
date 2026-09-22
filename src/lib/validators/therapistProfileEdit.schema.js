@@ -1,4 +1,7 @@
 import { z } from "zod";
+import { US_STATES } from "../constants/credentials";
+
+const US_STATE_CODES = US_STATES.map((s) => s.code);
 
 const rateSchema = z.preprocess(
     (val) => (val === "" || val === undefined ? null : val),
@@ -26,13 +29,6 @@ export const personalInfoSchema = z.object({
         .max(50, "Must be 50 or less"),
 });
 
-/**
- * Rates drawer schema.
- *
- * `ratePerVisit` maps 0 to null so clearing the field unsets the rate rather
- * than advertising a free visit. The cross-field cap mirrors the backend guard
- * in `therapist.service.js`.
- */
 export const ratesSchema = z
     .object({
         ratePerVisit: z.coerce
@@ -56,3 +52,29 @@ export const ratesSchema = z
             path: ["attemptedVisitRate"],
         }
     );
+
+export const contactDetailsSchema = z
+    .object({
+        addressLine1: z.string().min(1, "Address is required").max(255),
+        addressLine2: z.string().max(255).optional().nullable(),
+        city: z.string().min(1, "City is required").max(100),
+        state: z
+            .string()
+            .min(1, "State is required")
+            .refine((val) => US_STATE_CODES.includes(val.toUpperCase()), {
+                message: "Please select a valid US state",
+            }),
+        zipCode: z.string().regex(/^\d{5}$/, "ZIP code must be exactly 5 digits"),
+        emergencyContactName: z.string().max(255).optional().nullable(),
+        emergencyContactPhone: z
+            .string()
+            .refine((val) => !val || /^\+1\d{10}$/.test(val), {
+                message: "Phone must be in format +1XXXXXXXXXX",
+            })
+            .optional()
+            .nullable(),
+    })
+    .refine((data) => !data.emergencyContactPhone || !!data.emergencyContactName, {
+        message: "Add a name for your emergency contact",
+        path: ["emergencyContactName"],
+    });

@@ -67,25 +67,4 @@ export const medicalInfoSchema = z.object({
     referringProviderName: z.string().max(255).optional().nullable(),
 });
 
-const isUnchanged = (next, previous) => {
-    const normalize = (val) => (val === "" || val === undefined ? null : val);
-    return normalize(next) === normalize(previous);
-};
-
-/**
- * Narrow a validated form payload to only the fields whose value actually
- * differs from the currently loaded profile.
- *
- * @param {Object} formValues - Validated values from the drawer form.
- * @param {Object} loadedProfile - Profile object the form was initialised from.
- * @param {string[]} fieldNames - Fields eligible for submission.
- * @returns {Object} Subset of `formValues` that changed; empty when nothing did.
- */
-export const pickChangedFields = (formValues, loadedProfile, fieldNames) => {
-    return fieldNames.reduce((changed, field) => {
-        if (!isUnchanged(formValues?.[field], loadedProfile?.[field])) {
-            changed[field] = formValues[field];
-        }
-        return changed;
-    }, {});
-};
+export { pickChangedFields } from "./pickChangedFields";

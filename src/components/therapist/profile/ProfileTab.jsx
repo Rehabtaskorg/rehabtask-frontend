@@ -22,6 +22,10 @@ const RatesDrawer = dynamic(
     () => import("./RatesDrawer").then((mod) => mod.RatesDrawer),
     { ssr: false }
 );
+const ContactDetailsDrawer = dynamic(
+    () => import("./ContactDetailsDrawer").then((mod) => mod.ContactDetailsDrawer),
+    { ssr: false }
+);
 const CredentialsEditModal = dynamic(
     () => import("./CredentialsEditModal").then((mod) => mod.CredentialsEditModal),
     { ssr: false }
@@ -33,6 +37,7 @@ const ClinicalSkillsEditModal = dynamic(
 
 const PANELS = {
     PERSONAL: "personal",
+    CONTACT: "contact",
     RATES: "rates",
     CREDENTIALS: "credentials",
     CLINICAL: "clinical",
@@ -72,7 +77,11 @@ const ProfileTab = ({ profile, approvalStatus, onboardingComplete }) => {
                         onEdit={() => setOpenPanel(PANELS.PERSONAL)}
                     />
 
-                    <ContactDetailsCard profile={profile} />
+                    <ContactDetailsCard
+                        profile={profile}
+                        isOnboardingComplete={onboardingComplete}
+                        onEdit={() => setOpenPanel(PANELS.CONTACT)}
+                    />
 
                     <ProfessionalDetailsCard
                         profile={profile}
@@ -121,6 +130,12 @@ const ProfileTab = ({ profile, approvalStatus, onboardingComplete }) => {
 
             <PersonalInfoDrawer
                 isOpen={openPanel === PANELS.PERSONAL}
+                onClose={closePanel}
+                profile={profile}
+                onSuccess={closePanel}
+            />
+            <ContactDetailsDrawer
+                isOpen={openPanel === PANELS.CONTACT}
                 onClose={closePanel}
                 profile={profile}
                 onSuccess={closePanel}
