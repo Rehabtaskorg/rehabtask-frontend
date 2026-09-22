@@ -3,15 +3,9 @@
 import Input from "@/components/ui/Input";
 import { US_STATES } from "@/lib/constants/credentials";
 
-/**
- * The five address inputs shared by the address drawer, split out so the drawer
- * itself stays focused on submission behaviour.
- *
- * @param {Object} props
- * @param {import('react-hook-form').UseFormRegister} props.register - React Hook Form register.
- * @param {Object} props.errors - React Hook Form field errors.
- */
-export function AddressFields({ register, errors }) {
+export function AddressFields({ register, errors, idPrefix }) {
+    const stateFieldId = `${idPrefix}-address-state`;
+
     return (
         <>
             <Input
@@ -40,13 +34,13 @@ export function AddressFields({ register, errors }) {
             <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
                 <div className="space-y-2">
                     <label
-                        htmlFor="customer-address-state"
+                        htmlFor={stateFieldId}
                         className="block text-sm font-bold uppercase tracking-wide text-text-main"
                     >
                         State<span className="ml-1 text-red-500">*</span>
                     </label>
                     <select
-                        id="customer-address-state"
+                        id={stateFieldId}
                         {...register("state")}
                         className={`w-full appearance-none rounded-xl border bg-white px-4 py-3 text-text-main outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20 ${errors.state ? "border-red-500" : "border-border-subtle"}`}
                     >

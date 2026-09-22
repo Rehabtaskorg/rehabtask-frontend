@@ -8,7 +8,7 @@ import Button from "@/components/ui/Button";
 import Alert from "@/components/ui/Alert";
 import { useUpdateCustomerProfile } from "@/hooks/useCustomerProfile";
 import { addressSchema, pickChangedFields } from "@/lib/validators/customerProfileEdit.schema";
-import { AddressFields } from "./AddressFields";
+import { AddressFields } from "@/components/ui/AddressFields";
 
 const FIELDS = ["addressLine1", "addressLine2", "city", "state", "zipCode"];
 
@@ -99,7 +99,7 @@ export function AddressDrawer({ isOpen, onClose, profile, title, onSuccess }) {
                     />
                 )}
 
-                <AddressFields register={register} errors={errors} />
+                <AddressFields register={register} errors={errors} idPrefix="customer" />
             </form>
         </Drawer>
     );
