@@ -9,6 +9,7 @@ import Button from "@/components/ui/Button";
 import { ClinicalProfileSection } from "./ClinicalProfileSection";
 import { ReReviewBanner } from "./ReReviewBanner";
 import { PersonalInfoCard } from "./cards/PersonalInfoCard";
+import { ContactDetailsCard } from "./cards/ContactDetailsCard";
 import { ProfessionalDetailsCard } from "./cards/ProfessionalDetailsCard";
 import { AccountStatusCard } from "./cards/AccountStatusCard";
 import { DocumentsCard } from "./cards/DocumentsCard";
@@ -70,6 +71,8 @@ const ProfileTab = ({ profile, approvalStatus, onboardingComplete }) => {
                         isOnboardingComplete={onboardingComplete}
                         onEdit={() => setOpenPanel(PANELS.PERSONAL)}
                     />
+
+                    <ContactDetailsCard profile={profile} />
 
                     <ProfessionalDetailsCard
                         profile={profile}
