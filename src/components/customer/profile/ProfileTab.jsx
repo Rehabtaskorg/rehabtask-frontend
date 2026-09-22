@@ -121,12 +121,14 @@ export function ProfileTab({ profile }) {
                 onClose={closePanel}
                 profile={profile}
             />
-            <AddressDrawer
-                isOpen={openPanel === PANELS.ADDRESS}
-                onClose={closePanel}
-                profile={profile}
-                title={`Edit ${addressTitle.toLowerCase()}`}
-            />
+            {openPanel === PANELS.ADDRESS && (
+                <AddressDrawer
+                    isOpen
+                    onClose={closePanel}
+                    profile={profile}
+                    title={`Edit ${addressTitle.toLowerCase()}`}
+                />
+            )}
             {isAgency && (
                 <BusinessInfoDrawer
                     isOpen={openPanel === PANELS.BUSINESS}

@@ -31,6 +31,7 @@ export function ContactDetailsDrawer({ isOpen, onClose, profile, onSuccess }) {
         register,
         handleSubmit,
         control,
+        setValue,
         formState: { errors },
     } = useForm({
         resolver: zodResolver(contactDetailsSchema),
@@ -104,7 +105,13 @@ export function ContactDetailsDrawer({ isOpen, onClose, profile, onSuccess }) {
                     />
                 )}
 
-                <AddressFields register={register} errors={errors} idPrefix="therapist" />
+                <AddressFields
+                    register={register}
+                    errors={errors}
+                    setValue={setValue}
+                    idPrefix="therapist"
+                    defaultAddressLine1={profile?.addressLine1 || ""}
+                />
 
                 <div className="space-y-5 border-t border-border-light pt-5">
                     <div>

@@ -35,6 +35,7 @@ export function AddressDrawer({ isOpen, onClose, profile, title, onSuccess }) {
     const {
         register,
         handleSubmit,
+        setValue,
         formState: { errors },
     } = useForm({
         resolver: zodResolver(addressSchema),
@@ -99,7 +100,13 @@ export function AddressDrawer({ isOpen, onClose, profile, title, onSuccess }) {
                     />
                 )}
 
-                <AddressFields register={register} errors={errors} idPrefix="customer" />
+                <AddressFields
+                    register={register}
+                    errors={errors}
+                    setValue={setValue}
+                    idPrefix="customer"
+                    defaultAddressLine1={profile?.addressLine1 || ""}
+                />
             </form>
         </Drawer>
     );

@@ -134,12 +134,14 @@ const ProfileTab = ({ profile, approvalStatus, onboardingComplete }) => {
                 profile={profile}
                 onSuccess={closePanel}
             />
-            <ContactDetailsDrawer
-                isOpen={openPanel === PANELS.CONTACT}
-                onClose={closePanel}
-                profile={profile}
-                onSuccess={closePanel}
-            />
+            {openPanel === PANELS.CONTACT && (
+                <ContactDetailsDrawer
+                    isOpen
+                    onClose={closePanel}
+                    profile={profile}
+                    onSuccess={closePanel}
+                />
+            )}
             <RatesDrawer
                 isOpen={openPanel === PANELS.RATES}
                 onClose={closePanel}
