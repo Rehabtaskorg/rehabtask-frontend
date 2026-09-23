@@ -7,6 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { APIProvider } from "@vis.gl/react-google-maps";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import { useOnboardingDataSync } from "@/hooks/useOnboardingDataSync";
+import { useAddressAutocomplete } from "@/hooks/useAddressAutocomplete";
 import useOnboardingStore from "@/stores/onboardingStore";
 import OnboardingProgressBar from "@/components/therapist/OnboardingProgressBar";
 import PhoneInput from "@/components/ui/PhoneInput";
@@ -42,9 +43,6 @@ export function PersonalInformationForm() {
     } = useOnboardingStore();
 
     const [loading, setLoading] = useState(false);
-    const [addressLine1Display, setAddressLine1Display] = useState(
-        personalInfo.addressLine1 || ""
-    );
 
     const {
         register,
@@ -69,6 +67,17 @@ export function PersonalInformationForm() {
             emergencyContactPhone: personalInfo.emergencyContactPhone || "",
         },
         mode: "onSubmit",
+    });
+
+    const {
+        addressLine1Display,
+        setAddressLine1Display,
+        handleAddressSelect,
+        handleAddressClear,
+    } = useAddressAutocomplete({
+        setValue,
+        defaultAddressLine1: personalInfo.addressLine1 || "",
+        isCoordinatesTracked: true,
     });
 
     useEffect(() => {
@@ -100,26 +109,6 @@ export function PersonalInformationForm() {
         });
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
-
-    const handleAddressSelect = ({ formattedAddress, city, state, zipCode, latitude, longitude }) => {
-        setAddressLine1Display(formattedAddress);
-        setValue("addressLine1", formattedAddress, { shouldValidate: false });
-        setValue("city", city, { shouldValidate: false });
-        setValue("state", state, { shouldValidate: false });
-        setValue("zipCode", zipCode, { shouldValidate: false });
-        setValue("latitude", latitude, { shouldValidate: false });
-        setValue("longitude", longitude, { shouldValidate: false });
-    };
-
-    const handleAddressClear = () => {
-        setAddressLine1Display("");
-        setValue("addressLine1", "", { shouldValidate: false });
-        setValue("city", "", { shouldValidate: false });
-        setValue("state", "", { shouldValidate: false });
-        setValue("zipCode", "", { shouldValidate: false });
-        setValue("latitude", null, { shouldValidate: false });
-        setValue("longitude", null, { shouldValidate: false });
-    };
 
     const onSubmit = async (data) => {
         setLoading(true);
