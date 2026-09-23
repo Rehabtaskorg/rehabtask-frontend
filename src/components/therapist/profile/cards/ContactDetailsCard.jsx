@@ -4,7 +4,6 @@ import { MdContactPhone, MdLock, MdEdit } from "react-icons/md";
 import Button from "@/components/ui/Button";
 import { formatShortDate } from "@/utils/dates";
 import { InfoRow } from "./InfoRow";
-import { HomeVisitsToggle } from "./HomeVisitsToggle";
 
 const US_STATE_SEPARATOR = ", ";
 
@@ -59,10 +58,15 @@ export function ContactDetailsCard({ profile, isOnboardingComplete, onEdit }) {
             </div>
 
             <div className="mt-2 border-t border-border-light pt-2">
-                <HomeVisitsToggle
-                    profile={profile}
-                    isOnboardingComplete={isOnboardingComplete}
+                <InfoRow
+                    label="Home Visits"
+                    value={profile?.doesHomeVisits ? "Available for home visits" : "Not offering home visits"}
+                    icon={<MdLock className="text-sm" />}
                 />
+                <p className="pl-7 text-xs text-text-muted">
+                    Offering home visits requires auto insurance on file, so this is managed
+                    in your insurance documents.
+                </p>
             </div>
         </div>
     );
