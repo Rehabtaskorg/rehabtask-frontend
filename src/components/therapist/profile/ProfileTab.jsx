@@ -1,13 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { MdScience } from "react-icons/md";
 import { APPROVAL_STATUS } from "@/lib/constants";
 import Button from "@/components/ui/Button";
 import { ClinicalProfileSection } from "./ClinicalProfileSection";
 import { ReReviewBanner } from "./ReReviewBanner";
+import { ProfilePanels, PANELS } from "./ProfilePanels";
 import { PersonalInfoCard } from "./cards/PersonalInfoCard";
 import { ContactDetailsCard } from "./cards/ContactDetailsCard";
 import { AvailabilityDetailsCard } from "./cards/AvailabilityDetailsCard";
@@ -15,39 +15,6 @@ import { ProfessionalDetailsCard } from "./cards/ProfessionalDetailsCard";
 import { AccountStatusCard } from "./cards/AccountStatusCard";
 import { DocumentsCard } from "./cards/DocumentsCard";
 
-const PersonalInfoDrawer = dynamic(
-    () => import("./PersonalInfoDrawer").then((mod) => mod.PersonalInfoDrawer),
-    { ssr: false }
-);
-const RatesDrawer = dynamic(
-    () => import("./RatesDrawer").then((mod) => mod.RatesDrawer),
-    { ssr: false }
-);
-const ContactDetailsDrawer = dynamic(
-    () => import("./ContactDetailsDrawer").then((mod) => mod.ContactDetailsDrawer),
-    { ssr: false }
-);
-const AvailabilityDetailsDrawer = dynamic(
-    () => import("./AvailabilityDetailsDrawer").then((mod) => mod.AvailabilityDetailsDrawer),
-    { ssr: false }
-);
-const CredentialsEditModal = dynamic(
-    () => import("./CredentialsEditModal").then((mod) => mod.CredentialsEditModal),
-    { ssr: false }
-);
-const ClinicalSkillsEditModal = dynamic(
-    () => import("./ClinicalSkillsEditModal").then((mod) => mod.ClinicalSkillsEditModal),
-    { ssr: false }
-);
-
-const PANELS = {
-    PERSONAL: "personal",
-    CONTACT: "contact",
-    AVAILABILITY: "availability",
-    RATES: "rates",
-    CREDENTIALS: "credentials",
-    CLINICAL: "clinical",
-};
 
 /**
  * Therapist profile tab. Composes the profile cards and owns which edit panel
@@ -110,7 +77,7 @@ const ProfileTab = ({ profile, approvalStatus, onboardingComplete }) => {
                             onClick={() => setOpenPanel(PANELS.CLINICAL)}
                         >
                             <MdScience className="text-base" />
-                            View clinical profile
+                            Edit clinical profile
                         </Button>
                     </div>
                 </div>
@@ -140,41 +107,8 @@ const ProfileTab = ({ profile, approvalStatus, onboardingComplete }) => {
                 </div>
             </div>
 
-            <PersonalInfoDrawer
-                isOpen={openPanel === PANELS.PERSONAL}
-                onClose={closePanel}
-                profile={profile}
-                onSuccess={closePanel}
-            />
-            {openPanel === PANELS.CONTACT && (
-                <ContactDetailsDrawer
-                    isOpen
-                    onClose={closePanel}
-                    profile={profile}
-                    onSuccess={closePanel}
-                />
-            )}
-            {openPanel === PANELS.AVAILABILITY && (
-                <AvailabilityDetailsDrawer
-                    isOpen
-                    onClose={closePanel}
-                    profile={profile}
-                    onSuccess={closePanel}
-                />
-            )}
-            <RatesDrawer
-                isOpen={openPanel === PANELS.RATES}
-                onClose={closePanel}
-                profile={profile}
-                onSuccess={closePanel}
-            />
-            <CredentialsEditModal
-                isOpen={openPanel === PANELS.CREDENTIALS}
-                onClose={closePanel}
-                profile={profile}
-            />
-            <ClinicalSkillsEditModal
-                isOpen={openPanel === PANELS.CLINICAL}
+            <ProfilePanels
+                openPanel={openPanel}
                 onClose={closePanel}
                 profile={profile}
             />

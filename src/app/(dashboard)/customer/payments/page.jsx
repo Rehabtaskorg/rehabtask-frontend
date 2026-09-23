@@ -4,6 +4,7 @@ import { useState, useMemo, Fragment } from "react";
 import Link from "next/link";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { usePaymentHistory, useRefundSummary, useCustomerConnectStatus } from "@/hooks/usePayments";
+import { CUSTOMER_REFUND_STATUS } from "@/lib/constants";
 import {
     MdPayments, MdLock, MdAccountBalance,
     MdChevronLeft, MdChevronRight, MdExpandMore, MdExpandLess,
@@ -72,9 +73,9 @@ const getRefundDisplay = (customerRefunds, fallbackRefundedAmount) => {
             .filter(r => r.status === status)
             .reduce((sum, r) => sum + parseFloat(r.amount), 0);
 
-        const pending     = sumByStatus("pending_connect");
-        const transferred = sumByStatus("transferred");
-        const card        = sumByStatus("refunded_to_card");
+        const pending     = sumByStatus(CUSTOMER_REFUND_STATUS.PENDING_CONNECT);
+        const transferred = sumByStatus(CUSTOMER_REFUND_STATUS.TRANSFERRED);
+        const card        = sumByStatus(CUSTOMER_REFUND_STATUS.REFUNDED_TO_CARD);
         const completed   = transferred + card;
 
         if (pending > 0 && completed > 0) {
@@ -119,7 +120,7 @@ export default function CustomerPaymentsPage() {
         if (filter === "refunded")  return payments.filter(p => {
             if (getEffectiveStatus(p) === "refunded") return true;
             const refunds = p.customerRefunds || [];
-            const hasCompletedRefund = refunds.some(r => r.status === "transferred" || r.status === "refunded_to_card");
+            const hasCompletedRefund = refunds.some(r => r.status === CUSTOMER_REFUND_STATUS.TRANSFERRED || r.status === CUSTOMER_REFUND_STATUS.REFUNDED_TO_CARD);
             const isStillEscrowed = p.status === "escrowed" || p.status === "partially_released";
             return hasCompletedRefund && !isStillEscrowed;
         });
@@ -135,7 +136,7 @@ export default function CustomerPaymentsPage() {
             refunded:  payments.filter(p => {
                 if (getEffectiveStatus(p) === "refunded") return true;
                 const refunds = p.customerRefunds || [];
-                const hasCompletedRefund = refunds.some(r => r.status === "transferred" || r.status === "refunded_to_card");
+                const hasCompletedRefund = refunds.some(r => r.status === CUSTOMER_REFUND_STATUS.TRANSFERRED || r.status === CUSTOMER_REFUND_STATUS.REFUNDED_TO_CARD);
                 const isStillEscrowed = p.status === "escrowed" || p.status === "partially_released";
                 return hasCompletedRefund && !isStillEscrowed;
             }).length,
@@ -153,7 +154,7 @@ export default function CustomerPaymentsPage() {
 
     const failedPayoutRefunds = useMemo(() => {
         if (!payments) return [];
-        return payments.flatMap(p => (p.customerRefunds || []).filter(cr => cr.status === "pending_connect" && cr.reason));
+        return payments.flatMap(p => (p.customerRefunds || []).filter(cr => cr.status === CUSTOMER_REFUND_STATUS.PAYOUT_FAILED));
     }, [payments]);
     const hasFailedPayoutRefunds = failedPayoutRefunds.length > 0;
     const failedPayoutTotal      = failedPayoutRefunds.reduce((sum, cr) => sum + parseFloat(cr.amount), 0);
@@ -692,28 +693,30 @@ export default function CustomerPaymentsPage() {
                                                                         </div>
                                                                     )}
                                                                     {(payment.customerRefunds || []).map((cr) => {
-                                                                        if (cr.status === "pending_connect" && cr.reason) return (
+                                                                        if (cr.status === CUSTOMER_REFUND_STATUS.PAYOUT_FAILED) return (
                                                                             <div key={cr.id} className="relative pl-5">
                                                                                 <div className="absolute left-0 top-1 w-3 h-3 rounded-full bg-red-500 animate-pulse" />
                                                                                 <p className="text-xs text-red-600  font-semibold">Bank transfer failed ({formatCurrency(cr.amount)}) — update your bank account</p>
-                                                                                <p className="text-[10px] text-text-muted ">{cr.reason}</p>
+                                                                                <p className="text-[10px] text-text-muted ">
+                                                                                    {cr.payoutFailureReason ?? "Your bank rejected the deposit. Please update your bank account details."}
+                                                                                </p>
                                                                             </div>
                                                                         );
-                                                                        if (cr.status === "pending_connect") return (
+                                                                        if (cr.status === CUSTOMER_REFUND_STATUS.PENDING_CONNECT) return (
                                                                             <div key={cr.id} className="relative pl-5">
                                                                                 <div className="absolute left-0 top-1 w-3 h-3 rounded-full bg-amber-500 animate-pulse" />
                                                                                 <p className="text-xs text-text-main ">Credit pending ({formatCurrency(cr.amount)}) — awaiting payout setup</p>
                                                                                 <p className="text-[10px] text-text-muted ">{formatDate(cr.createdAt)}</p>
                                                                             </div>
                                                                         );
-                                                                        if (cr.status === "transferred") return (
+                                                                        if (cr.status === CUSTOMER_REFUND_STATUS.TRANSFERRED) return (
                                                                             <div key={cr.id} className="relative pl-5">
                                                                                 <div className="absolute left-0 top-1 w-3 h-3 rounded-full bg-emerald-500" />
                                                                                 <p className="text-xs font-medium text-text-main ">Account credited ({formatCurrency(cr.amount)})</p>
                                                                                 <p className="text-[10px] text-text-muted ">{formatDate(cr.transferredAt)}</p>
                                                                             </div>
                                                                         );
-                                                                        if (cr.status === "refunded_to_card") return (
+                                                                        if (cr.status === CUSTOMER_REFUND_STATUS.REFUNDED_TO_CARD) return (
                                                                             <div key={cr.id} className="relative pl-5">
                                                                                 <div className="absolute left-0 top-1 w-3 h-3 rounded-full bg-emerald-500" />
                                                                                 <p className="text-xs font-medium text-text-main ">Account credited ({formatCurrency(cr.amount)})</p>
