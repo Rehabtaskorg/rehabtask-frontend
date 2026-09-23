@@ -10,6 +10,7 @@ import { ClinicalProfileSection } from "./ClinicalProfileSection";
 import { ReReviewBanner } from "./ReReviewBanner";
 import { PersonalInfoCard } from "./cards/PersonalInfoCard";
 import { ContactDetailsCard } from "./cards/ContactDetailsCard";
+import { AvailabilityDetailsCard } from "./cards/AvailabilityDetailsCard";
 import { ProfessionalDetailsCard } from "./cards/ProfessionalDetailsCard";
 import { AccountStatusCard } from "./cards/AccountStatusCard";
 import { DocumentsCard } from "./cards/DocumentsCard";
@@ -26,6 +27,10 @@ const ContactDetailsDrawer = dynamic(
     () => import("./ContactDetailsDrawer").then((mod) => mod.ContactDetailsDrawer),
     { ssr: false }
 );
+const AvailabilityDetailsDrawer = dynamic(
+    () => import("./AvailabilityDetailsDrawer").then((mod) => mod.AvailabilityDetailsDrawer),
+    { ssr: false }
+);
 const CredentialsEditModal = dynamic(
     () => import("./CredentialsEditModal").then((mod) => mod.CredentialsEditModal),
     { ssr: false }
@@ -38,6 +43,7 @@ const ClinicalSkillsEditModal = dynamic(
 const PANELS = {
     PERSONAL: "personal",
     CONTACT: "contact",
+    AVAILABILITY: "availability",
     RATES: "rates",
     CREDENTIALS: "credentials",
     CLINICAL: "clinical",
@@ -81,6 +87,12 @@ const ProfileTab = ({ profile, approvalStatus, onboardingComplete }) => {
                         profile={profile}
                         isOnboardingComplete={onboardingComplete}
                         onEdit={() => setOpenPanel(PANELS.CONTACT)}
+                    />
+
+                    <AvailabilityDetailsCard
+                        profile={profile}
+                        isOnboardingComplete={onboardingComplete}
+                        onEdit={() => setOpenPanel(PANELS.AVAILABILITY)}
                     />
 
                     <ProfessionalDetailsCard
@@ -136,6 +148,14 @@ const ProfileTab = ({ profile, approvalStatus, onboardingComplete }) => {
             />
             {openPanel === PANELS.CONTACT && (
                 <ContactDetailsDrawer
+                    isOpen
+                    onClose={closePanel}
+                    profile={profile}
+                    onSuccess={closePanel}
+                />
+            )}
+            {openPanel === PANELS.AVAILABILITY && (
+                <AvailabilityDetailsDrawer
                     isOpen
                     onClose={closePanel}
                     profile={profile}

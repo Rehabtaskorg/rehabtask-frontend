@@ -53,6 +53,23 @@ export const ratesSchema = z
         }
     );
 
+export const availabilityDetailsSchema = z.object({
+    availableFrom: z.string().datetime({ offset: true }).optional().nullable(),
+    caseloadCapacity: z
+        .union([z.string().trim(), z.number()])
+        .optional()
+        .nullable()
+        .refine(
+            (val) => val == null || val === "" || (Number(val) >= 1 && Number(val) <= 999),
+            { message: "Must be a number between 1 and 999" }
+        )
+        .refine(
+            (val) => val == null || val === "" || Number.isInteger(Number(val)),
+            { message: "Must be a whole number" }
+        )
+        .transform((val) => (val == null || val === "" ? null : Number(val))),
+});
+
 export const contactDetailsSchema = z
     .object({
         addressLine1: z.string().min(1, "Address is required").max(255),

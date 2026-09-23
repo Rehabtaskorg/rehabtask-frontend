@@ -13,6 +13,23 @@ export const formatShortDate = (dateStr) => {
     return new Date(dateStr).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 };
 
+export const formatDateOnly = (dateStr) => {
+    if (!dateStr) return "—";
+    return new Date(dateStr).toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+        timeZone: "UTC",
+    });
+};
+
+export const toUtcDateOnlyISO = (date) => {
+    if (!date) return null;
+    return new Date(
+        Date.UTC(date.getFullYear(), date.getMonth(), date.getDate())
+    ).toISOString();
+};
+
 /**
  * Format a date as a relative string ("Just now", "3h ago", "5d ago", or short date).
  * @param {string|Date} dateStr
