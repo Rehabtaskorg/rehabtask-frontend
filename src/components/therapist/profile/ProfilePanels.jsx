@@ -22,6 +22,10 @@ const CredentialsEditModal = dynamic(
     () => import("./CredentialsEditModal").then((mod) => mod.CredentialsEditModal),
     { ssr: false }
 );
+const ClinicalBackgroundDrawer = dynamic(
+    () => import("./ClinicalBackgroundDrawer").then((mod) => mod.ClinicalBackgroundDrawer),
+    { ssr: false }
+);
 const ClinicalProfileDrawer = dynamic(
     () => import("./ClinicalProfileDrawer").then((mod) => mod.ClinicalProfileDrawer),
     { ssr: false }
@@ -34,6 +38,7 @@ export const PANELS = {
     RATES: "rates",
     CREDENTIALS: "credentials",
     CLINICAL: "clinical",
+    BACKGROUND: "background",
 };
 
 /**
@@ -74,6 +79,14 @@ export function ProfilePanels({ openPanel, onClose, profile }) {
             )}
             {openPanel === PANELS.CLINICAL && (
                 <ClinicalProfileDrawer
+                    isOpen
+                    onClose={onClose}
+                    profile={profile}
+                    onSuccess={onClose}
+                />
+            )}
+            {openPanel === PANELS.BACKGROUND && (
+                <ClinicalBackgroundDrawer
                     isOpen
                     onClose={onClose}
                     profile={profile}

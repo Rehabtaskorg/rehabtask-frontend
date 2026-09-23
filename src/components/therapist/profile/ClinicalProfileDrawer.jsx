@@ -161,19 +161,6 @@ export function ClinicalProfileDrawer({ isOpen, onClose, profile, onSuccess }) {
                     </div>
                 ))}
 
-                {profile?.yearsInHomeHealth != null && (
-                    <div className="rounded-xl border border-border-light bg-muted-light p-4">
-                        <p className="text-sm text-text-muted">Years in Home Health</p>
-                        <p className="text-base font-medium text-text-main">
-                            {profile.yearsInHomeHealth}{" "}
-                            {profile.yearsInHomeHealth === 1 ? "year" : "years"}
-                        </p>
-                        <p className="mt-1 text-xs text-text-muted">
-                            Reviewed alongside your credentials, so it is changed from the
-                            credentials panel rather than here.
-                        </p>
-                    </div>
-                )}
             </form>
         </Drawer>
     );
