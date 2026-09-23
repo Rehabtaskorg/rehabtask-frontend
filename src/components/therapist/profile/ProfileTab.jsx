@@ -11,6 +11,7 @@ import { ProfilePanels, PANELS } from "./ProfilePanels";
 import { PersonalInfoCard } from "./cards/PersonalInfoCard";
 import { ContactDetailsCard } from "./cards/ContactDetailsCard";
 import { AvailabilityDetailsCard } from "./cards/AvailabilityDetailsCard";
+import { ClinicalBackgroundCard } from "./cards/ClinicalBackgroundCard";
 import { ProfessionalDetailsCard } from "./cards/ProfessionalDetailsCard";
 import { AccountStatusCard } from "./cards/AccountStatusCard";
 import { DocumentsCard } from "./cards/DocumentsCard";
@@ -60,6 +61,12 @@ const ProfileTab = ({ profile, approvalStatus, onboardingComplete }) => {
                         profile={profile}
                         isOnboardingComplete={onboardingComplete}
                         onEdit={() => setOpenPanel(PANELS.AVAILABILITY)}
+                    />
+
+                    <ClinicalBackgroundCard
+                        profile={profile}
+                        isOnboardingComplete={onboardingComplete}
+                        onEdit={() => setOpenPanel(PANELS.BACKGROUND)}
                     />
 
                     <ProfessionalDetailsCard

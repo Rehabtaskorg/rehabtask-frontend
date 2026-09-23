@@ -83,11 +83,6 @@ export function ClinicalProfileSection({ profile }) {
                     <DetailRow label="Patient Population Experience">
                         <BadgeList items={profile?.populationExperience} emptyText="Not specified" />
                     </DetailRow>
-                    {profile?.yearsInHomeHealth != null && (
-                        <DetailRow label="Years in Home Health">
-                            {profile.yearsInHomeHealth} {profile.yearsInHomeHealth === 1 ? "year" : "years"}
-                        </DetailRow>
-                    )}
                 </div>
             </SectionCard>
 

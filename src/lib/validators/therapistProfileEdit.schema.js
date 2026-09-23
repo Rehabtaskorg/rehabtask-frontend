@@ -60,6 +60,22 @@ export const ratesSchema = z
         }
     );
 
+export const clinicalBackgroundSchema = z.object({
+    yearsInHomeHealth: z
+        .union([z.string().trim(), z.number()])
+        .optional()
+        .nullable()
+        .refine(
+            (val) => val == null || val === "" || (Number(val) >= 0 && Number(val) <= 50),
+            { message: "Must be between 0 and 50" }
+        )
+        .refine(
+            (val) => val == null || val === "" || Number.isInteger(Number(val)),
+            { message: "Must be a whole number" }
+        )
+        .transform((val) => (val == null || val === "" ? null : Number(val))),
+});
+
 const allowedAttributes = (options, label) =>
     z
         .array(
