@@ -1,5 +1,12 @@
 import { z } from "zod";
 import { US_STATES } from "../constants/credentials";
+import {
+    THERAPIST_SPECIALTIES,
+    THERAPIST_LANGUAGES,
+    THERAPIST_CERTIFICATIONS,
+    THERAPIST_PAST_SETTINGS,
+    THERAPIST_POPULATIONS,
+} from "../constants/therapistAttributes";
 
 const US_STATE_CODES = US_STATES.map((s) => s.code);
 
@@ -52,6 +59,24 @@ export const ratesSchema = z
             path: ["attemptedVisitRate"],
         }
     );
+
+const allowedAttributes = (options, label) =>
+    z
+        .array(
+            z.string().refine((value) => options.includes(value), {
+                message: `Not a recognised ${label}`,
+            })
+        )
+        .max(20, "Select 20 or fewer");
+
+export const clinicalProfileSchema = z.object({
+    specialties: allowedAttributes(THERAPIST_SPECIALTIES, "specialty")
+        .min(1, "At least one specialty is required"),
+    languages: allowedAttributes(THERAPIST_LANGUAGES, "language"),
+    certifications: allowedAttributes(THERAPIST_CERTIFICATIONS, "certification"),
+    pastSettings: allowedAttributes(THERAPIST_PAST_SETTINGS, "clinical setting"),
+    populationExperience: allowedAttributes(THERAPIST_POPULATIONS, "population"),
+});
 
 export const availabilityDetailsSchema = z.object({
     availableFrom: z.string().datetime({ offset: true }).optional().nullable(),
