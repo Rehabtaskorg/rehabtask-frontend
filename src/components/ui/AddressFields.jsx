@@ -1,53 +1,20 @@
 "use client";
 
-import { useState } from "react";
 import { APIProvider } from "@vis.gl/react-google-maps";
 import Input from "@/components/ui/Input";
 import LocationAutocomplete from "@/components/maps/LocationAutocomplete";
+import { useAddressAutocomplete } from "@/hooks/useAddressAutocomplete";
 import { US_STATES } from "@/lib/constants/credentials";
-
-const toStreetAddress = (formattedAddress, city) => {
-    if (!formattedAddress) return "";
-    const [street] = formattedAddress.split(",");
-    const trimmed = street.trim();
-    return trimmed && trimmed !== city ? trimmed : formattedAddress;
-};
 
 export function AddressFields({ register, errors, setValue, idPrefix, defaultAddressLine1 = "" }) {
     const stateFieldId = `${idPrefix}-address-state`;
-    const [addressLine1Display, setAddressLine1Display] = useState(defaultAddressLine1);
-    const [incompleteAddress, setIncompleteAddress] = useState(null);
 
-    const handleAddressSelect = ({ formattedAddress, city, state, zipCode, streetNumber }) => {
-        const street = toStreetAddress(formattedAddress, city);
-
-        if (!streetNumber) {
-            setIncompleteAddress(street);
-            return;
-        }
-
-        setIncompleteAddress(null);
-        setAddressLine1Display(street);
-        setValue("addressLine1", street, { shouldValidate: false, shouldDirty: true });
-        setValue("city", city, { shouldValidate: false, shouldDirty: true });
-        setValue("state", state, { shouldValidate: false, shouldDirty: true });
-        setValue("zipCode", zipCode, { shouldValidate: false, shouldDirty: true });
-    };
-
-    const handleAddressChange = (next) => {
-        setIncompleteAddress(null);
-        setAddressLine1Display(next);
-        setValue("addressLine1", "", { shouldValidate: false, shouldDirty: true });
-    };
-
-    const handleAddressClear = () => {
-        setIncompleteAddress(null);
-        setAddressLine1Display("");
-        setValue("addressLine1", "", { shouldValidate: false, shouldDirty: true });
-        setValue("city", "", { shouldValidate: false, shouldDirty: true });
-        setValue("state", "", { shouldValidate: false, shouldDirty: true });
-        setValue("zipCode", "", { shouldValidate: false, shouldDirty: true });
-    };
+    const {
+        addressLine1Display,
+        setAddressLine1Display,
+        handleAddressSelect,
+        handleAddressClear,
+    } = useAddressAutocomplete({ setValue, defaultAddressLine1 });
 
     return (
         <>
@@ -59,14 +26,10 @@ export function AddressFields({ register, errors, setValue, idPrefix, defaultAdd
                     restrictToAddress
                     placeholder="e.g. 233 S Wacker Dr"
                     value={addressLine1Display}
-                    onChange={handleAddressChange}
+                    onChange={setAddressLine1Display}
                     onSelect={handleAddressSelect}
                     onClear={handleAddressClear}
-                    error={
-                        incompleteAddress
-                            ? `"${incompleteAddress}" has no house number. Pick a result that starts with one, or type the full address and select it.`
-                            : errors.addressLine1?.message
-                    }
+                    error={errors.addressLine1?.message}
                     helperText="Select from the dropdown to auto-fill city, state and ZIP"
                 />
             </APIProvider>
