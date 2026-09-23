@@ -1,6 +1,6 @@
 "use client";
 
-import { MdVerified, MdScience, MdGroups, MdAttachMoney, MdCalendarToday, MdBarChart, MdStar } from "react-icons/md";
+import { MdVerified, MdScience, MdGroups, MdAttachMoney, MdBarChart, MdStar } from "react-icons/md";
 import { formatShortDate } from "@/utils/dates";
 
 /**
@@ -59,9 +59,6 @@ export function ClinicalProfileSection({ profile }) {
     const hasRates =
         profile?.evaluationRate != null || profile?.travelFee != null;
 
-    const hasAvailabilityExtras =
-        profile?.availableFrom != null || profile?.caseloadCapacity != null;
-
     return (
         <div className="space-y-6">
             <SectionCard label="Clinical Skills" icon={<MdScience className="text-primary text-xl" />}>
@@ -105,23 +102,6 @@ export function ClinicalProfileSection({ profile }) {
                         {profile?.travelFee != null && (
                             <DetailRow label="Travel Fee">
                                 ${parseFloat(profile.travelFee).toFixed(2)}
-                            </DetailRow>
-                        )}
-                    </div>
-                </SectionCard>
-            )}
-
-            {hasAvailabilityExtras && (
-                <SectionCard label="Availability Details" icon={<MdCalendarToday className="text-primary text-xl" />}>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6">
-                        {profile?.availableFrom != null && (
-                            <DetailRow label="Available From">
-                                {formatShortDate(profile.availableFrom)}
-                            </DetailRow>
-                        )}
-                        {profile?.caseloadCapacity != null && (
-                            <DetailRow label="Max Patients / Week">
-                                {profile.caseloadCapacity}
                             </DetailRow>
                         )}
                     </div>
