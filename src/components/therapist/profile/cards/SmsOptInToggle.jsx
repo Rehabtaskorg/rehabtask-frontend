@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { logger } from "@/lib/logger";
 import { useUpdateProfile } from "@/hooks/useTherapistProfile";
-import { ConfirmableToggleRow } from "./ConfirmableToggleRow";
+import { ConfirmableToggleRow } from "@/components/ui/ConfirmableToggleRow";
 
 export function SmsOptInToggle({ profile, isOnboardingComplete }) {
     const [smsOptIn, setSmsOptIn] = useState(profile?.smsOptIn ?? false);
