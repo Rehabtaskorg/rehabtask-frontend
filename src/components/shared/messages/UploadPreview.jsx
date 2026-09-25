@@ -33,7 +33,6 @@ export default function UploadPreview({ files, onRemove, onAddMore }) {
     // in render leaks memory because each render creates a new URL that is never revoked.
     const previewUrls = useMemo(
         () => files.map(f => (isImageType(f.type) ? URL.createObjectURL(f) : null)),
-        // eslint-disable-next-line react-hooks/exhaustive-deps
         [files]
     );
 

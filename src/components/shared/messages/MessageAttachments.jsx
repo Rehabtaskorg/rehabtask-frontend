@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { messagesApi } from "@/lib/messages.api";
+import { messagesApi } from "@/services/message.api";
 import { MdDownload, MdDescription, MdInsertDriveFile, MdImage } from "react-icons/md";
 
 /**

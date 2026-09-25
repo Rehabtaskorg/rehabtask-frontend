@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { authAPi } from "@/lib/auth.api";
+import { authAPi } from "@/services/auth.api";
 
 export const usePasswordReset = () => {
     const [isSubmitting, setIsSubmitting] = useState(false);

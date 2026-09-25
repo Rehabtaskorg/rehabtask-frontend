@@ -5,8 +5,8 @@ import { useRouter } from "next/navigation";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import { useInsuranceDocumentUpload } from "@/hooks/useInsuranceDocumentUpload";
 import { useOnboardingDataSync } from "@/hooks/useOnboardingDataSync";
-import useOnboardingStore from "@/store/onboardingStore";
-import { onboardingAPI } from "@/lib/onboarding.api";
+import useOnboardingStore from "@/stores/onboardingStore";
+import { onboardingAPI } from "@/services/onboarding.api";
 
 /**
  * Drives the Insurance Documentation onboarding step (Step 5): home-visits
@@ -20,6 +20,7 @@ export function useInsuranceUploadsForm() {
     const upload = useInsuranceDocumentUpload();
 
     const [loading, setLoading] = useState(false);
+    const [initializing, setInitializing] = useState(true);
 
     useEffect(() => {
         trackEvent("onboarding_step_viewed", { step: 5, step_name: "insurance" });
@@ -27,7 +28,11 @@ export function useInsuranceUploadsForm() {
     }, []);
 
     useEffect(() => {
-        syncData();
+        let cancelled = false;
+        syncData().finally(() => {
+            if (!cancelled) setInitializing(false);
+        });
+        return () => { cancelled = true; };
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
@@ -76,6 +81,7 @@ export function useInsuranceUploadsForm() {
     return {
         insurance,
         loading,
+        initializing,
         uploadingType: upload.uploadingType,
         error: upload.error,
         getDocument: upload.getDocument,

@@ -16,7 +16,7 @@ export default function FindTherapistsListCard({
     cardRef,
 }) {
     const router = useRouter();
-    const { guardedHandleMessage, isGateOpen, closeGate, onboardingStep, customerType } = useMessageGuard();
+    const { guardedHandleMessage, isGateOpen, closeGate, gateProps } = useMessageGuard();
 
     const borderClass = isHighlighted
         ? "border-2 border-primary shadow-lg shadow-primary/10"
@@ -34,7 +34,7 @@ export default function FindTherapistsListCard({
 
     return (
         <>
-        <MessageGateModal isOpen={isGateOpen} onClose={closeGate} onboardingStep={onboardingStep} customerType={customerType} />
+        <MessageGateModal isOpen={isGateOpen} onClose={closeGate} {...gateProps} />
         <motion.div
             ref={cardRef}
             initial={{ opacity: 0, y: 12 }}

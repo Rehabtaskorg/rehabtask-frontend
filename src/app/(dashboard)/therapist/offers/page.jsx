@@ -14,7 +14,7 @@ import {
     MdSend,
 } from "react-icons/md";
 import { useMyOffers } from "@/hooks/useOffers";
-import { offersApi } from "@/lib/offers";
+import { offersApi } from "@/services/offer.api";
 import OfferFormFields from "@/components/therapist/OfferFormFields";
 import { formatCurrency } from "@/utils/messages";
 import { usePageTitle } from "@/hooks/usePageTitle";
@@ -159,7 +159,7 @@ function MyOffersContent() {
             rate: parseFloat(offer.rate) || "",
             attemptedVisitRate: offer.attemptedVisitRate != null ? parseFloat(offer.attemptedVisitRate) : "",
             sessionType: offer.sessionType || "in_person",
-            proposedDate: offer.proposedDate ? new Date(offer.proposedDate).toISOString().slice(0, 16) : "",
+            proposedDate: offer.proposedDate ? new Date(offer.proposedDate).toISOString().slice(0, 10) : "",
             description: offer.description || "",
             planOverrideEnabled: hasOverride,
             visitTypeId: offer.visitTypeId || "",

@@ -5,16 +5,19 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { MdArrowBack, MdLock, MdCheckCircle, MdError, MdAccountBalance, MdBolt, MdAutorenew, MdShield } from "react-icons/md";
 import { ConnectAccountOnboarding } from "@stripe/react-connect-js";
-import { paymentsApi } from "@/lib/payments.api";
+import { paymentsApi } from "@/services/payment.api";
 import { useRefundSummary, useCustomerConnectStatus } from "@/hooks/usePayments";
 import StripeConnectProvider from "@/components/stripe/StripeConnectProvider";
+import { CustomerPayoutStructureStep } from "@/components/customer/payouts/CustomerPayoutStructureStep";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { showToast } from "@/lib/toast";
+import { logger } from "@/lib/logger";
 import { useQueryClient } from "@tanstack/react-query";
 
 const STATUS = {
     INITIALIZING: "initializing",
     IDLE: "idle",
+    STRUCTURE: "structure",
     CREATING: "creating",
     ONBOARDING: "onboarding",
     VERIFYING: "verifying",
@@ -33,7 +36,7 @@ export default function PayoutSetupPage() {
     const queryClient = useQueryClient();
 
     const { data: summary } = useRefundSummary();
-    const { data: connectStatus, refetch: refetchStatus } = useCustomerConnectStatus();
+    const { data: connectStatus } = useCustomerConnectStatus();
 
     const [status, setStatus] = useState(STATUS.INITIALIZING);
     const [error, setError] = useState(null);
@@ -59,11 +62,13 @@ export default function PayoutSetupPage() {
         /* eslint-enable react-hooks/set-state-in-effect */
     }, [connectStatus]);
 
-    const handleCreateAccount = async () => {
+    const handleShowStructureStep = () => setStatus(STATUS.STRUCTURE);
+
+    const handleCreateAccount = async (businessStructure) => {
         setStatus(STATUS.CREATING);
         setError(null);
         try {
-            await paymentsApi.createCustomerConnectAccount();
+            await paymentsApi.createCustomerConnectAccount({ businessStructure });
             setStatus(STATUS.ONBOARDING);
         } catch (err) {
             setError(err.response?.data?.message || "Failed to set up your payout account. Please try again.");
@@ -83,7 +88,7 @@ export default function PayoutSetupPage() {
                 setStatus(STATUS.COMPLETE);
                 queryClient.invalidateQueries({ queryKey: ["customer-connect-status"] });
                 queryClient.invalidateQueries({ queryKey: ["customer-refund-summary"] });
-                showToast.success("Payout account connected! Pending refunds will be processed shortly.");
+                showToast.success("Payout account connected! Pending credits will be processed shortly.");
                 setTimeout(() => router.push("/customer/payments"), 2000);
             } else if (data.connected && data.detailsSubmitted) {
                 showToast.info("Your details have been submitted. We are verifying your account.");
@@ -101,7 +106,7 @@ export default function PayoutSetupPage() {
     }, [queryClient, router]);
 
     const handleStripeLoadError = useCallback((err) => {
-        console.error("[CustomerPayoutSetup] SDK load error:", err);
+        logger.error("[CustomerPayoutSetup] SDK load error:", err);
         setStripeLoadError("Failed to load the payout setup module. Please check your connection and refresh the page.");
     }, []);
 
@@ -113,7 +118,7 @@ export default function PayoutSetupPage() {
         setError(null);
         setStripeLoadError(null);
         setEmbeddedFormLoaded(false);
-        setStatus(connectStatus?.connected ? STATUS.ONBOARDING : STATUS.IDLE);
+        setStatus(connectStatus?.connected ? STATUS.ONBOARDING : STATUS.STRUCTURE);
     };
 
     const isOnboardingStep = status === STATUS.ONBOARDING;
@@ -149,7 +154,7 @@ export default function PayoutSetupPage() {
                                 Set Up Your Payout Account
                             </h1>
                             <p className="text-text-muted  text-sm max-w-md mx-auto leading-relaxed">
-                                Connect your bank account to receive refunds directly. This is a one-time setup — all future refunds will be deposited automatically.
+                                Connect your bank account to receive account credits directly. This is a one-time setup — all future credits will be deposited automatically.
                             </p>
                         </div>
 
@@ -157,7 +162,7 @@ export default function PayoutSetupPage() {
                         {pendingAmount > 0 && (
                             <div className="mx-8 mb-6 bg-primary/5  border border-primary/20 rounded-xl p-5">
                                 <div className="flex items-center justify-between mb-1">
-                                    <span className="text-lg font-bold text-text-main ">{formatCurrency(pendingAmount)} in pending refunds</span>
+                                    <span className="text-lg font-bold text-text-main ">{formatCurrency(pendingAmount)} in pending credits</span>
                                 </div>
                                 <p className="text-xs text-text-muted  leading-relaxed">
                                     Once your account is verified, these funds will be processed automatically within 2-3 business days.
@@ -182,7 +187,7 @@ export default function PayoutSetupPage() {
                             </div>
 
                             <button
-                                onClick={handleCreateAccount}
+                                onClick={handleShowStructureStep}
                                 className="w-full bg-primary hover:bg-primary/90 text-white px-8 py-4 rounded-xl font-bold transition-colors flex items-center justify-center gap-2"
                             >
                                 <MdAccountBalance className="text-lg" />
@@ -221,6 +226,11 @@ export default function PayoutSetupPage() {
                             </div>
                         </div>
                     </div>
+                )}
+
+                {/* STRUCTURE — business structure pre-screen */}
+                {status === STATUS.STRUCTURE && (
+                    <CustomerPayoutStructureStep onConfirm={handleCreateAccount} />
                 )}
 
                 {/* CREATING */}
@@ -314,8 +324,8 @@ export default function PayoutSetupPage() {
                         <p className="text-text-main  font-bold text-xl">Payout Account Connected!</p>
                         <p className="text-text-muted  text-sm text-center max-w-sm">
                             {pendingAmount > 0
-                                ? `Your pending refund of ${formatCurrency(pendingAmount)} is being processed and will arrive in 2-3 business days.`
-                                : "Future refunds will be deposited directly to your bank account."
+                                ? `Your pending credit of ${formatCurrency(pendingAmount)} is being processed and will arrive in 2-3 business days.`
+                                : "Future credits will be deposited directly to your bank account."
                             }
                         </p>
                         <Link

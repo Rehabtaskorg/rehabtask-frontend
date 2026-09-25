@@ -12,14 +12,17 @@ import {
     MdAccountBalanceWallet,
     MdReceipt,
 } from "react-icons/md";
+import { BOOKING_STATUS } from "@/lib/constants";
+import { getPendingPaymentDeadline, isPendingPaymentExpired } from "@/lib/bookingPayment";
+import { formatClockTime } from "@/utils/dates";
 
 const formatTimestamp = (dateStr) => {
     if (!dateStr) return null;
     const d = new Date(dateStr);
-    return `${d.toLocaleDateString([], { month: "short", day: "numeric", year: "numeric" })} at ${d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}`;
+    return d.toLocaleDateString([], { month: "short", day: "numeric", year: "numeric" });
 };
 
-function TimelineStep({ icon: Icon, iconColor, title, subtitle, timestamp, isCompleted, isWaiting, isCancelled, isLast, nextCompleted }) {
+function TimelineStep({ icon: Icon, title, subtitle, timestamp, isCompleted, isWaiting, isCancelled, isLast, nextCompleted }) {
     const lineColor = isCompleted && nextCompleted
         ? "border-primary"
         : "border-dashed border-slate-300 ";
@@ -117,8 +120,8 @@ export default function BookingTimeline({ booking }) {
     const allTherapistComplete = isMultiSession
         ? deliverableSessions.length > 0 && deliverableSessions.every(s => ["completed_by_therapist", "confirmed_by_customer"].includes(s.status))
         : !!session?.completedAt;
-    const isCancelled = booking.status === "cancelled";
-    const isFinalized = booking.status === "finalized";
+    const isCancelled = booking.status === BOOKING_STATUS.CANCELLED;
+    const isFinalized = booking.status === BOOKING_STATUS.FINALIZED;
 
     // Build steps dynamically
     const steps = [];
@@ -132,11 +135,15 @@ export default function BookingTimeline({ booking }) {
     });
 
     // 2. Payment Escrowed (or awaiting payment)
-    if (!payment && ["pending", "accepted"].includes(booking.status)) {
+    if (!payment && [BOOKING_STATUS.PENDING, BOOKING_STATUS.PENDING_PAYMENT, BOOKING_STATUS.ACCEPTED].includes(booking.status)) {
+        const expired = isPendingPaymentExpired(booking);
+        const holdUntil = formatClockTime(getPendingPaymentDeadline(booking));
         steps.push({
             icon: MdPayments,
-            title: "Awaiting Payment",
-            isWaiting: true,
+            title: expired ? "Payment Window Closed" : "Awaiting Payment",
+            subtitle: expired ? "Reservation is being released" : holdUntil ? `Slot held until ${holdUntil}` : null,
+            isWaiting: !expired,
+            isCancelled: expired,
         });
     } else if (payment) {
         const escrowed = ["escrowed", "partially_released", "released", "refunded"].includes(payment.status);
@@ -176,7 +183,7 @@ export default function BookingTimeline({ booking }) {
         if (payment?.status === "refunded") {
             steps.push({
                 icon: MdAccountBalanceWallet,
-                title: "Payment Refunded",
+                title: "Payment Credited",
                 timestamp: payment.releasedAt,
                 isCompleted: true,
             });
@@ -243,9 +250,9 @@ export default function BookingTimeline({ booking }) {
                 ? "Booking Finalized"
                 : "Payment Released";
             const subtitle = isFinalized
-                ? `Therapist paid for delivered sessions, customer refunded for remaining`
+                ? `Therapist paid for delivered sessions, customer credited for remaining`
                 : (hasReducedScope && released
-                    ? `Paid out for ${deliverableSessions.filter(s => s.status === "confirmed_by_customer").length} deliverable session${deliverableSessions.filter(s => s.status === "confirmed_by_customer").length !== 1 ? "s" : ""} (${reducedScopeLabel}, refunded separately)`
+                    ? `Paid out for ${deliverableSessions.filter(s => s.status === "confirmed_by_customer").length} deliverable session${deliverableSessions.filter(s => s.status === "confirmed_by_customer").length !== 1 ? "s" : ""} (${reducedScopeLabel}, credited separately)`
                     : null);
             steps.push({
                 icon: MdAccountBalanceWallet,

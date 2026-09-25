@@ -7,8 +7,8 @@ import {
     MdCalendarToday, MdSchedule, MdTaskAlt, MdEdit, MdEventBusy,
     MdLocationOff, MdWarning,
 } from "react-icons/md";
-import { localDateTimeStr } from "@/utils/dates";
-import { MAX_VISIT_TITLE_LENGTH } from "@/lib/constants";
+import { localDateStr } from "@/utils/dates";
+import { MAX_VISIT_TITLE_LENGTH, SESSION_STATUS } from "@/lib/constants";
 
 const STATUS_CONFIG = {
     pending_schedule: { icon: MdSchedule, color: "text-slate-400", bg: "bg-slate-100 ", label: "Pending Schedule" },
@@ -32,13 +32,13 @@ const getRefundPill = (session) => {
     const hasTransferred = refunds.some((r) => r.status === "transferred");
     const hasCard = refunds.some((r) => r.status === "refunded_to_card");
     if (hasPending) {
-        return { label: `${formatCurrency(total)} pending refund`, color: "bg-amber-50  text-amber-600 " };
+        return { label: `${formatCurrency(total)} pending credit`, color: "bg-amber-50  text-amber-600 " };
     }
     if (hasTransferred) {
-        return { label: `${formatCurrency(total)} returned to your account`, color: "bg-emerald-50  text-emerald-600 " };
+        return { label: `${formatCurrency(total)} credited to your account`, color: "bg-emerald-50  text-emerald-600 " };
     }
     if (hasCard) {
-        return { label: `${formatCurrency(total)} returned to card`, color: "bg-emerald-50  text-emerald-600 " };
+        return { label: `${formatCurrency(total)} credited to your account`, color: "bg-emerald-50  text-emerald-600 " };
     }
     return null;
 };
@@ -51,11 +51,6 @@ const formatDate = (dateStr) => {
     if (!dateStr) return "Not scheduled";
     const d = new Date(dateStr);
     return d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", year: "numeric" });
-};
-
-const formatTime = (dateStr) => {
-    if (!dateStr) return "";
-    return new Date(dateStr).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
 };
 
 export default function SessionList({
@@ -75,6 +70,7 @@ export default function SessionList({
     onApproveSessionCancellation,
     onRejectSessionCancellation,
     onUpdateTitle,
+    onRespondRevision,
 }) {
     const [scheduleSessionId, setScheduleSessionId] = useState(null);
     const [scheduleDate, setScheduleDate] = useState("");
@@ -105,7 +101,7 @@ export default function SessionList({
     const bookingAttemptedRate = attemptedRateRaw != null ? parseFloat(attemptedRateRaw) : null;
     const attemptedFeatureEnabled = attemptedRateFieldPresent && bookingAttemptedRate != null && bookingAttemptedRate > 0;
 
-    const todayStr = localDateTimeStr();
+    const todayStr = localDateStr();
 
     const handleScheduleSubmit = async (sessionId) => {
         if (!scheduleDate) return;
@@ -208,13 +204,14 @@ export default function SessionList({
                     const isSchedulable = role === "therapist" && (session.status === "pending_schedule" || session.status === "scheduled");
                     const canEditTitle = role === "therapist" && !LOCKED_VISIT_TITLE_STATUSES.includes(session.status) && onUpdateTitle;
                     const isCompletable = role === "therapist" && session.status === "scheduled";
-                    const isConfirmable = role === "customer" && session.status === "completed_by_therapist";
-                    const canRequestRevision = role === "customer" && session.status === "completed_by_therapist" && onRequestRevision;
-                    const canExtendRevision = role === "therapist" && session.status === "in_revision" && onExtendRevision;
-                    const canResubmitSession = role === "therapist" && session.status === "in_revision" && session.revisionDueBy && onResubmitSession;
-                    const isInRevision = session.status === "in_revision";
+                    const isConfirmable = role === "customer" && session.status === SESSION_STATUS.COMPLETED_BY_THERAPIST;
+                    const canRequestRevision = role === "customer" && session.status === SESSION_STATUS.COMPLETED_BY_THERAPIST && onRequestRevision;
+                    const canExtendRevision = role === "therapist" && session.status === SESSION_STATUS.IN_REVISION && onExtendRevision;
+                    const canResubmitSession = role === "therapist" && session.status === SESSION_STATUS.IN_REVISION && session.revisionDueBy && onResubmitSession;
+                    const canRespondRevision = role === "therapist" && session.status === SESSION_STATUS.IN_REVISION && !session.revisionDueBy && onRespondRevision;
+                    const isInRevision = session.status === SESSION_STATUS.IN_REVISION;
                     const wasRevised = session.revisionCount > 0;
-                    const isResubmitted = wasRevised && session.status === "completed_by_therapist";
+                    const isResubmitted = wasRevised && session.status === SESSION_STATUS.COMPLETED_BY_THERAPIST;
                     const isThisLoading = loadingSessionId === session.id;
                     const isAnyLoading = loadingSessionId !== null;
 
@@ -239,6 +236,7 @@ export default function SessionList({
                     const showActionsRow = (isCompletable && scheduleSessionId !== session.id)
                         || isConfirmable
                         || (isInRevision && role === "customer")
+                        || canRespondRevision
                         || canExtendRevision
                         || canResubmitSession
                         || (canMarkMissed && scheduleSessionId !== session.id)
@@ -334,12 +332,12 @@ export default function SessionList({
                                             </p>
                                             {session.revisionLastSubmittedAt && (
                                                 <p className="text-text-muted ">
-                                                    Resubmitted on {formatDate(session.revisionLastSubmittedAt)} · {formatTime(session.revisionLastSubmittedAt)}
+                                                    Resubmitted on {formatDate(session.revisionLastSubmittedAt)}
                                                 </p>
                                             )}
                                             {session.revisionDueBy && (
                                                 <p className="text-text-muted ">
-                                                    Therapist committed to: {formatDate(session.revisionDueBy)} · {formatTime(session.revisionDueBy)}
+                                                    Therapist committed to: {formatDate(session.revisionDueBy)}
                                                 </p>
                                             )}
                                             {session.revisionReason && (
@@ -363,7 +361,7 @@ export default function SessionList({
                                             )}
                                             {session.revisionDueBy && (
                                                 <p className="text-text-muted ">
-                                                    Therapist will resubmit by {formatDate(session.revisionDueBy)} · {formatTime(session.revisionDueBy)}
+                                                    Therapist will resubmit by {formatDate(session.revisionDueBy)}
                                                 </p>
                                             )}
                                             {!session.revisionDueBy && (
@@ -382,7 +380,7 @@ export default function SessionList({
                                             )}
                                             {session.revisionDueBy && (
                                                 <p className="text-text-muted ">
-                                                    You committed to resubmit by {formatDate(session.revisionDueBy)} · {formatTime(session.revisionDueBy)}
+                                                    You committed to resubmit by {formatDate(session.revisionDueBy)}
                                                 </p>
                                             )}
                                         </div>
@@ -403,7 +401,7 @@ export default function SessionList({
                                             )}
                                             {session.missedAt && (
                                                 <p className="text-text-muted ">
-                                                    Marked on {formatDate(session.missedAt)} · {formatTime(session.missedAt)}
+                                                    Marked on {formatDate(session.missedAt)}
                                                 </p>
                                             )}
                                             {refundPill && (
@@ -419,8 +417,8 @@ export default function SessionList({
                                         <div className="mt-1 text-[10px] space-y-0.5">
                                             <p className="text-amber-700  font-medium">
                                                 {role === "therapist"
-                                                    ? "You recorded an attempted visit (patient not home)."
-                                                    : "Therapist recorded an attempted visit (you weren't home)."}
+                                                    ? "You recorded an attempted visit."
+                                                    : "Therapist recorded an attempted visit."}
                                             </p>
                                             {session.attemptedRateCharged != null && (
                                                 <p className="text-text-muted ">
@@ -436,7 +434,7 @@ export default function SessionList({
                                             )}
                                             {session.attemptedAt && (
                                                 <p className="text-text-muted ">
-                                                    Recorded on {formatDate(session.attemptedAt)} · {formatTime(session.attemptedAt)}
+                                                    Recorded on {formatDate(session.attemptedAt)}
                                                 </p>
                                             )}
                                             {refundPill && (
@@ -485,6 +483,15 @@ export default function SessionList({
                                         <span className="text-[10px] font-bold text-amber-600  italic">
                                             {session.revisionDueBy ? "Therapist working on it" : "Awaiting therapist"}
                                         </span>
+                                    )}
+                                    {canRespondRevision && (
+                                        <button
+                                            onClick={() => onRespondRevision(session.id)}
+                                            disabled={isAnyLoading}
+                                            className="text-xs font-bold text-amber-700 border border-amber-400 px-3 py-1.5 rounded-lg hover:bg-amber-50 disabled:opacity-50 transition-colors"
+                                        >
+                                            Respond
+                                        </button>
                                     )}
                                     {canExtendRevision && (
                                         <button
@@ -592,7 +599,7 @@ export default function SessionList({
                                         <div className="relative w-full flex-1">
                                             <MdCalendarToday className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" />
                                             <input
-                                                type="datetime-local"
+                                                type="date"
                                                 min={todayStr}
                                                 value={scheduleDate}
                                                 onChange={(e) => setScheduleDate(e.target.value)}

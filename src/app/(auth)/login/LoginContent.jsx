@@ -5,7 +5,8 @@ import { useSearchParams } from "next/navigation";
 import LoginForm from "@/components/forms/LoginForm";
 import { MdVerifiedUser } from "react-icons/md";
 import { showToast } from "@/lib/toast";
-import { LOGOUT_REASON, AUTH_REDIRECT_PARAM } from "@/lib/constants";
+import { useAnalytics } from "@/hooks/useAnalytics";
+import { LOGOUT_REASON, AUTH_REDIRECT_PARAM, AUTH_GATE_TRIGGERS } from "@/lib/constants";
 
 const REASON_TOAST = {
     [LOGOUT_REASON.SESSION_EXPIRED]: () =>
@@ -28,6 +29,16 @@ const REASON_TOAST = {
             position: "top-center",
             autoClose: 8000,
         }),
+    [LOGOUT_REASON.EMAIL_VERIFIED]: () =>
+        showToast.success("Email verified! Please log in to continue.", {
+            position: "top-center",
+            autoClose: 6000,
+        }),
+    [LOGOUT_REASON.LOGGED_OUT]: () =>
+        showToast.info("You have been signed out.", {
+            position: "top-center",
+            autoClose: 4000,
+        }),
 };
 
 /**
@@ -38,12 +49,19 @@ export default function LoginContent() {
     const searchParams = useSearchParams();
     const reason = searchParams.get("reason");
     const redirectDescriptor = searchParams.get(AUTH_REDIRECT_PARAM);
+    const { trackEvent } = useAnalytics();
 
     useEffect(() => {
         if (!reason) return;
         const fire = REASON_TOAST[reason];
         if (fire) fire();
     }, [reason]);
+
+    useEffect(() => {
+        if (redirectDescriptor?.startsWith(AUTH_GATE_TRIGGERS.REFERRAL)) {
+            trackEvent("therapist_login_from_public_referral", { hasRedirect: true });
+        }
+    }, [redirectDescriptor, trackEvent]);
 
     return (
         <>

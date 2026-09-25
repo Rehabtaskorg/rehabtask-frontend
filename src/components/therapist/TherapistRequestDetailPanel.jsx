@@ -6,7 +6,7 @@ import {
     MdCalendarToday, MdBusiness,
 } from "react-icons/md";
 import { useVisitTypes } from "@/hooks/useVisitTypes";
-import { localDateTimeStr } from "@/utils/dates";
+import { localDateStr } from "@/utils/dates";
 import { getCustomerLabel } from "@/utils/request";
 
 const getServiceTypeStyle = (serviceType) => {
@@ -109,6 +109,17 @@ export default function TherapistRequestDetailPanel({
                     <p className="text-sm text-text-main  leading-relaxed">{request.description}</p>
                 </div>
 
+                {request.specialInstructions && (
+                    <div className="bg-amber-50 rounded-xl p-5 border border-amber-200">
+                        <p className="text-[10px] font-bold text-amber-800 uppercase tracking-widest mb-2">
+                            Special Instructions
+                        </p>
+                        <p className="text-sm text-amber-900 leading-relaxed whitespace-pre-wrap">
+                            {request.specialInstructions}
+                        </p>
+                    </div>
+                )}
+
                 {/* Patient identity hidden from therapist pre-booking */}
 
                 {/* ── Metadata Grid ── */}
@@ -125,12 +136,6 @@ export default function TherapistRequestDetailPanel({
                             {request.offers?.length || 0} offer{request.offers?.length !== 1 ? "s" : ""}
                         </p>
                     </div>
-                    {request.rate != null && (
-                        <div className="p-3 rounded-lg border border-border-light ">
-                            <p className="text-[10px] font-bold text-text-muted  uppercase tracking-widest">Rate per Visit</p>
-                            <p className="text-sm font-semibold text-text-main  mt-1">${parseFloat(request.rate).toFixed(2)}</p>
-                        </div>
-                    )}
                     {visitTypeLabel && (
                         <div className="p-3 rounded-lg border border-border-light ">
                             <p className="text-[10px] font-bold text-text-muted  uppercase tracking-widest">Visit Type</p>
@@ -237,12 +242,12 @@ function renderOfferState({
                 )}
                 <div>
                     <p className="text-[10px] font-bold text-text-muted  uppercase">Proposed Date</p>
-                    <p className="text-sm font-semibold text-text-main  mt-0.5">{myOffer.proposedDate ? new Date(myOffer.proposedDate).toLocaleString() : "—"}</p>
+                    <p className="text-sm font-semibold text-text-main  mt-0.5">{myOffer.proposedDate ? new Date(myOffer.proposedDate).toLocaleDateString() : "—"}</p>
                 </div>
                 {myOffer.expiresAt && (
                     <div>
                         <p className="text-[10px] font-bold text-text-muted  uppercase">Expires</p>
-                        <p className="text-sm font-semibold text-text-main  mt-0.5">{new Date(myOffer.expiresAt).toLocaleString()}</p>
+                        <p className="text-sm font-semibold text-text-main  mt-0.5">{new Date(myOffer.expiresAt).toLocaleDateString()}</p>
                     </div>
                 )}
             </div>
@@ -384,7 +389,7 @@ function OfferForm({ request, offerData, setOfferData, submitting, onSubmit, sub
                                 className={`flex-1 py-1.5 text-xs font-bold rounded-md transition-colors ${offerData.sessionType === type
                                     ? "bg-primary text-white"
                                     : "text-text-muted hover:bg-slate-100 "
-                                }`}
+                                    }`}
                             >
                                 {type === "in-person" ? "In-Person" : "Virtual"}
                             </button>
@@ -411,8 +416,8 @@ function OfferForm({ request, offerData, setOfferData, submitting, onSubmit, sub
             <div className="space-y-1.5">
                 <label className="text-[11px] font-bold text-text-muted  uppercase">Proposed First Session</label>
                 <input
-                    type="datetime-local" required
-                    min={localDateTimeStr()}
+                    type="date" required
+                    min={localDateStr()}
                     value={offerData.proposedDate}
                     onChange={(e) => setOfferData((prev) => ({ ...prev, proposedDate: e.target.value }))}
                     className="w-full rounded-lg border border-border-light  bg-white  text-text-main  text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"

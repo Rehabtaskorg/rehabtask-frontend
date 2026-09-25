@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import useIndividualOnboardingStore from "@/store/individualOnboardingStore";
-import { individualOnboardingAPI } from "@/lib/individual.onboarding.api";
+import useIndividualOnboardingStore from "@/stores/individualOnboardingStore";
+import { individualOnboardingAPI } from "@/services/onboarding.individual.api";
 
 const MAX_FILE_SIZE = 25 * 1024 * 1024;
 const ALLOWED_MIME_TYPES = ["application/pdf", "image/jpeg", "image/jpg", "image/png"];

@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { paymentsApi } from "@/lib/payments.api";
+import { paymentsApi } from "@/services/payment.api";
 
 export function usePaymentHistory() {
     return useQuery({

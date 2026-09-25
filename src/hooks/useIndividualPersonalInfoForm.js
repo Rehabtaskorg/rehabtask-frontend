@@ -4,9 +4,9 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { individualPersonalInfoSchema } from "@/lib/individualOnboardingValidation";
-import { individualOnboardingAPI } from "@/lib/individual.onboarding.api";
-import useIndividualOnboardingStore from "@/store/individualOnboardingStore";
+import { individualPersonalInfoSchema } from "@/lib/validators/individual.onboarding.schema";
+import { individualOnboardingAPI } from "@/services/onboarding.individual.api";
+import useIndividualOnboardingStore from "@/stores/individualOnboardingStore";
 import { logger } from "@/lib/logger";
 
 /**

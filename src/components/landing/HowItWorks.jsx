@@ -1,7 +1,7 @@
 import FadeIn from "@/components/ui/FadeIn";
 import { MdSearch, MdHandshake, MdFavorite } from "react-icons/md";
 
-const STEPS = [
+const DEFAULT_STEPS = [
     {
         icon: MdSearch,
         title: "Search",
@@ -22,17 +22,22 @@ const STEPS = [
     },
 ];
 
-export default function HowItWorks() {
+/**
+ * Renders the "How It Works" section with a configurable set of steps.
+ *
+ * @param {{ steps?: Array<{ icon: React.ElementType, title: string, description: string, image: string }> }} props
+ */
+export function HowItWorks({ steps = DEFAULT_STEPS }) {
     return (
         <section className="py-20 bg-white">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <FadeIn className="text-center mb-14">
-                    <h2 className="mt-2 text-3xl md:text-4xl font-bold" style={{ color: "#2EC4B6" }}>How RehabTask Works</h2>
+                    <h2 className="mt-2 text-3xl md:text-4xl font-bold text-primary">How RehabTask Works</h2>
                     <p className="mt-3 text-gray-500">From request to placement, in minutes</p>
                 </FadeIn>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    {STEPS.map((step, i) => (
+                    {steps.map((step, i) => (
                         <FadeIn
                             key={step.title}
                             delay={i * 0.15}

@@ -2,11 +2,14 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { usePostHog } from 'posthog-js/react';
+import { useQueryClient } from '@tanstack/react-query';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { authAPi } from '@/lib/auth.api';
+import { authAPi } from '@/services/auth.api';
 import { destroySocket } from '@/lib/socket';
+import { signOut } from 'firebase/auth';
+import { getFirebaseAuth } from '@/lib/firebase';
 import { getTherapistRedirect } from '@/lib/therapistRouteAccess';
 import { getCustomerRedirect } from '@/lib/customerRouteAccess';
 import { TherapistAccessProvider } from '@/contexts/TherapistAccessContext';
@@ -15,11 +18,14 @@ import { CustomerUserProvider } from '@/contexts/CustomerUserContext';
 import { SidebarProvider, useSidebar } from '@/contexts/SidebarContext';
 import { SocketProvider } from '@/components/providers/SocketProvider';
 import OnboardingBanner from '@/components/therapist/OnboardingBanner';
-import useOnboardingStore from '@/store/onboardingStore';
-import useAgencyOnboardingStore from '@/store/agencyOnboardingStore';
+import { CustomerStatusBanner } from '@/components/customer/CustomerStatusBanner';
+import useOnboardingStore from '@/stores/onboardingStore';
+import useAgencyOnboardingStore from '@/stores/agencyOnboardingStore';
+import useRequestStore from '@/stores/requestStore';
 import { useUnreadCount } from '@/hooks/useMessages';
 import { useIdleTimeout } from '@/hooks/useIdleTimeout';
-import { LOGOUT_REASON, USER_ROLES, CUSTOMER_TYPES } from '@/lib/constants';
+import { LOGOUT_REASON, USER_ROLES, CUSTOMER_TYPES, APPROVAL_STATUS } from '@/lib/constants';
+import { UnifiedAgreementModal } from '@/components/features/auth/UnifiedAgreementModal';
 import {
     MdDashboard, MdSearch, MdSend, MdCalendarMonth,
     MdChatBubble, MdPayments, MdPerson,
@@ -144,10 +150,13 @@ export default function DashboardLayout({ children }) {
     const router = useRouter();
     const pathname = usePathname();
     const posthog = usePostHog();
+    const queryClient = useQueryClient();
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
     const [authError, setAuthError] = useState(false);
     const [sidebarOpen, setSidebarOpen] = useState(false);
+    const [showAgreementModal, setShowAgreementModal] = useState(false);
+    const [refetchTrigger, setRefetchTrigger] = useState(0);
 
     // Close sidebar whenever the route changes
     useEffect(() => {
@@ -164,6 +173,14 @@ export default function DashboardLayout({ children }) {
                 if (!isMounted) return;
 
                 const userData = res.data.data.user;
+
+                if (!userData.hasAcceptedAgreement && userData.role !== USER_ROLES.ADMIN && userData.role !== USER_ROLES.SUB_ADMIN) {
+                    setUser(userData);
+                    setShowAgreementModal(true);
+                    setLoading(false);
+                    return;
+                }
+
                 const isOnCustomerDashboard = pathname.startsWith("/customer");
                 const isOnTherapistDashboard = pathname.startsWith("/therapist");
 
@@ -203,7 +220,7 @@ export default function DashboardLayout({ children }) {
                 if (userData.role === USER_ROLES.THERAPIST) {
                     const redirect = getTherapistRedirect(pathname, {
                         onboardingComplete: userData.profile?.onboardingComplete ?? false,
-                        approvalStatus: userData.profile?.approvalStatus ?? "pending",
+                        approvalStatus: userData.profile?.approvalStatus ?? APPROVAL_STATUS.PENDING,
                         onboardingStep: userData.profile?.onboardingStep ?? 1,
                     });
 
@@ -258,7 +275,7 @@ export default function DashboardLayout({ children }) {
         fetchUser();
         return () => { isMounted = false; };
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [router, posthog]);
+    }, [router, posthog, refetchTrigger]);
 
     /**
      * Logs the current user out: calls the logout API, tears down the socket,
@@ -280,14 +297,21 @@ export default function DashboardLayout({ children }) {
             // best-effort — session may already be invalid
         } finally {
             destroySocket();
+            try {
+                await signOut(getFirebaseAuth());
+            } catch (_) {
+                // best-effort — Firebase session teardown must never block the logout redirect
+            }
             if (!preserveOnboardingState) {
+                queryClient.clear();
                 useOnboardingStore.getState().reset();
                 useAgencyOnboardingStore.getState().reset();
+                useRequestStore.getState().reset();
             }
             posthog?.reset();
         }
-        router.push(destination);
-    }, [router, posthog]);
+        router.replace(destination);
+    }, [router, posthog, queryClient]);
 
     useIdleTimeout(
         user
@@ -316,6 +340,19 @@ export default function DashboardLayout({ children }) {
         );
     }
 
+    if (showAgreementModal) {
+        return (
+            <UnifiedAgreementModal
+                onAccepted={() => {
+                    setShowAgreementModal(false);
+                    setLoading(true);
+                    setRefetchTrigger((n) => n + 1);
+                }}
+                onDecline={() => handleLogout('/login')}
+            />
+        );
+    }
+
     const isOnOnboardingRoute = pathname.startsWith("/therapist/onboarding");
 
     // Backend returns both therapist and customer data under "profile" key
@@ -326,21 +363,21 @@ export default function DashboardLayout({ children }) {
     // Compute therapist access state for context and sidebar
     const therapistAccess = user?.role === USER_ROLES.THERAPIST ? (() => {
         const tp = user.profile; // Backend maps therapistProfile → "profile"
-        const status = tp?.approvalStatus ?? "pending";
+        const status = tp?.approvalStatus ?? APPROVAL_STATUS.PENDING;
         const step = tp?.onboardingStep ?? 1;
         const isComplete = tp?.onboardingComplete ?? false;
         // Step 8 (Payment Setup) onward is functionally complete — payment is not
-        // a hard requirement for admin review. Step 9 (Final Review) just confirms.
-        const functionallyComplete = isComplete || step >= 8;
+        // a hard requirement for admin review. Step 8 (Final Review) just confirms.
+        const functionallyComplete = isComplete || step >= 7;
         return {
             approvalStatus: status,
             rejectionReason: tp?.rejectionReason ?? null,
             onboardingComplete: functionallyComplete,
             onboardingStep: step,
-            canAccessMarketplace: status === "approved",
+            canAccessMarketplace: status === APPROVAL_STATUS.APPROVED,
             canEditPersonalInfo: status !== "incomplete",
-            canEditCredentials: status === "approved" || status === "rejected",
-            isFullyApproved: status === "approved" && functionallyComplete,
+            canEditCredentials: status === APPROVAL_STATUS.APPROVED || status === APPROVAL_STATUS.REJECTED,
+            isFullyApproved: status === APPROVAL_STATUS.APPROVED && functionallyComplete,
         };
     })() : null;
 
@@ -354,6 +391,7 @@ export default function DashboardLayout({ children }) {
     const adminNavItems = [
         { href: '/admin/users', icon: MdManageAccounts, label: 'Users', permission: 'users' },
         { href: '/admin/therapists', icon: MdVerifiedUser, label: 'Therapists', permission: 'therapists' },
+        { href: '/admin/customers', icon: MdPeople, label: 'Customer Applications', permission: 'customers' },
         { href: '/admin/disputes', icon: MdGavel, label: 'Disputes', permission: 'disputes' },
         { href: '/admin/bookings', icon: MdCalendarMonth, label: 'Bookings', permission: 'bookings' },
         { href: '/admin/subscriptions', icon: MdCardMembership, label: 'Subscriptions', permission: 'subscriptions' },
@@ -510,7 +548,7 @@ function DashboardInner({ user, pathname, sidebarOpen, setSidebarOpen, handleLog
                         <div className={`mt-auto ${c ? 'p-2' : 'p-6'} space-y-1 border-t border-slate-100 `}>
                             <NavLink href="/therapist/profile" icon={MdPerson} label="My Profile" pathname={pathname} collapsed={c} />
                             <NavLink href="/therapist/account-settings" icon={MdSettings} label="Account Settings" pathname={pathname} collapsed={c} />
-                            <button onClick={() => handleLogout("/")} className={`sidebar-nav-link w-full text-red-500 hover:bg-red-50  ${c ? 'justify-center px-0! gap-0!' : 'text-left'}`} title={c ? "Logout" : undefined}>
+                            <button onClick={() => handleLogout(`/login?reason=${LOGOUT_REASON.LOGGED_OUT}`)} className={`sidebar-nav-link w-full text-red-500 hover:bg-red-50  ${c ? 'justify-center px-0! gap-0!' : 'text-left'}`} title={c ? "Logout" : undefined}>
                                 <MdLogout className="sidebar-icon shrink-0" />
                                 {!c && <span>Logout</span>}
                             </button>
@@ -545,11 +583,11 @@ function DashboardInner({ user, pathname, sidebarOpen, setSidebarOpen, handleLog
                             <NavLink href="/customer/bookings" icon={MdCalendarToday} label="My Bookings" pathname={pathname} collapsed={c} />
                             <NavLink href="/customer/disputes" icon={MdGavel} label="Disputes" pathname={pathname} collapsed={c} />
                             <CustomerMessagesLink pathname={pathname} collapsed={c} />
-                            <NavLink href="/customer/payments" icon={MdPayments} label="Payments & Refunds" pathname={pathname} collapsed={c} />
-                            <NavLink href="/customer/subscription" icon={MdStars} label="Subscription" pathname={pathname} collapsed={c} />
+                            <NavLink href="/customer/payments" icon={MdPayments} label="Payments & Credits" pathname={pathname} collapsed={c} />
+                            <NavLink href="/customer/subscription" icon={MdStars} label="Subscription" pathname={pathname} collapsed={c} locked={user.profile?.approvalStatus !== APPROVAL_STATUS.APPROVED} />
                             <NavLink href="/customer/faqs" icon={MdQuestionAnswer} label="FAQs" pathname={pathname} collapsed={c} />
                             <NavLink href="/customer/profile" icon={MdSettings} label="Account Settings" pathname={pathname} collapsed={c} />
-                            <button onClick={() => handleLogout("/")} className={`sidebar-nav-link w-full text-red-500 hover:bg-red-50  ${c ? 'justify-center px-0! gap-0!' : 'text-left'}`} title={c ? "Logout" : undefined}>
+                            <button onClick={() => handleLogout(`/login?reason=${LOGOUT_REASON.LOGGED_OUT}`)} className={`sidebar-nav-link w-full text-red-500 hover:bg-red-50  ${c ? 'justify-center px-0! gap-0!' : 'text-left'}`} title={c ? "Logout" : undefined}>
                                 <MdLogout className="sidebar-icon shrink-0" />
                                 {!c && <span>Logout</span>}
                             </button>
@@ -635,7 +673,8 @@ function DashboardInner({ user, pathname, sidebarOpen, setSidebarOpen, handleLog
                         </nav>
                         <div className={`${c ? 'p-2' : 'p-4'} border-t border-slate-100  space-y-1`}>
                             <NavLink href="/admin/settings" icon={MdSettings} label="Settings" pathname={pathname} collapsed={c} />
-                            <button onClick={() => handleLogout("/")} className={`sidebar-nav-link w-full text-red-500 hover:bg-red-50  ${c ? 'justify-center px-0! gap-0!' : 'text-left'}`} title={c ? "Logout" : undefined}>
+                            <NavLink href="/security" icon={MdAdminPanelSettings} label="Security" pathname={pathname} collapsed={c} />
+                            <button onClick={() => handleLogout(`/login?reason=${LOGOUT_REASON.LOGGED_OUT}`)} className={`sidebar-nav-link w-full text-red-500 hover:bg-red-50  ${c ? 'justify-center px-0! gap-0!' : 'text-left'}`} title={c ? "Logout" : undefined}>
                                 <MdLogout className="sidebar-icon shrink-0" />
                                 {!c && <span>Logout</span>}
                             </button>
@@ -679,7 +718,10 @@ function DashboardInner({ user, pathname, sidebarOpen, setSidebarOpen, handleLog
                         onboardingComplete: user.profile?.onboardingComplete ?? false,
                         onboardingStep: user.profile?.onboardingStep ?? 1,
                         approvalStatus: user.profile?.approvalStatus ?? null,
+                        rejectionReason: user.profile?.rejectionReason ?? null,
+                        canAccessMarketplace: user.profile?.approvalStatus === APPROVAL_STATUS.APPROVED,
                     }}>
+                        <CustomerStatusBanner />
                         {children}
                     </CustomerUserProvider>
                 ) : (

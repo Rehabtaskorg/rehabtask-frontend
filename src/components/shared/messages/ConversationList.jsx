@@ -38,7 +38,10 @@ export default function ConversationList({
     const [filter, setFilter] = useState('all');
 
     const filtered = conversations.filter((c) => {
-        const nameMatch = !search.trim() || getDisplayName(c.otherUser).toLowerCase().includes(search.toLowerCase());
+        const q = search.trim().toLowerCase();
+        const nameMatch = !q
+            || getDisplayName(c.otherUser).toLowerCase().includes(q)
+            || (c.patient?.fullName ?? '').toLowerCase().includes(q);
         const filterMatch = filterFn ? filterFn(c, filter) : (filter === 'all' || (filter === 'unread' && c.unreadCount > 0));
         return nameMatch && filterMatch;
     });

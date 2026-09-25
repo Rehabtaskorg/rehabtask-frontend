@@ -53,6 +53,8 @@ export default function TherapistAppNavbar({
     onLocationSelect,
     onLocationClear,
     onSearch,
+    locationError,
+    onDisciplineClear,
 }) {
     const [menuOpen, setMenuOpen] = useState(false);
     const menuRef = useRef(null);
@@ -95,6 +97,7 @@ export default function TherapistAppNavbar({
                         <LicenseTypeAutocomplete
                             value={searchQuery}
                             onChange={setSearchQuery}
+                            onClear={onDisciplineClear}
                             placeholder="Discipline type"
                             variant="compact"
                         />
@@ -106,6 +109,7 @@ export default function TherapistAppNavbar({
                                 onSelect={onLocationSelect}
                                 onClear={onLocationClear}
                                 placeholder="City or zip code"
+                                locationError={locationError}
                             />
                         </div>
 
@@ -145,6 +149,7 @@ export default function TherapistAppNavbar({
                     <LicenseTypeAutocomplete
                         value={searchQuery}
                         onChange={setSearchQuery}
+                        onClear={onDisciplineClear}
                         placeholder="Discipline type"
                         variant="compact"
                     />
@@ -154,6 +159,7 @@ export default function TherapistAppNavbar({
                         onSelect={onLocationSelect}
                         onClear={onLocationClear}
                         placeholder="City or zip code"
+                        locationError={locationError}
                     />
                     <button
                         type="submit"

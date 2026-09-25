@@ -8,7 +8,7 @@ import { MdMenu, MdClose } from "react-icons/md";
 const NAV_LINKS = [
     { label: "Find Therapists", href: "/therapists" },
     { label: "Browse Requests", href: "/requests" },
-    { label: "For Therapists", href: "/register/therapist" },
+    { label: "For Therapists", href: "/therapist-jobs" },
 ];
 
 export default function Navbar() {

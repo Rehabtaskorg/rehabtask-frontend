@@ -42,11 +42,6 @@ function TherapistEarningsContent() {
     const [stripeStatus, setStripeStatus] = useState(null);
     const [stripeStatusLoading, setStripeStatusLoading] = useState(true);
 
-    useEffect(() => {
-        Promise.all([fetchPayouts(), fetchStripeStatus()]);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
-
     const fetchPayouts = async () => {
         try {
             const res = await api.get("/payments/payouts");
@@ -68,6 +63,10 @@ function TherapistEarningsContent() {
             setStripeStatusLoading(false);
         }
     };
+
+    useEffect(() => {
+        Promise.all([fetchPayouts(), fetchStripeStatus()]);
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     const handleExportCSV = () => {
         if (!data?.payments?.length) {
@@ -94,8 +93,7 @@ function TherapistEarningsContent() {
     const hasEscrowedPayments = data.payments?.some((p) => p.status === "escrowed");
     const isStripeReady =
         stripeStatus?.connected &&
-        stripeStatus?.detailsSubmitted &&
-        stripeStatus?.chargesEnabled;
+        stripeStatus?.onboardingComplete;
 
     return (
         <div className="p-4 md:p-6 max-w-7xl mx-auto space-y-6 sm:space-y-8">

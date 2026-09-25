@@ -4,7 +4,13 @@ import { useState } from "react";
 import { useStripe, useElements, PaymentElement } from "@stripe/react-stripe-js";
 import { formatCurrency } from "@/utils/messages";
 
-export default function NewCardCheckoutForm({ booking, onSuccess }) {
+/**
+ * @param {Object}   props
+ * @param {Object}   props.booking      - Booking object (used for return_url on 3DS redirect)
+ * @param {number}   props.totalAmount  - Pre-computed total charge amount (rate × sessions)
+ * @param {Function} props.onSuccess    - Called when payment confirms without redirect
+ */
+export default function NewCardCheckoutForm({ booking, totalAmount, onSuccess }) {
     const stripe = useStripe();
     const elements = useElements();
     const [processing, setProcessing] = useState(false);
@@ -39,7 +45,7 @@ export default function NewCardCheckoutForm({ booking, onSuccess }) {
                 disabled={!stripe || processing}
                 className="w-full py-3 bg-primary hover:bg-primary/90 text-white font-bold rounded-xl shadow-lg shadow-primary/20 transition-colors disabled:opacity-50 text-sm"
             >
-                {processing ? "Processing..." : `Pay ${formatCurrency(parseFloat(booking.rate))}`}
+                {processing ? "Processing..." : `Pay ${formatCurrency(totalAmount)}`}
             </button>
         </form>
     );

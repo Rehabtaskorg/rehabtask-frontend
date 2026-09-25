@@ -2,18 +2,15 @@
 
 import { MdEdit, MdVisibility, MdLocationOn, MdCalendarToday } from "react-icons/md";
 import { Map, AdvancedMarker } from "@vis.gl/react-google-maps";
-import useRequestStore from "@/store/requestStore";
+import useRequestStore from "@/stores/requestStore";
 
-const formatReviewDate = (dateStr, timeStr) => {
+const formatReviewDate = (dateStr) => {
     if (!dateStr) return "—";
-    const d = new Date(timeStr ? `${dateStr}T${timeStr}` : `${dateStr}T09:00`);
-    const datePart = d.toLocaleDateString([], {
+    return new Date(`${dateStr}T00:00`).toLocaleDateString([], {
         month: "short",
         day: "numeric",
         year: "numeric",
     });
-    const timePart = d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
-    return `${datePart} at ${timePart}`;
 };
 
 export default function Step3Review({ onEditStep }) {
@@ -61,11 +58,11 @@ export default function Step3Review({ onEditStep }) {
 
                     <div>
                         <p className="text-[10px] font-bold uppercase tracking-wider text-text-muted  mb-1">
-                            Preferred Date & Time
+                            Preferred Date
                         </p>
                         <p className="text-sm font-medium text-text-main  flex items-center gap-1.5">
                             <MdCalendarToday className="text-text-muted " />
-                            {formatReviewDate(step1.preferredDate, step1.preferredTime)}
+                            {formatReviewDate(step1.preferredDate)}
                         </p>
                     </div>
 
@@ -76,24 +73,11 @@ export default function Step3Review({ onEditStep }) {
                             </p>
                             <p className="text-sm font-semibold text-primary">
                                 {step1.visitsPerWeek}x/week · {step1.numberOfWeeks} week{parseInt(step1.numberOfWeeks) > 1 ? "s" : ""} ({parseInt(step1.visitsPerWeek) * parseInt(step1.numberOfWeeks)} visits total)
-                                {step1.rate && parseFloat(step1.rate) > 0 && (
-                                    <span className="text-text-muted  font-normal ml-2">
-                                        · ${(parseFloat(step1.rate) * parseInt(step1.visitsPerWeek) * parseInt(step1.numberOfWeeks)).toFixed(2)} estimated total
-                                    </span>
-                                )}
                             </p>
                         </div>
                     )}
 
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2 border-t border-border-light ">
-                        <div>
-                            <p className="text-[10px] font-bold uppercase tracking-wider text-text-muted  mb-1">
-                                Rate per Visit
-                            </p>
-                            <p className="text-sm font-medium text-text-main ">
-                                {step1.rate ? `$${parseFloat(step1.rate).toFixed(2)}` : "—"}
-                            </p>
-                        </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-border-light ">
                         <div>
                             <p className="text-[10px] font-bold uppercase tracking-wider text-text-muted  mb-1">
                                 Visit Type
@@ -111,6 +95,17 @@ export default function Step3Review({ onEditStep }) {
                             </p>
                         </div>
                     </div>
+
+                    {step1.specialInstructions && (
+                        <div className="pt-2 border-t border-border-light ">
+                            <p className="text-[10px] font-bold uppercase tracking-wider text-text-muted  mb-1">
+                                Special Instructions
+                            </p>
+                            <p className="text-sm text-text-main  leading-relaxed whitespace-pre-wrap">
+                                {step1.specialInstructions}
+                            </p>
+                        </div>
+                    )}
                 </div>
             </div>
 
@@ -137,7 +132,6 @@ export default function Step3Review({ onEditStep }) {
                         </p>
                     </div>
 
-                    {/* Mini map */}
                     {hasLocation && (
                         <div className="h-16 w-full rounded-lg overflow-hidden border border-border-light ">
                             <Map
@@ -147,12 +141,14 @@ export default function Step3Review({ onEditStep }) {
                                 zoom={15}
                                 mapId="request-review-map"
                                 disableDefaultUI
+                                gestureHandling="none"
                                 className="w-full h-full"
                             >
                                 <AdvancedMarker position={mapCenter} />
                             </Map>
                         </div>
                     )}
+
                 </div>
             </div>
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { therapistApi } from "@/lib/therapist.api";
+import { therapistApi } from "@/services/therapist.api";
 
 export function useTherapistProfile() {
     const { data, isLoading, error, refetch } = useQuery({

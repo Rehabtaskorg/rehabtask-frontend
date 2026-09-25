@@ -8,14 +8,17 @@ import {
     MdArrowBack, MdBlock, MdCheckCircle, MdEmail,
     MdPerson, MdCalendarMonth, MdVerifiedUser,
     MdCardMembership, MdDescription, MdBusiness,
-    MdEdit, MdClose,
+    MdEdit, MdClose, MdSecurity,
 } from 'react-icons/md';
 import {
     useAdminUser,
     useDeactivateUser,
     useReactivateUser,
     useUpdateUser,
+    useResetUserTwoFactor,
 } from '@/hooks/useAdmin';
+import { useAuth } from '@/hooks/useAuth';
+import UserAvatar from '@/components/ui/UserAvatar';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -27,10 +30,6 @@ const getDisplayName = (user) =>
     user.therapistProfile?.fullName ||
     user.email.split('@')[0];
 
-const getInitials = (user) => {
-    const name = user.customerProfile?.fullName || user.therapistProfile?.fullName || user.email;
-    return name.split(/\s+/).map(w => w[0]).join('').toUpperCase().slice(0, 2);
-};
 
 const ROLE_STYLES = {
     admin: 'bg-purple-100 text-purple-700  ',
@@ -139,13 +138,17 @@ export default function AdminUserDetailPage() {
     const [confirmDeactivate, setConfirmDeactivate] = useState(false);
     const [confirmReactivate, setConfirmReactivate] = useState(false);
     const [editForm, setEditForm] = useState({});
+    const [recoveryOpen, setRecoveryOpen] = useState(false);
+    const [recoveryReason, setRecoveryReason] = useState('');
 
+    const { user: currentAdmin } = useAuth();
     const { data: user, isLoading, error } = useAdminUser(userId);
     const deactivate = useDeactivateUser();
     const reactivate = useReactivateUser();
     const updateUser = useUpdateUser();
+    const resetTwoFactor = useResetUserTwoFactor();
 
-    const mutating = deactivate.isPending || reactivate.isPending;
+    const mutating = deactivate.isPending || reactivate.isPending || updateUser.isPending || resetTwoFactor.isPending;
 
     // Initialize edit form when edit mode starts
     useEffect(() => {
@@ -254,8 +257,20 @@ export default function AdminUserDetailPage() {
         }
     };
 
+    const handleResetTwoFactor = async () => {
+        setActionError('');
+        setActionSuccess('');
+        try {
+            await resetTwoFactor.mutateAsync({ userId, reason: recoveryReason });
+            setActionSuccess('Two-factor authentication was reset for this account.');
+            setRecoveryOpen(false);
+            setRecoveryReason('');
+        } catch (e) {
+            setActionError(e?.response?.data?.message || 'Failed to reset two-factor authentication.');
+        }
+    };
+
     const displayName = getDisplayName(user);
-    const initials = getInitials(user);
     const isTherapist = user.role === 'therapist';
     const isCustomer = user.role === 'customer';
     const tp = user.therapistProfile;
@@ -291,9 +306,11 @@ export default function AdminUserDetailPage() {
             <div className="bg-card-light  border border-border-light  rounded-xl p-5">
                 <div className="flex flex-col sm:flex-row sm:items-start gap-4">
                     {/* Avatar */}
-                    <div className="h-16 w-16 rounded-2xl bg-primary/10  flex items-center justify-center text-xl font-bold text-primary shrink-0">
-                        {initials}
-                    </div>
+                    <UserAvatar
+                        name={displayName}
+                        photoUrl={user.therapistProfile?.profilePhotoUrl}
+                        size="xl"
+                    />
 
                     {/* Identity */}
                     <div className="flex-1 min-w-0">
@@ -425,6 +442,77 @@ export default function AdminUserDetailPage() {
                 </SectionCard>
             )}
 
+            <SectionCard title="Account Security">
+                <DetailRow
+                    icon={MdSecurity}
+                    label="Two-factor authentication"
+                    value={user.securitySettings?.twoFactorEnabled ? 'Enabled' : 'Not enabled'}
+                    valueClass={user.securitySettings?.twoFactorEnabled ? 'text-emerald-600' : ''}
+                />
+                <DetailRow
+                    icon={MdCheckCircle}
+                    label="Enabled methods"
+                    value={[
+                        user.securitySettings?.emailTwoFactorEnabled ? 'Email' : null,
+                        user.securitySettings?.smsTwoFactorEnabled ? 'SMS' : null,
+                    ].filter(Boolean).join(', ') || 'None'}
+                />
+                <DetailRow
+                    icon={MdVerifiedUser}
+                    label="Preferred method"
+                    value={user.securitySettings?.preferredMethod ? user.securitySettings.preferredMethod.toUpperCase() : '—'}
+                />
+                <DetailRow
+                    icon={MdCalendarMonth}
+                    label="Last 2FA verification"
+                    value={fmtDate(user.securitySettings?.lastTwoFactorVerifiedAt)}
+                />
+                {currentAdmin?.role === 'admin' && user.role !== 'admin' && (
+                    <div className="py-4 space-y-3">
+                        {!recoveryOpen ? (
+                            <button
+                                type="button"
+                                onClick={() => setRecoveryOpen(true)}
+                                disabled={mutating || (!user.securitySettings?.twoFactorEnabled && !user.securitySettings?.emailTwoFactorEnabled && !user.securitySettings?.smsTwoFactorEnabled)}
+                                className="text-sm font-semibold text-red-600 hover:underline disabled:opacity-50 disabled:no-underline"
+                            >
+                                Start 2FA recovery reset
+                            </button>
+                        ) : (
+                            <div className="rounded-lg border border-red-200 bg-red-50/50 p-4 space-y-3">
+                                <p className="text-sm text-text-muted">
+                                    This audited recovery clears 2FA methods so the user can sign in and re-enroll. It never reveals OTP codes or secrets.
+                                </p>
+                                <textarea
+                                    value={recoveryReason}
+                                    onChange={(e) => setRecoveryReason(e.target.value)}
+                                    rows={3}
+                                    placeholder="Recovery reason (min 10 characters)"
+                                    className="w-full rounded-lg border border-border-light bg-white px-3 py-2 text-sm text-text-main focus:outline-none focus:ring-2 focus:ring-primary"
+                                />
+                                <div className="flex gap-2">
+                                    <button
+                                        type="button"
+                                        onClick={handleResetTwoFactor}
+                                        disabled={mutating || recoveryReason.trim().length < 10}
+                                        className="px-4 py-2 rounded-xl bg-red-600 text-white text-sm font-medium hover:bg-red-700 disabled:opacity-50"
+                                    >
+                                        {resetTwoFactor.isPending ? 'Resetting…' : 'Confirm recovery reset'}
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => { setRecoveryOpen(false); setRecoveryReason(''); }}
+                                        className="px-4 py-2 rounded-xl border border-border-light text-sm font-medium text-text-main hover:bg-slate-50"
+                                    >
+                                        Cancel
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                )}
+            </SectionCard>
+
             {/* Therapist profile details */}
             {isTherapist && tp && (
                 editing ? (
@@ -455,12 +543,19 @@ export default function AdminUserDetailPage() {
                                 <option value="Occupational Therapist Assistant">OT Assistant (OTA)</option>
                             </select>
                         </div>
-                        <EditableTextarea
-                            label="Professional Summary"
-                            value={editForm.professionalSummary || ''}
-                            onChange={(v) => setEditForm(f => ({ ...f, professionalSummary: v }))}
-                            placeholder="Therapist professional summary..."
-                        />
+                        {/*
+                            Professional Summary — HIDDEN (product decision, 2026-09-07).
+                            Admin edit control only; the field is still loaded into editForm
+                            and still diffed on save, so existing values are preserved.
+                            To restore: uncomment this block as-is.
+
+                            <EditableTextarea
+                                label="Professional Summary"
+                                value={editForm.professionalSummary || ''}
+                                onChange={(v) => setEditForm(f => ({ ...f, professionalSummary: v }))}
+                                placeholder="Therapist professional summary..."
+                            />
+                        */}
                     </SectionCard>
                 ) : (
                     <SectionCard title="Therapist Profile">

@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { bookingsApi } from "@/lib/bookings.api.js";
+import { bookingsApi } from "@/services/booking.api";
 
 export function useCustomerBookings() {
     const { data, isLoading, error, refetch } = useQuery({

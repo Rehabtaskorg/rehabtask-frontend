@@ -4,16 +4,18 @@ import { useState } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import {
-    MdArrowBack, MdChat, MdCalendarToday, MdAccessTime, MdLocationOn, MdVideocam, MdPerson,
-    MdCheckCircle, MdClose, MdWarning, MdInfo, MdRefresh, MdSchedule, MdUpdate,
+    MdArrowBack, MdChat, MdCalendarToday, MdLocationOn, MdVideocam, MdPerson,
+    MdCheckCircle, MdClose, MdWarning, MdInfo, MdRefresh, MdSchedule, MdUpdate, MdPhone, MdLock,
+    MdTimer,
 } from "react-icons/md";
 import { useBookingDetail } from "@/hooks/useBookings";
 import { useBookingPolling, usePaymentRedirect } from "@/hooks/useBookingPolling";
-import { bookingsApi } from "@/lib/bookings.api";
+import { bookingsApi } from "@/services/booking.api";
 import { BOOKING_STATUS, USER_ROLES } from "@/lib/constants";
+import { PAYABLE_BOOKING_STATUSES, getPendingPaymentDeadline, isPendingPaymentExpired } from "@/lib/bookingPayment";
 import { resolveVisitPlan, computeTotalVisits } from "@/lib/visitPlan";
 import { formatCurrency } from "@/utils/messages";
-import { formatDate, formatTime } from "@/utils/dates";
+import { formatDate, formatClockTime } from "@/utils/dates";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import BookingStatusBadge from "@/components/bookings/BookingStatusBadge";
@@ -26,7 +28,7 @@ import InlinePaymentSection from "@/components/bookings/InlinePaymentSection";
 import RequestRevisionModal from "@/components/shared/sessions/RequestRevisionModal";
 import MarkSessionMissedModal from "@/components/shared/sessions/MarkSessionMissedModal";
 import RevisionStatusBanner from "@/components/shared/sessions/RevisionStatusBanner";
-import PatientInfoBlock from "@/components/shared/patient/PatientInfoBlock";
+import { PatientInfoBlock } from "@/components/shared/patient/PatientInfoBlock";
 import ConfirmModal from "@/components/ui/ConfirmModal";
 
 export default function CustomerBookingDetailPage() {
@@ -37,6 +39,7 @@ export default function CustomerBookingDetailPage() {
     const searchParams = useSearchParams();
     const { booking, loading, error, refetch } = useBookingDetail(params.id);
 
+    const [therapistImgError, setTherapistImgError] = useState(false);
     const [confirming, setConfirming] = useState(false);
     const [showConfirmDialog, setShowConfirmDialog] = useState(false);
     const [showRevisionModal, setShowRevisionModal] = useState(false);
@@ -244,6 +247,10 @@ export default function CustomerBookingDetailPage() {
         ? sessions.length > 0 && sessions.every(s => s.status === "confirmed_by_customer")
         : session?.status === "confirmed_by_customer";
 
+    const isPendingPayment = booking.status === BOOKING_STATUS.PENDING_PAYMENT;
+    const pendingPaymentExpired = isPendingPaymentExpired(booking);
+    const pendingPaymentDeadline = formatClockTime(getPendingPaymentDeadline(booking));
+
     return (
         <div className="p-4 md:p-6 max-w-6xl mx-auto">
             {showPaymentBanner && (
@@ -284,7 +291,7 @@ export default function CustomerBookingDetailPage() {
                         ID: {booking.id.slice(0, 8)}...
                     </p>
                 </div>
-                <BookingStatusBadge status={booking.status} size="md" />
+                <BookingStatusBadge status={booking.status} size="md" isExpired={pendingPaymentExpired} />
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -292,12 +299,13 @@ export default function CustomerBookingDetailPage() {
                     {/* Therapist card */}
                     <div className="bg-card-light  border border-border-light  rounded-xl p-5">
                         <div className="flex items-start gap-4">
-                            {therapist?.profilePhotoUrl ? (
+                            {therapist?.profilePhotoUrl && !therapistImgError ? (
                                 <Image
                                     src={therapist.profilePhotoUrl}
                                     alt={therapist.fullName}
                                     width={56}
                                     height={56}
+                                    onError={() => setTherapistImgError(true)}
                                     className="w-14 h-14 rounded-xl object-cover shrink-0"
                                 />
                             ) : (
@@ -312,11 +320,26 @@ export default function CustomerBookingDetailPage() {
                                 {therapist?.specialization && (
                                     <p className="text-sm text-text-muted  mt-0.5">{therapist.specialization}</p>
                                 )}
-                                {therapist?.phone && (
-                                    <p className="text-xs text-text-muted  mt-1">{therapist.phone}</p>
+                                {therapist?.phone ? (
+                                    <p className="text-xs text-text-muted mt-1 flex items-center gap-1">
+                                        <MdPhone className="text-xs" />
+                                        {therapist.phone}
+                                    </p>
+                                ) : (
+                                    <p className="text-xs text-text-muted mt-1 flex items-center gap-1" title="Accept an offer to unlock contact info">
+                                        <MdPhone className="text-xs" />
+                                        <span className="blur-sm select-none">(555) 000-0000</span>
+                                        <MdLock className="text-xs" />
+                                    </p>
                                 )}
                             </div>
-                            {["accepted", "confirmed", "in_progress", "completed", "reschedule_requested"].includes(booking.status) && (
+                            {[
+                                BOOKING_STATUS.ACCEPTED,
+                                BOOKING_STATUS.CONFIRMED,
+                                BOOKING_STATUS.IN_PROGRESS,
+                                BOOKING_STATUS.COMPLETED,
+                                BOOKING_STATUS.RESCHEDULE_REQUESTED,
+                            ].includes(booking.status) && (
                                 <button
                                     onClick={() => router.push(`/customer/messages?c=booking:${params.id}`)}
                                     className="flex items-center gap-1.5 px-3 py-2 border border-primary text-primary rounded-lg text-xs font-bold hover:bg-primary/5 transition-colors shrink-0"
@@ -328,7 +351,9 @@ export default function CustomerBookingDetailPage() {
                         </div>
                     </div>
 
-                    {booking.patient && <PatientInfoBlock patient={booking.patient} />}
+                    {booking.patient && (
+                        <PatientInfoBlock patient={booking.patient} therapist={booking.therapist} />
+                    )}
 
                     {/* Session details */}
                     <div className="bg-card-light  border border-border-light  rounded-xl p-5">
@@ -346,13 +371,6 @@ export default function CustomerBookingDetailPage() {
                                 <div>
                                     <p className="text-xs text-text-muted ">Date</p>
                                     <p className="text-sm font-medium text-text-main ">{formatDate(session?.scheduledDate || booking.scheduledDate)}</p>
-                                </div>
-                            </div>
-                            <div className="flex items-start gap-3">
-                                <MdAccessTime className="text-primary text-lg mt-0.5 shrink-0" />
-                                <div>
-                                    <p className="text-xs text-text-muted ">Time</p>
-                                    <p className="text-sm font-medium text-text-main ">{formatTime(session?.scheduledDate || booking.scheduledDate)}</p>
                                 </div>
                             </div>
                             <div className="flex items-start gap-3">
@@ -408,14 +426,14 @@ export default function CustomerBookingDetailPage() {
 
                     {/* Action area */}
                     <div className="space-y-4">
-                        {booking.status === "reschedule_requested" && booking.proposedNewDate && (
+                        {booking.status === BOOKING_STATUS.RESCHEDULE_REQUESTED && booking.proposedNewDate && (
                             <div className="bg-amber-50  border border-amber-200  rounded-xl p-5">
                                 <div className="flex items-start gap-3 mb-3">
                                     <MdUpdate className="text-amber-600  text-lg mt-0.5 shrink-0" />
                                     <div>
                                         <p className="text-sm font-bold text-amber-900 ">Reschedule Requested</p>
                                         <p className="text-xs text-amber-700  mt-0.5">
-                                            Therapist proposed: {formatDate(booking.proposedNewDate)} at {formatTime(booking.proposedNewDate)}
+                                            Therapist proposed: {formatDate(booking.proposedNewDate)}
                                         </p>
                                     </div>
                                 </div>
@@ -438,7 +456,29 @@ export default function CustomerBookingDetailPage() {
                             </div>
                         )}
 
-                        {["pending", "accepted"].includes(booking.status) && (!payment || ["intent_created", "requires_action", "failed"].includes(payment.status)) && (
+                        {isPendingPayment && (
+                            <div className={`rounded-xl p-5 border ${pendingPaymentExpired ? "bg-slate-50 border-border-light" : "bg-amber-50 border-amber-200"}`}>
+                                <div className="flex items-start gap-3">
+                                    <MdTimer className={`text-lg mt-0.5 shrink-0 ${pendingPaymentExpired ? "text-text-muted" : "text-amber-600"}`} />
+                                    <div className="flex-1">
+                                        <p className={`text-sm font-bold ${pendingPaymentExpired ? "text-text-main" : "text-amber-900"}`}>
+                                            {pendingPaymentExpired ? "Payment window closed" : "Complete payment to confirm this booking"}
+                                        </p>
+                                        <p className={`text-xs mt-0.5 ${pendingPaymentExpired ? "text-text-muted" : "text-amber-700"}`}>
+                                            {pendingPaymentExpired
+                                                ? "This reservation has expired and is being released. The offer will return to your request so you can accept it again."
+                                                : pendingPaymentDeadline
+                                                    ? `Your slot is held until ${pendingPaymentDeadline}. Your therapist is not notified and cannot start work until payment completes.`
+                                                    : "Your slot is held for a limited time. Your therapist is not notified and cannot start work until payment completes."}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {PAYABLE_BOOKING_STATUSES.includes(booking.status) &&
+                            !pendingPaymentExpired &&
+                            (!payment || ["intent_created", "requires_action", "failed"].includes(payment.status)) && (
                             <div id="inline-payment">
                                 <InlinePaymentSection booking={booking} onPaymentSuccess={handlePaymentSuccess} />
                             </div>
@@ -475,7 +515,7 @@ export default function CustomerBookingDetailPage() {
                                         <p className="text-xs text-yellow-600 mt-1 font-semibold">
                                             You have until{" "}
                                             {booking.cancellationRequestedAt
-                                                ? new Date(new Date(booking.cancellationRequestedAt).getTime() + 24 * 60 * 60 * 1000).toLocaleString([], { weekday: "short", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })
+                                                ? new Date(new Date(booking.cancellationRequestedAt).getTime() + 24 * 60 * 60 * 1000).toLocaleDateString([], { weekday: "short", month: "short", day: "numeric" })
                                                 : "24 hours from the request"}{" "}
                                             to respond. If you take no action, the request will be automatically declined and your booking will remain active.
                                         </p>
@@ -562,8 +602,8 @@ export default function CustomerBookingDetailPage() {
                                 <p className="text-sm font-bold text-red-900 mb-1">Request Cancellation</p>
                                 <p className="text-xs text-red-700 mb-3">
                                     {payment?.status === "escrowed"
-                                        ? <>Your request will be sent to {booking.therapist?.fullName}. They have 24 hours to approve or reject it. If they don&apos;t respond, your cancellation will be approved automatically and you&apos;ll receive a full refund.</>
-                                        : <>This booking will be cancelled immediately. No payment has been made, so no refund is needed.</>
+                                        ? <>Your request will be sent to {booking.therapist?.fullName}. They have 24 hours to approve or reject it. If they don&apos;t respond, your cancellation will be approved automatically and your payment will be credited back to your account.</>
+                                        : <>This booking will be cancelled immediately. No payment has been made, so no credit is needed.</>
                                     }
                                 </p>
                                 <textarea
@@ -661,7 +701,7 @@ export default function CustomerBookingDetailPage() {
                             </div>
                         )}
 
-                        {booking.status !== "finalized" && (allConfirmed || payment?.status === "released") && (
+                        {booking.status !== BOOKING_STATUS.FINALIZED && (allConfirmed || payment?.status === "released") && (
                             <div className="bg-emerald-50  border border-emerald-200  rounded-xl p-5">
                                 <div className="flex items-start gap-3">
                                     <MdCheckCircle className="text-emerald-600  text-lg mt-0.5 shrink-0" />
@@ -671,6 +711,8 @@ export default function CustomerBookingDetailPage() {
                                         </p>
                                         <p className="text-xs text-emerald-700  mt-0.5">
                                             {payment?.status === "released"
+                                                // TODO: [BUG] payment.amount is total escrow amount, not what was actually released.
+                                                // Should use payment.releasedAmount so missed/attempted deductions are reflected correctly.
                                                 ? `Payment of ${formatCurrency(parseFloat(payment.amount))} has been released to the therapist.`
                                                 : "Payment will be released shortly."
                                             }
@@ -680,7 +722,7 @@ export default function CustomerBookingDetailPage() {
                             </div>
                         )}
 
-                        {booking.status === "cancelled" && (
+                        {booking.status === BOOKING_STATUS.CANCELLED && (
                             <div className="bg-slate-50  border border-border-light  rounded-xl p-5">
                                 <div className="flex items-start gap-3">
                                     <MdInfo className="text-text-muted  text-lg mt-0.5 shrink-0" />

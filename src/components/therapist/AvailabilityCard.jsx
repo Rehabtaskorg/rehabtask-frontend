@@ -59,19 +59,22 @@ export default function AvailabilityCard({ availability }) {
                     return (
                         <div
                             key={day}
-                            className={`flex items-center justify-between py-3 ${!isLast ? "border-b border-border-light " : ""
-                                }`}
+                            className={`flex items-start justify-between py-3 gap-4 ${!isLast ? "border-b border-border-light " : ""}`}
                         >
-                            <span className="text-sm font-medium text-text-muted ">
+                            <span className="text-sm font-medium text-text-muted  shrink-0 pt-0.5">
                                 {DAY_LABELS[day]}
                             </span>
                             {isEnabled ? (
-                                <span className="text-sm font-semibold text-text-main ">
+                                <div className="flex flex-col items-end gap-0.5">
                                     {entry.timeBlocks
                                         .map(formatTimeBlock)
                                         .filter(Boolean)
-                                        .join(", ") || "Available"}
-                                </span>
+                                        .map((slot, i) => (
+                                            <span key={i} className="text-sm font-semibold text-text-main  whitespace-nowrap">
+                                                {slot}
+                                            </span>
+                                        ))}
+                                </div>
                             ) : (
                                 <span className="text-sm font-semibold text-text-muted ">
                                     Unavailable

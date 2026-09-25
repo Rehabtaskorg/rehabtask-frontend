@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { reviewsApi } from "@/lib/reviews.api";
+import { reviewsApi } from "@/services/review.api";
 
 export function useCreateReview() {
     const queryClient = useQueryClient();

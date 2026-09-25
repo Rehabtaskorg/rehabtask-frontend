@@ -5,7 +5,7 @@ import { usePageTitle } from "@/hooks/usePageTitle";
 import {
     MdDownload, MdCalendarMonth, MdPayments, MdPeople, MdWarning,
 } from 'react-icons/md';
-import { adminReportsApi } from '@/lib/admin';
+import { adminReportsApi } from '@/services/admin.api';
 
 const BOOKING_STATUS_OPTIONS = [
     '', 'pending', 'confirmed', 'in_progress', 'completed', 'cancelled', 'reschedule_requested',

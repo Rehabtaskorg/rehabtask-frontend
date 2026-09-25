@@ -4,7 +4,7 @@ import { useState, useCallback } from "react";
 import { MdSchedule, MdContentCopy } from "react-icons/md";
 import DayScheduleRow from "./DayScheduleRow";
 import { useUpdateAvailability } from "@/hooks/useTherapistProfile";
-import { DEFAULT_TIME_BLOCK } from "@/lib/onboardingValidation";
+import { DEFAULT_TIME_BLOCK } from "@/lib/validators/onboarding.schema";
 import Button from "@/components/ui/Button";
 import Alert from "@/components/ui/Alert";
 

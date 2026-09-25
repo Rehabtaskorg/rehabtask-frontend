@@ -3,6 +3,8 @@ export const DEFAULT_WORK_AREA_RADIUS_MILES = 25;
 export const MAX_SEARCH_RADIUS_MILES = 100;
 export const RADIUS_FILTER_STEP_MILES = 25;
 export const MAX_VISIT_TITLE_LENGTH = 100;
+export const PRODUCT_DESCRIPTION_MIN_LENGTH = 10;
+export const PRODUCT_DESCRIPTION_MAX_LENGTH = 500;
 
 export const USER_ROLES = {
     CUSTOMER: "customer",
@@ -11,10 +13,22 @@ export const USER_ROLES = {
     SUB_ADMIN: "sub_admin",
 };
 
+export const ROLE_DASHBOARDS = {
+    [USER_ROLES.CUSTOMER]: "/customer/dashboard",
+    [USER_ROLES.THERAPIST]: "/therapist/dashboard",
+    [USER_ROLES.ADMIN]: "/admin/dashboard",
+    [USER_ROLES.SUB_ADMIN]: "/admin/dashboard",
+};
+
 export const CUSTOMER_TYPES = {
     AGENCY: "agency",
     INDIVIDUAL: "individual",
 };
+
+export const CUSTOMER_TYPE_OPTIONS = Object.freeze([
+    { value: CUSTOMER_TYPES.INDIVIDUAL, label: "Individual Patient", icon: "MdPerson" },
+    { value: CUSTOMER_TYPES.AGENCY, label: "Home Health Agency", icon: "MdBusiness" },
+]);
 
 export const APPROVAL_STATUS = {
     PENDING: "pending",
@@ -23,6 +37,12 @@ export const APPROVAL_STATUS = {
     REJECTED: "rejected",
 };
 
+export const MESSAGE_GATE_ERROR_CODES = new Set([
+    "FORBIDDEN",
+    "ONBOARDING_INCOMPLETE",
+    "NOT_APPROVED",
+]);
+
 export const LICENSE_TYPE_TO_SERVICE_TYPE = Object.freeze({
     "Physical Therapist": "Physical Therapy",
     "Physical Therapist Assistant": "Physical Therapy",
@@ -30,6 +50,49 @@ export const LICENSE_TYPE_TO_SERVICE_TYPE = Object.freeze({
     "Occupational Therapist Assistant": "Occupational Therapy",
     "Speech-Language Pathologist": "Speech Language Pathology (SLP)",
 });
+
+export const LICENSE_TYPE_TO_DISCIPLINE = Object.freeze({
+    "Physical Therapist": "PT",
+    "Physical Therapist Assistant": "PTA",
+    "Occupational Therapist": "OT",
+    "Occupational Therapist Assistant": "COTA",
+    "Speech-Language Pathologist": "SLP",
+});
+
+export const DISCIPLINE_PILLS = Object.freeze([
+    { key: "all", label: "All", licenseTypes: [] },
+    { key: "pt", label: "PT", licenseTypes: ["Physical Therapist", "Physical Therapist Assistant"] },
+    { key: "ot", label: "OT", licenseTypes: ["Occupational Therapist", "Occupational Therapist Assistant"] },
+    { key: "slp", label: "SLP", licenseTypes: ["Speech-Language Pathologist"] },
+    { key: "pta", label: "PTA", licenseTypes: ["Physical Therapist Assistant"] },
+    { key: "ota", label: "OTA", licenseTypes: ["Occupational Therapist Assistant"] },
+]);
+
+/**
+ * Maps a license type string (as stored in the DB) to its matching DISCIPLINE_PILLS key.
+ * Checks single-type pills first so "Physical Therapist Assistant" resolves to "pta", not "pt".
+ * @param {string} licenseType
+ * @returns {string} pill key — "all" if no match
+ */
+export function getDisciplineKeyForLicenseType(licenseType) {
+    if (!licenseType) return "all";
+    const exact = DISCIPLINE_PILLS.find(
+        (p) => p.licenseTypes.length === 1 && p.licenseTypes[0].toLowerCase() === licenseType.toLowerCase()
+    );
+    if (exact) return exact.key;
+    const grouped = DISCIPLINE_PILLS.find(
+        (p) => p.licenseTypes.length > 1 && p.licenseTypes.some((lt) => lt.toLowerCase() === licenseType.toLowerCase())
+    );
+    return grouped ? grouped.key : "all";
+}
+
+export const REQUEST_STATUS = {
+    CREATED: "created",
+    OFFERS_RECEIVED: "offers_received",
+    OFFERS_ACCEPTED: "offers_accepted",
+    COMPLETED: "completed",
+    CANCELLED: "cancelled",
+};
 
 export const REQUEST_TYPE = {
     PUBLIC: "PUBLIC",
@@ -47,10 +110,22 @@ export const LOGOUT_REASON = {
     IDLE_TIMEOUT: "idle_timeout",
     DEACTIVATED: "deactivated",
     INVITED: "invited",
+    EMAIL_VERIFIED: "verified",
+    LOGGED_OUT: "logged_out",
 };
 
 export const AUTH_REDIRECT_PARAM = "redirect";
 export const AUTH_REDIRECT_STORAGE_KEY = "pending_auth_redirect";
+
+export const AUTH_GATE_TRIGGERS = Object.freeze({
+    MESSAGE: "message",
+    CONTACT: "contact",
+    PROFILE: "profile",
+    REQUEST: "request",
+    OFFER: "offer",
+    REFERRAL: "referral",
+    DEFAULT: "default",
+});
 
 export const PUBLIC_SEARCH_RADIUS_MILES = 50;
 
@@ -58,6 +133,8 @@ export const SESSION_STATUS = {
     PENDING_SCHEDULE: "pending_schedule",
     SCHEDULED: "scheduled",
     IN_PROGRESS: "in_progress",
+    COMPLETED_BY_THERAPIST: "completed_by_therapist",
+    IN_REVISION: "in_revision",
     CONFIRMED_BY_CUSTOMER: "confirmed_by_customer",
     MISSED: "missed",
     ATTEMPTED: "attempted",
@@ -65,8 +142,16 @@ export const SESSION_STATUS = {
     CANCELLATION_REQUESTED: "cancellation_requested",
 };
 
+export const PLAN_TYPES = {
+    FREE: "free",
+    PRO: "pro",
+    ENTERPRISE: "enterprise",
+    UNLIMITED: "unlimited",
+};
+
 export const BOOKING_STATUS = {
     PENDING: "pending",
+    PENDING_PAYMENT: "pending_payment",
     ACCEPTED: "accepted",
     CONFIRMED: "confirmed",
     IN_PROGRESS: "in_progress",
@@ -75,4 +160,67 @@ export const BOOKING_STATUS = {
     COMPLETED: "completed",
     CANCELLED: "cancelled",
     CANCELLATION_REQUESTED: "cancellation_requested",
+};
+
+export const THERAPIST_VERIFICATION_FIELDS = Object.freeze({
+    LICENSE: "licenseVerified",
+    INSURANCE: "insuranceVerified",
+});
+
+export const IDENTITY_DOCUMENT_TYPES = Object.freeze({
+    GOVERNMENT_ID_FRONT: "government_id_front",
+    GOVERNMENT_ID_BACK: "government_id_back",
+    DRIVERS_LICENSE: "drivers_license",
+});
+
+export const PHOTO_ONLY_DOCUMENT_TYPES = Object.freeze([
+    IDENTITY_DOCUMENT_TYPES.GOVERNMENT_ID_FRONT,
+    IDENTITY_DOCUMENT_TYPES.GOVERNMENT_ID_BACK,
+    IDENTITY_DOCUMENT_TYPES.DRIVERS_LICENSE,
+]);
+
+export const PHOTO_MIME_TYPES = Object.freeze(["image/jpeg", "image/jpg", "image/png"]);
+export const DOCUMENT_MIME_TYPES = Object.freeze(["application/pdf", ...PHOTO_MIME_TYPES]);
+
+/**
+ * documentType values that a profile-level verification flag actually applies
+ * to. Mirrors `DOCUMENT_CATEGORIES.license`/`.insurance` in the backend's
+ * `utils/constants.js` — kept narrow to just these two, since identity and
+ * compliance documents have no matching verification flag on the profile.
+ */
+export const LICENSE_DOCUMENT_TYPES = Object.freeze(["license"]);
+export const INSURANCE_DOCUMENT_TYPES = Object.freeze([
+    "general_liability",
+    "professional_liability",
+    "auto_insurance",
+]);
+
+export const STRIPE_BUSINESS_STRUCTURE = {
+    INDIVIDUAL: "individual",
+    SOLE_PROPRIETORSHIP: "sole_proprietorship",
+    SINGLE_MEMBER_LLC: "single_member_llc",
+    MULTI_MEMBER_LLC: "multi_member_llc",
+    PRIVATE_CORPORATION: "private_corporation",
+};
+
+export const STRIPE_COMPANY_STRUCTURES = new Set([
+    STRIPE_BUSINESS_STRUCTURE.SOLE_PROPRIETORSHIP,
+    STRIPE_BUSINESS_STRUCTURE.SINGLE_MEMBER_LLC,
+    STRIPE_BUSINESS_STRUCTURE.MULTI_MEMBER_LLC,
+    STRIPE_BUSINESS_STRUCTURE.PRIVATE_CORPORATION,
+]);
+
+// TODO: [BUG] refunded_to_card is unreachable — no stripe.refunds.create() call exists in the
+// backend and nothing ever writes this status. It survives only in the Prisma enum and dead read
+// paths. Removing it needs a Postgres enum recreate migration; tracked separately, not Phase 1.
+export const CUSTOMER_REFUND_STATUS = {
+    PENDING_CONNECT: "pending_connect",
+    TRANSFERRED: "transferred",
+    REFUNDED_TO_CARD: "refunded_to_card",
+    PAYOUT_FAILED: "payout_failed",
+};
+
+export const ANALYTICS_EVENTS = {
+    PAYOUT_REPAIR_STARTED: "payout_account_repair_started",
+    PAYOUT_REPAIR_COMPLETED: "payout_account_repair_completed",
 };

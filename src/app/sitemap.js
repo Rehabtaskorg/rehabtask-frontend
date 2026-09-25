@@ -18,10 +18,9 @@ export default async function sitemap() {
     const staticPages = [
         { url: SITE_URL, changeFrequency: "weekly", priority: 1 },
         { url: `${SITE_URL}/therapists`, changeFrequency: "daily", priority: 0.9 },
+        { url: `${SITE_URL}/therapist-jobs`, changeFrequency: "weekly", priority: 0.9 },
         { url: `${SITE_URL}/requests`, changeFrequency: "daily", priority: 0.8 },
         { url: `${SITE_URL}/login`, changeFrequency: "monthly", priority: 0.3 },
-        { url: `${SITE_URL}/register/customer`, changeFrequency: "monthly", priority: 0.5 },
-        { url: `${SITE_URL}/register/therapist`, changeFrequency: "monthly", priority: 0.5 },
     ];
 
     const therapistPages = therapists.map((t) => ({

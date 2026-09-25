@@ -1,32 +1,28 @@
 "use client";
 
-const DISCIPLINES = [
-    { key: "all", label: "All" },
-    { key: "pt", label: "PT" },
-    { key: "ot", label: "OT" },
-    { key: "slp", label: "SLP" },
-];
+import { DISCIPLINE_PILLS } from "@/lib/constants";
 
-export default function TherapistCompactHeader({
-    activeDiscipline,
-    setActiveDiscipline,
-    resultCount,
-}) {
+/**
+ * @param {object} props
+ * @param {string} props.activeDiscipline
+ * @param {Function} props.setActiveDiscipline
+ * @param {number} props.resultCount
+ */
+export function TherapistCompactHeader({ activeDiscipline, setActiveDiscipline, resultCount }) {
     return (
         <section className="bg-white border-b border-gray-200">
             <div className="px-4 sm:px-6 lg:px-8 py-2.5">
                 <div className="flex items-center justify-between gap-3 relative">
                     <div className="flex items-center gap-2 flex-wrap">
-                        {DISCIPLINES.map((d) => (
+                        {DISCIPLINE_PILLS.map((d) => (
                             <button
                                 key={d.key}
                                 type="button"
                                 onClick={() => setActiveDiscipline(d.key)}
-                                className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-colors ${
-                                    activeDiscipline === d.key
+                                className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-colors ${activeDiscipline === d.key
                                         ? "bg-primary text-white"
                                         : "bg-white border border-gray-200 text-gray-600 hover:border-gray-300"
-                                }`}
+                                    }`}
                             >
                                 {d.label}
                             </button>
@@ -40,3 +36,5 @@ export default function TherapistCompactHeader({
         </section>
     );
 }
+
+export default TherapistCompactHeader;

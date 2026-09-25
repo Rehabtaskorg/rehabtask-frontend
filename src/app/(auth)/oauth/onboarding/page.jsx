@@ -9,9 +9,10 @@ import { FaUserMd } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
 
 import Input from "@/components/ui/Input";
+import PhoneInput from "@/components/ui/PhoneInput";
 import Button from "@/components/ui/Button";
 import Alert from "@/components/ui/Alert";
-import { oauthOnboardingSchema } from "@/lib/validationSchema";
+import { oauthOnboardingSchema } from "@/lib/validators/therapist.schema";
 import { useOAuthOnboarding } from "@/hooks/useOAuthOnboarding";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { AUTH_REDIRECT_PARAM } from "@/lib/constants";
@@ -23,13 +24,15 @@ function OAuthOnboardingContent() {
 
     const [selectedRole, setSelectedRole] = useState(null);
 
-    const { register, handleSubmit, watch, reset, formState: { errors }, setValue } = useForm({
+    const { register, handleSubmit, watch, reset, formState: { errors }, setValue, control } = useForm({
         resolver: zodResolver(oauthOnboardingSchema),
-        mode: "onChange",
+        mode: "onTouched",
         reValidateMode: "onChange",
         defaultValues: {
             role: "",
             fullName: "",
+            phone: "",
+            smsOptIn: false,
             customerType: "",
             agencyName: "",
         }
@@ -42,9 +45,13 @@ function OAuthOnboardingContent() {
 
     const handleRoleSelection = (role) => {
         if (selectedRole !== role) {
+            const currentPhone = watch("phone");
+            const currentSmsOptIn = watch("smsOptIn");
             reset();
-            setSelectedRole(role);
             setValue("role", role);
+            setValue("phone", currentPhone);
+            setValue("smsOptIn", currentSmsOptIn);
+            setSelectedRole(role);
         }
     };
 
@@ -149,6 +156,28 @@ function OAuthOnboardingContent() {
                                     {...register("fullName")}
                                     required
                                 />
+
+                                <PhoneInput
+                                    label="Phone Number"
+                                    name="phone"
+                                    control={control}
+                                    error={errors.phone?.message}
+                                    required
+                                />
+
+                                <div className="flex items-start gap-3">
+                                    <input
+                                        type="checkbox"
+                                        id="smsOptIn"
+                                        {...register("smsOptIn")}
+                                        className="mt-0.5 h-4 w-4 shrink-0 rounded border-border text-primary focus:ring-primary"
+                                    />
+                                    <label htmlFor="smsOptIn" className="text-sm text-text-muted leading-snug">
+                                        By checking this box, you agree to receive SMS appointment reminders and
+                                        notifications from RehabTask. Message and data rates may apply.
+                                        Reply STOP to opt out at any time.
+                                    </label>
+                                </div>
 
                                 {selectedRole === "customer" && (
                                     <>

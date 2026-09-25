@@ -5,7 +5,7 @@ import { MdClose, MdPerson, MdCheck } from "react-icons/md";
 import { APIProvider, Map, AdvancedMarker } from "@vis.gl/react-google-maps";
 import { useCreatePatient } from "@/hooks/usePatients";
 import LocationAutocomplete from "@/components/maps/LocationAutocomplete";
-import { validateCertificationPeriod } from "@/lib/validationSchema";
+import { validateCertificationPeriod } from "@/lib/validators/therapist.schema";
 
 const inputBase =
     "w-full bg-background-light  border border-border-light  rounded-lg px-4 py-2.5 text-sm text-text-main  focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all";
@@ -16,7 +16,7 @@ const inputBase =
 // via src/lib/config.js. Pre-existing issues — needs a dedicated refactor.
 /**
  * Modal for creating a new patient under an agency account.
- * Includes address autocomplete with map preview, and optional email/phone fields.
+ * Includes address autocomplete with map preview and an optional email field.
  *
  * @param {Object} props
  * @param {boolean} props.isOpen
@@ -28,6 +28,7 @@ export default function AddPatientModal({ isOpen, onClose, onSuccess }) {
 
     const [fullName, setFullName] = useState("");
     const [dateOfBirth, setDateOfBirth] = useState("");
+    const [gender, setGender] = useState("");
     const [certificationStart, setCertificationStart] = useState("");
     const [certificationEnd, setCertificationEnd] = useState("");
     const [email, setEmail] = useState("");
@@ -49,6 +50,7 @@ export default function AddPatientModal({ isOpen, onClose, onSuccess }) {
     const resetForm = () => {
         setFullName("");
         setDateOfBirth("");
+        setGender("");
         setCertificationStart("");
         setCertificationEnd("");
         setEmail("");
@@ -101,7 +103,8 @@ export default function AddPatientModal({ isOpen, onClose, onSuccess }) {
         if (!zipCode.trim()) newErrors.zipCode = "Zip code is required";
         else if (!/^\d{5}(-\d{4})?$/.test(zipCode.trim())) newErrors.zipCode = "Enter a valid US zip code (e.g. 90210)";
         if (email.trim() && !/\S+@\S+\.\S+/.test(email)) newErrors.email = "Please enter a valid email";
-        if (phone.trim() && !/^\+1\d{10}$/.test(phone.trim())) {
+        if (!phone.trim()) newErrors.phone = "Phone number is required";
+        else if (!/^\+1\d{10}$/.test(phone.trim())) {
             newErrors.phone = "Please enter a valid 10-digit US phone number";
         }
         setErrors(newErrors);
@@ -116,10 +119,11 @@ export default function AddPatientModal({ isOpen, onClose, onSuccess }) {
             await createPatient.mutateAsync({
                 fullName: fullName.trim(),
                 dateOfBirth,
+                gender: gender || undefined,
                 certificationStart,
                 certificationEnd,
                 email: email.trim() || undefined,
-                phone: phone.trim() || undefined,
+                phone: phone.trim(),
                 addressLine1: addressLine1.trim(),
                 city: city.trim(),
                 state: state.trim(),
@@ -256,6 +260,22 @@ export default function AddPatientModal({ isOpen, onClose, onSuccess }) {
                             </div>
                         </div>
 
+                        <div>
+                            <label className="block text-sm font-medium text-text-main  mb-1.5">
+                                Gender <span className="text-text-muted  font-normal text-xs">(Optional)</span>
+                            </label>
+                            <select
+                                value={gender}
+                                onChange={(e) => setGender(e.target.value)}
+                                className={fieldClass(false)}
+                            >
+                                <option value="">Select gender</option>
+                                <option value="male">Male</option>
+                                <option value="female">Female</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+
                         <div className="flex gap-3">
                             <div className="flex-1">
                                 <label className="block text-sm font-medium text-text-main  mb-1.5">
@@ -334,6 +354,7 @@ export default function AddPatientModal({ isOpen, onClose, onSuccess }) {
                                     zoom={14}
                                     mapId="patient-address-map"
                                     disableDefaultUI
+                                    gestureHandling="none"
                                     className="w-full h-full"
                                 >
                                     <AdvancedMarker position={{ lat: latitude, lng: longitude }} />
@@ -356,10 +377,10 @@ export default function AddPatientModal({ isOpen, onClose, onSuccess }) {
                             {errors.email && <p className="text-xs text-red-500 mt-1">{errors.email}</p>}
                         </div>
 
-                        {/* Phone (optional) */}
+                        {/* Phone (required) */}
                         <div>
                             <label className="block text-sm font-medium text-text-main  mb-1.5">
-                                Phone <span className="text-text-muted  font-normal text-xs">(Optional)</span>
+                                Phone <span className="text-red-500">*</span>
                             </label>
                             <div className={`flex items-center rounded-lg border overflow-hidden ${errors.phone ? "border-red-400 " : "border-border-light "} bg-background-light `}>
                                 <span className="px-3 py-2.5 text-sm text-text-muted  border-r border-border-light  select-none bg-slate-50  shrink-0">

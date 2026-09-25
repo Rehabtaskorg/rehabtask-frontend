@@ -2,11 +2,11 @@
 
 import { MdCalendarToday } from "react-icons/md";
 import UserAvatar from "@/components/ui/UserAvatar";
+import { TherapistProfileLink } from "@/components/ui/TherapistProfileLink";
 
 const formatDateTime = (dateStr) => {
     if (!dateStr) return "—";
-    const d = new Date(dateStr);
-    return `${d.toLocaleDateString([], { month: "short", day: "numeric", year: "numeric" })} • ${d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}`;
+    return new Date(dateStr).toLocaleDateString([], { month: "short", day: "numeric", year: "numeric" });
 };
 
 const formatSessionType = (type) => {
@@ -65,31 +65,32 @@ export default function RequestOfferCard({
                                 </p>
                             )}
                         </div>
-                        <div className="text-right shrink-0 max-w-40">
+                        <div className="text-right shrink-0 flex flex-col items-end gap-1">
                             <p className="text-sm font-bold text-primary  font-mono">
                                 ${parseFloat(offer.rate).toFixed(2)}
                                 <span className="text-xs text-text-muted  font-sans font-normal">/session</span>
                             </p>
                             {offer.sessionType && (
-                                <span className="text-[10px] font-medium text-text-muted  bg-slate-100  px-2 py-0.5 rounded-full mt-1 inline-block max-w-full truncate">
+                                <span className="text-[10px] font-medium text-text-muted  bg-slate-100  px-2 py-0.5 rounded-full">
                                     {formatSessionType(offer.sessionType)}
                                 </span>
                             )}
                             {offer.visitTypeRef ? (
                                 <span
-                                    className="text-[10px] font-medium text-blue-600  bg-blue-50  px-2 py-0.5 rounded-full mt-1 inline-block max-w-full truncate"
+                                    className="text-[10px] font-medium text-blue-600  bg-blue-50  px-2 py-0.5 rounded-full"
                                     title={`${offer.visitTypeRef.name} (${offer.visitTypeRef.code})`}
                                 >
                                     {offer.visitTypeRef.name} ({offer.visitTypeRef.code})
                                 </span>
                             ) : offer.visitType ? (
                                 <span
-                                    className="text-[10px] font-medium text-blue-600  bg-blue-50  px-2 py-0.5 rounded-full mt-1 inline-block max-w-full truncate"
+                                    className="text-[10px] font-medium text-blue-600  bg-blue-50  px-2 py-0.5 rounded-full"
                                     title={offer.visitType}
                                 >
                                     {offer.visitType}
                                 </span>
                             ) : null}
+                            <TherapistProfileLink therapist={therapist} />
                         </div>
                     </div>
                 </div>
@@ -110,14 +111,12 @@ export default function RequestOfferCard({
                 </p>
             )}
 
-            {/* Attempted-visit rate disclosure — by accepting the offer the customer
-                consents to this fee in the event they aren't home for a session. */}
             {offer.attemptedVisitRate != null && (
                 parseFloat(offer.attemptedVisitRate) > 0 ? (
                     <div className="mt-2 px-3 py-2 rounded-lg bg-amber-50  border border-amber-200 ">
                         <p className="text-[11px] text-amber-800 ">
-                            <span className="font-semibold">If you&apos;re not home when therapist arrives:</span>{" "}
-                            ${parseFloat(offer.attemptedVisitRate).toFixed(2)} attempted visit fee
+                            For attempted visits that do not proceed, you will be charged a{" "}
+                            <span className="font-semibold">${parseFloat(offer.attemptedVisitRate).toFixed(2)} attempted visit fee.</span>
                         </p>
                     </div>
                 ) : (

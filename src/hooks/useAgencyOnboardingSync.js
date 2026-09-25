@@ -1,8 +1,8 @@
 "use client";
 
 import { useCallback } from "react";
-import { agencyOnboardingAPI } from "@/lib/agency.onboarding.api";
-import useAgencyOnboardingStore from "@/store/agencyOnboardingStore";
+import { agencyOnboardingAPI } from "@/services/onboarding.agency.api";
+import useAgencyOnboardingStore from "@/stores/agencyOnboardingStore";
 import { logger } from "@/lib/logger";
 
 export function useAgencyOnboardingSync() {

@@ -16,9 +16,9 @@ import InlinePaymentSection from "@/components/bookings/InlinePaymentSection";
  *
  * @param {Object}   props
  * @param {boolean}  props.isOpen
- * @param {Function} props.onClose          - called on dismiss / after success navigation
- * @param {Object}   props.offer            - the offer being accepted
- * @param {Function} props.onAccepted       - called with booking after offer is accepted
+ * @param {Function} props.onClose     - called on dismiss / after success navigation
+ * @param {Object}   props.offer       - the offer being accepted
+ * @param {Function} props.onAccepted  - called with booking after offer is accepted
  */
 export default function AcceptOfferModal({ isOpen, onClose, offer, onAccepted }) {
     const router = useRouter();
@@ -26,6 +26,7 @@ export default function AcceptOfferModal({ isOpen, onClose, offer, onAccepted })
     const [step, setStep] = useState("idle");
     const [booking, setBooking] = useState(null);
     const [errorMsg, setErrorMsg] = useState("");
+    const [isLimitError, setIsLimitError] = useState(false);
 
     if (!isOpen || !offer) return null;
 
@@ -35,6 +36,7 @@ export default function AcceptOfferModal({ isOpen, onClose, offer, onAccepted })
     const handleConfirm = async () => {
         setStep("accepting");
         setErrorMsg("");
+        setIsLimitError(false);
         try {
             const res = await api.post(`/offers/${offer.id}/accept`);
             const newBooking = res.data.data.booking;
@@ -43,8 +45,9 @@ export default function AcceptOfferModal({ isOpen, onClose, offer, onAccepted })
             setStep("pay");
         } catch (err) {
             const code = err.response?.data?.code;
-            if (code === "THERAPIST_LIMIT_REACHED" || code === "REQUEST_LIMIT_REACHED") {
-                setErrorMsg(err.response.data.message + " Please upgrade your plan to continue.");
+            if (code === "VISIT_LIMIT_REACHED" || code === "THERAPIST_LIMIT_REACHED" || code === "REQUEST_LIMIT_REACHED") {
+                setIsLimitError(true);
+                setErrorMsg(err.response.data.message);
             } else {
                 setErrorMsg(err.response?.data?.message || "Failed to accept offer. Please try again.");
             }
@@ -60,6 +63,7 @@ export default function AcceptOfferModal({ isOpen, onClose, offer, onAccepted })
         setStep("idle");
         setBooking(null);
         setErrorMsg("");
+        setIsLimitError(false);
         onClose();
     };
 
@@ -196,7 +200,7 @@ export default function AcceptOfferModal({ isOpen, onClose, offer, onAccepted })
                                 >
                                     Close
                                 </button>
-                                {errorMsg.includes("upgrade") ? (
+                                {isLimitError ? (
                                     <button
                                         onClick={handleUpgradePlan}
                                         className="flex-1 px-4 py-2.5 rounded-xl bg-primary hover:bg-primary/90 text-white text-sm font-bold transition-colors"

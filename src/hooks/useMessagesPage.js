@@ -6,8 +6,11 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useConversations, useMessages, useConversationContext } from "./useMessages";
 import { useAuth } from "./useAuth";
 import { useSocketContext } from "@/components/providers/SocketProvider";
-import { messagesApi } from "@/lib/messages.api";
+import { messagesApi } from "@/services/message.api";
 import { getDisplayName } from "@/utils/messages";
+import { MESSAGE_GATE_ERROR_CODES } from "@/lib/constants";
+import { resolveCustomerGateState } from "@/lib/customerRouteAccess";
+import { useCustomerUser } from "@/contexts/CustomerUserContext";
 import { useAnalytics } from "@/hooks/useAnalytics";
 
 /**
@@ -25,6 +28,7 @@ export function useMessagesPage(basePath) {
     const { conversations, loading: convLoading, error: convError, sessionExpired: convSessionExpired, refetch: refetchConversations } = useConversations();
     const { user } = useAuth();
     const { trackEvent } = useAnalytics();
+    const customer = useCustomerUser();
 
     const [selectedConversation, setSelectedConversation] = useState(null);
     const { joinConversation, leaveConversation } = useSocketContext();
@@ -63,6 +67,14 @@ export function useMessagesPage(basePath) {
     const [directSendError, setDirectSendError] = useState(null);
     const directSendingRef = useRef(false);
 
+    // Message gate — shown when the backend returns 403 with a gate error code
+    const [isMessageGateOpen, setIsMessageGateOpen] = useState(false);
+    const handleSendError = useCallback((err) => {
+        if (err?.response?.status === 403 && MESSAGE_GATE_ERROR_CODES.has(err?.response?.data?.code)) {
+            setIsMessageGateOpen(true);
+        }
+    }, []);
+
     // Parse URL param — supports multiple formats:
     //   ?c={conversationId}           — direct UUID (Phase 3)
     //   ?c=new:{userId}               — new direct conversation
@@ -99,7 +111,7 @@ export function useMessagesPage(basePath) {
         messages, loading: msgLoading, error: msgError,
         sendMessage, retryMessage,
         hasMore, loadOlderMessages, loadingMore
-    } = useMessages(isPendingDirect ? null : selected?.conversationId);
+    } = useMessages(isPendingDirect ? null : selected?.conversationId, undefined, handleSendError);
 
     // ── URL → Selection sync ────────────────────────────────
     const updateUrlParam = useCallback((value) => {
@@ -251,8 +263,11 @@ export function useMessagesPage(basePath) {
                 queryClient.invalidateQueries({ queryKey: ["unreadCount"] });
                 setScrollTrigger(t => t + 1);
             } catch (err) {
-                console.error("Failed to send direct message:", err);
-                setDirectSendError("Failed to send message. Please try again.");
+                if (err?.response?.status === 403 && MESSAGE_GATE_ERROR_CODES.has(err?.response?.data?.code)) {
+                    setIsMessageGateOpen(true);
+                } else {
+                    setDirectSendError("Failed to send message. Please try again.");
+                }
             } finally {
                 directSendingRef.current = false;
             }
@@ -319,15 +334,17 @@ export function useMessagesPage(basePath) {
                 queryClient.invalidateQueries({ queryKey: ["conversation-attachments", convId] });
                 queryClient.invalidateQueries({ queryKey: ["conversation-attachments-modal", convId] });
             } catch (err) {
-                console.error("Failed to upload attachments:", err);
-                // Mark optimistic message as failed
                 queryClient.setQueryData(messagesKey, (old) =>
                     old?.map(m => m.id === optimisticId ? { ...m, status: "failed" } : m) ?? []
                 );
                 optimisticAttachments.forEach(a => {
                     if (a._localPreviewUrl) URL.revokeObjectURL(a._localPreviewUrl);
                 });
-                setDirectSendError(err.response?.data?.message || "Failed to upload files. Please try again.");
+                if (err?.response?.status === 403 && MESSAGE_GATE_ERROR_CODES.has(err?.response?.data?.code)) {
+                    setIsMessageGateOpen(true);
+                } else {
+                    setDirectSendError(err.response?.data?.message || "Failed to upload files. Please try again.");
+                }
             } finally {
                 setUploading(false);
             }
@@ -382,6 +399,19 @@ export function useMessagesPage(basePath) {
         hasMore,
         loadOlderMessages,
         loadingMore,
+
+        // Message gate
+        isMessageGateOpen,
+        closeMessageGate: () => setIsMessageGateOpen(false),
+        messageGateProps: {
+            gateState: resolveCustomerGateState({
+                approvalStatus: customer?.approvalStatus ?? null,
+                onboardingComplete: customer?.onboardingComplete ?? false,
+            }),
+            onboardingStep: customer?.onboardingStep ?? 1,
+            customerType: customer?.customerType ?? null,
+            rejectionReason: customer?.rejectionReason ?? null,
+        },
 
         // Actions
         handleSelectConversation,

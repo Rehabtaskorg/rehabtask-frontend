@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { therapistsPublicApi } from "@/lib/therapistPublic.api";
+import { therapistsPublicApi } from "@/services/therapist.public.api";
 
 export function useTherapistSearch(filters) {
     const { data, isLoading, error, refetch } = useQuery({

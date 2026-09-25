@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { offersApi } from "@/lib/offers";
+import { offersApi } from "@/services/offer.api";
 
 export function useOfferDetails(offerId) {
     const { data, isLoading, error } = useQuery({

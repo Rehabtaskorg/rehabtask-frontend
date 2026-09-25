@@ -2,11 +2,11 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
-    notificationsApi, adminUsersApi, adminTherapistsApi, adminDisputesApi,
+    notificationsApi, adminUsersApi, adminTherapistsApi, adminCustomersApi, adminDisputesApi,
     adminBookingsApi, adminSubscriptionsApi, adminPaymentsApi,
     adminCommissionApi, adminFaqsApi, adminNotificationsApi,
-    adminSubAdminsApi, adminAuditApi,
-} from '@/lib/admin';
+    adminSubAdminsApi, adminAuditApi, adminEmailApi,
+} from '@/services/admin.api';
 
 // Notifications (user-facing)
 export const useNotifications = (params) =>
@@ -70,6 +70,22 @@ export const useUpdateUser = () => {
     });
 };
 
+export const useResetUserTwoFactor = () => {
+    const qc = useQueryClient();
+    return useMutation({
+        mutationFn: ({ userId, reason }) => adminUsersApi.resetTwoFactor(userId, reason),
+        onSuccess: (_data, { userId }) => {
+            qc.invalidateQueries({ queryKey: ['admin', 'users'] });
+            qc.invalidateQueries({ queryKey: ['admin', 'users', userId] });
+        },
+    });
+};
+
+export const useSendAdminEmail = () =>
+    useMutation({
+        mutationFn: (data) => adminEmailApi.send(data),
+    });
+
 // Admin - Therapists
 export const useAdminTherapists = ({ enabled, ...params } = {}) =>
     useQuery({
@@ -99,6 +115,114 @@ export const useRejectTherapist = () => {
         mutationFn: ({ therapistUserId, reason }) =>
             adminTherapistsApi.reject(therapistUserId, { reason }),
         onSuccess: () => qc.invalidateQueries({ queryKey: ['admin', 'therapists'] }),
+    });
+};
+
+/**
+ * Clear a soft-tier re-review flag on an already-approved therapist.
+ * Rejects with a 409 when there is no pending re-review, or when the account
+ * is still awaiting a full approval decision.
+ * Invalidates the therapist detail and list queries on success.
+ *
+ * @returns {import("@tanstack/react-query").UseMutationResult}
+ */
+export const useClearTherapistReReview = () => {
+    const qc = useQueryClient();
+    return useMutation({
+        mutationFn: (therapistUserId) => adminTherapistsApi.clearReview(therapistUserId),
+        onSuccess: (_, therapistUserId) => {
+            qc.invalidateQueries({ queryKey: ['admin', 'therapists', therapistUserId] });
+            qc.invalidateQueries({ queryKey: ['admin', 'therapists'] });
+        },
+    });
+};
+
+/**
+ * Mutation to toggle licenseVerified or insuranceVerified on a therapist profile.
+ * Admin-only action — invalidates the therapist detail query on success.
+ */
+export const useUpdateTherapistVerification = () => {
+    const qc = useQueryClient();
+    return useMutation({
+        mutationFn: ({ therapistUserId, field, value }) =>
+            adminTherapistsApi.updateVerification(therapistUserId, { field, value }),
+        onSuccess: (_, { therapistUserId }) => {
+            qc.invalidateQueries({ queryKey: ['admin', 'therapists', therapistUserId] });
+            qc.invalidateQueries({ queryKey: ['admin', 'therapists'] });
+        },
+    });
+};
+
+// Admin - Customers
+/**
+ * Paginated list of customers for the admin review queue.
+ * Returns `{ customers, pagination }` from the server.
+ *
+ * @param {{ approvalStatus?: string, customerType?: string, search?: string, sortOrder?: string, page?: number, limit?: number, enabled?: boolean }} params
+ */
+export const useAdminCustomers = ({ enabled, ...params } = {}) =>
+    useQuery({
+        queryKey: ['admin', 'customers', params],
+        queryFn: () => adminCustomersApi.list(params).then(r => r.data.data),
+        enabled: enabled !== false,
+    });
+
+/**
+ * Full detail for a single customer, for the admin review page.
+ * @param {string} customerUserId - Firebase UID
+ */
+export const useAdminCustomer = (customerUserId) =>
+    useQuery({
+        queryKey: ['admin', 'customers', customerUserId],
+        queryFn: () => adminCustomersApi.get(customerUserId).then(r => r.data.data),
+        enabled: !!customerUserId,
+    });
+
+/**
+ * Approve a customer. Invalidates both the detail and list queries.
+ */
+export const useApproveCustomer = () => {
+    const qc = useQueryClient();
+    return useMutation({
+        mutationFn: (customerUserId) => adminCustomersApi.approve(customerUserId),
+        onSuccess: (_, customerUserId) => {
+            qc.invalidateQueries({ queryKey: ['admin', 'customers', customerUserId] });
+            qc.invalidateQueries({ queryKey: ['admin', 'customers'] });
+        },
+    });
+};
+
+/**
+ * Reject a customer with a required reason. Invalidates both the detail and list queries.
+ */
+export const useRejectCustomer = () => {
+    const qc = useQueryClient();
+    return useMutation({
+        mutationFn: ({ customerUserId, reason }) =>
+            adminCustomersApi.reject(customerUserId, { reason }),
+        onSuccess: (_, { customerUserId }) => {
+            qc.invalidateQueries({ queryKey: ['admin', 'customers', customerUserId] });
+            qc.invalidateQueries({ queryKey: ['admin', 'customers'] });
+        },
+    });
+};
+
+/**
+ * Clear a soft-tier re-review flag on an already-approved customer.
+ * Rejects with a 409 when there is no pending re-review, or when the account
+ * is still awaiting a full approval decision.
+ * Invalidates the customer detail and list queries on success.
+ *
+ * @returns {import("@tanstack/react-query").UseMutationResult}
+ */
+export const useClearCustomerReReview = () => {
+    const qc = useQueryClient();
+    return useMutation({
+        mutationFn: (customerUserId) => adminCustomersApi.clearReview(customerUserId),
+        onSuccess: (_, customerUserId) => {
+            qc.invalidateQueries({ queryKey: ['admin', 'customers', customerUserId] });
+            qc.invalidateQueries({ queryKey: ['admin', 'customers'] });
+        },
     });
 };
 

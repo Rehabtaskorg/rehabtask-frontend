@@ -5,12 +5,12 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { APIProvider } from "@vis.gl/react-google-maps";
-import useAgencyOnboardingStore from "@/store/agencyOnboardingStore";
+import useAgencyOnboardingStore from "@/stores/agencyOnboardingStore";
 import { AgencyOnboardingProgressBar } from "@/components/features/onboarding/agency/AgencyOnboardingProgressBar";
 import { BusinessProfileIdentityFields } from "@/components/features/onboarding/agency/BusinessProfileIdentityFields";
 import { BusinessProfileAddressFields } from "@/components/features/onboarding/agency/BusinessProfileAddressFields";
-import { agencyBusinessProfileSchema } from "@/lib/agencyOnboardingValidation";
-import { agencyOnboardingAPI } from "@/lib/agency.onboarding.api";
+import { agencyBusinessProfileSchema } from "@/lib/validators/agency.onboarding.schema";
+import { agencyOnboardingAPI } from "@/services/onboarding.agency.api";
 import { logger } from "@/lib/logger";
 import { usePageTitle } from "@/hooks/usePageTitle";
 

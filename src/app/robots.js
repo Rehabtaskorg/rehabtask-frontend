@@ -5,7 +5,7 @@ export default function robots() {
         rules: [
             {
                 userAgent: "*",
-                allow: ["/", "/therapists", "/requests"],
+                allow: ["/", "/therapists", "/therapist-jobs", "/requests"],
                 disallow: [
                     "/api/",
                     "/login",

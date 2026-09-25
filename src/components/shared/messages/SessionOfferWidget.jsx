@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useQueryClient } from "@tanstack/react-query";
 import { useOfferDetails } from "@/hooks/useOffers";
-import { offersApi } from "@/lib/offers";
+import { offersApi } from "@/services/offer.api";
 import { useAuth } from "@/hooks/useAuth";
 import { formatCurrency, formatMessageTime } from "@/utils/messages";
 import { MdCheck, MdClose, MdEdit } from "react-icons/md";
@@ -32,14 +32,6 @@ const formatOfferDate = (dateString) => {
     const d = new Date(dateString);
     return d.toLocaleDateString([], { weekday: 'long', month: 'short', day: 'numeric' });
 }
-
-const formatOfferTime = (dateString) => {
-    if (!dateString) return '';
-    const d = new Date(dateString);
-    const start = d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
-    const end = new Date(d.getTime() + 60 * 60 * 1000).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
-    return `${start} - ${end}`;
-};
 
 const STATUS_TEXT = {
     pending: 'Awaiting patient response',
@@ -205,13 +197,9 @@ export default function SessionOfferWidget({ offerId }) {
 
                     {offer.proposedDate && (
                         <div className="flex items-center gap-4 bg-background-light  p-3 rounded-lg">
-                            <div className="flex flex-col flex-1 border-r border-border-light ">
+                            <div className="flex flex-col flex-1">
                                 <p className="text-text-muted  text-[10px] font-bold uppercase">Date</p>
                                 <p className="text-text-main  text-sm font-medium">{formatOfferDate(offer.proposedDate)}</p>
-                            </div>
-                            <div className="flex flex-col flex-1 pl-2">
-                                <p className="text-text-muted  text-[10px] font-bold uppercase">Time</p>
-                                <p className="text-text-main  text-sm font-medium">{formatOfferTime(offer.proposedDate)}</p>
                             </div>
                         </div>
                     )}
@@ -220,8 +208,8 @@ export default function SessionOfferWidget({ offerId }) {
                         parseFloat(offer.attemptedVisitRate) > 0 ? (
                             <div className="px-3 py-2 rounded-lg bg-amber-50  border border-amber-200 ">
                                 <p className="text-[11px] text-amber-800 ">
-                                    <span className="font-semibold">Not home when therapist arrives?</span>{" "}
-                                    {formatCurrency(offer.attemptedVisitRate)} attempted visit fee
+                                    For attempted visits that do not proceed, you will be charged a{" "}
+                                    <span className="font-semibold">{formatCurrency(offer.attemptedVisitRate)} attempted visit fee.</span>
                                 </p>
                             </div>
                         ) : (

@@ -2,9 +2,11 @@
 
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
-import { authAPi } from "@/lib/auth.api";
+import { authAPi } from "@/services/auth.api";
 import { useOnboardingSync } from "@/hooks/useOnboardingSync";
 import { ONBOARDING_STEP_ROUTES } from "@/lib/therapistRouteAccess";
+import { APPROVAL_STATUS, USER_ROLES } from "@/lib/constants";
+import { logger } from "@/lib/logger";
 import ConfirmModal from "@/components/ui/ConfirmModal";
 import { MdInfo } from "react-icons/md";
 
@@ -28,7 +30,7 @@ export default function OnboardingBanner() {
             const userData = res.data.data.user;
 
             // Only show banner for therapists
-            if (userData.role !== "therapist") {
+            if (userData.role !== USER_ROLES.THERAPIST) {
                 setShowBanner(false);
                 setIsLoading(false);
                 return;
@@ -47,7 +49,7 @@ export default function OnboardingBanner() {
             setResumeStep(onboardingStep);
 
             // Rejection always takes priority regardless of onboarding completeness
-            if (approvalStatus === "rejected") {
+            if (approvalStatus === APPROVAL_STATUS.REJECTED) {
                 setRejectionReason(userData.profile?.rejectionReason ?? null);
                 setBannerType("rejected");
                 setShowBanner(true);
@@ -55,7 +57,7 @@ export default function OnboardingBanner() {
                 // Check if only Stripe is missing (all essential steps done)
                 const essentialStepsDone = steps?.personalInfo && steps?.profile &&
                     steps?.credentials && steps?.availability && steps?.insurance &&
-                    steps?.identity && steps?.compliance;
+                    steps?.identity;
 
                 if (essentialStepsDone) {
                     // All essential steps done, only Stripe is missing — show review banner
@@ -67,11 +69,11 @@ export default function OnboardingBanner() {
                     setProgress(backendProgress);
                     setShowBanner(true);
                 }
-            } else if (approvalStatus === "review" || approvalStatus === "pending") {
+            } else if (approvalStatus === APPROVAL_STATUS.REVIEW || approvalStatus === APPROVAL_STATUS.PENDING) {
                 // Onboarding complete, under review
                 setBannerType("review");
                 setShowBanner(true);
-            } else if (approvalStatus === "approved") {
+            } else if (approvalStatus === APPROVAL_STATUS.APPROVED) {
                 // Approved - show once then hide
                 const hasSeenApproval = localStorage.getItem("hasSeenApprovalBanner");
                 if (!hasSeenApproval) {
@@ -80,7 +82,7 @@ export default function OnboardingBanner() {
                 } else {
                     setShowBanner(false);
                 }
-            } else if (approvalStatus === "rejected") {
+            } else if (approvalStatus === APPROVAL_STATUS.REJECTED) {
                 // Rejected - show rejection banner
                 setBannerType("rejected");
                 setShowBanner(true);
@@ -89,7 +91,7 @@ export default function OnboardingBanner() {
                 setShowBanner(false);
             }
         } catch (error) {
-            console.error("Error checking onboarding status:", error);
+            logger.error("Error checking onboarding status:", error);
             setShowBanner(false);
         } finally {
             setIsLoading(false);
@@ -139,7 +141,7 @@ export default function OnboardingBanner() {
                         onClick={handleResumeSetup}
                         className="px-4 py-2 rounded-lg text-sm font-semibold bg-primary text-white hover:brightness-95 transition-all"
                     >
-                        {progress === 0 ? "Start Setup" : "Continue Setup"}
+                        {progress === 0 ? "Start Onboarding" : "Continue Onboarding"}
                     </button>
                 </div>
             </div>

@@ -4,8 +4,10 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "@/lib/api";
 import ChangePasswordForm from "@/components/profile/ChangePasswordForm";
+import TwoFactorSettings from "@/components/profile/TwoFactorSettings";
 import { MdPayments, MdSettings, MdCheckCircle, MdTrendingUp, MdError, MdWarning, MdInfo } from "react-icons/md";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import { logger } from "@/lib/logger";
 
 export default function TherapistAccountSettingsPage() {
     usePageTitle("Account Settings");
@@ -17,20 +19,20 @@ function AccountSettingsContent() {
     const [accountStatus, setAccountStatus] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        fetchAccountStatus();
-    }, []);
-
     const fetchAccountStatus = async () => {
         try {
             const res = await api.get("/payments/connect/status");
             setAccountStatus(res.data.data);
         } catch (error) {
-            console.error("Error fetching account status:", error);
+            logger.error("Error fetching account status:", error);
         } finally {
             setLoading(false);
         }
     };
+
+    useEffect(() => {
+        fetchAccountStatus();
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     if (loading) {
         return (
@@ -45,13 +47,12 @@ function AccountSettingsContent() {
 
     const isFullyActive =
         accountStatus?.connected &&
-        accountStatus?.detailsSubmitted &&
-        accountStatus?.chargesEnabled;
+        accountStatus?.onboardingComplete;
 
     const isNotActive =
         accountStatus?.connected &&
         accountStatus?.detailsSubmitted &&
-        !accountStatus?.chargesEnabled;
+        !accountStatus?.onboardingComplete;
 
     const isPastDue = isNotActive && (accountStatus?.pastDueCount ?? 0) > 0;
     const isCurrentlyDue = isNotActive && !isPastDue && (accountStatus?.currentlyDueCount ?? 0) > 0;
@@ -98,7 +99,7 @@ function AccountSettingsContent() {
                             </p>
                         </div>
                         <button
-                            onClick={() => router.push("/therapist/onboarding/stripe")}
+                            onClick={() => router.push("/therapist/payouts")}
                             className="bg-primary hover:brightness-95 text-white px-6 py-3 rounded-lg font-semibold transition-all"
                         >
                             Set Up Payouts
@@ -121,7 +122,7 @@ function AccountSettingsContent() {
                             </p>
                         </div>
                         <button
-                            onClick={() => router.push("/therapist/onboarding/stripe")}
+                            onClick={() => router.push("/therapist/payouts")}
                             className="bg-primary hover:brightness-95 text-white px-6 py-3 rounded-lg font-semibold transition-all"
                         >
                             Complete Setup
@@ -142,7 +143,7 @@ function AccountSettingsContent() {
                             </div>
                         </div>
                         <button
-                            onClick={() => router.push("/therapist/onboarding/stripe")}
+                            onClick={() => router.push("/therapist/payouts")}
                             className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
                         >
                             Restore My Account
@@ -165,7 +166,7 @@ function AccountSettingsContent() {
                             </div>
                         </div>
                         <button
-                            onClick={() => router.push("/therapist/onboarding/stripe")}
+                            onClick={() => router.push("/therapist/payouts")}
                             className="bg-amber-500 hover:bg-amber-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
                         >
                             Complete Now
@@ -188,7 +189,7 @@ function AccountSettingsContent() {
                             </div>
                         </div>
                         <button
-                            onClick={() => router.push("/therapist/onboarding/stripe")}
+                            onClick={() => router.push("/therapist/payouts")}
                             className="bg-primary hover:brightness-95 text-white px-6 py-3 rounded-lg font-semibold transition-all"
                         >
                             Review Requirements
@@ -238,6 +239,8 @@ function AccountSettingsContent() {
                     </div>
                 )}
             </div>
+
+            <TwoFactorSettings />
 
             <ChangePasswordForm />
         </div>

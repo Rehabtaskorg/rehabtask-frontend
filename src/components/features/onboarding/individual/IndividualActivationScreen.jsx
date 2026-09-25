@@ -15,7 +15,7 @@ const CHECKLIST = [
  * Read-only checklist + submit button. Calls completeIndividualOnboarding on submit.
  */
 export function IndividualActivationScreen() {
-    usePageTitle("Submit for Activation");
+    usePageTitle("Submit Application");
     const { submitting, error, onSubmit, onBack } = useIndividualActivation();
 
     return (
@@ -25,10 +25,10 @@ export function IndividualActivationScreen() {
 
                 <header className="mb-8 px-4">
                     <h1 className="text-text-main text-4xl font-black leading-tight tracking-[-0.033em] mb-2">
-                        Submit for Activation
+                        Submit Your Application
                     </h1>
                     <p className="text-text-muted text-lg font-normal leading-normal">
-                        Review your completed steps and activate your account.
+                        Review your completed steps and submit your application for review.
                     </p>
                 </header>
 
@@ -52,12 +52,12 @@ export function IndividualActivationScreen() {
                             ))}
                         </ul>
 
-                        <div className="bg-green-50 px-6 py-4 rounded-lg flex items-start gap-3 border border-green-100">
-                            <svg className="h-5 w-5 text-green-500 mt-0.5 shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                                <path clipRule="evenodd" fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" />
+                        <div className="bg-amber-50 px-6 py-4 rounded-lg flex items-start gap-3 border border-amber-100">
+                            <svg className="h-5 w-5 text-amber-500 mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                             </svg>
-                            <p className="text-sm text-green-700">
-                                Submitting will activate your account immediately. You will have full access to the platform right away.
+                            <p className="text-sm text-amber-800">
+                                Once submitted, our team will review your application within <strong>2–5 business days</strong>. You will be notified by email when a decision has been made.
                             </p>
                         </div>
 
@@ -82,9 +82,9 @@ export function IndividualActivationScreen() {
                             disabled={submitting}
                             className="w-full sm:w-auto px-10 h-12 bg-primary text-white font-bold rounded-lg shadow-lg shadow-primary/20 hover:brightness-95 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                            {submitting ? "Activating…" : (
+                            {submitting ? "Submitting…" : (
                                 <>
-                                    Submit for Activation
+                                    Submit Application
                                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
                                     </svg>

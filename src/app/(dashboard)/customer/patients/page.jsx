@@ -6,15 +6,21 @@ import { usePatients } from "@/hooks/usePatients";
 import AddPatientModal from "@/components/customer/AddPatientModal";
 import PatientDrawer from "@/components/customer/PatientDrawer";
 import {
-    MdAdd, MdEmail, MdPhone, MdPerson, MdSearch,
+    MdAdd, MdPerson, MdSearch,
     MdClose, MdChevronLeft, MdChevronRight, MdVisibility,
 } from "react-icons/md";
-import { formatRelativeDate } from "@/utils/dates";
+import { formatShortDate } from "@/utils/dates";
 
 const ROWS_PER_PAGE_OPTIONS = [10, 25, 50];
 
 const getInitials = (name) =>
     name?.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2) || "?";
+
+const fmtCertPeriod = (start, end) => {
+    if (!start && !end) return "—";
+    if (start && end) return `${formatShortDate(start)} – ${formatShortDate(end)}`;
+    return formatShortDate(start || end);
+};
 
 /**
  * Agency patient management page.
@@ -144,125 +150,81 @@ export default function PatientsPage() {
                             <table className="w-full text-left">
                                 <thead className="bg-muted-light  border-b border-border-light ">
                                     <tr>
-                                        <th className="px-6 py-3 text-[10px] font-bold text-text-muted  uppercase tracking-widest">Patient</th>
-                                        <th className="px-6 py-3 text-[10px] font-bold text-text-muted  uppercase tracking-widest">Address</th>
-                                        <th className="px-6 py-3 text-[10px] font-bold text-text-muted  uppercase tracking-widest">Contact</th>
-                                        <th className="px-6 py-3 text-[10px] font-bold text-text-muted  uppercase tracking-widest text-center">Requests</th>
-                                        <th className="px-6 py-3 text-[10px] font-bold text-text-muted  uppercase tracking-widest">Last Activity</th>
+                                        <th className="px-6 py-3 text-[10px] font-bold text-text-muted  uppercase tracking-widest">Pt. Name</th>
+                                        <th className="px-6 py-3 text-[10px] font-bold text-text-muted  uppercase tracking-widest">DOB</th>
+                                        <th className="px-6 py-3 text-[10px] font-bold text-text-muted  uppercase tracking-widest">Gender</th>
+                                        <th className="px-6 py-3 text-[10px] font-bold text-text-muted  uppercase tracking-widest">Cert Period</th>
                                         <th className="px-6 py-3 text-[10px] font-bold text-text-muted  uppercase tracking-widest text-right">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-border-light ">
-                                    {paginated.map((patient) => {
-                                        const requestCount = patient.requestsForPatient?.length || 0;
-                                        const lastRequest  = patient.requestsForPatient?.[0];
-                                        return (
-                                            <tr
-                                                key={patient.id}
-                                                className="hover:bg-primary/5  transition-colors group cursor-pointer"
-                                                onClick={() => setDrawerPatientId(patient.id)}
-                                            >
-                                                <td className="px-6 py-4">
-                                                    <div className="flex items-center gap-3">
-                                                        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm shrink-0">
-                                                            {getInitials(patient.fullName)}
-                                                        </div>
-                                                        <div className="min-w-0">
-                                                            <p className="text-sm font-bold text-text-main  truncate group-hover:text-primary transition-colors">
-                                                                {patient.fullName}
-                                                            </p>
-                                                            {(patient.city || patient.state) && (
-                                                                <p className="text-[11px] text-text-muted  truncate">
-                                                                    {[patient.city, patient.state].filter(Boolean).join(", ")}
-                                                                </p>
-                                                            )}
-                                                        </div>
+                                    {paginated.map((patient) => (
+                                        <tr
+                                            key={patient.id}
+                                            className="hover:bg-primary/5  transition-colors group cursor-pointer"
+                                            onClick={() => setDrawerPatientId(patient.id)}
+                                        >
+                                            <td className="px-6 py-4">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm shrink-0">
+                                                        {getInitials(patient.fullName)}
                                                     </div>
-                                                </td>
-                                                <td className="px-6 py-4 text-sm text-text-muted  max-w-48">
-                                                    {patient.addressLine1 ? (
-                                                        <span className="truncate block" title={`${patient.addressLine1}, ${patient.city}, ${patient.state} ${patient.zipCode}`}>
-                                                            {patient.addressLine1}
-                                                        </span>
-                                                    ) : (
-                                                        <span className="text-text-muted/50">—</span>
-                                                    )}
-                                                </td>
-                                                <td className="px-6 py-4">
-                                                    <div className="flex items-center gap-1.5 text-sm text-text-main ">
-                                                        {patient.phone && <MdPhone className="text-text-muted text-xs shrink-0" />}
-                                                        <span>{patient.phone || "—"}</span>
-                                                    </div>
-                                                    <div className="flex items-center gap-1.5">
-                                                        {patient.email && <MdEmail className="text-text-muted text-xs shrink-0" />}
-                                                        <span className="text-[11px] text-text-muted  truncate">{patient.email || "—"}</span>
-                                                    </div>
-                                                </td>
-                                                <td className="px-6 py-4 text-center">
-                                                    <span className={`inline-flex items-center justify-center w-7 h-7 text-[10px] font-black rounded-full ${requestCount > 0 ? "bg-primary/10 text-primary" : "bg-muted-light  text-text-muted "}`}>
-                                                        {requestCount}
-                                                    </span>
-                                                </td>
-                                                <td className="px-6 py-4">
-                                                    {lastRequest ? (
-                                                        <>
-                                                            <p className="text-sm text-text-main ">{formatRelativeDate(lastRequest.createdAt)}</p>
-                                                            <p className="text-[11px] text-text-muted  truncate">{lastRequest.serviceType}</p>
-                                                        </>
-                                                    ) : (
-                                                        <span className="text-sm text-text-muted/50">—</span>
-                                                    )}
-                                                </td>
-                                                <td className="px-6 py-4 text-right">
-                                                    <button
-                                                        onClick={(e) => { e.stopPropagation(); setDrawerPatientId(patient.id); }}
-                                                        className="p-1.5 text-text-muted  hover:text-primary transition-colors"
-                                                        title="View details"
-                                                    >
-                                                        <MdVisibility className="text-lg" />
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        );
-                                    })}
+                                                    <p className="text-sm font-bold text-text-main  truncate group-hover:text-primary transition-colors">
+                                                        {patient.fullName}
+                                                    </p>
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-4 text-sm text-text-main ">
+                                                {patient.dateOfBirth ? formatShortDate(patient.dateOfBirth) : <span className="text-text-muted/50">—</span>}
+                                            </td>
+                                            <td className="px-6 py-4 text-sm text-text-main ">
+                                                {patient.gender
+                                                    ? patient.gender.charAt(0).toUpperCase() + patient.gender.slice(1)
+                                                    : <span className="text-text-muted/50">—</span>}
+                                            </td>
+                                            <td className="px-6 py-4 text-sm text-text-main  whitespace-nowrap">
+                                                {fmtCertPeriod(patient.certificationStart, patient.certificationEnd)}
+                                            </td>
+                                            <td className="px-6 py-4 text-right">
+                                                <button
+                                                    onClick={(e) => { e.stopPropagation(); setDrawerPatientId(patient.id); }}
+                                                    className="p-1.5 text-text-muted  hover:text-primary transition-colors"
+                                                    aria-label="View patient details"
+                                                >
+                                                    <MdVisibility className="text-lg" />
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))}
                                 </tbody>
                             </table>
                         </div>
 
                         {/* Mobile card list */}
                         <div className="lg:hidden divide-y divide-border-light ">
-                            {paginated.map((patient) => {
-                                const requestCount = patient.requestsForPatient?.length || 0;
-                                return (
-                                    <button
-                                        key={patient.id}
-                                        onClick={() => setDrawerPatientId(patient.id)}
-                                        className="w-full text-left p-4 hover:bg-primary/5 transition-colors"
-                                    >
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm shrink-0">
-                                                {getInitials(patient.fullName)}
-                                            </div>
-                                            <div className="flex-1 min-w-0">
-                                                <h3 className="text-sm font-bold text-text-main  truncate">{patient.fullName}</h3>
-                                                <p className="text-xs text-text-muted  truncate">
-                                                    {patient.addressLine1
-                                                        ? `${patient.addressLine1}, ${patient.city || ""}`
-                                                        : patient.email || "No address"}
-                                                </p>
-                                            </div>
-                                            <div className="text-right shrink-0">
-                                                {patient.phone && <p className="text-xs text-text-muted ">{patient.phone}</p>}
-                                                {requestCount > 0 && (
-                                                    <span className="inline-flex items-center justify-center w-5 h-5 text-[9px] font-bold rounded-full bg-primary/10 text-primary mt-1">
-                                                        {requestCount}
-                                                    </span>
-                                                )}
-                                            </div>
+                            {paginated.map((patient) => (
+                                <button
+                                    key={patient.id}
+                                    onClick={() => setDrawerPatientId(patient.id)}
+                                    className="w-full text-left p-4 hover:bg-primary/5 transition-colors"
+                                >
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm shrink-0">
+                                            {getInitials(patient.fullName)}
                                         </div>
-                                    </button>
-                                );
-                            })}
+                                        <div className="flex-1 min-w-0">
+                                            <h3 className="text-sm font-bold text-text-main  truncate">{patient.fullName}</h3>
+                                            <p className="text-xs text-text-muted  truncate">
+                                                {patient.dateOfBirth ? formatShortDate(patient.dateOfBirth) : "DOB: —"}
+                                                {patient.gender ? ` · ${patient.gender.charAt(0).toUpperCase() + patient.gender.slice(1)}` : ""}
+                                            </p>
+                                        </div>
+                                        <p className="text-xs text-text-muted  shrink-0 text-right max-w-32">
+                                            {fmtCertPeriod(patient.certificationStart, patient.certificationEnd)}
+                                        </p>
+                                    </div>
+                                </button>
+                            ))}
                         </div>
 
                         {/* Pagination */}

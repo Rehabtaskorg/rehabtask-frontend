@@ -1,8 +1,8 @@
 "use client";
 
 import { useCallback } from "react";
-import { individualOnboardingAPI } from "@/lib/individual.onboarding.api";
-import useIndividualOnboardingStore from "@/store/individualOnboardingStore";
+import { individualOnboardingAPI } from "@/services/onboarding.individual.api";
+import useIndividualOnboardingStore from "@/stores/individualOnboardingStore";
 import { logger } from "@/lib/logger";
 
 /**
@@ -22,7 +22,6 @@ export function useIndividualOnboardingSync() {
             const { steps } = data;
             if (steps.personalInfo) markStepComplete(2);
             if (steps.medicalInfo) markStepComplete(3);
-            if (steps.consentForms) markStepComplete(4);
 
             return {
                 progress: data.progress,

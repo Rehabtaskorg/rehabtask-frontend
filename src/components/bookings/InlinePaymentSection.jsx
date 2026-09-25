@@ -7,7 +7,7 @@ import { loadStripe } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
 import { MdLock, MdInfo, MdCreditCard } from "react-icons/md";
 import { api } from "@/lib/api";
-import { paymentsApi } from "@/lib/payments.api";
+import { paymentsApi } from "@/services/payment.api";
 import { resolveVisitPlan, computeTotalVisits } from "@/lib/visitPlan";
 import { getStripeAppearance } from "@/lib/stripe.appearance";
 import { formatCurrency } from "@/utils/messages";
@@ -37,8 +37,8 @@ export default function InlinePaymentSection({ booking, onPaymentSuccess }) {
     const [payError, setPayError] = useState(null);
     const [newCardClientSecret, setNewCardClientSecret] = useState(null);
     const [loadingNewCard, setLoadingNewCard] = useState(false);
-    // Stable per mount — prevents duplicate payment intents on network retry
-    const [idempotencyKey] = useState(() => `pi-${booking.id}-${crypto.randomUUID()}`);
+    const [savedCardKey] = useState(() => `pi-saved-${booking.id}-${crypto.randomUUID()}`);
+    const [newCardKey] = useState(() => `pi-new-${booking.id}-${crypto.randomUUID()}`);
 
     const { data: methods = [], isLoading: methodsLoading } = useQuery({
         queryKey: ["paymentMethods"],
@@ -68,7 +68,7 @@ export default function InlinePaymentSection({ booking, onPaymentSuccess }) {
             const res = await api.post(
                 "/payments/create-intent",
                 { bookingId: booking.id, paymentMethodId: selectedPmId },
-                { headers: { "Idempotency-Key": idempotencyKey } },
+                { headers: { "Idempotency-Key": savedCardKey } },
             );
             const result = res.data.data;
 
@@ -113,7 +113,7 @@ export default function InlinePaymentSection({ booking, onPaymentSuccess }) {
             const res = await api.post(
                 "/payments/create-intent",
                 { bookingId: booking.id },
-                { headers: { "Idempotency-Key": idempotencyKey } },
+                { headers: { "Idempotency-Key": newCardKey } },
             );
             setNewCardClientSecret(res.data.data.clientSecret);
             setShowNewCard(true);
@@ -240,7 +240,7 @@ export default function InlinePaymentSection({ booking, onPaymentSuccess }) {
                             stripe={stripePromise}
                             options={{ clientSecret: newCardClientSecret, appearance: getStripeAppearance() }}
                         >
-                            <NewCardCheckoutForm booking={booking} onSuccess={onPaymentSuccess} />
+                            <NewCardCheckoutForm booking={booking} totalAmount={perSessionRate * sessionsCount} onSuccess={onPaymentSuccess} />
                         </Elements>
                     </div>
                 )

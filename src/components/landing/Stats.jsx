@@ -34,7 +34,7 @@ export default async function Stats() {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 items-start">
                     <FadeIn>
-                        <h2 className="mt-2 text-3xl md:text-4xl font-bold leading-tight" style={{ color: "#2EC4B6" }}>
+                        <h2 className="mt-2 text-3xl md:text-4xl font-bold leading-tight text-primary">
                             Faster patient placement nationwide
                         </h2>
                         <p className="mt-4 text-gray-500 leading-relaxed">

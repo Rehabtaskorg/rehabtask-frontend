@@ -1,19 +1,38 @@
-import { CUSTOMER_TYPES } from "./constants";
+import { CUSTOMER_TYPES, APPROVAL_STATUS } from "./constants";
+
+export const CUSTOMER_GATE_STATE = {
+    REJECTED: "rejected",
+    INCOMPLETE: "incomplete",
+    REVIEW: "review",
+    NONE: "none",
+};
+
+/**
+ * Derives the messaging/access gate state from a customer's profile.
+ * Ordering is load-bearing: rejected always takes priority over incomplete.
+ *
+ * @param {{ approvalStatus: string|null, onboardingComplete: boolean }} customer
+ * @returns {string} One of CUSTOMER_GATE_STATE values
+ */
+export function resolveCustomerGateState({ approvalStatus, onboardingComplete }) {
+    if (approvalStatus === APPROVAL_STATUS.REJECTED) return CUSTOMER_GATE_STATE.REJECTED;
+    if (!onboardingComplete) return CUSTOMER_GATE_STATE.INCOMPLETE;
+    if (approvalStatus === APPROVAL_STATUS.APPROVED) return CUSTOMER_GATE_STATE.NONE;
+    return CUSTOMER_GATE_STATE.REVIEW;
+}
 
 export const AGENCY_ONBOARDING_STEP_ROUTES = {
     1: "/customer/onboarding/agency/welcome",
     2: "/customer/onboarding/agency/business-profile",
     3: "/customer/onboarding/agency/upload-documents",
-    4: "/customer/onboarding/agency/compliance",
-    5: "/customer/onboarding/agency/activation",
+    4: "/customer/onboarding/agency/activation",
 };
 
 export const INDIVIDUAL_ONBOARDING_STEP_ROUTES = {
     1: "/customer/onboarding/individual/welcome",
     2: "/customer/onboarding/individual/personal-info",
     3: "/customer/onboarding/individual/medical-info",
-    4: "/customer/onboarding/individual/consent-forms",
-    5: "/customer/onboarding/individual/activation",
+    4: "/customer/onboarding/individual/activation",
 };
 
 /**
@@ -34,6 +53,15 @@ function resolveOnboardingRedirect(pathname, stepRoutes, onboardingStep, fallbac
 
     return null;
 }
+
+// TODO: [NEXT] Lock remaining customer marketplace routes using CustomerLockedPageOverlay.
+// CA-10 locked /customer/requests/new and /customer/subscription (canAccessMarketplace gate).
+// Still open (backend returns 403 on mutations but no designed lock screen on the page):
+//   - /customer/requests         (My Requests list)
+//   - /customer/find-therapists  (Browse & contact therapists)
+//   - /customer/bookings         (My Bookings)
+//   - /customer/disputes         (stems from bookings)
+//   - /customer/patients         (agency-only)
 
 /**
  * @param {string} pathname

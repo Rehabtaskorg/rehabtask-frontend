@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import OnboardingProgressBar from "@/components/therapist/OnboardingProgressBar";
 import ConfirmModal from "@/components/ui/ConfirmModal";
 import StripeIdleCard from "./StripeIdleCard";
+import { StripeBusinessStructureStep } from "./StripeBusinessStructureStep";
 import StripeEmbeddedForm from "./StripeEmbeddedForm";
 import StripeStatusCard from "./StripeStatusCard";
 import { useStripeOnboarding } from "./useStripeOnboarding";
@@ -43,7 +44,7 @@ export default function StripeOnboardingView() {
 
                 <header className="mb-8 text-center px-4">
                     <h1 className="text-text-main text-4xl font-black leading-tight tracking-[-0.033em] mb-2">
-                        Setup Payouts
+                        Payment Setup
                     </h1>
                     <p className="text-text-muted text-lg">
                         Connect your bank account to receive payments for your sessions
@@ -55,6 +56,10 @@ export default function StripeOnboardingView() {
 
                     {status === STRIPE_STATUS.IDLE && (
                         <StripeIdleCard onSetup={handleCreateAccount} onSkip={handleSkipForNow} />
+                    )}
+
+                    {status === STRIPE_STATUS.STRUCTURE && (
+                        <StripeBusinessStructureStep onConfirm={handleCreateAccount} onSkip={handleSkipForNow} showProductDescription />
                     )}
 
                     {status === STRIPE_STATUS.CREATING && <StripeStatusCard variant="creating" />}
@@ -96,10 +101,10 @@ export default function StripeOnboardingView() {
                     )}
                 </div>
 
-                {[STRIPE_STATUS.IDLE, STRIPE_STATUS.ERROR].includes(status) && (
+                {[STRIPE_STATUS.IDLE, STRIPE_STATUS.STRUCTURE, STRIPE_STATUS.ERROR].includes(status) && (
                     <div className="mt-6 flex justify-center">
                         <button
-                            onClick={() => router.push("/therapist/onboarding/compliance")}
+                            onClick={() => router.push("/therapist/onboarding/identity")}
                             className="flex items-center gap-2 text-text-muted hover:text-text-main transition-colors"
                         >
                             <MdArrowBack className="text-lg" />
@@ -116,7 +121,7 @@ export default function StripeOnboardingView() {
                         confirmSkipForNow();
                     }}
                     title="Continue without payouts?"
-                    message="You can review and submit your application now, then set up payouts later from your Earnings page. This won't delay your review, but you won't be able to receive payments until payouts are set up."
+                    message="You can review and submit your application now, then set up payouts later from Payment Settings. This won't delay your review, but you won't be able to receive payments until payouts are set up."
                     confirmLabel="Continue to Final Review"
                     cancelLabel="Go Back"
                 />

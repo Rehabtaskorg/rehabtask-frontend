@@ -10,7 +10,7 @@ import { usePatient, useUpdatePatient } from "@/hooks/usePatients";
 import LocationAutocomplete from "@/components/maps/LocationAutocomplete";
 import { formatShortDate } from "@/utils/dates";
 import { BOOKING_STATUS } from "@/lib/constants";
-import { validateCertificationPeriod } from "@/lib/validationSchema";
+import { validateCertificationPeriod } from "@/lib/validators/therapist.schema";
 
 const REQUEST_STATUS_CONFIG = {
     created:         { label: "Created",         color: "text-blue-500 bg-blue-50 " },
@@ -59,6 +59,7 @@ export default function PatientDrawer({ patientId, onClose }) {
         setEditData({
             fullName:            patient.fullName || "",
             dateOfBirth:         patient.dateOfBirth ? patient.dateOfBirth.split("T")[0] : "",
+            gender:              patient.gender || "",
             certificationStart:  patient.certificationStart ? patient.certificationStart.split("T")[0] : "",
             certificationEnd:    patient.certificationEnd ? patient.certificationEnd.split("T")[0] : "",
             email:               patient.email || "",
@@ -118,7 +119,8 @@ export default function PatientDrawer({ patientId, onClose }) {
         Object.assign(errs, validateCertificationPeriod(editData.certificationStart, editData.certificationEnd));
         if (editData.email?.trim() && !/\S+@\S+\.\S+/.test(editData.email.trim()))
             errs.email = "Please enter a valid email";
-        if (editData.phone?.trim() && !/^\+1\d{10}$/.test(editData.phone.trim()))
+        if (!editData.phone?.trim()) errs.phone = "Phone number is required";
+        else if (!/^\+1\d{10}$/.test(editData.phone.trim()))
             errs.phone = "Please enter a valid 10-digit US phone number";
         if (editData.zipCode?.trim() && !/^\d{5}(-\d{4})?$/.test(editData.zipCode.trim()))
             errs.zipCode = "Enter a valid US zip code (e.g. 90210)";
@@ -135,10 +137,11 @@ export default function PatientDrawer({ patientId, onClose }) {
                 data: {
                     fullName:            editData.fullName.trim(),
                     dateOfBirth:         editData.dateOfBirth || undefined,
+                    gender:              editData.gender || undefined,
                     certificationStart:  editData.certificationStart || undefined,
                     certificationEnd:    editData.certificationEnd || undefined,
                     email:               editData.email?.trim() || "",
-                    phone:        editData.phone?.trim() || "",
+                    phone:        editData.phone.trim(),
                     addressLine1: editData.addressLine1?.trim() || "",
                     city:         editData.city?.trim() || "",
                     state:        editData.state?.trim() || "",
@@ -281,6 +284,19 @@ export default function PatientDrawer({ patientId, onClose }) {
                                                     />
                                                     {editErrors.dateOfBirth && <p className="text-xs text-red-500 mt-1">{editErrors.dateOfBirth}</p>}
                                                 </div>
+                                                <div className="flex-1">
+                                                    <label className="block text-xs font-semibold text-text-muted  mb-1">Gender</label>
+                                                    <select
+                                                        value={editData.gender || ""}
+                                                        onChange={(e) => setEditData((d) => ({ ...d, gender: e.target.value }))}
+                                                        className={inputClass}
+                                                    >
+                                                        <option value="">Select gender</option>
+                                                        <option value="male">Male</option>
+                                                        <option value="female">Female</option>
+                                                        <option value="other">Other</option>
+                                                    </select>
+                                                </div>
                                             </div>
                                             <div className="flex gap-3">
                                                 <div className="flex-1">
@@ -349,7 +365,7 @@ export default function PatientDrawer({ patientId, onClose }) {
                                             </div>
                                             <div>
                                                 <label className="block text-xs font-semibold text-text-muted  mb-1">
-                                                    Phone <span className="text-text-muted/50 font-normal">(Optional)</span>
+                                                    Phone <span className="text-red-500">*</span>
                                                 </label>
                                                 <div className={`flex items-center rounded-lg border overflow-hidden ${editErrors.phone ? "border-red-400 " : "border-border-light "} bg-background-light `}>
                                                     <span className="px-3 py-2 text-sm text-text-muted  border-r border-border-light  select-none bg-slate-50  shrink-0">

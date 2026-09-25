@@ -11,6 +11,7 @@ export default function RequestFormFooter({
     canNext,
     submitting,
     isEditMode = false,
+    hideSubmit = false,
 }) {
     const router = useRouter();
 
@@ -51,7 +52,7 @@ export default function RequestFormFooter({
                             Next
                             <MdArrowForward className="text-base" />
                         </button>
-                    ) : (
+                    ) : !hideSubmit ? (
                         <button
                             onClick={onSubmit}
                             disabled={submitting}
@@ -85,7 +86,7 @@ export default function RequestFormFooter({
                                 submitLabel
                             )}
                         </button>
-                    )}
+                    ) : null}
                 </div>
             </div>
         </div>

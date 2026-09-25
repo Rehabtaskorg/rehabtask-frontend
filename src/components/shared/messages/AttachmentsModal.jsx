@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
-import { messagesApi } from "@/lib/messages.api";
+import { messagesApi } from "@/services/message.api";
 import { getDisplayName } from "@/utils/messages";
 import {
     MdClose, MdDownload, MdDescription, MdInsertDriveFile,

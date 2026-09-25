@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useAnalytics } from "@/hooks/useAnalytics";
-import { onboardingAPI } from "@/lib/onboarding.api";
-import useOnboardingStore from "@/store/onboardingStore";
+import { onboardingAPI } from "@/services/onboarding.api";
+import useOnboardingStore from "@/stores/onboardingStore";
 import { showToast } from "@/lib/toast";
 import { STRIPE_STATUS, AUTO_RETRY_DELAY_MS } from "./constants";
 
@@ -18,7 +18,7 @@ import { STRIPE_STATUS, AUTO_RETRY_DELAY_MS } from "./constants";
 export function useStripeOnboarding() {
     const router = useRouter();
     const { trackEvent } = useAnalytics();
-    const { markStepComplete, markStripeConnected } = useOnboardingStore();
+    const { markStepComplete, updatePayment } = useOnboardingStore();
 
     const [status, setStatus] = useState(STRIPE_STATUS.INITIALIZING);
     const [error, setError] = useState(null);
@@ -29,7 +29,7 @@ export function useStripeOnboarding() {
     const [hasAutoRetried, setHasAutoRetried] = useState(false);
 
     useEffect(() => {
-        trackEvent("onboarding_step_viewed", { step: 8, step_name: "stripe" });
+        trackEvent("onboarding_step_viewed", { step: 7, step_name: "stripe" });
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
@@ -41,20 +41,21 @@ export function useStripeOnboarding() {
                     setHasExistingAccount(true);
                     setStatus(STRIPE_STATUS.ONBOARDING);
                 } else {
-                    setStatus(STRIPE_STATUS.IDLE);
+                    setStatus(STRIPE_STATUS.STRUCTURE);
                 }
             } catch {
+                // TODO: [BUG] API failure should show ERROR with a retry CTA, not IDLE (renders marketing card). See docs/TODOs.md.
                 setStatus(STRIPE_STATUS.IDLE);
             }
         };
         checkExistingAccount();
     }, []);
 
-    const handleCreateAccount = async () => {
+    const handleCreateAccount = async (businessStructure, productDescription) => {
         setStatus(STRIPE_STATUS.CREATING);
         setError(null);
         try {
-            await onboardingAPI.createStripeAccount();
+            await onboardingAPI.createStripeAccount({ businessStructure, productDescription });
             setStatus(STRIPE_STATUS.ONBOARDING);
         } catch (err) {
             setError(err.response?.data?.message || "Failed to set up your payment account. Please try again.");
@@ -67,31 +68,35 @@ export function useStripeOnboarding() {
         setError(null);
         try {
             const res = await onboardingAPI.checkStripeStatus();
-            const { connected, detailsSubmitted, chargesEnabled, accountId } = res.data.data;
-            const isFullyComplete = connected && detailsSubmitted && chargesEnabled;
-            const isPendingVerification = connected && detailsSubmitted && !chargesEnabled;
+            const { connected, detailsSubmitted, onboardingComplete } = res.data.data;
+            const isFullyComplete = connected && onboardingComplete;
+            const isPendingVerification = connected && detailsSubmitted && !onboardingComplete;
 
-            if (isFullyComplete || isPendingVerification) {
-                if (isPendingVerification) {
-                    showToast.info("Your details have been submitted. We're verifying your account — this usually takes a few minutes.");
-                }
-                trackEvent("onboarding_step_completed", { step: 8, step_name: "stripe" });
-                markStepComplete(8);
-                if (accountId) markStripeConnected(accountId);
-                try {
-                    await onboardingAPI.advanceToFinalReview();
-                } catch { /* non-fatal — webhook covers this */ }
-                setStatus(STRIPE_STATUS.COMPLETE);
-                setTimeout(() => router.push("/therapist/onboarding/review"), 1500);
-            } else {
+            if (!isFullyComplete && !isPendingVerification) {
                 setStatus(STRIPE_STATUS.ONBOARDING);
                 setError("Your payout setup is incomplete. Please fill in all required fields to continue.");
+                return;
             }
+
+            if (isFullyComplete) {
+                updatePayment({ stripeConnected: true, onboardingComplete: true });
+            } else {
+                updatePayment({ stripeConnected: true, onboardingComplete: false });
+                showToast.info("Your details have been submitted. Stripe typically verifies accounts within 1–2 business days. We'll notify you when it's done.");
+            }
+
+            trackEvent("onboarding_step_completed", { step: 7, step_name: "stripe" });
+            markStepComplete(7);
+            try {
+                await onboardingAPI.advanceToFinalReview();
+            } catch { /* non-fatal — webhook covers this */ }
+            setStatus(STRIPE_STATUS.COMPLETE);
+            setTimeout(() => router.push("/therapist/onboarding/review"), 1500);
         } catch {
             setStatus(STRIPE_STATUS.ONBOARDING);
             setError("Could not verify your account status. Please try again or refresh the page.");
         }
-    }, [markStepComplete, markStripeConnected, router, trackEvent]);
+    }, [markStepComplete, updatePayment, router, trackEvent]);
 
     const handleLoadError = useCallback(() => {
         if (!hasAutoRetried) {
@@ -111,7 +116,7 @@ export function useStripeOnboarding() {
         setHasAutoRetried(false);
         setEmbeddedFormLoaded(false);
         setRetryKey((k) => k + 1);
-        setStatus(hasExistingAccount ? STRIPE_STATUS.ONBOARDING : STRIPE_STATUS.IDLE);
+        setStatus(hasExistingAccount ? STRIPE_STATUS.ONBOARDING : STRIPE_STATUS.STRUCTURE);
     };
 
     const confirmSkipForNow = async () => {

@@ -41,8 +41,8 @@ export default function Footer() {
 
                 <div className="pt-8 border-t border-gray-800 flex flex-col sm:flex-row items-center justify-between gap-4">
                     <div className="flex gap-6 text-xs">
-                        <Link href="#" className="hover:text-white transition-colors">Privacy Policy</Link>
-                        <Link href="#" className="hover:text-white transition-colors">Terms of Service</Link>
+                        <Link href="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link>
+                        <Link href="/terms" className="hover:text-white transition-colors">Terms of Service</Link>
                     </div>
                     <p className="text-xs">&copy; {new Date().getFullYear()} RehabTask Inc. All rights reserved.</p>
                 </div>

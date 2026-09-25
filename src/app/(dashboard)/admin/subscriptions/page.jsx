@@ -27,9 +27,10 @@ const SUB_STATUS_STYLES = {
 };
 
 const PLAN_STYLES = {
-    free:     'bg-slate-100  text-slate-700      ',
-    standard: 'bg-blue-100   text-blue-700     ',
-    premium:  'bg-purple-100 text-purple-700  ',
+    free:       'bg-slate-100  text-slate-700',
+    pro:        'bg-blue-100   text-blue-700',
+    enterprise: 'bg-purple-100 text-purple-700',
+    unlimited:  'bg-amber-100  text-amber-700',
 };
 
 
@@ -136,12 +137,12 @@ function SubscriptionSidePanel({ subscription, onClose, onCancel, loading, error
                         <dd className="font-medium text-text-main  capitalize">{subscription.planType}</dd>
                     </div>
                     <div className="flex justify-between gap-3">
-                        <dt className="text-text-muted ">Therapist Limit</dt>
-                        <dd className="font-medium text-text-main ">{subscription.therapistLimit >= 999999 ? 'Unlimited' : subscription.therapistLimit ?? '—'}</dd>
+                        <dt className="text-text-muted ">Visit Limit</dt>
+                        <dd className="font-medium text-text-main ">{subscription.visitLimit >= 999999 ? 'Unlimited' : subscription.visitLimit ?? '—'}</dd>
                     </div>
                     <div className="flex justify-between gap-3">
-                        <dt className="text-text-muted ">Request Limit</dt>
-                        <dd className="font-medium text-text-main ">{subscription.requestLimit >= 999999 ? 'Unlimited' : subscription.requestLimit ?? '—'}</dd>
+                        <dt className="text-text-muted ">Job Posting Limit</dt>
+                        <dd className="font-medium text-text-main ">{subscription.jobPostingLimit >= 999999 ? 'Unlimited' : subscription.jobPostingLimit ?? '—'}</dd>
                     </div>
                     {subscription.currentPeriodStart && (
                         <div className="flex justify-between gap-3">
@@ -264,13 +265,14 @@ function CustomerSubscriptionsTab() {
     const mutating = cancelSub.isPending;
 
     const stats = useMemo(() => {
-        if (!statsData) return { total: 0, active: 0, free: 0, standard: 0, premium: 0 };
+        if (!statsData) return { total: 0, active: 0, free: 0, pro: 0, enterprise: 0, unlimited: 0 };
         return {
-            total: statsData.total ?? 0,
-            active: statsData.active ?? 0,
-            free: statsData.byPlan?.free ?? 0,
-            standard: statsData.byPlan?.standard ?? 0,
-            premium: statsData.byPlan?.premium ?? 0,
+            total:      statsData.total ?? 0,
+            active:     statsData.active ?? 0,
+            free:       statsData.byPlan?.free ?? 0,
+            pro:        statsData.byPlan?.pro ?? 0,
+            enterprise: statsData.byPlan?.enterprise ?? 0,
+            unlimited:  statsData.byPlan?.unlimited ?? 0,
         };
     }, [statsData]);
 
@@ -301,12 +303,13 @@ function CustomerSubscriptionsTab() {
         <div className="flex min-h-0 relative">
             <div className={`flex-1 min-w-0 transition-all duration-300 ${selected ? 'lg:mr-95' : ''}`}>
                 {/* Stats */}
-                <div className="grid grid-cols-2 md:grid-cols-5 gap-3 md:gap-4 mb-6">
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 md:gap-4 mb-6">
                     <StatCard icon={MdCardMembership} label="Total" value={stats.total} iconBg="bg-primary" loading={statsLoading} />
                     <StatCard icon={MdCheckCircle} label="Active" value={stats.active} iconBg="bg-emerald-500" loading={statsLoading} />
                     <StatCard icon={MdTrendingUp} label="Free Plan" value={stats.free} iconBg="bg-slate-500" loading={statsLoading} />
-                    <StatCard icon={MdTrendingUp} label="Standard Plan" value={stats.standard} iconBg="bg-blue-500" loading={statsLoading} />
-                    <StatCard icon={MdTrendingUp} label="Premium Plan" value={stats.premium} iconBg="bg-purple-500" loading={statsLoading} />
+                    <StatCard icon={MdTrendingUp} label="Pro Plan" value={stats.pro} iconBg="bg-blue-500" loading={statsLoading} />
+                    <StatCard icon={MdTrendingUp} label="Enterprise Plan" value={stats.enterprise} iconBg="bg-purple-500" loading={statsLoading} />
+                    <StatCard icon={MdTrendingUp} label="Unlimited Plan" value={stats.unlimited} iconBg="bg-amber-500" loading={statsLoading} />
                 </div>
 
                 {/* Filters */}
@@ -332,8 +335,9 @@ function CustomerSubscriptionsTab() {
                         <select value={planFilter} onChange={e => { setPlanFilter(e.target.value); setPage(1); setSelected(null); }} className={inputCls}>
                             <option value="">All Plans</option>
                             <option value="free">Free</option>
-                            <option value="standard">Standard</option>
-                            <option value="premium">Premium</option>
+                            <option value="pro">Pro</option>
+                            <option value="enterprise">Enterprise</option>
+                            <option value="unlimited">Unlimited</option>
                         </select>
                     </div>
                     <div className="flex flex-wrap gap-3 items-center">

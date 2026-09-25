@@ -3,6 +3,8 @@
 import { MdPayments, MdLock, MdCheckCircle, MdError, MdRefresh, MdArrowForward } from "react-icons/md";
 import { formatCurrency } from "@/utils/messages";
 import { resolveVisitPlan, computeTotalVisits } from "@/lib/visitPlan";
+import { BOOKING_STATUS } from "@/lib/constants";
+import { PAYABLE_BOOKING_STATUSES, isPendingPaymentExpired } from "@/lib/bookingPayment";
 
 // Labels are role-aware. Therapists see accounting terms (they map to the
 // earnings dashboard); customers see plain-language status of their money.
@@ -35,7 +37,7 @@ const PAYMENT_STATUS_CONFIG = {
         icon: MdRefresh,
         color: "text-slate-600 ",
         bg: "bg-slate-50 ",
-        label: { therapist: "Refunded", customer: "Refunded" },
+        label: { therapist: "Credited", customer: "Credited" },
     },
     failed: {
         icon: MdError,
@@ -51,7 +53,6 @@ export default function PaymentSummaryCard({ booking, role, onAction }) {
     const perSessionRate = parseFloat(booking.rate);
     const payment = booking.payment;
     const sessions = booking.sessions || [];
-    const session = sessions[0];
     // Effective plan: booking (authoritative) > offer override > request.
     // Legacy bookings have NULL override columns and fall through to request values.
     const plan = resolveVisitPlan({ booking, offer: booking.offer, request: booking.offer?.request });
@@ -62,21 +63,21 @@ export default function PaymentSummaryCard({ booking, role, onAction }) {
     const isCustomer = role === "customer";
     const isTherapist = role === "therapist";
 
-    const isFinalized = booking.status === "finalized";
+    const isFinalized = booking.status === BOOKING_STATUS.FINALIZED;
     const fullPlatformFee = payment ? parseFloat(payment.platformFee) : null;
     const fullPayout = payment ? parseFloat(payment.therapistPayout) : null;
     const releasedAmount = payment?.releasedAmount ? parseFloat(payment.releasedAmount) : null;
     const isPartialRelease = payment?.status === "partially_released";
 
-    
+
     const missedOrCancelledCount = sessions.filter(s => s.status === "missed" || s.status === "cancelled").length;
     const attemptedSessions = sessions.filter(s => s.status === "attempted");
     const attemptedRevenue = attemptedSessions.reduce(
         (sum, s) => sum + (s.attemptedRateCharged != null ? parseFloat(s.attemptedRateCharged) : 0),
         0
     );
-    
-    
+
+
     const perSessionValue = totalSessions > 0 ? totalAmount / totalSessions : 0;
     const lossFromMissedCancelled = missedOrCancelledCount * perSessionValue;
     const lossFromAttempted = attemptedSessions.reduce(
@@ -121,7 +122,12 @@ export default function PaymentSummaryCard({ booking, role, onAction }) {
     let ctaAction = null;
     let ctaColor = "bg-primary hover:bg-primary/90";
 
-    if (isCustomer && ["pending", "accepted"].includes(booking.status) && (!payment || payment.status === "failed")) {
+    if (
+        isCustomer &&
+        PAYABLE_BOOKING_STATUSES.includes(booking.status) &&
+        !isPendingPaymentExpired(booking) &&
+        (!payment || payment.status === "failed")
+    ) {
         ctaLabel = payment?.status === "failed" ? "Retry Payment" : "Pay Now";
         ctaAction = "proceed_payment";
         if (payment?.status === "failed") ctaColor = "bg-red-600 hover:bg-red-700";

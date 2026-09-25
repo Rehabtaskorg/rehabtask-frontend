@@ -2,7 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { loadStripe } from "@stripe/stripe-js";
-import { subscriptionApi } from "@/lib/subscription.api";
+import { subscriptionApi } from "@/services/subscription.api";
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY);
 
@@ -17,7 +17,7 @@ export function useSubscription() {
 
     return {
         subscription: data?.subscription ?? null,
-        usage: data?.usage ?? { activeRequests: 0, activeTherapists: 0 },
+        usage: data?.usage ?? { sessionsUsed: 0, activeJobPostings: 0 },
         loading: isLoading,
         error,
         refetch,
@@ -26,8 +26,8 @@ export function useSubscription() {
 
 export function useCreateCheckout() {
     const mutation = useMutation({
-        mutationFn: async ({ planType, billingInterval }) => {
-            const res = await subscriptionApi.createCheckout({ planType, billingInterval });
+        mutationFn: async ({ planType }) => {
+            const res = await subscriptionApi.createCheckout({ planType });
             return res.data.data;
         },
         onSuccess: (data) => {
@@ -93,14 +93,13 @@ export function useResumeSubscription() {
  * the challenge client-side without needing the page to pass a payment method.
  *
  * @param {string} opts.planType
- * @param {string} opts.billingInterval
  */
 export function useUpgradeSubscription() {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: async ({ planType, billingInterval }) => {
-            const res = await subscriptionApi.upgrade({ planType, billingInterval });
+        mutationFn: async ({ planType }) => {
+            const res = await subscriptionApi.upgrade({ planType });
             const result = res.data.data;
 
             if (result.status !== "requires_action") return result;
@@ -128,8 +127,8 @@ export function useDowngradeSubscription() {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: async ({ planType, billingInterval }) => {
-            const res = await subscriptionApi.downgrade({ planType, billingInterval });
+        mutationFn: async ({ planType }) => {
+            const res = await subscriptionApi.downgrade({ planType });
             return res.data.data;
         },
         onSuccess: () => {

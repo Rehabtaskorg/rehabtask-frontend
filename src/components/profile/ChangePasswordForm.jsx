@@ -6,7 +6,7 @@ import { MdLock } from "react-icons/md";
 import PasswordInput from "@/components/ui/PasswordInput";
 import Button from "@/components/ui/Button";
 import Alert from "@/components/ui/Alert";
-import { changePasswordSchema } from "@/lib/validationSchema";
+import { changePasswordSchema } from "@/lib/validators/therapist.schema";
 import { useChangePassword } from "@/hooks/useChangePassword";
 
 const ChangePasswordForm = () => {

@@ -1,52 +1,64 @@
-import { supabase } from "@/lib/supabase";
-import { AUTH_REDIRECT_STORAGE_KEY } from "@/lib/constants";
+import { GoogleAuthProvider, signInWithPopup, signInWithRedirect } from "firebase/auth";
+import { useRouter } from "next/navigation";
+import { getFirebaseAuth } from "@/lib/firebase";
+import { authAPi } from "@/services/auth.api";
+import { logger } from "@/lib/logger";
+import { AUTH_REDIRECT_PARAM, ROLE_DASHBOARDS } from "@/lib/constants";
+import { stashAuthRedirect, resolveAuthRedirectTarget } from "@/lib/redirect";
 
 /**
  * @param {string | null} [redirectTo] - encoded `trigger:entityId` redirect descriptor to
- * resume at after the OAuth round trip; stashed in sessionStorage since query params don't
- * survive the provider redirect cycle, and resolved to a dashboard path by the oauth
- * callback/onboarding pages once the user's role is known.
+ * resume at after the OAuth round trip; stashed in localStorage (via stashAuthRedirect) so
+ * it survives the provider redirect cycle on mobile, and resolved to a dashboard path by the
+ * oauth callback/onboarding pages once the user's role is known.
  */
 export const useGoogleAuth = (redirectTo = null) => {
+    const router = useRouter();
+
     const initiateGoogleLogin = async () => {
-        if (!supabase) {
-            console.error("Supabase client not initialized");
-            return { success: false, error: "Authentication service unavailable" };
-        }
-
         try {
-            if (redirectTo) {
-                sessionStorage.setItem(AUTH_REDIRECT_STORAGE_KEY, redirectTo);
-            } else {
-                sessionStorage.removeItem(AUTH_REDIRECT_STORAGE_KEY);
-            }
+            stashAuthRedirect(redirectTo);
 
-            const { data, error } = await supabase.auth.signInWithOAuth({
-                provider: "google",
-                options: {
-                    redirectTo: `${window.location.origin}/oauth/callback`,
-                    queryParams: {
-                        access_type: "offline",
-                        prompt: "select_account",
-                    }
+            const auth = getFirebaseAuth();
+            const provider = new GoogleAuthProvider();
+            provider.setCustomParameters({ prompt: "select_account" });
+
+            let firebaseUser;
+
+            try {
+                const result = await signInWithPopup(auth, provider);
+                firebaseUser = result.user;
+            } catch (popupError) {
+                if (popupError.code === "auth/popup-closed-by-user") {
+                    return { success: false, error: "Sign-in was cancelled." };
                 }
-            });
-
-            if (error) {
-                console.error("Google OAuth error:", error);
-                return { success: false, error: error.message };
+                if (popupError.code === "auth/popup-blocked") {
+                    await signInWithRedirect(auth, provider);
+                    return { success: true, redirecting: true };
+                }
+                throw popupError;
             }
 
-            // The redirect happens automatically, no need to return anything
-            return { success: true, data };
+            const idToken = await firebaseUser.getIdToken(true);
+            const response = await authAPi.processOAuth(idToken, firebaseUser.refreshToken);
+            const { user } = response.data.data;
+
+            if (user.needsOnboarding) {
+                const onboardingTarget = redirectTo
+                    ? `/oauth/onboarding?provider=google&${AUTH_REDIRECT_PARAM}=${encodeURIComponent(redirectTo)}`
+                    : "/oauth/onboarding?provider=google";
+                router.replace(onboardingTarget);
+                return { success: true };
+            }
+
+            const target = resolveAuthRedirectTarget(redirectTo, user.role);
+            router.replace(target ?? ROLE_DASHBOARDS[user.role] ?? "/login");
+            return { success: true };
         } catch (error) {
-            console.error("Google OAuth initiation failed:", error);
-            return {
-                success: false,
-                error: "Failed to initiate Google login. Please try again."
-            };
+            logger.error("[useGoogleAuth] Google sign-in failed", error);
+            return { success: false, error: "Failed to sign in with Google. Please try again." };
         }
     };
 
     return { initiateGoogleLogin };
-}
+};

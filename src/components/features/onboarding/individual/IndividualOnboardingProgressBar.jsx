@@ -2,14 +2,13 @@
 
 import { useEffect, useState } from "react";
 import { useIndividualOnboardingSync } from "@/hooks/useIndividualOnboardingSync";
-import useIndividualOnboardingStore from "@/store/individualOnboardingStore";
+import useIndividualOnboardingStore from "@/stores/individualOnboardingStore";
 
 const STEPS = [
     { number: 1, label: "Welcome" },
     { number: 2, label: "Personal Information" },
     { number: 3, label: "Medical Information" },
-    { number: 4, label: "Consent Forms" },
-    { number: 5, label: "Activation" },
+    { number: 4, label: "Submit" },
 ];
 
 /**
@@ -58,7 +57,7 @@ export function IndividualOnboardingProgressBar() {
 
             <p className="text-text-muted text-sm mt-3 font-normal leading-normal">
                 {progress === 100
-                    ? "✓ Profile complete — your account is now active"
+                    ? "✓ Profile complete — awaiting review"
                     : STEPS.find((s) => s.number === currentStep)?.label || "Complete your profile to get started"}
             </p>
         </div>

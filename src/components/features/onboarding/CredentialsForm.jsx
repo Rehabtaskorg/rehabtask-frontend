@@ -8,9 +8,9 @@ import { useDropzone } from "react-dropzone";
 import { z } from "zod";
 import { MdInfoOutline, MdClose } from "react-icons/md";
 
-import useOnboardingStore from "@/store/onboardingStore";
-import { credentialsSchema } from "@/lib/onboardingValidation";
-import { onboardingAPI } from "@/lib/onboarding.api";
+import useOnboardingStore from "@/stores/onboardingStore";
+import { credentialsSchema } from "@/lib/validators/onboarding.schema";
+import { onboardingAPI } from "@/services/onboarding.api";
 import OnboardingProgressBar from "@/components/therapist/OnboardingProgressBar";
 import { US_STATES } from "@/lib/constants/credentials";
 import { useAuth } from "@/hooks/useAuth";
@@ -40,6 +40,8 @@ export function CredentialsForm() {
         updateCredentials,
         addLicenseDocument,
         removeLicenseDocument,
+        setW9Document,
+        clearW9Document,
         markStepComplete,
         setCurrentStep,
     } = useOnboardingStore();
@@ -47,6 +49,7 @@ export function CredentialsForm() {
     const [loading, setLoading] = useState(false);
     const [uploadError, setUploadError] = useState("");
     const [uploading, setUploading] = useState(false);
+    const [w9Uploading, setW9Uploading] = useState(false);
 
     // Additional license states — managed outside RHF as an array of codes
     const [additionalStates, setAdditionalStates] = useState(
@@ -55,6 +58,7 @@ export function CredentialsForm() {
     const [statePickerValue, setStatePickerValue] = useState("");
 
     const uploadedDocs = credentials.licenseDocuments;
+    const w9Doc = credentials.w9Document;
 
     const {
         register,
@@ -67,27 +71,17 @@ export function CredentialsForm() {
             credentialsSchema
                 .omit({ licenseDocuments: true })
                 .extend({
-                    ratePerVisit: z.coerce
-                        .number()
-                        .min(0)
-                        .max(10000)
-                        .optional()
-                        .nullable()
-                        .transform((val) => (val === 0 ? null : val)),
-                    attemptedVisitRate: z.preprocess(
+                    ratePerVisit: z.coerce.number({ required_error: "Rate per visit is required", invalid_type_error: "Rate per visit is required" }).min(1, "Rate per visit is required").max(10000, "Rate must be $10,000 or less"),
+                    attemptedVisitRate: z.coerce.number({ required_error: "Attempted visit rate is required", invalid_type_error: "Attempted visit rate is required" }).min(0, "Must be $0 or greater").max(10000, "Must be $10,000 or less"),
+                    evaluationRate: z.coerce.number({ required_error: "Evaluation rate is required", invalid_type_error: "Evaluation rate is required" }).min(1, "Evaluation rate is required").max(10000, "Rate must be $10,000 or less"),
+                    travelFee: z.preprocess(
                         (val) => (val === "" || val === undefined ? null : val),
-                        z.coerce.number().min(0).max(10000).nullable()
+                        z.coerce.number().min(0).max(500).nullable()
                     ),
                 })
                 .refine(
-                    (data) => {
-                        if (data.attemptedVisitRate == null || data.ratePerVisit == null) return true;
-                        return data.attemptedVisitRate <= data.ratePerVisit;
-                    },
-                    {
-                        message: "Cannot be greater than your session rate",
-                        path: ["attemptedVisitRate"],
-                    }
+                    (data) => data.attemptedVisitRate <= data.ratePerVisit,
+                    { message: "Cannot be greater than your session rate", path: ["attemptedVisitRate"] }
                 )
         ),
         defaultValues: {
@@ -96,6 +90,8 @@ export function CredentialsForm() {
             npiNumber: credentials.npiNumber || "",
             ratePerVisit: credentials.ratePerVisit?.toString() || "",
             attemptedVisitRate: credentials.attemptedVisitRate?.toString() || "",
+            evaluationRate: credentials.evaluationRate?.toString() || "",
+            travelFee: credentials.travelFee?.toString() || "",
         },
     });
 
@@ -116,6 +112,8 @@ export function CredentialsForm() {
                 npiNumber: creds.npiNumber || "",
                 ratePerVisit: creds.ratePerVisit?.toString() || "",
                 attemptedVisitRate: creds.attemptedVisitRate?.toString() || "",
+                evaluationRate: creds.evaluationRate?.toString() || "",
+                travelFee: creds.travelFee?.toString() || "",
             });
             setAdditionalStates(creds.additionalLicenseStates ?? []);
         });
@@ -133,6 +131,59 @@ export function CredentialsForm() {
         setAdditionalStates((prev) => prev.filter((s) => s !== code));
     };
 
+    const handleW9Drop = useCallback(
+        async (acceptedFiles) => {
+            const file = acceptedFiles[0];
+            if (!file) return;
+            setUploadError("");
+
+            if (file.size > 25 * 1024 * 1024) {
+                setUploadError(`${file.name} is too large. Maximum size is 25MB.`);
+                return;
+            }
+            const allowedTypes = ["application/pdf", "image/jpeg", "image/jpg", "image/png"];
+            if (!allowedTypes.includes(file.type)) {
+                setUploadError(`${file.name} has invalid type. Only PDF, JPEG, and PNG are allowed.`);
+                return;
+            }
+            if (!user) {
+                setUploadError("User not authenticated. Please log in again.");
+                return;
+            }
+
+            setW9Uploading(true);
+            try {
+                const result = await onboardingAPI.uploadDocument(file, "compliance", "w9");
+                setW9Document({
+                    id: result.id,
+                    path: result.path,
+                    fileName: result.fileName,
+                    fileSize: result.fileSize,
+                    documentType: result.documentType,
+                    mimeType: result.mimeType,
+                });
+            } catch (err) {
+                setUploadError(`Failed to upload ${file.name}. ${err.message}`);
+            } finally {
+                setW9Uploading(false);
+            }
+        },
+        [user, setW9Document]
+    );
+
+    const handleRemoveW9 = async () => {
+        setUploadError("");
+        if (w9Doc?.id) {
+            try {
+                await onboardingAPI.deleteDocument(w9Doc.id);
+            } catch {
+                setUploadError(`Could not delete ${w9Doc.fileName} from storage. Please try again.`);
+                return;
+            }
+        }
+        clearW9Document();
+    };
+
     const onSubmit = async (data) => {
         setLoading(true);
         setUploadError("");
@@ -148,12 +199,10 @@ export function CredentialsForm() {
                 licenseState: data.licenseState,
                 npiNumber: data.npiNumber || null,
                 additionalLicenseStates: additionalStates,
-                ...(data.ratePerVisit != null && data.ratePerVisit !== "" && {
-                    ratePerVisit: data.ratePerVisit,
-                }),
-                ...(data.attemptedVisitRate != null && {
-                    attemptedVisitRate: data.attemptedVisitRate,
-                }),
+                ratePerVisit: data.ratePerVisit,
+                attemptedVisitRate: data.attemptedVisitRate,
+                evaluationRate: data.evaluationRate,
+                ...(data.travelFee != null && { travelFee: data.travelFee }),
                 licenseDocuments: uploadedDocs.map((doc) => ({
                     path: doc.path,
                     fileName: doc.fileName,
@@ -161,6 +210,15 @@ export function CredentialsForm() {
                     documentType: doc.documentType,
                     mimeType: doc.mimeType,
                 })),
+                ...(w9Doc && {
+                    w9Document: {
+                        path: w9Doc.path,
+                        fileName: w9Doc.fileName,
+                        fileSize: w9Doc.fileSize,
+                        documentType: w9Doc.documentType,
+                        mimeType: w9Doc.mimeType,
+                    },
+                }),
             };
 
             await onboardingAPI.saveCredentials(payload);
@@ -261,6 +319,18 @@ export function CredentialsForm() {
         disabled: uploadedDocs.length >= 5 || uploading || authLoading,
     });
 
+    const { getRootProps: getW9RootProps, getInputProps: getW9InputProps, isDragActive: isW9DragActive } = useDropzone({
+        onDrop: handleW9Drop,
+        onDropRejected: () => setUploadError("Invalid file type. Only PDF, JPEG, and PNG files are allowed."),
+        accept: {
+            "application/pdf": [".pdf"],
+            "image/*": [".jpeg", ".jpg", ".png"],
+        },
+        multiple: false,
+        maxFiles: 1,
+        disabled: !!w9Doc || w9Uploading || authLoading,
+    });
+
     const handleRemoveDocument = async (index) => {
         setUploadError("");
         const doc = uploadedDocs[index];
@@ -283,11 +353,10 @@ export function CredentialsForm() {
 
                 <header className="mb-8 px-4">
                     <h1 className="text-text-main text-[28px] font-bold leading-tight mb-2">
-                        Verify Your Professional Status
+                        Professional Credentials
                     </h1>
                     <p className="text-text-muted text-base font-normal leading-normal">
-                        To ensure patient safety, we verify all licenses with state boards. This
-                        process usually takes 24-48 hours.
+                        Add your license details. We verify your credentials to ensure patient safety.
                     </p>
                 </header>
 
@@ -414,8 +483,7 @@ export function CredentialsForm() {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="flex flex-col gap-2">
                                 <label className="text-text-main text-sm font-semibold">
-                                    Rate per Visit{" "}
-                                    <span className="text-text-muted font-normal">(optional)</span>
+                                    Rate per Visit <span className="text-red-500">*</span>
                                 </label>
                                 <div className="relative">
                                     <span className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted text-sm pointer-events-none">
@@ -431,6 +499,7 @@ export function CredentialsForm() {
                                         className="w-full pl-8 pr-4 py-3 h-12 rounded-lg border border-border-light bg-input-light text-text-main focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
                                     />
                                 </div>
+                                {errors.ratePerVisit && <p className="text-red-500 text-sm">{errors.ratePerVisit.message}</p>}
                                 <p className="text-xs text-text-muted">
                                     Your standard rate per session. This will pre-fill your offers and show on your profile. You can adjust per offer.
                                 </p>
@@ -438,8 +507,7 @@ export function CredentialsForm() {
 
                             <div className="flex flex-col gap-2">
                                 <label className="text-text-main text-sm font-semibold">
-                                    Attempted Visit Rate{" "}
-                                    <span className="text-text-muted font-normal">(optional)</span>
+                                    Attempted Visit Rate <span className="text-red-500">*</span>
                                 </label>
                                 <div className="relative">
                                     <span className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted text-sm pointer-events-none">
@@ -459,8 +527,52 @@ export function CredentialsForm() {
                                     <p className="text-red-500 text-sm">{errors.attemptedVisitRate.message}</p>
                                 )}
                                 <p className="text-xs text-text-muted">
-                                    Charged when you arrive but the patient isn&apos;t home. Must be less than or equal to your session rate. Leave blank if you won&apos;t charge for no-shows.
+                                    Charged when you arrive but the patient isn&apos;t home. Enter $0 if you don&apos;t charge for no-shows. Must be less than or equal to your session rate.
                                 </p>
+                            </div>
+                        </div>
+
+                        {/* Section 4b — Evaluation Rate + Travel Fee */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="flex flex-col gap-2">
+                                <label className="text-text-main text-sm font-semibold">
+                                    Evaluation Rate <span className="text-red-500">*</span>
+                                </label>
+                                <div className="relative">
+                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted text-sm pointer-events-none">$</span>
+                                    <input
+                                        type="number"
+                                        min="0"
+                                        max="10000"
+                                        step="0.01"
+                                        {...register("evaluationRate")}
+                                        placeholder="120.00"
+                                        className="w-full pl-8 pr-4 py-3 h-12 rounded-lg border border-border-light bg-input-light text-text-main focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
+                                    />
+                                </div>
+                                <p className="text-xs text-text-muted">Your rate for initial evaluations. Leave blank if same as session rate.</p>
+                                {errors.evaluationRate && <p className="text-red-500 text-sm">{errors.evaluationRate.message}</p>}
+                            </div>
+
+                            <div className="flex flex-col gap-2">
+                                <label className="text-text-main text-sm font-semibold">
+                                    Travel Fee{" "}
+                                    <span className="text-text-muted font-normal">(optional)</span>
+                                </label>
+                                <div className="relative">
+                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted text-sm pointer-events-none">$</span>
+                                    <input
+                                        type="number"
+                                        min="0"
+                                        max="500"
+                                        step="0.01"
+                                        {...register("travelFee")}
+                                        placeholder="15.00"
+                                        className="w-full pl-8 pr-4 py-3 h-12 rounded-lg border border-border-light bg-input-light text-text-main focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
+                                    />
+                                </div>
+                                <p className="text-xs text-text-muted">Additional charge per visit for travel. Max $500. Leave blank if you don&apos;t charge for travel.</p>
+                                {errors.travelFee && <p className="text-red-500 text-sm">{errors.travelFee.message}</p>}
                             </div>
                         </div>
 
@@ -542,6 +654,71 @@ export function CredentialsForm() {
                             )}
                         </div>
 
+                        {/* Section 6 — W-9 Upload */}
+                        <div className="flex flex-col gap-2 pt-2">
+                            <label className="text-text-main text-sm font-semibold">
+                                W-9 Tax Form{" "}
+                                <span className="text-text-muted font-normal">(optional)</span>
+                            </label>
+                            <p className="text-xs text-text-muted">
+                                Required for payment processing. You can upload it now or provide it later.{" "}
+                                <a
+                                    href="https://www.irs.gov/pub/irs-pdf/fw9.pdf"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-primary underline"
+                                >
+                                    Download blank W-9
+                                </a>
+                            </p>
+
+                            {w9Doc ? (
+                                <div className="flex items-center justify-between bg-muted-light p-3 rounded-lg border border-border-light">
+                                    <div className="flex items-center gap-3">
+                                        <svg className="w-5 h-5 text-primary shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                        </svg>
+                                        <span className="text-text-main text-sm truncate">{w9Doc.fileName}</span>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={handleRemoveW9}
+                                        className="text-red-500 hover:text-red-600 font-semibold text-sm shrink-0 ml-4"
+                                    >
+                                        Remove
+                                    </button>
+                                </div>
+                            ) : (
+                                <div
+                                    {...getW9RootProps()}
+                                    className={`border-2 border-dashed border-border-light rounded-xl p-8 flex flex-col items-center justify-center bg-muted-light transition-colors ${w9Uploading
+                                            ? "opacity-50 cursor-not-allowed"
+                                            : "hover:bg-primary/5 hover:border-primary cursor-pointer group"
+                                        }`}
+                                >
+                                    <input {...getW9InputProps()} />
+                                    {w9Uploading ? (
+                                        <div className="flex flex-col items-center gap-3">
+                                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+                                            <p className="text-text-main text-sm font-medium">Uploading W-9...</p>
+                                        </div>
+                                    ) : (
+                                        <>
+                                            <div className="size-10 rounded-full bg-primary/10 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                                                <svg className="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                                </svg>
+                                            </div>
+                                            <p className="text-text-main text-sm font-medium text-center">
+                                                {isW9DragActive ? "Drop W-9 here..." : "Click to upload or drag and drop"}
+                                            </p>
+                                            <p className="text-text-muted text-xs mt-1 text-center">PDF, JPG or PNG (max. 25MB)</p>
+                                        </>
+                                    )}
+                                </div>
+                            )}
+                        </div>
+
                         {/* Footer */}
                         <div className="flex items-center justify-between pt-6 border-t border-border-light">
                             <button
@@ -560,7 +737,7 @@ export function CredentialsForm() {
                                 disabled={loading || uploading}
                                 className="bg-primary text-white px-8 py-3 rounded-lg font-bold hover:brightness-95 transition-all shadow-md shadow-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                                {loading ? "Saving..." : "Continue to Availability"}
+                                {loading ? "Saving..." : "Save & Continue"}
                             </button>
                         </div>
                     </div>

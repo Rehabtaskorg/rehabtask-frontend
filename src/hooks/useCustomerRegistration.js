@@ -1,12 +1,14 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { usePostHog } from "posthog-js/react";
-import { authAPi } from "@/lib/auth.api";
+import { authAPi } from "@/services/auth.api";
 import { USER_ROLES, CUSTOMER_TYPES } from "@/lib/constants";
+import { stashAuthRedirect } from "@/lib/redirect";
 
 /**
  * Handles customer registration form submission and signup analytics.
  *
+ * @param {string | null} [redirectTo] - encoded `trigger:entityId` descriptor to resume after verification
  * @returns {{
  *   registerCustomer: (formData: object) => Promise<{ success: boolean }>,
  *   isSubmitting: boolean,
@@ -15,7 +17,7 @@ import { USER_ROLES, CUSTOMER_TYPES } from "@/lib/constants";
  *   clearMessages: () => void,
  * }}
  */
-export const useCustomerRegistration = () => {
+export const useCustomerRegistration = (redirectTo = null) => {
     const router = useRouter();
     const posthog = usePostHog();
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -34,6 +36,7 @@ export const useCustomerRegistration = () => {
                 fullName: formData.fullName,
                 phone: formData.phone,
                 customerType: formData.customerType,
+                smsOptIn: formData.smsOptIn ?? false,
                 agencyName: formData.customerType === CUSTOMER_TYPES.AGENCY
                     ? formData.agencyName
                     : undefined,
@@ -47,8 +50,13 @@ export const useCustomerRegistration = () => {
                 customer_type: formData.customerType,
             });
 
+            stashAuthRedirect(redirectTo);
+
             setTimeout(() => {
-                router.push(`/verify-email?email=${encodeURIComponent(formData.email)}`);
+                const verifyUrl = new URL("/verify-email", window.location.origin);
+                verifyUrl.searchParams.set("email", formData.email);
+                if (redirectTo) verifyUrl.searchParams.set("redirect", redirectTo);
+                router.push(verifyUrl.pathname + verifyUrl.search);
             }, 1500);
 
             return { success: true, data: response.data };
