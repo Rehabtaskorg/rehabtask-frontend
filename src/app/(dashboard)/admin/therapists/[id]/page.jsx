@@ -1,5 +1,6 @@
-'use client';
+import { AdminTherapistDetail } from '@/components/features/admin/therapists/AdminTherapistDetail';
 
+<<<<<<< HEAD
 import { useState } from 'react';
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { useParams } from 'next/navigation';
@@ -428,4 +429,10 @@ export default function AdminTherapistDetailPage() {
 
         </div>
     );
+=======
+export const metadata = { title: 'Therapist Details' };
+
+export default function AdminTherapistDetailPage() {
+    return <AdminTherapistDetail />;
+>>>>>>> judy/2fa-implement
 }

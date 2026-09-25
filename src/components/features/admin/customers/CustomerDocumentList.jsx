@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { adminCustomersApi } from "@/services/admin.api";
+import { DocumentReviewFlags } from "@/components/features/admin/DocumentReviewFlags";
 import { formatShortDate } from "@/utils/dates";
 import { showToast } from "@/lib/toast";
 
@@ -20,9 +21,9 @@ function formatFileSize(bytes) {
 /**
  * A single document row. Fetches a signed URL on click and opens it in a new tab.
  *
- * @param {{ doc: object, customerUserId: string }} props
+ * @param {{ doc: object, customerUserId: string, reviewStartedAt?: string|null }} props
  */
-function DocumentRow({ doc, customerUserId }) {
+function DocumentRow({ doc, customerUserId, reviewStartedAt }) {
     const [loading, setLoading] = useState(false);
 
     async function handleOpen() {
@@ -48,6 +49,13 @@ function DocumentRow({ doc, customerUserId }) {
                 <p className="text-xs text-text-muted mt-0.5 capitalize">
                     {doc.documentType?.replace(/_/g, " ")} · {formatFileSize(doc.fileSize)} · {formatShortDate(doc.uploadedAt)}
                 </p>
+                <div className="mt-1">
+                    <DocumentReviewFlags
+                        uploadedAt={doc.uploadedAt}
+                        reviewStartedAt={reviewStartedAt}
+                        supersedesId={doc.supersedesId}
+                    />
+                </div>
             </div>
             <button
                 onClick={handleOpen}
@@ -63,9 +71,9 @@ function DocumentRow({ doc, customerUserId }) {
 /**
  * List of customer license/compliance documents with signed-URL viewing.
  *
- * @param {{ documents: object[], customerUserId: string }} props
+ * @param {{ documents: object[], customerUserId: string, reviewStartedAt?: string|null }} props
  */
-export function CustomerDocumentList({ documents = [], customerUserId }) {
+export function CustomerDocumentList({ documents = [], customerUserId, reviewStartedAt }) {
     if (documents.length === 0) {
         return <p className="text-sm text-text-muted py-4">No documents uploaded.</p>;
     }
@@ -73,7 +81,12 @@ export function CustomerDocumentList({ documents = [], customerUserId }) {
     return (
         <div>
             {documents.map((doc) => (
-                <DocumentRow key={doc.id} doc={doc} customerUserId={customerUserId} />
+                <DocumentRow
+                    key={doc.id}
+                    doc={doc}
+                    customerUserId={customerUserId}
+                    reviewStartedAt={reviewStartedAt}
+                />
             ))}
         </div>
     );

@@ -133,6 +133,8 @@ export const SESSION_STATUS = {
     PENDING_SCHEDULE: "pending_schedule",
     SCHEDULED: "scheduled",
     IN_PROGRESS: "in_progress",
+    COMPLETED_BY_THERAPIST: "completed_by_therapist",
+    IN_REVISION: "in_revision",
     CONFIRMED_BY_CUSTOMER: "confirmed_by_customer",
     MISSED: "missed",
     ATTEMPTED: "attempted",
@@ -149,6 +151,7 @@ export const PLAN_TYPES = {
 
 export const BOOKING_STATUS = {
     PENDING: "pending",
+    PENDING_PAYMENT: "pending_payment",
     ACCEPTED: "accepted",
     CONFIRMED: "confirmed",
     IN_PROGRESS: "in_progress",
@@ -163,6 +166,35 @@ export const THERAPIST_VERIFICATION_FIELDS = Object.freeze({
     LICENSE: "licenseVerified",
     INSURANCE: "insuranceVerified",
 });
+
+export const IDENTITY_DOCUMENT_TYPES = Object.freeze({
+    GOVERNMENT_ID_FRONT: "government_id_front",
+    GOVERNMENT_ID_BACK: "government_id_back",
+    DRIVERS_LICENSE: "drivers_license",
+});
+
+export const PHOTO_ONLY_DOCUMENT_TYPES = Object.freeze([
+    IDENTITY_DOCUMENT_TYPES.GOVERNMENT_ID_FRONT,
+    IDENTITY_DOCUMENT_TYPES.GOVERNMENT_ID_BACK,
+    IDENTITY_DOCUMENT_TYPES.DRIVERS_LICENSE,
+]);
+
+export const PHOTO_MIME_TYPES = Object.freeze(["image/jpeg", "image/jpg", "image/png"]);
+export const DOCUMENT_MIME_TYPES = Object.freeze(["application/pdf", ...PHOTO_MIME_TYPES]);
+
+/**
+ * documentType values that a profile-level verification flag actually applies
+ * to. Mirrors `DOCUMENT_CATEGORIES.license`/`.insurance` in the backend's
+ * `utils/constants.js` — kept narrow to just these two, since identity and
+ * compliance documents have no matching verification flag on the profile.
+ */
+export const LICENSE_DOCUMENT_TYPES = Object.freeze(["license"]);
+export const INSURANCE_DOCUMENT_TYPES = Object.freeze([
+    "general_liability",
+    "professional_liability",
+    "auto_insurance",
+]);
+
 export const STRIPE_BUSINESS_STRUCTURE = {
     INDIVIDUAL: "individual",
     SOLE_PROPRIETORSHIP: "sole_proprietorship",
@@ -177,6 +209,16 @@ export const STRIPE_COMPANY_STRUCTURES = new Set([
     STRIPE_BUSINESS_STRUCTURE.MULTI_MEMBER_LLC,
     STRIPE_BUSINESS_STRUCTURE.PRIVATE_CORPORATION,
 ]);
+
+// TODO: [BUG] refunded_to_card is unreachable — no stripe.refunds.create() call exists in the
+// backend and nothing ever writes this status. It survives only in the Prisma enum and dead read
+// paths. Removing it needs a Postgres enum recreate migration; tracked separately, not Phase 1.
+export const CUSTOMER_REFUND_STATUS = {
+    PENDING_CONNECT: "pending_connect",
+    TRANSFERRED: "transferred",
+    REFUNDED_TO_CARD: "refunded_to_card",
+    PAYOUT_FAILED: "payout_failed",
+};
 
 export const ANALYTICS_EVENTS = {
     PAYOUT_REPAIR_STARTED: "payout_account_repair_started",

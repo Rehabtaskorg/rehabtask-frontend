@@ -13,6 +13,7 @@ import { resolveAuthRedirectTarget } from "@/lib/redirect";
  *   isSubmitting: boolean,
  *   error: string | null,
  *   needsEmailVerification: boolean,
+ *   twoFactorChallenge: object | null,
  *   resendVerification: () => Promise<void>,
  *   clearError: () => void,
  * }}
@@ -24,6 +25,21 @@ export const useLogin = (redirectTo = null) => {
     const [error, setError] = useState(null);
     const [needsEmailVerification, setNeedsEmailVerification] = useState(false);
     const [userEmail, setUserEmail] = useState(null);
+    const [twoFactorChallenge, setTwoFactorChallenge] = useState(null);
+    const [loginCredentials, setLoginCredentials] = useState(null);
+
+    const finishLogin = (response, { viaTwoFactor = false } = {}) => {
+        const { user } = response.data.data;
+        posthog?.capture("user_logged_in", { role: user.role });
+        if (viaTwoFactor) {
+            posthog?.capture("two_factor_login_completed", { role: user.role, method: twoFactorChallenge?.method });
+        }
+        const target = resolveAuthRedirectTarget(redirectTo, user.role);
+        if (target) router.push(target);
+        else if (user.role === USER_ROLES.CUSTOMER) router.push("/customer/dashboard");
+        else if (user.role === USER_ROLES.THERAPIST) router.push("/therapist/dashboard");
+        else if (user.role === USER_ROLES.ADMIN || user.role === USER_ROLES.SUB_ADMIN) router.push("/admin/dashboard");
+    };
 
     const login = async (formData) => {
         setError(null);
@@ -32,22 +48,13 @@ export const useLogin = (redirectTo = null) => {
 
         try {
             const response = await authAPi.login(formData.email, formData.password);
-            const { user } = response.data.data;
-
-            // Fire before redirect so the event is captured in this session.
-            posthog?.capture("user_logged_in", { role: user.role });
-
-            const target = resolveAuthRedirectTarget(redirectTo, user.role);
-
-            if (target) {
-                router.push(target);
-            } else if (user.role === USER_ROLES.CUSTOMER) {
-                router.push("/customer/dashboard");
-            } else if (user.role === USER_ROLES.THERAPIST) {
-                router.push("/therapist/dashboard");
-            } else if (user.role === USER_ROLES.ADMIN || user.role === USER_ROLES.SUB_ADMIN) {
-                router.push("/admin/dashboard");
+            if (response.data.requiresTwoFactor) {
+                setLoginCredentials(formData);
+                setTwoFactorChallenge(response.data.data.challenge);
+                return { success: false, requiresTwoFactor: true };
             }
+
+            finishLogin(response);
 
             return { success: true, data: response.data };
 
@@ -75,6 +82,49 @@ export const useLogin = (redirectTo = null) => {
         }
     };
 
+    const verifyTwoFactor = async (code) => {
+        if (!twoFactorChallenge || !loginCredentials) return { success: false };
+        setError(null);
+        setIsSubmitting(true);
+        try {
+            const response = await authAPi.verifyTwoFactorLogin({
+                ...loginCredentials,
+                challengeId: twoFactorChallenge.challengeId,
+                challengeToken: twoFactorChallenge.challengeToken,
+                code,
+            });
+            setTwoFactorChallenge(null);
+            finishLogin(response, { viaTwoFactor: true });
+            return { success: true };
+        } catch (err) {
+            const codeValue = err.response?.data?.code;
+            setError(err.response?.data?.message || (codeValue === "2FA_CODE_EXPIRED" ? "This verification code has expired. Request a new code." : "The verification code is incorrect. Please try again."));
+            return { success: false };
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    const resendTwoFactor = async () => {
+        return switchTwoFactorMethod(twoFactorChallenge?.method);
+    };
+
+    const switchTwoFactorMethod = async (method) => {
+        if (!loginCredentials) return { success: false };
+        setError(null);
+        setIsSubmitting(true);
+        try {
+            const response = await authAPi.resendTwoFactorLogin({ ...loginCredentials, method });
+            setTwoFactorChallenge(response.data.data.challenge);
+            return { success: true };
+        } catch (err) {
+            setError(err.response?.data?.message || "Unable to send a new verification code.");
+            return { success: false };
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
     const resendVerification = async () => {
         if (!userEmail) return;
 
@@ -89,7 +139,9 @@ export const useLogin = (redirectTo = null) => {
     const clearError = () => {
         setError(null);
         setNeedsEmailVerification(false);
+        setTwoFactorChallenge(null);
+        setLoginCredentials(null);
     };
 
-    return { login, isSubmitting, error, needsEmailVerification, resendVerification, clearError };
+    return { login, verifyTwoFactor, resendTwoFactor, switchTwoFactorMethod, twoFactorChallenge, isSubmitting, error, needsEmailVerification, resendVerification, clearError };
 };

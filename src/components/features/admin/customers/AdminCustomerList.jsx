@@ -5,8 +5,9 @@ import { usePageTitle } from "@/hooks/usePageTitle";
 import { useAdminCustomers } from "@/hooks/useAdmin";
 import { APPROVAL_STATUS } from "@/lib/constants";
 import { CustomerStatusTabs } from "./CustomerStatusTabs";
-import { CustomerTypeFilter } from "./CustomerTypeFilter";
+import { CustomerListToolbar } from "./CustomerListToolbar";
 import { CustomerTable } from "./CustomerTable";
+import { CustomerPagination } from "./CustomerPagination";
 
 const PAGE_SIZE = 20;
 
@@ -20,6 +21,7 @@ export function AdminCustomerList() {
 
     const [activeTab, setActiveTab] = useState('');
     const [activeType, setActiveType] = useState('');
+    const [isPendingReviewOnly, setIsPendingReviewOnly] = useState(false);
     const [search, setSearch] = useState('');
     const [debouncedSearch, setDebouncedSearch] = useState('');
     const [page, setPage] = useState(1);
@@ -34,6 +36,7 @@ export function AdminCustomerList() {
     const queryParams = {
         ...(activeTab && { approvalStatus: activeTab }),
         ...(activeType && { customerType: activeType }),
+        ...(isPendingReviewOnly && { pendingReview: 'true' }),
         ...(debouncedSearch && { search: debouncedSearch }),
         sortOrder: 'asc',
         page,
@@ -54,6 +57,12 @@ export function AdminCustomerList() {
         limit: 1,
     });
 
+    const pendingReviewCountQuery = useAdminCustomers({
+        ...(activeType && { customerType: activeType }),
+        pendingReview: 'true',
+        limit: 1,
+    });
+
     const counts = {
         [APPROVAL_STATUS.PENDING]: pendingCountQuery.data?.pagination?.total ?? 0,
         [APPROVAL_STATUS.REVIEW]: reviewCountQuery.data?.pagination?.total ?? 0,
@@ -69,6 +78,11 @@ export function AdminCustomerList() {
 
     function handleTypeChange(value) {
         setActiveType(value);
+        setPage(1);
+    }
+
+    function handlePendingReviewToggle(next) {
+        setIsPendingReviewOnly(next);
         setPage(1);
     }
 
@@ -95,21 +109,15 @@ export function AdminCustomerList() {
                     counts={counts}
                 />
 
-                <div className="p-4 flex items-center gap-3 flex-wrap border-b border-border-light">
-                    <CustomerTypeFilter
-                        activeType={activeType}
-                        onTypeChange={handleTypeChange}
-                    />
-                    <div className="ml-auto">
-                        <input
-                            type="text"
-                            value={search}
-                            onChange={handleSearchChange}
-                            placeholder="Search by name or email…"
-                            className="w-64 px-3 py-2 text-sm border border-border-light rounded-lg bg-background-light text-text-main placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition"
-                        />
-                    </div>
-                </div>
+                <CustomerListToolbar
+                    activeType={activeType}
+                    onTypeChange={handleTypeChange}
+                    isPendingReviewOnly={isPendingReviewOnly}
+                    onPendingReviewToggle={handlePendingReviewToggle}
+                    pendingReviewCount={pendingReviewCountQuery.data?.pagination?.total ?? 0}
+                    search={search}
+                    onSearchChange={handleSearchChange}
+                />
 
                 {isError ? (
                     <div className="p-8 text-center">
@@ -120,32 +128,12 @@ export function AdminCustomerList() {
                     <div className="p-4 space-y-4">
                         <CustomerTable customers={customers} isLoading={isLoading} />
 
-                        {pagination.totalPages > 1 && (
-                            <div className="flex items-center justify-between pt-2">
-                                <p className="text-xs text-text-muted">
-                                    Showing {customers.length} of {pagination.total} customers
-                                </p>
-                                <div className="flex gap-2">
-                                    <button
-                                        onClick={() => setPage((p) => Math.max(1, p - 1))}
-                                        disabled={page <= 1}
-                                        className="px-3 py-1.5 text-sm border border-border-light rounded-lg text-text-main disabled:opacity-40 hover:bg-slate-50 transition"
-                                    >
-                                        Previous
-                                    </button>
-                                    <span className="px-3 py-1.5 text-sm text-text-muted">
-                                        {page} / {pagination.totalPages}
-                                    </span>
-                                    <button
-                                        onClick={() => setPage((p) => Math.min(pagination.totalPages, p + 1))}
-                                        disabled={page >= pagination.totalPages}
-                                        className="px-3 py-1.5 text-sm border border-border-light rounded-lg text-text-main disabled:opacity-40 hover:bg-slate-50 transition"
-                                    >
-                                        Next
-                                    </button>
-                                </div>
-                            </div>
-                        )}
+                        <CustomerPagination
+                            page={page}
+                            shownCount={customers.length}
+                            pagination={pagination}
+                            onPageChange={setPage}
+                        />
                     </div>
                 )}
             </div>

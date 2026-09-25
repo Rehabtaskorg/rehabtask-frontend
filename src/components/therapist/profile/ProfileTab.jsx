@@ -1,24 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import {
-    MdPerson,
-    MdEdit,
-    MdWork,
-    MdLock,
-    MdDescription,
-    MdOpenInNew,
-    MdVerified,
-    MdPending,
-    MdCancel,
-    MdCheckCircle,
-} from "react-icons/md";
-import { LICENSE_TYPES } from "@/lib/constants/credentials";
+import dynamic from "next/dynamic";
+import { useRouter } from "next/navigation";
+import { MdScience } from "react-icons/md";
 import { APPROVAL_STATUS } from "@/lib/constants";
-import { onboardingAPI } from "@/services/onboarding.api";
-import { logger } from "@/lib/logger";
-import { useUpdateProfile } from "@/hooks/useTherapistProfile";
-import ProfileEditModal from "./ProfileEditModal";
+import Button from "@/components/ui/Button";
 import { ClinicalProfileSection } from "./ClinicalProfileSection";
 import Button from "@/components/ui/Button";
 import UserAvatar from "@/components/ui/UserAvatar";
@@ -77,43 +64,14 @@ const InfoRow = ({ label, value, icon }) => (
 );
 
 const ProfileTab = ({ profile, approvalStatus, onboardingComplete }) => {
-    const [showEditModal, setShowEditModal] = useState(false);
-    const [viewingDoc, setViewingDoc] = useState(null);
-    const [smsOptIn, setSmsOptIn] = useState(profile?.smsOptIn ?? false);
-    const updateProfile = useUpdateProfile();
+    const [openPanel, setOpenPanel] = useState(null);
+    const router = useRouter();
 
-    const isCredentialsLocked = onboardingComplete && (approvalStatus === APPROVAL_STATUS.PENDING || approvalStatus === APPROVAL_STATUS.REVIEW);
+    const closePanel = () => setOpenPanel(null);
 
-    const licenseTypeLabel =
-        LICENSE_TYPES.find((lt) => lt.value === profile?.primaryLicenseType)?.label ||
-        profile?.primaryLicenseType ||
-        "—";
-
-    const handleSmsToggle = async () => {
-        const next = !smsOptIn;
-        setSmsOptIn(next);
-        try {
-            await updateProfile.mutateAsync({ phone: profile?.phone, smsOptIn: next });
-        } catch (err) {
-            setSmsOptIn(!next);
-            logger.error("Failed to update SMS preference:", err);
-        }
-    };
-
-    const handleViewDocument = async (docId) => {
-        setViewingDoc(docId);
-        try {
-            const res = await onboardingAPI.getDocumentUrl(docId);
-            const url = res.data?.data?.signedUrl || res.data?.signedUrl;
-            if (url) {
-                window.open(url, "_blank");
-            }
-        } catch (err) {
-            logger.error("Error fetching document URL:", err);
-        } finally {
-            setViewingDoc(null);
-        }
-    }
+    const isCredentialsLocked =
+        onboardingComplete &&
+        (approvalStatus === APPROVAL_STATUS.PENDING || approvalStatus === APPROVAL_STATUS.REVIEW);
 
     return (
         <>
@@ -264,161 +222,57 @@ const ProfileTab = ({ profile, approvalStatus, onboardingComplete }) => {
                             )}
                         */}
                     </div>
-                    <ClinicalProfileSection profile={profile} />
                 </div>
 
-                {/* Right column */}
                 <div className="space-y-6">
-                    {/* Account Status */}
-                    <div className="bg-card-light  border border-border-light  rounded-xl shadow-sm p-6">
-                        <h3 className="text-lg font-bold text-text-main  mb-4">
-                            Account Status
-                        </h3>
-                        <div className="space-y-3">
-                            <div className="flex items-center justify-between">
-                                <span className="text-sm text-text-muted">Approval</span>
-                                {!onboardingComplete && profile?.approvalStatus === APPROVAL_STATUS.PENDING ? (
-                                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-gray-100  text-text-muted ">
-                                        Not Submitted
-                                    </span>
-                                ) : (
-                                    <StatusBadge status={profile?.approvalStatus} />
-                                )}
-                            </div>
-                            <div className="flex items-center justify-between">
-                                <span className="text-sm text-text-muted">Onboarding</span>
-                                <span
-                                    className={`inline-flex items-center gap-1 text-xs font-semibold ${profile?.onboardingComplete
-                                        ? "text-green-600 "
-                                        : "text-yellow-600 "
-                                        }`}
+                    <AccountStatusCard
+                        profile={profile}
+                        approvalStatus={approvalStatus}
+                        isOnboardingComplete={onboardingComplete}
+                    />
+
+                    <DocumentsCard
+                        profile={profile}
+                        footerAction={
+                            approvalStatus === APPROVAL_STATUS.REJECTED ? (
+                                <Button
+                                    variant="destructive"
+                                    fullWidth
+                                    className="mt-3"
+                                    onClick={() => router.push("/therapist/onboarding/credentials")}
                                 >
-                                    <MdCheckCircle className="text-sm" />
-                                    {profile?.onboardingComplete ? "Complete" : "Incomplete"}
-                                </span>
-                            </div>
-                            <div className="flex items-center justify-between">
-                                <span className="text-sm text-text-muted">Payouts</span>
-                                <span
-                                    className={`inline-flex items-center gap-1 text-xs font-semibold ${profile?.stripeOnboardingComplete
-                                        ? "text-green-600 "
-                                        : "text-yellow-600 "
-                                        }`}
-                                >
-                                    <MdCheckCircle className="text-sm" />
-                                    {profile?.stripeOnboardingComplete ? "Active" : "Not set up"}
-                                </span>
-                            </div>
-                        </div>
-
-                        {/* Contextual status message for pending/review */}
-                        {(approvalStatus === APPROVAL_STATUS.PENDING || approvalStatus === APPROVAL_STATUS.REVIEW) && (
-                            <div className="mt-4 pt-3 border-t border-border-light ">
-                                {onboardingComplete ? (
-                                    <>
-                                        <p className="text-xs text-text-muted ">
-                                            Estimated review time: <span className="font-semibold text-text-main ">24-48 hours</span>
-                                        </p>
-                                        <p className="text-xs text-text-muted  mt-1">
-                                            Your profile is hidden from patients until approved.
-                                        </p>
-                                    </>
-                                ) : (
-                                    <>
-                                        <p className="text-xs text-text-muted ">
-                                            Complete your onboarding to submit for review.
-                                        </p>
-                                        <p className="text-xs text-text-muted  mt-1">
-                                            Your profile is hidden from patients until approved.
-                                        </p>
-                                    </>
-                                )}
-                            </div>
-                        )}
-
-                        {/* Contextual status message for rejected */}
-                        {approvalStatus === APPROVAL_STATUS.REJECTED && (
-                            <div className="mt-4 pt-3 border-t border-red-200 ">
-                                <p className="text-xs font-semibold text-red-700 ">
-                                    Action required — please update your credentials
-                                </p>
-                                {profile?.rejectionReason && (
-                                    <p className="text-xs text-red-600  mt-1">
-                                        {profile.rejectionReason}
-                                    </p>
-                                )}
-                            </div>
-                        )}
-                    </div>
-
-                    {/* License Documents */}
-                    <div className="bg-card-light  border border-border-light  rounded-xl shadow-sm p-6">
-                        <div className="flex items-center gap-3 mb-4">
-                            <div className="p-2 bg-primary/10 rounded-lg">
-                                <MdDescription className="text-primary text-xl" />
-                            </div>
-                            <h3 className="text-lg font-bold text-text-main ">
-                                License Documents
-                            </h3>
-                        </div>
-
-                        {profile?.licenseDocuments?.length > 0 ? (
-                            <div className="space-y-3">
-                                {profile.licenseDocuments.map((doc) => (
-                                    <div
-                                        key={doc.id}
-                                        className="flex items-center justify-between bg-muted-light  rounded-lg p-3 border border-border-light "
-                                    >
-                                        <div className="min-w-0 flex-1">
-                                            <p className="text-sm font-medium text-text-main  truncate">
-                                                {doc.fileName}
-                                            </p>
-                                            <p className="text-xs text-text-muted">
-                                                {doc.uploadedAt
-                                                    ? new Date(doc.uploadedAt).toLocaleDateString()
-                                                    : ""}
-                                            </p>
-                                        </div>
-                                        <button
-                                            type="button"
-                                            onClick={() => handleViewDocument(doc.id)}
-                                            disabled={viewingDoc === doc.id}
-                                            className="flex items-center gap-1 text-primary text-sm font-medium hover:text-primary/80 transition-colors ml-2 disabled:opacity-50"
-                                        >
-                                            <MdOpenInNew className="text-base" />
-                                            {viewingDoc === doc.id ? "Opening..." : "View"}
-                                        </button>
-                                    </div>
-                                ))}
-                            </div>
-                        ) : (
-                            <p className="text-sm text-text-muted text-center py-4">
-                                No documents uploaded
-                            </p>
-                        )}
-
-                        {/* Update Credentials button for rejected therapists */}
-                        {approvalStatus === APPROVAL_STATUS.REJECTED && (
-                            <button
-                                onClick={() => window.location.href = "/therapist/onboarding/credentials"}
-                                className="mt-3 w-full px-4 py-2 rounded-lg text-sm font-semibold bg-red-600 text-white hover:brightness-95 transition-all"
-                            >
-                                Update Credentials
-                            </button>
-                        )}
-                    </div>
+                                    Update Credentials
+                                </Button>
+                            ) : null
+                        }
+                    />
                 </div>
             </div>
 
-            <ProfileEditModal
-                isOpen={showEditModal}
-                onClose={() => setShowEditModal(false)}
+            <PersonalInfoDrawer
+                isOpen={openPanel === PANELS.PERSONAL}
+                onClose={closePanel}
                 profile={profile}
-                onSuccess={() => setShowEditModal(false)}
+                onSuccess={closePanel}
+            />
+            <RatesDrawer
+                isOpen={openPanel === PANELS.RATES}
+                onClose={closePanel}
+                profile={profile}
+                onSuccess={closePanel}
+            />
+            <CredentialsEditModal
+                isOpen={openPanel === PANELS.CREDENTIALS}
+                onClose={closePanel}
+                profile={profile}
+            />
+            <ClinicalSkillsEditModal
+                isOpen={openPanel === PANELS.CLINICAL}
+                onClose={closePanel}
+                profile={profile}
             />
         </>
-    )
-
-}
+    );
+};
 
 export default ProfileTab;

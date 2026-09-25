@@ -9,7 +9,9 @@ import {
     MdUpdate,
     MdPayment,
     MdWarning,
+    MdTimer,
 } from "react-icons/md";
+import { BOOKING_STATUS } from "@/lib/constants";
 
 const STATUS_CONFIG = {
     pending: {
@@ -17,6 +19,12 @@ const STATUS_CONFIG = {
         text: "text-amber-800 ",
         icon: MdPending,
         label: "Pending Payment",
+    },
+    pending_payment: {
+        bg: "bg-orange-100 ",
+        text: "text-orange-800 ",
+        icon: MdTimer,
+        label: "Payment Required",
     },
     accepted: {
         bg: "bg-teal-100 ",
@@ -73,13 +81,21 @@ const SIZE_CLASSES = {
     md: "text-xs px-3 py-1 gap-1.5",
 };
 
-export default function BookingStatusBadge({ status, size = "sm" }) {
-    const config = STATUS_CONFIG[status] || {
+export default function BookingStatusBadge({ status, size = "sm", isExpired = false }) {
+    const expiredConfig = {
         bg: "bg-slate-100 ",
         text: "text-slate-600 ",
-        icon: MdPending,
-        label: status?.replace(/_/g, " ").toUpperCase() || "Unknown",
+        icon: MdCancel,
+        label: "Expiring",
     };
+
+    const config =
+        (status === BOOKING_STATUS.PENDING_PAYMENT && isExpired ? expiredConfig : STATUS_CONFIG[status]) || {
+            bg: "bg-slate-100 ",
+            text: "text-slate-600 ",
+            icon: MdPending,
+            label: status?.replace(/_/g, " ").toUpperCase() || "Unknown",
+        };
 
     const Icon = config.icon;
     const sizeClass = SIZE_CLASSES[size] || SIZE_CLASSES.sm;
