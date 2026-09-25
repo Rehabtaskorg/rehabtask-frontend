@@ -673,6 +673,7 @@ function DashboardInner({ user, pathname, sidebarOpen, setSidebarOpen, handleLog
                         </nav>
                         <div className={`${c ? 'p-2' : 'p-4'} border-t border-slate-100  space-y-1`}>
                             <NavLink href="/admin/settings" icon={MdSettings} label="Settings" pathname={pathname} collapsed={c} />
+                            <NavLink href="/security" icon={MdAdminPanelSettings} label="Security" pathname={pathname} collapsed={c} />
                             <button onClick={() => handleLogout(`/login?reason=${LOGOUT_REASON.LOGGED_OUT}`)} className={`sidebar-nav-link w-full text-red-500 hover:bg-red-50  ${c ? 'justify-center px-0! gap-0!' : 'text-left'}`} title={c ? "Logout" : undefined}>
                                 <MdLogout className="sidebar-icon shrink-0" />
                                 {!c && <span>Logout</span>}

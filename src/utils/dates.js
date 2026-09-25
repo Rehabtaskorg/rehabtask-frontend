@@ -59,6 +59,19 @@ export const localDateStr = (offsetMs = 0) => {
 };
 
 /**
+ * Returns a local datetime string in YYYY-MM-DDTHH:MM format for use as the `min`
+ * attribute on datetime-local inputs. offsetMs shifts the result forward in time.
+ * @param {number} offsetMs
+ * @returns {string}
+ */
+export const localDateTimeStr = (offsetMs = 0) => {
+    const d = new Date(Date.now() + offsetMs);
+    const date = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+    const time = `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    return `${date}T${time}`;
+};
+
+/**
  * Returns true when a YYYY-MM-DD string is today or a future date, in local time.
  * Uses string comparison — YYYY-MM-DD is zero-padded and lexicographically sortable.
  * @param {string} dateStr
@@ -82,4 +95,17 @@ export const localDateTimeParts = (date) => {
     const h = String(date.getHours()).padStart(2, "0");
     const min = String(date.getMinutes()).padStart(2, "0");
     return { date: `${y}-${m}-${d}`, time: `${h}:${min}` };
+};
+
+/**
+ * Formats a deadline as a local clock time ("3:42 PM") for hold/expiry banners.
+ * Returns null for a missing date so callers can branch on absence.
+ * @param {string|Date|null|undefined} dateStr
+ * @returns {string|null}
+ */
+export const formatClockTime = (dateStr) => {
+    if (!dateStr) return null;
+    const d = new Date(dateStr);
+    if (Number.isNaN(d.getTime())) return null;
+    return d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
 };

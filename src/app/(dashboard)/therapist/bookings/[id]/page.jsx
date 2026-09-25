@@ -8,7 +8,7 @@ import {
 } from "react-icons/md";
 import { useBookingDetail } from "@/hooks/useBookings";
 import { bookingsApi } from "@/services/booking.api";
-import { BOOKING_STATUS, USER_ROLES } from "@/lib/constants";
+import { BOOKING_STATUS, USER_ROLES, SESSION_STATUS } from "@/lib/constants";
 import { localDateStr } from "@/utils/dates";
 import { showToast } from "@/lib/toast";
 import BookingStatusBadge from "@/components/bookings/BookingStatusBadge";
@@ -19,6 +19,7 @@ import ConfirmModal from "@/components/ui/ConfirmModal";
 import MarkSessionMissedModal from "@/components/shared/sessions/MarkSessionMissedModal";
 import MarkSessionAttemptedModal from "@/components/shared/sessions/MarkSessionAttemptedModal";
 import RevisionStatusBanner from "@/components/shared/sessions/RevisionStatusBanner";
+import { SubmitRevisionModal } from "@/components/shared/sessions/SubmitRevisionModal";
 import { formatCurrency } from "@/utils/messages";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { useAnalytics } from "@/hooks/useAnalytics";
@@ -63,6 +64,10 @@ export default function TherapistBookingDetailPage() {
     const [showExtendConfirm, setShowExtendConfirm] = useState(false);
     const [extendSessionId, setExtendSessionId] = useState(null);
     const [extending, setExtending] = useState(false);
+
+    // Revision respond states
+    const [showRespondRevisionModal, setShowRespondRevisionModal] = useState(false);
+    const [respondRevisionSessionId, setRespondRevisionSessionId] = useState(null);
 
     // Resubmit confirmation state
     const [showResubmitConfirm, setShowResubmitConfirm] = useState(false);
@@ -592,6 +597,10 @@ export default function TherapistBookingDetailPage() {
                                     showToast.error(err.response?.data?.message || "Failed to update visit title.");
                                 }
                             }}
+                            onRespondRevision={(sessionId) => {
+                                setRespondRevisionSessionId(sessionId);
+                                setShowRespondRevisionModal(true);
+                            }}
                             onExtendRevision={(sessionId) => {
                                 setExtendSessionId(sessionId);
                                 setShowExtendConfirm(true);
@@ -767,7 +776,7 @@ export default function TherapistBookingDetailPage() {
                         )}
 
                         {/* Session in revision — single-session only; multi-session handles per-session in SessionList */}
-                        {sessions.length <= 1 && session?.status === "in_revision" && (
+                        {sessions.length <= 1 && session?.status === SESSION_STATUS.IN_REVISION && (
                             <div className="space-y-3">
                                 <RevisionStatusBanner
                                     revisionRequestedAt={session.revisionRequestedAt}
@@ -778,6 +787,14 @@ export default function TherapistBookingDetailPage() {
                                     viewerRole="therapist"
                                 />
                                 <div className="flex justify-end gap-2">
+                                    {!session.revisionDueBy && (
+                                        <button
+                                            onClick={() => setShowRespondRevisionModal(true)}
+                                            className="border border-amber-400 text-amber-700 hover:bg-amber-50 px-5 py-2.5 rounded-lg text-sm font-bold transition-colors"
+                                        >
+                                            Respond
+                                        </button>
+                                    )}
                                     <button
                                         onClick={() => { setExtendSessionId(session.id); setShowExtendConfirm(true); }}
                                         className="border border-primary/30 text-primary hover:bg-primary/5 px-5 py-2.5 rounded-lg text-sm font-bold transition-colors"
@@ -1058,6 +1075,25 @@ export default function TherapistBookingDetailPage() {
                     )}
                 </div>
             </div>
+
+            {/* Respond to revision request — therapist sets their due date */}
+            <SubmitRevisionModal
+                isOpen={showRespondRevisionModal}
+                onClose={() => {
+                    setShowRespondRevisionModal(false);
+                    setRespondRevisionSessionId(null);
+                }}
+                sessionId={respondRevisionSessionId ?? session?.id}
+                revisionReason={
+                    respondRevisionSessionId
+                        ? sessions?.find((s) => s.id === respondRevisionSessionId)?.revisionReason
+                        : session?.revisionReason
+                }
+                onSuccess={() => {
+                    setRespondRevisionSessionId(null);
+                    refetch();
+                }}
+            />
 
             {/* Extend revision deadline confirmation */}
             <ConfirmModal

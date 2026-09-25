@@ -8,7 +8,7 @@ import {
     MdLocationOff, MdWarning,
 } from "react-icons/md";
 import { localDateStr } from "@/utils/dates";
-import { MAX_VISIT_TITLE_LENGTH } from "@/lib/constants";
+import { MAX_VISIT_TITLE_LENGTH, SESSION_STATUS } from "@/lib/constants";
 
 const STATUS_CONFIG = {
     pending_schedule: { icon: MdSchedule, color: "text-slate-400", bg: "bg-slate-100 ", label: "Pending Schedule" },
@@ -70,6 +70,7 @@ export default function SessionList({
     onApproveSessionCancellation,
     onRejectSessionCancellation,
     onUpdateTitle,
+    onRespondRevision,
 }) {
     const [scheduleSessionId, setScheduleSessionId] = useState(null);
     const [scheduleDate, setScheduleDate] = useState("");
@@ -203,13 +204,14 @@ export default function SessionList({
                     const isSchedulable = role === "therapist" && (session.status === "pending_schedule" || session.status === "scheduled");
                     const canEditTitle = role === "therapist" && !LOCKED_VISIT_TITLE_STATUSES.includes(session.status) && onUpdateTitle;
                     const isCompletable = role === "therapist" && session.status === "scheduled";
-                    const isConfirmable = role === "customer" && session.status === "completed_by_therapist";
-                    const canRequestRevision = role === "customer" && session.status === "completed_by_therapist" && onRequestRevision;
-                    const canExtendRevision = role === "therapist" && session.status === "in_revision" && onExtendRevision;
-                    const canResubmitSession = role === "therapist" && session.status === "in_revision" && session.revisionDueBy && onResubmitSession;
-                    const isInRevision = session.status === "in_revision";
+                    const isConfirmable = role === "customer" && session.status === SESSION_STATUS.COMPLETED_BY_THERAPIST;
+                    const canRequestRevision = role === "customer" && session.status === SESSION_STATUS.COMPLETED_BY_THERAPIST && onRequestRevision;
+                    const canExtendRevision = role === "therapist" && session.status === SESSION_STATUS.IN_REVISION && onExtendRevision;
+                    const canResubmitSession = role === "therapist" && session.status === SESSION_STATUS.IN_REVISION && session.revisionDueBy && onResubmitSession;
+                    const canRespondRevision = role === "therapist" && session.status === SESSION_STATUS.IN_REVISION && !session.revisionDueBy && onRespondRevision;
+                    const isInRevision = session.status === SESSION_STATUS.IN_REVISION;
                     const wasRevised = session.revisionCount > 0;
-                    const isResubmitted = wasRevised && session.status === "completed_by_therapist";
+                    const isResubmitted = wasRevised && session.status === SESSION_STATUS.COMPLETED_BY_THERAPIST;
                     const isThisLoading = loadingSessionId === session.id;
                     const isAnyLoading = loadingSessionId !== null;
 
@@ -234,6 +236,7 @@ export default function SessionList({
                     const showActionsRow = (isCompletable && scheduleSessionId !== session.id)
                         || isConfirmable
                         || (isInRevision && role === "customer")
+                        || canRespondRevision
                         || canExtendRevision
                         || canResubmitSession
                         || (canMarkMissed && scheduleSessionId !== session.id)
@@ -480,6 +483,15 @@ export default function SessionList({
                                         <span className="text-[10px] font-bold text-amber-600  italic">
                                             {session.revisionDueBy ? "Therapist working on it" : "Awaiting therapist"}
                                         </span>
+                                    )}
+                                    {canRespondRevision && (
+                                        <button
+                                            onClick={() => onRespondRevision(session.id)}
+                                            disabled={isAnyLoading}
+                                            className="text-xs font-bold text-amber-700 border border-amber-400 px-3 py-1.5 rounded-lg hover:bg-amber-50 disabled:opacity-50 transition-colors"
+                                        >
+                                            Respond
+                                        </button>
                                     )}
                                     {canExtendRevision && (
                                         <button

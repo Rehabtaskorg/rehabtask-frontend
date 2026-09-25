@@ -1,6 +1,7 @@
 import z from "zod";
 import { isValidPhoneNumber } from "react-phone-number-input";
 import { US_STATES } from "../constants/credentials";
+import { IDENTITY_DOCUMENT_TYPES } from "@/lib/constants";
 import {
     THERAPIST_SPECIALTIES,
     THERAPIST_LANGUAGES,
@@ -284,4 +285,26 @@ export const insuranceSchema = z.object({
 ).refine(
     (data) => !data.doesHomeVisits || data.documents.some((d) => d.documentType === "auto_insurance"),
     { message: "Auto Insurance is required because you indicated you perform home visits", path: ["documents"] }
+);
+
+const identityDocumentSchema = z.object({
+    path: z.string().min(1),
+    fileName: z.string().min(1),
+    fileSize: z.number().positive(),
+    documentType: z.enum([
+        IDENTITY_DOCUMENT_TYPES.GOVERNMENT_ID_FRONT,
+        IDENTITY_DOCUMENT_TYPES.GOVERNMENT_ID_BACK,
+        IDENTITY_DOCUMENT_TYPES.DRIVERS_LICENSE,
+    ]),
+    mimeType: z.string().optional(),
+});
+
+export const identitySchema = z.object({
+    documents: z.array(identityDocumentSchema),
+}).refine(
+    (data) => data.documents.some((d) => d.documentType === IDENTITY_DOCUMENT_TYPES.GOVERNMENT_ID_FRONT),
+    { message: "A front photo of your government ID is required", path: ["documents"] }
+).refine(
+    (data) => data.documents.some((d) => d.documentType === IDENTITY_DOCUMENT_TYPES.DRIVERS_LICENSE),
+    { message: "A photo of your driver's license is required", path: ["documents"] }
 );

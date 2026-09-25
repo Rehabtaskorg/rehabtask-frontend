@@ -70,6 +70,17 @@ export const useUpdateUser = () => {
     });
 };
 
+export const useResetUserTwoFactor = () => {
+    const qc = useQueryClient();
+    return useMutation({
+        mutationFn: ({ userId, reason }) => adminUsersApi.resetTwoFactor(userId, reason),
+        onSuccess: (_data, { userId }) => {
+            qc.invalidateQueries({ queryKey: ['admin', 'users'] });
+            qc.invalidateQueries({ queryKey: ['admin', 'users', userId] });
+        },
+    });
+};
+
 export const useSendAdminEmail = () =>
     useMutation({
         mutationFn: (data) => adminEmailApi.send(data),
@@ -104,6 +115,25 @@ export const useRejectTherapist = () => {
         mutationFn: ({ therapistUserId, reason }) =>
             adminTherapistsApi.reject(therapistUserId, { reason }),
         onSuccess: () => qc.invalidateQueries({ queryKey: ['admin', 'therapists'] }),
+    });
+};
+
+/**
+ * Clear a soft-tier re-review flag on an already-approved therapist.
+ * Rejects with a 409 when there is no pending re-review, or when the account
+ * is still awaiting a full approval decision.
+ * Invalidates the therapist detail and list queries on success.
+ *
+ * @returns {import("@tanstack/react-query").UseMutationResult}
+ */
+export const useClearTherapistReReview = () => {
+    const qc = useQueryClient();
+    return useMutation({
+        mutationFn: (therapistUserId) => adminTherapistsApi.clearReview(therapistUserId),
+        onSuccess: (_, therapistUserId) => {
+            qc.invalidateQueries({ queryKey: ['admin', 'therapists', therapistUserId] });
+            qc.invalidateQueries({ queryKey: ['admin', 'therapists'] });
+        },
     });
 };
 
@@ -171,6 +201,25 @@ export const useRejectCustomer = () => {
         mutationFn: ({ customerUserId, reason }) =>
             adminCustomersApi.reject(customerUserId, { reason }),
         onSuccess: (_, { customerUserId }) => {
+            qc.invalidateQueries({ queryKey: ['admin', 'customers', customerUserId] });
+            qc.invalidateQueries({ queryKey: ['admin', 'customers'] });
+        },
+    });
+};
+
+/**
+ * Clear a soft-tier re-review flag on an already-approved customer.
+ * Rejects with a 409 when there is no pending re-review, or when the account
+ * is still awaiting a full approval decision.
+ * Invalidates the customer detail and list queries on success.
+ *
+ * @returns {import("@tanstack/react-query").UseMutationResult}
+ */
+export const useClearCustomerReReview = () => {
+    const qc = useQueryClient();
+    return useMutation({
+        mutationFn: (customerUserId) => adminCustomersApi.clearReview(customerUserId),
+        onSuccess: (_, customerUserId) => {
             qc.invalidateQueries({ queryKey: ['admin', 'customers', customerUserId] });
             qc.invalidateQueries({ queryKey: ['admin', 'customers'] });
         },

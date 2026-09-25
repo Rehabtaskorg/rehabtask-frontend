@@ -50,6 +50,21 @@ export const authAPi = {
         return api.post("/auth/login", { email, password, recaptchaToken, recaptchaAction });
     },
 
+    verifyTwoFactorLogin: async ({ email, password, challengeId, challengeToken, code }) =>
+        api.post("/auth/2fa/login/verify", { email, password, challengeId, challengeToken, code }),
+
+    resendTwoFactorLogin: async ({ email, password, method }) =>
+        api.post("/auth/2fa/login/resend", { email, password, ...(method ? { method } : {}) }),
+
+    getTwoFactorStatus: async () => api.get("/auth/2fa/status"),
+    startTwoFactorEnrollment: async (method, phoneNumber) => api.post("/auth/2fa/enrollment/start", { method, ...(phoneNumber ? { phoneNumber } : {}) }),
+    verifyTwoFactorEnrollment: async (payload) => api.post("/auth/2fa/enrollment/verify", payload),
+    startDisableTwoFactor: async (method) => api.post("/auth/2fa/disable/start", method ? { method } : {}),
+    disableTwoFactor: async (payload) => api.post("/auth/2fa/disable", payload),
+    removeSmsMethod: async (currentPassword) => api.post("/auth/2fa/methods/sms/remove", { currentPassword }),
+    setTwoFactorEnabled: async (enabled) => api.patch("/auth/2fa/toggle", { enabled }),
+    setPreferredTwoFactorMethod: async (method) => api.patch("/auth/2fa/preferred-method", { method }),
+
     /** Logout the current user. */
     logout: async () => api.post("/auth/logout"),
 
