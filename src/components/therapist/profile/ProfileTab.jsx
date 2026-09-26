@@ -32,10 +32,6 @@ const ProfileTab = ({ profile, approvalStatus, onboardingComplete }) => {
 
     const closePanel = () => setOpenPanel(null);
 
-    const isCredentialsLocked =
-        onboardingComplete &&
-        (approvalStatus === APPROVAL_STATUS.PENDING || approvalStatus === APPROVAL_STATUS.REVIEW);
-
     return (
         <>
             <ReReviewBanner
@@ -71,7 +67,6 @@ const ProfileTab = ({ profile, approvalStatus, onboardingComplete }) => {
 
                     <ProfessionalDetailsCard
                         profile={profile}
-                        isCredentialsLocked={isCredentialsLocked}
                         onEditRates={() => setOpenPanel(PANELS.RATES)}
                         onViewCredentials={() => setOpenPanel(PANELS.CREDENTIALS)}
                     />

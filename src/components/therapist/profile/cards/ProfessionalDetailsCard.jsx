@@ -15,13 +15,11 @@ const formatRate = (value) =>
  *
  * @param {Object} props
  * @param {Object} props.profile - Therapist profile from `useTherapistProfile`.
- * @param {boolean} props.isCredentialsLocked - True while the application is pending or under review.
  * @param {() => void} props.onEditRates - Opens the rates drawer.
  * @param {() => void} props.onViewCredentials - Opens the read-only credentials modal.
  */
 export function ProfessionalDetailsCard({
     profile,
-    isCredentialsLocked,
     onEditRates,
     onViewCredentials,
 }) {
@@ -51,15 +49,6 @@ export function ProfessionalDetailsCard({
                     Edit rates
                 </Button>
             </div>
-
-            {isCredentialsLocked && (
-                <div className="mb-4 flex items-center gap-2 rounded-lg border border-yellow-200 bg-yellow-50 p-3">
-                    <MdLock className="shrink-0 text-sm text-yellow-600" />
-                    <p className="text-xs text-yellow-700">
-                        Credential fields are locked while your application is under review. Contact support for changes.
-                    </p>
-                </div>
-            )}
 
             <div className="grid grid-cols-1 gap-x-6 gap-y-1 sm:grid-cols-2">
                 <InfoRow label="Rate per Visit" value={formatRate(profile?.ratePerVisit)} />

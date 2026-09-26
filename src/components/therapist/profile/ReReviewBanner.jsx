@@ -9,7 +9,7 @@ const THERAPIST_SOFT_COPY = {
 
 const THERAPIST_HARD_COPY = {
     title: "Your profile is under review",
-    body: "Your profile is hidden from new patients, and new requests and new messages are paused until a reviewer approves your changes. Existing bookings are unaffected.",
+    body: "Your profile is hidden from new patients, and new requests and new messages are paused until a reviewer approves your changes. Existing bookings are unaffected. You can keep editing your profile while you wait.",
 };
 
 /**
