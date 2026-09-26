@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import dynamic from "next/dynamic";
-import { APPROVAL_STATUS, CUSTOMER_TYPES } from "@/lib/constants";
+import { CUSTOMER_TYPES } from "@/lib/constants";
 import { ReReviewBanner } from "@/components/therapist/profile/ReReviewBanner";
 import { ContactInfoCard } from "./cards/ContactInfoCard";
 import { AddressCard } from "./cards/AddressCard";
@@ -47,7 +47,7 @@ const SOFT_REVIEW_COPY = {
 
 const HARD_REVIEW_COPY = {
     title: "Your account is under review",
-    body: "Booking therapists, posting new requests and starting new conversations are paused until a reviewer approves your changes. Visits already booked carry on as normal.",
+    body: "Booking therapists, posting new requests and starting new conversations are paused until a reviewer approves your changes. Visits already booked carry on as normal. You can keep editing your profile while you wait.",
 };
 
 /**
@@ -64,7 +64,6 @@ export function ProfileTab({ profile }) {
     const closePanel = () => setOpenPanel(null);
 
     const isAgency = profile?.customerType === CUSTOMER_TYPES.AGENCY;
-    const isLockedForReview = profile?.approvalStatus === APPROVAL_STATUS.REVIEW;
     const addressTitle = isAgency ? "Business Address" : "Home Address";
 
     return (
@@ -99,7 +98,6 @@ export function ProfileTab({ profile }) {
                     <AddressCard
                         profile={profile}
                         title={addressTitle}
-                        isLockedForReview={isLockedForReview}
                         onEdit={() => setOpenPanel(PANELS.ADDRESS)}
                     />
 
