@@ -47,7 +47,7 @@ const SOFT_REVIEW_COPY = {
 
 const HARD_REVIEW_COPY = {
     title: "Your account is under review",
-    body: "Booking therapists, posting new requests and starting new conversations are paused until a reviewer approves your changes. Visits already booked carry on as normal. You can keep editing your profile while you wait.",
+    body: "Booking therapists, posting new requests and starting new conversations are paused until a reviewer approves your changes. Visits already booked carry on as normal. Editing your profile stays open, but it will not lift the pause.",
 };
 
 /**
