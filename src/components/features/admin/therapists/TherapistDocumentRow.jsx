@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { MdDescription, MdOpenInNew } from 'react-icons/md';
+import { MdDescription, MdOpenInNew, MdExpandMore, MdExpandLess } from 'react-icons/md';
 import { adminTherapistsApi } from '@/services/admin.api';
 import { DocumentReviewFlags } from '@/components/features/admin/DocumentReviewFlags';
 import { fmtDateLong } from './therapistStatusStyles';
@@ -19,18 +19,24 @@ const formatFileSize = (bytes) => {
  */
 export function TherapistDocumentRow({ doc, therapistUserId, reviewStartedAt }) {
     const [loading, setLoading] = useState(false);
+    const [loadingSuperseded, setLoadingSuperseded] = useState(false);
+    const [isSupersededShown, setIsSupersededShown] = useState(false);
 
-    const handleView = async () => {
-        setLoading(true);
+    const superseded = doc.supersededDocument;
+
+    const openDocument = async (documentId, setBusy) => {
+        setBusy(true);
         try {
-            const { data } = await adminTherapistsApi.getDocumentUrl(therapistUserId, doc.id);
+            const { data } = await adminTherapistsApi.getDocumentUrl(therapistUserId, documentId);
             window.open(data.data.signedUrl, '_blank');
         } catch {
             alert('Failed to load document. Please try again.');
         } finally {
-            setLoading(false);
+            setBusy(false);
         }
     };
+
+    const handleView = () => openDocument(doc.id, setLoading);
 
     const fileSize = formatFileSize(doc.fileSize);
     const meta = [
@@ -39,7 +45,8 @@ export function TherapistDocumentRow({ doc, therapistUserId, reviewStartedAt }) 
     ].filter(Boolean).join(' · ');
 
     return (
-        <div className="flex items-center justify-between gap-3 p-3 rounded-xl border border-border-light ">
+        <div className="rounded-xl border border-border-light">
+            <div className="flex items-center justify-between gap-3 p-3">
             <div className="flex items-center gap-3 min-w-0">
                 <div className="p-1.5 rounded-lg bg-blue-100  shrink-0">
                     <MdDescription className="text-blue-600  text-base" />
@@ -70,6 +77,42 @@ export function TherapistDocumentRow({ doc, therapistUserId, reviewStartedAt }) 
                     {loading ? 'Loading...' : 'View'} <MdOpenInNew className="text-sm" />
                 </button>
             </div>
+            </div>
+
+            {superseded && (
+                <div className="border-t border-border-light px-3 py-2">
+                    <button
+                        onClick={() => setIsSupersededShown((shown) => !shown)}
+                        aria-expanded={isSupersededShown}
+                        className="inline-flex items-center gap-1 text-xs font-medium text-text-muted hover:text-text-main"
+                    >
+                        {isSupersededShown ? <MdExpandLess className="text-base" /> : <MdExpandMore className="text-base" />}
+                        {isSupersededShown ? 'Hide' : 'Show'} the document this replaced
+                    </button>
+
+                    {isSupersededShown && (
+                        <div className="mt-2 flex items-center justify-between gap-3 rounded-lg bg-muted-light p-2.5">
+                            <div className="min-w-0">
+                                <p className="truncate text-sm text-text-main">
+                                    {superseded.fileName || 'Previous document'}
+                                </p>
+                                <p className="text-xs text-text-muted">
+                                    {formatFileSize(superseded.fileSize) && `${formatFileSize(superseded.fileSize)} · `}
+                                    Uploaded {fmtDateLong(superseded.uploadedAt || superseded.createdAt)}
+                                    {superseded.deletedAt && ` · Replaced ${fmtDateLong(superseded.deletedAt)}`}
+                                </p>
+                            </div>
+                            <button
+                                onClick={() => openDocument(superseded.id, setLoadingSuperseded)}
+                                disabled={loadingSuperseded}
+                                className="inline-flex shrink-0 items-center gap-1 text-xs font-medium text-primary hover:underline disabled:opacity-50"
+                            >
+                                {loadingSuperseded ? 'Loading...' : 'View'} <MdOpenInNew className="text-sm" />
+                            </button>
+                        </div>
+                    )}
+                </div>
+            )}
         </div>
     );
 }
