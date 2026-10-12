@@ -22,14 +22,11 @@ const ChangePasswordForm = () => {
     const { changePassword, isSubmitting, error, success, clearMessages } = useChangePassword();
 
     const onSubmit = async (data) => {
-        console.log("Form data before submit:", data);
         const result = await changePassword(data.currentPassword, data.newPassword, data.confirmNewPassword);
 
         if (result.success) {
-            // Reset form on success
             reset();
 
-            // Auto-clear success message after 5 seconds
             setTimeout(() => {
                 clearMessages();
             }, 5000);
@@ -37,27 +34,22 @@ const ChangePasswordForm = () => {
     };
 
     return (
-        <div className="bg-white  rounded-xl shadow-sm border border-border-light  overflow-hidden">
-            {/* Header */}
-            <div className="p-6 border-b border-border-light  bg-muted-light ">
-                <div className="flex items-center gap-3">
-                    <div className="p-2 bg-primary/10 rounded-lg">
-                        <MdLock className="text-primary text-xl" />
-                    </div>
-                    <div>
-                        <h2 className="text-xl font-bold text-text-main ">
-                            Change Password
-                        </h2>
-                        <p className="text-sm text-text-muted ">
-                            Update your password to keep your account secure
-                        </p>
-                    </div>
+        <div className="rounded-xl border border-border-light bg-card-light p-6 shadow-sm">
+            <div className="mb-5 flex items-center gap-3">
+                <div className="rounded-lg bg-primary/10 p-2">
+                    <MdLock className="text-xl text-primary" />
+                </div>
+                <div>
+                    <h3 className="text-lg font-bold text-text-main">
+                        Change Password
+                    </h3>
+                    <p className="text-sm text-text-muted">
+                        Update your password to keep your account secure
+                    </p>
                 </div>
             </div>
 
-            {/* Form */}
-            <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-6">
-                {/* Success/Error Messages */}
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
                 {success && (
                     <Alert
                         type="success"
@@ -73,23 +65,11 @@ const ChangePasswordForm = () => {
                     />
                 )}
 
-                {/* Info Banner */}
-                <div className="bg-blue-50  border border-blue-200  p-4 rounded-lg">
-                    <div className="flex items-start gap-3">
-                        <MdLock className="text-blue-500 text-lg shrink-0 mt-0.5" />
-                        <div className="text-sm text-blue-800  space-y-1">
-                            <p className="font-semibold">Password Requirements:</p>
-                            <ul className="list-disc list-inside space-y-0.5 text-xs">
-                                <li>At least 8 characters long</li>
-                                <li>Contains uppercase and lowercase letters</li>
-                                <li>Contains at least one number</li>
-                                <li>Contains at least one special character (@$!%*?&#)</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
+                <Alert
+                    type="info"
+                    message="Password must be at least 8 characters and include an uppercase letter, a lowercase letter, a number, and a special character (@$!%*?&#)."
+                />
 
-                {/* Form Fields */}
                 <PasswordInput
                     label="Current Password"
                     placeholder="Enter your current password"
@@ -114,13 +94,11 @@ const ChangePasswordForm = () => {
                     required
                 />
 
-                {/* Submit Button */}
-                <div className="pt-4">
+                <div className="flex justify-end pt-1">
                     <Button
                         type="submit"
                         variant="primary"
-                        size="lg"
-                        fullWidth
+                        className="w-full sm:w-auto"
                         loading={isSubmitting}
                         disabled={isSubmitting}
                     >

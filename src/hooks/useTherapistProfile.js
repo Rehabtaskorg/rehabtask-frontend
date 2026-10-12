@@ -32,6 +32,14 @@ export function useUpdateWorkAreas() {
     });
 }
 
+export function useUpdateAttributes() {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: (data) => therapistApi.updateAttributes(data),
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: ['therapist-profile'] }),
+    });
+}
+
 export function useUpdateAvailability() {
     const queryClient = useQueryClient();
     return useMutation({

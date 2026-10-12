@@ -16,6 +16,10 @@ const PAGE_META = {
         title: "Subscription Plans",
         description: "Manage your plan and unlock higher visit limits.",
     },
+    profile: {
+        title: "My Profile",
+        description: "Update your account details, documents and security settings.",
+    },
 };
 
 /**

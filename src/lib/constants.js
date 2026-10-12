@@ -195,6 +195,26 @@ export const INSURANCE_DOCUMENT_TYPES = Object.freeze([
     "auto_insurance",
 ]);
 
+/**
+ * Document slots shown on a customer's profile, in display order.
+ *
+ * The agency list carries five entries while the backend's
+ * `DOCUMENT_CATEGORIES.agency` lists four — W-9 is filed under the separate
+ * `compliance` category internally, but the rejected-customer screen already
+ * surfaces it, so omitting it here would be a visible regression.
+ */
+export const AGENCY_DOCUMENT_SLOTS = Object.freeze([
+    { key: "home_health_license", label: "State Home Health License", required: true },
+    { key: "medicare_medicaid_cert", label: "Medicare / Medicaid Certification", required: false },
+    { key: "general_liability", label: "General Liability Insurance", required: true },
+    { key: "professional_liability", label: "Professional Liability Insurance", required: true },
+    { key: "w9", label: "W-9 Tax Form", required: false },
+]);
+
+export const INDIVIDUAL_DOCUMENT_SLOTS = Object.freeze([
+    { key: "therapy_order", label: "Therapy Order", required: true },
+]);
+
 export const STRIPE_BUSINESS_STRUCTURE = {
     INDIVIDUAL: "individual",
     SOLE_PROPRIETORSHIP: "sole_proprietorship",

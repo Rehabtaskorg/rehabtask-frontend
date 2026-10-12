@@ -1,4 +1,14 @@
 import { z } from "zod";
+import { US_STATES } from "../constants/credentials";
+import {
+    THERAPIST_SPECIALTIES,
+    THERAPIST_LANGUAGES,
+    THERAPIST_CERTIFICATIONS,
+    THERAPIST_PAST_SETTINGS,
+    THERAPIST_POPULATIONS,
+} from "../constants/therapistAttributes";
+
+const US_STATE_CODES = US_STATES.map((s) => s.code);
 
 const rateSchema = z.preprocess(
     (val) => (val === "" || val === undefined ? null : val),
@@ -26,13 +36,6 @@ export const personalInfoSchema = z.object({
         .max(50, "Must be 50 or less"),
 });
 
-/**
- * Rates drawer schema.
- *
- * `ratePerVisit` maps 0 to null so clearing the field unsets the rate rather
- * than advertising a free visit. The cross-field cap mirrors the backend guard
- * in `therapist.service.js`.
- */
 export const ratesSchema = z
     .object({
         ratePerVisit: z.coerce
@@ -56,3 +59,80 @@ export const ratesSchema = z
             path: ["attemptedVisitRate"],
         }
     );
+
+export const clinicalBackgroundSchema = z.object({
+    yearsInHomeHealth: z
+        .union([z.string().trim(), z.number()])
+        .optional()
+        .nullable()
+        .refine(
+            (val) => val == null || val === "" || (Number(val) >= 0 && Number(val) <= 50),
+            { message: "Must be between 0 and 50" }
+        )
+        .refine(
+            (val) => val == null || val === "" || Number.isInteger(Number(val)),
+            { message: "Must be a whole number" }
+        )
+        .transform((val) => (val == null || val === "" ? null : Number(val))),
+});
+
+const allowedAttributes = (options, label) =>
+    z
+        .array(
+            z.string().refine((value) => options.includes(value), {
+                message: `Not a recognised ${label}`,
+            })
+        )
+        .max(20, "Select 20 or fewer");
+
+export const clinicalProfileSchema = z.object({
+    specialties: allowedAttributes(THERAPIST_SPECIALTIES, "specialty")
+        .min(1, "At least one specialty is required"),
+    languages: allowedAttributes(THERAPIST_LANGUAGES, "language"),
+    certifications: allowedAttributes(THERAPIST_CERTIFICATIONS, "certification"),
+    pastSettings: allowedAttributes(THERAPIST_PAST_SETTINGS, "clinical setting"),
+    populationExperience: allowedAttributes(THERAPIST_POPULATIONS, "population"),
+});
+
+export const availabilityDetailsSchema = z.object({
+    availableFrom: z.string().datetime({ offset: true }).optional().nullable(),
+    caseloadCapacity: z
+        .union([z.string().trim(), z.number()])
+        .optional()
+        .nullable()
+        .refine(
+            (val) => val == null || val === "" || (Number(val) >= 1 && Number(val) <= 999),
+            { message: "Must be a number between 1 and 999" }
+        )
+        .refine(
+            (val) => val == null || val === "" || Number.isInteger(Number(val)),
+            { message: "Must be a whole number" }
+        )
+        .transform((val) => (val == null || val === "" ? null : Number(val))),
+});
+
+export const contactDetailsSchema = z
+    .object({
+        addressLine1: z.string().min(1, "Address is required").max(255),
+        addressLine2: z.string().max(255).optional().nullable(),
+        city: z.string().min(1, "City is required").max(100),
+        state: z
+            .string()
+            .min(1, "State is required")
+            .refine((val) => US_STATE_CODES.includes(val.toUpperCase()), {
+                message: "Please select a valid US state",
+            }),
+        zipCode: z.string().regex(/^\d{5}$/, "ZIP code must be exactly 5 digits"),
+        emergencyContactName: z.string().max(255).optional().nullable(),
+        emergencyContactPhone: z
+            .string()
+            .refine((val) => !val || /^\+1\d{10}$/.test(val), {
+                message: "Phone must be in format +1XXXXXXXXXX",
+            })
+            .optional()
+            .nullable(),
+    })
+    .refine((data) => !data.emergencyContactPhone || !!data.emergencyContactName, {
+        message: "Add a name for your emergency contact",
+        path: ["emergencyContactName"],
+    });

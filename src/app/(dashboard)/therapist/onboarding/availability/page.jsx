@@ -17,6 +17,7 @@ import WorkAreaFormModal from "@/components/therapist/profile/WorkAreaFormModal"
 
 import { APIProvider } from "@vis.gl/react-google-maps";
 import DatePicker from "react-datepicker";
+import { toUtcDateOnlyISO } from "@/utils/dates";
 import { parse, format } from "date-fns";
 import "react-datepicker/dist/react-datepicker.css";
 import { usePageTitle } from "@/hooks/usePageTitle";
@@ -430,7 +431,7 @@ export default function AvailabilityPage() {
                                                 <DatePicker
                                                     selected={field.value ? new Date(field.value) : null}
                                                     onChange={(date) => {
-                                                        const iso = date ? date.toISOString() : null;
+                                                        const iso = toUtcDateOnlyISO(date);
                                                         field.onChange(iso);
                                                         updateAvailability({ availableFrom: iso });
                                                     }}

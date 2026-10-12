@@ -11,6 +11,7 @@ import Alert from "@/components/ui/Alert";
 import { useUpdateProfile } from "@/hooks/useTherapistProfile";
 import { useProfilePhotoUpload } from "@/hooks/useProfilePhotoUpload";
 import { personalInfoSchema } from "@/lib/validators/therapistProfileEdit.schema";
+import { pickChangedFields } from "@/lib/validators/pickChangedFields";
 import { ProfilePhotoPicker } from "./ProfilePhotoPicker";
 import { InfoRow } from "./cards/InfoRow";
 
@@ -28,6 +29,8 @@ import { InfoRow } from "./cards/InfoRow";
  * @param {Object} props.profile - Therapist profile supplying default values.
  * @param {() => void} [props.onSuccess] - Called after a successful save.
  */
+const FIELDS = ["phone", "yearsOfExperience", "profilePhotoUrl"];
+
 export function PersonalInfoDrawer({ isOpen, onClose, profile, onSuccess }) {
     const [alert, setAlert] = useState(null);
     const updateProfile = useUpdateProfile();
@@ -60,12 +63,21 @@ export function PersonalInfoDrawer({ isOpen, onClose, profile, onSuccess }) {
 
     const onSubmit = async (data) => {
         setAlert(null);
+
+        const payload = pickChangedFields(
+            { ...data, profilePhotoUrl: photoUrl },
+            profile,
+            FIELDS
+        );
+
+        if (Object.keys(payload).length === 0) {
+            onSuccess?.();
+            onClose();
+            return;
+        }
+
         try {
-            await updateProfile.mutateAsync({
-                phone: data.phone,
-                yearsOfExperience: data.yearsOfExperience,
-                profilePhotoUrl: photoUrl,
-            });
+            await updateProfile.mutateAsync(payload);
             onSuccess?.();
             onClose();
         } catch (err) {

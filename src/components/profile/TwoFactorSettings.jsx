@@ -8,6 +8,7 @@ import { useAnalytics } from "@/hooks/useAnalytics";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import Alert from "@/components/ui/Alert";
+import { Badge, BADGE_VARIANTS } from "@/components/ui/Badge";
 
 export default function TwoFactorSettings() {
     const { trackEvent } = useAnalytics();
@@ -255,47 +256,41 @@ export default function TwoFactorSettings() {
 
     return (
         <>
-            <div className="bg-white rounded-xl shadow-sm border border-border-light overflow-hidden">
-                <div className="p-6 border-b border-border-light bg-muted-light">
-                    <div className="flex items-center justify-between gap-4">
-                        <div className="flex items-center gap-3">
-                            <div className="p-2 bg-primary/10 rounded-lg">
-                                <MdSecurity className="text-primary text-xl" />
-                            </div>
-                            <div>
-                                <h2 className="text-xl font-bold text-text-main">Two-factor authentication</h2>
-                                <p className="text-sm text-text-muted">
-                                    Status: {status?.enabled ? "Enabled" : "Not enabled"}
-                                    {preferred ? ` · Primary: ${preferred === "sms" ? "SMS" : "Email"}` : ""}
-                                </p>
-                            </div>
+            <div className="rounded-xl border border-border-light bg-card-light p-6 shadow-sm">
+                <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="flex items-center gap-3">
+                        <div className="rounded-lg bg-primary/10 p-2">
+                            <MdSecurity className="text-xl text-primary" />
                         </div>
-                        <div className="flex items-center gap-3 shrink-0">
-                            <span className={`text-sm font-semibold ${status?.enabled ? "text-green-700" : "text-text-muted"}`}>
-                                {status?.enabled ? "On" : "Off"}
-                            </span>
-                            <button
-                                type="button"
-                                role="switch"
-                                aria-checked={!!status?.enabled}
-                                onClick={handleToggle}
-                                disabled={submitting || status?.mandatory || disableOpen}
-                                className={`relative inline-flex h-7 w-12 shrink-0 items-center rounded-full transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${
-                                    status?.enabled ? "bg-primary" : "bg-slate-300"
-                                }`}
-                                aria-label={status?.enabled ? "Turn off two-factor authentication" : "Turn on two-factor authentication"}
-                            >
-                                <span
-                                    className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform ${
-                                        status?.enabled ? "translate-x-6" : "translate-x-1"
-                                    }`}
-                                />
-                            </button>
+                        <div>
+                            <h3 className="text-lg font-bold text-text-main">Two-factor authentication</h3>
+                            <p className="text-sm text-text-muted">
+                                Status: {status?.enabled ? "Enabled" : "Not enabled"}
+                                {preferred ? ` · Primary: ${preferred === "sms" ? "SMS" : "Email"}` : ""}
+                            </p>
                         </div>
+                    </div>
+                    <div className="flex items-center gap-3 shrink-0">
+                        <span className={`text-sm font-semibold ${status?.enabled ? "text-green-700" : "text-text-muted"}`}>
+                            {status?.enabled ? "On" : "Off"}
+                        </span>
+                        <button
+                            type="button"
+                            role="switch"
+                            aria-checked={!!status?.enabled}
+                            onClick={handleToggle}
+                            disabled={submitting || status?.mandatory || disableOpen}
+                            className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${status?.enabled ? "bg-primary" : "bg-gray-300"}`}
+                            aria-label={status?.enabled ? "Turn off two-factor authentication" : "Turn on two-factor authentication"}
+                        >
+                            <span
+                                className={`pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow transition-transform ${status?.enabled ? "translate-x-5" : "translate-x-0"}`}
+                            />
+                        </button>
                     </div>
                 </div>
 
-                <div className="p-6 space-y-5">
+                <div className="space-y-5">
                     {message && (
                         <Alert
                             type={message.includes("enabled") || message.includes("removed") || message.includes("disabled") || message.includes("primary") ? "success" : "error"}
@@ -312,17 +307,15 @@ export default function TwoFactorSettings() {
 
                     <div className="grid gap-3">
                         {methodRows.map(({ key, icon: Icon, label, value, enabled, role }) => (
-                            <div key={key} className="rounded-lg border border-border-subtle p-4 flex items-center gap-3">
+                            <div key={key} className="rounded-lg border border-border-light p-4 flex items-center gap-3">
                                 <Icon className="text-xl text-primary shrink-0" />
                                 <div className="min-w-0 flex-1">
                                     <div className="flex items-center gap-2 flex-wrap">
                                         <p className="font-semibold text-text-main">{label}</p>
                                         {role && (
-                                            <span className={`text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full ${
-                                                role === "Primary" ? "bg-primary/10 text-primary" : "bg-slate-100 text-slate-600"
-                                            }`}>
+                                            <Badge variant={role === "Primary" ? BADGE_VARIANTS.INFO : BADGE_VARIANTS.NEUTRAL}>
                                                 {role}
-                                            </span>
+                                            </Badge>
                                         )}
                                     </div>
                                     <p className="text-sm text-text-muted">{value}</p>
@@ -334,7 +327,7 @@ export default function TwoFactorSettings() {
                                         type="button"
                                         variant="outline"
                                         size="sm"
-                                        className="shrink-0 !rounded-lg !shadow-none"
+                                        className="shrink-0"
                                         onClick={openAddSms}
                                         disabled={submitting || removeSmsOpen || disableOpen}
                                     >
@@ -346,7 +339,7 @@ export default function TwoFactorSettings() {
                     </div>
 
                     {bothMethodsEnabled && (
-                        <div className="rounded-lg border border-border-subtle p-4 space-y-3">
+                        <div className="rounded-lg border border-border-light p-4 space-y-3">
                             <div>
                                 <h3 className="font-semibold text-text-main">Preferred method</h3>
                                 <p className="text-sm text-text-muted mt-1">Choose which verified method receives login codes first.</p>
@@ -361,7 +354,7 @@ export default function TwoFactorSettings() {
                                         className={`rounded-lg border px-4 py-2 text-sm font-semibold transition-colors disabled:opacity-60 ${
                                             preferred === method
                                                 ? "border-primary bg-primary/5 text-primary"
-                                                : "border-border-subtle text-text-main hover:bg-slate-50"
+                                                : "border-border-light text-text-main hover:bg-muted-light"
                                         }`}
                                     >
                                         Use {method === "sms" ? "SMS" : "email"} first
@@ -384,7 +377,7 @@ export default function TwoFactorSettings() {
                     )}
 
                     {removeSmsOpen && (
-                        <form onSubmit={confirmRemoveSms} className="rounded-lg border border-red-200 bg-red-50/50 p-4 space-y-4">
+                        <form onSubmit={confirmRemoveSms} className="rounded-lg border border-red-200 bg-red-50 p-4 space-y-4">
                             <div>
                                 <h3 className="font-semibold text-text-main">Remove SMS verification</h3>
                                 <p className="text-sm text-text-muted mt-1">Email verification will remain enabled. Confirm with your current password.</p>
@@ -396,7 +389,7 @@ export default function TwoFactorSettings() {
                                 onChange={(event) => setRemoveSmsPassword(event.target.value)}
                                 required
                             />
-                            <div className="flex justify-center gap-3">
+                            <div className="flex justify-end gap-3">
                                 <Button type="submit" variant="destructive" loading={submitting} disabled={submitting || !removeSmsPassword}>Remove SMS</Button>
                                 <Button type="button" variant="ghost" onClick={() => setRemoveSmsOpen(false)}>Cancel</Button>
                             </div>
@@ -436,7 +429,7 @@ export default function TwoFactorSettings() {
 
                                     {status?.methods?.sms?.reusable && !useDifferentNumber ? (
                                         <div className="space-y-4">
-                                            <div className="rounded-lg border border-border-subtle bg-slate-50 p-4">
+                                            <div className="rounded-lg border border-border-light bg-muted-light p-4">
                                                 <p className="text-xs font-semibold uppercase tracking-wider text-text-muted">Mobile phone</p>
                                                 <p className="mt-1 text-base font-semibold text-text-main">{status.methods.sms.destination}</p>
                                                 <p className="mt-1 text-sm text-text-muted">We&apos;ll send a verification code to this number from your profile.</p>
@@ -555,7 +548,7 @@ export default function TwoFactorSettings() {
                             {!disableChallenge ? (
                                 <>
                                     <p className="text-sm text-text-muted">For your security, disabling 2FA requires your current password and a verification code.</p>
-                                    <div className="flex justify-end gap-3">
+                                    <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
                                         <Button type="button" variant="ghost" onClick={closeDisableModal} disabled={submitting}>Cancel</Button>
                                         <Button type="button" variant="destructive" onClick={startDisable} loading={submitting} disabled={submitting}>Send verification code</Button>
                                     </div>
@@ -565,7 +558,7 @@ export default function TwoFactorSettings() {
                                     <p className="text-sm text-text-muted">Enter your password and the code sent to {disableChallenge.destination}.</p>
                                     <Input label="Current password" type="password" value={disablePassword} onChange={(event) => setDisablePassword(event.target.value)} required />
                                     <Input label="Verification code" inputMode="numeric" maxLength={6} value={disableCode} onChange={(event) => setDisableCode(event.target.value.replace(/\D/g, ""))} required />
-                                    <div className="flex justify-end gap-3">
+                                    <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
                                         <Button type="button" variant="ghost" onClick={closeDisableModal} disabled={submitting}>Cancel</Button>
                                         <Button type="submit" variant="destructive" loading={submitting} disabled={submitting || !disablePassword || disableCode.length !== 6}>Disable 2FA</Button>
                                     </div>

@@ -183,6 +183,9 @@ export default function LocationAutocomplete({
                     const zipComp = components.find((c) =>
                         c.types.includes("postal_code")
                     );
+                    const streetNumberComp = components.find((c) =>
+                        c.types.includes("street_number")
+                    );
 
                     // Reject state, country, or county-level selections — their center
                     // coordinates are too far from most cities to work with a 50-mile radius.
@@ -203,6 +206,7 @@ export default function LocationAutocomplete({
                         latitude: loc.lat(),
                         longitude: loc.lng(),
                         formattedAddress: result.formatted_address,
+                        streetNumber: streetNumberComp?.long_name || "",
                     });
 
                     sessionToken.current = new places.AutocompleteSessionToken();

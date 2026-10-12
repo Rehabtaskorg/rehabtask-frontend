@@ -1,41 +1,21 @@
 "use client";
 
 import { useState } from "react";
-import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { MdScience } from "react-icons/md";
 import { APPROVAL_STATUS } from "@/lib/constants";
 import Button from "@/components/ui/Button";
 import { ClinicalProfileSection } from "./ClinicalProfileSection";
 import { ReReviewBanner } from "./ReReviewBanner";
+import { ProfilePanels, PANELS } from "./ProfilePanels";
 import { PersonalInfoCard } from "./cards/PersonalInfoCard";
+import { ContactDetailsCard } from "./cards/ContactDetailsCard";
+import { AvailabilityDetailsCard } from "./cards/AvailabilityDetailsCard";
+import { ClinicalBackgroundCard } from "./cards/ClinicalBackgroundCard";
 import { ProfessionalDetailsCard } from "./cards/ProfessionalDetailsCard";
 import { AccountStatusCard } from "./cards/AccountStatusCard";
 import { DocumentsCard } from "./cards/DocumentsCard";
 
-const PersonalInfoDrawer = dynamic(
-    () => import("./PersonalInfoDrawer").then((mod) => mod.PersonalInfoDrawer),
-    { ssr: false }
-);
-const RatesDrawer = dynamic(
-    () => import("./RatesDrawer").then((mod) => mod.RatesDrawer),
-    { ssr: false }
-);
-const CredentialsEditModal = dynamic(
-    () => import("./CredentialsEditModal").then((mod) => mod.CredentialsEditModal),
-    { ssr: false }
-);
-const ClinicalSkillsEditModal = dynamic(
-    () => import("./ClinicalSkillsEditModal").then((mod) => mod.ClinicalSkillsEditModal),
-    { ssr: false }
-);
-
-const PANELS = {
-    PERSONAL: "personal",
-    RATES: "rates",
-    CREDENTIALS: "credentials",
-    CLINICAL: "clinical",
-};
 
 /**
  * Therapist profile tab. Composes the profile cards and owns which edit panel
@@ -52,10 +32,6 @@ const ProfileTab = ({ profile, approvalStatus, onboardingComplete }) => {
 
     const closePanel = () => setOpenPanel(null);
 
-    const isCredentialsLocked =
-        onboardingComplete &&
-        (approvalStatus === APPROVAL_STATUS.PENDING || approvalStatus === APPROVAL_STATUS.REVIEW);
-
     return (
         <>
             <ReReviewBanner
@@ -71,9 +47,26 @@ const ProfileTab = ({ profile, approvalStatus, onboardingComplete }) => {
                         onEdit={() => setOpenPanel(PANELS.PERSONAL)}
                     />
 
+                    <ContactDetailsCard
+                        profile={profile}
+                        isOnboardingComplete={onboardingComplete}
+                        onEdit={() => setOpenPanel(PANELS.CONTACT)}
+                    />
+
+                    <AvailabilityDetailsCard
+                        profile={profile}
+                        isOnboardingComplete={onboardingComplete}
+                        onEdit={() => setOpenPanel(PANELS.AVAILABILITY)}
+                    />
+
+                    <ClinicalBackgroundCard
+                        profile={profile}
+                        isOnboardingComplete={onboardingComplete}
+                        onEdit={() => setOpenPanel(PANELS.BACKGROUND)}
+                    />
+
                     <ProfessionalDetailsCard
                         profile={profile}
-                        isCredentialsLocked={isCredentialsLocked}
                         onEditRates={() => setOpenPanel(PANELS.RATES)}
                         onViewCredentials={() => setOpenPanel(PANELS.CREDENTIALS)}
                     />
@@ -86,7 +79,7 @@ const ProfileTab = ({ profile, approvalStatus, onboardingComplete }) => {
                             onClick={() => setOpenPanel(PANELS.CLINICAL)}
                         >
                             <MdScience className="text-base" />
-                            View clinical profile
+                            Edit clinical profile
                         </Button>
                     </div>
                 </div>
@@ -116,25 +109,8 @@ const ProfileTab = ({ profile, approvalStatus, onboardingComplete }) => {
                 </div>
             </div>
 
-            <PersonalInfoDrawer
-                isOpen={openPanel === PANELS.PERSONAL}
-                onClose={closePanel}
-                profile={profile}
-                onSuccess={closePanel}
-            />
-            <RatesDrawer
-                isOpen={openPanel === PANELS.RATES}
-                onClose={closePanel}
-                profile={profile}
-                onSuccess={closePanel}
-            />
-            <CredentialsEditModal
-                isOpen={openPanel === PANELS.CREDENTIALS}
-                onClose={closePanel}
-                profile={profile}
-            />
-            <ClinicalSkillsEditModal
-                isOpen={openPanel === PANELS.CLINICAL}
+            <ProfilePanels
+                openPanel={openPanel}
                 onClose={closePanel}
                 profile={profile}
             />

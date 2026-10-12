@@ -27,6 +27,18 @@ const PHI_KEY_LIST = [
     "notes",
     "message",
     "patientName",
+    "primaryDiagnosis",
+    "referringProviderName",
+    "ein",
+    "addressLine1",
+    "addressLine2",
+    "city",
+    "state",
+    "zipCode",
+    "licenseNumber",
+    "npiNumber",
+    "signature",
+    "billingEmail",
 ];
 
 /**

@@ -229,7 +229,7 @@ export const availabilitySchema = z.object({
         path: ["schedule"],
     }),
 
-    availableFrom: z.string().optional().nullable(),
+    availableFrom: z.string().datetime({ offset: true }).optional().nullable(),
     caseloadCapacity: z
         .union([z.string().trim(), z.number()])
         .optional()
