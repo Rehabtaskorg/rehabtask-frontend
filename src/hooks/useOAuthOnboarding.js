@@ -21,6 +21,7 @@ export const useOAuthOnboarding = (redirectTo = null) => {
                 role: formData.role,
                 fullName: formData.fullName,
                 phone: formData.phone,
+                phoneVerification: formData.phoneVerification,
                 smsOptIn: formData.smsOptIn ?? false,
             };
 
@@ -55,10 +56,10 @@ export const useOAuthOnboarding = (redirectTo = null) => {
 
             if (apiError?.errors?.length) {
                 errorMessage = apiError.errors.map(e => e.message).join(", ");
-            } else if (err?.message) {
-                errorMessage = err.message;
             } else if (apiError?.message) {
                 errorMessage = apiError.message;
+            } else if (err?.message) {
+                errorMessage = err.message;
             } else {
                 errorMessage = "Failed to complete profile. Please try again.";
             }

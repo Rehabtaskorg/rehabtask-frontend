@@ -10,6 +10,9 @@ import { changePasswordSchema } from "@/lib/validators/therapist.schema";
 import { useChangePassword } from "@/hooks/useChangePassword";
 
 const ChangePasswordForm = () => {
+    // Keep react-hook-form registrations out of automatic compiler memoization.
+    "use no memo";
+
     const { register, handleSubmit, formState: { errors }, reset } = useForm({
         resolver: zodResolver(changePasswordSchema),
         defaultValues: {
