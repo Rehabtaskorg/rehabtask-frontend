@@ -1,8 +1,11 @@
 "use client";
 
+import SignupPhoneVerification from "@/components/forms/SignupPhoneVerification";
+import { useSignupPhoneVerification } from "@/hooks/useSignupPhoneVerification";
+
 import { useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { MdPerson, MdBusiness, MdCheckCircle } from "react-icons/md";
 import { FaUserMd } from "react-icons/fa";
@@ -24,7 +27,7 @@ function OAuthOnboardingContent() {
 
     const [selectedRole, setSelectedRole] = useState(null);
 
-    const { register, handleSubmit, watch, reset, formState: { errors }, setValue, control } = useForm({
+    const { register, handleSubmit, getValues, reset, formState: { errors }, setValue, control } = useForm({
         resolver: zodResolver(oauthOnboardingSchema),
         mode: "onTouched",
         reValidateMode: "onChange",
@@ -40,13 +43,12 @@ function OAuthOnboardingContent() {
 
     const { completeOnboarding, isSubmitting, error, clearError } = useOAuthOnboarding(redirectDescriptor);
 
-    // eslint-disable-next-line react-hooks/incompatible-library
-    const customerType = watch("customerType");
+    const customerType = useWatch({ control, name: "customerType" });
 
     const handleRoleSelection = (role) => {
         if (selectedRole !== role) {
-            const currentPhone = watch("phone");
-            const currentSmsOptIn = watch("smsOptIn");
+            const currentPhone = getValues("phone");
+            const currentSmsOptIn = getValues("smsOptIn");
             reset();
             setValue("role", role);
             setValue("phone", currentPhone);
@@ -55,9 +57,10 @@ function OAuthOnboardingContent() {
         }
     };
 
-    const onSubmit = async (data) => {
-        await completeOnboarding(data);
-    };
+    const phoneVerification = useSignupPhoneVerification(completeOnboarding, { oauth: true });
+    const onSubmit = phoneVerification.send;
+
+    if (phoneVerification.pending || phoneVerification.completed) return <div className="min-h-screen flex items-center justify-center p-6"><SignupPhoneVerification verification={phoneVerification} /></div>;
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gray-50  p-4 transition-colors duration-300">
@@ -157,13 +160,16 @@ function OAuthOnboardingContent() {
                                     required
                                 />
 
-                                <PhoneInput
+                                <div className="space-y-2">
+                        <PhoneInput
                                     label="Phone Number"
                                     name="phone"
                                     control={control}
                                     error={errors.phone?.message}
                                     required
                                 />
+                    <p className="text-xs text-text-muted">We will text you a verification code. Verifying your phone enables SMS two-factor authentication by default.</p>
+                    </div>
 
                                 <div className="flex items-start gap-3">
                                     <input
@@ -234,7 +240,7 @@ function OAuthOnboardingContent() {
                                         loading={isSubmitting}
                                         disabled={isSubmitting}
                                     >
-                                        Complete Profile
+                                        Continue to phone verification
                                     </Button>
                                     <button
                                         type="button"

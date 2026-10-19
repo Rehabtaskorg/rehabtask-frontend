@@ -12,6 +12,7 @@ import { useTherapistPublicProfile, useTherapistReviews } from "@/hooks/usePubli
 import { useAppRole } from "@/hooks/useAppRole";
 import AuthGateModal from "@/components/public/AuthGateModal";
 import UserAvatar from "@/components/ui/UserAvatar";
+import { UserText } from "@/components/ui/UserText";
 import Footer from "@/components/landing/Footer";
 import Navbar from "@/components/landing/Navbar";
 import { useAnalytics } from "@/hooks/useAnalytics";
@@ -114,7 +115,7 @@ function TherapistPublicProfileContent() {
 
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
                         {/* Left Column */}
-                        <div className="lg:col-span-8 space-y-10">
+                        <div className="lg:col-span-8 space-y-10 min-w-0">
                             {/* Profile Header */}
                             <motion.section initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="bg-gray-50 rounded-2xl p-8">
                                 <div className="flex flex-col md:flex-row gap-6 items-start md:items-center">
@@ -191,10 +192,10 @@ function TherapistPublicProfileContent() {
                                 To restore: uncomment this block as-is.
 
                                 {profile.professionalSummary && (
-                                    <motion.section initial={{ opacity: 0, y: 15 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }} className="space-y-3">
+                                    <motion.section initial={{ opacity: 0, y: 15 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }} className="space-y-3 min-w-0">
                                         <h2 className="text-xl font-bold text-gray-900">About</h2>
-                                        <div className="bg-gray-50 rounded-2xl p-8">
-                                            <p className="text-gray-600 leading-relaxed text-lg">{profile.professionalSummary}</p>
+                                        <div className="bg-gray-50 rounded-2xl p-8 min-w-0 overflow-hidden">
+                                            <UserText className="text-gray-600 leading-relaxed text-lg">{profile.professionalSummary}</UserText>
                                         </div>
                                     </motion.section>
                                 )}
@@ -368,7 +369,7 @@ function TherapistPublicProfileContent() {
                             )}
 
                             {/* Reviews — first 3 public, rest gated */}
-                            <motion.section initial={{ opacity: 0, y: 15 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }} className="space-y-4">
+                            <motion.section initial={{ opacity: 0, y: 15 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }} className="space-y-4 min-w-0">
                                 <h2 className="text-xl font-bold text-gray-900">Reviews ({reviewTotal})</h2>
 
                                 {reviewTotal === 0 ? (
@@ -379,7 +380,7 @@ function TherapistPublicProfileContent() {
                                     <>
                                         <div className="space-y-4">
                                             {(reviewsData?.reviews || []).slice(0, 3).map((review) => (
-                                                <div key={review.id} className="bg-gray-50 p-6 rounded-2xl">
+                                                <div key={review.id} className="bg-gray-50 p-6 rounded-2xl min-w-0 overflow-hidden">
                                                     <div className="flex justify-between items-start mb-3">
                                                         <div className="flex items-center gap-3">
                                                             <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm shrink-0">
@@ -397,7 +398,7 @@ function TherapistPublicProfileContent() {
                                                         </div>
                                                     </div>
                                                     {review.comment && (
-                                                        <p className="text-sm text-gray-600 leading-relaxed">{review.comment}</p>
+                                                        <UserText className="text-sm text-gray-600 leading-relaxed">{review.comment}</UserText>
                                                     )}
                                                 </div>
                                             ))}

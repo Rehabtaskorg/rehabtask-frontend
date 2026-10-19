@@ -81,13 +81,16 @@ export const CustomerDetailsStep = ({
                     required
                 />
 
-                <PhoneInput
+                <div className="space-y-2">
+                        <PhoneInput
                     label="Phone Number"
                     control={control}
                     name="phone"
                     error={errors.phone?.message}
                     required
                 />
+                    <p className="text-xs text-text-muted">We will text you a verification code. Verifying your phone enables SMS two-factor authentication by default.</p>
+                    </div>
 
                 <div className="flex items-start gap-3">
                     <input
@@ -127,7 +130,7 @@ export const CustomerDetailsStep = ({
                         disabled={isSubmitting}
                         className="group"
                     >
-                        <span>Create Account</span>
+                        <span>Continue to phone verification</span>
                         <MdArrowForward className="text-xl group-hover:translate-x-1 transition-transform" />
                     </Button>
                 </div>
