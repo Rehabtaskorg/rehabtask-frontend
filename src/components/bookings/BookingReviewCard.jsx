@@ -10,12 +10,16 @@ import { BOOKING_STATUS } from "@/lib/constants";
  * Renders nothing unless the booking is completed and has no review yet, so it is
  * safe to mount unconditionally on the booking detail page.
  *
+ * Pass a changing `key` alongside `isFormInitiallyOpen` to open the form from a parent,
+ * which remounts the component rather than syncing props into state.
+ *
  * @param {{ booking: { id: string, status: string, hasReview?: boolean,
  *                      therapist?: { fullName?: string } },
- *           onReviewed?: () => void }} props
+ *           onReviewed?: () => void,
+ *           isFormInitiallyOpen?: boolean }} props
  */
-export function BookingReviewCard({ booking, onReviewed }) {
-    const [isFormOpen, setIsFormOpen] = useState(false);
+export function BookingReviewCard({ booking, onReviewed, isFormInitiallyOpen = false }) {
+    const [isFormOpen, setIsFormOpen] = useState(isFormInitiallyOpen);
     const [isSubmitted, setIsSubmitted] = useState(false);
 
     const isCompleted = booking?.status === BOOKING_STATUS.COMPLETED;

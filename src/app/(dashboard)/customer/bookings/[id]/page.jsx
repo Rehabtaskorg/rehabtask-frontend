@@ -11,7 +11,7 @@ import {
 import { useBookingDetail } from "@/hooks/useBookings";
 import { useBookingPolling, usePaymentRedirect } from "@/hooks/useBookingPolling";
 import { bookingsApi } from "@/services/booking.api";
-import { BOOKING_STATUS, USER_ROLES } from "@/lib/constants";
+import { BOOKING_STATUS, USER_ROLES, SESSION_STATUS } from "@/lib/constants";
 import { PAYABLE_BOOKING_STATUSES, getPendingPaymentDeadline, isPendingPaymentExpired } from "@/lib/bookingPayment";
 import { resolveVisitPlan, computeTotalVisits } from "@/lib/visitPlan";
 import { formatCurrency } from "@/utils/messages";
@@ -23,6 +23,7 @@ import BookingTimeline from "@/components/bookings/BookingTimeline";
 import BookingSharedFiles from "@/components/bookings/BookingSharedFiles";
 import BookingEscrowInfo from "@/components/bookings/BookingEscrowInfo";
 import { BookingReviewCard } from "@/components/bookings/BookingReviewCard";
+import { FundMoreVisitsModal } from "@/components/customer/FundMoreVisitsModal";
 import SessionList from "@/components/bookings/SessionList";
 import PaymentSummaryCard from "@/components/bookings/PaymentSummaryCard";
 import InlinePaymentSection from "@/components/bookings/InlinePaymentSection";
@@ -42,6 +43,8 @@ export default function CustomerBookingDetailPage() {
 
     const [therapistImgError, setTherapistImgError] = useState(false);
     const [confirming, setConfirming] = useState(false);
+    const [showFundMoreVisits, setShowFundMoreVisits] = useState(false);
+    const [isReviewPrompted, setIsReviewPrompted] = useState(false);
     const [showConfirmDialog, setShowConfirmDialog] = useState(false);
     const [showRevisionModal, setShowRevisionModal] = useState(false);
     const [revisionSessionId, setRevisionSessionId] = useState(null);
@@ -75,11 +78,14 @@ export default function CustomerBookingDetailPage() {
             trackEvent("session_confirmed_by_customer", {
                 session_type: booking.sessionType,
                 sessions_remaining: (booking.sessions ?? []).filter(
-                    (s) => s.status !== "confirmed_by_customer"
+                    (s) => s.status !== SESSION_STATUS.CONFIRMED_BY_CUSTOMER
                 ).length - 1, // subtract the one just confirmed
             });
             setShowConfirmDialog(false);
-            await refetch();
+            const { data: updated } = await refetch();
+            if (updated?.status === BOOKING_STATUS.COMPLETED) {
+                setShowFundMoreVisits(true);
+            }
         } catch (err) {
             setActionError(err.response?.data?.message || "Failed to confirm completion.");
         } finally {
@@ -403,7 +409,12 @@ export default function CustomerBookingDetailPage() {
                         )}
                     </div>
 
-                    <BookingReviewCard booking={booking} onReviewed={refetch} />
+                    <BookingReviewCard
+                        key={isReviewPrompted ? "review-prompted" : "review-idle"}
+                        booking={booking}
+                        onReviewed={refetch}
+                        isFormInitiallyOpen={isReviewPrompted}
+                    />
 
                     <BookingTimeline booking={booking} />
 
@@ -757,6 +768,16 @@ export default function CustomerBookingDetailPage() {
                     <BookingEscrowInfo booking={booking} payment={payment} />
                 </div>
             </div>
+
+            <FundMoreVisitsModal
+                isOpen={showFundMoreVisits}
+                therapist={booking?.therapist}
+                onDecline={() => {
+                    setShowFundMoreVisits(false);
+                    setIsReviewPrompted(true);
+                }}
+                onClose={() => setShowFundMoreVisits(false)}
+            />
 
             <ConfirmModal
                 isOpen={!!rescheduleConfirm}

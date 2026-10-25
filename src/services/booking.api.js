@@ -22,11 +22,14 @@ export const bookingsApi = {
     },
 
     // Session endpoints
-    completeSession: async (bookingId) => {
-        return api.post(`/sessions/${bookingId}/complete`);
+    completeSession: async (sessionId) => {
+        return api.post(`/sessions/${sessionId}/complete`);
     },
     confirmSession: async (sessionId) => {
         return api.post(`/sessions/${sessionId}/confirm`);
+    },
+    requestContinuation: async (sessionId) => {
+        return api.post(`/sessions/${sessionId}/request-continuation`);
     },
     requestSessionCancellation: async (sessionId, reason) => {
         return api.post(`/sessions/${sessionId}/cancellation/request`, { reason });

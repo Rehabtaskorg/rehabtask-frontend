@@ -16,6 +16,7 @@ import { UserText } from "@/components/ui/UserText";
 import Footer from "@/components/landing/Footer";
 import Navbar from "@/components/landing/Navbar";
 import { useAnalytics } from "@/hooks/useAnalytics";
+import { REVIEW_CATEGORIES } from "@/lib/constants";
 
 function formatTime(t) {
     if (!t) return "";
@@ -397,6 +398,26 @@ function TherapistPublicProfileContent() {
                                                             ))}
                                                         </div>
                                                     </div>
+                                                    {REVIEW_CATEGORIES.every((category) => review[category.field] != null) && (
+                                                        <dl className="mb-3 grid grid-cols-1 sm:grid-cols-3 gap-x-6 gap-y-1.5">
+                                                            {REVIEW_CATEGORIES.map((category) => (
+                                                                <div key={category.field} className="flex items-center justify-between sm:block">
+                                                                    <dt className="text-xs text-gray-500">{category.label}</dt>
+                                                                    <dd className="flex items-center gap-0.5">
+                                                                        {Array.from({ length: 5 }).map((_, j) => (
+                                                                            <MdStar
+                                                                                key={j}
+                                                                                className={`text-xs ${j < review[category.field] ? "text-amber-400" : "text-gray-300"}`}
+                                                                            />
+                                                                        ))}
+                                                                        <span className="text-xs text-gray-500 ml-1">
+                                                                            {review[category.field]}/5
+                                                                        </span>
+                                                                    </dd>
+                                                                </div>
+                                                            ))}
+                                                        </dl>
+                                                    )}
                                                     {review.comment && (
                                                         <UserText className="text-sm text-gray-600 leading-relaxed">{review.comment}</UserText>
                                                     )}
