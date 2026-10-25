@@ -22,6 +22,7 @@ import BookingStatusBadge from "@/components/bookings/BookingStatusBadge";
 import BookingTimeline from "@/components/bookings/BookingTimeline";
 import BookingSharedFiles from "@/components/bookings/BookingSharedFiles";
 import BookingEscrowInfo from "@/components/bookings/BookingEscrowInfo";
+import { BookingReviewCard } from "@/components/bookings/BookingReviewCard";
 import SessionList from "@/components/bookings/SessionList";
 import PaymentSummaryCard from "@/components/bookings/PaymentSummaryCard";
 import InlinePaymentSection from "@/components/bookings/InlinePaymentSection";
@@ -401,6 +402,8 @@ export default function CustomerBookingDetailPage() {
                             </div>
                         )}
                     </div>
+
+                    <BookingReviewCard booking={booking} onReviewed={refetch} />
 
                     <BookingTimeline booking={booking} />
 
