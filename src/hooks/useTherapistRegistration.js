@@ -35,6 +35,7 @@ export const useTherapistRegistration = (redirectTo = null) => {
                 password: formData.password,
                 fullName: formData.fullName,
                 phone: formData.phone,
+                phoneVerification: formData.phoneVerification,
                 smsOptIn: formData.smsOptIn ?? false,
             };
 
@@ -67,10 +68,10 @@ export const useTherapistRegistration = (redirectTo = null) => {
             let errorMessage;
             if (apiError?.errors?.length) {
                 errorMessage = apiError.errors.map(e => e.message).join(", ");
-            } else if (err?.message) {
-                errorMessage = err.message;
             } else if (apiError?.message) {
                 errorMessage = apiError.message;
+            } else if (err?.message) {
+                errorMessage = err.message;
             } else {
                 errorMessage = "Registration failed. Please try again.";
             }

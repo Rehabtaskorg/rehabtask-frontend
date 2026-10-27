@@ -244,3 +244,21 @@ export const ANALYTICS_EVENTS = {
     PAYOUT_REPAIR_STARTED: "payout_account_repair_started",
     PAYOUT_REPAIR_COMPLETED: "payout_account_repair_completed",
 };
+
+export const REVIEW_CATEGORIES = [
+    {
+        field: "communicationRating",
+        label: "Communication",
+        description: "Clarity of instructions, responsiveness, and respectful communication",
+    },
+    {
+        field: "documentationRating",
+        label: "Timely Documentation",
+        description: "Same-day or next-day notes, accurate and complete",
+    },
+    {
+        field: "professionalismRating",
+        label: "Professionalism",
+        description: "Punctuality, conduct, and maintaining patient safety",
+    },
+];

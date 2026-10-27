@@ -2,6 +2,7 @@
 
 import UserAvatar from "../ui/UserAvatar";
 import StarRating from "./StarRating";
+import { REVIEW_CATEGORIES } from "@/lib/constants";
 
 const timeAgo = (dateStr) => {
     if (!dateStr) return "";
@@ -19,6 +20,7 @@ export default function ReviewCard({ review }) {
     if (!review) return null;
 
     const customerName = review.customer?.fullName || "Anonymous";
+    const hasBreakdown = REVIEW_CATEGORIES.every((category) => review[category.field] != null);
 
     return (
         <div className="border-b border-border-light  pb-6 last:border-0 last:pb-0">
@@ -37,6 +39,24 @@ export default function ReviewCard({ review }) {
                     </div>
                 </div>
             </div>
+
+            {hasBreakdown && (
+                <dl className="ml-11 mb-3 grid grid-cols-1 sm:grid-cols-3 gap-x-6 gap-y-1.5">
+                    {REVIEW_CATEGORIES.map((category) => (
+                        <div key={category.field} className="flex items-center justify-between sm:block">
+                            <dt className="text-xs text-text-muted ">
+                                {category.label}
+                            </dt>
+                            <dd className="flex items-center gap-1.5">
+                                <StarRating rating={review[category.field]} size="sm" />
+                                <span className="text-xs text-text-muted ">
+                                    {review[category.field]}/5
+                                </span>
+                            </dd>
+                        </div>
+                    ))}
+                </dl>
+            )}
 
             {/* Comment */}
             {review.comment && (

@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import Link from "next/link";
 import {
-    MdChevronRight, MdVerified, MdWork, MdPhone, MdEmail, MdChat, MdStar, MdChevronLeft, MdRefresh, MdArrowBack, MdAttachMoney, MdBarChart, MdLock,
+    MdChevronRight, MdVerified, MdWork, MdPhone, MdEmail, MdChat, MdStar, MdChevronLeft, MdRefresh, MdArrowBack, MdAttachMoney, MdBarChart, MdLock, MdSend,
 } from "react-icons/md";
 import { APIProvider } from "@vis.gl/react-google-maps";
 import { useTherapistPublicProfile, useTherapistReviews } from "@/hooks/useTherapistSearch";
@@ -15,6 +16,7 @@ import ReviewCard from "@/components/therapist/ReviewCard";
 import ReviewForm from "@/components/therapist/ReviewForm";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { useMessageGuard } from "@/hooks/useMessageGuard";
+import { useAnalytics } from "@/hooks/useAnalytics";
 import { MessageGateModal } from "@/components/ui/MessageGateModal";
 import { UserText } from "@/components/ui/UserText";
 import { LICENSE_TYPE_TO_DISCIPLINE } from "@/lib/constants";
@@ -25,6 +27,7 @@ export default function TherapistProfilePage() {
     usePageTitle("Therapist Profile");
     const params = useParams();
     const router = useRouter();
+    const { trackEvent } = useAnalytics();
     const therapistId = params.id;
 
     const { therapist, loading, error, refetch } = useTherapistPublicProfile(therapistId);
@@ -218,13 +221,23 @@ export default function TherapistProfilePage() {
                             </div>
 
                             {/* Actions */}
-                            <button
-                                onClick={handleMessage}
-                                className="hidden sm:inline-flex items-center gap-2 px-6 py-2.5 bg-primary text-white font-semibold rounded-lg hover:opacity-90 transition-opacity text-sm"
-                            >
-                                <MdChat className="text-base" />
-                                Send Message
-                            </button>
+                            <div className="hidden sm:flex items-center gap-3">
+                                <Link
+                                    href={`/customer/requests/new?directTo=${therapistId}`}
+                                    onClick={() => trackEvent("direct_request_initiated", { source: "therapist_profile" })}
+                                    className="inline-flex items-center gap-2 px-6 py-2.5 bg-primary text-white font-semibold rounded-lg hover:opacity-90 transition-opacity text-sm"
+                                >
+                                    <MdSend className="text-base" />
+                                    Send Request
+                                </Link>
+                                <button
+                                    onClick={handleMessage}
+                                    className="inline-flex items-center gap-2 px-6 py-2.5 border border-border-light text-text-main font-semibold rounded-lg hover:bg-background-light transition-colors text-sm"
+                                >
+                                    <MdChat className="text-base" />
+                                    Send Message
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -456,13 +469,23 @@ export default function TherapistProfilePage() {
                             </p>
                         </div>
                     </div>
-                    <button
-                        onClick={handleMessage}
-                        className="flex items-center gap-1.5 px-4 py-2 bg-primary text-white font-semibold rounded-lg text-sm shrink-0"
-                    >
-                        <MdChat className="text-base" />
-                        Message
-                    </button>
+                    <div className="flex items-center gap-2 shrink-0">
+                        <Link
+                            href={`/customer/requests/new?directTo=${therapistId}`}
+                            onClick={() => trackEvent("direct_request_initiated", { source: "therapist_profile_mobile" })}
+                            className="flex items-center gap-1.5 px-4 py-2 bg-primary text-white font-semibold rounded-lg text-sm"
+                        >
+                            <MdSend className="text-base" />
+                            Request
+                        </Link>
+                        <button
+                            onClick={handleMessage}
+                            aria-label="Send message"
+                            className="flex items-center justify-center p-2 border border-border-light text-text-main rounded-lg"
+                        >
+                            <MdChat className="text-base" />
+                        </button>
+                    </div>
                 </div>
             </div>
         </APIProvider>

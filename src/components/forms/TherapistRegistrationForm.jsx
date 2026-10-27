@@ -1,5 +1,8 @@
 "use client";
 
+import SignupPhoneVerification from "@/components/forms/SignupPhoneVerification";
+import { useSignupPhoneVerification } from "@/hooks/useSignupPhoneVerification";
+
 import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
@@ -34,9 +37,8 @@ const TherapistRegistrationForm = () => {
 
     const { initiateGoogleLogin } = useGoogleAuth(redirectTo);
 
-    const onSubmit = async (data) => {
-        await registerTherapist(data);
-    };
+    const phoneVerification = useSignupPhoneVerification(registerTherapist);
+    const onSubmit = phoneVerification.send;
 
     const handleGoogleSignup = async () => {
         setGoogleLoading(true);
@@ -49,6 +51,8 @@ const TherapistRegistrationForm = () => {
         }
         // Success → redirect handled externally
     };
+
+    if (phoneVerification.pending || phoneVerification.completed) return <SignupPhoneVerification verification={phoneVerification} />;
 
     return (
         <div className="max-w-160 mx-auto bg-white  rounded-xl shadow-sm border border-border-subtle  overflow-hidden">
@@ -108,13 +112,16 @@ const TherapistRegistrationForm = () => {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <PhoneInput
+                    <div className="space-y-2">
+                        <PhoneInput
                         label="Phone Number"
                         name="phone"
                         control={control}
                         error={errors.phone?.message}
                         required
                     />
+                    <p className="text-xs text-text-muted">We will text you a verification code. Verifying your phone enables SMS two-factor authentication by default.</p>
+                    </div>
 
                     <PasswordInput
                         label="Create Password"
@@ -157,11 +164,11 @@ const TherapistRegistrationForm = () => {
                         loading={isSubmitting}
                         disabled={isSubmitting}
                     >
-                        Create Professional Account
+                        Continue to phone verification
                     </Button>
 
                     <p className="text-xs text-center text-text-muted">
-                        By clicking create account, you agree to our{" "}
+                        By continuing, you agree to our{" "}
                         <Link href="/terms" className="text-primary hover:underline">
                             Terms of Service
                         </Link>{" "}

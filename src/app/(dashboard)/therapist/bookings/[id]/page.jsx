@@ -25,6 +25,15 @@ import { usePageTitle } from "@/hooks/usePageTitle";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import BookingSharedFiles from "@/components/bookings/BookingSharedFiles";
 import { PatientInfoBlock } from "@/components/shared/patient/PatientInfoBlock";
+import { PostCompletionOfferModal } from "@/components/therapist/PostCompletionOfferModal";
+
+const isFinalSessionComplete = (booking) => {
+    const sessions = booking?.sessions ?? [];
+    if (sessions.length === 0) return false;
+    return sessions.every((s) =>
+        [SESSION_STATUS.COMPLETED_BY_THERAPIST, SESSION_STATUS.CONFIRMED_BY_CUSTOMER].includes(s.status)
+    );
+};
 
 const formatDate = (dateStr) => {
     if (!dateStr) return "—";
@@ -41,6 +50,7 @@ export default function TherapistBookingDetailPage() {
 
     // UI states
     const [completing, setCompleting] = useState(false);
+    const [continuationSessionId, setContinuationSessionId] = useState(null);
     const [showCompleteDialog, setShowCompleteDialog] = useState(false);
     const [markMissedSession, setMarkMissedSession] = useState(null);
     const [markAttemptedSession, setMarkAttemptedSession] = useState(null);
@@ -181,13 +191,18 @@ export default function TherapistBookingDetailPage() {
     };
 
     const handleMarkComplete = async () => {
+        const sessionId = booking.sessions?.[0]?.id;
         setCompleting(true);
         try {
-            await bookingsApi.completeSession(booking.sessions?.[0]?.id);
+            await bookingsApi.completeSession(sessionId);
             trackEvent("session_completed_by_therapist", { session_type: booking.sessionType });
             setShowCompleteDialog(false);
-            showToast.success("Session marked as complete. Waiting for customer confirmation.");
-            await refetch();
+            const { data: updated } = await refetch();
+            if (isFinalSessionComplete(updated)) {
+                setContinuationSessionId(sessionId);
+            } else {
+                showToast.success("Session marked as complete. Waiting for customer confirmation.");
+            }
         } catch (err) {
             const errorCode = err.response?.data?.code;
             if (errorCode === "STRIPE_NOT_CONNECTED") {
@@ -571,8 +586,12 @@ export default function TherapistBookingDetailPage() {
                             onMarkComplete={async (sessionId) => {
                                 try {
                                     await bookingsApi.completeSession(sessionId);
-                                    showToast.success("Session marked as complete. Waiting for customer confirmation.");
-                                    await refetch();
+                                    const { data: updated } = await refetch();
+                                    if (isFinalSessionComplete(updated)) {
+                                        setContinuationSessionId(sessionId);
+                                    } else {
+                                        showToast.success("Session marked as complete. Waiting for customer confirmation.");
+                                    }
                                 } catch (err) {
                                     const errorCode = err.response?.data?.code;
                                     if (errorCode === "STRIPE_NOT_CONNECTED") {
@@ -1128,6 +1147,13 @@ export default function TherapistBookingDetailPage() {
                 actorRole="therapist"
                 refundAmount={booking?.rate}
                 onSuccess={refetch}
+            />
+
+            <PostCompletionOfferModal
+                isOpen={!!continuationSessionId}
+                sessionId={continuationSessionId}
+                customerName={booking?.customer?.fullName}
+                onClose={() => setContinuationSessionId(null)}
             />
 
             {/* Mark Attempted modal (therapist only — patient not home) */}

@@ -29,6 +29,13 @@ const getRecaptchaToken = async (action) => {
  * automatically — callers do not need to handle reCAPTCHA themselves.
  */
 export const authAPi = {
+    startSignupPhoneVerification: async (email, phone) => {
+        const recaptchaAction = "REGISTER_PHONE";
+        const recaptchaToken = await getRecaptchaToken(recaptchaAction);
+        return api.post("/auth/register/phone/start", { email, phone, recaptchaToken, recaptchaAction });
+    },
+    startOnboardingPhoneVerification: async (phone) => api.post("/auth/oauth/phone/start", { phone }),
+
     /** Register a new customer. */
     registerCustomer: async (data) => {
         const recaptchaAction = "REGISTER_CUSTOMER";

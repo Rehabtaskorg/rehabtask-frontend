@@ -26,9 +26,6 @@ export default function TwoFactorSettings() {
     const [addSmsOpen, setAddSmsOpen] = useState(false);
     const [useDifferentNumber, setUseDifferentNumber] = useState(false);
     const [disableOpen, setDisableOpen] = useState(false);
-    const [disablePassword, setDisablePassword] = useState("");
-    const [disableChallenge, setDisableChallenge] = useState(null);
-    const [disableCode, setDisableCode] = useState("");
     const [mounted, setMounted] = useState(false);
 
     useEffect(() => { setMounted(true); }, []);
@@ -66,9 +63,6 @@ export default function TwoFactorSettings() {
     const closeDisableModal = () => {
         if (submitting) return;
         setDisableOpen(false);
-        setDisablePassword("");
-        setDisableChallenge(null);
-        setDisableCode("");
         setCooldown(0);
     };
 
@@ -133,7 +127,12 @@ export default function TwoFactorSettings() {
             return;
         }
 
+        await enableEmail();
+    };
+
+    const enableEmail = async () => {
         setSubmitting(true);
+        setMessage(null);
         try {
             trackEvent("two_factor_setup_started", { method: "email" });
             await authAPi.setTwoFactorEnabled(true);
@@ -147,33 +146,13 @@ export default function TwoFactorSettings() {
         }
     };
 
-    const startDisable = async () => {
+    const confirmDisable = async () => {
         setSubmitting(true);
         setMessage(null);
         try {
-            const response = await authAPi.startDisableTwoFactor(status?.preferredMethod);
-            setDisableChallenge(response.data.data.challenge);
-            setCooldown(60);
-        } catch (error) {
-            setMessage(error.response?.data?.message || "Unable to start the disable process.");
-        } finally {
-            setSubmitting(false);
-        }
-    };
-
-    const confirmDisable = async (event) => {
-        event.preventDefault();
-        setSubmitting(true);
-        setMessage(null);
-        try {
-            await authAPi.disableTwoFactor({
-                currentPassword: disablePassword,
-                challengeId: disableChallenge.challengeId,
-                challengeToken: disableChallenge.challengeToken,
-                code: disableCode,
-            });
-            closeDisableModal();
-            await loadStatus();
+            const response = await authAPi.setTwoFactorEnabled(false);
+            setStatus(response.data.data);
+            setDisableOpen(false);
             setMessage("Two-factor authentication has been disabled.");
         } catch (error) {
             setMessage(error.response?.data?.message || "Unable to disable two-factor authentication.");
@@ -279,7 +258,7 @@ export default function TwoFactorSettings() {
                             role="switch"
                             aria-checked={!!status?.enabled}
                             onClick={handleToggle}
-                            disabled={submitting || status?.mandatory || disableOpen}
+                             disabled={submitting || status?.mandatory || disableOpen}
                             className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${status?.enabled ? "bg-primary" : "bg-gray-300"}`}
                             aria-label={status?.enabled ? "Turn off two-factor authentication" : "Turn on two-factor authentication"}
                         >
@@ -333,16 +312,20 @@ export default function TwoFactorSettings() {
                                     >
                                         Add number
                                     </Button>
-                                ) : null}
+                                ) : (
+                                    <Button type="button" variant="outline" size="sm" onClick={enableEmail} disabled={submitting || !status?.methods?.email?.available}>
+                                        Enable email
+                                    </Button>
+                                )}
                             </div>
                         ))}
                     </div>
 
-                    {bothMethodsEnabled && (
+                    {status && (
                         <div className="rounded-lg border border-border-light p-4 space-y-3">
                             <div>
                                 <h3 className="font-semibold text-text-main">Preferred method</h3>
-                                <p className="text-sm text-text-muted mt-1">Choose which verified method receives login codes first.</p>
+                                <p className="text-sm text-text-muted mt-1">Choose which verified method receives login codes first. SMS is the default at signup. Enable and verify a method before selecting it.</p>
                             </div>
                             <div className="flex flex-wrap gap-2">
                                 {["sms", "email"].map((method) => (
@@ -350,7 +333,8 @@ export default function TwoFactorSettings() {
                                         key={method}
                                         type="button"
                                         onClick={() => setPreferredMethod(method)}
-                                        disabled={submitting || preferred === method}
+                                        disabled={submitting || !status.enabled || !status.methods?.[method]?.enabled || preferred === method}
+                                        aria-pressed={preferred === method}
                                         className={`rounded-lg border px-4 py-2 text-sm font-semibold transition-colors disabled:opacity-60 ${
                                             preferred === method
                                                 ? "border-primary bg-primary/5 text-primary"
@@ -424,7 +408,7 @@ export default function TwoFactorSettings() {
                             {!challenge && !editingPhone && (
                                 <>
                                     <p className="text-sm text-text-muted">
-                                        SMS becomes your primary login verification method. Email remains available as a backup.
+                                        Verify your mobile number to enable SMS login codes. You can then choose your preferred verification method.
                                     </p>
 
                                     {status?.methods?.sms?.reusable && !useDifferentNumber ? (
@@ -545,25 +529,11 @@ export default function TwoFactorSettings() {
                             {message && !message.includes("enabled") && !message.includes("removed") && !message.includes("disabled") && !message.includes("primary") && (
                                 <Alert type="error" message={message} onClose={() => setMessage(null)} />
                             )}
-                            {!disableChallenge ? (
-                                <>
-                                    <p className="text-sm text-text-muted">For your security, disabling 2FA requires your current password and a verification code.</p>
-                                    <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-                                        <Button type="button" variant="ghost" onClick={closeDisableModal} disabled={submitting}>Cancel</Button>
-                                        <Button type="button" variant="destructive" onClick={startDisable} loading={submitting} disabled={submitting}>Send verification code</Button>
-                                    </div>
-                                </>
-                            ) : (
-                                <form onSubmit={confirmDisable} className="space-y-4">
-                                    <p className="text-sm text-text-muted">Enter your password and the code sent to {disableChallenge.destination}.</p>
-                                    <Input label="Current password" type="password" value={disablePassword} onChange={(event) => setDisablePassword(event.target.value)} required />
-                                    <Input label="Verification code" inputMode="numeric" maxLength={6} value={disableCode} onChange={(event) => setDisableCode(event.target.value.replace(/\D/g, ""))} required />
-                                    <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-                                        <Button type="button" variant="ghost" onClick={closeDisableModal} disabled={submitting}>Cancel</Button>
-                                        <Button type="submit" variant="destructive" loading={submitting} disabled={submitting || !disablePassword || disableCode.length !== 6}>Disable 2FA</Button>
-                                    </div>
-                                </form>
-                            )}
+                            <p className="text-sm text-text-muted">Turn off two-factor authentication for your account? You can enable it again from these security settings.</p>
+                            <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+                                <Button type="button" variant="ghost" onClick={closeDisableModal} disabled={submitting}>Cancel</Button>
+                                <Button type="button" variant="destructive" onClick={confirmDisable} loading={submitting} disabled={submitting}>Turn off 2FA</Button>
+                            </div>
                         </div>
                     </div>
                 </div>,

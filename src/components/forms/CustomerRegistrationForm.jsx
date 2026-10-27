@@ -1,5 +1,8 @@
 "use client";
 
+import SignupPhoneVerification from "@/components/forms/SignupPhoneVerification";
+import { useSignupPhoneVerification } from "@/hooks/useSignupPhoneVerification";
+
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
@@ -56,12 +59,8 @@ export const CustomerRegistrationForm = () => {
         }
     }, [customerType, setValue, clearErrors]);
 
-    const onSubmit = async (data) => {
-        await registerCustomer({
-            ...data,
-            agencyName: data.customerType === CUSTOMER_TYPES.AGENCY ? data.agencyName : null,
-        });
-    };
+    const phoneVerification = useSignupPhoneVerification(registerCustomer);
+    const onSubmit = phoneVerification.send;
 
     const handleSelectType = (selectedType) => {
         const params = new URLSearchParams();
@@ -75,6 +74,8 @@ export const CustomerRegistrationForm = () => {
         const result = await initiateGoogleLogin();
         if (!result?.success) setIsGoogleLoading(false);
     };
+
+    if (phoneVerification.pending || phoneVerification.completed) return <SignupPhoneVerification verification={phoneVerification} />;
 
     if (!customerType) {
         return (
