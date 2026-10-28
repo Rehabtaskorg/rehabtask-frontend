@@ -11,7 +11,6 @@ export const SUPPORT_EMAIL = "support@rehabtask.com";
 export const SUGGESTED_QUESTIONS = {
     public: [
         "How does RehabTask work?",
-        "I'm looking for a therapist",
         "I want to join as a therapist",
         "I'm an agency",
         "How do payments work?",
