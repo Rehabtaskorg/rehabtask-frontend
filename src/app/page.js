@@ -6,6 +6,7 @@ import Stats from "@/components/landing/Stats";
 import ForTherapists from "@/components/landing/ForTherapists";
 import TrustSignals from "@/components/landing/TrustSignals";
 import Footer from "@/components/landing/Footer";
+import { ChatWidget } from "@/components/ai/ChatWidget";
 
 export const metadata = {
     title: "RehabTask — Find Licensed Rehabilitation Therapists",
@@ -25,6 +26,7 @@ export default function LandingPage() {
                 <TrustSignals />
             </main>
             <Footer />
+            <ChatWidget audience="public" />
         </>
     );
 }
