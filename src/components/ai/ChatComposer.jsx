@@ -5,6 +5,7 @@ import { MdSend, MdSupportAgent } from "react-icons/md";
 import { AI_CHAT } from "@/services/ai.api";
 import { PHI_NOTICE, SUPPORT_EMAIL } from "@/lib/aiChatConfig";
 
+const MIN_INPUT_HEIGHT = 42;
 const MAX_INPUT_HEIGHT = 120;
 
 /**
@@ -27,7 +28,8 @@ export function ChatComposer({
         if (!input) return;
 
         input.style.height = "auto";
-        input.style.height = `${Math.min(input.scrollHeight, MAX_INPUT_HEIGHT)}px`;
+        const fitted = Math.max(input.scrollHeight, MIN_INPUT_HEIGHT);
+        input.style.height = `${Math.min(fitted, MAX_INPUT_HEIGHT)}px`;
     }, [draft, inputRef]);
 
     return (
