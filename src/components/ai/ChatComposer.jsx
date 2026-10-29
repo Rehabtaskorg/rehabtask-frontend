@@ -1,8 +1,11 @@
 "use client";
 
+import { useLayoutEffect } from "react";
 import { MdSend, MdSupportAgent } from "react-icons/md";
 import { AI_CHAT } from "@/services/ai.api";
 import { PHI_NOTICE, SUPPORT_EMAIL } from "@/lib/aiChatConfig";
+
+const MAX_INPUT_HEIGHT = 120;
 
 /**
  * @param {{ draft: string, onDraftChange: (value: string) => void,
@@ -19,6 +22,14 @@ export function ChatComposer({
     inputRef,
     onSupportClick,
 }) {
+    useLayoutEffect(() => {
+        const input = inputRef.current;
+        if (!input) return;
+
+        input.style.height = "auto";
+        input.style.height = `${Math.min(input.scrollHeight, MAX_INPUT_HEIGHT)}px`;
+    }, [draft, inputRef]);
+
     return (
         <footer className="border-t border-border-light px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
             <form
@@ -43,7 +54,7 @@ export function ChatComposer({
                     maxLength={AI_CHAT.maxInputChars}
                     rows={1}
                     placeholder="Ask a question…"
-                    className="flex-1 resize-none rounded-xl border border-border-light px-3 py-2 text-base text-text-main outline-none focus:border-primary sm:text-sm"
+                    className="flex-1 resize-none overflow-y-auto rounded-xl border border-border-light px-3 py-2 text-base text-text-main outline-none focus:border-primary sm:text-sm"
                 />
                 <button
                     type="submit"
