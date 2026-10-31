@@ -7,6 +7,8 @@ const newSessionId = () =>
     typeof globalThis.crypto?.randomUUID === "function" ? globalThis.crypto.randomUUID() : null;
 
 /**
+ * @param {"public"|"customer"|"therapist"|"agency"} [audience] where the widget is mounted.
+ *   The backend trusts the session over this value for signed-in users.
  * @returns {{
  *   messages: Array<{role: "user"|"assistant", content: string}>,
  *   error: string|null,
@@ -17,7 +19,7 @@ const newSessionId = () =>
  *   reset: () => void
  * }}
  */
-export function useAiChat() {
+export function useAiChat(audience) {
     const [messages, setMessages] = useState([]);
     const [error, setError] = useState(null);
     const [failedText, setFailedText] = useState(null);
@@ -48,6 +50,7 @@ export function useAiChat() {
             const reply = await sendChatMessage({
                 messages: next,
                 sessionId: sessionIdRef.current,
+                audience,
             });
             if (conversationRef.current !== conversation) return;
             setMessages((current) => [...current, { role: "assistant", content: reply }]);
@@ -63,7 +66,7 @@ export function useAiChat() {
                 setIsSending(false);
             }
         }
-    }, [messages]);
+    }, [messages, audience]);
 
     const reset = useCallback(() => {
         conversationRef.current += 1;

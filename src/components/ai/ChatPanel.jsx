@@ -14,7 +14,7 @@ import { ChatComposer } from "./ChatComposer";
  *           onClose: () => void }} props
  */
 export function ChatPanel({ isOpen, audience = "public", onClose }) {
-    const { messages, error, failedText, isSending, retryAfterSeconds, send, reset } = useAiChat();
+    const { messages, error, failedText, isSending, retryAfterSeconds, send, reset } = useAiChat(audience);
     const [draft, setDraft] = useState("");
     const [cooldown, setCooldown] = useState(0);
 
