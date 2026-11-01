@@ -23,7 +23,7 @@ export function ChatPanel({ isOpen, audience = "public", onClose }) {
     const { trackEvent } = useAnalytics();
 
     const suggestions = getSuggestedQuestions(audience);
-    const isEmpty = messages.length === 0;
+    const isEmpty = messages.length <= 1;
     const isBlocked = isSending || cooldown > 0;
 
     useEffect(() => {
@@ -115,16 +115,11 @@ export function ChatPanel({ isOpen, audience = "public", onClose }) {
             </header>
 
             <div className="flex-1 space-y-3 overflow-y-auto px-4 py-4">
-                {isEmpty && (
-                    <ChatWelcome
-                        audience={audience}
-                        suggestions={suggestions}
-                        isBlocked={isBlocked}
-                        onPick={submit}
-                    />
-                )}
-
                 <ChatMessages messages={messages} isSending={isSending} error={error} />
+
+                {isEmpty && suggestions.length > 0 && (
+                    <ChatWelcome suggestions={suggestions} isBlocked={isBlocked} onPick={submit} />
+                )}
 
                 <div ref={endRef} />
             </div>

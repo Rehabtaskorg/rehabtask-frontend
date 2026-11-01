@@ -1,7 +1,8 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { sendChatMessage, getChatErrorMessage } from "@/services/ai.api";
+import { getGreeting } from "@/lib/aiChatConfig";
 
 const newSessionId = () =>
     typeof globalThis.crypto?.randomUUID === "function" ? globalThis.crypto.randomUUID() : null;
@@ -20,7 +21,8 @@ const newSessionId = () =>
  * }}
  */
 export function useAiChat(audience) {
-    const [messages, setMessages] = useState([]);
+    const greeting = useMemo(() => getGreeting(audience), [audience]);
+    const [messages, setMessages] = useState([greeting]);
     const [error, setError] = useState(null);
     const [failedText, setFailedText] = useState(null);
     const [isSending, setIsSending] = useState(false);
@@ -72,11 +74,11 @@ export function useAiChat(audience) {
         conversationRef.current += 1;
         sendingRef.current = false;
         sessionIdRef.current = newSessionId();
-        setMessages([]);
+        setMessages([greeting]);
         setError(null);
         setFailedText(null);
         setIsSending(false);
-    }, []);
+    }, [greeting]);
 
     return { messages, error, failedText, isSending, retryAfterSeconds, send, reset };
 }
