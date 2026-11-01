@@ -22,6 +22,7 @@ export function ChatComposer({
     cooldown,
     inputRef,
     onSupportClick,
+    onTalkToTeam,
 }) {
     useLayoutEffect(() => {
         const input = inputRef.current;
@@ -74,14 +75,25 @@ export function ChatComposer({
 
             <p className="mt-2 text-xs text-text-muted">{PHI_NOTICE}</p>
 
-            <a
-                href={`mailto:${SUPPORT_EMAIL}`}
-                onClick={onSupportClick}
-                className="mt-2 inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline"
-            >
-                <MdSupportAgent className="text-sm" />
-                Contact Support
-            </a>
+            <div className="mt-2 flex items-center gap-3">
+                <a
+                    href={`mailto:${SUPPORT_EMAIL}`}
+                    onClick={onSupportClick}
+                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline"
+                >
+                    <MdSupportAgent className="text-sm" />
+                    Contact Support
+                </a>
+                {onTalkToTeam && (
+                    <button
+                        type="button"
+                        onClick={onTalkToTeam}
+                        className="text-xs font-semibold text-primary hover:underline"
+                    >
+                        Talk to the team
+                    </button>
+                )}
+            </div>
         </footer>
     );
 }

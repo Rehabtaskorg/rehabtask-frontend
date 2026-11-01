@@ -37,3 +37,22 @@ const SUGGESTED_QUESTIONS = {
 };
 
 export const getSuggestedQuestions = (audience) => SUGGESTED_QUESTIONS[audience] ?? [];
+
+export const LEAD_ROLE_OPTIONS = [
+    { value: "pt", label: "Physical Therapist" },
+    { value: "ot", label: "Occupational Therapist" },
+    { value: "slp", label: "Speech Therapist" },
+    { value: "pta", label: "PT Assistant" },
+    { value: "cota", label: "OT Assistant" },
+    { value: "agency", label: "Home health agency" },
+    { value: "patient", label: "Patient or family" },
+];
+
+export const LEAD_COPY = {
+    intro: `I can pass you to the RehabTask team, they'll follow up personally. Just your name and email is enough.`,
+    consent: "By sharing your details you agree to let the RehabTask team contact you about your request. We don't store this chat.",
+    contextHelper: "Please keep this general, no medical or patient details.",
+    submit: "Ask the team to contact me",
+    dismiss: "Not right now",
+    reopen: "Share your details",
+};

@@ -7,19 +7,6 @@ import { getGreeting } from "@/lib/aiChatConfig";
 const newSessionId = () =>
     typeof globalThis.crypto?.randomUUID === "function" ? globalThis.crypto.randomUUID() : null;
 
-/**
- * @param {"public"|"customer"|"therapist"|"agency"} [audience] where the widget is mounted.
- *   The backend trusts the session over this value for signed-in users.
- * @returns {{
- *   messages: Array<{role: "user"|"assistant", content: string}>,
- *   error: string|null,
- *   failedText: string|null,
- *   isSending: boolean,
- *   retryAfterSeconds: number|null,
- *   send: (text: string) => Promise<void>,
- *   reset: () => void
- * }}
- */
 export function useAiChat(audience) {
     const greeting = useMemo(() => getGreeting(audience), [audience]);
     const [messages, setMessages] = useState([greeting]);
@@ -33,6 +20,27 @@ export function useAiChat(audience) {
 
     const conversationRef = useRef(0);
     const sendingRef = useRef(false);
+    const leadSentRef = useRef(false);
+
+    const hasLeadCard = messages.some((m) => m.role === "lead");
+
+    const openLead = useCallback(() => {
+        if (leadSentRef.current) return;
+        setMessages((current) =>
+            current.some((m) => m.role === "lead") ? current : [...current, { role: "lead" }]
+        );
+    }, []);
+
+    const dismissLead = useCallback(() => {
+        setMessages((current) => current.filter((m) => m.role !== "lead"));
+    }, []);
+
+    const completeLead = useCallback((email) => {
+        leadSentRef.current = true;
+        setMessages((current) =>
+            current.map((m) => (m.role === "lead" ? { role: "lead-sent", email } : m))
+        );
+    }, []);
 
     const send = useCallback(async (text) => {
         const content = text.trim();
@@ -49,13 +57,17 @@ export function useAiChat(audience) {
         setIsSending(true);
 
         try {
-            const reply = await sendChatMessage({
+            const { reply, offerLead } = await sendChatMessage({
                 messages: next,
                 sessionId: sessionIdRef.current,
                 audience,
             });
             if (conversationRef.current !== conversation) return;
-            setMessages((current) => [...current, { role: "assistant", content: reply }]);
+            setMessages((current) => [
+                ...current,
+                { role: "assistant", content: reply },
+                ...(offerLead && !leadSentRef.current ? [{ role: "lead" }] : []),
+            ]);
         } catch (err) {
             if (conversationRef.current !== conversation) return;
             setMessages((current) => current.slice(0, -1));
@@ -73,6 +85,7 @@ export function useAiChat(audience) {
     const reset = useCallback(() => {
         conversationRef.current += 1;
         sendingRef.current = false;
+        leadSentRef.current = false;
         sessionIdRef.current = newSessionId();
         setMessages([greeting]);
         setError(null);
@@ -80,5 +93,17 @@ export function useAiChat(audience) {
         setIsSending(false);
     }, [greeting]);
 
-    return { messages, error, failedText, isSending, retryAfterSeconds, send, reset };
+    return {
+        messages,
+        error,
+        failedText,
+        isSending,
+        retryAfterSeconds,
+        hasLeadCard,
+        send,
+        reset,
+        openLead,
+        dismissLead,
+        completeLead,
+    };
 }

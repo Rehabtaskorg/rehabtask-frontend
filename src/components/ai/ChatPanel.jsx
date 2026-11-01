@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { MdClose, MdRefresh } from "react-icons/md";
+import { ChatHeader } from "./ChatHeader";
 import { useAiChat } from "@/hooks/useAiChat";
 import { useAnalytics } from "@/hooks/useAnalytics";
+import { useChatLead } from "@/hooks/useChatLead";
 import { getSuggestedQuestions } from "@/lib/aiChatConfig";
 import { ChatWelcome } from "./ChatWelcome";
 import { ChatMessages } from "./ChatMessages";
@@ -14,7 +15,10 @@ import { ChatComposer } from "./ChatComposer";
  *           onClose: () => void }} props
  */
 export function ChatPanel({ isOpen, audience = "public", onClose }) {
-    const { messages, error, failedText, isSending, retryAfterSeconds, send, reset } = useAiChat(audience);
+    const {
+        messages, error, failedText, isSending, retryAfterSeconds, hasLeadCard,
+        send, reset, openLead, dismissLead, completeLead,
+    } = useAiChat(audience);
     const [draft, setDraft] = useState("");
     const [cooldown, setCooldown] = useState(0);
 
@@ -23,6 +27,15 @@ export function ChatPanel({ isOpen, audience = "public", onClose }) {
     const { trackEvent } = useAnalytics();
 
     const suggestions = getSuggestedQuestions(audience);
+
+    const lead = useChatLead({
+        audience,
+        hasLeadCard,
+        openLead,
+        dismissLead,
+        completeLead,
+        scrollToEnd: () => endRef.current?.scrollIntoView({ behavior: "smooth" }),
+    });
     const isEmpty = messages.length <= 1;
     const isBlocked = isSending || cooldown > 0;
 
@@ -36,7 +49,8 @@ export function ChatPanel({ isOpen, audience = "public", onClose }) {
     }, [failedText]);
 
     useEffect(() => {
-        if (messages.at(-1)?.role === "assistant") {
+        const lastReply = messages.filter((m) => m.role !== "lead").at(-1);
+        if (lastReply?.role === "assistant") {
             trackEvent("ai_response_received", { audience });
         }
     }, [messages, audience, trackEvent]);
@@ -85,37 +99,21 @@ export function ChatPanel({ isOpen, audience = "public", onClose }) {
             aria-hidden={!isOpen}
             className={`fixed bottom-0 right-0 z-50 h-[100dvh] w-full flex-col bg-white shadow-2xl sm:bottom-24 sm:right-6 sm:h-[32rem] sm:w-96 sm:rounded-2xl sm:border sm:border-border-light ${isOpen ? "flex" : "hidden"}`}
         >
-            <header className="flex items-center justify-between border-b border-border-light px-4 py-3">
-                <div className="flex items-center gap-2">
-                    <h2 className="text-sm font-bold text-text-main">Ask RehabTask</h2>
-                    <span className="rounded-full bg-background-light px-2 py-0.5 text-[0.625rem] font-semibold uppercase tracking-wide text-text-muted">
-                        AI assistant
-                    </span>
-                </div>
-                <div className="flex items-center gap-1">
-                    {!isEmpty && (
-                        <button
-                            type="button"
-                            onClick={() => { reset(); setDraft(""); }}
-                            aria-label="Start a new conversation"
-                            className="rounded-lg p-2 text-text-muted hover:bg-background-light hover:text-text-main"
-                        >
-                            <MdRefresh className="text-lg" />
-                        </button>
-                    )}
-                    <button
-                        type="button"
-                        onClick={onClose}
-                        aria-label="Close chat"
-                        className="rounded-lg p-2 text-text-muted hover:bg-background-light hover:text-text-main"
-                    >
-                        <MdClose className="text-lg" />
-                    </button>
-                </div>
-            </header>
+            <ChatHeader
+                canReset={!isEmpty}
+                onReset={() => { reset(); setDraft(""); }}
+                onClose={onClose}
+            />
 
             <div className="flex-1 space-y-3 overflow-y-auto px-4 py-4">
-                <ChatMessages messages={messages} isSending={isSending} error={error} />
+                <ChatMessages
+                    messages={messages}
+                    isSending={isSending}
+                    error={error}
+                    onLeadStart={lead.onLeadStart}
+                    onLeadDismiss={lead.onLeadDismiss}
+                    onLeadSent={lead.onLeadSent}
+                />
 
                 {isEmpty && suggestions.length > 0 && (
                     <ChatWelcome suggestions={suggestions} isBlocked={isBlocked} onPick={submit} />
@@ -132,6 +130,7 @@ export function ChatPanel({ isOpen, audience = "public", onClose }) {
                 cooldown={cooldown}
                 inputRef={inputRef}
                 onSupportClick={() => trackEvent("ai_support_clicked", { audience })}
+                onTalkToTeam={audience === "public" ? lead.onTalkToTeam : undefined}
             />
         </section>
     );
