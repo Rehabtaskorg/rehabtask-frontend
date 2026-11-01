@@ -183,20 +183,32 @@ jobs:
           REVISION=$(gcloud run services describe ${{ env.SERVICE_NAME }} \
             --region=${{ env.REGION }} \
             --format="value(status.latestCreatedRevisionName)")
+          if [[ -z "$REVISION" || "$REVISION" == "${{ env.PREVIOUS_REVISION }}" ]]; then
+            echo "::error::No new revision was created — deploy did not take effect."
+            exit 1
+          fi
           echo "Polling revision: $REVISION"
           for i in {1..18}; do
             STATUS=$(gcloud run revisions describe $REVISION \
               --region=${{ env.REGION }} \
-              --format="value(status.conditions[0].status)")
+              --format="value(status.conditions.filter(\"type=Ready\").firstof(status))")
             if [[ "$STATUS" == "True" ]]; then
               echo "Revision $REVISION is healthy."
               gcloud run services update-traffic ${{ env.SERVICE_NAME }} \
                 --region=${{ env.REGION }} \
                 --to-revisions=$REVISION=100
-              echo "Traffic switched. Deploy complete."
+
+              SERVING=$(gcloud run services describe ${{ env.SERVICE_NAME }} \
+                --region=${{ env.REGION }} \
+                --format="value(status.traffic.filter(\"percent=100\").firstof(revisionName))")
+              if [[ "$SERVING" != "$REVISION" ]]; then
+                echo "::error::Traffic is on ${SERVING:-unknown}, expected $REVISION."
+                exit 1
+              fi
+              echo "Traffic confirmed on $REVISION. Deploy complete."
               exit 0
             fi
-            echo "Attempt $i: not ready. Waiting 20s..."
+            echo "Attempt $i: Ready=${STATUS:-unknown}. Waiting 20s..."
             sleep 20
           done
           echo "Revision failed health check."
