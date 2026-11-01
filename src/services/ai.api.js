@@ -20,7 +20,12 @@ export const sendChatMessage = async ({ messages, sessionId, audience }) => {
         { timeout: AI_CHAT.requestTimeoutMs }
     );
 
-    return data.data.reply;
+    return data.data;
+};
+
+export const sendChatLead = async (lead) => {
+    const { data } = await api.post("/ai/lead", lead, { timeout: AI_CHAT.requestTimeoutMs });
+    return data.data;
 };
 
 export const getChatErrorMessage = (error) =>

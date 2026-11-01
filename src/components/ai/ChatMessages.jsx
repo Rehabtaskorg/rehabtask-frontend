@@ -1,13 +1,27 @@
 "use client";
 
-/**
- * @param {{ messages: Array<{role: "user"|"assistant", content: string}>,
- *           isSending: boolean, error: string|null }} props
- */
-export function ChatMessages({ messages, isSending, error }) {
+import { ChatLeadForm, ChatLeadSent } from "./ChatLeadForm";
+
+export function ChatMessages({ messages, isSending, error, onLeadSent, onLeadDismiss, onLeadStart }) {
     return (
         <>
-            {messages.map((message, index) => (
+            {messages.map((message, index) => {
+                if (message.role === "lead") {
+                    return (
+                        <ChatLeadForm
+                            key={`lead-${index}`}
+                            onSent={onLeadSent}
+                            onDismiss={onLeadDismiss}
+                            onStart={onLeadStart}
+                        />
+                    );
+                }
+
+                if (message.role === "lead-sent") {
+                    return <ChatLeadSent key={`lead-sent-${index}`} email={message.email} />;
+                }
+
+                return (
                 <div
                     key={`${message.role}-${index}`}
                     className={message.role === "user" ? "flex justify-end" : "flex justify-start"}
@@ -21,7 +35,8 @@ export function ChatMessages({ messages, isSending, error }) {
                         {message.content}
                     </p>
                 </div>
-            ))}
+                );
+            })}
 
             {isSending && <p className="text-sm text-text-muted" role="status">Thinking…</p>}
 
