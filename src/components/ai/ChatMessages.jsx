@@ -27,7 +27,15 @@ export function ChatMessages({ messages, isSending, error }) {
                 );
             })}
 
-            {isSending && <p className="text-sm text-text-muted" role="status">Thinking…</p>}
+            {isSending && (
+                <div className="flex justify-start" role="status" aria-label="Alex is typing">
+                    <div className="flex items-center gap-1 rounded-2xl bg-background-light px-3 py-3">
+                        <span className="typing-dot h-2 w-2 rounded-full bg-text-muted" />
+                        <span className="typing-dot h-2 w-2 rounded-full bg-text-muted" />
+                        <span className="typing-dot h-2 w-2 rounded-full bg-text-muted" />
+                    </div>
+                </div>
+            )}
 
             {error && (
                 <p className="rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700" role="alert">
