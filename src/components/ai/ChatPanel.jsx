@@ -5,44 +5,36 @@ import { ChatHeader } from "./ChatHeader";
 import { useAiChat } from "@/hooks/useAiChat";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import { useChatLead } from "@/hooks/useChatLead";
-import { getSuggestedQuestions } from "@/lib/aiChatConfig";
+import { getSuggestedQuestions, LEAD_COPY } from "@/lib/aiChatConfig";
 import { ChatWelcome } from "./ChatWelcome";
 import { ChatMessages } from "./ChatMessages";
 import { ChatComposer } from "./ChatComposer";
+import { ChatLeadForm } from "./ChatLeadForm";
+import { useChatScroll } from "@/hooks/useChatScroll";
 
-/**
- * @param {{ isOpen: boolean, audience?: "public"|"customer"|"therapist"|"agency",
- *           onClose: () => void }} props
- */
 export function ChatPanel({ isOpen, audience = "public", onClose }) {
     const {
-        messages, error, failedText, isSending, retryAfterSeconds, hasLeadCard,
-        send, reset, openLead, dismissLead, completeLead,
+        messages, error, failedText, isSending, retryAfterSeconds, isLeadOpen, isLeadOffered,
+        send, reset, openLead, closeLead, completeLead,
     } = useAiChat(audience);
     const [draft, setDraft] = useState("");
     const [cooldown, setCooldown] = useState(0);
 
-    const endRef = useRef(null);
     const inputRef = useRef(null);
+    const { scrollRef, endRef } = useChatScroll({
+        isActive: isOpen && !isLeadOpen,
+        messages,
+        isSending,
+        error,
+    });
     const { trackEvent } = useAnalytics();
 
     const suggestions = getSuggestedQuestions(audience);
 
-    const lead = useChatLead({
-        audience,
-        hasLeadCard,
-        openLead,
-        dismissLead,
-        completeLead,
-        scrollToEnd: () => endRef.current?.scrollIntoView({ behavior: "smooth" }),
-    });
+    const lead = useChatLead({ audience, isLeadOffered, openLead, completeLead });
     const isEmpty = messages.length <= 1;
     const isBlocked = isSending || cooldown > 0;
 
-    useEffect(() => {
-        if (!isOpen) return;
-        endRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, [messages, isSending, error, isOpen]);
 
     useEffect(() => {
         if (failedText) setDraft((current) => (current.trim() ? current : failedText));
@@ -97,41 +89,55 @@ export function ChatPanel({ isOpen, audience = "public", onClose }) {
             role="dialog"
             aria-label="RehabTask assistant"
             aria-hidden={!isOpen}
-            className={`fixed bottom-0 right-0 z-50 h-[100dvh] w-full flex-col bg-white shadow-2xl sm:bottom-24 sm:right-6 sm:h-[32rem] sm:w-96 sm:rounded-2xl sm:border sm:border-border-light ${isOpen ? "flex" : "hidden"}`}
+            className={`fixed bottom-0 right-0 z-50 h-[100dvh] w-full flex-col bg-white shadow-2xl sm:bottom-24 sm:right-6 sm:h-[min(42rem,calc(100dvh-8rem))] sm:w-96 sm:rounded-2xl sm:border sm:border-border-light ${isOpen ? "flex" : "hidden"}`}
         >
-            <ChatHeader
-                canReset={!isEmpty}
-                onReset={() => { reset(); setDraft(""); }}
-                onClose={onClose}
-            />
-
-            <div className="flex-1 space-y-3 overflow-y-auto px-4 py-4">
-                <ChatMessages
-                    messages={messages}
-                    isSending={isSending}
-                    error={error}
-                    onLeadStart={lead.onLeadStart}
-                    onLeadDismiss={lead.onLeadDismiss}
-                    onLeadSent={lead.onLeadSent}
+            {isLeadOpen ? (
+                <ChatLeadForm
+                    onSent={lead.onSent}
+                    onBack={closeLead}
+                    onStart={lead.onStart}
+                    onExpand={lead.onExpand}
                 />
+            ) : (
+                <>
+                    <ChatHeader
+                        canReset={!isEmpty}
+                        onReset={() => { reset(); setDraft(""); }}
+                        onClose={onClose}
+                    />
 
-                {isEmpty && suggestions.length > 0 && (
-                    <ChatWelcome suggestions={suggestions} isBlocked={isBlocked} onPick={submit} />
-                )}
+                    <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto px-4 py-4">
+                        <ChatMessages messages={messages} isSending={isSending} error={error} />
 
-                <div ref={endRef} />
-            </div>
+                        {isEmpty && suggestions.length > 0 && (
+                            <ChatWelcome suggestions={suggestions} isBlocked={isBlocked} onPick={submit} />
+                        )}
 
-            <ChatComposer
-                draft={draft}
-                onDraftChange={setDraft}
-                onSubmit={submit}
-                isBlocked={isBlocked}
-                cooldown={cooldown}
-                inputRef={inputRef}
-                onSupportClick={() => trackEvent("ai_support_clicked", { audience })}
-                onTalkToTeam={audience === "public" ? lead.onTalkToTeam : undefined}
-            />
+                        {isLeadOffered && (
+                            <button
+                                type="button"
+                                onClick={() => lead.onOpen("offer")}
+                                className="w-full rounded-xl border border-primary px-3 py-2 text-left text-sm text-primary hover:bg-background-light"
+                            >
+                                {LEAD_COPY.offer}
+                            </button>
+                        )}
+
+                        <div ref={endRef} />
+                    </div>
+
+                    <ChatComposer
+                        draft={draft}
+                        onDraftChange={setDraft}
+                        onSubmit={submit}
+                        isBlocked={isBlocked}
+                        cooldown={cooldown}
+                        inputRef={inputRef}
+                        onSupportClick={() => trackEvent("ai_support_clicked", { audience })}
+                        onTalkToTeam={audience === "public" ? () => lead.onOpen("footer") : undefined}
+                    />
+                </>
+            )}
         </section>
     );
 }
