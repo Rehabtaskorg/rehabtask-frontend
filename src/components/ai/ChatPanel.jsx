@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { MdArrowForward } from "react-icons/md";
 import { ChatHeader } from "./ChatHeader";
 import { useAiChat } from "@/hooks/useAiChat";
 import { useAnalytics } from "@/hooks/useAnalytics";
@@ -117,9 +118,10 @@ export function ChatPanel({ isOpen, audience = "public", onClose }) {
                             <button
                                 type="button"
                                 onClick={() => lead.onOpen("offer")}
-                                className="w-full rounded-xl border border-primary px-3 py-2 text-left text-sm text-primary hover:bg-background-light"
+                                className="flex w-full items-center justify-between gap-2 rounded-xl bg-primary px-3 py-2.5 text-left text-sm font-semibold text-white hover:opacity-90"
                             >
                                 {LEAD_COPY.offer}
+                                <MdArrowForward className="shrink-0 text-base" aria-hidden="true" />
                             </button>
                         )}
 
@@ -134,7 +136,11 @@ export function ChatPanel({ isOpen, audience = "public", onClose }) {
                         cooldown={cooldown}
                         inputRef={inputRef}
                         onSupportClick={() => trackEvent("ai_support_clicked", { audience })}
-                        onTalkToTeam={audience === "public" ? () => lead.onOpen("footer") : undefined}
+                        onTalkToTeam={
+                            audience === "public" && !isLeadOffered
+                                ? () => lead.onOpen("footer")
+                                : undefined
+                        }
                     />
                 </>
             )}

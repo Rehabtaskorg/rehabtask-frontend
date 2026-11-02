@@ -1,7 +1,7 @@
 "use client";
 
 import { useLayoutEffect } from "react";
-import { MdSend, MdSupportAgent } from "react-icons/md";
+import { MdPersonAddAlt, MdSend, MdSupportAgent } from "react-icons/md";
 import { AI_CHAT } from "@/services/ai.api";
 import { PHI_NOTICE, SUPPORT_EMAIL } from "@/lib/aiChatConfig";
 
@@ -82,15 +82,16 @@ export function ChatComposer({
                     className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline"
                 >
                     <MdSupportAgent className="text-sm" />
-                    Contact Support
+                    Email support
                 </a>
                 {onTalkToTeam && (
                     <button
                         type="button"
                         onClick={onTalkToTeam}
-                        className="text-xs font-semibold text-primary hover:underline"
+                        className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline"
                     >
-                        Talk to the team
+                        <MdPersonAddAlt className="text-sm" />
+                        Ask the team to call
                     </button>
                 )}
             </div>
