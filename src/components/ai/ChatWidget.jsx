@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 import { MdChat } from "react-icons/md";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import { ChatPanel } from "./ChatPanel";
@@ -16,20 +17,23 @@ export function ChatWidget({ audience = "public" }) {
     const buttonRef = useRef(null);
     const wasOpenRef = useRef(false);
     const { trackEvent } = useAnalytics();
+    const pathname = usePathname();
 
     useEffect(() => {
         if (wasOpenRef.current && !isOpen) buttonRef.current?.focus();
         wasOpenRef.current = isOpen;
     }, [isOpen]);
 
+    const chatProps = { audience, page: pathname, logged_in: audience !== "public" };
+
     const open = () => {
         setIsOpen(true);
-        trackEvent("ai_chat_opened", { audience });
+        trackEvent("ai_chat_opened", chatProps);
     };
 
     const close = () => {
         setIsOpen(false);
-        trackEvent("ai_chat_closed", { audience });
+        trackEvent("ai_chat_closed", chatProps);
     };
 
     return (

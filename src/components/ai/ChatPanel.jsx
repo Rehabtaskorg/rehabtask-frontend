@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { MdArrowForward } from "react-icons/md";
 import { ChatHeader } from "./ChatHeader";
 import { useAiChat } from "@/hooks/useAiChat";
-import { useAnalytics } from "@/hooks/useAnalytics";
+import { useChatAnalytics } from "@/hooks/useChatAnalytics";
 import { useChatLead } from "@/hooks/useChatLead";
 import { getSuggestedQuestions, LEAD_COPY } from "@/lib/aiChatConfig";
 import { ChatWelcome } from "./ChatWelcome";
@@ -28,7 +28,7 @@ export function ChatPanel({ isOpen, audience = "public", onClose }) {
         isSending,
         error,
     });
-    const { trackEvent } = useAnalytics();
+    const { trackQuestion, trackSupportClick, resetSession } = useChatAnalytics({ audience, messages });
 
     const suggestions = getSuggestedQuestions(audience);
 
@@ -40,13 +40,6 @@ export function ChatPanel({ isOpen, audience = "public", onClose }) {
     useEffect(() => {
         if (failedText) setDraft((current) => (current.trim() ? current : failedText));
     }, [failedText]);
-
-    useEffect(() => {
-        const lastReply = messages.filter((m) => m.role !== "lead").at(-1);
-        if (lastReply?.role === "assistant") {
-            trackEvent("ai_response_received", { audience });
-        }
-    }, [messages, audience, trackEvent]);
 
     useEffect(() => {
         if (!retryAfterSeconds) return undefined;
@@ -80,7 +73,7 @@ export function ChatPanel({ isOpen, audience = "public", onClose }) {
     const submit = (text) => {
         if (isBlocked || !text.trim()) return;
         setDraft("");
-        trackEvent("ai_question_sent", { audience, turn: messages.length / 2 + 1 });
+        trackQuestion(messages.length / 2 + 1);
         send(text);
         inputRef.current?.focus();
     };
@@ -103,7 +96,7 @@ export function ChatPanel({ isOpen, audience = "public", onClose }) {
                 <>
                     <ChatHeader
                         canReset={!isEmpty}
-                        onReset={() => { reset(); setDraft(""); }}
+                        onReset={() => { reset(); setDraft(""); resetSession(); }}
                         onClose={onClose}
                     />
 
@@ -135,7 +128,7 @@ export function ChatPanel({ isOpen, audience = "public", onClose }) {
                         isBlocked={isBlocked}
                         cooldown={cooldown}
                         inputRef={inputRef}
-                        onSupportClick={() => trackEvent("ai_support_clicked", { audience })}
+                        onSupportClick={trackSupportClick}
                         onTalkToTeam={
                             audience === "public" && !isLeadOffered
                                 ? () => lead.onOpen("footer")
