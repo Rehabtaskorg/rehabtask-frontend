@@ -1,3 +1,5 @@
+import { CUSTOMER_TYPES, USER_ROLES } from "@/lib/constants";
+
 export const ASSISTANT_NAME = "Alex";
 
 const GREETING = {
@@ -37,6 +39,12 @@ const SUGGESTED_QUESTIONS = {
 };
 
 export const getSuggestedQuestions = (audience) => SUGGESTED_QUESTIONS[audience] ?? [];
+
+export const getDashboardAudience = ({ role, customerType }) => {
+    if (role === USER_ROLES.THERAPIST) return "therapist";
+    if (role !== USER_ROLES.CUSTOMER) return null;
+    return customerType === CUSTOMER_TYPES.AGENCY ? "agency" : "customer";
+};
 
 export const LEAD_ROLE_OPTIONS = [
     { value: "pt", label: "Physical Therapist" },

@@ -40,7 +40,7 @@ export function ChatWidget({ audience = "public" }) {
                     ref={buttonRef}
                     onClick={open}
                     aria-label="Open the RehabTask assistant"
-                    className="fixed right-6 bottom-[max(1.5rem,env(safe-area-inset-bottom))] z-50 flex items-center gap-2 rounded-full bg-primary px-5 py-3.5 text-sm font-semibold text-white shadow-lg transition-opacity hover:opacity-90"
+                    className="fixed right-6 bottom-[max(1.5rem,env(safe-area-inset-bottom))] z-[100] flex items-center gap-2 rounded-full bg-primary px-5 py-3.5 text-sm font-semibold text-white shadow-lg transition-opacity hover:opacity-90"
                 >
                     <MdChat className="text-lg" />
                     Ask RehabTask
