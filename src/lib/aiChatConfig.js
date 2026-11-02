@@ -53,6 +53,7 @@ export const LEAD_COPY = {
     consent: "By sharing your details you agree to let the RehabTask team contact you about your request. We don't store this chat.",
     contextHelper: "Please keep this general, no medical or patient details.",
     submit: "Ask the team to contact me",
-    dismiss: "Not right now",
-    reopen: "Share your details",
+    expand: "Add a phone number or tell us more",
+    offer: "Want the team to get in touch?",
+    offerAction: "Share your details",
 };

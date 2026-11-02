@@ -1,22 +1,11 @@
 "use client";
 
-import { ChatLeadForm, ChatLeadSent } from "./ChatLeadForm";
+import { ChatLeadSent } from "./ChatLeadForm";
 
-export function ChatMessages({ messages, isSending, error, onLeadSent, onLeadDismiss, onLeadStart }) {
+export function ChatMessages({ messages, isSending, error }) {
     return (
         <>
             {messages.map((message, index) => {
-                if (message.role === "lead") {
-                    return (
-                        <ChatLeadForm
-                            key={`lead-${index}`}
-                            onSent={onLeadSent}
-                            onDismiss={onLeadDismiss}
-                            onStart={onLeadStart}
-                        />
-                    );
-                }
-
                 if (message.role === "lead-sent") {
                     return <ChatLeadSent key={`lead-sent-${index}`} email={message.email} />;
                 }
