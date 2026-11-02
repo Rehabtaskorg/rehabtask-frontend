@@ -90,7 +90,7 @@ export function ChatPanel({ isOpen, audience = "public", onClose }) {
             role="dialog"
             aria-label="RehabTask assistant"
             aria-hidden={!isOpen}
-            className={`fixed bottom-0 right-0 z-50 h-[100dvh] w-full flex-col bg-white shadow-2xl sm:bottom-24 sm:right-6 sm:h-[min(42rem,calc(100dvh-8rem))] sm:w-96 sm:rounded-2xl sm:border sm:border-border-light ${isOpen ? "flex" : "hidden"}`}
+            className={`fixed bottom-0 right-0 z-[100] h-[100dvh] w-full flex-col bg-white shadow-2xl sm:bottom-24 sm:right-6 sm:h-[min(42rem,calc(100dvh-8rem))] sm:w-96 sm:rounded-2xl sm:border sm:border-border-light ${isOpen ? "flex" : "hidden"}`}
         >
             {isLeadOpen ? (
                 <ChatLeadForm

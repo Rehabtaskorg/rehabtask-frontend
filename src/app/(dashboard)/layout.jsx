@@ -26,6 +26,8 @@ import { useUnreadCount } from '@/hooks/useMessages';
 import { useIdleTimeout } from '@/hooks/useIdleTimeout';
 import { LOGOUT_REASON, USER_ROLES, CUSTOMER_TYPES, APPROVAL_STATUS } from '@/lib/constants';
 import { UnifiedAgreementModal } from '@/components/features/auth/UnifiedAgreementModal';
+import { ChatWidget } from '@/components/ai/ChatWidget';
+import { getDashboardAudience } from '@/lib/aiChatConfig';
 import {
     MdDashboard, MdSearch, MdSend, MdCalendarMonth,
     MdChatBubble, MdPayments, MdPerson,
@@ -479,6 +481,7 @@ function CollapseToggle({ collapsed }) {
  */
 function DashboardInner({ user, pathname, sidebarOpen, setSidebarOpen, handleLogout, isOnOnboardingRoute, profileName, initials, therapistAccess, adminNavItems, hasAdminPermission, subAdminPermissions, children }) {
     const { isCollapsed } = useSidebar();
+    const chatAudience = getDashboardAudience({ role: user.role, customerType: user.profile?.customerType });
     const sidebarWidth = isOnOnboardingRoute ? 'lg:w-64' : isCollapsed ? 'lg:w-16' : 'lg:w-64';
     const mainMargin = isOnOnboardingRoute ? 'lg:ml-64' : isCollapsed ? 'lg:ml-16' : 'lg:ml-64';
     const c = !isOnOnboardingRoute && isCollapsed;
@@ -728,6 +731,8 @@ function DashboardInner({ user, pathname, sidebarOpen, setSidebarOpen, handleLog
                     children
                 )}
             </main>
+
+            {chatAudience && !isOnOnboardingRoute && <ChatWidget audience={chatAudience} />}
         </div>
     );
 }
