@@ -16,16 +16,12 @@ export function useChatScroll({ isActive, messages, isSending, error }) {
         const distanceFromBottom = list.scrollHeight - list.scrollTop - list.clientHeight;
         if (!justSent && distanceFromBottom > NEAR_BOTTOM_PX) return;
 
-        const lastEntry = list.lastElementChild?.previousElementSibling;
-        if (lastEntry && lastEntry.clientHeight > list.clientHeight) {
-            list.scrollTop = lastEntry.offsetTop - list.offsetTop;
-            return;
-        }
-
         const prefersReducedMotion = globalThis.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+        const isLongReply = list.scrollHeight - list.scrollTop - list.clientHeight > list.clientHeight;
+
         list.scrollTo({
             top: list.scrollHeight,
-            behavior: prefersReducedMotion ? "auto" : "smooth",
+            behavior: prefersReducedMotion || isLongReply ? "auto" : "smooth",
         });
     }, [isActive, messages, isSending, error]);
 
