@@ -12,8 +12,9 @@ export function useChatScroll({ isActive, messages, isSending, error }) {
         const list = scrollRef.current;
         if (!isActive || !list) return;
 
+        const justSent = messages.at(-1)?.role === "user";
         const distanceFromBottom = list.scrollHeight - list.scrollTop - list.clientHeight;
-        if (distanceFromBottom > NEAR_BOTTOM_PX) return;
+        if (!justSent && distanceFromBottom > NEAR_BOTTOM_PX) return;
 
         const lastEntry = list.lastElementChild?.previousElementSibling;
         if (lastEntry && lastEntry.clientHeight > list.clientHeight) {
@@ -22,7 +23,10 @@ export function useChatScroll({ isActive, messages, isSending, error }) {
         }
 
         const prefersReducedMotion = globalThis.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
-        endRef.current?.scrollIntoView({ behavior: prefersReducedMotion ? "auto" : "smooth" });
+        list.scrollTo({
+            top: list.scrollHeight,
+            behavior: prefersReducedMotion ? "auto" : "smooth",
+        });
     }, [isActive, messages, isSending, error]);
 
     return { scrollRef, endRef };
