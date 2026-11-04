@@ -51,18 +51,35 @@ export function useAiChat(audience) {
         setRetryAfterSeconds(null);
         setIsSending(true);
 
+        let started = false;
+
         try {
-            const { reply, offerLead } = await sendChatMessage({
+            const { offerLead } = await sendChatMessage({
                 messages: next,
                 sessionId: sessionIdRef.current,
                 audience,
+                onChunk: (text) => {
+                    if (conversationRef.current !== conversation) return;
+
+                    const isFirst = !started;
+                    started = true;
+
+                    setMessages((current) =>
+                        isFirst
+                            ? [...current, { role: "assistant", content: text }]
+                            : current.map((m, i) =>
+                                i === current.length - 1 ? { ...m, content: m.content + text } : m
+                            )
+                    );
+
+                    if (isFirst) setIsSending(false);
+                },
             });
             if (conversationRef.current !== conversation) return;
-            setMessages((current) => [...current, { role: "assistant", content: reply }]);
             if (offerLead && !leadSentRef.current) setIsLeadOffered(true);
         } catch (err) {
             if (conversationRef.current !== conversation) return;
-            setMessages((current) => current.slice(0, -1));
+            setMessages((current) => current.slice(0, started ? -2 : -1));
             setFailedText(content);
             setError(getChatErrorMessage(err));
             if (err?.isRateLimit) setRetryAfterSeconds(err.retryAfterSeconds ?? 60);
