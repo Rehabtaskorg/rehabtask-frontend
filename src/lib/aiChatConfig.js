@@ -15,6 +15,10 @@ export const getGreeting = (audience) => ({
 export const PHI_NOTICE =
     "Please don't include sensitive medical or patient information in this chat.";
 
+export const CHAT_INVITE = {
+    message: "Questions about RehabTask? Ask Alex.",
+};
+
 export const SUPPORT_EMAIL = "support@rehabtask.com";
 
 const SUGGESTED_QUESTIONS = {

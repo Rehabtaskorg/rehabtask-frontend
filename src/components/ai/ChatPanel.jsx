@@ -111,7 +111,7 @@ export function ChatPanel({ isOpen, audience = "public", onClose }) {
                             <button
                                 type="button"
                                 onClick={() => lead.onOpen("offer")}
-                                className="flex w-full items-center justify-between gap-2 rounded-xl bg-primary px-3 py-2.5 text-left text-sm font-semibold text-white hover:opacity-90"
+                                className="flex w-full items-center justify-between gap-2 rounded-xl bg-accent-strong px-3 py-2.5 text-left text-sm font-semibold text-white hover:opacity-90"
                             >
                                 {LEAD_COPY.offer}
                                 <MdArrowForward className="shrink-0 text-base" aria-hidden="true" />
