@@ -1,4 +1,5 @@
 import { api } from "@/lib/api";
+import { getRecaptchaToken } from "@/lib/recaptcha";
 
 export const AI_CHAT = {
     maxHistoryMessages: 20,
@@ -26,7 +27,7 @@ const readEvents = async (response, onChunk) => {
         else if (name === "error") throw Object.assign(new Error(data.message), { code: data.code });
     };
 
-    for (;;) {
+    for (; ;) {
         const { done, value } = await reader.read();
         if (done) break;
 
@@ -64,11 +65,27 @@ export const sendChatMessage = async ({ messages, sessionId, audience, onChunk }
 };
 
 export const sendChatLead = async (lead) => {
-    const { data } = await api.post("/ai/lead", lead, { timeout: AI_CHAT.requestTimeoutMs });
+    const recaptchaAction = "CHAT_LEAD";
+    const recaptchaToken = await getRecaptchaToken(recaptchaAction);
+
+    const { data } = await api.post(
+        "/ai/lead",
+        { ...lead, recaptchaToken, recaptchaAction },
+        { timeout: AI_CHAT.requestTimeoutMs }
+    );
     return data.data;
 };
 
 const VALIDATION_FALLBACK = "Please check the details above and try again.";
+
+const RECAPTCHA_FALLBACK =
+    "We could not confirm you are human. Refresh the page and try again, or email support@rehabtask.com.";
+
+const CODE_MESSAGES = {
+    RECAPTCHA_REQUIRED: RECAPTCHA_FALLBACK,
+    RECAPTCHA_FAILED: RECAPTCHA_FALLBACK,
+    RECAPTCHA_ERROR: RECAPTCHA_FALLBACK,
+};
 
 export const getChatErrorMessage = (error) => {
     const data = error?.response?.data;
@@ -77,5 +94,5 @@ export const getChatErrorMessage = (error) => {
         return data.errors?.[0]?.message || VALIDATION_FALLBACK;
     }
 
-    return data?.message || error?.message || GENERIC_ERROR;
+    return CODE_MESSAGES[data?.code] || data?.message || error?.message || GENERIC_ERROR;
 };
