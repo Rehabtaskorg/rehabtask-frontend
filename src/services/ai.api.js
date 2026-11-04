@@ -68,5 +68,14 @@ export const sendChatLead = async (lead) => {
     return data.data;
 };
 
-export const getChatErrorMessage = (error) =>
-    error?.response?.data?.message || error?.message || GENERIC_ERROR;
+const VALIDATION_FALLBACK = "Please check the details above and try again.";
+
+export const getChatErrorMessage = (error) => {
+    const data = error?.response?.data;
+
+    if (data?.code === "VALIDATION_ERROR") {
+        return data.errors?.[0]?.message || VALIDATION_FALLBACK;
+    }
+
+    return data?.message || error?.message || GENERIC_ERROR;
+};
