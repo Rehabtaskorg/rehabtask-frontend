@@ -1,12 +1,13 @@
 "use client";
 
 import { MdExpandMore } from "react-icons/md";
+import PhoneInput from "@/components/ui/PhoneInput";
 import { LEAD_COPY, LEAD_ROLE_OPTIONS } from "@/lib/aiChatConfig";
 
 const FIELD_CLASS =
     "w-full rounded-lg border border-border-light px-3 py-2 text-base text-text-main outline-none focus:border-primary sm:text-sm";
 
-export function ChatLeadFields({ register, errors, selectedRole, showOptional, onExpand }) {
+export function ChatLeadFields({ register, control, errors, selectedRole, showOptional, onExpand }) {
     const describe = (field) =>
         errors[field] ? { "aria-invalid": true, "aria-describedby": `lead-${field}-error` } : {};
 
@@ -56,12 +57,12 @@ export function ChatLeadFields({ register, errors, selectedRole, showOptional, o
 
             {showOptional ? (
                 <div className="mt-2 space-y-2">
-                    <div>
-                        <label htmlFor="lead-phone" className="text-sm text-text-main">Phone (optional)</label>
-                        <input id="lead-phone" type="tel" inputMode="tel" autoComplete="tel"
-                            className={FIELD_CLASS} {...register("phone")} {...describe("phone")} />
-                        {fieldError("phone")}
-                    </div>
+                    <PhoneInput
+                        label="Phone (optional)"
+                        name="phone"
+                        control={control}
+                        error={errors.phone?.message}
+                    />
 
                     <div>
                         <label htmlFor="lead-context" className="text-sm text-text-main">

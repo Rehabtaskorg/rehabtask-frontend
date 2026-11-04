@@ -14,6 +14,7 @@ export function ChatLeadForm({ onSent, onBack, onStart, onExpand }) {
 
     const {
         register,
+        control,
         handleSubmit,
         watch,
         setError,
@@ -61,6 +62,7 @@ export function ChatLeadForm({ onSent, onBack, onStart, onExpand }) {
 
                 <ChatLeadFields
                     register={register}
+                    control={control}
                     errors={errors}
                     selectedRole={watch("role")}
                     showOptional={showOptional}
