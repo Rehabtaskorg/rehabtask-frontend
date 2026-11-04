@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 
 const STORAGE_KEY = "rehabtask.chat.invite.seen";
-const SHOW_AFTER_MS = 4000;
+const SHOW_AFTER_MS = 1500;
 
 const hasSeen = () => {
     try {

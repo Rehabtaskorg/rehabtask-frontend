@@ -5,7 +5,7 @@ import { CHAT_INVITE } from "@/lib/aiChatConfig";
 
 export function ChatInvite({ onOpen, onDismiss }) {
     return (
-        <div className="fixed right-6 bottom-[max(5.5rem,calc(env(safe-area-inset-bottom)+4rem))] z-[100] flex max-w-[16rem] items-start gap-2 rounded-2xl border border-border-light bg-white px-3 py-2.5 shadow-lg motion-safe:animate-[fadeInUp_220ms_ease-out]">
+        <div className="chat-invite fixed right-6 bottom-[max(5.5rem,calc(env(safe-area-inset-bottom)+4rem))] z-[100] flex max-w-[16rem] items-start gap-2 rounded-2xl border border-border-light bg-white px-3 py-2.5 shadow-lg">
             <button
                 type="button"
                 onClick={onOpen}
