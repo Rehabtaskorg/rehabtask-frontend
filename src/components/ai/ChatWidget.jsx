@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { MdChat } from "react-icons/md";
 import { useAnalytics } from "@/hooks/useAnalytics";
+import { useBodyScrollLocked } from "@/hooks/useBodyScrollLocked";
 import { useChatInvite } from "@/hooks/useChatInvite";
 import { ChatInvite } from "./ChatInvite";
 import { ChatPanel } from "./ChatPanel";
@@ -21,7 +22,10 @@ export function ChatWidget({ audience = "public" }) {
     const wasOpenRef = useRef(false);
     const { trackEvent } = useAnalytics();
     const pathname = usePathname();
-    const { isInviteVisible, dismissInvite } = useChatInvite({ isSuppressed: isOpen || hasOpened });
+    const isOverlayOpen = useBodyScrollLocked();
+    const { isInviteVisible, dismissInvite } = useChatInvite({
+        isSuppressed: isOpen || hasOpened || isOverlayOpen,
+    });
 
     useEffect(() => {
         if (wasOpenRef.current && !isOpen) buttonRef.current?.focus();
@@ -44,7 +48,7 @@ export function ChatWidget({ audience = "public" }) {
 
     return (
         <>
-            {!isOpen && (
+            {!isOpen && !isOverlayOpen && (
                 <>
                     {isInviteVisible && (
                         <ChatInvite onOpen={() => open("invite")} onDismiss={dismissInvite} />
