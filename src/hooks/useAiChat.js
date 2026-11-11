@@ -24,9 +24,7 @@ export function useAiChat(audience) {
     const [isLeadOffered, setIsLeadOffered] = useState(false);
     const leadSentRef = useRef(false);
 
-    const openLead = useCallback(() => {
-        if (!leadSentRef.current) setIsLeadOpen(true);
-    }, []);
+    const openLead = useCallback(() => setIsLeadOpen(true), []);
 
     const closeLead = useCallback(() => setIsLeadOpen(false), []);
 
