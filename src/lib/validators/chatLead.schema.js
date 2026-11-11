@@ -28,8 +28,13 @@ const optionalPhoneSchema = z.preprocess(
     z.string().regex(/^\+1\d{10}$/, "Please enter a valid US phone number").optional()
 );
 
+const optionalCategorySchema = z.preprocess(
+    (value) => value || undefined,
+    z.enum(CATEGORY_VALUES, { message: "Please choose one of the listed options" }).optional()
+);
+
 const sharedFields = {
-    category: z.enum(CATEGORY_VALUES).optional(),
+    category: optionalCategorySchema,
     context: z
         .string()
         .trim()
