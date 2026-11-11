@@ -27,7 +27,7 @@ export const CHAT_INVITE = {
     message: "Questions about RehabTask? Ask Alex.",
 };
 
-export const SUPPORT_EMAIL = "support@rehabtask.com";
+export const SUPPORT_EMAIL = "support@steadfast-rehab.com";
 
 const SUGGESTED_QUESTIONS = {
     customer: [
