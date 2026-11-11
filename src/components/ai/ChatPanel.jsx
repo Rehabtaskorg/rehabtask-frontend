@@ -1,12 +1,12 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { MdArrowForward } from "react-icons/md";
 import { ChatHeader } from "./ChatHeader";
+import { ChatLeadOffer } from "./ChatLeadOffer";
 import { useAiChat } from "@/hooks/useAiChat";
 import { useChatAnalytics } from "@/hooks/useChatAnalytics";
 import { useChatLead } from "@/hooks/useChatLead";
-import { getSuggestedQuestions, LEAD_COPY } from "@/lib/aiChatConfig";
+import { getSuggestedQuestions } from "@/lib/aiChatConfig";
 import { ChatWelcome } from "./ChatWelcome";
 import { ChatMessages } from "./ChatMessages";
 import { ChatComposer } from "./ChatComposer";
@@ -16,7 +16,7 @@ import { useChatScroll } from "@/hooks/useChatScroll";
 export function ChatPanel({ isOpen, audience = "public", account = null, onClose }) {
     const {
         messages, error, failedText, isSending, retryAfterSeconds, isLeadOpen, isLeadOffered,
-        send, reset, openLead, closeLead, completeLead,
+        send, reset, openLead, closeLead, completeLead, declineLead,
     } = useAiChat(audience);
     const [draft, setDraft] = useState("");
     const [cooldown, setCooldown] = useState(0);
@@ -32,7 +32,14 @@ export function ChatPanel({ isOpen, audience = "public", account = null, onClose
 
     const suggestions = getSuggestedQuestions(audience);
 
-    const lead = useChatLead({ audience, isLeadOffered, openLead, completeLead });
+    const lead = useChatLead({
+        audience,
+        hasAccount: Boolean(account?.email),
+        isLeadOffered,
+        openLead,
+        completeLead,
+        declineLead,
+    });
     const isEmpty = messages.length <= 1;
     const isBlocked = isSending || cooldown > 0;
 
@@ -109,14 +116,10 @@ export function ChatPanel({ isOpen, audience = "public", account = null, onClose
                         )}
 
                         {isLeadOffered && (
-                            <button
-                                type="button"
-                                onClick={() => lead.onOpen("offer")}
-                                className="flex w-full items-center justify-between gap-2 rounded-xl bg-accent-strong px-3 py-2.5 text-left text-sm font-semibold text-white hover:opacity-90"
-                            >
-                                {LEAD_COPY.offer}
-                                <MdArrowForward className="shrink-0 text-base" aria-hidden="true" />
-                            </button>
+                            <ChatLeadOffer
+                                onAccept={() => lead.onOpen("offer")}
+                                onDecline={lead.onDecline}
+                            />
                         )}
 
                         <div ref={endRef} />

@@ -3,6 +3,7 @@
 import { useCallback, useMemo, useRef, useState } from "react";
 import { sendChatMessage, getChatErrorMessage } from "@/services/ai.api";
 import { getGreeting } from "@/lib/aiChatConfig";
+import { useLeadState } from "@/hooks/useLeadState";
 
 const newSessionId = () =>
     typeof globalThis.crypto?.randomUUID === "function" ? globalThis.crypto.randomUUID() : null;
@@ -20,20 +21,7 @@ export function useAiChat(audience) {
 
     const conversationRef = useRef(0);
     const sendingRef = useRef(false);
-    const [isLeadOpen, setIsLeadOpen] = useState(false);
-    const [isLeadOffered, setIsLeadOffered] = useState(false);
-    const leadSentRef = useRef(false);
-
-    const openLead = useCallback(() => setIsLeadOpen(true), []);
-
-    const closeLead = useCallback(() => setIsLeadOpen(false), []);
-
-    const completeLead = useCallback(({ email, reference }) => {
-        leadSentRef.current = true;
-        setIsLeadOpen(false);
-        setIsLeadOffered(false);
-        setMessages((current) => [...current, { role: "lead-sent", email, reference }]);
-    }, []);
+    const lead = useLeadState(setMessages);
 
     const send = useCallback(async (text) => {
         const content = text.trim();
@@ -74,7 +62,7 @@ export function useAiChat(audience) {
                 },
             });
             if (conversationRef.current !== conversation) return;
-            if (offerLead && !leadSentRef.current) setIsLeadOffered(true);
+            if (offerLead) lead.markLeadOffered();
         } catch (err) {
             if (conversationRef.current !== conversation) return;
             setMessages((current) => current.slice(0, started ? -2 : -1));
@@ -87,20 +75,18 @@ export function useAiChat(audience) {
                 setIsSending(false);
             }
         }
-    }, [messages, audience]);
+    }, [messages, audience, lead.markLeadOffered]);
 
     const reset = useCallback(() => {
         conversationRef.current += 1;
         sendingRef.current = false;
-        leadSentRef.current = false;
-        setIsLeadOpen(false);
-        setIsLeadOffered(false);
+        lead.resetLead();
         sessionIdRef.current = newSessionId();
         setMessages([greeting]);
         setError(null);
         setFailedText(null);
         setIsSending(false);
-    }, [greeting]);
+    }, [greeting, lead.resetLead]);
 
     return {
         messages,
@@ -108,12 +94,8 @@ export function useAiChat(audience) {
         failedText,
         isSending,
         retryAfterSeconds,
-        isLeadOpen,
-        isLeadOffered,
         send,
         reset,
-        openLead,
-        closeLead,
-        completeLead,
+        ...lead,
     };
 }
