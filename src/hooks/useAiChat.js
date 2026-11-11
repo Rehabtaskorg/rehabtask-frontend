@@ -32,6 +32,7 @@ export function useAiChat(audience) {
         const next = [...messages, { role: "user", content }];
 
         setMessages(next);
+        lead.dismissOffer();
         setError(null);
         setFailedText(null);
         setRetryAfterSeconds(null);
@@ -75,7 +76,7 @@ export function useAiChat(audience) {
                 setIsSending(false);
             }
         }
-    }, [messages, audience, lead.markLeadOffered]);
+    }, [messages, audience, lead.markLeadOffered, lead.dismissOffer]);
 
     const reset = useCallback(() => {
         conversationRef.current += 1;

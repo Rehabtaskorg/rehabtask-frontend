@@ -15,6 +15,8 @@ export function useLeadState(setMessages) {
         if (!leadSentRef.current) setIsLeadOffered(true);
     }, []);
 
+    const dismissOffer = useCallback(() => setIsLeadOffered(false), []);
+
     const completeLead = useCallback(
         ({ email, reference }) => {
             leadSentRef.current = true;
@@ -45,6 +47,7 @@ export function useLeadState(setMessages) {
         openLead,
         closeLead,
         markLeadOffered,
+        dismissOffer,
         completeLead,
         declineLead,
         resetLead,
