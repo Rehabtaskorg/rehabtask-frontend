@@ -2,8 +2,9 @@
 
 import { useCallback, useEffect, useRef } from "react";
 import { useAnalytics } from "@/hooks/useAnalytics";
+import { LEAD_COPY } from "@/lib/aiChatConfig";
 
-export function useChatLead({ audience, isLeadOffered, openLead, completeLead }) {
+export function useChatLead({ audience, hasAccount, isLeadOffered, openLead, completeLead, declineLead }) {
     const { trackEvent } = useAnalytics();
     const offeredRef = useRef(false);
 
@@ -43,5 +44,10 @@ export function useChatLead({ audience, isLeadOffered, openLead, completeLead })
         [audience, completeLead, trackEvent]
     );
 
-    return { onOpen, onStart, onExpand, onSent };
+    const onDecline = useCallback(
+        () => declineLead(hasAccount ? LEAD_COPY.declinedAccount : LEAD_COPY.declinedGuest),
+        [declineLead, hasAccount]
+    );
+
+    return { onOpen, onStart, onExpand, onSent, onDecline };
 }
