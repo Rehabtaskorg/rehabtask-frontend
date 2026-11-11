@@ -80,7 +80,7 @@ export const LEAD_COPY = {
     offer: "Want the team to get in touch?",
     offerAccept: "Yes, please",
     offerDecline: "No thanks",
-    declinedAccount: `No problem. If you change your mind, ${SUPPORT_EMAIL} reaches the team directly.`,
-    declinedGuest: "No problem. If it would help later, you can still leave your details below.",
+    declinedAccount: `That's fine. You can reach the team any time at ${SUPPORT_EMAIL}, and they will have your account details.`,
+    declinedGuest: `No problem. "Contact the team" at the bottom of this chat is there whenever you want it, or email ${SUPPORT_EMAIL}.`,
     offerAction: "Share your details",
 };
