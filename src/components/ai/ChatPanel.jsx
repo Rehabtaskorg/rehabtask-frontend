@@ -27,6 +27,7 @@ export function ChatPanel({ isOpen, audience = "public", account = null, onClose
         messages,
         isSending,
         error,
+        isLeadOffered,
     });
     const { trackQuestion, resetSession } = useChatAnalytics({ audience, messages });
 
