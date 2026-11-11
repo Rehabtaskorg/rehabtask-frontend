@@ -41,7 +41,7 @@ const readEvents = async (response, onChunk) => {
     return result;
 };
 
-export const sendChatMessage = async ({ messages, sessionId, audience, onChunk }) => {
+export const sendChatMessage = async ({ messages, sessionId, audience, handoverArranged, onChunk }) => {
     const payload = messages
         .slice(-AI_CHAT.maxHistoryMessages)
         .map(({ role, content }) => ({ role, content }));
@@ -50,7 +50,7 @@ export const sendChatMessage = async ({ messages, sessionId, audience, onChunk }
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ sessionId, audience, messages: payload }),
+        body: JSON.stringify({ sessionId, audience, handoverArranged, messages: payload }),
     });
 
     if (!response.ok) {

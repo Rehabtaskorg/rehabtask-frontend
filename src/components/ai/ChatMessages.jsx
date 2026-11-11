@@ -6,6 +6,10 @@ export function ChatMessages({ messages, isSending, error }) {
     return (
         <>
             {messages.map((message, index) => {
+                if (message.role === "assistant" && !message.content?.trim() && !message.greetingName) {
+                    return null;
+                }
+
                 if (message.role === "lead-sent") {
                     return (
                         <ChatLeadSent

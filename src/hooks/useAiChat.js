@@ -21,6 +21,7 @@ export function useAiChat(audience, accountName) {
 
     const conversationRef = useRef(0);
     const sendingRef = useRef(false);
+    const handoverRef = useRef(false);
     const lead = useLeadState(setMessages);
 
     const send = useCallback(async (text) => {
@@ -32,7 +33,6 @@ export function useAiChat(audience, accountName) {
         const next = [...messages, { role: "user", content }];
 
         setMessages(next);
-        lead.dismissOffer();
         setError(null);
         setFailedText(null);
         setRetryAfterSeconds(null);
@@ -41,12 +41,14 @@ export function useAiChat(audience, accountName) {
         let started = false;
 
         try {
-            const { offerLead } = await sendChatMessage({
+            const { offerLead, handoverArranged } = await sendChatMessage({
                 messages: next,
                 sessionId: sessionIdRef.current,
                 audience,
+                handoverArranged: handoverRef.current,
                 onChunk: (text) => {
                     if (conversationRef.current !== conversation) return;
+                    if (!started && !text.trim()) return;
 
                     const isFirst = !started;
                     started = true;
@@ -63,7 +65,9 @@ export function useAiChat(audience, accountName) {
                 },
             });
             if (conversationRef.current !== conversation) return;
+            handoverRef.current = Boolean(handoverArranged);
             if (offerLead) lead.markLeadOffered();
+            else lead.dismissOffer();
         } catch (err) {
             if (conversationRef.current !== conversation) return;
             setMessages((current) => current.slice(0, started ? -2 : -1));
@@ -81,6 +85,7 @@ export function useAiChat(audience, accountName) {
     const reset = useCallback(() => {
         conversationRef.current += 1;
         sendingRef.current = false;
+        handoverRef.current = false;
         lead.resetLead();
         sessionIdRef.current = newSessionId();
         setMessages([greeting]);
