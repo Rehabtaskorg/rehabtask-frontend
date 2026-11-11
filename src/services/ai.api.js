@@ -1,5 +1,6 @@
 import { api } from "@/lib/api";
 import { getRecaptchaToken } from "@/lib/recaptcha";
+import { SUPPORT_EMAIL } from "@/lib/aiChatConfig";
 
 export const AI_CHAT = {
     maxHistoryMessages: 20,
@@ -8,7 +9,7 @@ export const AI_CHAT = {
 };
 
 const GENERIC_ERROR =
-    "Something went wrong. Please try again or contact support@rehabtask.com.";
+    `Something went wrong. Please try again or contact ${SUPPORT_EMAIL}.`;
 
 const readEvents = async (response, onChunk) => {
     const reader = response.body.getReader();
@@ -79,7 +80,7 @@ export const sendChatLead = async (lead) => {
 const VALIDATION_FALLBACK = "Please check the details above and try again.";
 
 const RECAPTCHA_FALLBACK =
-    "We could not confirm you are human. Refresh the page and try again, or email support@rehabtask.com.";
+    `We could not confirm you are human. Refresh the page and try again, or email ${SUPPORT_EMAIL}.`;
 
 const CODE_MESSAGES = {
     RECAPTCHA_REQUIRED: RECAPTCHA_FALLBACK,
