@@ -1,7 +1,8 @@
 import { z } from "zod";
-import { LEAD_ROLE_OPTIONS } from "@/lib/aiChatConfig";
+import { LEAD_CATEGORY_OPTIONS, LEAD_ROLE_OPTIONS } from "@/lib/aiChatConfig";
 
 const ROLE_VALUES = LEAD_ROLE_OPTIONS.map((option) => option.value);
+const CATEGORY_VALUES = LEAD_CATEGORY_OPTIONS.map((option) => option.value);
 
 const DISPOSABLE_EMAIL_DOMAINS = new Set([
     "mailinator.com",
@@ -27,7 +28,14 @@ const optionalPhoneSchema = z.preprocess(
     z.string().regex(/^\+1\d{10}$/, "Please enter a valid US phone number").optional()
 );
 
-export const chatLeadSchema = z.object({
+const sharedFields = {
+    category: z.enum(CATEGORY_VALUES, { message: "Please choose what this is about" }),
+    subject: z.string().trim().max(120, "Please keep the subject under 120 characters").optional(),
+    context: z.string().trim().max(300, "Please keep this under 300 characters").optional(),
+};
+
+const guestSchema = z.object({
+    ...sharedFields,
     role: z.enum(ROLE_VALUES, { message: "Please choose which best describes you" }),
     name: z
         .string()
@@ -45,5 +53,8 @@ export const chatLeadSchema = z.object({
             message: "Please use a permanent email address we can reply to",
         }),
     phone: optionalPhoneSchema,
-    context: z.string().trim().max(300, "Please keep this under 300 characters").optional(),
 });
+
+const accountSchema = z.object(sharedFields);
+
+export const getChatLeadSchema = (hasAccount) => (hasAccount ? accountSchema : guestSchema);

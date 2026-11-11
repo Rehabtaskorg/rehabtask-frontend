@@ -30,14 +30,9 @@ export function useChatAnalytics({ audience, messages }) {
         [chatProps, trackEvent]
     );
 
-    const trackSupportClick = useCallback(
-        () => trackEvent("ai_support_clicked", chatProps),
-        [chatProps, trackEvent]
-    );
-
     const resetSession = useCallback(() => {
         hasAskedRef.current = false;
     }, []);
 
-    return { trackQuestion, trackSupportClick, resetSession };
+    return { trackQuestion, resetSession };
 }

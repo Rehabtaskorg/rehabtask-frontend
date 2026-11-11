@@ -1,19 +1,13 @@
 "use client";
 
 import { useLayoutEffect } from "react";
-import { MdPersonAddAlt, MdSend, MdSupportAgent } from "react-icons/md";
+import { MdPersonAddAlt, MdSend } from "react-icons/md";
 import { AI_CHAT } from "@/services/ai.api";
-import { PHI_NOTICE, SUPPORT_EMAIL } from "@/lib/aiChatConfig";
+import { LEAD_COPY, PHI_NOTICE } from "@/lib/aiChatConfig";
 
 const MIN_INPUT_HEIGHT = 42;
 const MAX_INPUT_HEIGHT = 120;
 
-/**
- * @param {{ draft: string, onDraftChange: (value: string) => void,
- *           onSubmit: (text: string) => void, isBlocked: boolean,
- *           cooldown: number, inputRef: React.RefObject<HTMLTextAreaElement>,
- *           onSupportClick: () => void }} props
- */
 export function ChatComposer({
     draft,
     onDraftChange,
@@ -21,7 +15,6 @@ export function ChatComposer({
     isBlocked,
     cooldown,
     inputRef,
-    onSupportClick,
     onTalkToTeam,
 }) {
     useLayoutEffect(() => {
@@ -75,26 +68,18 @@ export function ChatComposer({
 
             <p className="mt-2 text-xs text-text-muted">{PHI_NOTICE}</p>
 
-            <div className="mt-2 flex items-center gap-3">
-                <a
-                    href={`mailto:${SUPPORT_EMAIL}`}
-                    onClick={onSupportClick}
-                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline"
-                >
-                    <MdSupportAgent className="text-sm" />
-                    Email support
-                </a>
-                {onTalkToTeam && (
+            {onTalkToTeam && (
+                <div className="mt-2 flex items-center gap-3">
                     <button
                         type="button"
                         onClick={onTalkToTeam}
                         className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline"
                     >
                         <MdPersonAddAlt className="text-sm" />
-                        Ask the team to call
+                        {LEAD_COPY.footerAction}
                     </button>
-                )}
-            </div>
+                </div>
+            )}
         </footer>
     );
 }

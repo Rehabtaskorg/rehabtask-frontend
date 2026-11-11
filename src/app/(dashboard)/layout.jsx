@@ -732,7 +732,16 @@ function DashboardInner({ user, pathname, sidebarOpen, setSidebarOpen, handleLog
                 )}
             </main>
 
-            {chatAudience && !isOnOnboardingRoute && <ChatWidget audience={chatAudience} />}
+            {chatAudience && !isOnOnboardingRoute && (
+                <ChatWidget
+                    audience={chatAudience}
+                    account={{
+                        name: profileName || user.profile?.agencyName || "",
+                        email: user.email,
+                        phone: user.profile?.phone,
+                    }}
+                />
+            )}
         </div>
     );
 }

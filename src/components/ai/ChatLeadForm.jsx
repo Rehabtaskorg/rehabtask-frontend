@@ -4,13 +4,15 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { MdArrowBack, MdCheckCircle } from "react-icons/md";
-import { chatLeadSchema } from "@/lib/validators/chatLead.schema";
+import { getChatLeadSchema } from "@/lib/validators/chatLead.schema";
 import { LEAD_COPY, SUPPORT_EMAIL } from "@/lib/aiChatConfig";
 import { sendChatLead, getChatErrorMessage } from "@/services/ai.api";
 import { ChatLeadFields } from "./ChatLeadFields";
+import { ChatLeadAccountFields } from "./ChatLeadAccountFields";
 
-export function ChatLeadForm({ onSent, onBack, onStart, onExpand }) {
+export function ChatLeadForm({ account, onSent, onBack, onStart, onExpand }) {
     const [showOptional, setShowOptional] = useState(false);
+    const hasAccount = Boolean(account?.email);
 
     const {
         register,
@@ -20,14 +22,16 @@ export function ChatLeadForm({ onSent, onBack, onStart, onExpand }) {
         setError,
         formState: { errors, isSubmitting, isDirty },
     } = useForm({
-        resolver: zodResolver(chatLeadSchema),
-        defaultValues: { role: "", name: "", email: "", phone: "", context: "" },
+        resolver: zodResolver(getChatLeadSchema(hasAccount)),
+        defaultValues: hasAccount
+            ? { category: "", subject: "", context: "" }
+            : { role: "", name: "", email: "", phone: "", category: "", subject: "", context: "" },
     });
 
     const submit = async (values) => {
         try {
             await sendChatLead(values);
-            onSent(values.email);
+            onSent(account?.email ?? values.email);
         } catch (error) {
             setError("root", { message: getChatErrorMessage(error) });
         }
@@ -58,16 +62,22 @@ export function ChatLeadForm({ onSent, onBack, onStart, onExpand }) {
             </div>
 
             <div className="flex-1 overflow-y-auto px-4 py-3">
-                <p className="mb-3 text-sm text-text-muted">{LEAD_COPY.intro}</p>
+                <p className="mb-3 text-sm text-text-muted">
+                    {hasAccount ? LEAD_COPY.accountIntro : LEAD_COPY.intro}
+                </p>
 
-                <ChatLeadFields
-                    register={register}
-                    control={control}
-                    errors={errors}
-                    selectedRole={watch("role")}
-                    showOptional={showOptional}
-                    onExpand={expandOptional}
-                />
+                {hasAccount ? (
+                    <ChatLeadAccountFields account={account} register={register} errors={errors} />
+                ) : (
+                    <ChatLeadFields
+                        register={register}
+                        control={control}
+                        errors={errors}
+                        selectedRole={watch("role")}
+                        showOptional={showOptional}
+                        onExpand={expandOptional}
+                    />
+                )}
 
                 {errors.root && (
                     <p className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-xs text-red-700" role="alert">
