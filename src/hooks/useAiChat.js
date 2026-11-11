@@ -30,11 +30,11 @@ export function useAiChat(audience) {
 
     const closeLead = useCallback(() => setIsLeadOpen(false), []);
 
-    const completeLead = useCallback((email) => {
+    const completeLead = useCallback(({ email, reference }) => {
         leadSentRef.current = true;
         setIsLeadOpen(false);
         setIsLeadOffered(false);
-        setMessages((current) => [...current, { role: "lead-sent", email }]);
+        setMessages((current) => [...current, { role: "lead-sent", email, reference }]);
     }, []);
 
     const send = useCallback(async (text) => {

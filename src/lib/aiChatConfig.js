@@ -61,12 +61,12 @@ export const LEAD_ROLE_OPTIONS = [
 ];
 
 export const LEAD_CATEGORY_OPTIONS = [
-    { value: "booking", label: "Booking or scheduling" },
-    { value: "payment", label: "Payments or billing" },
-    { value: "account", label: "Account or login" },
-    { value: "verification", label: "Verification or documents" },
+    { value: "booking", label: "Booking Issue" },
+    { value: "payment", label: "Payments or Billing" },
+    { value: "account", label: "Account or Login" },
+    { value: "verification", label: "Verification or Documents" },
     { value: "joining", label: "Joining RehabTask" },
-    { value: "other", label: "Something else" },
+    { value: "other", label: "Something Else" },
 ];
 
 export const LEAD_COPY = {
@@ -75,7 +75,7 @@ export const LEAD_COPY = {
     consent: "By sharing your details you agree to let the RehabTask team contact you about your request. We don't store this chat.",
     contextHelper: "Please keep this general, no medical or patient details.",
     submit: "Ask the team to contact me",
-    expand: "Add a phone number or tell us more",
+    expand: "Add a phone number",
     footerAction: "Contact the team",
     offer: "Want the team to get in touch?",
     offerAction: "Share your details",

@@ -7,7 +7,13 @@ export function ChatMessages({ messages, isSending, error }) {
         <>
             {messages.map((message, index) => {
                 if (message.role === "lead-sent") {
-                    return <ChatLeadSent key={`lead-sent-${index}`} email={message.email} />;
+                    return (
+                        <ChatLeadSent
+                            key={`lead-sent-${index}`}
+                            email={message.email}
+                            reference={message.reference}
+                        />
+                    );
                 }
 
                 return (
