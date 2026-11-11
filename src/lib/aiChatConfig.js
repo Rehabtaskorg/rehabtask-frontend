@@ -60,12 +60,23 @@ export const LEAD_ROLE_OPTIONS = [
     { value: "patient", label: "Patient or family" },
 ];
 
+export const LEAD_CATEGORY_OPTIONS = [
+    { value: "booking", label: "Booking or scheduling" },
+    { value: "payment", label: "Payments or billing" },
+    { value: "account", label: "Account or login" },
+    { value: "verification", label: "Verification or documents" },
+    { value: "joining", label: "Joining RehabTask" },
+    { value: "other", label: "Something else" },
+];
+
 export const LEAD_COPY = {
     intro: `I can pass you to the RehabTask team, they'll follow up personally. Just your name and email is enough.`,
+    accountIntro: `The team will reply to the email on your account. Tell us what you need help with.`,
     consent: "By sharing your details you agree to let the RehabTask team contact you about your request. We don't store this chat.",
     contextHelper: "Please keep this general, no medical or patient details.",
     submit: "Ask the team to contact me",
     expand: "Add a phone number or tell us more",
+    footerAction: "Contact the team",
     offer: "Want the team to get in touch?",
     offerAction: "Share your details",
 };

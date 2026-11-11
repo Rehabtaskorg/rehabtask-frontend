@@ -2,7 +2,7 @@
 
 import { MdExpandMore } from "react-icons/md";
 import PhoneInput from "@/components/ui/PhoneInput";
-import { LEAD_COPY, LEAD_ROLE_OPTIONS } from "@/lib/aiChatConfig";
+import { LEAD_CATEGORY_OPTIONS, LEAD_COPY, LEAD_ROLE_OPTIONS } from "@/lib/aiChatConfig";
 
 const FIELD_CLASS =
     "w-full rounded-lg border border-border-light px-3 py-2 text-base text-text-main outline-none focus:border-primary sm:text-sm";
@@ -53,6 +53,20 @@ export function ChatLeadFields({ register, control, errors, selectedRole, showOp
                         className={FIELD_CLASS} {...register("email")} {...describe("email")} />
                     {fieldError("email")}
                 </div>
+
+                <div>
+                    <label htmlFor="lead-category" className="text-sm text-text-main">
+                        What is this about?
+                    </label>
+                    <select id="lead-category" className={FIELD_CLASS}
+                        {...register("category")} {...describe("category")}>
+                        <option value="">Choose one</option>
+                        {LEAD_CATEGORY_OPTIONS.map(({ value, label }) => (
+                            <option key={value} value={value}>{label}</option>
+                        ))}
+                    </select>
+                    {fieldError("category")}
+                </div>
             </div>
 
             {showOptional ? (
@@ -63,6 +77,15 @@ export function ChatLeadFields({ register, control, errors, selectedRole, showOp
                         control={control}
                         error={errors.phone?.message}
                     />
+
+                    <div>
+                        <label htmlFor="lead-subject" className="text-sm text-text-main">
+                            Subject (optional)
+                        </label>
+                        <input id="lead-subject" type="text" maxLength={120} className={FIELD_CLASS}
+                            {...register("subject")} {...describe("subject")} />
+                        {fieldError("subject")}
+                    </div>
 
                     <div>
                         <label htmlFor="lead-context" className="text-sm text-text-main">

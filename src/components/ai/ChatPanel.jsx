@@ -13,7 +13,7 @@ import { ChatComposer } from "./ChatComposer";
 import { ChatLeadForm } from "./ChatLeadForm";
 import { useChatScroll } from "@/hooks/useChatScroll";
 
-export function ChatPanel({ isOpen, audience = "public", onClose }) {
+export function ChatPanel({ isOpen, audience = "public", account = null, onClose }) {
     const {
         messages, error, failedText, isSending, retryAfterSeconds, isLeadOpen, isLeadOffered,
         send, reset, openLead, closeLead, completeLead,
@@ -28,7 +28,7 @@ export function ChatPanel({ isOpen, audience = "public", onClose }) {
         isSending,
         error,
     });
-    const { trackQuestion, trackSupportClick, resetSession } = useChatAnalytics({ audience, messages });
+    const { trackQuestion, resetSession } = useChatAnalytics({ audience, messages });
 
     const suggestions = getSuggestedQuestions(audience);
 
@@ -87,6 +87,7 @@ export function ChatPanel({ isOpen, audience = "public", onClose }) {
         >
             {isLeadOpen ? (
                 <ChatLeadForm
+                    account={account}
                     onSent={lead.onSent}
                     onBack={closeLead}
                     onStart={lead.onStart}
@@ -128,12 +129,7 @@ export function ChatPanel({ isOpen, audience = "public", onClose }) {
                         isBlocked={isBlocked}
                         cooldown={cooldown}
                         inputRef={inputRef}
-                        onSupportClick={trackSupportClick}
-                        onTalkToTeam={
-                            audience === "public" && !isLeadOffered
-                                ? () => lead.onOpen("footer")
-                                : undefined
-                        }
+                        onTalkToTeam={isLeadOffered ? undefined : () => lead.onOpen("footer")}
                     />
                 </>
             )}

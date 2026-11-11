@@ -15,7 +15,7 @@ import { ChatPanel } from "./ChatPanel";
  *
  * @param {{ audience?: "public"|"customer"|"therapist"|"agency" }} props
  */
-export function ChatWidget({ audience = "public" }) {
+export function ChatWidget({ audience = "public", account = null }) {
     const [isOpen, setIsOpen] = useState(false);
     const [hasOpened, setHasOpened] = useState(false);
     const buttonRef = useRef(null);
@@ -67,7 +67,7 @@ export function ChatWidget({ audience = "public" }) {
                 </>
             )}
 
-            <ChatPanel isOpen={isOpen} audience={audience} onClose={close} />
+            <ChatPanel isOpen={isOpen} audience={audience} account={account} onClose={close} />
         </>
     );
 }
