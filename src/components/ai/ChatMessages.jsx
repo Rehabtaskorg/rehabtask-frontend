@@ -27,6 +27,7 @@ export function ChatMessages({ messages, isSending, error }) {
                             : "bg-background-light text-text-main"
                             }`}
                     >
+                        {message.greetingName ? `Hi ${message.greetingName}! ` : ""}
                         {message.content}
                     </p>
                 </div>
