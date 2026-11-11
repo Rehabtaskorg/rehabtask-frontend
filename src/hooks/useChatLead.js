@@ -36,8 +36,8 @@ export function useChatLead({ audience, isLeadOffered, openLead, completeLead })
     );
 
     const onSent = useCallback(
-        (email) => {
-            completeLead(email);
+        (result) => {
+            completeLead(result);
             trackEvent("lead_form_submitted", { audience });
         },
         [audience, completeLead, trackEvent]

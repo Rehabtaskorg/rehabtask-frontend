@@ -30,8 +30,8 @@ export function ChatLeadForm({ account, onSent, onBack, onStart, onExpand }) {
 
     const submit = async (values) => {
         try {
-            await sendChatLead(values);
-            onSent(account?.email ?? values.email);
+            const { email, reference } = await sendChatLead(values);
+            onSent({ email, reference });
         } catch (error) {
             setError("root", { message: getChatErrorMessage(error) });
         }
@@ -100,13 +100,20 @@ export function ChatLeadForm({ account, onSent, onBack, onStart, onExpand }) {
     );
 }
 
-export function ChatLeadSent({ email }) {
+export function ChatLeadSent({ email, reference }) {
     return (
         <div className="flex items-start gap-2 rounded-2xl border border-border-light bg-background-light p-3">
             <MdCheckCircle className="mt-0.5 shrink-0 text-lg text-primary" aria-hidden="true" />
-            <p className="text-sm text-text-main">
-                Thanks, the RehabTask team will email you at <strong>{email}</strong>.
-            </p>
+            <div className="text-sm text-text-main">
+                <p>
+                    Thanks, the RehabTask team will email you at <strong>{email}</strong>.
+                </p>
+                {reference && (
+                    <p className="mt-1 text-xs text-text-muted">
+                        Your reference is <strong className="text-text-main">{reference}</strong>
+                    </p>
+                )}
+            </div>
         </div>
     );
 }

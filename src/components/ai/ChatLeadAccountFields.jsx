@@ -26,7 +26,7 @@ export function ChatLeadAccountFields({ account, register, errors }) {
             <div className="space-y-2">
                 <div>
                     <label htmlFor="lead-category" className="text-sm text-text-main">
-                        What is this about?
+                        What is this about? (optional)
                     </label>
                     <select id="lead-category" className={FIELD_CLASS}
                         {...register("category")} {...describe("category")}>
@@ -36,15 +36,6 @@ export function ChatLeadAccountFields({ account, register, errors }) {
                         ))}
                     </select>
                     {fieldError("category")}
-                </div>
-
-                <div>
-                    <label htmlFor="lead-subject" className="text-sm text-text-main">
-                        Subject (optional)
-                    </label>
-                    <input id="lead-subject" type="text" maxLength={120} className={FIELD_CLASS}
-                        {...register("subject")} {...describe("subject")} />
-                    {fieldError("subject")}
                 </div>
 
                 <div>

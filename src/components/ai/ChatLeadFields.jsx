@@ -56,7 +56,7 @@ export function ChatLeadFields({ register, control, errors, selectedRole, showOp
 
                 <div>
                     <label htmlFor="lead-category" className="text-sm text-text-main">
-                        What is this about?
+                        What is this about? (optional)
                     </label>
                     <select id="lead-category" className={FIELD_CLASS}
                         {...register("category")} {...describe("category")}>
@@ -69,33 +69,24 @@ export function ChatLeadFields({ register, control, errors, selectedRole, showOp
                 </div>
             </div>
 
+            <div className="mt-2">
+                <label htmlFor="lead-context" className="text-sm text-text-main">
+                    What can we help with?
+                </label>
+                <textarea id="lead-context" rows={3} maxLength={300}
+                    className={`${FIELD_CLASS} resize-none`} {...register("context")} {...describe("context")} />
+                <p className="mt-1 text-xs text-text-muted">{LEAD_COPY.contextHelper}</p>
+                {fieldError("context")}
+            </div>
+
             {showOptional ? (
-                <div className="mt-2 space-y-2">
+                <div className="mt-2">
                     <PhoneInput
                         label="Phone (optional)"
                         name="phone"
                         control={control}
                         error={errors.phone?.message}
                     />
-
-                    <div>
-                        <label htmlFor="lead-subject" className="text-sm text-text-main">
-                            Subject (optional)
-                        </label>
-                        <input id="lead-subject" type="text" maxLength={120} className={FIELD_CLASS}
-                            {...register("subject")} {...describe("subject")} />
-                        {fieldError("subject")}
-                    </div>
-
-                    <div>
-                        <label htmlFor="lead-context" className="text-sm text-text-main">
-                            What can we help with?
-                        </label>
-                        <textarea id="lead-context" rows={2} maxLength={300}
-                            className={`${FIELD_CLASS} resize-none`} {...register("context")} {...describe("context")} />
-                        <p className="mt-1 text-xs text-text-muted">{LEAD_COPY.contextHelper}</p>
-                        {fieldError("context")}
-                    </div>
                 </div>
             ) : (
                 <button type="button" onClick={onExpand}

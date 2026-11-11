@@ -29,9 +29,12 @@ const optionalPhoneSchema = z.preprocess(
 );
 
 const sharedFields = {
-    category: z.enum(CATEGORY_VALUES, { message: "Please choose what this is about" }),
-    subject: z.string().trim().max(120, "Please keep the subject under 120 characters").optional(),
-    context: z.string().trim().max(300, "Please keep this under 300 characters").optional(),
+    category: z.enum(CATEGORY_VALUES).optional(),
+    context: z
+        .string()
+        .trim()
+        .min(1, "Please tell us what you need help with")
+        .max(300, "Please keep this under 300 characters"),
 };
 
 const guestSchema = z.object({
