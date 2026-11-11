@@ -17,7 +17,7 @@ export function ChatPanel({ isOpen, audience = "public", account = null, onClose
     const {
         messages, error, failedText, isSending, retryAfterSeconds, isLeadOpen, isLeadOffered,
         send, reset, openLead, closeLead, completeLead, declineLead,
-    } = useAiChat(audience);
+    } = useAiChat(audience, account?.name);
     const [draft, setDraft] = useState("");
     const [cooldown, setCooldown] = useState(0);
 

@@ -8,8 +8,8 @@ import { useLeadState } from "@/hooks/useLeadState";
 const newSessionId = () =>
     typeof globalThis.crypto?.randomUUID === "function" ? globalThis.crypto.randomUUID() : null;
 
-export function useAiChat(audience) {
-    const greeting = useMemo(() => getGreeting(audience), [audience]);
+export function useAiChat(audience, accountName) {
+    const greeting = useMemo(() => getGreeting(audience, accountName), [audience, accountName]);
     const [messages, setMessages] = useState([greeting]);
     const [error, setError] = useState(null);
     const [failedText, setFailedText] = useState(null);
