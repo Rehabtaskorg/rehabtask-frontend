@@ -61,8 +61,8 @@ export function ClinicalBackgroundDrawer({ isOpen, onClose, profile, onSuccess }
         <Drawer
             isOpen={isOpen}
             onClose={onClose}
-            title="Edit home health experience"
-            description="How long you have worked in home health specifically."
+            title="Edit practice details"
+            description="Your home health experience and the EMR system you work in."
             size={DRAWER_SIZES.MD}
             isDismissDisabled={updateProfile.isPending}
             footer={
@@ -114,6 +114,7 @@ export function ClinicalBackgroundDrawer({ isOpen, onClose, profile, onSuccess }
                     onChange={(emr) => setValue("emr", emr, { shouldDirty: true })}
                     onOtherChange={(emrOther) => setValue("emrOther", emrOther, { shouldDirty: true })}
                     label="EMR System"
+                    helperText="Shown on your public profile. You can change this at any time."
                     labelClassName="block text-sm font-medium text-text-main mb-1.5"
                     selectClassName="w-full rounded-xl border border-border-light px-4 py-2.5 text-sm text-text-main outline-none focus:border-primary"
                     inputClassName="w-full rounded-xl border border-border-light px-4 py-2.5 text-sm text-text-main outline-none focus:border-primary"

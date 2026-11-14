@@ -10,6 +10,7 @@ export function EmrSelect({
     onChange,
     onOtherChange,
     label = "EMR System",
+    helperText,
     isRequired = false,
     selectClassName = "",
     inputClassName = "",
@@ -52,6 +53,8 @@ export function EmrSelect({
                     className={`${inputClassName} mt-2`}
                 />
             )}
+
+            {helperText && <p className="mt-1.5 text-xs text-text-muted">{helperText}</p>}
         </div>
     );
 }
