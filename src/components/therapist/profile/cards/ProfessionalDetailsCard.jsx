@@ -28,6 +28,9 @@ export function ProfessionalDetailsCard({
         profile?.primaryLicenseType ||
         "—";
 
+    const emrValue =
+        (profile?.emr === "Other" ? profile?.emrOther : profile?.emr) || "Not set";
+
     const attemptedRateValue =
         profile?.attemptedVisitRate != null
             ? parseFloat(profile.attemptedVisitRate) === 0
@@ -55,6 +58,7 @@ export function ProfessionalDetailsCard({
                 <InfoRow label="Attempted Visit Rate" value={attemptedRateValue} />
                 <InfoRow label="Evaluation Rate" value={formatRate(profile?.evaluationRate) ?? "Not set"} />
                 <InfoRow label="Travel Fee" value={formatRate(profile?.travelFee) ?? "Not set"} />
+                <InfoRow label="EMR System" value={emrValue} />
                 <InfoRow label="Discipline type" value={licenseTypeLabel} icon={<MdLock className="text-sm" />} />
                 <InfoRow label="License Number" value={profile?.licenseNumber} icon={<MdLock className="text-sm" />} />
                 <InfoRow label="License State" value={profile?.licenseState} icon={<MdLock className="text-sm" />} />

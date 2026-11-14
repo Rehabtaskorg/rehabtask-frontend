@@ -74,6 +74,10 @@ export const clinicalBackgroundSchema = z.object({
             { message: "Must be a whole number" }
         )
         .transform((val) => (val == null || val === "" ? null : Number(val))),
+
+    emr: z.string().trim().max(100, "EMR system must be 100 characters or less").optional(),
+
+    emrOther: z.string().trim().max(100, "EMR system must be 100 characters or less").optional(),
 });
 
 const allowedAttributes = (options, label) =>

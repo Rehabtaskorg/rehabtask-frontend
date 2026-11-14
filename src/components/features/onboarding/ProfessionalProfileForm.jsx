@@ -8,6 +8,7 @@ import { useAnalytics } from "@/hooks/useAnalytics";
 import { useOnboardingDataSync } from "@/hooks/useOnboardingDataSync";
 import useOnboardingStore from "@/stores/onboardingStore";
 import OnboardingProgressBar from "@/components/therapist/OnboardingProgressBar";
+import { EmrSelect } from "@/components/ui/EmrSelect";
 import { MultiSelectTagPicker } from "@/components/ui/MultiSelectTagPicker";
 import { professionalProfileSchema } from "@/lib/validators/onboarding.schema";
 import {
@@ -51,6 +52,8 @@ export function ProfessionalProfileForm() {
             primaryLicenseType: professionalProfile.primaryLicenseType || "",
             yearsInHomeHealth: professionalProfile.yearsInHomeHealth?.toString() || "",
             professionalSummary: professionalProfile.professionalSummary || "",
+            emr: professionalProfile.emr || "",
+            emrOther: professionalProfile.emrOther || "",
             profilePhotoUrl: professionalProfile.profilePhotoUrl || null,
             specialties: [],
             languages: [],
@@ -77,6 +80,8 @@ export function ProfessionalProfileForm() {
                 primaryLicenseType: p.primaryLicenseType || "",
                 yearsInHomeHealth: p.yearsInHomeHealth?.toString() || "",
                 professionalSummary: p.professionalSummary || "",
+                emr: p.emr || "",
+                emrOther: p.emrOther || "",
                 profilePhotoUrl: p.profilePhotoUrl || null,
                 specialties: [],
                 languages: [],
@@ -137,6 +142,8 @@ export function ProfessionalProfileForm() {
                 populationExperience,
                 yearsInHomeHealth: data.yearsInHomeHealth ? Number(data.yearsInHomeHealth) : null,
                 professionalSummary: data.professionalSummary,
+                emr: data.emr || null,
+                emrOther: data.emr === "Other" ? data.emrOther : null,
                 profilePhotoUrl: data.profilePhotoUrl,
             };
 
@@ -267,6 +274,24 @@ export function ProfessionalProfileForm() {
                                     <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm">yrs</span>
                                 </div>
                                 {errors.yearsInHomeHealth && <p className="text-red-500 text-sm">{errors.yearsInHomeHealth.message}</p>}
+                            </div>
+
+                            <div className="md:w-1/2">
+                                <EmrSelect
+                                    value={watch("emr")}
+                                    otherValue={watch("emrOther")}
+                                    onChange={(emr) => setValue("emr", emr)}
+                                    onOtherChange={(emrOther) => setValue("emrOther", emrOther)}
+                                    label={
+                                        <>
+                                            EMR System{" "}
+                                            <span className="text-text-muted font-normal text-sm">(optional)</span>
+                                        </>
+                                    }
+                                    labelClassName="text-text-main text-base font-semibold"
+                                    selectClassName="w-full px-4 py-3 rounded-lg border border-border-light bg-input-light text-text-main focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none appearance-none mt-2"
+                                    inputClassName="w-full px-4 py-3 rounded-lg border border-border-light bg-input-light text-text-main focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none"
+                                />
                             </div>
 
                             {/* Specialties */}

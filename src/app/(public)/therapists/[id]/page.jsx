@@ -500,6 +500,7 @@ function TherapistPublicProfileContent() {
                                             { label: "Discipline type", value: profile.primaryLicenseType },
                                             { label: "Experience", value: profile.yearsOfExperience ? `${profile.yearsOfExperience} yrs` : "—" },
                                             ...(profile.yearsInHomeHealth != null ? [{ label: "Home Health Exp.", value: `${profile.yearsInHomeHealth} yrs` }] : []),
+                                            ...(profile.emr ? [{ label: "EMR System", value: profile.emr }] : []),
                                             { label: "Rate", value: rate ? `$${rate}/visit` : "—" },
                                             ...(profile.evaluationRate != null ? [{ label: "Evaluation Rate", value: `$${parseFloat(profile.evaluationRate).toFixed(2)}` }] : []),
                                             ...(profile.travelFee != null ? [{ label: "Travel Fee", value: `$${parseFloat(profile.travelFee).toFixed(2)}` }] : []),
