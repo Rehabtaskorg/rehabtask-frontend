@@ -7,11 +7,12 @@ import { Drawer, DRAWER_SIZES } from "@/components/ui/Drawer";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import Alert from "@/components/ui/Alert";
+import { EmrSelect } from "@/components/ui/EmrSelect";
 import { useUpdateProfile } from "@/hooks/useTherapistProfile";
 import { clinicalBackgroundSchema } from "@/lib/validators/therapistProfileEdit.schema";
 import { pickChangedFields } from "@/lib/validators/pickChangedFields";
 
-const FIELDS = ["yearsInHomeHealth"];
+const FIELDS = ["yearsInHomeHealth", "emr", "emrOther"];
 
 export function ClinicalBackgroundDrawer({ isOpen, onClose, profile, onSuccess }) {
     const [alert, setAlert] = useState(null);
@@ -20,6 +21,8 @@ export function ClinicalBackgroundDrawer({ isOpen, onClose, profile, onSuccess }
     const {
         register,
         handleSubmit,
+        setValue,
+        watch,
         formState: { errors },
     } = useForm({
         resolver: zodResolver(clinicalBackgroundSchema),
@@ -27,6 +30,8 @@ export function ClinicalBackgroundDrawer({ isOpen, onClose, profile, onSuccess }
         reValidateMode: "onChange",
         defaultValues: {
             yearsInHomeHealth: profile?.yearsInHomeHealth ?? "",
+            emr: profile?.emr ?? "",
+            emrOther: profile?.emrOther ?? "",
         },
     });
 
@@ -101,6 +106,17 @@ export function ClinicalBackgroundDrawer({ isOpen, onClose, profile, onSuccess }
                     error={errors.yearsInHomeHealth?.message}
                     helperText="Updating this sends your profile for a light re-review. You stay visible and bookable."
                     {...register("yearsInHomeHealth")}
+                />
+
+                <EmrSelect
+                    value={watch("emr")}
+                    otherValue={watch("emrOther")}
+                    onChange={(emr) => setValue("emr", emr, { shouldDirty: true })}
+                    onOtherChange={(emrOther) => setValue("emrOther", emrOther, { shouldDirty: true })}
+                    label="EMR System"
+                    labelClassName="block text-sm font-medium text-text-main mb-1.5"
+                    selectClassName="w-full rounded-xl border border-border-light px-4 py-2.5 text-sm text-text-main outline-none focus:border-primary"
+                    inputClassName="w-full rounded-xl border border-border-light px-4 py-2.5 text-sm text-text-main outline-none focus:border-primary"
                 />
             </form>
         </Drawer>

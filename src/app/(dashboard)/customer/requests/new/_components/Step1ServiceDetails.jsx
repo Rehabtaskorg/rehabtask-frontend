@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import useRequestStore from "@/stores/requestStore";
-import { useRequestOptions } from "@/hooks/useRequestOptions";
+import { EmrSelect } from "@/components/ui/EmrSelect";
 import { useVisitTypes } from "@/hooks/useVisitTypes";
 import { localDateStr, isDateTodayOrLater } from "@/utils/dates";
 
@@ -20,7 +20,6 @@ const LABEL_CLASS = "block text-sm font-semibold text-slate-700  mb-1.5";
 
 export default function Step1ServiceDetails() {
     const { step1, setStep1 } = useRequestStore();
-    const { data: emrOptions = [] } = useRequestOptions("emr");
 
     // Visit types fetched from the curated catalog, filtered by the selected service type.
     // audience="customer" hides therapist-internal codes (MV, Supervisory, Attempted, etc.)
@@ -212,37 +211,16 @@ export default function Step1ServiceDetails() {
                     </select>
                 </div>
 
-                {/* EMR System */}
-                <div>
-                    <label className={LABEL_CLASS}>
-                        EMR System <span className="text-red-500">*</span>
-                    </label>
-                    <select
-                        value={step1.emr}
-                        onChange={(e) => {
-                            setStep1({ emr: e.target.value });
-                            if (e.target.value !== "Other") setStep1({ emrOther: "" });
-                        }}
-                        className={INPUT_CLASS}
-                    >
-                        <option value="">Select EMR system...</option>
-                        {emrOptions.map((opt) => (
-                            <option key={opt.id} value={opt.value}>
-                                {opt.value}
-                            </option>
-                        ))}
-                        <option value="Other">Other</option>
-                    </select>
-                    {step1.emr === "Other" && (
-                        <input
-                            type="text"
-                            value={step1.emrOther}
-                            onChange={(e) => setStep1({ emrOther: e.target.value })}
-                            placeholder="Enter EMR system..."
-                            className={`${INPUT_CLASS} mt-2`}
-                        />
-                    )}
-                </div>
+                <EmrSelect
+                    value={step1.emr}
+                    otherValue={step1.emrOther}
+                    onChange={(emr) => setStep1({ emr })}
+                    onOtherChange={(emrOther) => setStep1({ emrOther })}
+                    isRequired
+                    labelClassName={LABEL_CLASS}
+                    selectClassName={INPUT_CLASS}
+                    inputClassName={INPUT_CLASS}
+                />
             </div>
 
             {/* Special Instructions */}

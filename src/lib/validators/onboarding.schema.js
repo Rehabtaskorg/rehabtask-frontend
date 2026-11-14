@@ -149,6 +149,10 @@ export const professionalProfileSchema = z.object({
         .optional()
         .or(z.literal("")),
 
+    emr: z.string().trim().max(100, "EMR system must be 100 characters or less").optional(),
+
+    emrOther: z.string().trim().max(100, "EMR system must be 100 characters or less").optional(),
+
     profilePhotoUrl: z
         .string()
         .url("Invalid profile photo URL")
