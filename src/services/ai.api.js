@@ -44,6 +44,7 @@ const readEvents = async (response, onChunk) => {
 
 export const sendChatMessage = async ({ messages, sessionId, audience, handoverArranged, onChunk }) => {
     const payload = messages
+        .filter(({ role, content }) => (role === "user" || role === "assistant") && content?.trim())
         .slice(-AI_CHAT.maxHistoryMessages)
         .map(({ role, content }) => ({ role, content }));
 
